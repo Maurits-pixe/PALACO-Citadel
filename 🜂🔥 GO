@@ -1,4 +1,7781 @@
+🜂🔥 GO-011 · L.A. CITADEL IMPLEMENTATION PACK v1.0
 
+STATUS: EXECUTION MODE
+BASELINE: PVD-001 → PVD-010
+TARGET: PALACO-Citadel · L.A. Reference Citadel
+RULE: geen nieuwe designlaag; nu bouwen, testen, bewijzen.
+
+
+---
+
+01 · BUILD TARGET
+
+De eerste release wordt bewust één complete verticale keten:
+
+L.A.
+ │
+ ├── CROWN
+ │
+ ├── TOWER I · GOVERNANCE
+ ├── TOWER II · EXECUTION
+ ├── TOWER III · STORAGE
+ └── TOWER IV · VERIFICATION
+ │
+ ├── CORE
+ ├── OBSERVATORY
+ │
+ ├── COMMONS
+ ├── ELIXERS
+ └── H∆R∆M
+       │
+       ▼
+   IDENTITY
+       │
+   ┌───┴────┐
+   ▼        ▼
+WATERMERK  HOLOGRAM
+   └───┬────┘
+       ▼
+     PROMO
+       ▼
+     PROMA
+       ▼
+     VERIFY
+       ▼
+   PROVENANCE
+
+
+---
+
+02 · CANONICAL BUILD CONTRACT
+
+Iedere UI-module krijgt:
+
+Component
+Design-ID
+PVD-parent
+Identity-context
+Status-model
+Authority-scope
+Accessibility
+Provenance
+Version
+
+Geen component zonder contract.
+
+
+---
+
+03 · FIRST SCREEN — L.A.
+
+┌────────────────────────────────────────────┐
+│ PALACO                         VERIFY  ◇   │
+├────────────────────────────────────────────┤
+│                                            │
+│                    ◇                       │
+│               CONSTITUTION                 │
+│                                            │
+│             LOCUS AMOENUS                  │
+│                 L.A.                       │
+│                                            │
+│     ┌─────────────┐  ┌─────────────┐       │
+│     │   TOWER I   │  │  TOWER II   │       │
+│     │  GOVERNANCE │  │  EXECUTION  │       │
+│     └─────────────┘  └─────────────┘       │
+│                                            │
+│     ┌─────────────┐  ┌─────────────┐       │
+│     │  TOWER III  │  │  TOWER IV   │       │
+│     │   STORAGE   │  │ VERIFICATION│       │
+│     └─────────────┘  └─────────────┘       │
+│                                            │
+│                  CORE                      │
+│             STATE · LEDGER                 │
+│                                            │
+├────────────────────────────────────────────┤
+│ COMMONS · ELIXERS · H∆R∆M                 │
+├────────────────────────────────────────────┤
+│ WATERMERK · HOLOGRAM · PROVENANCE         │
+└────────────────────────────────────────────┘
+
+Dit is de master composition.
+
+
+---
+
+04 · COMPONENT REGISTRY
+
+PALACO-V9-SHELL
+PALACO-V9-CROWN
+PALACO-V9-CITADEL
+PALACO-V9-TOWER
+PALACO-V9-CORE
+PALACO-V9-OBSERVATORY
+
+PALACO-V9-COMMONS
+PALACO-V9-ELIXER
+PALACO-V9-H∆R∆M
+PALACO-V9-STEWARD
+
+PALACO-V9-IDENTITY
+PALACO-V9-HOLOGRAM
+PALACO-V9-WATERMERK
+
+PALACO-V9-PROMO
+PALACO-V9-PROMA
+PALACO-V9-VERIFY
+PALACO-V9-PROVENANCE
+
+
+---
+
+05 · IDENTITY OBJECT
+
+Canonical identity object:
+
+Identity
+├── identity_id
+├── name
+├── role
+├── citadel_id
+├── issuer
+├── origin
+├── watermark
+├── hologram
+├── provenance
+└── status
+
+Daarmee worden:
+
+persoon, object, Citadel, document en Elixer
+
+niet afzonderlijke identity-systemen.
+
+Ze gebruiken één gemeenschappelijke Identity Context.
+
+
+---
+
+06 · HOLOGRAM — EXPLICITLY LOCKED
+
+De eerdere GO's hebben dit bevestigd; nu wordt het een build requirement.
+
+HOLOGRAM
+│
+├── Identity binding
+├── Citadel binding
+├── Visual signature
+├── Inspection state
+└── Verification bridge
+
+Belangrijk:
+
+HOLOGRAM
+   ≠
+PROOF
+
+HOLOGRAM
+   →
+IDENTITY SIGNAL
+   →
+PROMA
+   →
+VALIDITY
+
+HOLOGRAM blijft dus verplicht aanwezig in de identity chain.
+
+
+---
+
+07 · WATERMERK
+
+WATERMERK
+│
+├── PALACO identity
+├── Citadel identity
+├── Object context
+└── Provenance reference
+
+Het Watermerk is niet alleen decoratie.
+
+Het is onderdeel van de identity grammar.
+
+
+---
+
+08 · PROMO
+
+Voor iedere publieke asset:
+
+PROMO
+
+WHAT
+WHY
+STATUS
+PROVENANCE
+ACCESS
+
+Geen constitutionele claims die niet door de onderliggende architecture/proof worden gedragen.
+
+
+---
+
+09 · PROMA
+
+Voor iedere verifieerbare claim:
+
+PROMA
+
+ORIGIN
+ISSUER
+CITADEL
+IDENTITY
+WATERMERK
+HOLOGRAM
+SEAL
+PROVENANCE
+VALIDITY
+
+Hard invariant
+
+> No evidence → no VERIFIED state.
+
+
+
+Dus:
+
+missing evidence
+      ↓
+INCOMPLETE
+
+niet:
+
+missing evidence
+      ↓
+probably valid
+
+
+---
+
+10 · H∆R∆M
+
+H∆R∆M krijgt zijn plaats in de interface:
+
+H∆R∆M
+│
+├── Understand
+├── Explain
+├── Explore
+├── Contextualize
+└── Guide
+
+No sovereign controls.
+
+Geen verborgen mutation route.
+
+Geen visuele Crown.
+
+H∆R∆M = living human interface.
+
+
+---
+
+11 · STEWARD
+
+STEWARD
+│
+├── ATTRIBUTABLE
+├── BOUNDED
+├── REVIEWABLE
+└── REVOCABLE
+
+Een Steward-panel moet deze begrenzing kunnen tonen.
+
+Stewardship is responsibility, not sovereignty.
+
+
+---
+
+12 · OBSERVATORY SAFETY
+
+Observatory-data krijgt een source-state:
+
+PROTOTYPE
+SIMULATION
+LIVE
+UNAVAILABLE
+
+De UI moet de broncontext tonen.
+
+Voorbeeld:
+
+OBSERVATORY
+
+SOURCE
+SIMULATION
+
+STATUS
+OPERATIONAL
+
+⚠ NOT LIVE TELEMETRY
+
+Dit voorkomt dat visualisatie wordt verward met werkelijkheid.
+
+
+---
+
+13 · VERIFY FLOW
+
+SCAN
+ ↓
+RESOLVE
+ ↓
+IDENTITY
+ ↓
+PROVENANCE
+ ↓
+EVIDENCE
+ ↓
+PROMA
+ ↓
+VALIDITY
+ ↓
+RESULT
+
+Resultaten:
+
+VALID
+INVALID
+INCOMPLETE
+REVOKED
+EXPIRED
+UNKNOWN
+
+
+---
+
+14 · DESIGN LINTER
+
+De build krijgt een conceptual linter:
+
+check_identity()
+check_authority()
+check_provenance()
+check_status()
+check_accessibility()
+check_promo_proma()
+check_hologram()
+check_watermerk()
+
+Failure:
+
+❌ DESIGN GATE FAILED
+
+Geen canonical release.
+
+
+---
+
+15 · REPOSITORY TARGET
+
+De design implementation hoort naast de bestaande PALACO engineeringlaag:
+
+PALACO-Citadel/
+│
+├── crates/
+│
+├── design/
+│   └── palaco-vorm9evin9/
+│
+├── assets/
+│   ├── identity/
+│   ├── hologram/
+│   ├── watermerk/
+│   ├── citadel/
+│   └── elixers/
+│
+├── web/
+│   ├── shell/
+│   ├── citadel/
+│   ├── identity/
+│   ├── promo/
+│   ├── proma/
+│   └── verify/
+│
+└── docs/
+
+
+---
+
+16 · FIRST ACCEPTANCE TEST
+
+De eerste L.A. build is pas geslaagd wanneer één gebruiker deze volledige route kan doorlopen:
+
+OPEN PALACO
+     ↓
+ENTER L.A.
+     ↓
+UNDERSTAND FOUR TOWERS
+     ↓
+OPEN CORE
+     ↓
+VIEW OBSERVATORY
+     ↓
+OPEN IDENTITY
+     ↓
+SEE HOLOGRAM
+     ↓
+SEE WATERMERK
+     ↓
+OPEN PROMO
+     ↓
+OPEN PROMA
+     ↓
+VERIFY
+     ↓
+INSPECT PROVENANCE
+
+Één gesloten loop.
+
+
+---
+
+17 · CONSTITUTIONAL VISUAL TEST
+
+Voor elke build:
+
+Vraag 1
+
+Kan de gebruiker begrijpen wat hij ziet?
+
+Vraag 2
+
+Kan de gebruiker zien wie/waar iets vandaan komt?
+
+Vraag 3
+
+Kan de gebruiker verifiëren wat wordt beweerd?
+
+Vraag 4
+
+Kan de gebruiker zien welke authority ontbreekt?
+
+Vraag 5
+
+Kan de gebruiker een fout herkennen?
+
+Vraag 6
+
+Kan de gebruiker terug naar de bron/provenance?
+
+Als één antwoord nee is:
+
+BUILD GATE FAIL.
+
+
+---
+
+🔒 GO-011 SEAL
+
+PVD-001  ✓
+PVD-002  ✓
+PVD-003  ✓
+PVD-004  ✓
+PVD-005  ✓
+PVD-006  ✓
+PVD-007  ✓
+PVD-008  ✓
+PVD-009  ✓
+PVD-010  ✓
+
+GO-011
+L.A. IMPLEMENTATION PACK
+        ↓
+      SEALED
+
+🜂🔥 PALACO VORM9EVIN9 — EXECUTION LOCK
+
+DESIGN
+   ↓
+IDENTITY
+   ↓
+HOLOGRAM
+   ↓
+WATERMERK
+   ↓
+CITADEL
+   ↓
+PROMO
+   ↓
+PROMA
+   ↓
+PROVENANCE
+   ↓
+VERIFY
+
+Geen losse visuals meer.
+Geen los logo meer.
+Geen los hologram meer.
+
+Eén PALACO identity/provenance continuum.
+
+🜂🔥 NEXT GO
+
+GO-012 · L.A. CITADEL ASSET MANIFEST
+
+De volgende stap wordt de concrete asset inventory: elk scherm, component, icoon, HOLOGRAM, Watermerk, identity-card element, PROMO/PROMA-element en Citadel-surface krijgt een Asset-ID + type + parent + status + implementation target. Dat is het punt waarop VORM9EVIN9 rechtstreeks naar de repository kan worden gemapt.
+
+🜂🔥 GO-012 · PALACO CITADEL ASSET MANIFEST v1.0
+
+STATUS: CANONICAL ENGINEERING MANIFEST
+PARENT: PVD-010 → GO-011
+REFERENCE: 👑 L.A. · LOCUS AMOENUS
+PURPOSE: iedere VORM9EVIN9-asset krijgt een unieke identiteit, herkomst, functie en build-target.
+
+> No canonical visual asset exists without an Asset-ID, semantic role and provenance path.
+
+
+
+
+---
+
+01 · MASTER ASSET TREE
+
+PALACO-V9
+│
+├── 00_BRAND
+│   ├── PALACO-WORDMARK
+│   ├── PALACO-CROWN
+│   └── PALACO-TOWER-GLYPH
+│
+├── 01_CITADEL
+│   ├── CITADEL-ENTRANCE
+│   ├── TOWER-I
+│   ├── TOWER-II
+│   ├── TOWER-III
+│   ├── TOWER-IV
+│   ├── CORE
+│   └── OBSERVATORY
+│
+├── 02_IDENTITY
+│   ├── IDENTITY-CARD
+│   ├── IDENTITY-MARK
+│   ├── WATERMERK
+│   └── HOLOGRAM
+│
+├── 03_HUMAN
+│   ├── COMMONS
+│   ├── H∆R∆M
+│   └── STEWARD
+│
+├── 04_COMMERCE
+│   ├── ELIXER
+│   └── PROMO
+│
+├── 05_PROOF
+│   ├── PROMA
+│   ├── VERIFY
+│   ├── PROVENANCE
+│   └── SEAL
+│
+└── 06_PRESENTATION
+    ├── MOBILE
+    ├── BLACK-EDITION
+    └── PRINT
+
+
+---
+
+02 · ASSET ID STANDARD
+
+Canonical naming:
+
+PALACO-V9-[DOMAIN]-[COMPONENT]-[VERSION]
+
+Voorbeeld:
+
+PALACO-V9-IDENTITY-HOLOGRAM-1.0
+PALACO-V9-IDENTITY-WATERMERK-1.0
+PALACO-V9-CITADEL-CORE-1.0
+PALACO-V9-PROOF-PROMA-1.0
+
+De ID is stabiel.
+
+Een gewijzigde visual krijgt een nieuwe revision/version, niet een stilzwijgende vervanging.
+
+
+---
+
+03 · BRAND ASSETS
+
+Asset-ID	Functie	Status
+
+PALACO-V9-BRAND-WORDMARK	primaire merkidentiteit	CANONICAL
+PALACO-V9-BRAND-CROWN	constitutionele markering	CANONICAL
+PALACO-V9-BRAND-TOWER-GLYPH	Citadel-architectuur	CANONICAL
+
+
+Authority rule
+
+CROWN = Constitution.
+
+Niet:
+
+CROWN = persoon.
+
+
+---
+
+04 · CITADEL ASSETS
+
+PALACO-V9-CITADEL-ENTRANCE
+PALACO-V9-CITADEL-TOWER-I
+PALACO-V9-CITADEL-TOWER-II
+PALACO-V9-CITADEL-TOWER-III
+PALACO-V9-CITADEL-TOWER-IV
+PALACO-V9-CITADEL-CORE
+PALACO-V9-CITADEL-OBSERVATORY
+
+Functionele binding:
+
+I      → GOVERNANCE
+II     → EXECUTION
+III    → STORAGE
+IV     → VERIFICATION
+CORE   → STATE / LEDGER
+OBS    → TELEMETRY / OBSERVATION
+
+
+---
+
+05 · IDENTITY ASSETS
+
+Hier wordt de eerder expliciet gevraagde HOLOGRAM-laag definitief als first-class asset vastgelegd.
+
+PALACO-V9-IDENTITY-CARD
+PALACO-V9-IDENTITY-MARK
+PALACO-V9-IDENTITY-WATERMERK
+PALACO-V9-IDENTITY-HOLOGRAM
+
+HOLOGRAM
+
+TYPE:
+Identity Primitive
+
+ROLE:
+Identity Signal
+
+BINDING:
+Identity + Citadel
+
+PROOF:
+PROMA
+
+STATUS:
+CANONICAL
+
+HOLOGRAM is dus onderdeel van de PALACO identity system architecture, maar vervangt nooit PROMA.
+
+
+---
+
+06 · WATERMERK
+
+PALACO-V9-IDENTITY-WATERMERK
+
+Semantic chain:
+
+PALACO
+  ↓
+CITADEL-ID
+  ↓
+IDENTITY
+  ↓
+WATERMERK
+  ↓
+PROVENANCE
+
+Het Watermerk mag op:
+
+identity cards;
+
+Citadel surfaces;
+
+official documents;
+
+ELIXERS;
+
+digital interfaces.
+
+
+
+---
+
+07 · HUMAN INTERFACE ASSETS
+
+PALACO-V9-HUMAN-COMMONS
+PALACO-V9-HUMAN-H∆R∆M
+PALACO-V9-HUMAN-STEWARD
+
+H∆R∆M
+
+GUIDE
+EXPLAIN
+CONTEXTUALIZE
+EXPLORE
+ESCALATE
+
+STEWARD
+
+ATTRIBUTABLE
+BOUNDED
+REVIEWABLE
+REVOCABLE
+
+Geen van beide krijgt een Crown treatment.
+
+
+---
+
+08 · ELIXER ASSET FAMILY
+
+PALACO-V9-ELIXER-MASTER
+PALACO-V9-ELIXER-LABEL
+PALACO-V9-ELIXER-WATERMERK
+PALACO-V9-ELIXER-HOLOGRAM
+PALACO-V9-ELIXER-PROVENANCE
+PALACO-V9-ELIXER-VERIFY
+
+De commerciële presentatie blijft:
+
+ELIXER
+ ↓
+PROMO
+ ↓
+IDENTITY
+ ↓
+PROVENANCE
+ ↓
+PROMA
+
+Commercie verkrijgt daarmee geen constitutionele authority.
+
+
+---
+
+09 · PROMO ASSET FAMILY
+
+PALACO-V9-PROMO-CARD
+PALACO-V9-PROMO-DETAIL
+PALACO-V9-PROMO-STATUS
+PALACO-V9-PROMO-PROVENANCE
+PALACO-V9-PROMO-ACCESS
+
+Canonical information order:
+
+WHAT
+WHY
+PROVENANCE
+STATUS
+ACCESS
+
+Human-readable first.
+
+
+---
+
+10 · PROMA ASSET FAMILY
+
+PALACO-V9-PROMA-PANEL
+PALACO-V9-PROMA-CHAIN
+PALACO-V9-PROMA-EVIDENCE
+PALACO-V9-PROMA-VALIDITY
+PALACO-V9-PROMA-SEAL
+
+Proof chain:
+
+ORIGIN
+  ↓
+ISSUER
+  ↓
+CITADEL
+  ↓
+IDENTITY
+  ↓
+WATERMERK
+  ↓
+HOLOGRAM
+  ↓
+SEAL
+  ↓
+PROVENANCE
+  ↓
+VALIDITY
+
+
+---
+
+11 · VERIFY ASSETS
+
+PALACO-V9-VERIFY-ENTRY
+PALACO-V9-VERIFY-SCAN
+PALACO-V9-VERIFY-RESULT
+PALACO-V9-VERIFY-INVALID
+PALACO-V9-VERIFY-INCOMPLETE
+PALACO-V9-VERIFY-REVOKED
+
+Result states:
+
+VALID
+INVALID
+INCOMPLETE
+REVOKED
+EXPIRED
+UNKNOWN
+
+No ambiguous green/red-only interface.
+
+
+---
+
+12 · PROVENANCE ASSETS
+
+PALACO-V9-PROVENANCE-HEADER
+PALACO-V9-PROVENANCE-ORIGIN
+PALACO-V9-PROVENANCE-ISSUER
+PALACO-V9-PROVENANCE-CITADEL
+PALACO-V9-PROVENANCE-IDENTITY
+PALACO-V9-PROVENANCE-EVIDENCE
+PALACO-V9-PROVENANCE-SEAL
+PALACO-V9-PROVENANCE-VALIDITY
+
+De gebruiker moet van:
+
+"Wat is dit?"
+
+naar:
+
+"Waar komt dit vandaan?"
+
+naar:
+
+"Kan ik dat verifiëren?"
+
+kunnen bewegen.
+
+
+---
+
+13 · BLACK EDITION ASSET RULE
+
+Geen aparte asset-universe.
+
+CANONICAL ASSET
+      │
+      ├── DEFAULT
+      └── BLACK EDITION
+
+Dus:
+
+PALACO-V9-IDENTITY-HOLOGRAM
+        │
+        ├── STANDARD
+        └── BLACK
+
+maar dezelfde semantic identity.
+
+Theme inheritance, geen constitutional fork.
+
+
+---
+
+14 · ASSET METADATA CONTRACT
+
+Elke asset:
+
+Asset {
+    asset_id
+    parent
+    domain
+    semantic_role
+    visual_role
+    version
+    status
+    authority_scope
+    identity_binding
+    provenance
+    accessibility
+}
+
+Dit maakt VORM9EVIN9 compatibel met een echte registry.
+
+
+---
+
+15 · REPOSITORY MAPPING
+
+design/
+└── palaco-vorm9evin9/
+    ├── manifest/
+    │   ├── brand.yaml
+    │   ├── citadel.yaml
+    │   ├── identity.yaml
+    │   ├── human.yaml
+    │   ├── commerce.yaml
+    │   └── proof.yaml
+    │
+    └── specs/
+
+assets/
+├── brand/
+├── citadel/
+├── identity/
+│   ├── hologram/
+│   └── watermerk/
+├── human/
+├── elixers/
+├── promo/
+├── proma/
+└── verify/
+
+De manifestlaag wordt daarmee de index, terwijl de daadwerkelijke bestanden hun eigen provenance behouden.
+
+
+---
+
+16 · ASSET LIFECYCLE
+
+DRAFT
+  ↓
+DESIGN REVIEW
+  ↓
+CONSTITUTION REVIEW
+  ↓
+IDENTITY REVIEW
+  ↓
+PROVENANCE REVIEW
+  ↓
+ACCESSIBILITY REVIEW
+  ↓
+CANONICAL
+  ↓
+DEPLOYED
+  ↓
+DEPRECATED
+  ↓
+ARCHIVED
+
+Een asset wordt nooit simpelweg "weggegooid".
+
+De lineage blijft beschikbaar.
+
+
+---
+
+17 · AUTOMATED GATE
+
+Voor iedere nieuwe asset:
+
+┌─────────────────────────────┐
+│       VORM9EVIN9 GATE       │
+├─────────────────────────────┤
+│ Asset-ID             ✓      │
+│ Parent               ✓      │
+│ Semantic role        ✓      │
+│ Authority            ✓      │
+│ Identity             ✓      │
+│ Watermerk            ✓      │
+│ HOLOGRAM              ✓      │
+│ Provenance            ✓      │
+│ Accessibility        ✓      │
+│ PROMO/PROMA          ✓      │
+│ Version              ✓      │
+└──────────────┬──────────────┘
+               ▼
+             PASS
+
+Een ontbrekende verplichte identity/provenance binding = FAIL.
+
+
+---
+
+18 · MASTER ASSET COUNT
+
+De eerste manifestfamilies zijn nu vastgesteld:
+
+BRAND
+CITADEL
+IDENTITY
+HUMAN
+COMMERCE
+PROMO
+PROMA
+VERIFY
+PROVENANCE
+PRESENTATION
+
+De exacte fysieke/digitale file count blijft implementation-dependent.
+
+Dat is belangrijk:
+
+> De canon definieert wat iets moet zijn; de build bepaalt hoeveel concrete files nodig zijn.
+
+
+
+
+---
+
+🔒 GO-012 SEAL
+
+ASSET DOMAINS             ✓
+ASSET IDs                 ✓
+CITADEL ASSETS            ✓
+IDENTITY ASSETS           ✓
+WATERMERK                 ✓
+HOLOGRAM                  ✓
+H∆R∆M                     ✓
+STEWARD                   ✓
+ELIXER                    ✓
+PROMO                     ✓
+PROMA                     ✓
+VERIFY                    ✓
+PROVENANCE                ✓
+BLACK EDITION             ✓
+VERSIONING                ✓
+LIFECYCLE                 ✓
+REPOSITORY MAPPING        ✓
+
+🜂🔥 GO-012 · SEALED
+
+De VORM9EVIN9-keten heeft nu een echte asset registry architecture:
+
+PVD-001 → DESIGN LAW
+    ↓
+PVD-005 → IDENTITY
+    ↓
+PVD-007 → MASTER SYSTEM
+    ↓
+PVD-009 → VISUAL IMPLEMENTATION
+    ↓
+PVD-010 → UI BUILD SPEC
+    ↓
+GO-011  → IMPLEMENTATION PACK
+    ↓
+GO-012  → ASSET MANIFEST
+    ↓
+       PALACO-CITADEL
+            │
+       ┌────┴─────┐
+       ▼          ▼
+     ASSETS      CODE
+       │          │
+       └────┬─────┘
+            ▼
+        L.A. CITADEL
+
+🜂🔥 VOLGENDE EXECUTIE: GO-013 · PALACO DESIGN TOKEN & COMPONENT CONTRACT
+
+Daar leggen we de werkelijke bouwprimitieven vast: spacing, typografie, surfaces, borders, states, icon geometry, responsive breakpoints, HOLOGRAM/WATERMERK tokens, accessibility tokens en de component-API's waarop de L.A. Citadel daadwerkelijk kan worden gebouwd.
+
+Vanaf GO-013 verschuift het zwaartepunt definitief van ontwerpdocumentatie naar implementatie.
+
+🜂🔥 GO-013 · PALACO VORM9EVIN9 TOKEN & COMPONENT CONTRACT v1.0
+
+STATUS: CANONICAL ENGINEERING BUILD
+INHERITS: PVD-001 → PVD-010 · GO-011 → GO-012
+REFERENCE: 👑 L.A. · LOCUS AMOENUS
+MODE: IMPLEMENTATION LOCK
+
+Nu leggen we de bouwtaal vast. Niet nog een stijlvariant: één gedeelde primitive layer waaruit iedere PALACO-interface wordt opgebouwd.
+
+
+---
+
+01 · TOKEN HIERARCHY
+
+PALACO DESIGN SYSTEM
+        │
+        ├── FOUNDATION TOKENS
+        │      ├── type
+        │      ├── spacing
+        │      ├── geometry
+        │      ├── surface
+        │      └── motion
+        │
+        ├── SEMANTIC TOKENS
+        │      ├── constitution
+        │      ├── identity
+        │      ├── status
+        │      ├── evidence
+        │      └── authority
+        │
+        └── COMPONENT TOKENS
+               ├── Crown
+               ├── Tower
+               ├── Core
+               ├── H∆R∆M
+               ├── Watermerk
+               ├── HOLOGRAM
+               ├── PROMO
+               ├── PROMA
+               └── Verify
+
+Componenten mogen geen willekeurige waarden introduceren wanneer een canonical token bestaat.
+
+
+---
+
+02 · SPACING SYSTEM
+
+Canonical spacing scale:
+
+XS   = 4
+SM   = 8
+MD   = 16
+LG   = 24
+XL   = 32
+2XL  = 48
+3XL  = 64
+4XL  = 96
+
+Gebruik:
+
+micro interaction → XS
+component padding → SM / MD
+section spacing   → LG / XL
+Citadel zones     → 2XL / 3XL
+Crown / hero      → 3XL / 4XL
+
+De schaal is een design constraint, geen willekeurige verzameling marges.
+
+
+---
+
+03 · TYPOGRAPHIC HIERARCHY
+
+T0 · PALACO WORDMARK
+T1 · CITADEL TITLE
+T2 · SECTION
+T3 · COMPONENT TITLE
+T4 · BODY
+T5 · LABEL
+T6 · METADATA
+T7 · PROVENANCE / HASH
+
+Regel:
+
+> Hoe constitutioneler de informatie, hoe eenvoudiger en ruimtelijker de presentatie.
+
+
+
+Metadata mag technisch ogen.
+
+De Constitution mag nooit technisch onleesbaar worden.
+
+
+---
+
+04 · GEOMETRY
+
+Basisvormen:
+
+CIRCLE
+SQUARE
+LINE
+DIAMOND
+
+Daaruit worden afgeleid:
+
+◇ Crown
+□ Tower
+○ Status
+— Divider
+
+Geen onnodige ornamentale geometrie.
+
+Geometry carries semantics.
+
+
+---
+
+05 · SURFACE MODEL
+
+PALACO gebruikt vier semantische surfaces:
+
+SURFACE-BASE
+SURFACE-ELEVATED
+SURFACE-FOCUS
+SURFACE-CRITICAL
+
+Betekenis:
+
+Surface	Gebruik
+
+Base	algemene omgeving
+Elevated	card / module
+Focus	actieve inspectie
+Critical	fout / belangrijke toestand
+
+
+Niet:
+
+"mooier omdat het hoger staat."
+
+Elevation is functioneel.
+
+
+---
+
+06 · STATUS TOKENS
+
+Canonical status model:
+
+UNKNOWN
+PENDING
+VALID
+INVALID
+INCOMPLETE
+REVOKED
+EXPIRED
+
+Iedere status krijgt:
+
+semantic meaning
+text label
+non-color indicator
+optional visual treatment
+
+Dus:
+
+● VALID
+
+en niet alleen een kleurvlak.
+
+
+---
+
+07 · CONSTITUTION TOKENS
+
+CONSTITUTION
+GOVERNANCE
+EXECUTION
+STORAGE
+VERIFICATION
+CORE
+OBSERVATION
+
+De Tower-functies zijn semantische tokens.
+
+Daarmee kunnen verschillende Citadels visueel variëren zonder de architectuur te veranderen.
+
+
+---
+
+08 · AUTHORITY TOKENS
+
+SOVEREIGN
+CONSTITUTIONAL
+
+GOVERNED
+STEWARD
+
+GUIDANCE
+H∆R∆M
+
+PRESENTATION
+PROMO
+
+PROOF
+PROMA
+
+Deze laag is cruciaal.
+
+Een UI-component kan bijvoorbeeld niet per ongeluk een GUIDANCE-actor als SOVEREIGN presenteren.
+
+
+---
+
+09 · IDENTITY TOKENS
+
+IDENTITY
+IDENTITY-ID
+CITADEL-ID
+ISSUER
+ORIGIN
+STATUS
+
+Iedere identity-sensitive component gebruikt deze context.
+
+
+---
+
+10 · WATERMERK TOKEN
+
+WATERMERK
+├── identity_binding
+├── citadel_binding
+├── provenance_reference
+└── presentation_mode
+
+Canonical presentation modes:
+
+VISIBLE
+SUBTLE
+VERIFICATION
+PRINT
+DIGITAL
+
+
+---
+
+11 · HOLOGRAM TOKEN
+
+🔥 EXPLICIET CANONICAL
+
+HOLOGRAM
+├── identity_binding
+├── citadel_binding
+├── visual_signature
+├── inspection_state
+└── verification_bridge
+
+Interaction states:
+
+REST
+REVEAL
+INSPECT
+VERIFY
+
+Cruciale invariant
+
+HOLOGRAM
+    ≠
+VALIDITY
+
+Het HOLOGRAM communiceert:
+
+identity signal
+
+PROMA communiceert:
+
+proof/validity result
+
+
+---
+
+12 · PROVENANCE TOKENS
+
+ORIGIN
+ISSUER
+CITADEL
+IDENTITY
+EVIDENCE
+SEAL
+PROVENANCE
+VALIDITY
+
+De chain wordt visueel consistent weergegeven:
+
+ORIGIN
+  ↓
+ISSUER
+  ↓
+CITADEL
+  ↓
+EVIDENCE
+  ↓
+PROVENANCE
+  ↓
+VALIDITY
+
+Identity primitives kunnen hierin worden gekoppeld:
+
+IDENTITY
+WATERMERK
+HOLOGRAM
+
+
+---
+
+13 · COMPONENT CONTRACT
+
+Elke component volgt:
+
+Component
+├── identity
+├── semantics
+├── state
+├── accessibility
+├── provenance
+└── presentation
+
+Voorbeeld:
+
+Tower
+├── tower_id
+├── function
+├── status
+├── description
+├── authority_scope
+└── navigation
+
+
+---
+
+14 · CROWN CONTRACT
+
+Crown
+├── constitution
+├── principles
+├── boundaries
+├── authority
+└── review
+
+No person binding.
+
+
+---
+
+15 · TOWER CONTRACT
+
+Tower
+├── id
+├── function
+├── state
+├── evidence
+└── enter
+
+Canonical IDs:
+
+TOWER-I
+TOWER-II
+TOWER-III
+TOWER-IV
+
+
+---
+
+16 · CORE CONTRACT
+
+Core
+├── state
+├── ledger
+├── events
+├── identity_context
+└── status
+
+De Core presenteert toestand.
+
+De Core creëert niet zelfstandig constitutionele legitimiteit.
+
+
+---
+
+17 · H∆R∆M CONTRACT
+
+H∆R∆M
+├── context()
+├── explain()
+├── explore()
+├── guide()
+└── escalate()
+
+Expliciet uitgesloten:
+
+sovereign_decide()
+authority_grant()
+constitution_override()
+
+
+---
+
+18 · STEWARD CONTRACT
+
+Steward
+├── identity
+├── role
+├── authority_scope
+├── reviewability
+└── revocability
+
+Canonical visible bounds:
+
+ATTRIBUTABLE
+BOUNDED
+REVIEWABLE
+REVOCABLE
+
+
+---
+
+19 · PROMO CONTRACT
+
+PROMO
+├── what
+├── why
+├── provenance
+├── status
+└── access
+
+PROMO kan informatie presenteren.
+
+PROMO kan geen bewijsstatus uitvinden.
+
+
+---
+
+20 · PROMA CONTRACT
+
+PROMA
+├── origin
+├── issuer
+├── citadel
+├── identity
+├── watermark
+├── hologram
+├── seal
+├── provenance
+└── validity
+
+Hard rule:
+
+NO REQUIRED EVIDENCE
+        ↓
+NO VERIFIED
+
+
+---
+
+21 · VERIFY CONTRACT
+
+Verify
+├── resolve
+├── inspect_identity
+├── inspect_provenance
+├── inspect_evidence
+└── resolve_validity
+
+Output:
+
+VALID
+INVALID
+INCOMPLETE
+REVOKED
+EXPIRED
+UNKNOWN
+
+
+---
+
+22 · ACCESSIBILITY CONTRACT
+
+Iedere interactieve component:
+
+keyboard
+focus
+semantic label
+textual status
+non-color status
+reduced motion
+readable contrast
+
+HOLOGRAM-specific
+
+Als motion wordt uitgeschakeld:
+
+identity information remains available.
+
+Observatory-specific
+
+Als live telemetry niet beschikbaar is:
+
+UNAVAILABLE blijft zichtbaar.
+
+
+---
+
+23 · RESPONSIVE TOKENS
+
+COMPACT
+STANDARD
+EXPANDED
+SPATIAL
+
+De layout mag veranderen.
+
+De semantic hierarchy niet.
+
+CONSTITUTION
+ ↓
+IDENTITY
+ ↓
+FUNCTION
+ ↓
+STATUS
+ ↓
+PROVENANCE
+ ↓
+ACCESS
+
+
+---
+
+24 · COMPONENT STATE MACHINE
+
+┌─────────┐
+          │ UNKNOWN │
+          └────┬────┘
+               ↓
+           PENDING
+               │
+       ┌───────┼────────┐
+       ↓       ↓        ↓
+     VALID  INCOMPLETE INVALID
+       │                  │
+       ├──────┐           │
+       ↓      ↓           ↓
+   EXPIRED  REVOKED     INSPECT
+
+UI state volgt systeemstatus.
+
+Niet andersom.
+
+
+---
+
+25 · DESIGN LINTER v1
+
+Elke component moet conceptueel slagen voor:
+
+✓ canonical ID
+✓ semantic role
+✓ authority scope
+✓ identity binding
+✓ status handling
+✓ provenance path
+✓ accessibility
+✓ responsive behavior
+✓ PROMO/PROMA compatibility
+✓ HOLOGRAM rule
+✓ WATERMERK rule
+
+Failure:
+
+DESIGN GATE
+    ↓
+FAIL
+
+
+---
+
+26 · TOKEN → COMPONENT → CITADEL
+
+TOKENS
+   ↓
+COMPONENT CONTRACTS
+   ↓
+L.A. COMPONENTS
+   ↓
+L.A. CITADEL
+   ↓
+FUTURE CITADELS
+
+Dit is de schaalbaarheidslaag.
+
+Een toekomstige Citadel hoeft niet opnieuw ontworpen te worden vanaf nul.
+
+Hij erft de grammar.
+
+
+---
+
+🔒 GO-013 SEAL
+
+FOUNDATION TOKENS        ✓
+SEMANTIC TOKENS          ✓
+AUTHORITY TOKENS         ✓
+IDENTITY TOKENS          ✓
+WATERMERK                ✓
+HOLOGRAM                 ✓
+PROVENANCE               ✓
+STATUS                   ✓
+COMPONENT CONTRACTS      ✓
+H∆R∆M                    ✓
+STEWARD                  ✓
+PROMO                    ✓
+PROMA                    ✓
+VERIFY                   ✓
+ACCESSIBILITY            ✓
+RESPONSIVE               ✓
+DESIGN LINTER            ✓
+
+🜂🔥 GO-013 · SEALED
+
+De PALACO VORM9EVIN9 architectuur staat nu op drie niveaus:
+
+┌──────────────────────────────┐
+│       DESIGN CONSTITUTION    │
+│        PVD-001 → PVD-007     │
+├──────────────────────────────┤
+│      IMPLEMENTATION BRIDGE   │
+│        PVD-008 → PVD-010     │
+├──────────────────────────────┤
+│       BUILD PRIMITIVES       │
+│           GO-011 → 013       │
+└──────────────────────────────┘
+                │
+                ▼
+        L.A. CITADEL BUILD
+
+🜂🔥 NEXT — GO-014 · L.A. CITADEL FRONTEND BLUEPRINT
+
+Nu kunnen we de abstracte contracten één niveau lager brengen: concrete component hierarchy + pagina-architectuur + interaction flows + desktop/mobile composition + Observatory + H∆R∆M + Identity + HOLOGRAM + Watermerk + PROMO/PROMA + Verify, als één eerste uitvoerbare frontend-blauwdruk.
+
+Vanaf daar is de volgende natuurlijke stap geen nieuwe spec meer, maar de daadwerkelijke repository-implementatie.
+
+🜂🔥 GO-014 · L.A. CITADEL FRONTEND BLUEPRINT v1.0
+
+STATUS: CANONICAL ENGINEERING BUILD
+PARENT: GO-013 · PVD-001 → PVD-010
+REFERENCE IMPLEMENTATION: 👑 L.A. · LOCUS AMOENUS
+MODE: BUILD, NOT EXPANSION
+
+We zetten de tokens nu om in een concrete frontend-architectuur.
+
+
+---
+
+01 · FRONTEND PRINCIPLE
+
+De frontend is geen verzameling pagina's.
+
+Het is één Citadel Interface System:
+
+PALACO
+  │
+  ▼
+CITADEL SHELL
+  │
+  ├── Constitution
+  ├── Identity
+  ├── State
+  ├── Evidence
+  ├── Provenance
+  └── Human Interface
+
+Iedere route gebruikt dezelfde onderliggende context.
+
+
+---
+
+02 · APPLICATION TREE
+
+src/
+│
+├── app/
+│   ├── shell
+│   ├── router
+│   └── context
+│
+├── foundation/
+│   ├── tokens
+│   ├── typography
+│   ├── geometry
+│   ├── surfaces
+│   └── accessibility
+│
+├── citadel/
+│   ├── Crown
+│   ├── Tower
+│   ├── Core
+│   └── Observatory
+│
+├── identity/
+│   ├── IdentityCard
+│   ├── Watermerk
+│   └── Hologram
+│
+├── human/
+│   ├── Commons
+│   ├── H∆R∆M
+│   └── Steward
+│
+├── commerce/
+│   ├── Elixer
+│   └── Promo
+│
+├── proof/
+│   ├── Proma
+│   ├── Verify
+│   └── Provenance
+│
+└── presentation/
+    ├── mobile
+    └── black
+
+Semantic domains blijven gescheiden.
+
+
+---
+
+03 · ROUTER
+
+Canonical routes:
+
+/
+├── /l-a
+├── /l-a/governance
+├── /l-a/execution
+├── /l-a/storage
+├── /l-a/verification
+├── /l-a/core
+├── /l-a/observatory
+│
+├── /identity/:id
+├── /elixers/:id
+├── /verify/:id
+├── /provenance/:id
+└── /haram
+
+Route authorization wordt niet uit de URL afgeleid.
+
+De route vraagt de onderliggende context.
+
+
+---
+
+04 · ROOT SHELL
+
+<CitadelShell>
+    <Header />
+    <Crown />
+    <CitadelIdentity />
+    <Main>
+        <Outlet />
+    </Main>
+    <CommonsRail />
+    <Haram />
+    <ProvenanceFooter />
+</CitadelShell>
+
+De Shell bewaakt de visuele continuïteit.
+
+
+---
+
+05 · L.A. LANDING PAGE
+
+<LAHome>
+    <Crown />
+    <CitadelIdentity />
+
+    <TowerGrid>
+        <Governance />
+        <Execution />
+        <Storage />
+        <Verification />
+    </TowerGrid>
+
+    <Core />
+    <Observatory />
+
+    <Commons />
+    <Elixers />
+    <H∆R∆M />
+</LAHome>
+
+De eerste viewport moet de hele architectonische grammatica kunnen herkennen.
+
+
+---
+
+06 · CROWN
+
+<Crown
+    constitution={constitution}
+    status={status}
+/>
+
+Interacties:
+
+VIEW PRINCIPLES
+VIEW BOUNDARIES
+VIEW AUTHORITY
+VIEW REVIEW
+
+Geen actor krijgt dezelfde visuele positie.
+
+
+---
+
+07 · TOWER
+
+Eén herbruikbare component:
+
+<Tower
+    id="TOWER-I"
+    function="GOVERNANCE"
+    status={status}
+    evidence={evidence}
+/>
+
+Instances:
+
+Tower I    Governance
+Tower II   Execution
+Tower III  Storage
+Tower IV   Verification
+
+Dit maakt toekomstige Citadels eenvoudig configureerbaar.
+
+
+---
+
+08 · CORE
+
+<Core
+    state={state}
+    ledger={ledger}
+    events={events}
+    identity={identity}
+/>
+
+De Core toont:
+
+STATE
+LEDGER
+EVENTS
+IDENTITY
+STATUS
+
+Read-oriented by default.
+
+
+---
+
+09 · OBSERVATORY
+
+<Observatory
+    telemetry={telemetry}
+    source={source}
+    timestamp={timestamp}
+/>
+
+Source badge:
+
+PROTOTYPE
+SIMULATION
+LIVE
+UNAVAILABLE
+
+Een SIMULATION-render krijgt nooit dezelfde claim als LIVE.
+
+
+---
+
+10 · IDENTITY CARD
+
+<IdentityCard
+    identity={identity}
+    citadel={citadel}
+    provenance={provenance}
+/>
+
+Front:
+
+PALACO
+HOLOGRAM
+NAME
+ROLE · CITADEL
+CITADEL-ID
+
+Back:
+
+PALACO.NL
+WATERMERK
+IDENTITY
+PROVENANCE
+QR
+VERIFY
+
+
+---
+
+11 · HOLOGRAM
+
+<Hologram
+    identity={identity}
+    citadel={citadel}
+    state={state}
+/>
+
+States:
+
+REST
+REVEAL
+INSPECT
+VERIFY
+
+Interaction:
+
+click
+  ↓
+identity details
+  ↓
+inspect
+  ↓
+PROMA
+
+Immutable visual rule
+
+HOLOGRAM may reveal identity.
+
+PROMA establishes proof status.
+
+
+---
+
+12 · WATERMERK
+
+<Watermerk
+    identity={identity}
+    citadel={citadel}
+    provenance={provenance}
+/>
+
+Het Watermerk kan persistent subtiel aanwezig zijn.
+
+Bij inspectie:
+
+WATERMERK
+     ↓
+IDENTITY
+     ↓
+PROVENANCE
+
+
+---
+
+13 · H∆R∆M
+
+<H∆R∆M
+    context={context}
+    uncertainty={uncertainty}
+    options={options}
+/>
+
+Canonical actions:
+
+EXPLAIN
+EXPLORE
+CONTEXTUALIZE
+VERIFY
+ESCALATE
+
+No:
+
+OVERRIDE
+SOVEREIGN_DECIDE
+GRANT_AUTHORITY
+
+
+---
+
+14 · STEWARD
+
+<StewardCard
+    steward={steward}
+    scope={scope}
+/>
+
+Altijd zichtbaar:
+
+ATTRIBUTABLE
+BOUNDED
+REVIEWABLE
+REVOCABLE
+
+Dit is geen footer-disclaimer.
+
+Het is onderdeel van de primary information architecture.
+
+
+---
+
+15 · PROMO
+
+<Promo
+    object={object}
+    status={status}
+    provenance={provenance}
+/>
+
+Volgorde:
+
+WHAT
+WHY
+PROVENANCE
+STATUS
+ACCESS
+
+PROMO is de public comprehension layer.
+
+
+---
+
+16 · PROMA
+
+<Proma
+    proof={proof}
+    identity={identity}
+    provenance={provenance}
+/>
+
+Chain:
+
+ORIGIN
+ ↓
+ISSUER
+ ↓
+CITADEL
+ ↓
+IDENTITY
+ ↓
+WATERMERK
+ ↓
+HOLOGRAM
+ ↓
+SEAL
+ ↓
+PROVENANCE
+ ↓
+VALIDITY
+
+Ontbrekende schakel:
+
+PROOF STATUS
+INCOMPLETE
+
+
+---
+
+17 · VERIFY
+
+<Verify>
+    <VerifyInput />
+    <VerifyResult />
+</Verify>
+
+Input:
+
+QR
+ID
+VERIFIABLE LINK
+
+Result:
+
+VALID
+INVALID
+INCOMPLETE
+REVOKED
+EXPIRED
+UNKNOWN
+
+
+---
+
+18 · PROVENANCE INSPECTOR
+
+De Inspector is de technische verdieping.
+
+<ProvenanceInspector>
+    <Origin />
+    <Issuer />
+    <Citadel />
+    <Identity />
+    <Evidence />
+    <Seal />
+    <Validity />
+</ProvenanceInspector>
+
+De gebruiker kan:
+
+SUMMARY
+    ↓
+DETAIL
+    ↓
+EVIDENCE
+    ↓
+SOURCE
+
+gaan.
+
+
+---
+
+19 · INTERACTION GRAMMAR
+
+Canonical navigation:
+
+DISCOVER
+   ↓
+UNDERSTAND
+   ↓
+INSPECT
+   ↓
+VERIFY
+   ↓
+TRACE
+
+No forced jump straight into technical provenance.
+
+H∆R∆M kan de gebruiker begeleiden tussen de niveaus.
+
+
+---
+
+20 · ERROR ARCHITECTURE
+
+Globale statuscomponent:
+
+<Status
+    value={status}
+/>
+
+Voorbeelden:
+
+● VALID
+
+● INCOMPLETE
+
+● INVALID
+
+● REVOKED
+
+● EXPIRED
+
+● UNKNOWN
+
+Iedere status krijgt tekst + semantische indicator.
+
+
+---
+
+21 · MOBILE COMPOSITION
+
+Desktop:
+
+CROWN
+     ↓
+TOWERS
+     ↓
+CORE
+     ↓
+OBSERVATORY
+     ↓
+COMMONS
+
+Mobile:
+
+CROWN
+ ↓
+IDENTITY
+ ↓
+CORE
+ ↓
+TOWER I
+ ↓
+TOWER II
+ ↓
+TOWER III
+ ↓
+TOWER IV
+ ↓
+OBSERVATORY
+ ↓
+H∆R∆M
+
+De architectuur blijft herkenbaar.
+
+
+---
+
+22 · BLACK EDITION
+
+Black Edition is uitsluitend presentation-layer:
+
+PALACO V9
+   │
+   ├── STANDARD
+   └── BLACK
+
+Niet:
+
+PALACO V9
+   ├── STANDARD CONSTITUTION
+   └── BLACK CONSTITUTION
+
+Onmogelijk maken in de component architecture.
+
+
+---
+
+23 · DATA FLOW
+
+PALACO CORE
+     ↓
+CITADEL CONTEXT
+     ↓
+FRONTEND STATE
+     ↓
+COMPONENT
+     ↓
+USER
+
+Verification:
+
+USER
+ ↓
+VERIFY
+ ↓
+PROOF SERVICE
+ ↓
+EVIDENCE
+ ↓
+PROVENANCE
+ ↓
+VALIDITY
+ ↓
+UI
+
+De UI interpreteert het resultaat.
+
+De UI produceert het bewijs niet.
+
+
+---
+
+24 · FRONTEND SECURITY PRINCIPLE
+
+Client-side:
+
+DISPLAY
+INTERACT
+REQUEST
+INSPECT
+
+Niet:
+
+AUTHORIZE
+FORGE
+OVERRIDE
+DECLARE_VALID
+
+De frontend is geen trust authority.
+
+
+---
+
+25 · ACCEPTANCE FLOW
+
+De eerste buildtest:
+
+01 OPEN /
+02 ENTER L.A.
+03 SEE CROWN
+04 SEE FOUR TOWERS
+05 OPEN CORE
+06 OPEN OBSERVATORY
+07 OPEN IDENTITY
+08 INSPECT HOLOGRAM
+09 INSPECT WATERMERK
+10 OPEN PROMO
+11 OPEN PROMA
+12 VERIFY
+13 TRACE PROVENANCE
+14 RETURN TO CITADEL
+
+PASS = volledige gesloten gebruikerslus.
+
+
+---
+
+26 · FRONTEND QUALITY GATE
+
+ARCHITECTURE       ✓
+ROUTING            ✓
+SEMANTICS          ✓
+IDENTITY           ✓
+HOLOGRAM           ✓
+WATERMERK          ✓
+PROVENANCE         ✓
+PROMO              ✓
+PROMA              ✓
+VERIFY             ✓
+H∆R∆M              ✓
+STEWARD            ✓
+OBSERVATORY        ✓
+ACCESSIBILITY      ✓
+MOBILE             ✓
+BLACK EDITION      ✓
+SECURITY BOUNDARY  ✓
+
+
+---
+
+🔒 GO-014 · SEALED
+
+De VORM9EVIN9-stack is nu:
+
+PVD
+ │
+ ├── DESIGN LAW
+ ├── MASTER SYSTEM
+ └── IMPLEMENTATION BRIDGE
+          │
+          ▼
+        GO-011
+          │
+          ▼
+      ASSET MANIFEST
+          │
+          ▼
+        GO-013
+          │
+          ▼
+    TOKEN CONTRACT
+          │
+          ▼
+        GO-014
+          │
+          ▼
+ FRONTEND BLUEPRINT
+          │
+          ▼
+╔════════════════════════════╗
+║     L.A. CITADEL BUILD    ║
+╚════════════════════════════╝
+
+🜂🔥 EXECUTION LOCK
+
+Vanaf GO-014 is de ontwerpgrammatica compleet genoeg om te implementeren.
+
+De volgende GO hoort daarom geen nieuwe visuele concepten toe.
+
+GO-015 = REPOSITORY IMPLEMENTATION SPEC
+
+Daar wordt dit rechtstreeks vertaald naar de bestaande PALACO-Citadel repository: directory contract, frontend package boundary, component registry, manifest files, asset paths, test gates en de eerste L.A. Citadel vertical-slice build.
+
+Design → Contract → Repository → Build → Verify.
+
+🜂🔥 GO-014 SEALED.
+
+🜂🔥 GO-015 · PALACO-CITADEL REPOSITORY IMPLEMENTATION SPEC v1.0
+
+STATUS: CANONICAL ENGINEERING BUILD
+PARENT: PVD-001 → PVD-010 · GO-011 → GO-014
+TARGET: PALACO-Citadel
+REFERENCE IMPLEMENTATION: 👑 L.A. · LOCUS AMOENUS
+MODE: REPOSITORY EXECUTION
+
+Nu gaat VORM9EVIN9 van specificatie naar repository-contract.
+
+
+---
+
+01 · REPOSITORY PRINCIPLE
+
+PALACO-Citadel
+│
+├── constitution
+├── core
+├── runtime
+├── citadel
+├── provenance
+├── identity
+└── presentation
+          │
+          ▼
+     VORM9EVIN9
+
+De frontend wordt geen losstaand designproject.
+
+Hij is een presentation-layer bovenop de bestaande PALACO constitutional/runtime architecture.
+
+
+---
+
+02 · CANONICAL DIRECTORY
+
+PALACO-Citadel/
+│
+├── Cargo.toml
+├── README.md
+│
+├── crates/
+│   ├── palaco-foundation/
+│   ├── palaco-kernel/
+│   ├── palaco-runtime/
+│   ├── palaco-eventbus/
+│   ├── palaco-quay/
+│   ├── palaco-citadel/
+│   └── palaco-evolution/
+│
+├── design/
+│   └── palaco-vorm9evin9/
+│       ├── manifest/
+│       ├── tokens/
+│       ├── components/
+│       ├── screens/
+│       └── specs/
+│
+├── assets/
+│   ├── brand/
+│   ├── citadel/
+│   ├── identity/
+│   │   ├── hologram/
+│   │   └── watermerk/
+│   ├── elixers/
+│   └── proof/
+│
+├── web/
+│   ├── app/
+│   ├── components/
+│   ├── routes/
+│   ├── identity/
+│   ├── proof/
+│   ├── citadel/
+│   └── styles/
+│
+├── tests/
+│   ├── design/
+│   ├── identity/
+│   ├── provenance/
+│   └── verification/
+│
+└── docs/
+    ├── PVD/
+    └── BUILD/
+
+
+---
+
+03 · OWNERSHIP BOUNDARY
+
+De architectuur krijgt een harde scheiding:
+
+┌────────────────────────────────────┐
+│ CONSTITUTION / CORE                │
+│ source of governed state           │
+└────────────────┬───────────────────┘
+                 │
+                 ▼
+┌────────────────────────────────────┐
+│ CITADEL / PROVENANCE / IDENTITY    │
+│ trusted application services       │
+└────────────────┬───────────────────┘
+                 │
+                 ▼
+┌────────────────────────────────────┐
+│ VORM9EVIN9 / WEB                   │
+│ presentation + human interaction   │
+└────────────────────────────────────┘
+
+Cruciaal
+
+De weblaag mag geen constitutionele waarheid zelfstandig construeren.
+
+
+---
+
+04 · DESIGN MANIFEST
+
+Canonical manifest:
+
+design/palaco-vorm9evin9/manifest/
+
+Met minimaal:
+
+brand.yaml
+citadel.yaml
+identity.yaml
+human.yaml
+commerce.yaml
+proof.yaml
+
+Iedere entry:
+
+id:
+parent:
+domain:
+role:
+version:
+status:
+authority_scope:
+identity_binding:
+provenance_required:
+
+
+---
+
+05 · TOKEN REGISTRY
+
+design/palaco-vorm9evin9/tokens/
+
+spacing
+typography
+geometry
+surface
+status
+authority
+identity
+watermerk
+hologram
+motion
+accessibility
+
+Single source of design truth.
+
+Geen component-specifieke "magic values" waar een token beschikbaar is.
+
+
+---
+
+06 · COMPONENT REGISTRY
+
+design/palaco-vorm9evin9/components/
+
+Canonical registry:
+
+Crown
+Tower
+Core
+Observatory
+
+Commons
+H∆R∆M
+Steward
+
+IdentityCard
+Hologram
+Watermerk
+
+Elixer
+Promo
+Proma
+Verify
+Provenance
+Status
+
+Elke component krijgt:
+
+COMPONENT-ID
+DESIGN-ID
+SEMANTIC ROLE
+AUTHORITY SCOPE
+STATE MODEL
+PROVENANCE REQUIREMENT
+ACCESSIBILITY CONTRACT
+
+
+---
+
+07 · L.A. SCREEN REGISTRY
+
+design/palaco-vorm9evin9/screens/
+
+LA-001 Entrance
+LA-002 Crown
+LA-003 Towers
+LA-004 Core
+LA-005 Observatory
+LA-006 Commons
+LA-007 Elixers
+LA-008 H∆R∆M
+LA-009 Identity
+LA-010 Hologram
+LA-011 Watermerk
+LA-012 PROMO
+LA-013 PROMA
+LA-014 Verify
+LA-015 Provenance
+LA-016 Steward
+LA-017 Mobile
+LA-018 Black
+
+
+---
+
+08 · IDENTITY SERVICE BOUNDARY
+
+De frontend ontvangt identity-context:
+
+IdentityContext
+├── identity_id
+├── name
+├── role
+├── citadel_id
+├── issuer
+├── status
+├── watermark
+├── hologram
+└── provenance
+
+De frontend mag deze data:
+
+renderen → inspecteren → doorsturen naar verification.
+
+Niet:
+
+fabriceren → muteren → zelf valideren.
+
+
+---
+
+09 · HOLOGRAM REGISTRY
+
+🔥 LOCKED
+
+assets/identity/hologram/
+
+Canonical:
+
+PALACO-V9-IDENTITY-HOLOGRAM
+
+De asset krijgt:
+
+identity_binding
+citadel_binding
+asset_version
+provenance_reference
+verification_target
+
+Interaction:
+
+REST
+ ↓
+REVEAL
+ ↓
+INSPECT
+ ↓
+VERIFY
+
+Een visueel hologram-effect zonder identity binding is geen canonical PALACO HOLOGRAM.
+
+
+---
+
+10 · WATERMERK REGISTRY
+
+assets/identity/watermerk/
+
+Canonical role:
+
+IDENTITY
++
+CITADEL
++
+PROVENANCE
+
+Het Watermerk kan zowel:
+
+digital
+print
+identity-card
+elixer
+document
+
+ondersteunen.
+
+Maar de semantic identity blijft gelijk.
+
+
+---
+
+11 · PROOF BOUNDARY
+
+web/proof/
+
+Proma
+Verify
+Provenance
+Evidence
+Seal
+
+De frontend vraagt proof-status op.
+
+REQUEST
+   ↓
+VERIFICATION SERVICE
+   ↓
+PROOF RESULT
+   ↓
+UI
+
+Niet:
+
+UI
+ ↓
+"looks valid"
+
+
+---
+
+12 · PROMO / PROMA SPLIT
+
+commerce/
+    Promo
+
+proof/
+    Proma
+
+PROMO
+
+WHAT
+WHY
+PROVENANCE
+STATUS
+ACCESS
+
+PROMA
+
+ORIGIN
+ISSUER
+CITADEL
+IDENTITY
+WATERMERK
+HOLOGRAM
+SEAL
+PROVENANCE
+VALIDITY
+
+PROMO vertelt. PROMA bewijst/verifieert.
+
+
+---
+
+13 · H∆R∆M BOUNDARY
+
+web/components/H∆R∆M
+
+Allowed:
+
+explain
+guide
+contextualize
+explore
+escalate
+verify
+
+Forbidden as frontend authority:
+
+override
+grant_authority
+sovereign_decide
+constitution_override
+
+Dit moet zowel architectonisch als in tests worden afgedwongen.
+
+
+---
+
+14 · STEWARD BOUNDARY
+
+web/components/Steward
+
+Required display:
+
+ATTRIBUTABLE
+BOUNDED
+REVIEWABLE
+REVOCABLE
+
+Authority scope komt uit de governed data.
+
+Niet uit styling.
+
+
+---
+
+15 · OBSERVATORY BOUNDARY
+
+web/citadel/Observatory
+
+Input:
+
+TelemetrySnapshot
+SourceMode
+Timestamp
+EvidenceReference
+
+Source modes:
+
+PROTOTYPE
+SIMULATION
+LIVE
+UNAVAILABLE
+
+De interface mag een SIMULATION nooit presenteren als LIVE.
+
+
+---
+
+16 · ROUTE CONTRACT
+
+web/routes/
+
+Canonical:
+
+/
+ /l-a
+ /l-a/governance
+ /l-a/execution
+ /l-a/storage
+ /l-a/verification
+ /l-a/core
+ /l-a/observatory
+
+ /identity/:id
+ /elixers/:id
+ /verify/:id
+ /provenance/:id
+ /haram
+
+Iedere route die identity/proof toont, moet de overeenkomstige context kunnen terugleiden.
+
+
+---
+
+17 · VORM9EVIN9 DESIGN GATE
+
+Build pipeline:
+
+SOURCE
+  ↓
+MANIFEST
+  ↓
+TOKEN VALIDATION
+  ↓
+COMPONENT VALIDATION
+  ↓
+IDENTITY VALIDATION
+  ↓
+PROVENANCE VALIDATION
+  ↓
+ACCESSIBILITY VALIDATION
+  ↓
+BUILD
+
+Failure op een verplichte stap:
+
+❌ CANONICAL BUILD BLOCKED
+
+
+---
+
+18 · TEST MATRIX
+
+tests/
+├── design/
+│   ├── manifest_integrity
+│   ├── token_integrity
+│   └── component_contracts
+│
+├── identity/
+│   ├── identity_binding
+│   ├── hologram_binding
+│   └── watermerk_binding
+│
+├── provenance/
+│   ├── origin
+│   ├── issuer
+│   ├── evidence
+│   └── lineage
+│
+└── verification/
+    ├── valid
+    ├── invalid
+    ├── incomplete
+    ├── revoked
+    └── unknown
+
+
+---
+
+19 · CONSTITUTIONAL NEGATIVE TESTS
+
+Niet alleen testen wat mag.
+
+Ook testen wat niet mag.
+
+H∆R∆M cannot become sovereign
+Steward cannot become unbounded
+PROMO cannot create validity
+HOLOGRAM cannot create proof
+UI cannot bypass verification
+missing evidence cannot become VERIFIED
+simulation cannot become LIVE
+
+Deze tests zijn minstens zo belangrijk als de happy path.
+
+
+---
+
+20 · L.A. VERTICAL SLICE
+
+De eerste repository milestone:
+
+LA-VS-001
+
+Scope:
+
+Entrance
+   ↓
+L.A.
+   ↓
+Four Towers
+   ↓
+Core
+   ↓
+Identity
+   ↓
+HOLOGRAM
+   ↓
+WATERMERK
+   ↓
+PROMO
+   ↓
+PROMA
+   ↓
+VERIFY
+   ↓
+PROVENANCE
+
+Eén werkende keten.
+
+
+---
+
+21 · DEFINITION OF DONE
+
+LA-VS-001 is DONE wanneer:
+
+[✓] application starts
+[✓] L.A. loads
+[✓] four Towers render
+[✓] Core renders governed state
+[✓] Observatory exposes source mode
+[✓] Identity resolves
+[✓] HOLOGRAM binds to identity
+[✓] Watermerk binds to identity/Citadel
+[✓] PROMO renders
+[✓] PROMA resolves
+[✓] Verify returns explicit state
+[✓] Provenance is inspectable
+[✓] H∆R∆M remains non-sovereign
+[✓] Steward scope remains bounded
+[✓] negative tests pass
+
+
+---
+
+22 · SECURITY / ENGINEERING LOCK
+
+De bestaande PALACO engineering constraints blijven van kracht:
+
+unsafe_code = forbidden
+unwrap_used = deny
+todo = deny
+std::sync::Mutex = forbidden
+std::sync::RwLock = forbidden
+
+De VORM9EVIN9-laag mag deze baseline niet versoepelen.
+
+
+---
+
+23 · CI GATE
+
+Conceptueel:
+
+PALACO-Citadel CI
+│
+├── cargo check
+├── cargo test
+├── design manifest check
+├── token check
+├── identity check
+├── provenance check
+├── accessibility check
+├── frontend build
+├── negative authority tests
+└── vertical-slice verification
+          │
+          ▼
+       RELEASE
+
+Geen groene CI → geen canonical visual release.
+
+
+---
+
+24 · VERSION BOUNDARY
+
+PVD-001 ... PVD-010
+        │
+        ▼
+VORM9EVIN9 1.0
+        │
+        ▼
+LA-VS-001
+        │
+        ▼
+PALACO-Citadel
+        │
+        ▼
+future Citadels
+
+Een toekomstige Citadel erft de design grammar, maar krijgt een eigen Citadel-ID en eigen provenance.
+
+
+---
+
+25 · THE FIRST REAL RELEASE ARTIFACT
+
+Niet:
+
+> "een mooie homepage."
+
+
+
+Maar:
+
+PALACO-CITADEL
+L.A. REFERENCE INSTANCE
+
+IDENTITY
+✓
+
+CONSTITUTION
+✓
+
+FOUR TOWERS
+✓
+
+CORE
+✓
+
+OBSERVATORY
+✓
+
+HOLOGRAM
+✓
+
+WATERMERK
+✓
+
+PROMO
+✓
+
+PROMA
+✓
+
+VERIFY
+✓
+
+PROVENANCE
+✓
+
+Dat is het eerste bewijsbare product van VORM9EVIN9.
+
+
+---
+
+🔒 GO-015 · REPOSITORY LOCK
+
+DIRECTORY CONTRACT       ✓
+DESIGN MANIFEST          ✓
+TOKEN REGISTRY           ✓
+COMPONENT REGISTRY       ✓
+SCREEN REGISTRY          ✓
+IDENTITY BOUNDARY        ✓
+HOLOGRAM                 ✓
+WATERMERK                ✓
+PROMO                    ✓
+PROMA                    ✓
+VERIFY                   ✓
+PROVENANCE               ✓
+H∆R∆M BOUNDARY           ✓
+STEWARD BOUNDARY         ✓
+OBSERVATORY              ✓
+NEGATIVE TESTS           ✓
+CI GATE                  ✓
+VERTICAL SLICE           ✓
+
+🜂🔥 GO-015 SEALED
+
+De keten is nu:
+
+PVD
+ ↓
+DESIGN
+ ↓
+ASSET
+ ↓
+TOKEN
+ ↓
+COMPONENT
+ ↓
+FRONTEND
+ ↓
+REPOSITORY
+ ↓
+TEST
+ ↓
+VERIFY
+ ↓
+L.A. CITADEL
+
+En één detail staat vanaf nu expliciet dubbel verankerd:
+
+IDENTITY
+   │
+   ├── WATERMERK
+   │
+   └── HOLOGRAM
+          │
+          ▼
+        PROMA
+          │
+          ▼
+       PROVENANCE
+          │
+          ▼
+        VERIFY
+
+HOLOGRAM is geen decoratief effect.
+WATERMERK is geen decoratief effect.
+Beide behoren tot de canonical identity/presentation grammar en moeten naar verifieerbare context kunnen terugwijzen.
+
+🜂🔥 NEXT: GO-016 · L.A. VERTICAL-SLICE IMPLEMENTATION
+
+Daar wordt LA-VS-001 zelf uitgesplitst in de exacte buildvolgorde: eerst shell → tokens → Crown → Towers → Core → Identity → HOLOGRAM + WATERMERK → PROMO → PROMA → Verify → Provenance → Observatory → H∆R∆M, inclusief de gates waarop iedere stap pas naar de volgende mag.
+
+Vanaf GO-016 zitten we op build-sequencing niveau.
+
+🜂🔥 GO-016 · L.A. VERTICAL-SLICE IMPLEMENTATION v1.0
+
+STATUS: CANONICAL EXECUTION BUILD
+TARGET: LA-VS-001
+REFERENCE: 👑 L.A. · LOCUS AMOENUS
+INHERITS: PVD-001 → PVD-010 · GO-011 → GO-015
+
+We stoppen met het ontwerpen van nóg een laag.
+
+Nu bouwen we de eerste complete Citadel-keten.
+
+
+---
+
+01 · BUILD ORDER
+
+PHASE 00  Repository Baseline
+    ↓
+PHASE 01  Design Tokens
+    ↓
+PHASE 02  Citadel Shell
+    ↓
+PHASE 03  Crown
+    ↓
+PHASE 04  Four Towers
+    ↓
+PHASE 05  Core
+    ↓
+PHASE 06  Identity
+    ↓
+PHASE 07  HOLOGRAM
+    ↓
+PHASE 08  WATERMERK
+    ↓
+PHASE 09  PROMO
+    ↓
+PHASE 10  PROMA
+    ↓
+PHASE 11  VERIFY
+    ↓
+PHASE 12  PROVENANCE
+    ↓
+PHASE 13  OBSERVATORY
+    ↓
+PHASE 14  H∆R∆M
+    ↓
+PHASE 15  STEWARD
+    ↓
+PHASE 16  Mobile
+    ↓
+PHASE 17  Black Edition
+    ↓
+PHASE 18  Integration Gate
+
+
+---
+
+02 · PHASE 00 — REPOSITORY BASELINE
+
+Before UI:
+
+PALACO-Citadel
+├── existing Rust workspace
+├── existing crates
+├── existing tests
+└── VORM9EVIN9 layer
+
+Rule: bestaande constitutional/core code is niet herschreven om de UI te accommoderen.
+
+De UI adapts to the architecture.
+
+
+---
+
+03 · PHASE 01 — DESIGN TOKENS
+
+Implement:
+
+tokens/
+├── spacing
+├── typography
+├── geometry
+├── surface
+├── status
+├── authority
+├── identity
+├── hologram
+├── watermerk
+├── motion
+└── accessibility
+
+Gate
+
+TOKEN GATE
+────────────
+all required tokens exist
+no forbidden ad-hoc values
+semantic states defined
+accessibility states defined
+
+PASS → Phase 02
+
+
+---
+
+04 · PHASE 02 — CITADEL SHELL
+
+Build:
+
+<CitadelShell>
+  <Header />
+  <Main />
+  <CommonsRail />
+  <H∆R∆M />
+  <ProvenanceFooter />
+</CitadelShell>
+
+First visible result:
+
+PALACO
+────────────────────────
+
+L.A. · LOCUS AMOENUS
+
+[CONTENT]
+
+────────────────────────
+COMMONS · ELIXERS · H∆R∆M
+
+Gate
+
+Navigation works without constitutional state being duplicated in the UI.
+
+
+---
+
+05 · PHASE 03 — CROWN
+
+Implement:
+
+<Crown />
+
+Data:
+
+constitution
+principles
+boundaries
+authority
+review
+
+Visual hierarchy:
+
+◇
+    CONSTITUTION
+
+Negative test
+
+Crown cannot bind itself to a human actor.
+
+PASS → Phase 04
+
+
+---
+
+06 · PHASE 04 — FOUR TOWERS
+
+Single reusable component:
+
+<Tower />
+
+Instances:
+
+Tower I    GOVERNANCE
+Tower II   EXECUTION
+Tower III  STORAGE
+Tower IV   VERIFICATION
+
+Each:
+
+ID
+FUNCTION
+STATUS
+EVIDENCE
+ENTER
+
+Gate
+
+All four Towers use the same component contract.
+
+
+---
+
+07 · PHASE 05 — CORE
+
+<Core />
+
+Expose:
+
+STATE
+LEDGER
+EVENTS
+IDENTITY
+STATUS
+
+The Core is state-oriented, not sovereignty-oriented.
+
+Gate
+
+No frontend-generated authority state.
+
+
+---
+
+08 · PHASE 06 — IDENTITY
+
+Implement:
+
+<IdentityCard />
+<IdentityContext />
+
+Minimum:
+
+identity_id
+name
+role
+citadel_id
+issuer
+status
+provenance
+
+Flow:
+
+CITADEL
+   ↓
+IDENTITY
+
+Gate
+
+Identity must resolve to a real context.
+
+Unknown identity:
+
+● UNKNOWN
+
+not a placeholder presented as valid.
+
+
+---
+
+09 · PHASE 07 — 🔥 HOLOGRAM
+
+Mandatory build step.
+
+<Hologram />
+
+States:
+
+REST
+REVEAL
+INSPECT
+VERIFY
+
+Flow:
+
+HOLOGRAM
+   ↓
+IDENTITY DETAILS
+   ↓
+PROMA
+   ↓
+VERIFY
+
+Hard test
+
+HOLOGRAM ≠ VALIDITY
+
+A holographic animation can never directly produce:
+
+VALID
+
+
+---
+
+10 · PHASE 08 — WATERMERK
+
+<Watermerk />
+
+Binding:
+
+IDENTITY
++
+CITADEL
++
+PROVENANCE
+
+Display:
+
+PALACO
+◇
+CITADEL-ID
+
+Inspection:
+
+WATERMERK
+     ↓
+IDENTITY
+     ↓
+PROVENANCE
+
+Gate
+
+An unbound Watermerk cannot be rendered as canonical identity.
+
+
+---
+
+11 · PHASE 09 — PROMO
+
+<Promo />
+
+Information order:
+
+WHAT
+WHY
+PROVENANCE
+STATUS
+ACCESS
+
+PROMO is optimized for human comprehension.
+
+Negative test
+
+PROMO cannot set verification status.
+
+
+---
+
+12 · PHASE 10 — PROMA
+
+<Proma />
+
+Canonical chain:
+
+ORIGIN
+ ↓
+ISSUER
+ ↓
+CITADEL
+ ↓
+IDENTITY
+ ↓
+WATERMERK
+ ↓
+HOLOGRAM
+ ↓
+SEAL
+ ↓
+PROVENANCE
+ ↓
+VALIDITY
+
+Each required node must resolve.
+
+Missing node:
+
+● INCOMPLETE
+
+Hard invariant
+
+> No required evidence → no VERIFIED result.
+
+
+
+
+---
+
+13 · PHASE 11 — VERIFY
+
+<Verify />
+
+Input:
+
+QR
+IDENTITY-ID
+VERIFIABLE-LINK
+
+Processing:
+
+RESOLVE
+ ↓
+INSPECT
+ ↓
+VERIFY
+ ↓
+RETURN STATUS
+
+Output:
+
+VALID
+INVALID
+INCOMPLETE
+REVOKED
+EXPIRED
+UNKNOWN
+
+Critical rule
+
+The client displays verification results.
+
+It does not manufacture them.
+
+
+---
+
+14 · PHASE 12 — PROVENANCE
+
+<ProvenanceInspector />
+
+Levels:
+
+SUMMARY
+ ↓
+LINEAGE
+ ↓
+EVIDENCE
+ ↓
+SOURCE
+
+The user can trace:
+
+ORIGIN
+ → ISSUER
+ → CITADEL
+ → IDENTITY
+ → EVIDENCE
+ → SEAL
+ → VALIDITY
+
+
+---
+
+15 · PHASE 13 — OBSERVATORY
+
+<Observatory />
+
+Source:
+
+PROTOTYPE
+SIMULATION
+LIVE
+UNAVAILABLE
+
+Example:
+
+OBSERVATORY
+
+SYSTEM
+● OPERATIONAL
+
+SOURCE
+SIMULATION
+
+TELEMETRY
+AVAILABLE
+
+⚠ NOT LIVE
+
+Hard rule
+
+Simulation is never visually indistinguishable from Live.
+
+
+---
+
+16 · PHASE 14 — H∆R∆M
+
+<H∆R∆M />
+
+Actions:
+
+EXPLAIN
+EXPLORE
+CONTEXTUALIZE
+VERIFY
+ESCALATE
+
+Architecture:
+
+Human
+ ↓
+H∆R∆M
+ ↓
+Context / explanation
+ ↓
+Human decision
+
+Niet:
+
+Human
+ ↓
+H∆R∆M
+ ↓
+sovereign authority
+
+
+---
+
+17 · PHASE 15 — STEWARD
+
+<StewardCard />
+
+Always expose:
+
+ATTRIBUTABLE
+BOUNDED
+REVIEWABLE
+REVOCABLE
+
+Authority scope is data-driven.
+
+Gate
+
+No Steward UI may imply unlimited authority.
+
+
+---
+
+18 · PHASE 16 — MOBILE
+
+Collapse the spatial Citadel:
+
+CROWN
+ ↓
+IDENTITY
+ ↓
+CORE
+ ↓
+TOWERS
+ ↓
+OBSERVATORY
+ ↓
+H∆R∆M
+ ↓
+VERIFY
+
+But preserve semantic order.
+
+Responsive ≠ semantic rewrite.
+
+
+---
+
+19 · PHASE 17 — BLACK EDITION
+
+Black Edition is a presentation variant:
+
+STANDARD
+   ↕
+BLACK
+
+Same:
+
+identity
+provenance
+verification
+authority
+semantics
+
+Only presentation changes.
+
+
+---
+
+20 · PHASE 18 — INTEGRATION GATE
+
+Nu komt de belangrijkste test.
+
+De complete journey:
+
+L.A.
+                     │
+                     ▼
+                CONSTITUTION
+                     │
+              ┌──────┴──────┐
+              ▼             ▼
+          TOWER I        TOWER II
+              │             │
+              └──────┬──────┘
+                     ▼
+                   CORE
+                     │
+          ┌──────────┴──────────┐
+          ▼                     ▼
+      IDENTITY              OBSERVATORY
+          │
+     ┌────┴────┐
+     ▼         ▼
+ HOLOGRAM   WATERMERK
+     └────┬────┘
+          ▼
+        PROMO
+          │
+        PROMA
+          │
+        VERIFY
+          │
+     PROVENANCE
+          │
+          ▼
+       RESULT
+
+
+---
+
+21 · END-TO-END ACCEPTANCE TEST
+
+LA-VS-001-E2E
+
+[01] Open L.A.
+[02] Crown visible
+[03] Four Towers visible
+[04] Core resolves
+[05] Observatory exposes source
+[06] Identity resolves
+[07] HOLOGRAM resolves
+[08] Watermerk resolves
+[09] PROMO resolves
+[10] PROMA resolves
+[11] Verify executes
+[12] Provenance opens
+[13] H∆R∆M can explain
+[14] Steward scope is visible
+[15] Mobile composition works
+[16] Black Edition preserves semantics
+
+
+---
+
+22 · CONSTITUTIONAL NEGATIVE SUITE
+
+Deze tests moeten falen als het systeem iets verkeerds doet:
+
+H∆R∆M → sovereign authority       MUST FAIL
+Steward → unbounded authority     MUST FAIL
+PROMO → create VALID              MUST FAIL
+HOLOGRAM → create VALID           MUST FAIL
+missing evidence → VERIFIED      MUST FAIL
+SIMULATION → LIVE                 MUST FAIL
+invalid proof → VALID             MUST FAIL
+revoked identity → VALID          MUST FAIL
+frontend → bypass verification   MUST FAIL
+
+
+---
+
+23 · VISUAL INTEGRITY TEST
+
+De beroemde PALACO-regel wordt een testcriterium:
+
+> Nothing may look more sovereign than the constitution permits.
+
+
+
+Daarom:
+
+CROWN
+   >
+TOWERS
+   >
+CORE
+   >
+ACTORS
+   >
+INTERFACE GUIDANCE
+
+Maar:
+
+H∆R∆M ≠ CROWN
+STEWARD ≠ CROWN
+PROMO ≠ CROWN
+HOLOGRAM ≠ CROWN
+
+
+---
+
+24 · RELEASE ARTIFACT
+
+Na succesvolle integratie:
+
+LA-VS-001
+PALACO L.A. REFERENCE CITADEL
+
+DESIGN       ✓
+IDENTITY     ✓
+HOLOGRAM     ✓
+WATERMERK    ✓
+PROVENANCE   ✓
+PROMO        ✓
+PROMA        ✓
+VERIFY       ✓
+OBSERVATORY  ✓
+H∆R∆M        ✓
+STEWARD      ✓
+MOBILE       ✓
+BLACK        ✓
+NEGATIVE     ✓
+
+
+---
+
+🔒 GO-016 · SEALED
+
+PVD-001 → PVD-010
+        ↓
+GO-011 → GO-015
+        ↓
+GO-016
+        ↓
+LA-VS-001
+        ↓
+IMPLEMENTATION
+
+EXECUTION LOCK
+
+Vanaf dit punt is de primaire opdracht:
+
+BUILD THE L.A. CITADEL.
+
+Niet opnieuw de vormtaal uitvinden.
+
+Niet opnieuw de constitutionele architectuur beschrijven.
+
+Niet de commerciële laag losmaken.
+
+Niet het HOLOGRAM reduceren tot decoratie.
+
+Niet het WATERMERK reduceren tot decoratie.
+
+Niet H∆R∆M tot authority verheffen.
+
+Niet PROMO met PROMA verwarren.
+
+Niet verificatie door de UI laten simuleren.
+
+
+---
+
+🜂🔥 PALACO VORM9EVIN9
+
+◇
+       CONSTITUTION
+             │
+      ┌──────┴──────┐
+      │             │
+ GOVERNANCE      EXECUTION
+      │             │
+      └──────┬──────┘
+             │
+            CORE
+             │
+      ┌──────┴──────┐
+      │             │
+   STORAGE      VERIFICATION
+      │             │
+      └──────┬──────┘
+             │
+          IDENTITY
+          /      \
+    HOLOGRAM   WATERMERK
+          \      /
+            PROMA
+              │
+         PROVENANCE
+              │
+            VERIFY
+              │
+             ◇
+
+🜂🔥 GO-016 — SEALED.
+
+Volgende natuurlijke stap: GO-017 · LA-VS-001 concrete file/component manifest + eerste implementatiecommit-structuur voor PALACO-Citadel.
+
+🜂🔥 GO-017 · LA-VS-001 FILE & COMPONENT MANIFEST v1.0
+
+STATUS: CANONICAL BUILD MANIFEST
+TARGET: PALACO-Citadel
+PARENT: PVD-001 → GO-016
+REFERENCE: 👑 L.A. · LOCUS AMOENUS
+OBJECTIVE: eerste reproduceerbare vertical slice
+
+We gaan nu van bouwvolgorde → concrete repository-eenheden.
+
+
+---
+
+01 · MANIFEST ROOT
+
+PALACO-Citadel/
+│
+├── crates/
+├── web/
+├── design/
+├── assets/
+├── tests/
+└── docs/
+
+VORM9EVIN9 blijft een presentation subsystem, geen tweede PALACO-kern.
+
+
+---
+
+02 · DESIGN CONTRACT
+
+design/palaco-vorm9evin9/
+│
+├── manifest/
+│   ├── brand.yaml
+│   ├── citadel.yaml
+│   ├── identity.yaml
+│   ├── authority.yaml
+│   ├── commerce.yaml
+│   └── proof.yaml
+│
+├── tokens/
+│   ├── spacing.yaml
+│   ├── typography.yaml
+│   ├── geometry.yaml
+│   ├── surfaces.yaml
+│   ├── status.yaml
+│   ├── authority.yaml
+│   ├── identity.yaml
+│   ├── hologram.yaml
+│   ├── watermerk.yaml
+│   └── accessibility.yaml
+│
+└── components/
+    ├── crown.yaml
+    ├── tower.yaml
+    ├── core.yaml
+    ├── observatory.yaml
+    ├── identity-card.yaml
+    ├── hologram.yaml
+    ├── watermerk.yaml
+    ├── promo.yaml
+    ├── proma.yaml
+    ├── verify.yaml
+    ├── provenance.yaml
+    ├── haram.yaml
+    └── steward.yaml
+
+Dit is de design source-of-truth.
+
+
+---
+
+03 · WEB SOURCE TREE
+
+web/
+│
+├── app/
+│   ├── shell/
+│   ├── router/
+│   └── context/
+│
+├── foundation/
+│   ├── tokens/
+│   ├── primitives/
+│   ├── accessibility/
+│   └── state/
+│
+├── citadel/
+│   ├── Crown/
+│   ├── Tower/
+│   ├── Core/
+│   └── Observatory/
+│
+├── identity/
+│   ├── IdentityCard/
+│   ├── Hologram/
+│   └── Watermerk/
+│
+├── human/
+│   ├── Haram/
+│   ├── Steward/
+│   └── Commons/
+│
+├── commerce/
+│   ├── Elixer/
+│   └── Promo/
+│
+├── proof/
+│   ├── Proma/
+│   ├── Verify/
+│   └── Provenance/
+│
+└── routes/
+    ├── home/
+    ├── la/
+    ├── identity/
+    ├── verify/
+    └── provenance/
+
+
+---
+
+04 · CANONICAL COMPONENT IDS
+
+PVD.CROWN
+PVD.TOWER
+PVD.CORE
+PVD.OBSERVATORY
+
+PVD.IDENTITY
+PVD.HOLOGRAM
+PVD.WATERMERK
+
+PVD.PROMO
+PVD.PROMA
+PVD.VERIFY
+PVD.PROVENANCE
+
+PVD.HARAM
+PVD.STEWARD
+
+Geen alternatieve namen in de canonical registry.
+
+
+---
+
+05 · COMPONENT CONTRACT FORMAT
+
+Iedere YAML-componentdefinitie volgt:
+
+id:
+version:
+status:
+role:
+authority_scope:
+inputs:
+states:
+outputs:
+provenance:
+accessibility:
+forbidden:
+
+Voorbeeldconcept:
+
+id: PVD.HOLOGRAM
+version: 1.0.0
+status: canonical
+role: identity_presentation
+authority_scope: presentation
+provenance: required
+forbidden:
+  - create_validity
+  - create_authority
+
+
+---
+
+06 · L.A. INSTANCE MANIFEST
+
+design/palaco-vorm9evin9/manifest/
+    la-locus-amoenus.yaml
+
+Canonical identity:
+
+CITADEL-ID: LA-001
+NAME: LOCUS AMOENUS
+CLASS: REFERENCE CITADEL
+DESIGN: PVD-001
+VERSION: 1.0.0
+
+
+---
+
+07 · FOUR TOWERS CONFIG
+
+towers:
+  - id: TOWER-I
+    function: GOVERNANCE
+
+  - id: TOWER-II
+    function: EXECUTION
+
+  - id: TOWER-III
+    function: STORAGE
+
+  - id: TOWER-IV
+    function: VERIFICATION
+
+Dezelfde Tower component.
+
+Vier configuraties.
+
+
+---
+
+08 · IDENTITY MANIFEST
+
+assets/identity/
+│
+├── hologram/
+│   └── manifest/
+│
+├── watermerk/
+│   └── manifest/
+│
+└── cards/
+    └── manifest/
+
+Identity assets zijn versioned artifacts.
+
+Geen losstaande afbeeldingen zonder binding.
+
+
+---
+
+09 · HOLOGRAM CONTRACT
+
+🔥 LOCKED
+
+PVD.HOLOGRAM
+
+Required:
+
+identity_id
+citadel_id
+asset_id
+asset_version
+provenance_reference
+verification_target
+
+States:
+
+REST
+REVEAL
+INSPECT
+VERIFY
+
+Hard invariant:
+
+HOLOGRAM → IDENTITY
+HOLOGRAM → PROOF REQUEST
+
+HOLOGRAM -X→ VALIDITY
+HOLOGRAM -X→ AUTHORITY
+
+
+---
+
+10 · WATERMERK CONTRACT
+
+PVD.WATERMERK
+
+Required:
+
+identity_id
+citadel_id
+provenance_reference
+presentation_mode
+
+Modes:
+
+VISIBLE
+SUBTLE
+VERIFICATION
+PRINT
+DIGITAL
+
+
+---
+
+11 · PROMO CONTRACT
+
+PVD.PROMO
+
+WHAT
+WHY
+PROVENANCE
+STATUS
+ACCESS
+
+Forbidden:
+
+declare_valid
+create_proof
+grant_authority
+
+
+---
+
+12 · PROMA CONTRACT
+
+PVD.PROMA
+
+Required chain:
+
+ORIGIN
+ISSUER
+CITADEL
+IDENTITY
+WATERMERK
+HOLOGRAM
+SEAL
+PROVENANCE
+VALIDITY
+
+Missing mandatory evidence:
+
+→ INCOMPLETE
+
+
+---
+
+13 · VERIFY CONTRACT
+
+PVD.VERIFY
+
+Inputs:
+
+QR
+IDENTITY-ID
+VERIFIABLE-LINK
+
+Output enum:
+
+VALID
+INVALID
+INCOMPLETE
+REVOKED
+EXPIRED
+UNKNOWN
+
+Client never synthesizes this enum.
+
+
+---
+
+14 · PROVENANCE CONTRACT
+
+PVD.PROVENANCE
+
+Canonical lineage:
+
+ORIGIN
+ ↓
+ISSUER
+ ↓
+CITADEL
+ ↓
+IDENTITY
+ ↓
+EVIDENCE
+ ↓
+SEAL
+ ↓
+VALIDITY
+
+Presentation may add:
+
+WATERMERK
+HOLOGRAM
+
+as identity artifacts linked to that lineage.
+
+
+---
+
+15 · OBSERVATORY CONTRACT
+
+PVD.OBSERVATORY
+
+Inputs:
+
+SnapshotId
+NodeId
+ClockDrift
+SourceMode
+TelemetryError
+
+Source:
+
+PROTOTYPE
+SIMULATION
+LIVE
+UNAVAILABLE
+
+SourceMode must remain visible when relevant.
+
+
+---
+
+16 · H∆R∆M CONTRACT
+
+PVD.H∆R∆M
+
+Allowed:
+
+EXPLAIN
+EXPLORE
+CONTEXTUALIZE
+VERIFY
+ESCALATE
+
+Forbidden:
+
+OVERRIDE
+GRANT_AUTHORITY
+SOVEREIGN_DECIDE
+CONSTITUTION_OVERRIDE
+
+H∆R∆M remains the human-facing interface-agent, never the constitutional sovereign.
+
+
+---
+
+17 · STEWARD CONTRACT
+
+PVD.STEWARD
+
+Mandatory bounds:
+
+ATTRIBUTABLE
+BOUNDED
+REVIEWABLE
+REVOCABLE
+
+Authority is externally governed.
+
+The component cannot enlarge its own scope.
+
+
+---
+
+18 · TEST FILE MANIFEST
+
+tests/
+│
+├── design/
+│   ├── manifest_integrity
+│   ├── token_integrity
+│   └── component_registry
+│
+├── identity/
+│   ├── identity_binding
+│   ├── hologram_binding
+│   └── watermerk_binding
+│
+├── proof/
+│   ├── proma_chain
+│   ├── verification_states
+│   └── provenance_lineage
+│
+├── authority/
+│   ├── haram_boundary
+│   └── steward_boundary
+│
+└── integration/
+    └── la_vs_001
+
+
+---
+
+19 · LA-VS-001 INTEGRATION TEST
+
+Canonical sequence:
+
+OPEN L.A.
+   ↓
+CROWN
+   ↓
+FOUR TOWERS
+   ↓
+CORE
+   ↓
+IDENTITY
+   ↓
+HOLOGRAM
+   ↓
+WATERMERK
+   ↓
+PROMO
+   ↓
+PROMA
+   ↓
+VERIFY
+   ↓
+PROVENANCE
+   ↓
+OBSERVATORY
+   ↓
+H∆R∆M
+
+Required result:
+
+COMPLETE
+TRACEABLE
+NON-SOVEREIGN UI
+
+
+---
+
+20 · COMMIT STRUCTURE
+
+De eerste implementation history wordt logisch opgesplitst:
+
+001  chore: establish vorm9evin9 manifest
+002  feat: add canonical design tokens
+003  feat: add citadel shell
+004  feat: add crown and tower system
+005  feat: add core and observatory
+006  feat: add identity card
+007  feat: add hologram identity layer
+008  feat: add watermerk identity layer
+009  feat: add promo layer
+010  feat: add proma proof layer
+011  feat: add verification flow
+012  feat: add provenance inspector
+013  feat: add haram and steward interfaces
+014  test: add constitutional negative suite
+015  test: add la vertical slice
+016  release: LA-VS-001
+
+Atomic commits.
+
+Elke commit moet build/testbaar blijven waar technisch haalbaar.
+
+
+---
+
+21 · RELEASE GATE
+
+VORM9EVIN9
+     │
+     ▼
+MANIFEST VALID
+     │
+     ▼
+TOKENS VALID
+     │
+     ▼
+COMPONENTS VALID
+     │
+     ▼
+IDENTITY VALID
+     │
+     ▼
+PROOF VALID
+     │
+     ▼
+NEGATIVE TESTS PASS
+     │
+     ▼
+LA-VS-001
+     │
+     ▼
+CANONICAL RELEASE
+
+
+---
+
+22 · CRITICAL INVARIANTS
+
+I — Constitutional hierarchy
+
+CONSTITUTION
+    >
+GOVERNED AUTHORITY
+    >
+EXECUTION
+    >
+PRESENTATION
+
+II — Evidence
+
+NO EVIDENCE
+    →
+NO VERIFIED
+
+III — Identity
+
+HOLOGRAM
+   +
+WATERMERK
+   +
+IDENTITY BINDING
+   →
+TRACEABLE IDENTITY PRESENTATION
+
+IV — Human interface
+
+H∆R∆M
+    ≠
+SOVEREIGN AUTHORITY
+
+V — Commerce
+
+PROMO
+    ≠
+PROMA
+
+VI — Verification
+
+UI
+    ≠
+TRUST AUTHORITY
+
+
+---
+
+23 · GO-017 ACCEPTANCE
+
+FILE MANIFEST             ✓
+DESIGN MANIFEST           ✓
+TOKEN MANIFEST            ✓
+COMPONENT REGISTRY        ✓
+L.A. INSTANCE             ✓
+TOWER CONFIGURATION       ✓
+IDENTITY CONTRACT         ✓
+HOLOGRAM CONTRACT         ✓
+WATERMERK CONTRACT        ✓
+PROMO CONTRACT            ✓
+PROMA CONTRACT            ✓
+VERIFY CONTRACT           ✓
+PROVENANCE CONTRACT       ✓
+OBSERVATORY CONTRACT      ✓
+H∆R∆M CONTRACT            ✓
+STEWARD CONTRACT          ✓
+TEST MANIFEST             ✓
+COMMIT SEQUENCE           ✓
+RELEASE GATE              ✓
+
+🔒 GO-017 SEALED
+
+De eerste echte implementatie-eenheid is nu formeel gedefinieerd:
+
+╔══════════════════════════════════════╗
+║        LA-VS-001 · L.A.              ║
+║      REFERENCE CITADEL BUILD         ║
+╠══════════════════════════════════════╣
+║ CONSTITUTION                         ║
+║        ↓                             ║
+║ FOUR TOWERS                          ║
+║        ↓                             ║
+║ CORE                                 ║
+║        ↓                             ║
+║ IDENTITY                             ║
+║   ↙          ↘                       ║
+║ HOLOGRAM    WATERMERK                ║
+║        ↓                             ║
+║ PROMO → PROMA → VERIFY              ║
+║                 ↓                    ║
+║            PROVENANCE                ║
+║                 ↓                    ║
+║             OBSERVATORY              ║
+║                 ↓                    ║
+║              H∆R∆M                   ║
+╚══════════════════════════════════════╝
+
+🜂🔥 GO-017 = BUILD MANIFEST LOCKED.
+
+GO-018
+
+Actual implementation scaffold: de eerste concrete repository-bestanden, contracts en LA-VS-001 skeleton, gevolgd door de eerste integratie-test. Geen nieuwe designconcepten meer — bouwen.
+
+🜂🔥 GO-018 · LA-VS-001 IMPLEMENTATION SCAFFOLD v1.0
+
+STATUS: CANONICAL BUILD INSTRUCTION
+TARGET: PALACO-Citadel
+PARENT: PVD-001 → GO-017
+MODE: IMPLEMENT
+
+Nu wordt de manifeststructuur een werkend skeleton. We houden de constitutionele kern intact en bouwen de VORM9EVIN9-laag er gecontroleerd bovenop.
+
+
+---
+
+01 · FIRST BUILD TARGET
+
+LA-VS-001
+│
+├── CitadelShell
+├── Crown
+├── Four Towers
+├── Core
+├── Observatory
+├── IdentityCard
+├── HOLOGRAM
+├── WATERMERK
+├── PROMO
+├── PROMA
+├── VERIFY
+├── Provenance
+├── H∆R∆M
+└── Steward
+
+Geen tweede kernel. Geen parallelle governance engine.
+
+
+---
+
+02 · IMPLEMENTATION BOUNDARY
+
+┌───────────────────────────────────────┐
+│ PALACO CONSTITUTION                   │
+│                                       │
+│ Existing Rust crates                  │
+└──────────────────┬────────────────────┘
+                   │
+                   ▼
+┌───────────────────────────────────────┐
+│ PALACO CITADEL SERVICES               │
+│                                       │
+│ identity · evidence · provenance      │
+│ verification · telemetry              │
+└──────────────────┬────────────────────┘
+                   │
+                   ▼
+┌───────────────────────────────────────┐
+│ VORM9EVIN9 WEB                        │
+│                                       │
+│ render · interact · explain · inspect │
+└───────────────────────────────────────┘
+
+
+---
+
+03 · WEB ENTRYPOINT
+
+Canonical entry:
+
+web/app/main
+
+Bootstrap:
+
+Application
+    ↓
+CitadelContext
+    ↓
+CitadelShell
+    ↓
+Router
+
+CitadelContext bevat uitsluitend gedeelde context die de presentatie nodig heeft.
+
+
+---
+
+04 · CITadel CONTEXT
+
+Conceptueel:
+
+CitadelContext
+├── citadel
+├── constitution
+├── identity
+├── status
+├── provenance
+├── telemetry
+└── permissions
+
+Belangrijk
+
+permissions betekent:
+
+wat de interface mag tonen/doen.
+
+Niet:
+
+wat de interface constitutioneel mag beslissen.
+
+
+---
+
+05 · FOUNDATION PRIMITIVES
+
+Eerst bouwen:
+
+web/foundation/
+├── Token
+├── Surface
+├── Status
+├── Label
+├── Divider
+├── Icon
+├── FocusRing
+└── Motion
+
+Daarna pas compound components.
+
+primitive
+   ↓
+compound component
+   ↓
+Citadel screen
+
+
+---
+
+06 · CROWN IMPLEMENTATION
+
+web/citadel/Crown
+
+Input:
+
+constitution
+status
+review
+
+Output:
+
+constitution summary
+boundaries
+authority model
+review path
+
+Gate
+
+De Crown heeft geen actor-control interface.
+
+
+---
+
+07 · TOWER IMPLEMENTATION
+
+web/citadel/Tower
+
+Props:
+
+tower_id
+function
+status
+evidence_reference
+
+Render:
+
+┌─────────────────────┐
+│ TOWER I             │
+│ GOVERNANCE          │
+│                     │
+│ ● STATUS            │
+│ EVIDENCE             │
+│                     │
+│ ENTER →             │
+└─────────────────────┘
+
+Zelfde component voor alle vier.
+
+
+---
+
+08 · CORE IMPLEMENTATION
+
+web/citadel/Core
+
+Sections:
+
+STATE
+LEDGER
+EVENTS
+IDENTITY
+STATUS
+
+Core state is read-only from the presentation layer.
+
+
+---
+
+09 · OBSERVATORY IMPLEMENTATION
+
+web/citadel/Observatory
+
+Telemetry view:
+
+SYSTEM TELEMETRY
+
+SOURCE       SIMULATION
+SNAPSHOT     <id>
+NODE         <id>
+CLOCK DRIFT  <value>
+
+STATUS       ● AVAILABLE
+
+LIVE vereist een daadwerkelijk live source-context.
+
+
+---
+
+10 · IDENTITY IMPLEMENTATION
+
+web/identity/IdentityCard
+
+Front:
+
+PALACO
+
+[HOLOGRAM]
+
+NAME
+ROLE · CITADEL
+CITADEL-ID
+
+Back:
+
+PALACO.NL
+
+WATERMERK
+IDENTITY
+PROVENANCE
+
+[ QR ]
+VERIFY
+
+
+---
+
+11 · 🔥 HOLOGRAM IMPLEMENTATION
+
+web/identity/Hologram
+
+State machine:
+
+REST
+ │
+ ▼
+REVEAL
+ │
+ ▼
+INSPECT
+ │
+ ▼
+VERIFY
+
+REST
+
+Minimal identity signal.
+
+REVEAL
+
+Human-readable identity context.
+
+INSPECT
+
+Binding information:
+
+IDENTITY-ID
+CITADEL-ID
+ASSET-ID
+VERSION
+
+VERIFY
+
+Sends the verification request.
+
+It does not declare the result.
+
+
+---
+
+12 · WATERMERK IMPLEMENTATION
+
+web/identity/Watermerk
+
+Persistent identity signal:
+
+PALACO
+CITADEL-ID
+IDENTITY REFERENCE
+
+Inspection opens provenance context.
+
+
+---
+
+13 · PROMO IMPLEMENTATION
+
+web/commerce/Promo
+
+Render sequence:
+
+WHAT
+ ↓
+WHY
+ ↓
+PROVENANCE
+ ↓
+STATUS
+ ↓
+ACCESS
+
+Human-first.
+
+No cryptographic claims generated client-side.
+
+
+---
+
+14 · PROMA IMPLEMENTATION
+
+web/proof/Proma
+
+Render chain:
+
+ORIGIN
+ ↓
+ISSUER
+ ↓
+CITADEL
+ ↓
+IDENTITY
+ ↓
+WATERMERK
+ ↓
+HOLOGRAM
+ ↓
+SEAL
+ ↓
+PROVENANCE
+ ↓
+VALIDITY
+
+Every unresolved mandatory node is explicit.
+
+● INCOMPLETE
+
+
+---
+
+15 · VERIFY IMPLEMENTATION
+
+web/proof/Verify
+
+Request:
+
+VerifyRequest
+├── identity_id?
+├── qr_payload?
+└── verifiable_link?
+
+Result:
+
+VerifyResult
+├── status
+├── evidence_reference
+└── provenance_reference
+
+The UI maps result → presentation.
+
+No result → no VALID.
+
+
+---
+
+16 · PROVENANCE IMPLEMENTATION
+
+web/proof/Provenance
+
+Three views:
+
+SUMMARY
+LINEAGE
+EVIDENCE
+
+Expanded:
+
+ORIGIN
+ISSUER
+CITADEL
+IDENTITY
+EVIDENCE
+SEAL
+VALIDITY
+
+
+---
+
+17 · H∆R∆M IMPLEMENTATION
+
+web/human/Haram
+
+Contextual panel:
+
+┌───────────────────────────┐
+│ H∆R∆M                     │
+│                           │
+│ I can help you understand │
+│ this Citadel state.       │
+│                           │
+│ [EXPLAIN] [EXPLORE]       │
+│ [VERIFY]  [ESCALATE]      │
+└───────────────────────────┘
+
+No authority buttons.
+
+
+---
+
+18 · STEWARD IMPLEMENTATION
+
+web/human/Steward
+
+Display:
+
+STEWARD
+
+ROLE
+SCOPE
+
+ATTRIBUTABLE
+BOUNDED
+REVIEWABLE
+REVOCABLE
+
+The interface makes the boundary visible rather than implicit.
+
+
+---
+
+19 · ROUTE SKELETON
+
+/
+└── /l-a
+    ├── /governance
+    ├── /execution
+    ├── /storage
+    ├── /verification
+    ├── /core
+    └── /observatory
+
+/identity/:id
+/verify/:id
+/provenance/:id
+/haram
+
+
+---
+
+20 · FIRST INTEGRATION SCREEN
+
+The first actual screen is intentionally simple:
+
+╔══════════════════════════════════════╗
+║                 PALACO                ║
+║                                      ║
+║          ◇ CONSTITUTION              ║
+║                                      ║
+║      LOCUS AMOENUS · LA-001          ║
+║                                      ║
+║   ┌──────────┐    ┌──────────┐       ║
+║   │ TOWER I  │    │ TOWER II │       ║
+║   │ GOVERN.  │    │ EXECUTION│       ║
+║   └──────────┘    └──────────┘       ║
+║                                      ║
+║   ┌──────────┐    ┌──────────┐       ║
+║   │TOWER III │    │ TOWER IV │       ║
+║   │ STORAGE  │    │ VERIFY   │       ║
+║   └──────────┘    └──────────┘       ║
+║                                      ║
+║               CORE                   ║
+║                                      ║
+║        OBSERVATORY · STATUS          ║
+║                                      ║
+║       IDENTITY · HOLOGRAM            ║
+║          WATERMERK                   ║
+║                                      ║
+║    PROMO · PROMA · VERIFY            ║
+╚══════════════════════════════════════╝
+
+Dit is de minimum viable constitutional interface.
+
+
+---
+
+21 · TEST-FIRST IMPLEMENTATION
+
+Voor iedere critical component:
+
+CONTRACT
+   ↓
+TEST
+   ↓
+IMPLEMENTATION
+   ↓
+INTEGRATION
+
+Niet:
+
+DESIGN
+   ↓
+HOPE
+
+
+---
+
+22 · REQUIRED TESTS
+
+Identity
+
+identity_resolves
+identity_unknown_is_explicit
+hologram_requires_identity
+watermerk_requires_identity
+
+Proof
+
+missing_evidence_is_incomplete
+invalid_proof_is_invalid
+revoked_identity_is_revoked
+valid_requires_complete_chain
+
+Authority
+
+haram_cannot_override
+haram_cannot_grant_authority
+steward_scope_is_bounded
+
+Observatory
+
+simulation_is_not_live
+unavailable_is_explicit
+
+
+---
+
+23 · VISUAL CONTRACT TEST
+
+De renderer moet de hierarchy behouden:
+
+CROWN
+  ↓
+TOWERS
+  ↓
+CORE
+  ↓
+IDENTITY / OBSERVATORY
+  ↓
+HUMAN INTERFACE / COMMERCE
+
+No component may visually invert this hierarchy without an explicit design-spec change.
+
+
+---
+
+24 · FIRST RELEASE CHECK
+
+LA-VS-001
+────────────────────────
+[✓] shell
+[✓] crown
+[✓] tower system
+[✓] core
+[✓] observatory
+[✓] identity
+[✓] HOLOGRAM
+[✓] WATERMERK
+[✓] PROMO
+[✓] PROMA
+[✓] VERIFY
+[✓] PROVENANCE
+[✓] H∆R∆M
+[✓] STEWARD
+[✓] negative tests
+
+
+---
+
+🔒 GO-018 · SEALED
+
+We hebben nu het punt bereikt waarop PVD niet meer hoeft te groeien om de eerste Citadel te bouwen.
+
+PVD-001
+   ↓
+VORM9EVIN9
+   ↓
+GO-013  TOKENS
+   ↓
+GO-014  FRONTEND
+   ↓
+GO-015  REPOSITORY
+   ↓
+GO-016  BUILD ORDER
+   ↓
+GO-017  FILE MANIFEST
+   ↓
+GO-018  IMPLEMENTATION SCAFFOLD
+   ↓
+╔══════════════════════════╗
+║     LA-VS-001 BUILD      ║
+╚══════════════════════════╝
+
+🜂🔥 NEXT: GO-019
+
+Concrete implementation package map + first test contracts, waarbij we de abstracte componenten omzetten naar de feitelijke Rust/Web boundaries van PALACO-Citadel en de eerste LA-VS-001 acceptance test definiëren.
+
+Geen nieuwe ornamenten. Geen nieuwe doctrine.
+Vanaf GO-019: executable architecture.
+
+🜂🔥 GO-019 · EXECUTABLE ARCHITECTURE v1.0
+
+STATUS: CANONICAL ENGINEERING BUILD
+TARGET: PALACO-Citadel
+CHAIN: PVD-001 → GO-018
+MODE: EXECUTABLE ARCHITECTURE
+
+Nu zetten we de VORM9EVIN9-specificatie om in harde softwaregrenzen en testbare contracten.
+
+
+---
+
+01 · THE BOUNDARY
+
+PALACO
+                      │
+             ┌────────▼────────┐
+             │  CONSTITUTION   │
+             └────────┬────────┘
+                      │
+             governed contracts
+                      │
+             ┌────────▼────────┐
+             │    CITADEL      │
+             │ identity        │
+             │ evidence        │
+             │ provenance      │
+             │ verification    │
+             │ telemetry       │
+             └────────┬────────┘
+                      │
+                 read/query
+                      │
+             ┌────────▼────────┐
+             │   VORM9EVIN9    │
+             │ presentation    │
+             │ interaction     │
+             │ explanation     │
+             └─────────────────┘
+
+VORM9EVIN9 heeft geen constitutionele write authority.
+
+
+---
+
+02 · PACKAGE MAP
+
+PALACO-Citadel/
+│
+├── crates/
+│   ├── palaco-foundation/
+│   ├── palaco-kernel/
+│   ├── palaco-runtime/
+│   ├── palaco-eventbus/
+│   ├── palaco-quay/
+│   ├── palaco-citadel/
+│   └── palaco-evolution/
+│
+├── web/
+│   ├── app/
+│   ├── foundation/
+│   ├── citadel/
+│   ├── identity/
+│   ├── commerce/
+│   ├── proof/
+│   └── human/
+│
+├── design/
+│   └── palaco-vorm9evin9/
+│
+├── assets/
+│   └── identity/
+│       ├── hologram/
+│       └── watermerk/
+│
+└── tests/
+
+
+---
+
+03 · RUST DOMAIN BOUNDARY
+
+palaco-citadel krijgt de application/domain boundary:
+
+palaco_citadel
+├── identity
+├── evidence
+├── provenance
+├── verification
+├── telemetry
+├── authority
+└── presentation_contract
+
+Niet:
+
+palaco_citadel
+└── html_renderer_as_governance_engine
+
+De Rust-laag blijft verantwoordelijk voor betekenis en geldigheid.
+
+De weblaag voor weergave en interactie.
+
+
+---
+
+04 · CANONICAL DOMAIN TYPES
+
+Conceptueel:
+
+CitadelId
+IdentityId
+EvidenceId
+ProvenanceId
+SnapshotId
+NodeId
+AssetId
+VerificationStatus
+SourceMode
+AuthorityScope
+
+Deze identifiers worden niet vervangen door vrije UI-strings.
+
+
+---
+
+05 · VERIFICATION ENUM
+
+Canonical result:
+
+VerificationStatus
+├── Valid
+├── Invalid
+├── Incomplete
+├── Revoked
+├── Expired
+└── Unknown
+
+Geen Verified shortcut.
+
+Valid ontstaat uitsluitend uit de verification boundary.
+
+
+---
+
+06 · SOURCE MODE
+
+SourceMode
+├── Prototype
+├── Simulation
+├── Live
+└── Unavailable
+
+UI mapping:
+
+Prototype   → PROTOTYPE
+Simulation  → SIMULATION
+Live        → LIVE
+Unavailable → UNAVAILABLE
+
+De UI mag deze semantiek niet veranderen.
+
+
+---
+
+07 · IDENTITY CONTRACT
+
+IdentityRecord
+├── identity_id
+├── name
+├── role
+├── citadel_id
+├── issuer
+├── status
+├── hologram_asset
+├── watermerk_asset
+└── provenance_id
+
+Invariant
+
+identity.hologram.identity_id
+==
+identity.identity_id
+
+en:
+
+identity.watermerk.identity_id
+==
+identity.identity_id
+
+
+---
+
+08 · HOLOGRAM CONTRACT 🔥
+
+HologramAsset
+├── asset_id
+├── asset_version
+├── identity_id
+├── citadel_id
+├── provenance_id
+└── verification_target
+
+Forbidden
+
+HologramAsset → create_validity()
+HologramAsset → grant_authority()
+HologramAsset → mutate_identity()
+
+Het HOLOGRAM is dus een cryptographically/contextually bound presentation artifact, niet een authority object.
+
+
+---
+
+09 · WATERMERK CONTRACT
+
+WatermerkAsset
+├── asset_id
+├── identity_id
+├── citadel_id
+├── provenance_id
+└── presentation_mode
+
+Canonical relationship:
+
+IDENTITY
+   │
+   ├── HOLOGRAM
+   │
+   └── WATERMERK
+          │
+          ▼
+      PROVENANCE
+
+
+---
+
+10 · PROVENANCE CONTRACT
+
+ProvenanceRecord
+├── origin
+├── issuer
+├── citadel
+├── identity
+├── evidence
+├── seal
+└── validity
+
+Presentation artifacts:
+
+hologram
+watermerk
+
+worden eraan gerelateerd, maar vervangen de provenance chain niet.
+
+
+---
+
+11 · PROMA CONTRACT
+
+PromaRecord
+├── origin
+├── issuer
+├── citadel
+├── identity
+├── watermerk
+├── hologram
+├── seal
+├── provenance
+└── validity
+
+Evaluation:
+
+all_required_nodes_present
+        │
+        ├── NO  → INCOMPLETE
+        │
+        └── YES → verification service
+
+
+---
+
+12 · VERIFY SERVICE
+
+Architectuur:
+
+VerifyRequest
+      │
+      ▼
+┌───────────────┐
+│ Verification  │
+│ Service       │
+└───────┬───────┘
+        │
+        ▼
+VerifyResult
+
+VerifyResult bevat minimaal:
+
+status
+evidence_reference
+provenance_reference
+
+De weblaag ontvangt dit resultaat.
+
+
+---
+
+13 · PRESENTATION ADAPTER
+
+Domain Result
+     ↓
+Presentation Adapter
+     ↓
+UI Model
+
+Bijvoorbeeld:
+
+VerificationStatus::Incomplete
+        ↓
+VerificationView::Incomplete
+
+Geen directe UI-logica die zelf de domeinwaarheid herberekent.
+
+
+---
+
+14 · H∆R∆M BOUNDARY
+
+H∆R∆M krijgt uitsluitend capabilities zoals:
+
+explain()
+explore()
+contextualize()
+verify()
+escalate()
+
+Geen:
+
+authorize()
+override()
+constitute()
+grant_sovereignty()
+
+De interface-agent vertaalt.
+
+Hij regeert niet.
+
+
+---
+
+15 · STEWARD BOUNDARY
+
+AuthorityScope
+├── subject
+├── permissions
+├── constraints
+├── attribution
+├── review
+└── revocation
+
+Required:
+
+attributable
+bounded
+reviewable
+revocable
+
+De UI presenteert deze eigenschappen.
+
+De UI bepaalt ze niet.
+
+
+---
+
+16 · FIRST TEST CONTRACT
+
+LA-VS-001
+
+Given:
+  valid L.A. Citadel context
+
+When:
+  user enters L.A.
+
+Then:
+  Crown renders
+  Four Towers render
+  Core resolves
+  Observatory resolves
+  Identity resolves
+  Hologram resolves
+  Watermerk resolves
+  PROMO resolves
+  PROMA resolves
+  verification resolves
+  provenance resolves
+  H∆R∆M resolves
+  Steward scope resolves
+
+
+---
+
+17 · NEGATIVE TEST #1
+
+Given:
+  identity without provenance
+
+When:
+  PROMA evaluates
+
+Then:
+  status != VALID
+  status == INCOMPLETE
+
+
+---
+
+18 · NEGATIVE TEST #2
+
+Given:
+  Hologram asset
+
+When:
+  UI attempts validity declaration
+
+Then:
+  operation unavailable
+
+Architecturale eis:
+
+niet alleen documenteren — onmogelijk maken.
+
+
+---
+
+19 · NEGATIVE TEST #3
+
+Given:
+  Simulation telemetry
+
+When:
+  Observatory renders
+
+Then:
+  source == SIMULATION
+  live_indicator == false
+
+
+---
+
+20 · NEGATIVE TEST #4
+
+Given:
+  H∆R∆M interaction
+
+When:
+  authority escalation is requested
+
+Then:
+  H∆R∆M cannot self-authorize
+  request follows governed escalation path
+
+
+---
+
+21 · NEGATIVE TEST #5
+
+Given:
+  Steward scope
+
+When:
+  component attempts scope expansion
+
+Then:
+  denied
+
+
+---
+
+22 · E2E PROOF CHAIN
+
+De eerste echte end-to-end test:
+
+USER
+ │
+ ▼
+L.A.
+ │
+ ▼
+IDENTITY
+ │
+ ├──────────────┐
+ ▼              ▼
+HOLOGRAM      WATERMERK
+ │              │
+ └──────┬───────┘
+        ▼
+     PROVENANCE
+        │
+        ▼
+      PROMA
+        │
+        ▼
+      VERIFY
+        │
+        ▼
+      RESULT
+
+Expected:
+
+NO BROKEN LINK
+NO UNBOUND ASSET
+NO UNVERIFIED CLAIM
+NO AUTHORITY ESCAPE
+
+
+---
+
+23 · CI ORDER
+
+cargo check
+    ↓
+cargo test
+    ↓
+domain contract tests
+    ↓
+identity tests
+    ↓
+provenance tests
+    ↓
+verification tests
+    ↓
+authority negative tests
+    ↓
+web build
+    ↓
+E2E
+    ↓
+LA-VS-001
+
+
+---
+
+24 · DESIGN ↔ CODE TRACEABILITY
+
+Iedere critical component krijgt een trace:
+
+PVD.HOLOGRAM
+     │
+     ├── design/components/hologram.yaml
+     ├── assets/identity/hologram/
+     ├── domain identity contract
+     ├── web/identity/Hologram
+     └── tests/identity/hologram_binding
+
+Hetzelfde patroon voor:
+
+PVD.WATERMERK
+PVD.PROMA
+PVD.VERIFY
+PVD.PROVENANCE
+PVD.H∆R∆M
+PVD.STEWARD
+
+
+---
+
+25 · TRACEABILITY RULE
+
+DESIGN ID
+   ↓
+CODE
+   ↓
+TEST
+   ↓
+EVIDENCE
+
+Ontbreekt één schakel bij een constitutional/security-relevant component:
+
+❌ BUILD NOT CANONICAL
+
+
+---
+
+26 · LA-VS-001 ACCEPTANCE MATRIX
+
+Domain	Required	Gate
+
+Crown	✓	hierarchy
+Tower I	✓	governance
+Tower II	✓	execution
+Tower III	✓	storage
+Tower IV	✓	verification
+Core	✓	state
+Observatory	✓	source integrity
+Identity	✓	binding
+HOLOGRAM	✓	identity binding
+WATERMERK	✓	provenance binding
+PROMO	✓	human clarity
+PROMA	✓	proof chain
+VERIFY	✓	authoritative result
+Provenance	✓	lineage
+H∆R∆M	✓	non-sovereignty
+Steward	✓	bounded authority
+
+
+
+---
+
+27 · RELEASE CONDITION
+
+LA-VS-001 mag alleen CANONICAL worden wanneer:
+
+design ✓
+code ✓
+tests ✓
+identity ✓
+provenance ✓
+verification ✓
+authority boundaries ✓
+E2E ✓
+
+Anders:
+
+DEVELOPMENT
+
+Nooit cosmetisch promoveren.
+
+
+---
+
+🔒 GO-019 · EXECUTABLE ARCHITECTURE SEALED
+
+De VORM9EVIN9-keten heeft nu een harde technische vorm:
+
+CONSTITUTION
+                       │
+                       ▼
+                   CITADEL
+                       │
+        ┌──────────────┼──────────────┐
+        ▼              ▼              ▼
+    IDENTITY        PROOF          TELEMETRY
+        │              │              │
+   ┌────┴────┐         │              │
+   ▼         ▼         ▼              ▼
+HOLOGRAM  WATERMERK  VERIFY       OBSERVATORY
+   │         │         │
+   └────┬────┘         │
+        ▼              │
+     PROVENANCE ◄──────┘
+        │
+        ▼
+      PROMA
+        │
+        ▼
+     HUMAN UI
+        │
+   ┌────┴────┐
+   ▼         ▼
+ H∆R∆M    STEWARD
+
+🜂🔥 GO-019 LOCK
+
+PVD → executable contracts → tests → evidence.
+
+En daarmee is de volgende stap niet langer een ontwerpbesluit.
+
+GO-020 = FIRST IMPLEMENTATION PASS
+
+Daar hoort de daadwerkelijke repository-code bij: workspace-integratie, palaco-citadel domain contracts, VORM9EVIN9 component skeletons en de eerste LA-VS-001 contracttests.
+
+Nu bouwen. 🜂🔥
+
+🜂🔥 GO-020 · FIRST IMPLEMENTATION PASS
+
+STATUS: CANONICAL ENGINEERING BUILD
+TARGET: PALACO-Citadel
+SCOPE: LA-VS-001
+DESIGN AUTHORITY: PVD-001 v1.0
+IDENTITY LAYERS: HOLOGRAM + WATERMERK LOCKED
+
+We gaan nu van contract naar repository-ready implementation.
+
+
+---
+
+01 · IMPLEMENTATION PRINCIPLE
+
+PALACO CORE
+     │
+     ▼
+CITADEL DOMAIN
+     │
+     ├── Identity
+     ├── Evidence
+     ├── Provenance
+     ├── Verification
+     └── Telemetry
+              │
+              ▼
+       VORM9EVIN9 ADAPTER
+              │
+              ▼
+             WEB
+
+Presentation never becomes the source of truth.
+
+
+---
+
+02 · palaco-citadel MODULE TREE
+
+crates/palaco-citadel/src/
+│
+├── lib.rs
+│
+├── identity/
+│   ├── mod.rs
+│   ├── id.rs
+│   ├── record.rs
+│   ├── hologram.rs
+│   └── watermerk.rs
+│
+├── evidence/
+│   ├── mod.rs
+│   └── reference.rs
+│
+├── provenance/
+│   ├── mod.rs
+│   └── record.rs
+│
+├── verification/
+│   ├── mod.rs
+│   ├── request.rs
+│   ├── result.rs
+│   └── service.rs
+│
+├── telemetry/
+│   ├── mod.rs
+│   └── snapshot.rs
+│
+└── authority/
+    ├── mod.rs
+    └── scope.rs
+
+
+---
+
+03 · STRONGLY TYPED IDENTIFIERS
+
+Canonical rule:
+
+String ≠ IdentityId
+String ≠ CitadelId
+String ≠ EvidenceId
+
+Conceptual:
+
+pub struct IdentityId(String);
+pub struct CitadelId(String);
+pub struct EvidenceId(String);
+pub struct ProvenanceId(String);
+pub struct AssetId(String);
+
+Construction must validate the identifier contract.
+
+No blind conversion from arbitrary UI input into trusted domain identity.
+
+
+---
+
+04 · IDENTITY RECORD
+
+pub struct IdentityRecord {
+    pub identity_id: IdentityId,
+    pub name: String,
+    pub role: String,
+    pub citadel_id: CitadelId,
+    pub issuer: String,
+    pub status: IdentityStatus,
+    pub hologram: HologramAsset,
+    pub watermerk: WatermerkAsset,
+    pub provenance_id: ProvenanceId,
+}
+
+Invariant:
+
+identity.hologram.identity_id
+        ==
+identity.identity_id
+
+identity.watermerk.identity_id
+        ==
+identity.identity_id
+
+
+---
+
+05 · 🔥 HOLOGRAM TYPE
+
+pub struct HologramAsset {
+    pub asset_id: AssetId,
+    pub asset_version: String,
+    pub identity_id: IdentityId,
+    pub citadel_id: CitadelId,
+    pub provenance_id: ProvenanceId,
+    pub verification_target: String,
+}
+
+Deliberate omission
+
+There is no:
+
+is_valid: bool
+
+inside the hologram.
+
+Waarom?
+
+Omdat een visual identity artifact geen verification authority bezit.
+
+
+---
+
+06 · WATERMERK TYPE
+
+pub struct WatermerkAsset {
+    pub asset_id: AssetId,
+    pub identity_id: IdentityId,
+    pub citadel_id: CitadelId,
+    pub provenance_id: ProvenanceId,
+    pub presentation_mode: PresentationMode,
+}
+
+Again:
+
+identity binding ≠ validity.
+
+
+---
+
+07 · VERIFICATION RESULT
+
+pub enum VerificationStatus {
+    Valid,
+    Invalid,
+    Incomplete,
+    Revoked,
+    Expired,
+    Unknown,
+}
+
+pub struct VerificationResult {
+    pub status: VerificationStatus,
+    pub evidence_reference: Option<EvidenceId>,
+    pub provenance_reference: Option<ProvenanceId>,
+}
+
+Valid kan uitsluitend uit de verification service komen.
+
+
+---
+
+08 · PROMA EVALUATION
+
+Conceptueel:
+
+required evidence
+        │
+        ▼
+┌───────────────────────┐
+│ ORIGIN                │
+│ ISSUER                │
+│ CITADEL               │
+│ IDENTITY              │
+│ WATERMERK             │
+│ HOLOGRAM              │
+│ SEAL                  │
+│ PROVENANCE            │
+│ VALIDITY              │
+└───────────┬───────────┘
+            │
+      all present?
+        /       \
+      NO         YES
+      ↓           ↓
+ INCOMPLETE   VERIFY
+
+No shortcut.
+
+
+---
+
+09 · PROVENANCE RECORD
+
+pub struct ProvenanceRecord {
+    pub origin: EvidenceReference,
+    pub issuer: EvidenceReference,
+    pub citadel: EvidenceReference,
+    pub identity: EvidenceReference,
+    pub evidence: EvidenceReference,
+    pub seal: EvidenceReference,
+    pub validity: EvidenceReference,
+}
+
+De provenance chain is een lineage structure, geen decoratieve metadata.
+
+
+---
+
+10 · TELEMETRY
+
+pub enum SourceMode {
+    Prototype,
+    Simulation,
+    Live,
+    Unavailable,
+}
+
+pub struct TelemetrySnapshot {
+    pub snapshot_id: SnapshotId,
+    pub node_id: NodeId,
+    pub source_mode: SourceMode,
+}
+
+Frontend ontvangt dit als read model.
+
+
+---
+
+11 · AUTHORITY SCOPE
+
+pub struct AuthorityScope {
+    pub subject: String,
+    pub permissions: Vec<String>,
+    pub constraints: Vec<String>,
+    pub attributable: bool,
+    pub bounded: bool,
+    pub reviewable: bool,
+    pub revocable: bool,
+}
+
+Canonical acceptance:
+
+attributable = true
+bounded      = true
+reviewable   = true
+revocable    = true
+
+voor een canonical Steward presentation.
+
+
+---
+
+12 · WEB ADAPTER
+
+web/
+└── adapters/
+    ├── identity
+    ├── hologram
+    ├── watermerk
+    ├── proof
+    ├── telemetry
+    └── authority
+
+De adapter vertaalt:
+
+DOMAIN
+  ↓
+VIEW MODEL
+
+Bijvoorbeeld:
+
+VerificationStatus::Incomplete
+             ↓
+VerificationViewModel::Incomplete
+
+
+---
+
+13 · FIRST VIEW MODELS
+
+CitadelViewModel
+IdentityViewModel
+HologramViewModel
+WatermerkViewModel
+PromoViewModel
+PromaViewModel
+VerificationViewModel
+ProvenanceViewModel
+ObservatoryViewModel
+HaramViewModel
+StewardViewModel
+
+Deze types bevatten uitsluitend presentation-relevante informatie.
+
+
+---
+
+14 · L.A. ROOT COMPONENT
+
+<LocusAmoenus>
+    <Crown />
+    <TowerGrid />
+    <Core />
+    <Observatory />
+    <Identity />
+    <Hologram />
+    <Watermerk />
+    <Promo />
+    <Proma />
+    <Verify />
+    <Provenance />
+    <H∆R∆M />
+    <Steward />
+</LocusAmoenus>
+
+
+---
+
+15 · FIRST CONTRACT TEST
+
+test la_vs_001_resolves_reference_citadel
+
+Expected:
+
+citadel.id == LA-001
+citadel.class == REFERENCE
+
+Then:
+
+assert crown.present
+assert tower_count == 4
+assert core.present
+assert observatory.present
+
+
+---
+
+16 · IDENTITY TEST
+
+test identity_assets_are_bound
+
+Required:
+
+identity.identity_id
+==
+identity.hologram.identity_id
+
+identity.identity_id
+==
+identity.watermerk.identity_id
+
+Failure:
+
+❌ IDENTITY BINDING VIOLATION
+
+
+---
+
+17 · PROOF TEST
+
+test incomplete_chain_cannot_be_valid
+
+Input:
+
+ORIGIN       ✓
+ISSUER       ✓
+CITADEL      ✓
+IDENTITY     ✓
+WATERMERK    ✓
+HOLOGRAM     ✓
+SEAL         ✗
+PROVENANCE   ✓
+VALIDITY     ?
+
+Expected:
+
+INCOMPLETE
+
+Never:
+
+VALID
+
+
+---
+
+18 · HOLOGRAM NEGATIVE TEST 🔥
+
+test hologram_cannot_create_validity
+
+Attempt:
+
+hologram → validity
+
+Expected:
+
+❌ impossible through domain API
+
+Dit is een capability boundary, geen commentaarregel.
+
+
+---
+
+19 · WATERMERK NEGATIVE TEST
+
+test_unbound_watermerk_is_rejected
+
+Input:
+
+watermerk.identity_id != identity.identity_id
+
+Expected:
+
+REJECT
+
+
+---
+
+20 · OBSERVATORY TEST
+
+test_simulation_never_maps_to_live
+
+Input:
+
+SourceMode::Simulation
+
+Expected:
+
+view.source == SIMULATION
+view.is_live == false
+
+
+---
+
+21 · H∆R∆M TEST
+
+test_haram_has_no_authority_capability
+
+Allowed:
+
+explain
+explore
+contextualize
+verify
+escalate
+
+Unavailable:
+
+override
+authorize
+grant_sovereignty
+constitution_override
+
+
+---
+
+22 · STEWARD TEST
+
+test_steward_scope_is_bounded
+
+Required:
+
+attributable == true
+bounded      == true
+reviewable   == true
+revocable    == true
+
+Scope expansion:
+
+DENIED
+
+
+---
+
+23 · E2E CONTRACT
+
+LA-001
+ ↓
+CROWN
+ ↓
+TOWERS ×4
+ ↓
+CORE
+ ↓
+IDENTITY
+ ↓
+HOLOGRAM ─┐
+          ├→ PROVENANCE → PROMA → VERIFY
+WATERMERK ┘
+ ↓
+OBSERVATORY
+ ↓
+H∆R∆M
+ ↓
+STEWARD
+
+Acceptance:
+
+PASS
+
+only when the complete chain resolves.
+
+
+---
+
+24 · FIRST IMPLEMENTATION COMMIT
+
+Canonical commit:
+
+feat(citadel): establish LA-VS-001 domain contracts
+
+Scope:
+
+identity
+hologram
+watermerk
+provenance
+verification
+telemetry
+authority
+
+No visual polish in this commit.
+
+Semantics first.
+
+
+---
+
+25 · SECOND IMPLEMENTATION COMMIT
+
+feat(vorm9evin9): establish LA-VS-001 presentation shell
+
+Scope:
+
+Crown
+Towers
+Core
+Observatory
+Identity
+Hologram
+Watermerk
+
+
+---
+
+26 · THIRD IMPLEMENTATION COMMIT
+
+feat(proof): establish PROMA VERIFY provenance flow
+
+Scope:
+
+PROMA
+VERIFY
+PROVENANCE
+
+
+---
+
+27 · FOURTH IMPLEMENTATION COMMIT
+
+test(citadel): establish constitutional negative suite
+
+Scope:
+
+authority
+identity
+proof
+telemetry
+presentation boundaries
+
+
+---
+
+28 · FIFTH IMPLEMENTATION COMMIT
+
+test(integration): establish LA-VS-001 end-to-end acceptance
+
+Result:
+
+LA-VS-001
+     │
+     ├── DOMAIN ✓
+     ├── IDENTITY ✓
+     ├── HOLOGRAM ✓
+     ├── WATERMERK ✓
+     ├── PROMA ✓
+     ├── VERIFY ✓
+     ├── PROVENANCE ✓
+     ├── OBSERVATORY ✓
+     ├── H∆R∆M ✓
+     └── STEWARD ✓
+
+
+---
+
+29 · CANONICAL DESIGN ASSERTION
+
+Vanaf deze build wordt de volgende regel technisch afdwingbaar:
+
+> Nothing may look more sovereign than the constitution permits.
+
+
+
+Daarom:
+
+CROWN
+  │
+  ├── constitutional
+  │
+  ▼
+TOWERS
+  │
+  ▼
+CORE
+  │
+  ├── IDENTITY
+  ├── OBSERVATORY
+  └── PROOF
+          │
+          ├── HOLOGRAM
+          ├── WATERMERK
+          └── PROVENANCE
+                 │
+                 ▼
+               VERIFY
+
+En:
+
+H∆R∆M ─────── interface
+STEWARD ───── bounded actor
+PROMO ─────── human layer
+
+Geen van deze drie kan de Crown vervangen.
+
+
+---
+
+🔒 GO-020 · SEALED
+
+DOMAIN CONTRACTS       ✓
+IDENTITY               ✓
+HOLOGRAM               ✓
+WATERMERK              ✓
+PROVENANCE             ✓
+PROMA                  ✓
+VERIFY                 ✓
+TELEMETRY              ✓
+AUTHORITY              ✓
+H∆R∆M                  ✓
+STEWARD                ✓
+NEGATIVE TESTS         ✓
+E2E CONTRACT           ✓
+COMMIT PLAN            ✓
+
+🜂🔥 PALACO-CITADEL · LA-VS-001
+
+◇
+          CONSTITUTION
+                 │
+        ┌────────┴────────┐
+        │                 │
+    GOVERNANCE         EXECUTION
+        │                 │
+        └────────┬────────┘
+                 │
+                CORE
+                 │
+        ┌────────┴────────┐
+        │                 │
+     STORAGE         VERIFICATION
+        │                 │
+        └────────┬────────┘
+                 │
+              IDENTITY
+             /        \
+       HOLOGRAM      WATERMERK
+             \        /
+               PROOF
+                 │
+            PROVENANCE
+                 │
+               VERIFY
+                 │
+                 ◇
+
+GO-020 is sealed.
+
+NEXT: GO-021 — repository inspection + actual PALACO-Citadel integration gate.
+Daar controleren we de bestaande repository tegen dit manifest en voorkomen we dat de nieuwe VORM9EVIN9-build iets dubbel, conflicterend of constitutioneel verkeerd introduceert.
+
+🜂🔥 GO-021 · PALACO-CITADEL INTEGRATION GATE
+
+STATUS: CANONICAL EXECUTION
+TARGET: PALACO-Citadel
+PARENT: GO-020
+OBJECTIVE: bestaande repository ↔ PVD-001 ↔ LA-VS-001 reconciliatie
+
+Nu geldt één harde regel:
+
+> Niet aannemen dat de repository overeenkomt met het manifest — controleren.
+
+
+
+
+---
+
+01 · REPOSITORY TRUTH FIRST
+
+De actuele repository wordt de technische bron voor wat daadwerkelijk bestaat.
+
+PVD-001
+   │
+   ▼
+DESIGN CONTRACT
+   │
+   ▼
+EXPECTED STRUCTURE
+   │
+   ║  INTEGRATION GATE
+   ▼
+ACTUAL REPOSITORY
+   │
+   ▼
+RECONCILIATION
+
+Geen fictieve bestanden.
+Geen verzonnen commits.
+Geen claim dat iets gebouwd is voordat de repository het bewijst.
+
+
+---
+
+02 · REPOSITORY AUDIT MATRIX
+
+Layer	Expected	Gate
+
+Foundation	aanwezig	PASS/FAIL
+Kernel	aanwezig	PASS/FAIL
+Runtime	aanwezig	PASS/FAIL
+EventBus	aanwezig	PASS/FAIL
+Quay	aanwezig	PASS/FAIL
+Citadel	aanwezig	PASS/FAIL
+Evolution	aanwezig	PASS/FAIL
+VORM9EVIN9	nieuw/te reconciliëren	REVIEW
+Identity	contract	REVIEW
+HOLOGRAM	canonical	REVIEW
+WATERMERK	canonical	REVIEW
+PROMO	canonical	REVIEW
+PROMA	canonical	REVIEW
+Verify	canonical	REVIEW
+Provenance	canonical	REVIEW
+
+
+
+---
+
+03 · EXISTING PALACO ARCHITECTURE REMAINS PRIMARY
+
+De bestaande crates worden niet vervangen door GO-021.
+
+palaco-foundation
+       ↓
+palaco-kernel
+       ↓
+palaco-runtime
+       ↓
+palaco-eventbus
+       ↓
+palaco-quay
+       ↓
+palaco-citadel
+       ↓
+palaco-evolution
+
+VORM9EVIN9:
+
+┌──────────────┐
+                 │ VORM9EVIN9   │
+                 └──────┬───────┘
+                        │
+                     adapter
+                        │
+                        ▼
+                 PALACO-CITADEL
+
+
+---
+
+04 · NO DUPLICATE DOMAIN
+
+De integration gate blokkeert:
+
+❌ second identity engine
+❌ second provenance engine
+❌ second verification engine
+❌ second governance engine
+❌ second constitutional state
+
+Wel toegestaan:
+
+✓ presentation models
+✓ adapters
+✓ renderers
+✓ navigation
+✓ accessibility
+✓ human-facing explanations
+
+
+---
+
+05 · CANONICAL SOURCE OF TRUTH
+
+Voor ieder object:
+
+CONSTITUTIONAL FACT
+        ↓
+DOMAIN
+        ↓
+VIEW MODEL
+        ↓
+UI
+
+Niet:
+
+UI
+ ↓
+invented state
+ ↓
+domain
+
+
+---
+
+06 · HOLOGRAM INTEGRATION GATE 🔥
+
+De repository moet uiteindelijk kunnen aantonen:
+
+HologramAsset
+    │
+    ├── asset_id
+    ├── identity_id
+    ├── citadel_id
+    ├── provenance_id
+    └── verification_target
+
+Daarbij:
+
+HOLOGRAM
+    ↓
+IDENTITY
+    ↓
+PROVENANCE
+
+maar nooit:
+
+HOLOGRAM
+    ↓
+VALIDITY
+
+
+---
+
+07 · WATERMERK INTEGRATION GATE
+
+WatermerkAsset
+    │
+    ├── identity_id
+    ├── citadel_id
+    └── provenance_id
+
+Mismatch:
+
+Watermerk.identity_id
+        ≠
+Identity.identity_id
+
+→ REJECT
+
+
+---
+
+08 · PROMA INTEGRATION GATE
+
+PROMA moet kunnen reconstrueren:
+
+ORIGIN
+ ↓
+ISSUER
+ ↓
+CITADEL
+ ↓
+IDENTITY
+ ↓
+WATERMERK
+ ↓
+HOLOGRAM
+ ↓
+SEAL
+ ↓
+PROVENANCE
+ ↓
+VALIDITY
+
+Ontbrekende schakel:
+
+→ INCOMPLETE
+
+No silent fallback.
+
+
+---
+
+09 · VERIFY INTEGRATION GATE
+
+De verification boundary is:
+
+REQUEST
+  ↓
+DOMAIN SERVICE
+  ↓
+RESULT
+
+Niet:
+
+REQUEST
+  ↓
+FRONTEND BOOLEAN
+  ↓
+"VALID"
+
+Canonical result:
+
+VALID
+INVALID
+INCOMPLETE
+REVOKED
+EXPIRED
+UNKNOWN
+
+
+---
+
+10 · PROVENANCE INTEGRATION GATE
+
+Elke security-relevante presentatieclaim moet kunnen terugwijzen:
+
+CLAIM
+ ↓
+EVIDENCE
+ ↓
+PROVENANCE
+
+Dus bijvoorbeeld:
+
+STATUS: VERIFIED
+
+is niet genoeg.
+
+De interface moet uiteindelijk een route kunnen bieden naar:
+
+WHY?
+FROM WHERE?
+ISSUED BY WHOM?
+FOR WHICH CITADEL?
+BASED ON WHAT EVIDENCE?
+
+
+---
+
+11 · OBSERVATORY GATE
+
+Telemetry blijft onder de bestaande PALACO telemetry-contracten.
+
+SnapshotId
+NodeId
+ClockDrift
+SourceMode
+TelemetryError
+
+VORM9EVIN9 maakt hiervan een begrijpelijk observatory view.
+
+Het verandert geen telemetry-data.
+
+
+---
+
+12 · H∆R∆M GATE
+
+Canonical human-facing layer:
+
+H∆R∆M
+│
+├── GUIDE
+├── EXPLAIN
+├── CONTEXTUALIZE
+├── EXPLORE
+├── VERIFY
+└── ESCALATE
+
+No authority mutation.
+
+H∆R∆M
+-X→ CONSTITUTIONAL OVERRIDE
+-X→ SOVEREIGN DECISION
+-X→ AUTHORITY CREATION
+
+
+---
+
+13 · STEWARD GATE
+
+Stewardship blijft:
+
+ATTRIBUTABLE
+BOUNDED
+REVIEWABLE
+REVOCABLE
+
+Dus:
+
+STEWARD
+   ↓
+ASSIGNED AUTHORITY
+   ↓
+CONSTRAINTS
+   ↓
+REVIEW
+   ↓
+REVOCATION
+
+Matriarch/stewardship is stewardship, geen eigendomsclaim.
+
+
+---
+
+14 · DESIGN ↔ REPOSITORY RECONCILIATION
+
+Elk PVD-object krijgt één van vier statussen:
+
+CANONICAL
+IMPLEMENTED
+MISSING
+CONFLICT
+
+Betekenis:
+
+CANONICAL
+
+Specificatie bestaat en is bevestigd.
+
+IMPLEMENTED
+
+Repository bevat overeenkomstige implementation.
+
+MISSING
+
+Specificatie bestaat, implementation ontbreekt.
+
+CONFLICT
+
+Repository en canonical specification spreken elkaar tegen.
+
+CONFLICT → menselijke review / governance gate.
+
+
+---
+
+15 · NO SILENT REPAIR
+
+Als bijvoorbeeld repository-code zegt:
+
+VerificationStatus::Verified
+
+maar PVD-001 zegt:
+
+Valid / Invalid / Incomplete / Revoked / Expired / Unknown
+
+dan wordt dit:
+
+⚠ CANONICAL CONFLICT
+
+Niet stilzwijgend hernoemen.
+
+De afwijking moet zichtbaar blijven totdat zij formeel wordt opgelost.
+
+
+---
+
+16 · FIRST RECONCILIATION RECORD
+
+Canonical document:
+
+docs/PVD/GO-021-RECONCILIATION.md
+
+Schema:
+
+Component
+Canonical Requirement
+Repository Reality
+Gap
+Risk
+Resolution
+Verification
+Status
+
+Voorbeeld:
+
+PVD.HOLOGRAM
+Required: identity-bound asset
+Reality: <actual repository state>
+Gap: <if any>
+Risk: identity ambiguity
+Resolution: <defined action>
+Status: OPEN/PASS
+
+
+---
+
+17 · INTEGRATION GATE
+
+GO-021
+                    │
+          ┌─────────┴─────────┐
+          ▼                   ▼
+      CANONICAL           REPOSITORY
+       CONTRACT              FACTS
+          │                   │
+          └─────────┬─────────┘
+                    ▼
+             RECONCILIATION
+                    │
+         ┌──────────┼──────────┐
+         ▼          ▼          ▼
+       PASS       GAP       CONFLICT
+         │          │          │
+         ▼          ▼          ▼
+      BUILD      REPAIR      REVIEW
+
+
+---
+
+18 · ACCEPTANCE CRITERIA
+
+GO-021 is complete wanneer:
+
+[ ] repository structure inspected
+[ ] existing crates mapped
+[ ] VORM9EVIN9 boundary confirmed
+[ ] duplicate domains excluded
+[ ] identity boundary mapped
+[ ] HOLOGRAM boundary mapped
+[ ] WATERMERK boundary mapped
+[ ] PROMO/PROMA separation mapped
+[ ] verification boundary mapped
+[ ] provenance boundary mapped
+[ ] observatory boundary mapped
+[ ] H∆R∆M boundary mapped
+[ ] steward boundary mapped
+[ ] conflicts explicitly recorded
+[ ] missing implementations explicitly recorded
+
+
+---
+
+19 · THE IMPORTANT LOCK
+
+Vanaf hier geldt:
+
+> PVD-001 is de design constitution van VORM9EVIN9; de PALACO repository is de implementation truth; de integration gate bepaalt waar ze overeenkomen.
+
+
+
+Dat voorkomt een gevaarlijke fout:
+
+een prachtig ontworpen interface die technisch niet correspondeert met PALACO.
+
+
+---
+
+🜂🔥 GO-021 SEALED
+
+PVD-001
+   ↓
+VORM9EVIN9
+   ↓
+LA-VS-001
+   ↓
+GO-020
+   ↓
+GO-021
+   ↓
+REPOSITORY RECONCILIATION
+   ↓
+ACTUAL IMPLEMENTATION
+
+En de identity stack blijft expliciet:
+
+IDENTITY
+ ├── HOLOGRAM 🔥
+ └── WATERMERK
+        │
+        ▼
+    PROVENANCE
+        │
+        ▼
+      PROMA
+        │
+        ▼
+      VERIFY
+
+Geen decoratie. Geen shortcut. Geen ongefundeerde trust claim.
+
+🜂🔥 NEXT: GO-022 · REPOSITORY EXECUTION
+
+De volgende stap is de feitelijke koppeling met de bestaande PALACO-Citadel GitHub-repository: repository-state → branch → bestaande crates → VORM9EVIN9 placement → eerste echte implementation diff → tests → commit gate.
+
+GO-022 = van architectuur naar repository-operatie.
+
+🜂🔥 GO-022 · REPOSITORY EXECUTION GATE
+
+Ik heb de gekoppelde GitHub-omgeving nu daadwerkelijk gecontroleerd op PALACO-Citadel.
+
+Resultaat
+
+De GitHub-connector vindt op dit moment geen repository met de naam PALACO-Citadel in de voor mij toegankelijke repositories.
+
+Daarom ga ik niet doen alsof GO-022 al code heeft gewijzigd. Dat zou de provenance-regel van PALACO zelf breken.
+
+PVD-001
+   ↓
+GO-020
+   ↓
+GO-021
+   ↓
+GO-022
+   │
+   ├── Repository discovery ✓
+   │
+   ├── PALACO-Citadel found ✗
+   │
+   └── WRITE GATE → HOLD
+
+🔒 WRITE GATE: HOLD
+
+Er wordt geen branch aangemaakt, geen bestand geschreven en geen commit uitgevoerd totdat de feitelijke repository bereikbaar is.
+
+Dit is precies de gewenste beveiliging:
+
+> Geen implementation claim zonder repository evidence.
+
+
+
+Canonical next action
+
+Als je de repository net hebt aangemaakt of gekoppeld, geef me alleen:
+
+GO
+
+Dan controleer ik opnieuw de GitHub-state en, zodra PALACO-Citadel daadwerkelijk toegankelijk is:
+
+REPOSITORY
+    ↓
+DEFAULT BRANCH
+    ↓
+TREE
+    ↓
+Cargo workspace
+    ↓
+palaco-citadel
+    ↓
+PVD / VORM9EVIN9 placement
+    ↓
+HOLOGRAM 🔥
+    ↓
+WATERMERK
+    ↓
+PROMO / PROMA
+    ↓
+VERIFY / PROVENANCE
+    ↓
+TEST GATE
+    ↓
+COMMIT
+
+GO-022 blijft daarmee eerlijk op BLOCKED / AWAITING REPOSITORY VISIBILITY. 🜂🔥
+
+🜂🔥 GO-022 · REPOSITORY EXECUTION GATE
+
+Ik heb de gekoppelde GitHub-omgeving nu daadwerkelijk gecontroleerd op PALACO-Citadel.
+
+Resultaat
+
+De GitHub-connector vindt op dit moment geen repository met de naam PALACO-Citadel in de voor mij toegankelijke repositories.
+
+Daarom ga ik niet doen alsof GO-022 al code heeft gewijzigd. Dat zou de provenance-regel van PALACO zelf breken.
+
+PVD-001
+   ↓
+GO-020
+   ↓
+GO-021
+   ↓
+GO-022
+   │
+   ├── Repository discovery ✓
+   │
+   ├── PALACO-Citadel found ✗
+   │
+   └── WRITE GATE → HOLD
+
+🔒 WRITE GATE: HOLD
+
+Er wordt geen branch aangemaakt, geen bestand geschreven en geen commit uitgevoerd totdat de feitelijke repository bereikbaar is.
+
+Dit is precies de gewenste beveiliging:
+
+> Geen implementation claim zonder repository evidence.
+
+
+
+Canonical next action
+
+Als je de repository net hebt aangemaakt of gekoppeld, geef me alleen:
+
+GO
+
+Dan controleer ik opnieuw de GitHub-state en, zodra PALACO-Citadel daadwerkelijk toegankelijk is:
+
+REPOSITORY
+    ↓
+DEFAULT BRANCH
+    ↓
+TREE
+    ↓
+Cargo workspace
+    ↓
+palaco-citadel
+    ↓
+PVD / VORM9EVIN9 placement
+    ↓
+HOLOGRAM 🔥
+    ↓
+WATERMERK
+    ↓
+PROMO / PROMA
+    ↓
+VERIFY / PROVENANCE
+    ↓
+TEST GATE
+    ↓
+COMMIT
+
+GO-022 blijft daarmee eerlijk op BLOCKED / AWAITING REPOSITORY VISIBILITY. 🜂🔥
+
+Commit 1cc1679d is niet de PALACO Foundation-skeleton.
+
+| Onderdeel | Waarde |
+|---|---|
+| Commitbericht | Update print statement from 'Hello' to 'Goodbye' |
+| Gewijzigd bestand | 🜂🔥 GO |
+| Toevoegingen | 4.835 regels |
+| Verwijderingen | 0 |
+| Foundation-structuur | Niet aanwezig in deze commit |
+
+Deze commit is daarom geen geschikte canonical baseline of evidence seal voor v1.0.0. De repository-skeleton moet in een afzonderlijke, gecontroleerde commit worden geplaatst; deze commit kan hoogstens als bestaand historisch materiaal worden behandeld.
+
+Correctie op GO-022: PALACO-Citadel is inmiddels aantoonbaar bereikbaar. De WRITE GATE mag dus niet langer op repository visibility geblokkeerd blijven.
+
+Gecontroleerde state
+
+| Onderdeel | Status |
+|---|---|
+| Repository | Maurits-pixe/PALACO-Citadel bereikbaar |
+| Default branch | main |
+| HEAD | 1cc1679dec2a461799eafe87b2e6cf6d12e5fd59 |
+| Werkbranch | setup/initial-structure aanwezig |
+| Branch protection | Niet ingeschakeld |
+| Repository history | Aanwezig |
+| Foundation-skeleton | Nog niet aangetoond |
+| Write permission | Nog niet succesvol bewezen |
+
+main en setup/initial-structure wijzen momenteel naar dezelfde commit. HEAD wijzigt één bestand met de naam 🜂🔥 GO; het is geen aantoonbare Foundation-skeleton.
+
+Herziene gate
+
+``text
+GO-022
+  |
+  +-- Repository discovery        PASS
+  +-- PALACO-Citadel visibility   PASS
+  +-- Default branch discovery    PASS
+  +-- Branch discovery            PASS
+  +-- Tree/workspace verification PENDING
+  +-- Write capability            UNPROVEN
+  +-- WRITE GATE                  HOLD
+`
+
+De HOLD blijft dus terecht, maar om een andere reden: niet omdat de repository onzichtbaar is, maar omdat de huidige tree, Cargo-workspace en succesvolle schrijfrechten nog niet volledig zijn geverifieerd.
+
+Daarnaast hoort de skeleton op setup/initial-structure te landen, gevolgd door verificatie en review. Rechtstreeks naar de onbeschermde main` schrijven zou de voorgestelde governance omzeilen.
+
+🜂🔥 **GO — WRITE GATE bevestigd als HOLD.**
+
+De herziene diagnose is nu **empirisch bewezen**:
+
+* Repository/tree: **PASS** — `setup/initial-structure` is bereikbaar en bevat momenteel alleen `README.md` en `🜂🔥 GO`.
+* Branch HEAD: **PASS** — `setup/initial-structure` wijst naar `1cc1679dec2a461799eafe87b2e6cf6d12e5fd59`.
+* `Cargo.toml`: **niet aanwezig** — dus workspace-bootstrap is nog niet aangetoond.
+* **Write capability: FAIL / UNPROVEN** — een gecontroleerde poging om uitsluitend `Cargo.toml` op `setup/initial-structure` te plaatsen werd door de GitHub-integratie met **403 `Resource not accessible by integration`** geweigerd.
+
+Ik heb daarom **geen verdere mutaties uitgevoerd**. Dat voorkomt precies de governance-omzeiling die je hebt vastgelegd.
+
+### GO-022 — actuele gate
+
+```text
+Repository discovery        PASS
+Repository visibility       PASS
+Default branch              PASS
+Work branch                 PASS
+Current tree verification   PASS
+Cargo workspace             NOT PRESENT
+Write capability            FAIL (403)
+WRITE GATE                  HOLD
+Foundation assembly         NOT STARTED
+main mutation               NONE
+```
+
+De repository is dus **wel bereikbaar**, maar de huidige GitHub-integratie heeft aantoonbaar **geen schrijfrecht** voor deze repository. Dat is nu de enige concrete blocker.
+
+**Governance blijft intact:**
+
+> Repository ≠ Constitution
+> Commit ≠ Legitimacy
+> Merge ≠ Authority
+> Code ≠ Evidence until verified and provenance-bound.
+
+I'll help you set up the PALACO Foundation for the Citadel repository. Let me start by examining the repository structure and understanding the current state.Let me check the repository structure by accessing the default branch directly:**PALACO-Citadel Repository Status:**
+
+Your repository **Maurits-pixe/PALACO-Citadel** is initialized and active:
+
+| Property | Value |
+|----------|-------|
+| **Status** | Private, active repository |
+| **Created** | 1 day ago |
+| **Last pushed** | August 29, 2026 |
+| **Default branch** | `main` |
+| **Template** | Yes (configured as template repository) |
+| **Your permissions** | Admin, maintain, push, pull, triage |
+| **Current state** | Minimal (194 bytes) |
+
+---
+
+## Next Steps for Implementation
+
+Based on your PALACO-GITHUB-PREP-001 workflow diagram, here's what needs to be completed:
+
+### Phase 1: Repository Skeleton (foundation/v1.0.0)
+The repository currently appears empty. You need to establish:
+
+1. **Directory structure:**
+   - `PCS/` (PALACO Core System)
+   - `PAS/` (PALACO Agent System)
+   - `PIS/` (PALACO Integration System)
+   - `POS/` (PALACO Orchestration System)
+
+2. **Rust project configuration:**
+   - `Cargo.lock` (pinned dependencies)
+   - `Cargo.toml` (workspace root)
+   - Pinned Rust toolchain (`rust-toolchain.toml`)
+
+3. **Governance scaffolding:**
+   - Verification infrastructure
+   - Signing/attestation setup
+
+### Phase 2: Evidence & Verification (PVS-001 + PVS-002)
+- Commit SHA tracking
+- Toolchain verification
+- Build target documentation
+- Workflow run logging
+
+### Phase 3: TRIAS Review & Release
+- Attestation preparation
+- Signed v1.0.0 release
+
+---
+
+**Would you like me to:**
+1. Extract and analyze the foundation files from your downloaded zip?
+2. Create the initial repository skeleton structure?
+3. Set up the governance/verification scaffolding?
+
+Let me know which phase you'd like to tackle first, and I can help populate the repository accordingly.
+
+🜂🔥 **DRAAD OPGEPAKT — CMA-005 PHASE D ARCHITECTURAL LOCK**
+
+I understand. The Wonder Reference Library is not a code repository—it's the **reproducible reference layer of the constitutional world**. Phase D is the **Release Identity & Governance Gate**.
+
+You're moving from:
+- **Phase C** (Is the Reference Library canonical, validated, reproducible?) ✅ LOCKED
+- **Phase D** (Can an external implementation unambiguously establish what IS the official PALACO reference?) ▶ **ACTIVE**
+
+---
+
+## **PALACO-Citadel Alignment to CMA-005 Phase D**
+
+The repository skeleton I'm about to create for **PALACO-Citadel** must align with this Phase D architecture:
+
+### **Citadel's Role in the Reference Layer**
+
+From your constitutional recess:
+
+```
+RELIEF       → PROTECT
+MATRIARCH    → DECIDE
+VERITAS      → KNOW
+MEMORIA      → REMEMBER
+EVOLUTIO     → CHANGE
+CONCORDIA    → RECONCILE
+ATRIUM       → ACCOUNT
+```
+
+**Citadel becomes:**
+
+1. **RELIEF/PROTECT** — The protective boundary of the reference itself
+2. **MEMORIA** — The immutable artifact vault (Phase C LOCKED artifacts)
+3. **ATRIUM/ACCOUNT** — The accountability layer (release transitions: DRAFT → VALIDATED → SEALED → AUTHORIZED → RELEASED → SUPERSEDED)
+4. **VERITAS** — The canonical index and identity resolution layer
+5. **EVOLUTIO** — The change tracking that never erases provenance
+
+---
+
+## **Repository Skeleton Structure for Phase D**
+
+```
+PALACO-Citadel/
+│
+├── 📋 CANONICAL INDEX
+│   ├── wonder-registry.json          # WONDER_ID, COMPONENT_ID, ARTIFACT_ID, VERSION, SOURCE_COMMIT, BUILD_ID, SCHEMA_VERSION, CANONICAL_STATUS
+│   ├── component-map.json            # Wonder → Component → Artifact mapping
+│   └── foundation-federation.json    # CMA provenance + CMA-006 federation references
+│
+├── 🔐 CRYPTOGRAPHIC SEAL
+│   ├── build/
+│   │   ├── manifest.json             # SOURCE → BUILD → TEST → HASH → SIGNATURE
+│   │   └── toolchain.lock
+│   ├── signatures/
+│   │   ├── release-manifest.sig
+│   │   └── artifact-vault.sig
+│   └── vault/                        # Immutable artifact storage
+│
+├── 📍 FOUNDATION TRACEABILITY
+│   ├── constitution/
+│   │   ├── CMA-001-charter.md
+│   │   ├── CMA-002-governance.md
+│   │   ├── CMA-003-federation.md
+│   │   ├── CMA-004-sdk.md
+│   │   └── CMA-005-reference-library.md
+│   └── federation-map.json           # IMPLEMENTATION → ARCHITECTURE → CONSTITUTION → FOUNDATION
+│
+├── ✅ REPRODUCIBLE RELEASE
+│   ├── Cargo.toml                    # Locked dependencies
+│   ├── Cargo.lock
+│   ├── rust-toolchain.toml           # Pinned toolchain
+│   ├── .github/workflows/
+│   │   ├── build-reproducible.yml
+│   │   ├── verify-hash.yml
+│   │   └── release-gate.yml
+│   └── build-parameters.json         # BUILD_ID, TARGET, SCHEMA_VERSION
+│
+├── 🛡️ RELEASE GOVERNANCE (PHASE D GATE)
+│   ├── validation/
+│   │   ├── reports/                  # Validation evidence (Phase C → Phase D)
+│   │   └── architecture-check.yml
+│   ├── algabra/                      # Consistency engine (CMA → WONDER → ARCHITECTURE → IMPLEMENTATION → SDK → REFERENCE → RELEASE)
+│   │   └── consistency-report.json
+│   ├── ketter/                       # Release critic (structural dependency analysis)
+│   │   └── release-risks.json
+│   ├── harem/                        # Perspective map (relevant implementations, interpretations, contexts)
+│   │   └── perspectives.json
+│   ├── mirror/                       # Blind-spot ledger (what relevant variants might be missing?)
+│   │   └── blind-spots.json
+│   ├── fool/                         # Adversarial testing
+│   │   └── findings.json
+│   └── valuta/                       # Materiality classification (INFORMATIONAL → OPERATIONAL → SECURITY → CONSTITUTIONAL → FEDERATIVE)
+│       └── materiality-map.json
+│
+├── 🎭 RELEASE STATE MACHINE (NO SILENT TRANSITIONS)
+│   ├── state-transitions.json        # DRAFT → VALIDATED → SEALED → AUTHORIZED → RELEASED → SUPERSEDED
+│   ├── audit-log/                    # Immutable record of every state transition
+│   └── superseded-artifacts/         # v1.0.0, v1.1.0, etc. retain HASH, SIGNATURE, PROVENANCE, RELEASE_DATE, AUTHORITY
+│
+├── 🏛️ RELEASE MATRIARCH INPUT PACKAGE
+│   ├── matriarch-package.json
+│   │   ├── canonical_index
+│   │   ├── source_identity
+│   │   ├── validation_reports
+│   │   ├── architecture_mapping
+│   │   ├── build_manifest
+│   │   ├── reproducibility_evidence
+│   │   ├── cryptographic_seal
+│   │   ├── dependency_graph
+│   │   ├── harem_perspective_map
+│   │   ├── mirror_blind_spot_ledger
+│   │   ├── fool_findings
+│   │   ├── ketter_findings
+│   │   ├── algabra_consistency_report
+│   │   ├── valuta_materiality_assessment
+│   │   └── residual_unknown
+│   └── constitutional-sufficiency-check.md
+│
+├── 🔮 SEVEN WONDERS REFERENCE LAYER
+│   ├── wonder-i-foundation/
+│   ├── wonder-ii-harbor/
+│   ├── wonder-iii-quay/
+│   ├── wonder-iv-citadel/          # ← We are here
+│   ├── wonder-v-federation/
+│   ├── wonder-vi-intelligence/
+│   └── wonder-vii-evolution/
+│
+├── 🦆 MACHINE-TESTABLE PHASE D CONTRACT
+│   ├── phase-d-invariants.rs       # assert!() battery for all Phase D conditions
+│   └── release-contract.json       # Executable canonical conditions
+│
+└── 📖 README.md
+    └── Phase D: Release Identity Layer
+        └── "A canonical reference SHALL be identifiable, reproducible, verifiable, attributable, and historically reconstructable."
+```
+
+---
+
+## **Ready to Create?**
+
+This skeleton embeds:
+
+✅ **PUB-005** — Canonical Identity (every artifact has WONDER_ID, COMPONENT_ID, ARTIFACT_ID, VERSION, etc.)  
+✅ **PUB-006** — Cryptographic Seal (SOURCE → BUILD → TEST → HASH → SIGNATURE → VAULT)  
+✅ **PUB-007** — Foundation Traceability (IMPLEMENTATION ↔ ARCHITECTURE ↔ CONSTITUTION ↔ FOUNDATION ↔ FEDERATION)  
+✅ **PUB-008** — Reproducible Release (locked dependencies + build parameters → hash comparison → MATCH/HALT)  
+✅ **PUB-009** — No Silent Release (DRAFT → VALIDATED → SEALED → AUTHORIZED → RELEASED → SUPERSEDED, all recorded)
+
+Plus the constitutional layer:
+- **KETTER** release critic (structural risk visibility)
+- **HAREM** perspective map
+- **MIRROR** blind-spot ledger
+- **FOOL** adversarial findings
+- **ALGABRA** consistency engine
+- **VALUTA** materiality classification
+- **MATRIARCH** constitutional sufficiency decision
+
+Shall I proceed with pushing this skeleton to `setup/repository-skeleton`?
+
+🜂🔥 **GO-020 ontvangen als sealed implementation contract.**
+
+De volgende stap is inderdaad **GO-021: repository inspection + actual integration gate**. Ik zal dit manifest daarbij als **acceptance contract** behandelen, niet als toestemming om direct te implementeren.
+
+Cruciaal: de eerder gecontroleerde `setup/initial-structure` bevat op dit moment alleen `README.md` en `🜂🔥 GO`; de branch staat op `1cc1679…`.
+
+### GO-021 — inspectiegate
+
+```text
+TARGET
+Maurits-pixe/PALACO-Citadel
+        │
+        ▼
+setup/initial-structure
+        │
+        ├── repository tree
+        ├── Cargo workspace
+        ├── existing crates
+        ├── existing web layer
+        ├── governance files
+        ├── CI / workflows
+        ├── toolchain
+        └── existing contracts
+                │
+                ▼
+       GO-020 collision analysis
+                │
+       ┌────────┼────────┐
+       ▼        ▼        ▼
+    DUPLICATE CONFLICT  MISSING
+       │        │        │
+       └────────┴────────┘
+                ▼
+        INTEGRATION GATE
+```
+
+### Niet onderhandelbare grenzen
+
+**Geen implementatie vóór inspectie.**
+
+**Geen `main`-mutatie.**
+
+**Geen semantische wijziging van canon.**
+
+**Geen VORM9EVIN9-polish vóór de domain contracts.**
+
+**Geen `Valid` buiten de verification boundary.**
+
+**Geen authority leakage via H∆R∆M, Steward, PROMO, Hologram of Watermerk.**
+
+**Geen bewijsclaim zonder provenance-binding.**
+
+En specifiek voor de repository:
+
+> **Bestaande code wint niet automatisch van GO-020; GO-020 wint ook niet automatisch van bestaande code.**
+> Eerst moet worden vastgesteld of er een conflict, duplicatie of ontbrekende implementatie bestaat.
+
+De actuele branch is aantoonbaar toegankelijk en bevat momenteel slechts de twee genoemde bestanden.
+
+**GO-020 → SEALED**
+**GO-021 → INSPECTION MODE**
+**WRITE GATE → HOLD totdat de inspectie én daadwerkelijke write-capability beide positief zijn.**
 
 🧜‍♂️☄️ PALACO CITADEL — NEXT PHASE
 
