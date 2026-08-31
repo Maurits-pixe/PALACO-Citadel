@@ -1,3 +1,7009 @@
+H∆R∆M State Machine
+De implementatie van H∆R∆M als interface-compagnon vraagt om een deterministische state machine die de drie fundamentele modi (EXPLORE, UNDERSTAND, VERIFY) naadloos verbindt met de onderliggende PALACO-staat en bewijsketen.
+                  ┌──────────────────────┐
+                  │      INITIALIZE      │
+                  │   "Welcome. I am     │
+                  │       H∆R∆M."        │
+                  └──────────┬───────────┘
+                             │
+            ┌────────────────┼────────────────┐
+            ▼                ▼                ▼
+     ┌─────────────┐  ┌─────────────┐  ┌─────────────┐
+     │   EXPLORE   │  │ UNDERSTAND  │  │   VERIFY    │
+     │ Architecture│  │  Meaning &  │  │ Provenance  │
+     │   Display   │  │   Context   │  │ & Evidence  │
+     └──────┬──────┘  └──────┬──────┘  └──────┬──────┘
+            │                │                │
+            └────────────────┼────────────────┘
+                             │
+                             ▼
+                  ┌──────────────────────┐
+                  │ GUARDRAIL ENFORCER   │
+                  │ • No authority       │
+                  │ • No consensus claims│
+                  │ • No hidden unknown  │
+                  └──────────────────────┘
+
+State Machine Definities
+ * State: IDLE / WELCOME
+   * Trigger: Pagina geladen of Citadel Shell geïnitialiseerd.
+   * Actie: Toont de introductie (Welcome. I am H∆R∆M.) en biedt de drie primaire interactieknoppen ([ EXPLORE ], [ UNDERSTAND ], [ VERIFY ]).
+ * State: EXPLORE
+   * Input: Selectie van een Tower, Wonder of ELIXER.
+   * Output: Visuele navigatie door de architectuur zonder autoriteitsclaims. H∆R∆M fungeert hier puur als topografische gids van de Citadel.
+ * State: UNDERSTAND
+   * Input: Vraag over de betekenis van een component of beslissing.
+   * Output: Contextuele uitleg gekoppeld aan de desbetreffende specificatielaag (bijv. de rationale achter een ELIXER of het Global State Model).
+ * State: VERIFY
+   * Input: Vraag naar de herkomst (“Waarom bestaat deze beslissing?”).
+   * Output: Directe doorverwijzing naar het Proof Center. H∆R∆M levert hier geen interpretatie, maar de harde bewijsreferentie en het actieve WATERMERK (VERIFIED, UNKNOWN, REVOKED).
+Guardrail Hard Coded Rules
+ * Absence Handling: Als een bewijs ontbreekt, schakelt H∆R∆M automatisch naar UNKNOWN of UNVERIFIED. Het verbergen van onzekerheid is architectonisch uitgesloten.
+ * Geen Autonomie: H∆R∆M kan nooit constitutionele beslissingen nemen of statuswijzigingen doorvoeren; de rol is strikt beperkt tot GUIDE · INTERFACE · COMPANION.
+De logica staat. Gaan we door naar het koppelen van de state machine aan de H∆R∆M Interface UI componenten in de frontend, of pakken we de specificatie van het WATERMERK interactie-element erbij?
+
+WATERMERK · Interactive State Layer
+Het watermerk is geen statische branding, maar een cryptografisch gekoppelde statuslaag die de integriteit, identiteit en provenance van elk PALACO-object bewaakt.
+┌────────────────────────────────────────────────────────┐
+│ WATERMERK · ACTIVE                                     │
+├────────────────────────────────────────────────────────┤
+│ ISSUER      │ PALACO CITADEL L.A.                      │
+│ OBJECT      │ ELIXER-007 (ORACLE)                      │
+│ VERSION     │ 1.0.0                                    │
+│ STATE       │ VERIFIED                                 │
+├────────────────────────────────────────────────────────┤
+│ [ VIEW PROVENANCE → Proof Center ]                     │
+└────────────────────────────────────────────────────────┘
+
+State Matrix & Visuele Codering
+Elke watermerk-instantie reageert direct op het Global State Model. De UI past de visuele indicatoren automatisch aan:
+| State | Visuele Indicatie | Betekenis / Regel |
+|---|---|---|
+| VERIFIED | Groen accent + Verified Badge | Integriteit en provenance zijn cryptografisch bewezen en onveranderd. |
+| PENDING REVIEW | Amber / Waarschuwing | Onder evaluatie door een bevoegde steward; nog niet definitief canoniek. |
+| UNVERIFIED | Grijs / Neutraal | Geen bewijsketen aanwezig of verificatie nog niet gestart. |
+| REVOKED | Rood / Doorgehaald | Eerdere autoriteit of status is ingetrokken via governance-ingreep. |
+| UNKNOWN | Paars / Open vraag | Systeem kan de staat niet vaststellen. UNKNOWN ≠ VERIFIED. |
+Interactiviteit & UX-Gedrag
+ * Hover State: Toont direct een minimalistische tooltip met de kernmetadata (Issuer, Object, Version).
+ * Click Action: Opent de Watermerk-modal die de gebruiker direct verbindt met de onderliggende bewijsketen.
+ * Absence Guard: Als metadata of bewijs ontbreekt, valt de component automatisch terug op UNKNOWN of UNVERIFIED. Het verbergen van ontbrekende data is in de componentlogica hard geblokkeerd (ABSENCE OF EVIDENCE ≠ EVIDENCE OF VALIDITY).
+Het watermerk is hiermee volledig gekoppeld aan de H∆R∆M-staat en het Proof Center. Gaan we door naar de integratie in de Identity Card of pakken we de doorstap naar de Proof Center UI?
+
+Identity Card · Digital Visitekaartje as a PALACO.NL Instance
+Het digitale visitekaartje is geen afgescheiden mini-website of statische vCard, maar een volwaardige PALACO.NL identity instance die naadloos aansluit op het Global State Model en de onderliggende bewijsketen.
+┌────────────────────────────────────────────────────────┐
+│ PALACO.NL IDENTITY INSTANCE                            │
+├────────────────────────────────────────────────────────┤
+│ PERSON      │ Maurits Benjamin                         │
+│ CITADEL     │ L.A. · LOCUS AMOENUS                     │
+│ ROLE        │ Architect & Founder / Citadel            │
+├────────────────────────────────────────────────────────┤
+│ WATERMERK   │ VERIFIED                                 │
+│ ISSUER      │ PALACO CITADEL L.A.                      │
+│ VERSION     │ 1.0.0                                    │
+├────────────────────────────────────────────────────────┤
+│ PROVENANCE  │ cryptographically bound & attributed     │
+├────────────────────────────────────────────────────────┤
+│ [ VIEW PROVENANCE ]  [ CONNECT ]                       │
+└────────────────────────────────────────────────────────┘
+
+Architectuur & Component-opbouw
+ * Directe Erfenis: De Identity Card erft direct van de Citadel Shell. Hierdoor de dezelfde design tokens, typografie en de universele statusbalk.
+ * Geïntegreerd Watermerk: Elk visitekaartje draagt het interactieve WATERMERK. Een klik hierop opent direct de verificatiemodal, waarmee de integriteit van de identiteit en diens relatie tot de Citadel onmiddellijk controleerbaar is.
+ * Lineaire Navigatie / Context: Volgens de PALACO-standaard volgt de kaart de vaste UX-keten:
+   
+Garanties & Schaalbaarheid
+ * Geen Losse Pagina's: Doordat de kaart een instantie is van het hoofdsysteem, schaalt het automatisch mee met toekomstige protocol-updates en veranderingen in de state machine.
+ * Transparantie in Staat: Indien een identiteitsattributie in review is of ontbreekt, schakelt het visuele model direct om naar PENDING REVIEW of UNKNOWN. Er wordt geen enkele schijn van geldigheid gewekt wanneer bewijs ontbreekt.
+De Identity Card is hiermee functioneel verankerd in de frontend-fundering. Wil je dat we doorgaan naar de Proof Center UI om te zien hoe de bewijsketenvisualisatie en audit-queries worden opgebouwd, of sluiten we de front-end keten af met de Governance UI (Steward Scope)?
+
+Proof Center UI · The Audit & Verification Core
+Het Proof Center vormt de technische en constitutionele sluitstuk-interface van PALACO.NL. Hier worden claims, beslissingen en acties direct gekoppeld aan onuitwisbare bewijsreferenties, in lijn met het kernprincipe: geen security-relevante beslissing zonder bewijsreferentie.
+┌────────────────────────────────────────────────────────┐
+│ PALACO.NL · PROOF CENTER                               │
+├────────────────────────────────────────────────────────┤
+│ TARGET OBJECT │ ELIXER-007 (ORACLE)                    │
+│ STATE         │ VERIFIED                               │
+├────────────────────────────────────────────────────────┤
+│ QUERY: "Waarom bestaat deze beslissing?"               │
+│                                                        │
+│ ├── ACTION      │ Genesis registration & crypt-bind    │
+│ ├── POLICY      │ PALACO Constitutional Framework v1.0   │
+│ ├── WISDOM      │ Autonomous verification mandate        │
+│ ├── DECISION    │ State promotion to CANONICAL         │
+│ ├── EVIDENCE    │ Blockhash #7F9A-22B · Zero-knowledge   │
+│ └── PROVENANCE  │ L.A. Citadel Root → Maurits Benjamin │
+├────────────────────────────────────────────────────────┤
+│ WATERMERK     │ VERIFIED [ VIEW RAW HASH ]             │
+└────────────────────────────────────────────────────────┘
+
+Interface Structuur & Navigatieketen
+ * De Sevenfold Stack: Het Proof Center breekt elke beslissing of objectstaat open via de vaste bewijsketen:
+   
+ * Interactive Querying: Gebruikers en auditors kunnen door de keten klikken om de precieze onderbouwing van een component te inspecteren. Geen vage marketingtaal, maar harde bewijsreferenties en cryptografische hashes.
+ * State Enforcement: Als een bewijs ontbreekt of incompleet is, schakelt de Proof Center UI direct over naar de UNKNOWN of UNVERIFIED weergave, waarbij de visuele codering onmiddellijk aangeeft dat absence of evidence nooit wordt verward met evidence of validity.
+Het Proof Center verbindt hiermee de abstracte architectuur uit PVD-003 direct met verifieerbare frontend-transparantie.
+
+🜂 PVD-001 — FREEZE CONFIRMED
+
+PALACO VORM9EVIN9 SYSTEM v1.0
+Status: 🔒 CANONICAL DESIGN FREEZE
+Execution Track: GO-1 → GO-7 ACTIVE
+
+De architectuur is helder: vormgeving is hier geen decoratie, maar een visuele governance-laag.
+
+GO-1 — MASTER IDENTITY FRAMEWORK
+
+LOCKED
+
+CROWN → Constitution / hoogste norm
+
+TOWER I → Governance
+
+TOWER II → Execution
+
+CORE → State / Ledger / Observatory
+
+TOWER III → Storage
+
+TOWER IV → Verification
+
+PERIPHERY → Commons · ELIXERS · H∆R∆M
+
+FOOTER → Provenance · Status · Version · Watermerk
+
+
+GO-2 — L.A. REFERENCE STANDARD
+
+Canonical visual benchmark
+
+L.A. wordt het referentie-Citadel waartegen nieuwe Citadel-interfaces worden vormgegeven.
+
+Regel: dezelfde constitutionele geometrie, verschillende lokale expressie.
+
+GO-3 — PROMO
+
+Public / Human Layer
+
+PROMO toont uitsluitend wat een gebruiker nodig heeft om verantwoord te begrijpen:
+
+WHAT → WHY → PROVENANCE → STATUS → ACCESS
+
+Geen pseudo-soevereiniteit.
+Geen mystificatie.
+Functionele trust.
+
+GO-4 — PROMA
+
+Proof / Verification Layer
+
+ORIGIN
+  ↓
+ISSUER
+  ↓
+CITADEL
+  ↓
+WATERMERK
+  ↓
+SEAL
+  ↓
+PROVENANCE
+  ↓
+VALIDITY
+
+Geen visuele claim zonder verifieerbare onderlaag.
+
+GO-5 — DIGITAL IDENTITY CARD
+
+Canonical two-face standard
+
+FRONT
+
+> PALACO
+NAME
+ROLE · CITADEL
+CITADEL-ID
+
+
+
+BACK
+
+> PALACO.NL
+WATERMERK
+IDENTITY
+PROVENANCE
+QR · VERIFIABLE LINK
+
+
+
+Het kaartontwerp wordt daarmee een verifieerbaar identity primitive, niet slechts een visitekaartje.
+
+GO-6 — H∆R∆M + STEWARD AUTHORITY BOUNDING
+
+H∆R∆M
+
+> Human-facing translation/interface layer.
+
+
+
+Dus:
+
+mens ↔ H∆R∆M ↔ constitutionele infrastructuur
+
+H∆R∆M krijgt geen sovereign visual language.
+
+STEWARD
+
+Iedere visuele representatie moet de vier begrenzingen zichtbaar respecteren:
+
+ATTRIBUTABLE · BOUNDED · REVIEWABLE · REVOCABLE
+
+GO-7 — SYSTEM-WIDE DESIGN GOVERNANCE
+
+Alle toekomstige PALACO-assets worden automatisch getoetst aan PVD-001:
+
+Gate	Vraag
+
+👑 Constitutional	Is de hiërarchie correct zichtbaar?
+🏛 Authority	Claimt iets meer macht dan toegestaan?
+🔗 Provenance	Kan oorsprong worden vastgesteld?
+💧 Watermerk	Is authenticiteit herkenbaar?
+🔐 Verification	Is de claim controleerbaar?
+👤 Human	Kan een mens het begrijpen?
+♻️ Evolution	Kan het ontwerp evolueren zonder canonbreuk?
+
+
+🔒 DESIGN INVARIANT
+
+> NOTHING MAY LOOK MORE SOVEREIGN THAN THE CONSTITUTION PERMITS.
+
+
+
+En de tweede helft wordt de esthetische opdracht:
+
+> EVERYTHING THAT IS CONSTITUTIONAL SHOULD BE BEAUTIFUL ENOUGH TO BE UNDERSTOOD.
+
+
+
+PVD-001 v1.0 is hiermee het visuele constitutionele contract voor L.A., PROMO, PROMA, het digitale visitekaartje en alle volgende Citadels.
+
+🜂 FREEZE → LOCK → EXECUTE GO-2 THROUGH GO-7.
+
+🜂🔥 PALACO PVD-001 — GO-2
+
+L.A. · LOCUS AMOENUS
+
+Canonical Reference Citadel · VORM9EVIN9 v1.0
+
+STATUS: DESIGN EXECUTION ACTIVE
+
+De volgende laag wordt nu vastgezet als L.A. Reference Standard. Niet als één specifieke gebouwstijl, maar als het visuele grammar waaruit iedere toekomstige PALACO-Citadel kan worden afgeleid.
+
+
+---
+
+👑 01 — CROWN
+
+Position: hoogste visuele ankerpunt.
+
+PALACO
+       CONSTITUTIONAL INFRASTRUCTURE
+             FOR THE AUTONOMOUS ERA
+
+                    👑
+              CONSTITUTION
+
+De Crown draagt normatieve autoriteit, maar geen persoonlijke eigenaar.
+
+Visual rule: hoogste positie ≠ hoogste persoon.
+De Crown representeert de Constitution.
+
+
+---
+
+🏛️ 02 — FOUR TOWERS
+
+┌───────────────┐
+              │     CROWN     │
+              │ CONSTITUTION  │
+              └───────┬───────┘
+                      │
+       ┌──────────────┴──────────────┐
+       │                             │
+ ┌─────▼─────┐                 ┌─────▼─────┐
+ │  TOWER I  │                 │ TOWER II  │
+ │ GOVERNANCE│                 │ EXECUTION │
+ └─────┬─────┘                 └─────┬─────┘
+       │                             │
+       └──────────────┬──────────────┘
+                      │
+                 ┌────▼────┐
+                 │   CORE   │
+                 │  STATE   │
+                 │  LEDGER  │
+                 └────┬────┘
+                      │
+       ┌──────────────┴──────────────┐
+       │                             │
+ ┌─────▼──────┐                ┌─────▼──────┐
+ │ TOWER III  │                │ TOWER IV   │
+ │  STORAGE   │                │VERIFICATION│
+ └────────────┘                └─────────────┘
+
+De vier Torens zijn gelijkwaardig als infrastructurele componenten.
+
+Geen enkele Tower mag door vormgeving impliceren:
+
+> "Ik ben de eigenaar van PALACO."
+
+
+
+Ze zijn functies, geen machtscentra.
+
+
+---
+
+🔭 03 — CORE + OBSERVATORY
+
+Het hart van L.A.
+
+CORE
+
+State
+
+Ledger
+
+Identity
+
+Events
+
+Constitutional state transitions
+
+
+OBSERVATORY
+
+Telemetry
+
+Health
+
+Evidence signals
+
+Verification status
+
+System visibility
+
+
+De Observatory observeert.
+
+Zij regeert niet.
+
+Dat onderscheid wordt expliciet onderdeel van de vormgeving.
+
+
+---
+
+🌱 04 — PERIPHERY
+
+Rond de Core komt de levende PALACO-omgeving:
+
+COMMONS
+
+Menselijke interactie en gedeelde context.
+
+ELIXERS
+
+Product-/experience-laag.
+
+H∆R∆M
+
+De menselijke interface:
+
+HUMAN
+  ↓
+H∆R∆M
+  ↓
+INTERPRETATION
+  ↓
+CONSTITUTIONAL SYSTEM
+
+H∆R∆M wordt daarom visueel dicht bij de mens geplaatst, niet boven de Constitution.
+
+
+---
+
+💧 05 — PROVENANCE FOOTER
+
+Iedere officiële L.A.-weergave krijgt een herkenbare metadata-zone:
+
+PROVENANCE   [ORIGIN_HASH]
+ISSUER       PALACO CORE
+STATUS       VERIFIED
+VERSION      1.0.0
+WATERMERK    [CRYPTO_SEAL]
+SEAL         VALIDATED
+
+Dit wordt de PALACO visual trust signature.
+
+Niet:
+
+> "Vertrouw ons."
+
+
+
+Maar:
+
+> "Controleer het."
+
+
+
+
+---
+
+🖤 06 — L.A. VISUAL LANGUAGE
+
+PALACO L.A. =
+
+Architectural precision
+
+clinical clarity
+
+human warmth
+
+constitutional hierarchy
+
+cryptographic traceability
+
+
+Geen overmatige ornamentiek.
+
+Geen futuristische chaos.
+
+Geen "AI magic".
+
+De esthetiek moet voelen alsof het systeem al twintig jaar volwassen infrastructuur is.
+
+
+---
+
+🔒 PVD-001 DESIGN TEST
+
+Een L.A.-asset wordt alleen CANONICAL wanneer:
+
+1. Constitution zichtbaar boven actor staat.
+2. Vier functies herkenbaar blijven.
+3. Core en Observatory niet met elkaar worden verward.
+4. H∆R∆M geen sovereign appearance krijgt.
+5. Stewardship zichtbaar begrensd is.
+6. Provenance onderdeel van het object zelf is.
+7. Verification niet als marketingclaim maar als controleerbare eigenschap verschijnt.
+
+
+---
+
+🜂 L.A. REFERENCE PRINCIPLE
+
+> PALACO DOES NOT DESIGN POWER.
+PALACO DESIGNS THE CONDITIONS UNDER WHICH POWER REMAINS ACCOUNTABLE.
+
+
+
+PVD-001 → GO-2 SEALED.
+
+Volgende uitvoeringslaag:
+
+🜂 GO-3 — PROMO · PUBLIC HUMAN TRUST INTERFACE
+
+PROMO wordt daarbij rechtstreeks afgeleid van L.A., maar vereenvoudigd zonder de constitutionele waarheid te verliezen.
+
+🜂🔥 PVD-001 · GO-3
+
+PROMO — PUBLIC TRUST INTERFACE v1.0
+
+STATUS: CANONICAL ENGINEERING DESIGN · ACTIVE
+
+PROMO wordt de publieke huid van PALACO: elegant, begrijpelijk en toegankelijk — maar constitutioneel strikt ondergeschikt aan de onderliggende infrastructuur.
+
+
+---
+
+01 · PROMO CORE PRINCIPLE
+
+> PROMO SHOWS WHAT CAN BE UNDERSTOOD AND VERIFIED.
+
+
+
+PROMO hoeft niet de volledige constitutionele machine te tonen.
+
+Het moet wél voorkomen dat de gebruiker een verkeerde conclusie trekt.
+
+Daarom:
+
+┌─────────────────────────────────────────────┐
+│                  PALACO                     │
+│                                             │
+│   CONSTITUTIONAL INFRASTRUCTURE             │
+│   FOR THE AUTONOMOUS ERA                    │
+│                                             │
+│             ┌─────────────┐                 │
+│             │   CITadel   │                 │
+│             │  L.A.       │                 │
+│             └──────┬──────┘                 │
+│                    │                        │
+│          VERIFIED · PROVENANCE              │
+│                                             │
+│     WHAT     WHY     PROVENANCE             │
+│     STATUS   ACCESS                         │
+│                                             │
+└─────────────────────────────────────────────┘
+
+
+---
+
+02 · DE VIJF PROMO-VRAGEN
+
+Elke publieke PALACO-interface moet uiteindelijk antwoord geven op:
+
+WHAT
+
+Wat is dit?
+
+WHY
+
+Waarom bestaat het?
+
+PROVENANCE
+
+Waar komt het vandaan?
+
+STATUS
+
+Wat is de huidige geldige status?
+
+ACCESS
+
+Wat kan ik ermee?
+
+Geen verborgen zesde vraag:
+
+> "Wie moet ik geloven?"
+
+
+
+Want PROMO verwijst de gebruiker naar bewijs, niet naar charisma.
+
+
+---
+
+03 · VISUAL HIERARCHY
+
+PROMO gebruikt een bewust eenvoudiger hiërarchie dan L.A.
+
+PALACO
+                    │
+               EXPERIENCE
+                    │
+        ┌───────────┼───────────┐
+        │           │           │
+       WHAT        WHY      PROVENANCE
+        │           │           │
+        └───────────┼───────────┘
+                    │
+             STATUS · ACCESS
+                    │
+              VERIFICATION
+
+De gebruiker staat niet onder het systeem.
+
+De gebruiker staat ervoor.
+
+Dat is een belangrijk verschil.
+
+
+---
+
+04 · PROMO ≠ PROMA
+
+Deze scheiding wordt hard canoniek.
+
+PROMO	PROMA
+
+Human-facing	Machine/evidence-facing
+Begrijpelijkheid	Bewijs
+Context	Verification
+WHAT / WHY	ORIGIN / VALIDITY
+Public presentation	Proof engine
+Vereenvoudigt	Reconstrueert
+Geen constitutionele claims	Cryptografische chain
+
+
+PROMO mag dus zeggen:
+
+> VERIFIED
+
+
+
+maar moet kunnen verwijzen naar PROMA dat kan aantonen:
+
+ORIGIN
+ ↓
+ISSUER
+ ↓
+CITADEL
+ ↓
+WATERMERK
+ ↓
+SEAL
+ ↓
+PROVENANCE
+ ↓
+VALIDITY
+
+
+---
+
+05 · PUBLIC CITadel CARD
+
+De eerste concrete PROMO-component:
+
+╭─────────────────────────────────────╮
+│ PALACO                              │
+│                                     │
+│ L.A.                                │
+│ LOCUS AMOENUS                       │
+│                                     │
+│ REFERENCE CITADEL                   │
+│                                     │
+│ ─────────────────────────────────── │
+│                                     │
+│ WHAT                                │
+│ Constitutional reference standard  │
+│                                     │
+│ WHY                                 │
+│ Benchmark for Citadel interfaces   │
+│                                     │
+│ STATUS                              │
+│ ● VERIFIED                          │
+│                                     │
+│ PROVENANCE                          │
+│ [VIEW PROOF]                        │
+│                                     │
+│ ACCESS                              │
+│ [ENTER CITADEL]                     │
+│                                     │
+│ WATERMERK                           │
+│ [CRYPTO-SEAL]                       │
+╰─────────────────────────────────────╯
+
+Geen overbelasting.
+
+Een gebruiker moet binnen enkele seconden begrijpen:
+
+wat → waarom → betrouwbaarheidsstatus → bewijs → toegang.
+
+
+---
+
+06 · H∆R∆M IN PROMO
+
+H∆R∆M krijgt een expliciete interface-status:
+
+GUIDE · NOT AUTHORITY
+
+Bijvoorbeeld:
+
+> H∆R∆M
+Your guide through PALACO.
+
+
+
+Daaronder:
+
+> Explains the system.
+Shows available paths.
+Exposes uncertainty.
+Does not grant authority.
+
+
+
+Dit is belangrijk voor de VORM9EVIN9:
+
+de interface kan intelligent ogen zonder macht uit te stralen.
+
+
+---
+
+07 · STEWARD PRESENTATION
+
+Wanneer een Steward wordt weergegeven:
+
+STEWARD
+────────────────
+IDENTITY
+ROLE
+CITADEL
+AUTHORITY SCOPE
+
+✓ ATTRIBUTABLE
+✓ BOUNDED
+✓ REVIEWABLE
+✓ REVOCABLE
+
+Niet:
+
+OWNER
+SUPREME
+MASTER
+SOVEREIGN
+
+De vormgeving zelf voorkomt daarmee een authority hallucination.
+
+
+---
+
+08 · PROMO WATERMERK
+
+Het watermerk wordt geen decoratief logo.
+
+Het wordt een herkenningsanker.
+
+Visueel:
+
+PALACO · WATERMERK
+        ◇
+   CRYPTO-SEAL
+        │
+   VERIFIED
+
+Bij klikken/tappen:
+
+PROMA → bewijslaag.
+
+
+---
+
+09 · PROMO DESIGN INVARIANT
+
+> SIMPLIFICATION SHALL NEVER BECOME DISTORTION.
+
+
+
+PROMO mag de architectuur vereenvoudigen.
+
+PROMO mag de architectuur niet vervalsen.
+
+Dat betekent:
+
+less information ≠ less truth.
+
+
+---
+
+🔒 GO-3 SEAL
+
+PVD-001 / GO-3
+
+PROMO
+PUBLIC
+HUMAN
+CLEAR
+PROVENANCE-AWARE
+NON-SOVEREIGN
+VERIFIABLE
+
+STATE: SEALED · CANONICAL
+
+En daarmee ontstaat een cruciale PALACO-driedeling:
+
+CONSTITUTION
+                  │
+                  ▼
+             PALACO CORE
+                  │
+        ┌─────────┴─────────┐
+        ▼                   ▼
+      PROMO                PROMA
+   HUMAN TRUST          PROOF ENGINE
+        │                   │
+        ▼                   ▼
+      HUMAN              VERIFIER
+
+GO-3 → LOCKED.
+
+🜂 VOLGENDE: GO-4
+
+PROMA — PROOF ENGINE / VISUAL VERIFICATION STANDARD
+
+Daar zetten we de ORIGIN → VALIDITY-chain om in een concreet, elegant verificatie-object dat zowel in de website, Citadel-interface als het digitale visitekaartje kan terugkeren.
+
+🜂🔥 PVD-001 · GO-4
+
+PROMA — PROOF ENGINE / VISUAL VERIFICATION STANDARD v1.0
+
+STATUS: CANONICAL DESIGN BUILD · FREEZE-COMPATIBLE
+
+PROMA wordt de bewijslaag achter PROMO. Waar PROMO vertrouwen presenteert, maakt PROMA vertrouwen controleerbaar.
+
+
+---
+
+01 · THE PROOF CHAIN
+
+De canonieke keten wordt visueel één herkenbaar PALACO-object:
+
+ORIGIN
+   ↓
+ISSUER
+   ↓
+CITADEL
+   ↓
+WATERMERK
+   ↓
+SEAL
+   ↓
+PROVENANCE
+   ↓
+VALIDITY
+
+Elke stap is een bewijsrelatie, geen decoratieve badge.
+
+Kernregel
+
+> NO VERIFICATION CLAIM WITHOUT A TRACEABLE PROOF PATH.
+
+
+
+
+---
+
+02 · PROMA VERIFICATION OBJECT
+
+De standaardweergave:
+
+╭──────────────────────────────────────────╮
+│                 PALACO                   │
+│                                          │
+│              PROMA PROOF                 │
+│                                          │
+│  ● ORIGIN            VERIFIED            │
+│  │                                       │
+│  ● ISSUER            VERIFIED            │
+│  │                                       │
+│  ● CITADEL           VERIFIED            │
+│  │                                       │
+│  ● WATERMERK         VERIFIED            │
+│  │                                       │
+│  ● SEAL              VALID               │
+│  │                                       │
+│  ● PROVENANCE        INTACT              │
+│  │                                       │
+│  ● VALIDITY          CURRENT             │
+│                                          │
+│        ─────────────────────             │
+│        PROOF STATUS: VALID               │
+│        [INSPECT EVIDENCE]                │
+╰──────────────────────────────────────────╯
+
+De gebruiker ziet dus niet alleen een groen vinkje.
+
+De gebruiker ziet waarom het vinkje bestaat.
+
+
+---
+
+03 · STATUS TAXONOMY
+
+PROMA krijgt een strikt vocabulaire.
+
+Status	Betekenis
+
+VALID	Bewijsketen voldoet aan de verificatieregels
+INVALID	Eén of meer noodzakelijke controles falen
+INCOMPLETE	Bewijs ontbreekt of kan niet volledig worden gereconstrueerd
+EXPIRED	Geldigheidsperiode verstreken
+REVOKED	Geldigheid expliciet ingetrokken
+PENDING	Verificatie nog niet afgerond
+UNKNOWN	Status kan niet betrouwbaar worden vastgesteld
+
+
+Cruciale regel
+
+UNKNOWN ≠ VALID.
+
+En:
+
+ABSENCE OF FAILURE ≠ PROOF OF VALIDITY.
+
+
+---
+
+04 · CRYPTOGRAPHIC IDENTITY
+
+Iedere PROMA-verificatie krijgt een immutable referentie:
+
+PROOF-ID
+[xxxxxxxxxxxxxxxx]
+
+ORIGIN-HASH
+[xxxxxxxxxxxxxxxxxxxxxxxx]
+
+ISSUER-ID
+[xxxxxxxx]
+
+CITADEL-ID
+[xxxxxxxx]
+
+SEAL-ID
+[xxxxxxxx]
+
+PROVENANCE-ID
+[xxxxxxxxxxxxxxxx]
+
+Geen menselijke naam, logo of esthetische claim kan deze identifiers vervangen.
+
+
+---
+
+05 · WATERMERK
+
+Het PALACO-watermerk wordt een cryptographic recognition primitive.
+
+Niet:
+
+> "Dit ziet er officieel uit."
+
+
+
+Maar:
+
+> "Dit object draagt een controleerbare PALACO-identiteit."
+
+
+
+Daarmee kunnen dezelfde herkenningsprincipes terugkomen op:
+
+Citadel interfaces
+
+PALACO.NL
+
+PROMO assets
+
+digitale identiteit
+
+ELIXERS
+
+documenten
+
+fysieke representaties
+
+
+
+---
+
+06 · VISUAL TRUST GRADIENT
+
+PROMA gebruikt geen theatrale "security green/red" als primaire betekenisdrager.
+
+De hiërarchie is:
+
+STRUCTURE → STATUS → EVIDENCE → ACTION
+
+Bijvoorbeeld:
+
+PROOF STATUS
+     │
+     ▼
+VALID
+     │
+     ├── Origin confirmed
+     ├── Issuer confirmed
+     ├── Citadel confirmed
+     ├── Seal valid
+     └── Provenance intact
+              │
+              ▼
+        INSPECT EVIDENCE
+
+Bewijs staat vóór emotionele geruststelling.
+
+
+---
+
+07 · PROMO ↔ PROMA BRIDGE
+
+Dit is een belangrijke interface-lock.
+
+PROMO:
+
+> VERIFIED
+
+
+
+↓ gebruiker selecteert VIEW PROOF
+
+PROMA:
+
+> PROOF-ID
+
+ORIGIN
+
+ISSUER
+
+CITADEL
+
+WATERMERK
+
+SEAL
+
+PROVENANCE
+
+VALIDITY
+
+
+
+Daarmee ontstaat één consistente gebruikerservaring:
+
+SEE
+ ↓
+UNDERSTAND
+ ↓
+VERIFY
+ ↓
+INSPECT
+
+
+---
+
+08 · FAILURE MUST BE BEAUTIFUL TOO
+
+Een fundamentele VORM9EVIN9-regel:
+
+> A FAILED VERIFICATION SHALL NEVER BE VISUALLY HIDDEN.
+
+
+
+Bijvoorbeeld:
+
+╭──────────────────────────────────────────╮
+│ PALACO · PROMA                           │
+│                                          │
+│             VERIFICATION                 │
+│                                          │
+│          STATUS: INCOMPLETE              │
+│                                          │
+│  ✓ ORIGIN                                │
+│  ✓ ISSUER                                │
+│  ✓ CITADEL                               │
+│  ✕ PROVENANCE                            │
+│  ? VALIDITY                              │
+│                                          │
+│  Evidence required to complete proof.   │
+│                                          │
+│             [INSPECT]                    │
+╰──────────────────────────────────────────╯
+
+Geen cosmetische camouflage.
+
+Geen "trusted anyway".
+
+Onzekerheid wordt ontworpen als een first-class state.
+
+
+---
+
+09 · CONSTITUTIONAL CONSEQUENCE
+
+PROMA introduceert daarmee een belangrijke visuele invariant:
+
+CLAIM ≠ PROOF
+
+Een object kan mooi zijn.
+
+Een object kan officieel lijken.
+
+Een object kan door PROMO worden gepresenteerd.
+
+Maar pas wanneer PROMA de relevante chain valideert, mag het systeem een VERIFIED-status voeren.
+
+
+---
+
+🔐 PROMA CANONICAL EQUATION
+
+IDENTITY
+    +
+ORIGIN
+    +
+PROVENANCE
+    +
+SEAL
+    +
+VALIDITY
+    =
+VERIFIABLE TRUST
+
+Niet:
+
+LOGO + DESIGN = TRUST
+
+
+---
+
+🜂 GO-4 SEAL
+
+PVD-001 / GO-4
+
+PROMA = PROOF
+
+TRACEABLE
+INSPECTABLE
+CRYPTOGRAPHICALLY ANCHORED
+STATUS-AWARE
+NON-DECEPTIVE
+REVOCABLE
+
+🔒 GO-4 — SEALED
+
+Daarmee zijn nu L.A. + PROMO + PROMA één coherent VORM9EVIN9-systeem:
+
+PALACO
+                │
+          CONSTITUTION
+                │
+        ┌───────┴───────┐
+        │               │
+      PROMO            PROMA
+        │               │
+     HUMAN             PROOF
+        │               │
+        └───────┬───────┘
+                │
+             CITADEL
+
+🜂 NEXT — GO-5
+
+DIGITAL IDENTITY CARD v1.0
+
+Het digitale visitekaartje wordt nu het eerste fysiek/digitaal PALACO identity primitive waarin PALACO · persoon/rol · Citadel · Watermerk · Provenance · QR/verification samenkomen.
+
+🜂🔥 PVD-001 · GO-5
+
+DIGITAL IDENTITY CARD v1.0 + HOLOGRAM
+
+STATUS: CANONICAL ENGINEERING DESIGN · ACTIVE
+
+HOLOGRAM is vanaf deze GO expliciet onderdeel van de canonieke identity layer.
+
+Niet als versiering.
+
+> HOLOGRAM = zichtbaar identiteitsanker dat verwijst naar verifieerbare authenticiteit.
+
+
+
+
+---
+
+01 · FRONT — IDENTITY
+
+╭──────────────────────────────────────────╮
+│                                          │
+│                 PALACO                   │
+│                                          │
+│              ◇ HOLOGRAM ◇                │
+│                                          │
+│          MAURITS BENJAMIN                │
+│          ROLE · CITADEL                  │
+│                                          │
+│          CITADEL-ID                      │
+│          [PALACO-XXXX-XXXX]              │
+│                                          │
+│          ───────────────────             │
+│          IDENTITY · VERIFIED             │
+│                                          │
+╰──────────────────────────────────────────╯
+
+Visuele hiërarchie
+
+PALACO → HOLOGRAM → IDENTITY → ROLE → CITADEL-ID
+
+De persoon staat niet boven de constitutionele infrastructuur.
+
+De kaart representeert een toewijsbare identiteit binnen een begrensde context.
+
+
+---
+
+02 · BACK — PROVENANCE
+
+╭──────────────────────────────────────────╮
+│                 PALACO                   │
+│                                          │
+│ PALACO.NL                                │
+│                                          │
+│ WATERMERK                                │
+│ [CRYPTO-SEAL]                            │
+│                                          │
+│ IDENTITY                                 │
+│ [IDENTITY-REFERENCE]                     │
+│                                          │
+│ PROVENANCE                               │
+│ [ORIGIN-HASH]                            │
+│                                          │
+│              ┌──────────────┐            │
+│              │      QR      │            │
+│              │  VERIFY      │            │
+│              └──────────────┘            │
+│                                          │
+│ STATUS · VERIFIABLE                      │
+╰──────────────────────────────────────────╯
+
+De QR is geen gewoon website-linkje.
+
+De bestemming moet de identity/proof-context kunnen ontsluiten.
+
+
+---
+
+03 · HOLOGRAM STANDARD
+
+Het HOLOGRAM krijgt vier functies:
+
+01 · RECOGNITION
+
+Visueel onmiddellijk herkenbaar als PALACO identity marker.
+
+02 · IDENTITY BINDING
+
+Het holografische element wordt gekoppeld aan de betreffende identity/context.
+
+03 · ANTI-COPY SIGNAL
+
+Het ontwerp moet reproductie moeilijker maken en afwijkingen zichtbaar maken.
+
+04 · VERIFICATION BRIDGE
+
+HOLOGRAM → Watermerk → Provenance → PROMA.
+
+HOLOGRAM
+    ↓
+IDENTITY
+    ↓
+CITADEL
+    ↓
+WATERMERK
+    ↓
+PROVENANCE
+    ↓
+PROMA
+    ↓
+VALIDITY
+
+
+---
+
+04 · HOLOGRAM ≠ WATERMERK
+
+Deze twee mogen nooit semantisch samenvallen.
+
+Element	Functie
+
+HOLOGRAM	Visuele/authenticiteitslaag
+WATERMERK	PALACO-identiteits-/integriteitsanker
+PROVENANCE	Herkomst en lineage
+QR	Toegang tot verificatie
+PROMA	Bewijs en validatie
+
+
+Samen vormen ze één identity stack.
+
+
+---
+
+05 · IDENTITY BOUNDARY
+
+De kaart mag geen onbeperkte autoriteit suggereren.
+
+Daarom:
+
+IDENTITY
+   +
+ROLE
+   +
+CITADEL
+   +
+AUTHORITY SCOPE
+   +
+PROVENANCE
+
+Een identiteit is niet automatisch een bevoegdheid.
+
+Een rol is niet automatisch soevereiniteit.
+
+Een Citadel-ID is geen universele machtstitel.
+
+
+---
+
+06 · DIGITAL + PHYSICAL CONTINUITY
+
+Dezelfde VORM9EVIN9 moet kunnen bestaan in:
+
+DIGITAL
+
+PALACO
+HOLOGRAM
+IDENTITY
+CITADEL-ID
+WATERMERK
+PROVENANCE
+QR
+
+PHYSICAL
+
+CARD
+  ↓
+HOLOGRAPHIC IDENTITY MARK
+  ↓
+WATERMARK
+  ↓
+QR
+  ↓
+PROMA VERIFICATION
+
+Daarmee krijgt het digitale visitekaartje een veel grotere functie:
+
+> een portable constitutional identity surface.
+
+
+
+
+---
+
+07 · H∆R∆M COMPATIBILITY
+
+Wanneer de kaart via H∆R∆M wordt gepresenteerd:
+
+H∆R∆M mag uitleggen:
+
+wie/Wat wordt gerepresenteerd;
+
+welke Citadel-context geldt;
+
+wat de status betekent;
+
+welke bewijsinformatie beschikbaar is;
+
+welke onzekerheden bestaan.
+
+
+H∆R∆M mag niet:
+
+bevoegdheid creëren;
+
+identiteit uitbreiden;
+
+provenance wijzigen;
+
+een ontbrekende verificatie "goedkeuren".
+
+
+
+---
+
+08 · CANONICAL IDENTITY FLOW
+
+PERSON / ENTITY
+                    │
+                    ▼
+               IDENTITY
+                    │
+                    ▼
+                 ROLE
+                    │
+                    ▼
+                CITADEL
+                    │
+        ┌───────────┴───────────┐
+        ▼                       ▼
+    HOLOGRAM                WATERMERK
+        │                       │
+        └───────────┬───────────┘
+                    ▼
+               PROVENANCE
+                    │
+                    ▼
+                  QR
+                    │
+                    ▼
+                 PROMA
+                    │
+                    ▼
+                VALIDITY
+
+Dit is de canonical identity chain voor PVD-001.
+
+
+---
+
+🔒 GO-5 SEAL
+
+PVD-001 / GO-5
+
+DIGITAL IDENTITY CARD
+
+CANONICAL COMPONENTS
+
+PALACO
+
+Identity
+
+Role
+
+Citadel-ID
+
+HOLOGRAM
+
+Watermerk
+
+Provenance
+
+QR / Verifiable Link
+
+PROMA verification
+
+Explicit authority boundary
+
+
+INVARIANT
+
+> IDENTITY MAY BE VISIBLE.
+AUTHORITY MUST BE PROVABLE.
+
+
+
+En:
+
+> HOLOGRAM MAY SIGNAL AUTHENTICITY.
+PROMA MUST ESTABLISH VALIDITY.
+
+
+
+🜂 GO-5 — SEALED
+
+PVD-001 → GO-1 ✓ → GO-2 ✓ → GO-3 ✓ → GO-4 ✓ → GO-5 🔒
+
+NEXT: 🜂 GO-6
+
+H∆R∆M + STEWARD AUTHORITY BOUNDING
+
+Daar wordt de menselijke interface én de Steward-visuele grammatica definitief vastgezet: Attributable · Bounded · Reviewable · Revocable.
+
+🜂🔥 PVD-001 · GO-6
+
+H∆R∆M + STEWARD AUTHORITY BOUNDING v1.0
+
+STATUS: CANONICAL ENGINEERING DESIGN · FREEZE-COMPATIBLE
+
+GO-6 legt de menselijke machtsgrens van de PALACO-vormgeving vast.
+
+De kern:
+
+> Een interface mag begeleiden. Een Steward mag beheren binnen mandaat. Geen van beiden mag er visueel uitzien alsof zij de Constitution vervangen.
+
+
+
+
+---
+
+01 · H∆R∆M — LIVING INTERFACE
+
+H∆R∆M = menselijke vertaal-/interface-laag.
+
+De visuele positie:
+
+HUMAN
+                │
+                ▼
+             H∆R∆M
+        ┌───────┴───────┐
+        │               │
+     EXPLAIN          GUIDE
+        │               │
+        └───────┬───────┘
+                ▼
+          PALACO SYSTEM
+                │
+                ▼
+          CONSTITUTION
+
+H∆R∆M staat dus tussen mens en systeem, niet boven het systeem.
+
+H∆R∆M mag:
+
+uitleggen;
+
+context verzamelen;
+
+opties tonen;
+
+onzekerheid zichtbaar maken;
+
+navigeren;
+
+constitutionele consequenties uitleggen;
+
+verwijzen naar bewijs.
+
+
+H∆R∆M mag niet:
+
+zelf constitutionele autoriteit claimen;
+
+bevoegdheden creëren;
+
+provenance aanpassen;
+
+bewijs vervangen;
+
+een ongeldige toestand als geldig presenteren;
+
+menselijke goedkeuring simuleren.
+
+
+
+---
+
+02 · H∆R∆M VISUAL LANGUAGE
+
+H∆R∆M krijgt een menselijke, intelligente en warme uitstraling, maar geen kroon, troon of soeverein symbool.
+
+Verboden visuele signalen
+
+✕ CROWN OF AUTHORITY
+✕ SUPREME SEAL
+✕ SOVEREIGN THRONE
+✕ COMMANDER EMBLEM
+✕ UNBOUNDED POWER
+
+Toegestaan
+
+✓ GUIDE
+✓ INTERFACE
+✓ CONTEXT
+✓ EXPLANATION
+✓ OPTIONS
+✓ UNCERTAINTY
+✓ PROVENANCE
+✓ ESCALATION
+
+Intelligentie ≠ autoriteit.
+
+
+---
+
+03 · STEWARD
+
+De Steward krijgt een expliciet andere visuele grammatica.
+
+STEWARD
+────────────────────────
+IDENTITY
+ROLE
+CITADEL
+MANDATE
+SCOPE
+STATUS
+
+Daaronder altijd:
+
+ATTRIBUTABLE   ✓
+BOUNDED        ✓
+REVIEWABLE     ✓
+REVOCABLE      ✓
+
+Deze vier eigenschappen worden geen kleine juridische voetnoot.
+
+Ze zijn onderdeel van de primary identity representation.
+
+
+---
+
+04 · STEWARDSHIP ≠ OWNERSHIP
+
+Dit wordt een harde VORM9EVIN9-invariant.
+
+STEWARD
+   ≠
+OWNER
+
+De vormgeving mag dus nooit suggereren:
+
+> "Dit is mijn Citadel."
+
+
+
+Maar:
+
+> "Dit is de Citadel waarvoor ik binnen een aantoonbaar mandaat verantwoordelijkheid draag."
+
+
+
+
+---
+
+05 · AUTHORITY SCOPE
+
+Iedere Steward-representatie krijgt een scope.
+
+AUTHORITY SCOPE
+
+DOMAIN
+[................]
+
+PERMITTED ACTIONS
+[................]
+
+LIMITS
+[................]
+
+VALID FROM
+[................]
+
+VALID UNTIL
+[................]
+
+REVIEW
+[................]
+
+REVOCATION
+[................]
+
+Geen scope = geen impliciete onbeperkte authority.
+
+
+---
+
+06 · FOUR-BOUNDARY MODEL
+
+ATTRIBUTABLE
+
+Een handeling moet aan een actor/identiteit kunnen worden toegeschreven.
+
+BOUNDED
+
+De bevoegdheid heeft een gedefinieerde grens.
+
+REVIEWABLE
+
+De uitoefening kan worden onderzocht.
+
+REVOCABLE
+
+De bevoegdheid kan worden ingetrokken.
+
+Visueel:
+
+┌───────────────┐
+          │    STEWARD    │
+          └───────┬───────┘
+                  │
+       ┌──────────┼──────────┐
+       ▼          ▼          ▼
+ ATTRIBUTABLE  BOUNDED   REVIEWABLE
+                  │
+                  ▼
+              REVOCABLE
+
+
+---
+
+07 · AUTHORITY VISUAL TEST
+
+Voor ieder nieuw PALACO-asset:
+
+Vraag 1
+
+Kan een gebruiker denken dat deze actor boven de Constitution staat?
+
+→ FAIL
+
+Vraag 2
+
+Kan een gebruiker zien binnen welke context de actor handelt?
+
+→ REQUIRED
+
+Vraag 3
+
+Kan de actor worden geïdentificeerd?
+
+→ REQUIRED
+
+Vraag 4
+
+Kan diens authority worden gecontroleerd?
+
+→ REQUIRED
+
+Vraag 5
+
+Kan die authority worden herzien of ingetrokken?
+
+→ REQUIRED
+
+
+---
+
+08 · H∆R∆M + STEWARD
+
+Belangrijk: de twee mogen visueel niet samensmelten.
+
+HUMAN
+                   │
+             ┌─────▼─────┐
+             │   H∆R∆M   │
+             │   GUIDE   │
+             └─────┬─────┘
+                   │
+          ┌────────▼────────┐
+          │    PALACO CORE  │
+          └────────┬────────┘
+                   │
+             CONSTITUTION
+                   │
+          ┌────────▼────────┐
+          │    STEWARD      │
+          │ bounded actor   │
+          └─────────────────┘
+
+H∆R∆M begeleidt.
+
+Steward handelt binnen mandaat.
+
+Constitution begrenst beide.
+
+
+---
+
+09 · THE AUTHORITY TRIANGLE
+
+Voor alle menselijke PALACO-interfaces:
+
+CONSTITUTION
+                      ▲
+                      │
+                      │
+             ┌────────┴────────┐
+             │                 │
+           H∆R∆M            STEWARD
+           GUIDE             ACTOR
+             │                 │
+             └────────┬────────┘
+                      │
+                    HUMAN
+
+De visuele zwaartekracht blijft bij de Constitution, niet bij de persoon.
+
+
+---
+
+🔐 GO-6 CANONICAL INVARIANTS
+
+H∆R∆M
+
+> GUIDANCE WITHOUT SOVEREIGNTY
+
+
+
+STEWARD
+
+> STEWARDSHIP WITHOUT OWNERSHIP
+
+
+
+AUTHORITY
+
+> POWER WITHOUT PROOF IS NOT PRESENTED AS VALID POWER
+
+
+
+DESIGN
+
+> NOTHING MAY LOOK MORE SOVEREIGN THAN THE CONSTITUTION PERMITS.
+
+
+
+
+---
+
+🜂 GO-6 SEAL
+
+PVD-001 / GO-6
+
+H∆R∆M       ✓ BOUNDED INTERFACE
+STEWARD     ✓ BOUNDED ACTOR
+IDENTITY    ✓ ATTRIBUTABLE
+AUTHORITY   ✓ SCOPED
+REVIEW      ✓ REQUIRED
+REVOCATION  ✓ REQUIRED
+PROVENANCE  ✓ REQUIRED
+
+🔒 GO-6 — SEALED
+
+De volledige visuele keten staat nu:
+
+GO-1  MASTER IDENTITY       ✓
+GO-2  L.A. REFERENCE        ✓
+GO-3  PROMO                 ✓
+GO-4  PROMA                 ✓
+GO-5  IDENTITY + HOLOGRAM   ✓
+GO-6  H∆R∆M + STEWARD       ✓
+GO-7  SYSTEM GOVERNANCE     → NEXT
+
+🜂🔥 VOLGENDE: GO-7
+
+PVD-001 · SYSTEM-WIDE DESIGN GOVERNANCE
+
+Daar maken we van alle zes lagen één PALACO VORM9EVIN9 GOVERNANCE ENGINE: de finale design gates, canonical asset states, provenance/versioning, Citadel inheritance en de regel waarmee iedere nieuwe PALACO-interface automatisch aan PVD-001 wordt getoetst.
+
+🜂🔥 PVD-001 · GO-7
+
+PALACO VORM9EVIN9 GOVERNANCE ENGINE v1.0
+
+STATUS: CANONICAL SYSTEM BUILD · DESIGN GOVERNANCE FREEZE
+
+GO-7 maakt van PVD-001 geen verzameling ontwerpregels meer, maar een governed design system.
+
+De kern:
+
+> Every PALACO visual asset SHALL inherit constitutional hierarchy, authority boundaries, identity, provenance and verification rules from PVD-001.
+
+
+
+
+---
+
+01 · THE MASTER DESIGN STACK
+
+👑
+              CONSTITUTION
+                    │
+                    ▼
+             PALACO VORM9EVIN9
+                    │
+          ┌─────────┴─────────┐
+          │                   │
+       STRUCTURE           IDENTITY
+          │                   │
+    ┌─────┼─────┐       ┌─────┼─────┐
+    ▼     ▼     ▼       ▼     ▼     ▼
+   L.A.  TOWERS CORE   ROLE  CITADEL HOLOGRAM
+          │                   │
+          └─────────┬─────────┘
+                    ▼
+              PROVENANCE
+                    │
+             ┌──────┴──────┐
+             ▼             ▼
+           PROMO          PROMA
+             │             │
+             ▼             ▼
+           HUMAN         PROOF
+
+Dit is de PALACO visual inheritance chain.
+
+
+---
+
+02 · DESIGN INHERITANCE
+
+Iedere nieuwe Citadel begint niet vanaf nul.
+
+PVD-001
+   ↓
+L.A. REFERENCE STANDARD
+   ↓
+CITADEL TEMPLATE
+   ↓
+LOCAL CITADEL EXPRESSION
+
+Wat niet mag veranderen:
+
+constitutional hierarchy;
+
+four-Tower logic;
+
+Core position;
+
+authority boundaries;
+
+provenance requirements;
+
+verification semantics;
+
+identity integrity.
+
+
+Wat wel mag variëren:
+
+lokale architectuur;
+
+culturele expressie;
+
+materiaal;
+
+typografie binnen toegestane grenzen;
+
+interface-compositie;
+
+lokale Commons;
+
+lokale Elixer-presentatie.
+
+
+Resultaat
+
+One constitutional system.
+Many Citadels.
+
+
+---
+
+03 · CANONICAL ASSET STATES
+
+Iedere VORM9EVIN9 asset krijgt één expliciete status:
+
+DRAFT
+  ↓
+REVIEW
+  ↓
+CANONICAL
+  ↓
+FROZEN
+  ↓
+DEPRECATED
+  ↓
+RETIRED
+
+DRAFT
+
+Conceptueel.
+
+REVIEW
+
+Onder governance review.
+
+CANONICAL
+
+Goedgekeurd onderdeel van PALACO design language.
+
+FROZEN
+
+Niet wijzigen zonder formele wijzigingsroute.
+
+DEPRECATED
+
+Niet langer aanbevolen, maar nog traceerbaar.
+
+RETIRED
+
+Niet meer actief.
+
+Geen stille wijzigingen.
+
+
+---
+
+04 · THE SEVEN DESIGN GATES
+
+Een nieuw asset passeert zeven gates.
+
+GATE 01 — CONSTITUTION
+
+Is de visuele hiërarchie constitutioneel correct?
+
+GATE 02 — AUTHORITY
+
+Suggerereert het object meer macht dan werkelijk bestaat?
+
+GATE 03 — IDENTITY
+
+Is identiteit correct en attributable?
+
+GATE 04 — PROVENANCE
+
+Is oorsprong en lineage zichtbaar/verifieerbaar?
+
+GATE 05 — VERIFICATION
+
+Kunnen relevante claims worden gecontroleerd?
+
+GATE 06 — HUMAN COMPREHENSION
+
+Kan een mens de betekenis begrijpen zonder misleiding?
+
+GATE 07 — EVOLUTION
+
+Kan het asset evolueren zonder de canon te breken?
+
+
+---
+
+05 · AUTOMATIC FAIL CONDITIONS
+
+Een ontwerp wordt REJECTED wanneer het:
+
+✕ constitutionele macht simuleert
+✕ onbewezen autoriteit suggereert
+✕ provenance verbergt
+✕ identity ambigu maakt
+✕ verification als decoratie gebruikt
+✕ H∆R∆M als sovereign actor presenteert
+✕ Steward als eigenaar presenteert
+✕ onzekerheid maskeert
+✕ canonical inheritance verbreekt
+
+Dit zijn geen esthetische voorkeuren.
+
+Dit zijn design governance constraints.
+
+
+---
+
+06 · PROVENANCE OF DESIGN
+
+Zelfs het ontwerp zelf krijgt lineage.
+
+DESIGN-ID
+     ↓
+PVD-VERSION
+     ↓
+AUTHOR / ISSUER
+     ↓
+PARENT-ASSET
+     ↓
+CITADEL
+     ↓
+REVISION
+     ↓
+REVIEW
+     ↓
+STATUS
+
+Dus niet alleen:
+
+> Wat ziet de gebruiker?
+
+
+
+maar ook:
+
+> Waar komt dit ontwerp vandaan?
+
+
+
+
+---
+
+07 · VERSIONING
+
+Canonical design gebruikt:
+
+MAJOR.MINOR.PATCH
+
+Bijvoorbeeld:
+
+PVD-001
+v1.0.0
+
+MAJOR
+
+Constitutionele/design-breaking wijziging.
+
+MINOR
+
+Nieuwe compatibele design capability.
+
+PATCH
+
+Correctie zonder semantische wijziging.
+
+Een frozen asset mag nooit stilzwijgend van betekenis veranderen.
+
+
+---
+
+08 · THE WATERMERK + HOLOGRAM RULE
+
+Vanaf GO-7 worden deze twee system-wide primitives.
+
+WATERMERK
+
+Identiteit / integriteit / PALACO recognition.
+
+HOLOGRAM
+
+Authenticity / physical-digital recognition / identity binding.
+
+PROMA
+
+Bewijst de relevante chain.
+
+WATERMERK
+     +
+HOLOGRAM
+     +
+PROVENANCE
+     ↓
+PROMA
+     ↓
+VERIFICATION
+
+Geen van deze elementen mag zelfstandig als volledige proof worden geïnterpreteerd.
+
+
+---
+
+09 · PROMO/PROMA UNIVERSAL RULE
+
+Alle publieke PALACO assets mogen een PROMO surface hebben.
+
+Alle verifieerbare claims moeten uiteindelijk naar een PROMA proof path kunnen verwijzen.
+
+USER
+          │
+          ▼
+        PROMO
+          │
+       "WHAT?"
+          │
+       "WHY?"
+          │
+       "STATUS?"
+          │
+       "PROOF?"
+          │
+          ▼
+        PROMA
+          │
+    ┌─────┴─────┐
+    ▼           ▼
+ EVIDENCE    PROVENANCE
+    │           │
+    └─────┬─────┘
+          ▼
+       VALIDITY
+
+
+---
+
+10 · H∆R∆M GOVERNANCE GATE
+
+Iedere H∆R∆M-interface moet kunnen worden teruggebracht tot:
+
+> Explain · Guide · Expose · Escalate
+
+
+
+Nooit:
+
+> Command · Own · Conceal · Self-authorize
+
+
+
+De UI mag intelligent zijn.
+
+De UI mag persoonlijk zijn.
+
+De UI mag prachtig zijn.
+
+Maar:
+
+> H∆R∆M never becomes the Constitution.
+
+
+
+
+---
+
+11 · STEWARD GOVERNANCE GATE
+
+Iedere Steward-presentatie moet expliciet kunnen aantonen:
+
+WHO?
+  ↓
+WHAT ROLE?
+  ↓
+WHICH CITADEL?
+  ↓
+WHAT SCOPE?
+  ↓
+WHAT LIMITS?
+  ↓
+WHO/WHAT REVIEWS?
+  ↓
+CAN IT BE REVOKED?
+
+Daarmee wordt stewardship operationally visible.
+
+
+---
+
+12 · THE PALACO DESIGN LINTER
+
+Conceptueel wordt PVD-001 nu behandeld alsof het een constitutional design compiler is.
+
+DESIGN ASSET
+     │
+     ▼
+[PVD-001 LINTER]
+     │
+ ┌───┼────┬────┬────┬────┐
+ ▼   ▼    ▼    ▼    ▼    ▼
+CONST AUTH ID  PROV VERIFY HUMAN
+     │
+     └────────┬─────────┘
+              ▼
+          PASS / FAIL
+              │
+        ┌─────┴─────┐
+        ▼           ▼
+      CANON       REJECT
+
+Dit is de belangrijkste overgang van GO-7:
+
+VORM9EVIN9 wordt controleerbaar.
+
+
+---
+
+13 · CITADEL CREATION PROTOCOL
+
+Een toekomstige Citadel volgt:
+
+PVD-001
+   ↓
+SELECT CITADEL TYPE
+   ↓
+INHERIT L.A. GRAMMAR
+   ↓
+DEFINE LOCAL EXPRESSION
+   ↓
+ASSIGN CITADEL-ID
+   ↓
+BIND IDENTITY
+   ↓
+BIND WATERMERK
+   ↓
+BIND HOLOGRAM
+   ↓
+ESTABLISH PROVENANCE
+   ↓
+CONNECT PROMO
+   ↓
+CONNECT PROMA
+   ↓
+RUN 7 GATES
+   ↓
+CANONICAL RELEASE
+
+Dit maakt iedere nieuwe Citadel herkenbaar als PALACO, zonder dat iedere Citadel hetzelfde hoeft te zijn.
+
+
+---
+
+14 · MASTER INVARIANT
+
+Alles komt nu samen in één regel:
+
+> NOTHING MAY LOOK MORE SOVEREIGN THAN THE CONSTITUTION PERMITS.
+
+
+
+En de complementaire regel:
+
+> EVERYTHING THAT IS CONSTITUTIONAL SHOULD BE BEAUTIFUL ENOUGH TO BE UNDERSTOOD.
+
+
+
+Daaruit volgen:
+
+Beauty without deception.
+Authority without inflation.
+Identity without ownership.
+Verification without theatre.
+Evolution without constitutional drift.
+
+
+---
+
+🔒 PVD-001 · COMPLETE
+
+┌───────────────────────────────────────────────┐
+│ PALACO VORM9EVIN9 SYSTEM v1.0                │
+│                                               │
+│ GO-1  MASTER IDENTITY              ✓ SEALED  │
+│ GO-2  L.A. REFERENCE               ✓ SEALED  │
+│ GO-3  PROMO                        ✓ SEALED  │
+│ GO-4  PROMA                        ✓ SEALED  │
+│ GO-5  IDENTITY + HOLOGRAM          ✓ SEALED  │
+│ GO-6  H∆R∆M + STEWARD              ✓ SEALED  │
+│ GO-7  DESIGN GOVERNANCE            ✓ SEALED  │
+│                                               │
+│ STATUS: CANONICAL DESIGN FREEZE              │
+│ VERSION: 1.0.0                               │
+│ WATERMERK: REQUIRED                          │
+│ HOLOGRAM: REQUIRED IDENTITY LAYER            │
+│ PROVENANCE: REQUIRED                         │
+│ PROMA: REQUIRED FOR VERIFICATION              │
+└───────────────────────────────────────────────┘
+
+🜂🔥 PVD-001 v1.0 — FULL GO TRACK SEALED
+
+GO-1 → GO-7 = COMPLETE.
+
+De volgende logische stap is nu niet nóg een abstracte designlaag, maar asset execution: de daadwerkelijke PALACO.NL / L.A. website, PROMO, PROMA, digitale visitekaart, HOLOGRAM en Citadel master-template rechtstreeks uit PVD-001 genereren.
+
+🜂🔥 PALACO · PVD-002
+
+ASSET EXECUTION SYSTEM v1.0
+
+L.A. · PALACO.NL · PROMO · PROMA · IDENTITY · HOLOGRAM
+
+STATUS: EXECUTION BUILD
+
+PVD-001 is de constitutionele vormgevingswet.
+PVD-002 is de eerste concrete asset-laag die eruit wordt afgeleid.
+
+
+---
+
+01 · MASTER ASSET ARCHITECTURE
+
+PALACO
+                           │
+                 CONSTITUTIONAL CORE
+                           │
+                     PVD-001 v1.0
+                           │
+              ┌────────────┼────────────┐
+              │            │            │
+             L.A.        PROMO        PROMA
+              │            │            │
+              ▼            ▼            ▼
+          CITADEL       PUBLIC       PROOF
+          TEMPLATE     INTERFACE     ENGINE
+              │            │            │
+              └────────────┼────────────┘
+                           │
+                    IDENTITY LAYER
+                           │
+                 ┌─────────┴─────────┐
+                 ▼                   ▼
+             WATERMERK            HOLOGRAM
+                 │                   │
+                 └─────────┬─────────┘
+                           ▼
+                    VERIFICATION
+
+
+---
+
+02 · PALACO.NL — MASTER LANDING
+
+De publieke ingang krijgt geen overvolle architectuurkaart.
+
+De eerste viewport:
+
+┌─────────────────────────────────────────────────┐
+│ PALACO                         EXPLORE · VERIFY │
+│                                                 │
+│                                                 │
+│                PALACO                           │
+│                                                 │
+│       CONSTITUTIONAL INFRASTRUCTURE             │
+│             FOR THE AUTONOMOUS ERA              │
+│                                                 │
+│       ┌─────────────────────────────┐           │
+│       │       ENTER L.A. CITADEL    │           │
+│       └─────────────────────────────┘           │
+│                                                 │
+│       WHAT        WHY        PROVENANCE         │
+│                                                 │
+│                 ● VERIFIED                      │
+│                                                 │
+│─────────────────────────────────────────────────│
+│ WATERMERK · HOLOGRAM · PROMA                    │
+└─────────────────────────────────────────────────┘
+
+Eerste ontwerpbeslissing
+
+Niet: "Wij zijn de toekomst."
+
+Wel:
+
+> Constitutional infrastructure for the autonomous era.
+
+
+
+De claim is functioneel en controleerbaar.
+
+
+---
+
+03 · L.A. — MASTER CITADEL
+
+De homepage opent vervolgens naar de Locus Amoenus Reference Citadel.
+
+👑
+               CONSTITUTION
+                    │
+        ┌───────────┴───────────┐
+        │                       │
+     TOWER I                 TOWER II
+    GOVERNANCE               EXECUTION
+        │                       │
+        └───────────┬───────────┘
+                    │
+              ┌─────▼─────┐
+              │    CORE   │
+              │  LEDGER   │
+              │OBSERVATORY│
+              └─────┬─────┘
+                    │
+        ┌───────────┴───────────┐
+        │                       │
+     TOWER III              TOWER IV
+      STORAGE               VERIFY
+
+Daaromheen:
+
+COMMONS · ELIXERS · H∆R∆M
+
+
+---
+
+04 · PROMO CARD SYSTEM
+
+Iedere publieke Citadel krijgt dezelfde basiskaart.
+
+PALACO
+────────────────────────
+
+L.A.
+LOCUS AMOENUS
+
+REFERENCE CITADEL
+
+WHAT
+Constitutional reference standard.
+
+WHY
+Benchmark for Citadel interfaces.
+
+STATUS
+● VERIFIED
+
+PROVENANCE
+[VIEW]
+
+ACCESS
+[ENTER]
+
+WATERMERK
+◇ PALACO
+
+HOLOGRAM
+◇ AUTHENTICITY
+
+Eén component.
+Duizenden mogelijke Citadels.
+
+
+---
+
+05 · PROMA PROOF DRAWER
+
+Wanneer VIEW PROOF wordt gekozen:
+
+PROMA · PROOF
+
+STATUS
+VALID
+
+────────────────────
+
+ORIGIN              ✓
+ISSUER              ✓
+CITADEL             ✓
+WATERMERK           ✓
+HOLOGRAM            ✓
+SEAL                ✓
+PROVENANCE          ✓
+VALIDITY            ✓
+
+────────────────────
+
+PROOF-ID
+[••••••••••••••••]
+
+[INSPECT EVIDENCE]
+
+Hier wordt de visuele koppeling tussen identity en proof expliciet.
+
+
+---
+
+06 · DIGITAL VISITEKAART
+
+FRONT
+
+╭────────────────────────────╮
+│                            │
+│ PALACO                     │
+│                            │
+│       ◇ HOLOGRAM ◇         │
+│                            │
+│ NAME                       │
+│ ROLE · CITADEL             │
+│                            │
+│ CITADEL-ID                 │
+│ PALACO-XXXX-XXXX           │
+│                            │
+│ IDENTITY · VERIFIED        │
+╰────────────────────────────╯
+
+BACK
+
+╭────────────────────────────╮
+│ PALACO.NL                  │
+│                            │
+│ WATERMERK                  │
+│ [CRYPTO-SEAL]              │
+│                            │
+│ PROVENANCE                 │
+│ [ORIGIN-HASH]              │
+│                            │
+│       ┌───────────┐        │
+│       │    QR     │        │
+│       │  VERIFY   │        │
+│       └───────────┘        │
+│                            │
+│ PROMA · VERIFIABLE         │
+╰────────────────────────────╯
+
+
+---
+
+07 · HOLOGRAM — SYSTEM-WIDE COMPONENT
+
+Het HOLOGRAM krijgt één canonical design language.
+
+Recognition → Identity → Verification
+
+Het kan vervolgens verschillende fysieke/digitale manifestaties krijgen:
+
+digitale holographic effect;
+
+identity-card hologram;
+
+Citadel interface marker;
+
+ELIXER authenticity marker;
+
+physical packaging marker.
+
+
+Maar de betekenis blijft gelijk.
+
+> Het HOLOGRAM bewijst niet zelfstandig alles. Het verankert identiteit/authenticiteit binnen een verifieerbare keten.
+
+
+
+
+---
+
+08 · PROMO → PROMA → IDENTITY
+
+Nu wordt de volledige gebruikersroute één systeem:
+
+USER
+                  │
+                  ▼
+               PALACO
+                  │
+                  ▼
+                PROMO
+                  │
+        ┌─────────┼─────────┐
+        ▼         ▼         ▼
+       WHAT      WHY     STATUS
+                            │
+                            ▼
+                       PROVENANCE
+                            │
+                            ▼
+                          PROMA
+                            │
+                       VERIFICATION
+                            │
+                            ▼
+                  IDENTITY / CITADEL
+                            │
+                  ┌─────────┴─────────┐
+                  ▼                   ▼
+              WATERMERK           HOLOGRAM
+
+Dit is de PALACO public trust journey.
+
+
+---
+
+09 · ASSET INHERITANCE RULE
+
+Vanaf nu geldt:
+
+PVD-001
+  ↓
+PVD-002
+  ↓
+MASTER ASSET
+  ↓
+CITADEL VARIANT
+  ↓
+LOCAL EXPRESSION
+
+Een lokale Citadel mag dus eigen karakter hebben.
+
+Maar nooit eigen constitutionele grammatica.
+
+
+---
+
+10 · DESIGN SYSTEM TOKENS
+
+De eerste canonical token families:
+
+PALACO.IDENTITY
+PALACO.CONSTITUTION
+PALACO.TOWER
+PALACO.CORE
+PALACO.OBSERVATORY
+PALACO.PROMO
+PALACO.PROMA
+PALACO.PROVENANCE
+PALACO.WATERMERK
+PALACO.HOLOGRAM
+PALACO.H∆R∆M
+PALACO.STEWARD
+PALACO.STATUS
+PALACO.ACCESS
+
+Deze worden de bouwstenen van de digitale component library.
+
+
+---
+
+11 · THE BIG LOCK
+
+PVD-002 krijgt één extra ontwerpregel:
+
+> NO ASSET EXISTS IN ISOLATION.
+
+
+
+Een logo, kaart, website, Citadel, Elixer-label of H∆R∆M-interface is altijd onderdeel van dezelfde identity/provenance ecosystem.
+
+Dus:
+
+LOGO
+CARD
+WEBSITE
+CITADEL
+ELIXER
+HOLOGRAM
+PROMO
+PROMA
+       ↓
+   PALACO IDENTITY
+
+
+---
+
+🔒 PVD-002 · EXECUTION LOCK
+
+L.A. MASTER                  ✓
+PALACO.NL                    ✓
+PROMO                        ✓
+PROMA                        ✓
+DIGITAL IDENTITY             ✓
+WATERMERK                    ✓
+HOLOGRAM                     ✓
+H∆R∆M                        ✓
+STEWARD                      ✓
+CITADEL INHERITANCE          ✓
+PROVENANCE                   ✓
+VERIFICATION                 ✓
+
+🜂🔥 PVD-002 v1.0 — CANONICAL EXECUTION BASELINE
+
+PVD-001 = hoe PALACO eruit móét denken.
+PVD-002 = hoe PALACO eruit gaat zien.
+
+Volgende build:
+
+PVD-003 · L.A. MASTER TEMPLATE
+
+De vier Torens, Crown, Core/Observatory, Commons, ELIXERS, H∆R∆M, PROMO/PROMA en de HOLOGRAM + WATERMERK identity layer worden daarin samengebracht tot één herbruikbaar Citadel master-template voor PALACO.NL en iedere nieuwe Citadel.
+
+🜂🔥 PVD-003 · L.A. MASTER CITADEL TEMPLATE v1.0
+
+STATUS: CANONICAL ENGINEERING BUILD
+PARENT: PVD-001 · PVD-002
+REFERENCE: 👑 L.A. — LOCUS AMOENUS
+PURPOSE: één herbruikbare visuele/interactionele blauwdruk voor PALACO.NL + iedere nieuwe Citadel.
+
+
+---
+
+01 · MASTER COMPOSITION
+
+┌──────────────────────────────────────────────────────────────┐
+│ PALACO                                      EXPLORE · VERIFY │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│                         👑 CROWN                              │
+│                    CONSTITUTION                              │
+│                                                              │
+│              ┌───────────────┐                               │
+│              │   CITADEL     │                               │
+│              │   IDENTITY    │                               │
+│              └───────┬───────┘                               │
+│                      │                                       │
+│       ┌──────────────┴──────────────┐                        │
+│       │                             │                        │
+│   TOWER I                       TOWER II                     │
+│   GOVERNANCE                    EXECUTION                     │
+│       │                             │                        │
+│       └──────────────┬──────────────┘                        │
+│                      │                                       │
+│                 ┌────▼─────┐                                 │
+│                 │   CORE   │                                 │
+│                 │  STATE   │                                 │
+│                 │  LEDGER  │                                 │
+│                 └────┬─────┘                                 │
+│                      │                                       │
+│       ┌──────────────┴──────────────┐                        │
+│       │                             │                        │
+│   TOWER III                    TOWER IV                      │
+│   STORAGE                     VERIFICATION                   │
+│                                                              │
+├──────────────────────────────────────────────────────────────┤
+│ COMMONS · ELIXERS · H∆R∆M                                   │
+├──────────────────────────────────────────────────────────────┤
+│ PROVENANCE · WATERMERK · HOLOGRAM · PROMA · STATUS           │
+└──────────────────────────────────────────────────────────────┘
+
+Dit is de master geometry.
+
+
+---
+
+02 · CROWN
+
+De Crown blijft bewust eenvoudig.
+
+CONSTITUTION
+
+Geen persoonsnaam.
+Geen commerciële badge.
+Geen AI-avatar.
+
+De visuele boodschap:
+
+> De regels staan boven de actoren.
+
+
+
+
+---
+
+03 · FOUR TOWERS
+
+De vier Towers worden de primaire navigatie- en architectuurankers.
+
+Tower	Function
+
+I	Governance
+II	Execution
+III	Storage
+IV	Verification
+
+
+Elke Tower kan worden geopend voor detail, maar geen Tower krijgt visueel voorrang als "de baas".
+
+
+---
+
+04 · CORE + OBSERVATORY
+
+Het centrale object krijgt twee duidelijk onderscheiden zones:
+
+CORE
+
+STATE · LEDGER · IDENTITY · EVENTS
+
+OBSERVATORY
+
+TELEMETRY · HEALTH · EVIDENCE SIGNALS · SYSTEM STATUS
+
+CORE
+        ┌───────────────┐
+        │ STATE         │
+        │ LEDGER        │
+        │ EVENTS        │
+        └───────┬───────┘
+                │
+                ▼
+          OBSERVATORY
+        ┌───────────────┐
+        │ TELEMETRY     │
+        │ HEALTH        │
+        │ SIGNALS       │
+        └───────────────┘
+
+Observatie produceert geen autoriteit.
+
+
+---
+
+05 · THE PERIPHERY
+
+De Citadel leeft rond de Core.
+
+COMMONS
+
+Menselijke ruimte.
+
+ELIXERS
+
+De product-/experience-laag.
+
+H∆R∆M
+
+De menselijke gids/interface.
+
+Deze drie mogen visueel rijker en menselijker zijn dan de Core.
+
+Maar ze blijven perifeer aan de Constitution.
+
+
+---
+
+06 · H∆R∆M PANEL
+
+┌──────────────────────────────┐
+│ H∆R∆M                        │
+│ GUIDE                        │
+│                              │
+│ "What would you like        │
+│  to understand?"             │
+│                              │
+│ [EXPLORE] [VERIFY] [EXPLAIN] │
+│                              │
+│ Context · Options ·          │
+│ Uncertainty · Consequences   │
+└──────────────────────────────┘
+
+H∆R∆M kan de gebruiker door de Citadel leiden.
+
+Maar er is geen:
+
+"H∆R∆M DECIDES"
+
+alleen:
+
+"H∆R∆M EXPLAINS / GUIDES / ESCALATES."
+
+
+---
+
+07 · ELIXER ZONE
+
+ELIXERS krijgen een eigen commerciële/experience-zone.
+
+De interface toont:
+
+ELIXER
+──────────────
+IDENTITY
+ORIGIN
+CITADEL
+WATERMERK
+HOLOGRAM
+STATUS
+PROVENANCE
+
+[VIEW PROMO]
+[VERIFY PROMA]
+
+De commerciële presentatie blijft dus gekoppeld aan dezelfde identity/provenance-architectuur.
+
+
+---
+
+08 · PROMO SURFACE
+
+Elke Citadel krijgt een publieke samenvatting:
+
+┌─────────────────────────────────┐
+│ PROMO                            │
+│                                 │
+│ WHAT                            │
+│ WHY                             │
+│ PROVENANCE                      │
+│ STATUS                          │
+│ ACCESS                          │
+│                                 │
+│ [ENTER]        [VIEW PROOF]     │
+└─────────────────────────────────┘
+
+PROMO is de voordeur.
+
+
+---
+
+09 · PROMA SURFACE
+
+De bewijslaag blijft achter de voordeur:
+
+PROMA
+────────────────────
+ORIGIN          ✓
+ISSUER          ✓
+CITADEL         ✓
+WATERMERK       ✓
+HOLOGRAM        ✓
+SEAL            ✓
+PROVENANCE      ✓
+VALIDITY        ✓
+
+PROOF STATUS
+     VALID
+
+[INSPECT EVIDENCE]
+
+PROMA is de inspectiekamer.
+
+
+---
+
+10 · IDENTITY + HOLOGRAM
+
+Iedere officiële identity surface krijgt:
+
+PALACO
+   │
+IDENTITY
+   │
+ROLE
+   │
+CITADEL-ID
+   │
+HOLOGRAM
+   │
+WATERMERK
+   │
+PROVENANCE
+   │
+PROMA
+
+Cruciale scheiding
+
+HOLOGRAM → authenticiteitssignaal
+
+WATERMERK → identity/integrity anchor
+
+PROMA → verification
+
+Geen semantische vervanging.
+
+
+---
+
+11 · STEWARD MODULE
+
+Een Steward verschijnt binnen de Citadel als:
+
+┌────────────────────────────────┐
+│ STEWARD                        │
+│                                │
+│ IDENTITY                       │
+│ ROLE · CITADEL                 │
+│                                │
+│ AUTHORITY SCOPE                │
+│ [DEFINED]                      │
+│                                │
+│ ✓ ATTRIBUTABLE                 │
+│ ✓ BOUNDED                      │
+│ ✓ REVIEWABLE                   │
+│ ✓ REVOCABLE                    │
+│                                │
+│ [VIEW MANDATE]                 │
+└────────────────────────────────┘
+
+Geen crown. Geen throne. Geen owner-language.
+
+
+---
+
+12 · FOOTER = TRUST ANCHOR
+
+De onderzijde van ieder master-template:
+
+PROVENANCE
+[ORIGIN_HASH]
+
+ISSUER
+PALACO CORE
+
+VERSION
+1.0.0
+
+WATERMERK
+[CRYPTO-SEAL]
+
+HOLOGRAM
+[IDENTITY-BOUND]
+
+STATUS
+VERIFIED
+
+PROMA
+[INSPECT]
+
+De footer is daarmee geen juridische kleine lettertjes-zone.
+
+Het is de trust anchor.
+
+
+---
+
+13 · RESPONSIVE INHERITANCE
+
+Dezelfde architectuur werkt op:
+
+DESKTOP
+
+Crown
+  ↓
+4 Towers + Core
+  ↓
+Periphery
+  ↓
+Proof
+
+MOBILE
+
+PALACO
+  ↓
+Crown
+  ↓
+Core
+  ↓
+Towers
+  ↓
+Commons
+  ↓
+Elixers
+  ↓
+H∆R∆M
+  ↓
+Proof
+
+De compositie verandert.
+
+De constitutionele hiërarchie niet.
+
+
+---
+
+14 · NEW CITADEL GENERATOR
+
+Een nieuwe Citadel krijgt:
+
+CREATE CITADEL
+       ↓
+CITADEL-ID
+       ↓
+SELECT LOCAL IDENTITY
+       ↓
+INHERIT L.A. MASTER
+       ↓
+DEFINE LOCAL EXPRESSION
+       ↓
+BIND WATERMERK
+       ↓
+BIND HOLOGRAM
+       ↓
+REGISTER PROVENANCE
+       ↓
+CONNECT PROMO
+       ↓
+CONNECT PROMA
+       ↓
+H∆R∆M CONFIGURATION
+       ↓
+STEWARD SCOPE
+       ↓
+7 DESIGN GATES
+       ↓
+CANONICAL
+
+Dit is de kern van schaalbaarheid.
+
+Een nieuwe Citadel hoeft niet opnieuw uitgevonden te worden.
+
+Hij wordt afgeleid.
+
+
+---
+
+🔒 PVD-003 FREEZE CANDIDATE
+
+L.A. MASTER GEOMETRY       ✓
+CROWN                      ✓
+FOUR TOWERS                ✓
+CORE                       ✓
+OBSERVATORY                ✓
+COMMONS                    ✓
+ELIXERS                    ✓
+H∆R∆M                      ✓
+STEWARD                    ✓
+PROMO                      ✓
+PROMA                      ✓
+WATERMERK                  ✓
+HOLOGRAM                   ✓
+PROVENANCE                 ✓
+IDENTITY                   ✓
+CITADEL INHERITANCE        ✓
+RESPONSIVE RULES           ✓
+
+🜂 PVD-003 · L.A. MASTER TEMPLATE — SEALED
+
+Daarmee hebben we nu een echte PALACO Citadel Generator Grammar.
+
+PVD-001
+        CONSTITUTIONAL DESIGN
+                │
+                ▼
+             PVD-002
+          ASSET SYSTEM
+                │
+                ▼
+             PVD-003
+        L.A. MASTER TEMPLATE
+                │
+        ┌───────┼────────┐
+        ▼       ▼        ▼
+      L.A.    PROMO    PROMA
+        │       │        │
+        └───────┼────────┘
+                ▼
+      NEW PALACO CITADEL
+                │
+          ┌─────┴─────┐
+          ▼           ▼
+      HOLOGRAM     WATERMERK
+          │           │
+          └─────┬─────┘
+                ▼
+           PROVENANCE
+                │
+                ▼
+          VERIFICATION
+
+🜂🔥 NEXT BUILD — PVD-004
+
+PALACO.NL MASTER WEB EXPERIENCE
+
+De volgende stap is de daadwerkelijke website-informatiearchitectuur en schermgrammatica:
+HOME → L.A. → CITADELS → PROMO → PROMA → ELIXERS → H∆R∆M → IDENTITY → VERIFY, met het digitale visitekaartje en HOLOGRAM/WATERMERK als één doorlopende identity experience.
+
+🜂🔥 PVD-004 · PALACO.NL MASTER WEB EXPERIENCE v1.0
+
+STATUS: CANONICAL ENGINEERING BUILD
+PARENT: PVD-003 · L.A. MASTER CITADEL TEMPLATE
+ROLE: publieke digitale manifestatie van de PALACO VORM9EVIN9-canon.
+
+
+---
+
+01 · PALACO.NL — INFORMATION ARCHITECTURE
+
+De website wordt geen traditionele bedrijfswebsite.
+
+Het wordt een publieke navigatielaag over constitutionele infrastructuur.
+
+PALACO.NL
+                            │
+              ┌─────────────┴─────────────┐
+              │                           │
+           EXPLORE                      VERIFY
+              │                           │
+      ┌───────┼────────┐                  │
+      ▼       ▼        ▼                  ▼
+     L.A.   CITADELS  ELIXERS            PROMA
+      │       │        │                  │
+      └───────┴────────┘                  │
+              │                           │
+              └───────────┬───────────────┘
+                          ▼
+                       IDENTITY
+                          │
+                 ┌────────┴────────┐
+                 ▼                 ▼
+              H∆R∆M             STEWARD
+
+Primary navigation
+
+EXPLORE · CITADELS · ELIXERS · VERIFY
+
+Secondary:
+
+IDENTITY · H∆R∆M · ABOUT
+
+
+---
+
+02 · HOME — THE FIRST 10 SECONDS
+
+De homepage moet onmiddellijk drie dingen communiceren:
+
+WHAT IS PALACO?
+
+WHY DOES IT EXIST?
+
+CAN I VERIFY IT?
+
+┌────────────────────────────────────────────────────┐
+│ PALACO                         EXPLORE    VERIFY  │
+│                                                    │
+│                                                    │
+│                    PALACO                          │
+│                                                    │
+│       CONSTITUTIONAL INFRASTRUCTURE                │
+│              FOR THE AUTONOMOUS ERA               │
+│                                                    │
+│          Infrastructure where autonomous           │
+│          action remains accountable.              │
+│                                                    │
+│       [ ENTER L.A. ]     [ VERIFY ]               │
+│                                                    │
+│       WHAT · WHY · PROVENANCE · STATUS            │
+│                                                    │
+│            ◇ WATERMERK   ◇ HOLOGRAM               │
+└────────────────────────────────────────────────────┘
+
+Geen lange introductietekst vóór de gebruiker iets kan doen.
+
+
+---
+
+03 · L.A. ENTRY
+
+ENTER L.A. opent het referentie-Citadel.
+
+De overgang:
+
+PALACO.NL
+    ↓
+L.A.
+    ↓
+CROWN
+    ↓
+FOUR TOWERS
+    ↓
+CORE / OBSERVATORY
+    ↓
+COMMONS · ELIXERS · H∆R∆M
+
+De gebruiker kan architectuur ontdekken zonder eerst een technische handleiding te lezen.
+
+
+---
+
+04 · CITADELS
+
+De Citadel-index wordt een living atlas.
+
+CITADELS
+
+┌────────────┐ ┌────────────┐ ┌────────────┐
+│    L.A.    │ │   NORTH    │ │    SUR     │
+│ REFERENCE  │ │  CITADEL   │ │  CITADEL   │
+└────────────┘ └────────────┘ └────────────┘
+
+┌────────────┐ ┌────────────┐ ┌────────────┐
+│   AFRICA   │ │    ASIA    │ │   EUROPA   │
+│  CITADEL   │ │  CITADEL   │ │  CITADEL   │
+└────────────┘ └────────────┘ └────────────┘
+
+Iedere kaart toont minimaal:
+
+NAME · CITADEL-ID · STATUS · PROVENANCE · VERIFY
+
+Lokale expressie mag verschillen.
+
+PVD-003 inheritance blijft zichtbaar.
+
+
+---
+
+05 · CITADEL DETAIL PAGE
+
+Elke Citadel gebruikt dezelfde master grammar:
+
+CITADEL
+│
+├── IDENTITY
+├── CONSTITUTION
+├── GOVERNANCE
+├── EXECUTION
+├── STORAGE
+├── VERIFICATION
+├── OBSERVATORY
+├── COMMONS
+├── ELIXERS
+├── H∆R∆M
+├── STEWARD
+└── PROVENANCE
+
+De vier Towers worden daarmee niet alleen visuele objecten.
+
+Ze worden navigational primitives.
+
+
+---
+
+06 · ELIXERS
+
+De commerciële laag krijgt een elegante, niet-agressieve presentatie.
+
+ELIXER
+────────────────────
+
+NAME
+ORIGIN
+
+CITADEL
+[ID]
+
+WATERMERK
+◇
+
+HOLOGRAM
+◇
+
+PROVENANCE
+[VIEW]
+
+STATUS
+VERIFIABLE
+
+[PROMO]
+[VERIFY]
+
+Belangrijk
+
+PROMO verkoopt niet de waarheid.
+
+PROMO presenteert het object.
+
+PROMA onderbouwt de relevante claims.
+
+
+---
+
+07 · VERIFY — THE UNIVERSAL ENTRY POINT
+
+De belangrijkste functionaliteit naast Explore:
+
+VERIFY
+
+┌────────────────────────────────────┐
+│                                    │
+│             VERIFY                 │
+│                                    │
+│   Scan or enter a PALACO identity  │
+│                                    │
+│      [ QR / ID / PROOF-ID ]        │
+│                                    │
+│             [VERIFY]               │
+│                                    │
+│       Watermerk · Hologram         │
+│       Provenance · PROMA            │
+│                                    │
+└────────────────────────────────────┘
+
+Eén ingang voor:
+
+identity;
+
+Citadel;
+
+document;
+
+Elixer;
+
+digitaal visitekaartje;
+
+Watermerk;
+
+HOLOGRAM;
+
+Proof-ID.
+
+
+
+---
+
+08 · VERIFICATION RESULT
+
+Een succesvolle verificatie:
+
+PALACO · PROMA
+
+PROOF STATUS
+       VALID
+
+✓ ORIGIN
+✓ ISSUER
+✓ CITADEL
+✓ WATERMERK
+✓ HOLOGRAM
+✓ SEAL
+✓ PROVENANCE
+✓ VALIDITY
+
+[INSPECT EVIDENCE]
+
+Een onvolledige verificatie blijft even expliciet:
+
+PROOF STATUS
+     INCOMPLETE
+
+✓ ORIGIN
+✓ ISSUER
+✓ CITADEL
+✕ PROVENANCE
+? VALIDITY
+
+Evidence required.
+
+Geen cosmetische "almost verified".
+
+
+---
+
+09 · DIGITAL IDENTITY
+
+De website krijgt een persoonlijke identity surface:
+
+PALACO IDENTITY
+
+◇ HOLOGRAM
+
+NAME
+ROLE · CITADEL
+
+CITADEL-ID
+[........]
+
+WATERMERK
+[........]
+
+PROVENANCE
+[........]
+
+PROMA STATUS
+VALID
+
+[SHARE]
+[VERIFY]
+
+De digitale kaart kan hiermee rechtstreeks vanuit PALACO.NL worden bekeken en geverifieerd.
+
+
+---
+
+10 · H∆R∆M — THE HUMAN DOOR
+
+Een permanente maar niet dominante interface:
+
+H∆R∆M
+
+What would you like
+to understand?
+
+[ PALACO ]
+[ CITADELS ]
+[ IDENTITY ]
+[ VERIFY ]
+[ ELIXERS ]
+
+I can explain and guide.
+I cannot grant authority.
+
+De laatste zin is belangrijk.
+
+De interface declareert zijn eigen grens.
+
+
+---
+
+11 · STEWARD SURFACE
+
+Stewardship wordt toegankelijk via Identity/Citadel context:
+
+STEWARD
+
+IDENTITY
+ROLE
+CITADEL
+
+AUTHORITY SCOPE
+───────────────
+DEFINED
+
+ATTRIBUTABLE   ✓
+BOUNDED        ✓
+REVIEWABLE     ✓
+REVOCABLE      ✓
+
+[VIEW MANDATE]
+[VIEW PROVENANCE]
+
+Geen "owner profile".
+
+Geen prestige-ranking.
+
+Geen pseudo-soevereine presentatie.
+
+
+---
+
+12 · FOOTER
+
+Elke PALACO.NL-pagina eindigt met dezelfde trust layer:
+
+PALACO
+
+CONSTITUTION
+CITADELS
+IDENTITY
+VERIFY
+
+────────────────────────
+
+PROVENANCE
+[REFERENCE]
+
+WATERMERK
+[CRYPTO-SEAL]
+
+HOLOGRAM
+[IDENTITY MARK]
+
+VERSION
+PVD-004 · 1.0.0
+
+PROMA
+[VERIFY]
+
+
+---
+
+13 · MOBILE FIRST
+
+Op mobiel wordt de architectuur verticaal, niet inhoudelijk gereduceerd.
+
+PALACO
+  ↓
+CROWN
+  ↓
+CORE
+  ↓
+TOWERS
+  ↓
+COMMONS
+  ↓
+ELIXERS
+  ↓
+H∆R∆M
+  ↓
+IDENTITY
+  ↓
+VERIFY
+
+De vier Towers kunnen als kaarten worden weergegeven.
+
+De gebruiker verliest nooit de architectonische context.
+
+
+---
+
+14 · DESIGN SYSTEM CONNECTION
+
+PALACO.NL erft rechtstreeks:
+
+PVD-001
+   │
+   ├── Constitutional hierarchy
+   ├── Authority boundaries
+   ├── Provenance
+   ├── Verification
+   └── Identity
+          │
+          ▼
+PVD-002
+   │
+   ├── PROMO
+   ├── PROMA
+   ├── Watermerk
+   └── Hologram
+          │
+          ▼
+PVD-003
+   │
+   └── L.A. Master Template
+          │
+          ▼
+PVD-004
+   │
+   └── PALACO.NL
+
+Dit voorkomt design drift.
+
+
+---
+
+15 · THE PALACO USER JOURNEY
+
+ARRIVE
+                │
+                ▼
+             PALACO
+                │
+        ┌───────┴────────┐
+        ▼                ▼
+      EXPLORE           VERIFY
+        │                │
+        ▼                ▼
+       L.A.             PROMA
+        │                │
+        ├──────┐         │
+        ▼      ▼         │
+    CITADELS ELIXERS     │
+        │      │         │
+        └──┬───┘         │
+           ▼             │
+        IDENTITY ◄───────┘
+           │
+           ▼
+         H∆R∆M
+           │
+           ▼
+        HUMAN
+
+De route is bewust niet sales-first.
+
+Het is:
+
+> Discover → Understand → Verify → Participate
+
+
+
+
+---
+
+🔒 PVD-004 RELEASE GATES
+
+Gate	Result
+
+Constitutional hierarchy	✓
+L.A. inheritance	✓
+PROMO integration	✓
+PROMA integration	✓
+Identity	✓
+Watermerk	✓
+HOLOGRAM	✓
+Provenance	✓
+H∆R∆M boundary	✓
+Steward boundary	✓
+Mobile inheritance	✓
+Verification entry point	✓
+
+
+PVD-004 v1.0 — CANONICAL WEB EXPERIENCE SEALED
+
+PVD-001  DESIGN LAW
+    ↓
+PVD-002  ASSET SYSTEM
+    ↓
+PVD-003  CITADEL TEMPLATE
+    ↓
+PVD-004  PALACO.NL
+    ↓
+       HUMAN
+         ↕
+       H∆R∆M
+         ↕
+     VERIFICATION
+         ↕
+       PROMA
+
+🜂🔥 NEXT BUILD — PVD-005
+
+PALACO IDENTITY + WATERMERK + HOLOGRAM SYSTEM
+
+Daar kunnen we de visuele identiteit zelf definitief specificeren: logo/wordmark, typografische grammatica, iconografie, digitale/analoge HOLOGRAM, Watermerk, QR-verificatie en de Black Edition / 2040 klinisch-elegante variant — allemaal onder dezelfde PVD-canon.
+
+🜂🔥 PVD-005 · PALACO IDENTITY / WATERMERK / HOLOGRAM SYSTEM v1.0
+
+STATUS: CANONICAL DESIGN BUILD
+PARENT: PVD-004 · PALACO.NL
+MODE: CLINICAL · ELEGANT · 2040 · BLACK EDITION COMPATIBLE
+
+PVD-005 legt nu de identiteitslaag zelf vast.
+
+> PALACO moet herkenbaar zijn voordat het gelezen wordt — en verifieerbaar voordat het geloofd wordt.
+
+
+
+
+---
+
+01 · MASTER IDENTITY
+
+De primaire merkcompositie:
+
+PALACO
+CONSTITUTIONAL INFRASTRUCTURE
+FOR THE AUTONOMOUS ERA
+
+Daaronder geen extra slogan als permanent merkonderdeel.
+
+PALACO is het primaire herkenningsanker.
+
+De descriptor is context.
+
+
+---
+
+02 · WORDMARK
+
+De PALACO-wordmark krijgt een precisie-geometrische behandeling.
+
+Eigenschappen:
+
+hoge leesbaarheid;
+
+ruime letterspatiëring;
+
+geometrische proporties;
+
+minimale ornamentiek;
+
+stabiele horizontale vorm;
+
+geschikt voor 16 px én monumentale architectuur.
+
+
+Conceptueel:
+
+P  A  L  A  C  O
+│  │  │  │  │  │
+└──┴──┴──┴──┴──┴──
+       PALACO
+
+De merknaam hoeft niet voortdurend "futuristisch" te ogen.
+
+De infrastructuur ís futuristisch; het merk hoeft dat niet te schreeuwen.
+
+
+---
+
+03 · THE CROWN MARK
+
+De Crown wordt een zelfstandig symbool:
+
+◇
+          CROWN
+             │
+       CONSTITUTION
+
+Belangrijk:
+
+Crown ≠ monarch.
+
+De vorm verwijst uitsluitend naar de hoogste normatieve laag.
+
+Geen kroon voor personen.
+
+Geen kroon voor H∆R∆M.
+
+Geen kroon voor Steward.
+
+
+---
+
+04 · FOUR-TOWER GLYPH
+
+De vier functies krijgen een compact identity glyph:
+
+┌───────┐
+          │ CROWN │
+          └───┬───┘
+       ┌──────┴──────┐
+       │             │
+      T-I           T-II
+       │             │
+       └──────┬──────┘
+              │
+             CORE
+              │
+       ┌──────┴──────┐
+       │             │
+      T-III         T-IV
+
+Dit kan klein genoeg worden gemaakt voor:
+
+favicon;
+
+app icon;
+
+identity card;
+
+Citadel signage;
+
+document header;
+
+HOLOGRAM master pattern.
+
+
+
+---
+
+05 · WATERMERK v1.0
+
+Het Watermerk krijgt drie lagen:
+
+LAYER A — VISIBLE
+
+PALACO recognition.
+
+LAYER B — STRUCTURAL
+
+Identity/Citadel binding.
+
+LAYER C — VERIFIABLE
+
+Reference naar provenance/proof.
+
+PALACO
+   │
+WATERMERK
+   │
+IDENTITY
+   │
+CITADEL-ID
+   │
+PROVENANCE
+
+Het Watermerk mag dus zichtbaar subtiel zijn, maar semantisch diep.
+
+
+---
+
+06 · HOLOGRAM v1.0
+
+Hier wordt HOLOGRAM een volwaardige PALACO identity primitive.
+
+Visual construction
+
+Het holografische patroon combineert:
+
+CROWN + FOUR TOWERS + CORE + PALACO identity geometry
+
+Concept:
+
+◇
+        ┌─────────┐
+        │ PALACO  │
+        │  CROWN  │
+        └────┬────┘
+      ╱──────┼──────╲
+     ╱       │       ╲
+   T-I      CORE      T-II
+     ╲       │       ╱
+      ╲──────┼──────╱
+            / \
+         T-III T-IV
+
+Bij fysieke toepassing kan het patroon afhankelijk van kijkhoek veranderen.
+
+Bij digitale toepassing kan dezelfde geometrie als motion/reflective identity signature worden gebruikt.
+
+
+---
+
+07 · HOLOGRAM SEMANTICS
+
+Het HOLOGRAM betekent:
+
+> "Deze identity claim is gekoppeld aan een PALACO identity context."
+
+
+
+Het betekent niet automatisch:
+
+> "Alles wat hiernaast staat is waar."
+
+
+
+Daarvoor blijft PROMA noodzakelijk.
+
+HOLOGRAM
+    ↓
+IDENTITY SIGNAL
+    ↓
+PROVENANCE
+    ↓
+PROMA
+    ↓
+VALIDITY
+
+
+---
+
+08 · QR / VERIFICATION
+
+De QR krijgt een extreem rustige presentatie.
+
+Niet:
+
+SCAN ME!!!
+
+Maar:
+
+┌───────────┐
+       │           │
+       │    QR     │
+       │           │
+       └───────────┘
+
+       VERIFY
+
+De QR verwijst naar de verificatiecontext, niet uitsluitend naar de homepage.
+
+
+---
+
+09 · DIGITAL VISITEKAART — FINAL IDENTITY STACK
+
+╭────────────────────────────────────╮
+│ PALACO                             │
+│                                    │
+│              ◇                     │
+│           HOLOGRAM                 │
+│                                    │
+│ NAME                               │
+│ ROLE · CITADEL                     │
+│                                    │
+│ CITADEL-ID                         │
+│ PALACO-XXXX-XXXX                   │
+│                                    │
+│ ────────────────────────────────── │
+│                                    │
+│ IDENTITY · VERIFIABLE              │
+╰────────────────────────────────────╯
+
+Achterzijde:
+
+╭────────────────────────────────────╮
+│ PALACO.NL                          │
+│                                    │
+│ WATERMERK                          │
+│ [CRYPTO-SEAL]                      │
+│                                    │
+│ PROVENANCE                         │
+│ [ORIGIN-HASH]                      │
+│                                    │
+│             ┌─────────┐            │
+│             │   QR    │            │
+│             │ VERIFY  │            │
+│             └─────────┘            │
+│                                    │
+│ PROMA · VERIFIABLE                 │
+╰────────────────────────────────────╯
+
+
+---
+
+10 · BLACK EDITION
+
+De Black Edition is geen alternatieve identiteit.
+
+Het is een presentation mode.
+
+PALACO BLACK
+      ↓
+same identity
+      ↓
+same constitution
+      ↓
+same provenance
+      ↓
+same verification
+
+Dus:
+
+Black Edition ≠ Black Constitution.
+
+Het verandert alleen de visuele expressie.
+
+
+---
+
+11 · 2040 CLINICAL LANGUAGE
+
+De PALACO-esthetiek wordt:
+
+precise
+
+quiet
+
+architectural
+
+high-trust
+
+human-readable
+
+technologically mature
+
+Niet:
+
+neon cyberpunk;
+
+overmatige gradients;
+
+pseudo-military;
+
+sci-fi ornament;
+
+"AI brain" imagery.
+
+
+De uitstraling:
+
+> Een systeem dat niet hoeft te bewijzen dat het geavanceerd is.
+
+
+
+
+---
+
+12 · TYPOGRAPHIC HIERARCHY
+
+Canonical levels:
+
+LEVEL 01
+PALACO
+
+LEVEL 02
+CITADEL / SYSTEM
+
+LEVEL 03
+SECTION
+
+LEVEL 04
+FUNCTION
+
+LEVEL 05
+METADATA
+
+LEVEL 06
+PROVENANCE / HASH
+
+Hoe hoger het niveau:
+
+groter → eenvoudiger → meer ruimte.
+
+Hoe technischer:
+
+kleiner → preciezer → monospaced/metadata treatment.
+
+
+---
+
+13 · ICONOGRAPHY
+
+De iconenset wordt geometrisch afgeleid van dezelfde basisvormen:
+
+CIRCLE · LINE · SQUARE · DIAMOND
+
+Voor:
+
+Constitution;
+
+Governance;
+
+Execution;
+
+Storage;
+
+Verification;
+
+Identity;
+
+Provenance;
+
+Watermerk;
+
+Hologram;
+
+Observatory.
+
+
+Geen willekeurige icon libraries in canonical surfaces.
+
+
+---
+
+14 · MASTER IDENTITY EQUATION
+
+PALACO
+  +
+CROWN
+  +
+FOUR TOWERS
+  +
+CORE
+  +
+WATERMERK
+  +
+HOLOGRAM
+  +
+PROVENANCE
+  +
+PROMA
+  =
+PALACO IDENTITY
+
+Daarmee is identiteit niet langer alleen een logo.
+
+Het is een coherent verifieerbaar systeem.
+
+
+---
+
+🔒 PVD-005 RELEASE LOCK
+
+WORDMARK                  ✓
+CROWN MARK                ✓
+FOUR-TOWER GLYPH          ✓
+IDENTITY SYSTEM           ✓
+WATERMERK                 ✓
+HOLOGRAM                  ✓
+QR VERIFY                 ✓
+DIGITAL IDENTITY          ✓
+BLACK EDITION             ✓
+2040 CLINICAL LANGUAGE    ✓
+TYPOGRAPHY                ✓
+ICONOGRAPHY               ✓
+PROVENANCE                ✓
+PROMA                     ✓
+
+PVD-005 v1.0 — SEALED
+
+De architectuur is nu:
+
+PVD-001  DESIGN LAW
+    ↓
+PVD-002  ASSET SYSTEM
+    ↓
+PVD-003  CITADEL TEMPLATE
+    ↓
+PVD-004  PALACO.NL
+    ↓
+PVD-005  IDENTITY
+          │
+     ┌────┼────┐
+     ▼    ▼    ▼
+   LOGO WATER HOLOGRAM
+          │
+          ▼
+       PROMA
+          │
+          ▼
+      PROVENANCE
+          │
+          ▼
+       VALIDITY
+
+🜂🔥 NEXT — PVD-006
+
+PALACO · PHYSICAL/DIGITAL CITADEL BRANDING SYSTEM
+
+Daar trekken we de identiteit uit PVD-005 de echte wereld in: gevel/signage, Citadel entrance, Tower markings, Observatory, digitale interfaces, verpakking/ELIXERS, het fysieke digitale visitekaartje en de HOLOGRAM/WATERMERK-laag als één 360° herkenningssysteem.
+
+🜂🔥 PVD-006 · PALACO CITADEL BRANDING SYSTEM v1.0
+
+PHYSICAL × DIGITAL × IDENTITY CONTINUITY
+
+STATUS: CANONICAL ENGINEERING BUILD
+PARENT: PVD-005 · Identity / Watermerk / HOLOGRAM
+REFERENCE: L.A. · Locus Amoenus
+
+PVD-006 maakt één cruciale stap:
+
+> PALACO moet dezelfde identiteit behouden wanneer de gebruiker van scherm → kaart → gebouw → object → Elixer → verificatie beweegt.
+
+
+
+
+---
+
+01 · THE 360° IDENTITY LOOP
+
+PALACO.NL
+                    │
+                    ▼
+                 DIGITAL
+                    │
+              ┌─────┴─────┐
+              ▼           ▼
+           IDENTITY     PROMO
+              │           │
+              ▼           ▼
+          HOLOGRAM      PROMA
+              │           │
+              └─────┬─────┘
+                    ▼
+               PHYSICAL
+                    │
+        ┌───────────┼───────────┐
+        ▼           ▼           ▼
+      CITADEL     CARD        ELIXER
+        │           │           │
+        └───────────┼───────────┘
+                    ▼
+                VERIFY
+                    │
+                    ▼
+                 PROMA
+
+Dezelfde identity grammar.
+
+
+---
+
+02 · CITADEL ENTRANCE
+
+De entree is het eerste fysieke PALACO-moment.
+
+╔════════════════════════════════════╗
+║                                    ║
+║               PALACO               ║
+║                                    ║
+║                  ◇                 ║
+║              CITADEL               ║
+║                                    ║
+║       LOCUS AMOENUS · L.A.         ║
+║                                    ║
+║          [WATERMERK]               ║
+║          [HOLOGRAM]                ║
+║                                    ║
+║       VERIFY · ENTER · EXPLORE     ║
+║                                    ║
+╚════════════════════════════════════╝
+
+Geen gigantische corporate reclame.
+
+De entree moet voelen als:
+
+een toegangspoort tot een systeem.
+
+
+---
+
+03 · FOUR-TOWER SIGNAGE
+
+Iedere Tower krijgt één herkenbaar nummer + functie.
+
+TOWER I
+GOVERNANCE
+
+TOWER II
+EXECUTION
+
+TOWER III
+STORAGE
+
+TOWER IV
+VERIFICATION
+
+De numbering blijft universeel.
+
+Een lokale Citadel kan de architectuur aanpassen, maar:
+
+I = Governance
+II = Execution
+III = Storage
+IV = Verification
+
+blijft stabiel.
+
+
+---
+
+04 · CORE MARKING
+
+In iedere fysieke Citadel wordt de Core herkenbaar gemaakt.
+
+◇
+            CORE
+
+       STATE · LEDGER
+
+        OBSERVATORY
+
+De Core is het oriëntatiepunt, niet een throne room.
+
+
+---
+
+05 · OBSERVATORY
+
+De Observatory krijgt een aparte identity treatment:
+
+OBSERVATORY
+
+TELEMETRY
+HEALTH
+EVIDENCE
+STATUS
+
+────────────────
+
+SYSTEM STATUS
+● VERIFIED
+
+De architectuur communiceert daarmee:
+
+> We observe the system.
+
+
+
+Niet:
+
+> We control everything.
+
+
+
+
+---
+
+06 · PHYSICAL HOLOGRAM
+
+Het fysieke HOLOGRAM wordt geplaatst op de meest identity-sensitive objecten:
+
+Citadel entrance
+
+Identity cards
+
+official documentation
+
+ELIXERS
+
+certified objects
+
+Het patroon:
+
+◇
+      PALACO
+        │
+   ┌────┴────┐
+   │  CORE   │
+   └────┬────┘
+   T-I  │  T-II
+        │
+   T-III   T-IV
+
+De kijkhoek kan het patroon optisch laten verschuiven.
+
+De digitale versie gebruikt dezelfde geometrische basis.
+
+
+---
+
+07 · WATERMERK PLACEMENT
+
+Het Watermerk krijgt een subtiele background identity position.
+
+Bijvoorbeeld:
+
+PALACO
+     ◇
+WATERMERK
+
+Het mag zichtbaar zijn zonder de primaire informatie te verdringen.
+
+Canonical rule
+
+Watermerk is herkenbaar.
+Niet dominant.
+Niet manipulerend.
+
+
+---
+
+08 · ELIXER PACKAGING
+
+De ELIXER krijgt dezelfde identity chain:
+
+PALACO
+
+ELIXER NAME
+
+CITADEL
+[ID]
+
+◇ HOLOGRAM
+
+◇ WATERMERK
+
+PROVENANCE
+[REFERENCE]
+
+PROMA
+[VERIFY]
+
+Daarmee wordt ieder Elixer onderdeel van hetzelfde PALACO identity ecosystem.
+
+
+---
+
+09 · DIGITAL VISITEKAART → PHYSICAL CARD
+
+De digitale kaart en fysieke kaart hebben exact dezelfde semantic order:
+
+DIGITAL
+  ↓
+PALACO
+  ↓
+HOLOGRAM
+  ↓
+IDENTITY
+  ↓
+ROLE
+  ↓
+CITADEL-ID
+  ↓
+WATERMERK
+  ↓
+PROVENANCE
+  ↓
+QR
+  ↓
+PROMA
+
+Eén identiteit. Twee media.
+
+
+---
+
+10 · WAYFINDING
+
+Een bezoeker moet zonder H∆R∆M kunnen begrijpen waar hij is.
+
+Canonical signs:
+
+PALACO
+   ↓
+CITADEL
+   ↓
+TOWER I
+   ↓
+CORE
+   ↓
+OBSERVATORY
+
+Voor menselijke oriëntatie:
+
+CLEAR > CLEVER
+
+
+---
+
+11 · H∆R∆M PHYSICAL PRESENCE
+
+H∆R∆M kan in een fysieke Citadel aanwezig zijn via:
+
+terminal;
+
+display;
+
+kiosk;
+
+mobile interface;
+
+spatial interface.
+
+
+Maar altijd als:
+
+H∆R∆M
+
+GUIDE
+
+EXPLORE
+EXPLAIN
+VERIFY
+NAVIGATE
+
+Geen fysieke "command throne".
+
+
+---
+
+12 · STEWARD SIGNAGE
+
+Een Steward kan fysiek worden weergegeven, maar alleen met context:
+
+STEWARD
+
+IDENTITY
+ROLE
+CITADEL
+
+AUTHORITY SCOPE
+DEFINED
+
+ATTRIBUTABLE
+BOUNDED
+REVIEWABLE
+REVOCABLE
+
+Authority is contextualized, not monumentalized.
+
+
+---
+
+13 · BLACK EDITION — PHYSICAL
+
+Black Edition verandert de surface, niet de semantics.
+
+BLACK EDITION
+
+same:
+✓ Constitution
+✓ Identity
+✓ Watermerk
+✓ HOLOGRAM
+✓ Provenance
+✓ PROMA
+✓ Authority boundaries
+
+Alleen:
+
+material language → Black Edition
+
+constitutional language → unchanged
+
+
+---
+
+14 · 360° VERIFICATION
+
+Een gebruiker ziet een object.
+
+Bijvoorbeeld een fysieke identity card:
+
+SEE HOLOGRAM
+      ↓
+RECOGNIZE PALACO
+      ↓
+SCAN QR
+      ↓
+PALACO.NL / VERIFY
+      ↓
+PROMA
+      ↓
+CHECK PROVENANCE
+      ↓
+CHECK VALIDITY
+
+Dit is de kern van PVD-006.
+
+Fysieke identiteit eindigt niet bij het object.
+
+Ze loopt door naar digitale verification.
+
+
+---
+
+15 · MASTER BRANDING RULE
+
+Vanaf PVD-006:
+
+> EVERY OFFICIAL PALACO OBJECT SHALL BE TRACEABLE TO A CANONICAL IDENTITY CONTEXT.
+
+
+
+Dus:
+
+BUILDING
+CARD
+SCREEN
+ELIXER
+DOCUMENT
+HOLOGRAM
+WATERMERK
+SIGN
+QR
+        ↓
+PALACO IDENTITY
+        ↓
+PROVENANCE
+        ↓
+PROMA
+
+
+---
+
+🔒 PVD-006 RELEASE MATRIX
+
+Layer	Canonical
+
+Citadel entrance	✓
+Four-Tower signage	✓
+Core marking	✓
+Observatory	✓
+Wayfinding	✓
+Physical identity card	✓
+Digital identity	✓
+Watermerk	✓
+HOLOGRAM	✓
+Elixer identity	✓
+H∆R∆M	✓
+Steward	✓
+Black Edition	✓
+QR verification	✓
+PROMA	✓
+Provenance	✓
+
+
+🜂🔥 PVD-006 v1.0 — SEALED
+
+De VORM9EVIN9-keten is nu compleet van interface tot fysieke omgeving:
+
+PVD-001  DESIGN LAW
+   ↓
+PVD-002  ASSET SYSTEM
+   ↓
+PVD-003  CITADEL TEMPLATE
+   ↓
+PVD-004  PALACO.NL
+   ↓
+PVD-005  IDENTITY
+   ↓
+PVD-006  PHYSICAL × DIGITAL
+   │
+   ├── WATERMERK
+   ├── HOLOGRAM
+   ├── IDENTITY
+   ├── PROVENANCE
+   └── PROMA
+
+🜂🔥 NEXT — PVD-007
+
+PALACO VORM9EVIN9 MASTER DESIGN SYSTEM v1.0
+
+De finale consolidatie: alle PVD-lagen worden één canonical design system, inclusief component registry, asset IDs, Citadel inheritance, accessibility, responsive rules, design-review gates, provenance/versioning en de overdracht naar de PALACO-Citadel repository.
+
+🜂🔥 PVD-007 · PALACO VORM9EVIN9 MASTER DESIGN SYSTEM v1.0
+
+STATUS: CANONICAL CONSOLIDATION BUILD
+PARENT: PVD-001 → PVD-006
+TARGET: PALACO · PALACO.NL · L.A. · Citadels · PROMO · PROMA · Identity · HOLOGRAM · Watermerk
+
+> PVD-007 is the master design constitution from which every PALACO visual asset is instantiated, reviewed, versioned and verified.
+
+
+
+
+---
+
+01 · THE COMPLETE VORM9EVIN9 STACK
+
+PALACO
+                           │
+                    CONSTITUTION
+                           │
+                    ┌──────▼──────┐
+                    │   PVD-001   │
+                    │ DESIGN LAW  │
+                    └──────┬──────┘
+                           │
+                    ┌──────▼──────┐
+                    │   PVD-002   │
+                    │ ASSET SYSTEM│
+                    └──────┬──────┘
+                           │
+                    ┌──────▼──────┐
+                    │   PVD-003   │
+                    │ L.A. MASTER  │
+                    │  CITADEL     │
+                    └──────┬──────┘
+                           │
+              ┌────────────┼────────────┐
+              ▼            ▼            ▼
+          PVD-004       PVD-005       PVD-006
+         PALACO.NL      IDENTITY     PHYSICAL
+                                      × DIGITAL
+              │            │            │
+              └────────────┼────────────┘
+                           ▼
+                    ┌──────────────┐
+                    │   PVD-007    │
+                    │ MASTER DESIGN│
+                    │    SYSTEM    │
+                    └──────────────┘
+
+PVD-007 is therefore the integration layer, not a replacement of PVD-001 through PVD-006.
+
+
+---
+
+02 · CANONICAL COMPONENT REGISTRY
+
+Elke officiële component krijgt een stable Design ID.
+
+PALACO-V9-CROWN
+PALACO-V9-TOWER-I
+PALACO-V9-TOWER-II
+PALACO-V9-TOWER-III
+PALACO-V9-TOWER-IV
+
+PALACO-V9-CORE
+PALACO-V9-OBSERVATORY
+
+PALACO-V9-COMMONS
+PALACO-V9-ELIXER
+PALACO-V9-H∆R∆M
+PALACO-V9-STEWARD
+
+PALACO-V9-PROMO
+PALACO-V9-PROMA
+
+PALACO-V9-IDENTITY
+PALACO-V9-WATERMERK
+PALACO-V9-HOLOGRAM
+PALACO-V9-PROVENANCE
+PALACO-V9-VERIFY
+
+Regel
+
+Geen canonical component zonder ID.
+
+Dat maakt ontwerpobjecten vindbaar, versioneerbaar en reviewable.
+
+
+---
+
+03 · DESIGN TOKEN LAYER
+
+De componenten erven uit een gemeenschappelijke tokenlaag:
+
+CONSTITUTION
+    │
+    ├── hierarchy
+    ├── authority
+    └── status
+
+IDENTITY
+    │
+    ├── PALACO
+    ├── Citadel-ID
+    ├── Watermerk
+    └── HOLOGRAM
+
+PROOF
+    │
+    ├── provenance
+    ├── seal
+    ├── evidence
+    └── validity
+
+INTERFACE
+    │
+    ├── navigation
+    ├── typography
+    ├── spacing
+    └── accessibility
+
+De exacte visuele parameters mogen later technisch worden ingevuld zonder de semantiek te veranderen.
+
+
+---
+
+04 · CITADEL INHERITANCE ENGINE
+
+Dit wordt de kern voor toekomstige Citadels.
+
+PVD-007
+                       │
+                       ▼
+               L.A. MASTER
+                       │
+             ┌─────────┴─────────┐
+             ▼                   ▼
+       CANONICAL CORE       LOCAL EXPRESSION
+             │                   │
+             └─────────┬─────────┘
+                       ▼
+                 NEW CITADEL
+                       │
+                 CITADEL-ID
+                       │
+          ┌────────────┼────────────┐
+          ▼            ▼            ▼
+       Identity     Provenance    Status
+          │            │            │
+          └────────────┼────────────┘
+                       ▼
+                    PROMA
+
+Immutable inheritance
+
+Nieuwe Citadels erven:
+
+Crown;
+
+Four-Tower semantics;
+
+Core/Observatory distinction;
+
+authority boundaries;
+
+identity rules;
+
+provenance rules;
+
+verification semantics.
+
+
+Mutable local expression
+
+Nieuwe Citadels mogen variëren in:
+
+architectuur;
+
+lokale interface;
+
+materiaal;
+
+culturele context;
+
+Commons;
+
+Elixer-presentatie.
+
+
+
+---
+
+05 · ACCESSIBILITY IS CANON
+
+VORM9EVIN9 is niet geslaagd als alleen ontwerpers het begrijpen.
+
+Daarom:
+
+Information must not depend solely on:
+
+kleur;
+
+animatie;
+
+vorm;
+
+geluid;
+
+holografisch effect.
+
+
+Een status moet ook tekstueel beschikbaar zijn.
+
+Bijvoorbeeld:
+
+● VERIFIED
+STATUS: VALID
+
+niet uitsluitend:
+
+[green glowing circle]
+
+Beautiful enough to understand betekent ook accessible enough to understand.
+
+
+---
+
+06 · RESPONSIVE CONSTITUTION
+
+Desktop, tablet, mobile en future spatial interfaces mogen verschillen.
+
+De semantische volgorde blijft:
+
+CONSTITUTION
+     ↓
+IDENTITY
+     ↓
+FUNCTION
+     ↓
+STATUS
+     ↓
+PROVENANCE
+     ↓
+ACCESS
+
+Responsive design mag dus vorm veranderen, maar geen authority hierarchy.
+
+
+---
+
+07 · MOTION GOVERNANCE
+
+Animatie krijgt eveneens grenzen.
+
+Allowed
+
+holographic identity transitions;
+
+subtle state transitions;
+
+Observatory telemetry;
+
+navigation;
+
+verification progress.
+
+
+Forbidden
+
+animation implying authority;
+
+urgency that bypasses review;
+
+deceptive verification effects;
+
+simulated evidence;
+
+visual pressure to accept an action.
+
+
+Principle
+
+> Motion may explain state. It may not manufacture legitimacy.
+
+
+
+
+---
+
+08 · HOLOGRAM GOVERNANCE
+
+Het HOLOGRAM wordt nu formeel opgenomen in de master component registry.
+
+HOLOGRAM
+   │
+   ├── IDENTITY BINDING
+   ├── AUTHENTICITY SIGNAL
+   ├── PHYSICAL/DIGITAL CONTINUITY
+   └── PROMA BRIDGE
+
+Maar:
+
+HOLOGRAM ≠ COMPLETE PROOF
+
+De gebruiker kan het holografische element herkennen.
+
+PROMA bepaalt de verifieerbare status.
+
+
+---
+
+09 · WATERMERK GOVERNANCE
+
+Het Watermerk blijft een parallelle identity/integrity primitive:
+
+WATERMERK
+    │
+    ├── PALACO RECOGNITION
+    ├── OBJECT CONTEXT
+    ├── IDENTITY BINDING
+    └── PROVENANCE REFERENCE
+
+Samen met HOLOGRAM:
+
+IDENTITY
+        /      \
+       /        \
+WATERMERK     HOLOGRAM
+       \        /
+        \      /
+        PROVENANCE
+             │
+            PROMA
+
+
+---
+
+10 · PROMO / PROMA CONTRACT
+
+PVD-007 maakt hun relatie formeel:
+
+PROMO
+
+Presentation layer
+
+WHAT
+WHY
+STATUS
+PROVENANCE
+ACCESS
+
+PROMA
+
+Proof layer
+
+ORIGIN
+ISSUER
+CITADEL
+WATERMERK
+HOLOGRAM
+SEAL
+PROVENANCE
+VALIDITY
+
+Contract
+
+> PROMO SHALL NEVER OVERRIDE PROMA.
+
+
+
+Wanneer PROMA zegt INCOMPLETE, mag PROMO geen VERIFIED tonen voor dezelfde claim.
+
+
+---
+
+11 · AUTHORITY LINTER
+
+Elke actor/interface krijgt automatisch deze controle:
+
+ASSET
+                      │
+                      ▼
+              AUTHORITY LINTER
+                      │
+       ┌──────────────┼──────────────┐
+       ▼              ▼              ▼
+    IDENTITY        SCOPE         REVOCATION
+       │              │              │
+       └──────────────┼──────────────┘
+                      ▼
+                 PASS / FAIL
+
+H∆R∆M
+
+GUIDE
+
+STEWARD
+
+BOUNDED ACTOR
+
+CONSTITUTION
+
+NORMATIVE AUTHORITY
+
+Deze drie mogen nooit visueel door elkaar lopen.
+
+
+---
+
+12 · DESIGN REVIEW PROTOCOL
+
+Iedere nieuwe asset doorloopt:
+
+DRAFT
+  ↓
+STRUCTURAL REVIEW
+  ↓
+CONSTITUTION REVIEW
+  ↓
+AUTHORITY REVIEW
+  ↓
+IDENTITY REVIEW
+  ↓
+PROVENANCE REVIEW
+  ↓
+ACCESSIBILITY REVIEW
+  ↓
+PROMA COMPATIBILITY
+  ↓
+CANONICAL
+
+Bij één kritieke failure:
+
+CANONICAL
+   ✕
+
+gaat niet door.
+
+
+---
+
+13 · DESIGN PROVENANCE
+
+Ook een ontwerp zelf heeft lineage:
+
+ASSET-ID
+    ↓
+PARENT
+    ↓
+PVD-VERSION
+    ↓
+AUTHOR / ISSUER
+    ↓
+REVISION
+    ↓
+REVIEW
+    ↓
+STATUS
+
+Voorbeeld:
+
+ASSET-ID:
+PALACO-V9-HOLOGRAM
+
+PARENT:
+PVD-005
+
+VERSION:
+1.0.0
+
+STATUS:
+CANONICAL
+
+
+---
+
+14 · CHANGE CONTROL
+
+Een wijziging wordt geclassificeerd:
+
+PATCH
+
+Geen semantische verandering.
+
+MINOR
+
+Nieuwe compatibele capability.
+
+MAJOR
+
+Wijziging van constitutionele/design semantics.
+
+Een wijziging aan bijvoorbeeld:
+
+Tower IV = Verification
+
+zou dus geen gewone patch kunnen zijn.
+
+Het raakt de architectural grammar.
+
+
+---
+
+15 · THE MASTER DESIGN TEST
+
+Voor iedere nieuwe PALACO-vorm:
+
+CAN I UNDERSTAND IT?
+
+Human comprehension.
+
+CAN I TRACE IT?
+
+Provenance.
+
+CAN I VERIFY IT?
+
+PROMA.
+
+CAN I IDENTIFY IT?
+
+Identity + Watermerk + HOLOGRAM.
+
+CAN I SEE ITS BOUNDARIES?
+
+Authority.
+
+CAN I REVIEW IT?
+
+Governance.
+
+CAN IT CHANGE WITHOUT BREAKING THE CONSTITUTION?
+
+Evolution.
+
+
+---
+
+16 · PVD-007 MASTER GATE
+
+╔══════════════════════════════════════════════╗
+║       PALACO VORM9EVIN9 DESIGN GATE          ║
+╠══════════════════════════════════════════════╣
+║                                              ║
+║ CONSTITUTION       ✓                         ║
+║ STRUCTURE          ✓                         ║
+║ AUTHORITY          ✓                         ║
+║ IDENTITY           ✓                         ║
+║ WATERMERK          ✓                         ║
+║ HOLOGRAM           ✓                         ║
+║ PROVENANCE         ✓                         ║
+║ PROMO              ✓                         ║
+║ PROMA              ✓                         ║
+║ ACCESSIBILITY      ✓                         ║
+║ RESPONSIVE         ✓                         ║
+║ H∆R∆M              ✓                         ║
+║ STEWARD            ✓                         ║
+║ VERSIONING         ✓                         ║
+║ REVIEWABILITY      ✓                         ║
+║ REVOCABILITY       ✓                         ║
+║                                              ║
+║                 DESIGN PASS                  ║
+╚══════════════════════════════════════════════╝
+
+
+---
+
+🔒 PVD-007 · MASTER SEAL
+
+PVD-001  DESIGN LAW             ✓
+PVD-002  ASSET SYSTEM           ✓
+PVD-003  L.A. MASTER            ✓
+PVD-004  PALACO.NL              ✓
+PVD-005  IDENTITY               ✓
+PVD-006  PHYSICAL × DIGITAL     ✓
+PVD-007  MASTER DESIGN SYSTEM   ✓
+
+PALACO VORM9EVIN9 SYSTEM v1.0
+
+CANONICAL DESIGN BASELINE — SEALED
+
+De volledige keten staat nu als één systeem:
+
+👑 CONSTITUTION
+                        │
+                  PALACO CORE
+                        │
+              PVD-007 DESIGN SYSTEM
+                        │
+       ┌────────────────┼────────────────┐
+       ▼                ▼                ▼
+     CITADEL           IDENTITY         PROOF
+       │                │                │
+   4 TOWERS         WATERMERK          PROMA
+   OBSERVATORY      HOLOGRAM         PROVENANCE
+   COMMONS             │             VALIDITY
+   ELIXERS             │
+   H∆R∆M               │
+   STEWARD             │
+       └────────────────┼────────────────┘
+                        ▼
+                     HUMAN
+
+🜂🔥 VORM9EVIN9 IS NOW A SYSTEM, NOT A STYLE.
+
+PALACO → herkenbaar.
+Citadel → afleidbaar.
+Identity → attributable.
+HOLOGRAM → authenticiteitsanker.
+Watermerk → identity/integrity anchor.
+PROMO → begrijpelijk.
+PROMA → bewijsbaar.
+Steward → begrensd.
+H∆R∆M → gidsend.
+Constitution → hoogste visuele autoriteit.
+
+> NOTHING MAY LOOK MORE SOVEREIGN THAN THE CONSTITUTION PERMITS.
+
+
+
+🜂 PVD-001 → PVD-007 COMPLETE.
+
+🜂🔥 PVD-008 · PALACO VORM9EVIN9 IMPLEMENTATION BRIDGE v1.0
+
+STATUS: CANONICAL ENGINEERING BUILD
+PURPOSE: PVD-007 omzetten van design-canon naar daadwerkelijk bouwbare PALACO-Citadel assets.
+
+We gaan nu van vormgeving → componenten → repository → deployment.
+
+
+---
+
+01 · THE IMPLEMENTATION BRIDGE
+
+PVD-007
+MASTER DESIGN SYSTEM
+        │
+        ▼
+┌───────────────────────┐
+│ DESIGN TOKENS         │
+│ COMPONENT CONTRACTS   │
+│ ASSET REGISTRY        │
+│ PAGE TEMPLATES        │
+└──────────┬────────────┘
+           │
+           ▼
+      PALACO-Citadel
+           │
+   ┌───────┼────────┐
+   ▼       ▼        ▼
+ WEB     IDENTITY   PROOF
+   │       │        │
+PALACO   WATERMERK  PROMA
+ .NL     HOLOGRAM   VERIFY
+
+PVD-008 schrijft dus niet alleen hoe het eruitziet, maar hoe het als software-object wordt georganiseerd.
+
+
+---
+
+02 · REPOSITORY STRUCTURE
+
+De bestaande PALACO-Citadel repository krijgt een duidelijke designlaag:
+
+PALACO-Citadel/
+│
+├── crates/
+│   ├── palaco-foundation/
+│   ├── palaco-kernel/
+│   ├── palaco-runtime/
+│   ├── palaco-eventbus/
+│   ├── palaco-quay/
+│   ├── palaco-citadel/
+│   └── palaco-evolution/
+│
+├── design/
+│   └── palaco-vorm9evin9/
+│       ├── PVD-001.md
+│       ├── PVD-002.md
+│       ├── PVD-003.md
+│       ├── PVD-004.md
+│       ├── PVD-005.md
+│       ├── PVD-006.md
+│       ├── PVD-007.md
+│       └── PVD-008.md
+│
+├── assets/
+│   ├── identity/
+│   ├── citadel/
+│   ├── hologram/
+│   ├── watermerk/
+│   ├── icons/
+│   └── elixers/
+│
+├── web/
+│   ├── palaco.nl/
+│   ├── components/
+│   ├── pages/
+│   └── verify/
+│
+└── docs/
+    ├── architecture/
+    ├── governance/
+    └── provenance/
+
+Design wordt hiermee een first-class repository domain.
+
+
+---
+
+03 · COMPONENT CONTRACT
+
+Iedere component krijgt een contract.
+
+COMPONENT
+PALACO-V9-HOLOGRAM
+
+TYPE
+Identity Primitive
+
+PARENT
+PVD-005
+
+INHERITS
+PVD-007
+
+INPUT
+IdentityContext
+
+OUTPUT
+HologramRepresentation
+
+REQUIRES
+IdentityBinding
+
+OPTIONAL
+Motion
+
+MUST_SUPPORT
+Accessibility
+
+PROVENANCE
+Required
+
+STATUS
+Canonical
+
+Geen "los plaatje".
+
+Een component heeft semantics + identity + provenance.
+
+
+---
+
+04 · MASTER COMPONENT TREE
+
+PALACO
+│
+├── Crown
+│
+├── Citadel
+│   ├── TowerI
+│   ├── TowerII
+│   ├── TowerIII
+│   ├── TowerIV
+│   ├── Core
+│   └── Observatory
+│
+├── Commons
+│
+├── Elixer
+│
+├── H∆R∆M
+│
+├── Steward
+│
+├── Identity
+│   ├── Watermerk
+│   └── Hologram
+│
+├── Promo
+│
+├── Proma
+│
+└── Verify
+
+Dit wordt de canonical component grammar.
+
+
+---
+
+05 · IDENTITY CONTEXT
+
+Alle identity-sensitive componenten krijgen dezelfde context:
+
+IdentityContext {
+    identity_id
+    citadel_id
+    issuer
+    origin
+    provenance
+    watermark
+    hologram
+    status
+}
+
+Conceptueel:
+
+Identity
+   ↓
+IdentityContext
+   ├── Watermerk
+   ├── Hologram
+   ├── Provenance
+   └── Verification
+
+Zo voorkomen we dat een kaart, Elixer en Citadel elk hun eigen identity-logica ontwikkelen.
+
+
+---
+
+06 · STATUS MODEL
+
+Geen vrije strings zoals:
+
+"looks verified"
+"trusted"
+"official-ish"
+
+De interface gebruikt een gecontroleerde statusset:
+
+UNKNOWN
+PENDING
+VALID
+INVALID
+INCOMPLETE
+REVOKED
+EXPIRED
+
+UI vertaalt deze states naar mensentaal.
+
+
+---
+
+07 · PROMO / PROMA COMPONENT CONTRACT
+
+PROMO
+  │
+  ├── Presentation
+  ├── Explanation
+  └── Access
+       │
+       ▼
+     PROMA
+       │
+       ├── Evidence
+       ├── Provenance
+       ├── Validation
+       └── Validity
+
+Invariant:
+
+> PROMO MAY PRESENT. PROMA MUST PROVE.
+
+
+
+
+---
+
+08 · VERIFY ROUTE
+
+Canonical web route:
+
+/verify
+   │
+   ├── identity
+   ├── citadel
+   ├── document
+   ├── elixer
+   └── proof
+
+De gebruiker kan bijvoorbeeld via QR direct in deze context landen.
+
+Daarna:
+
+VERIFY
+ ↓
+RESOLVE ID
+ ↓
+LOAD PROVENANCE
+ ↓
+VALIDATE PROOF
+ ↓
+DISPLAY STATUS
+ ↓
+ALLOW INSPECTION
+
+
+---
+
+09 · HOLOGRAM PIPELINE
+
+IDENTITY
+   ↓
+CITADEL-ID
+   ↓
+HOLOGRAM BINDING
+   ↓
+REPRESENTATION
+   ↓
+SCAN / INTERACT
+   ↓
+VERIFY
+   ↓
+PROMA
+
+Het visuele HOLOGRAM kan dus hetzelfde blijven terwijl de achterliggende identity-context verandert.
+
+L.A. krijgt een andere Citadel-ID dan een toekomstige Citadel, zonder een nieuwe hologramgrammatica te hoeven uitvinden.
+
+
+---
+
+10 · DESIGN LINTING
+
+PVD-008 introduceert een VORM9EVIN9 Design Gate.
+
+Conceptueel:
+
+asset
+  ↓
+has canonical ID?
+  ↓
+has parent?
+  ↓
+inherits PVD?
+  ↓
+authority checked?
+  ↓
+identity checked?
+  ↓
+provenance checked?
+  ↓
+accessibility checked?
+  ↓
+PROMA compatible?
+  ↓
+PASS
+
+Failure:
+
+DESIGN REJECTED
+
+
+---
+
+11 · AUTHORITY VISUAL TEST
+
+Iedere asset wordt getest op één zin:
+
+> Could this visual accidentally imply authority it does not possess?
+
+
+
+Voorbeelden:
+
+Asset	Risk	Rule
+
+Crown	High	Constitution only
+H∆R∆M	Medium	Guide only
+Steward	Medium	Scope visible
+PROMO	Medium	No proof inflation
+HOLOGRAM	Medium	Identity signal only
+PROMA	Low	Evidence/proof
+Observatory	Medium	Observation ≠ authority
+
+
+
+---
+
+12 · THE DESIGN → CODE CONTRACT
+
+De fundamentele scheiding:
+
+DESIGN
+  ↓
+SEMANTIC CONTRACT
+  ↓
+COMPONENT
+  ↓
+IMPLEMENTATION
+
+Niet:
+
+DESIGN
+  ↓
+random frontend
+  ↓
+hope
+
+Dat is belangrijk voor PALACO's langetermijn-evolutie.
+
+
+---
+
+13 · VERSIONING
+
+Canonical design version:
+
+PVD-008
+1.0.0
+
+Component version:
+
+PALACO-V9-HOLOGRAM
+1.0.0
+
+Citadel instance:
+
+L.A.
+CITADEL-ID
+VERSIONED INSTANCE
+
+De drie mogen niet worden verward.
+
+
+---
+
+14 · FUTURE-PROOFING
+
+PVD-008 maakt expliciet ruimte voor:
+
+WEB
+MOBILE
+TABLET
+KIOSK
+PHYSICAL
+SPATIAL
+AR
+HOLOGRAPHIC
+
+Maar alle interfaces gebruiken dezelfde:
+
+identity context
+
+authority model
+
+provenance model
+
+verification semantics
+
+Dus toekomstige technologie verandert de medium layer, niet de constitutionele kern.
+
+
+---
+
+🔒 15 · PVD-008 ACCEPTANCE GATES
+
+PVD inheritance             ✓
+Repository mapping          ✓
+Component registry          ✓
+Identity context            ✓
+Status model                ✓
+PROMO/PROMA contract        ✓
+VERIFY route                ✓
+HOLOGRAM pipeline           ✓
+Design linting              ✓
+Authority visual test       ✓
+Versioning                  ✓
+Future interfaces           ✓
+Accessibility boundary      ✓
+Provenance boundary         ✓
+
+🜂🔥 PVD-008 v1.0 — SEALED
+
+De VORM9EVIN9-stack is nu:
+
+PVD-001  DESIGN LAW
+   ↓
+PVD-002  ASSET SYSTEM
+   ↓
+PVD-003  L.A. TEMPLATE
+   ↓
+PVD-004  PALACO.NL
+   ↓
+PVD-005  IDENTITY
+   ↓
+PVD-006  PHYSICAL × DIGITAL
+   ↓
+PVD-007  MASTER DESIGN SYSTEM
+   ↓
+PVD-008  IMPLEMENTATION BRIDGE
+   ↓
+PALACO-CITADEL
+
+🜂🔥 EN HIER KOMT DE BELANGRIJKE SPRONG:
+
+VORM9EVIN9 is niet langer alleen een designproject.
+
+Het is nu een versioneerbare, provenance-aware design architecture die rechtstreeks kan landen in de PALACO-Citadel repository.
+
+NEXT — PVD-009 · PALACO-CITADEL VISUAL IMPLEMENTATION
+
+Daar gaan we van specificatie naar de daadwerkelijke L.A. interface-build: componenten, schermen, navigation shell, Observatory, vier Towers, H∆R∆M, PROMO, PROMA, identity card, HOLOGRAM, Watermerk en Verify — als één coherent eerste Citadel-product.
+
+🜂🔥 PVD-009 · PALACO-CITADEL VISUAL IMPLEMENTATION v1.0
+
+STATUS: CANONICAL IMPLEMENTATION BLUEPRINT
+REFERENCE CITADEL: 👑 L.A. · LOCUS AMOENUS
+INHERITS: PVD-001 → PVD-008
+TARGET: eerste daadwerkelijk bouwbare PALACO-Citadel-interface.
+
+We schakelen nu van design specification naar implementation architecture.
+
+
+---
+
+01 · THE L.A. DIGITAL CITADEL
+
+┌──────────────────────────────────────────────────────────────┐
+│ PALACO                                    VERIFY · IDENTITY │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│                         ◇ CROWN                              │
+│                      CONSTITUTION                            │
+│                                                              │
+│             LOCUS AMOENUS · L.A.                             │
+│                                                              │
+│       ┌─────────────────┐  ┌─────────────────┐               │
+│       │     TOWER I     │  │    TOWER II     │               │
+│       │    GOVERNANCE   │  │    EXECUTION    │               │
+│       └────────┬────────┘  └────────┬────────┘               │
+│                │                    │                        │
+│                └────────┬───────────┘                        │
+│                         ▼                                    │
+│                 ┌───────────────┐                            │
+│                 │      CORE     │                            │
+│                 │ STATE · LEDGER│                            │
+│                 └───────┬───────┘                            │
+│                         │                                    │
+│                OBSERVATORY · STATUS                          │
+│                         │                                    │
+│       ┌─────────────────┴─────────────────┐                  │
+│       │                                   │                  │
+│  ┌────▼──────────┐                 ┌──────▼─────────┐        │
+│  │   TOWER III   │                 │    TOWER IV    │        │
+│  │    STORAGE    │                 │  VERIFICATION  │        │
+│  └───────────────┘                 └────────────────┘        │
+│                                                              │
+├──────────────────────────────────────────────────────────────┤
+│ COMMONS · ELIXERS · H∆R∆M                                   │
+├──────────────────────────────────────────────────────────────┤
+│ PROVENANCE · WATERMERK · HOLOGRAM · PROMA · STATUS           │
+└──────────────────────────────────────────────────────────────┘
+
+
+---
+
+02 · APPLICATION SHELL
+
+De implementatie begint met één Citadel Shell.
+
+CitadelShell
+├── Header
+├── Crown
+├── CitadelIdentity
+├── TowerGrid
+├── Core
+├── Observatory
+├── Commons
+├── ElixerRail
+├── HaramPanel
+├── IdentityPanel
+├── VerificationPanel
+└── ProvenanceFooter
+
+De Shell bepaalt de architectuur.
+
+Niet iedere pagina mag zijn eigen PALACO-layout verzinnen.
+
+
+---
+
+03 · CANONICAL ROUTING
+
+/
+├── /l-a
+│   ├── /governance
+│   ├── /execution
+│   ├── /storage
+│   ├── /verification
+│   ├── /core
+│   └── /observatory
+│
+├── /citadels
+│   └── /:citadel_id
+│
+├── /elixers
+│   └── /:elixer_id
+│
+├── /identity
+│   └── /:identity_id
+│
+├── /verify
+│   └── /:proof_id
+│
+└── /haram
+
+Route invariant
+
+Every identity-sensitive route resolves through the same verification/provenance model.
+
+
+---
+
+04 · CITADEL STATE
+
+De interface krijgt een expliciete state-context:
+
+CitadelContext
+
+citadel_id
+identity
+constitution
+towers
+core_state
+observatory
+provenance
+status
+watermerk
+hologram
+
+Daarmee ontstaat:
+
+Citadel
+   ↓
+Context
+   ↓
+Components
+
+in plaats van:
+
+Component
+   ↓
+random local assumptions
+
+
+---
+
+05 · TOWER COMPONENTS
+
+Elke Tower krijgt hetzelfde componentcontract:
+
+TowerCard
+├── Tower ID
+├── Function
+├── Status
+├── Description
+├── Evidence signal
+└── Enter
+
+Voorbeeld:
+
+TOWER IV
+VERIFICATION
+
+STATUS
+● OPERATIONAL
+
+FUNCTION
+Evidence validation and proof inspection.
+
+[ENTER]
+
+
+---
+
+06 · CORE
+
+De Core is visueel het zwaartepunt.
+
+CORE
+
+STATE
+[CURRENT]
+
+LEDGER
+[CURRENT]
+
+EVENTS
+[COUNT]
+
+IDENTITY
+[BOUND]
+
+STATUS
+● VERIFIED
+
+Maar:
+
+> Core state is not constitutional authority.
+
+
+
+De Core registreert en exposeert systeemtoestand binnen de geldende constitutionele grenzen.
+
+
+---
+
+07 · OBSERVATORY
+
+De Observatory krijgt live/near-live telemetry wanneer de runtime dit ondersteunt.
+
+OBSERVATORY
+
+SYSTEM
+● OPERATIONAL
+
+TELEMETRY
+[AVAILABLE]
+
+EVIDENCE
+[AVAILABLE]
+
+CLOCK
+[VALID]
+
+PROVENANCE
+[VALID]
+
+LAST VERIFIED
+[TIMESTAMP]
+
+Wanneer data ontbreekt:
+
+TELEMETRY
+UNAVAILABLE
+
+Reason:
+No trusted telemetry source.
+
+Geen gefingeerde live data.
+
+
+---
+
+08 · PROMO COMPONENT
+
+De Elixer/Citadel public card:
+
+PROMO
+
+WHAT
+────────────
+[description]
+
+WHY
+────────────
+[context]
+
+STATUS
+────────────
+● VERIFIED
+
+PROVENANCE
+────────────
+[VIEW]
+
+ACCESS
+────────────
+[ENTER]
+
+PROMO blijft human-first.
+
+
+---
+
+09 · PROMA COMPONENT
+
+De proof drawer:
+
+PROMA
+
+PROOF-ID
+PALACO-PROOF-••••
+
+ORIGIN          ✓
+ISSUER          ✓
+CITADEL         ✓
+WATERMERK       ✓
+HOLOGRAM        ✓
+SEAL            ✓
+PROVENANCE      ✓
+VALIDITY        ✓
+
+STATUS
+VALID
+
+[INSPECT]
+
+Hier verschijnt het verschil tussen mooie presentatie en bewijsbare status.
+
+
+---
+
+10 · HOLOGRAM COMPONENT
+
+Canonical component:
+
+<Hologram
+    identity={identity}
+    citadel={citadel}
+    provenance={provenance}
+/>
+
+Presentation states:
+
+REST
+REVEAL
+INSPECT
+VERIFY
+
+De animatie mag identity zichtbaar maken.
+
+Ze mag geen validiteit simuleren.
+
+
+---
+
+11 · WATERMERK COMPONENT
+
+<Watermerk
+    identity={identity}
+    citadel={citadel}
+/>
+
+Rendering:
+
+PALACO
+◇
+CITADEL-ID
+
+Metadata blijft machine-readable en kan worden gekoppeld aan de provenance context.
+
+
+---
+
+12 · IDENTITY CARD
+
+De digitale visitekaart wordt een first-class component:
+
+<IdentityCard>
+    PALACO
+    HOLOGRAM
+    NAME
+    ROLE
+    CITADEL-ID
+    WATERMERK
+    PROVENANCE
+    VERIFY
+</IdentityCard>
+
+Dezelfde component kan later worden gebruikt voor:
+
+PALACO.NL
+
+mobile
+
+kiosk
+
+physical print specification
+
+
+---
+
+13 · H∆R∆M
+
+<H∆R∆M>
+    Context
+    Options
+    Uncertainty
+    Consequences
+
+    [EXPLORE]
+    [EXPLAIN]
+    [VERIFY]
+</H∆R∆M>
+
+H∆R∆M krijgt expliciet geen mutation/authority primitive.
+
+H∆R∆M
+ ├── explain()
+ ├── guide()
+ ├── contextualize()
+ └── escalate()
+
+NOT:
+ └── sovereign_decide()
+
+
+---
+
+14 · STEWARD
+
+<Steward>
+    identity
+    role
+    citadel
+    authority_scope
+    reviewability
+    revocability
+</Steward>
+
+UI:
+
+STEWARD
+
+AUTHORITY SCOPE
+DEFINED
+
+ATTRIBUTABLE     ✓
+BOUNDED          ✓
+REVIEWABLE       ✓
+REVOCABLE        ✓
+
+[VIEW MANDATE]
+
+
+---
+
+15 · ERROR STATES
+
+PVD-009 maakt failure states onderdeel van design.
+
+INVALID
+
+● INVALID
+
+Verification failed.
+[INSPECT]
+
+INCOMPLETE
+
+● INCOMPLETE
+
+Required evidence unavailable.
+[VIEW MISSING EVIDENCE]
+
+REVOKED
+
+● REVOKED
+
+This identity/proof is no longer valid.
+
+UNKNOWN
+
+● UNKNOWN
+
+No trusted verification result available.
+
+Failure is informatie, geen cosmetische uitzondering.
+
+
+---
+
+16 · ACCESSIBILITY CONTRACT
+
+Iedere interactieve component moet minimaal:
+
+semantic label
+keyboard access
+visible focus
+textual status
+non-color status
+reduced-motion compatibility
+
+ondersteunen.
+
+Het HOLOGRAM mag schitteren.
+
+De verificatiestatus mag daar niet van afhangen.
+
+
+---
+
+17 · DESIGN → IMPLEMENTATION TRACE
+
+Elke canonical component kan terugwijzen:
+
+UI COMPONENT
+     ↓
+DESIGN ID
+     ↓
+PVD SPEC
+     ↓
+CITADEL INSTANCE
+     ↓
+PROVENANCE
+
+Voorbeeld:
+
+PALACO-V9-HOLOGRAM
+        ↓
+PVD-005
+        ↓
+PVD-007
+        ↓
+PVD-009
+        ↓
+L.A. CITADEL
+
+Dat maakt de designlaag auditbaar.
+
+
+---
+
+18 · FIRST CITADEL BUILD TARGET
+
+De eerste minimale bouwbare L.A. release:
+
+L.A. CITADEL v0.1
+│
+├── Shell                  ✓
+├── Crown                  ✓
+├── Four Towers            ✓
+├── Core                   ✓
+├── Observatory            ✓
+├── Identity               ✓
+├── Watermerk              ✓
+├── HOLOGRAM               ✓
+├── PROMO                  ✓
+├── PROMA                  ✓
+├── VERIFY                 ✓
+├── H∆R∆M                  ✓
+├── Steward                ✓
+└── Provenance Footer      ✓
+
+Dit is bewust een vertical slice.
+
+Niet eerst honderd losse schermen.
+
+Eén complete Citadel van entrance tot verification.
+
+
+---
+
+🔒 PVD-009 · IMPLEMENTATION GATE
+
+DESIGN             ✓
+ARCHITECTURE       ✓
+ROUTING            ✓
+COMPONENTS         ✓
+IDENTITY           ✓
+WATERMERK          ✓
+HOLOGRAM           ✓
+PROMO              ✓
+PROMA              ✓
+VERIFY             ✓
+PROVENANCE         ✓
+H∆R∆M              ✓
+STEWARD            ✓
+FAILURE STATES     ✓
+ACCESSIBILITY      ✓
+TRACEABILITY       ✓
+
+🜂🔥 PVD-009 v1.0 — SEALED
+
+We hebben nu de volledige overgang:
+
+PVD-001
+DESIGN LAW
+   ↓
+PVD-002
+ASSET SYSTEM
+   ↓
+PVD-003
+L.A. TEMPLATE
+   ↓
+PVD-004
+PALACO.NL
+   ↓
+PVD-005
+IDENTITY
+   ↓
+PVD-006
+PHYSICAL × DIGITAL
+   ↓
+PVD-007
+MASTER DESIGN SYSTEM
+   ↓
+PVD-008
+IMPLEMENTATION BRIDGE
+   ↓
+PVD-009
+VISUAL IMPLEMENTATION
+   ↓
+╔══════════════════════╗
+║   L.A. CITADEL       ║
+║   v0.1 VERTICAL      ║
+║   SLICE               ║
+╚══════════════════════╝
+
+🜂🔥 NEXT — PVD-010 · L.A. CITadel UI BUILD SPEC
+
+Daar leggen we de daadwerkelijke schermen één voor één vast:
+
+01 Entrance → 02 Crown → 03 Four Towers → 04 Core → 05 Observatory → 06 Commons → 07 ELIXERS → 08 H∆R∆M → 09 Identity Card → 10 HOLOGRAM → 11 Watermerk → 12 PROMO → 13 PROMA → 14 VERIFY → 15 Provenance → 16 Steward → 17 Mobile → 18 Black Edition.
+
+Dat wordt de directe build-order voor de eerste PALACO-Citadel.
+
+🜂🔥 PVD-010 · L.A. CITADEL UI BUILD SPEC v1.0
+
+STATUS: CANONICAL BUILD ORDER — SEALED
+REFERENCE: 👑 L.A. · LOCUS AMOENUS
+INHERITS: PVD-001 → PVD-009
+TARGET: eerste volledige PALACO-Citadel UI vertical slice.
+
+We gaan nu niet meer uitbreiden om het uitbreiden. PVD-010 zet de bestaande canon om in een uitvoerbare schermvolgorde.
+
+
+---
+
+01 · ENTRANCE
+
+Purpose: oriëntatie.
+
+PALACO
+────────────────────────
+
+LOCUS AMOENUS
+L.A. CITADEL
+
+CONSTITUTIONAL
+INFRASTRUCTURE
+
+[ENTER CITADEL]
+
+◇ WATERMERK
+◇ HOLOGRAM
+
+[VERIFY]
+
+Gate: gebruiker begrijpt binnen één scherm waar hij is.
+
+
+---
+
+02 · CROWN
+
+◇
+        CONSTITUTION
+
+Interactief detail:
+
+CONSTITUTION
+│
+├── PRINCIPLES
+├── BOUNDARIES
+├── AUTHORITY
+├── REVIEW
+└── CHANGE
+
+Visuele regel: Crown staat boven actoren en functies.
+
+
+---
+
+03 · FOUR TOWERS
+
+┌──────────────┐ ┌──────────────┐
+│ TOWER I      │ │ TOWER II     │
+│ GOVERNANCE   │ │ EXECUTION    │
+└──────────────┘ └──────────────┘
+
+┌──────────────┐ ┌──────────────┐
+│ TOWER III    │ │ TOWER IV     │
+│ STORAGE      │ │ VERIFICATION │
+└──────────────┘ └──────────────┘
+
+Iedere kaart:
+
+FUNCTION · STATUS · ENTER
+
+Geen Tower krijgt een visuele "power score".
+
+
+---
+
+04 · CORE
+
+CORE
+
+STATE
+CURRENT
+
+LEDGER
+CURRENT
+
+EVENTS
+AVAILABLE
+
+IDENTITY
+BOUND
+
+STATUS
+● VERIFIED
+
+De Core is het centrale state/ledger-orientatiepunt.
+
+
+---
+
+05 · OBSERVATORY
+
+OBSERVATORY
+
+SYSTEM
+● OPERATIONAL
+
+TELEMETRY
+AVAILABLE
+
+EVIDENCE
+AVAILABLE
+
+PROVENANCE
+VALID
+
+LAST UPDATE
+[TIMESTAMP]
+
+Critical rule
+
+Als een waarde niet beschikbaar is:
+
+UNAVAILABLE
+
+Niet een gesimuleerde waarde.
+
+
+---
+
+06 · COMMONS
+
+De Commons is de menselijke ruimte.
+
+COMMONS
+
+EXPLORE
+DISCOVER
+LEARN
+CONNECT
+
+[ENTER COMMONS]
+
+Hier mag de interface warmer en expressiever worden.
+
+Maar de trust/identity primitives blijven intact.
+
+
+---
+
+07 · ELIXERS
+
+ELIXERS
+
+┌────────────────────┐
+│ ELIXER             │
+│                    │
+│ CITADEL-ID         │
+│ ◇ HOLOGRAM         │
+│ ◇ WATERMERK        │
+│                    │
+│ STATUS             │
+│ ● VERIFIED         │
+│                    │
+│ [PROMO] [VERIFY]   │
+└────────────────────┘
+
+De commerciële ervaring blijft gekoppeld aan identity + provenance.
+
+
+---
+
+08 · H∆R∆M
+
+H∆R∆M
+
+What would you like
+to understand?
+
+[EXPLORE]
+[EXPLAIN]
+[VERIFY]
+
+Context
+Options
+Uncertainty
+Consequences
+
+Onderin permanent:
+
+> H∆R∆M guides. It does not govern.
+
+
+
+
+---
+
+09 · IDENTITY CARD
+
+PALACO
+
+◇ HOLOGRAM
+
+NAME
+ROLE · CITADEL
+
+CITADEL-ID
+PALACO-XXXX
+
+IDENTITY
+VERIFIABLE
+
+◇ WATERMERK
+
+[VERIFY]
+
+De kaart kan worden gedeeld zonder dat de gebruiker de volledige Citadel hoeft te openen.
+
+
+---
+
+10 · HOLOGRAM
+
+Canonical interaction:
+
+REST
+ ↓
+REVEAL
+ ↓
+IDENTITY
+ ↓
+INSPECT
+ ↓
+VERIFY
+
+De interface toont bijvoorbeeld:
+
+HOLOGRAM
+
+IDENTITY SIGNAL
+PALACO
+
+CITADEL
+L.A.
+
+[VERIFY]
+
+No holographic effect may itself claim validity.
+
+
+---
+
+11 · WATERMERK
+
+WATERMERK
+
+PALACO
+CITADEL-ID
+
+IDENTITY BOUND
+
+PROVENANCE
+AVAILABLE
+
+[PROMA]
+
+Het Watermerk blijft subtiel.
+
+De provenance blijft toegankelijk.
+
+
+---
+
+12 · PROMO
+
+PROMO
+
+WHAT
+What is this?
+
+WHY
+Why does it exist?
+
+PROVENANCE
+Where did it originate?
+
+STATUS
+What is its current state?
+
+ACCESS
+What can I do?
+
+[ENTER]
+[VERIFY]
+
+PROMO = comprehension layer.
+
+
+---
+
+13 · PROMA
+
+PROMA · PROOF
+
+ORIGIN             ✓
+ISSUER             ✓
+CITADEL            ✓
+WATERMERK          ✓
+HOLOGRAM           ✓
+SEAL               ✓
+PROVENANCE         ✓
+VALIDITY           ✓
+
+STATUS
+VALID
+
+[INSPECT EVIDENCE]
+
+PROMA = verification layer.
+
+
+---
+
+14 · VERIFY
+
+VERIFY
+
+SCAN QR
+        OR
+ENTER ID
+
+[________________]
+
+[VERIFY]
+
+Result:
+
+PROOF STATUS
+● VALID
+
+IDENTITY
+✓
+
+CITADEL
+✓
+
+PROVENANCE
+✓
+
+PROMA
+✓
+
+[INSPECT]
+
+
+---
+
+15 · PROVENANCE
+
+PROVENANCE
+
+ORIGIN
+[REFERENCE]
+
+ISSUER
+PALACO CORE
+
+CITADEL
+L.A.
+
+IDENTITY
+[REFERENCE]
+
+WATERMERK
+[REFERENCE]
+
+HOLOGRAM
+[REFERENCE]
+
+SEAL
+[REFERENCE]
+
+STATUS
+VALID
+
+De gebruiker kan van menselijke samenvatting → technische lineage gaan.
+
+
+---
+
+16 · STEWARD
+
+STEWARD
+
+ROLE
+[ROLE]
+
+CITADEL
+L.A.
+
+AUTHORITY SCOPE
+DEFINED
+
+ATTRIBUTABLE      ✓
+BOUNDED           ✓
+REVIEWABLE        ✓
+REVOCABLE         ✓
+
+[VIEW MANDATE]
+
+De UI maakt begrenzing zichtbaar, niet verborgen.
+
+
+---
+
+17 · MOBILE BUILD
+
+Mobile verandert de compositie:
+
+PALACO
+  ↓
+CROWN
+  ↓
+IDENTITY
+  ↓
+CORE
+  ↓
+TOWERS
+  ↓
+OBSERVATORY
+  ↓
+COMMONS
+  ↓
+ELIXERS
+  ↓
+H∆R∆M
+  ↓
+VERIFY
+
+De gebruiker krijgt steeds een duidelijke back-to-Citadel route.
+
+
+---
+
+18 · BLACK EDITION
+
+De Black Edition gebruikt exact dezelfde componenten.
+
+PVD-010 BLACK
+
+SAME
+✓ semantics
+✓ identity
+✓ provenance
+✓ verification
+✓ authority
+
+DIFFERENT
+presentation only
+
+Dus geen aparte fork.
+
+Theme, not constitution.
+
+
+---
+
+19 · SCREEN STATE MATRIX
+
+Elke belangrijke schermfunctie krijgt expliciete states:
+
+Component	Loading	Valid	Invalid	Incomplete
+
+Identity	✓	✓	✓	✓
+Hologram	✓	✓	✓	✓
+Watermerk	✓	✓	✓	✓
+PROMO	✓	✓	✓	✓
+PROMA	✓	✓	✓	✓
+Verify	✓	✓	✓	✓
+Observatory	✓	✓	✓	✓
+
+
+Geen scherm mag alleen het happy path ontwerpen.
+
+
+---
+
+20 · THE FIRST BUILD
+
+De eerste werkende release hoeft niet alle 18 schermen tegelijk te implementeren.
+
+De vertical slice wordt:
+
+ENTRANCE
+   ↓
+L.A.
+   ↓
+FOUR TOWERS
+   ↓
+CORE
+   ↓
+IDENTITY
+   ↓
+HOLOGRAM
+   ↓
+WATERMERK
+   ↓
+PROMO
+   ↓
+PROMA
+   ↓
+VERIFY
+
+Als deze keten werkt, hebben we de essentie van PALACO's publieke identity architecture daadwerkelijk bewezen.
+
+
+---
+
+🔒 PVD-010 ACCEPTANCE GATE
+
+01 Entrance              ✓
+02 Crown                 ✓
+03 Four Towers           ✓
+04 Core                  ✓
+05 Observatory           ✓
+06 Commons               ✓
+07 ELIXERS               ✓
+08 H∆R∆M                 ✓
+09 Identity Card         ✓
+10 HOLOGRAM              ✓
+11 Watermerk             ✓
+12 PROMO                 ✓
+13 PROMA                 ✓
+14 VERIFY                ✓
+15 Provenance            ✓
+16 Steward               ✓
+17 Mobile                ✓
+18 Black Edition         ✓
+
+🜂🔥 PVD-010 v1.0 — SEALED
+
+De ontwerpketen eindigt nu in een concrete build sequence:
+
+PVD-001  DESIGN LAW
+   ↓
+PVD-002  ASSET SYSTEM
+   ↓
+PVD-003  L.A. TEMPLATE
+   ↓
+PVD-004  PALACO.NL
+   ↓
+PVD-005  IDENTITY
+   ↓
+PVD-006  PHYSICAL × DIGITAL
+   ↓
+PVD-007  MASTER SYSTEM
+   ↓
+PVD-008  IMPLEMENTATION BRIDGE
+   ↓
+PVD-009  VISUAL IMPLEMENTATION
+   ↓
+PVD-010  UI BUILD SPEC
+   ↓
+🜂 L.A. CITADEL VERTICAL SLICE
+
+GO-STATUS
+
+DESIGN → ARCHITECTURE → IDENTITY → WEB → PHYSICAL → IMPLEMENTATION → UI
+
+LOCKED.
+
+En vanaf hier geldt één belangrijke uitvoeringsregel:
+
+> Niet nog een nieuwe visuele laag verzinnen voordat de bestaande PVD-001 → PVD-010 keten daadwerkelijk als eerste L.A. Citadel wordt geïmplementeerd.
+
+
+
+🜂🔥 L.A. is nu bouwklaar als PALACO VORM9EVIN9 Reference Citadel.
+
 🜂🔥 GO-011 · L.A. CITADEL IMPLEMENTATION PACK v1.0
 
 STATUS: EXECUTION MODE
