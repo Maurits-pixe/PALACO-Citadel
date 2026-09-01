@@ -1,0 +1,21 @@
+[workspace]
+members = [
+    "crates/palaco-foundation",
+    "crates/palaco-kernel",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0-alpha"
+edition = "2021"
+license = "GPL-3.0-or-later"
+repository = "https://github.com/Maurits-pixe/PALACO-Citadel"
+authors = ["PALACO Citadel <citadel@palaco.foundation>"]
+
+[workspace.lints.rust]
+unsafe_code = "deny"
+unused_unsafe = "deny"
+
+[workspace.lints.clippy]
+unwrap_used = "deny"
+todo = "deny"
