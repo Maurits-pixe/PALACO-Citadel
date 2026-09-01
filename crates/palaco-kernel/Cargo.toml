@@ -1,0 +1,26 @@
+[package]
+name = "palaco-kernel"
+version = "0.1.0"
+edition = "2021"
+description = "PALACO Kernel: Constitutional operational contracts"
+license = "GPL-3.0-or-later"
+authors = ["PALACO Citadel <citadel@palaco.foundation>"]
+repository = "https://github.com/Maurits-pixe/PALACO-Citadel"
+
+[lints.rust]
+unsafe_code = "deny"
+unused_unsafe = "deny"
+
+[lints.clippy]
+unwrap_used = "deny"
+todo = "deny"
+
+[dependencies]
+palaco-foundation = { path = "../palaco-foundation" }
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+async-trait = "0.1"
+
+[dev-dependencies]
