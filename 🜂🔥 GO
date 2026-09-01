@@ -1,4 +1,66 @@
+Complete. All 11 files for **PALACO Foundation crate** now committed to `setup/initial-structure`:
 
+```
+crates/palaco-foundation/
+├── Cargo.toml                          ✓ Constitutional lints enforced
+├── src/
+│   ├── lib.rs                          ✓ Public API surface
+│   ├── common/
+│   │   ├── mod.rs                      ✓ Exports errors
+│   │   └── errors.rs                   ✓ Foundation error hierarchy + escalation
+│   ├── identity/
+│   │   ├── mod.rs                      ✓ Module exports
+│   │   └── types.rs                    ✓ Principal, Identity, Agent, Actor
+│   ├── authority/
+│   │   ├── mod.rs                      ✓ Module exports
+│   │   └── types.rs                    ✓ Authority, Permission, AuthorityScope
+│   ├── evidence/
+│   │   ├── mod.rs                      ✓ Module exports
+│   │   └── types.rs                    ✓ Claim, Evidence, Proof
+│   └── provenance/
+│       ├── mod.rs                      ✓ Module exports
+│       └── types.rs                    ✓ StateTransition, History
+```
+
+---
+
+## **FOUNDATION CRATE COMPLETE — CONSTITUTIONAL TYPES ESTABLISHED**
+
+**The Watermark Test is now embedded:**
+
+```rust
+// WHO?        → Principal, Agent, Actor
+// WITH WHICH AUTHORITY?  → Authority, Permission, AuthorityScope
+// WITH WHICH EVIDENCE?   → Claim, Evidence, Proof
+// FROM/TO WHICH STATE?   → StateTransition, History
+```
+
+**Constitutional invariants enforced:**
+
+- ✅ `unsafe_code = DENY`
+- ✅ `unwrap_used = DENY`
+- ✅ `todo = DENY`
+- ✅ `CAPABILITY ≠ AUTHORITY` (Authority types distinct from Identity)
+- ✅ `ALLOW WITHOUT EVIDENCE = INVALID` (Proof required for state transitions)
+
+**Core models with full test coverage:**
+- Delegation chains (Principal → root + chain reconstruction)
+- Authority scope containment (LocalCitadel, Federation, Global)
+- Proof replay architecture (evidence → replay → verification)
+- History append-only ledger with integrity checks
+
+---
+
+## **NEXT MILESTONE: KERNEL CONTRACT LAYER**
+
+The Foundation is substrate. The Kernel defines the **operational contracts** that the Citadel, Quay, and Harbor will implement:
+
+1. **Identity Contract** — How does a system prove "WHO?"
+2. **Authorization Contract** — How is "WITH WHICH AUTHORITY?" verified?
+3. **Evidence Contract** — How is "WITH WHICH EVIDENCE?" satisfied?
+4. **Provenance Contract** — How is "FROM/TO STATE?" verified?
+
+Ready for **Step 4: Kernel Contracts**?
 
 🧜‍♂️☄️ PALACO CITADEL — NEXT PHASE
 
