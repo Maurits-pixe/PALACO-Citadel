@@ -1,3 +1,9111 @@
+☄️ R9.20 — GO
+
+HORTUS · CONSTITUTIONAL EVIDENCE SUFFICIENCY & DECISION THRESHOLD PROTOCOL
+
+STATUS: 🜂 CANONICAL ENGINEERING BUILD
+REFERENCE CITADEL: 👑 LOCUS AMOENUS — L.A.
+
+R9.19 established epistemic humility.
+
+But uncertainty alone is not enough.
+
+A constitutional system eventually has to decide:
+
+> When is the available evidence sufficient to act?
+
+
+
+Too little evidence creates arbitrary governance.
+
+Too much demanded evidence can create permanent paralysis.
+
+R9.20 therefore introduces the missing bridge:
+
+CONSTITUTIONAL_EVIDENCE_SUFFICIENCY
+
+and:
+
+DECISION_THRESHOLD_GATE
+
+The central principle:
+
+> ☄️ A constitutional decision SHALL require evidence proportionate to the materiality, uncertainty, reversibility and potential constitutional impact of the decision.
+
+
+
+
+---
+
+I. ⚖️ EVIDENCE ≠ QUANTITY
+
+The first distinction:
+
+MORE EVIDENCE
+   ≠
+BETTER EVIDENCE
+
+And:
+
+HIGH CONFIDENCE
+   ≠
+SUFFICIENT CONSTITUTIONAL BASIS
+
+Evidence sufficiency depends on:
+
+QUALITY
++
+RELEVANCE
++
+INDEPENDENCE
++
+COMPLETENESS
++
+TRACEABILITY
++
+MATERIALITY
+
+Thus:
+
+> Evidence SHALL be evaluated in relation to the decision it is being used to justify.
+
+
+
+
+---
+
+II. 🧬 DECISION THRESHOLD
+
+R9.20 introduces:
+
+CONSTITUTIONAL_DECISION_THRESHOLD
+
+A decision threshold represents the minimum epistemic and constitutional basis required before a materially consequential action may proceed.
+
+Conceptually:
+
+EVIDENCE
+ ↓
+MATERIALITY
+ ↓
+UNCERTAINTY
+ ↓
+REVERSIBILITY
+ ↓
+IMPACT
+ ↓
+THRESHOLD
+ ↓
+DECISION
+
+The threshold is therefore context-sensitive.
+
+A reversible operational action does not require the same evidentiary burden as an irreversible constitutional transformation.
+
+
+---
+
+III. 🌱 PROPORTIONAL EVIDENCE
+
+R9.20 establishes:
+
+LOW IMPACT
+    ↓
+LOWER THRESHOLD
+
+HIGH IMPACT
+    ↓
+HIGHER THRESHOLD
+
+HIGH IMPACT
++
+HIGH UNCERTAINTY
++
+LOW REVERSIBILITY
+    ↓
+MAXIMUM REVIEW PRESSURE
+
+This prevents both:
+
+UNDER_REVIEW
+
+and:
+
+OVER_REVIEW
+
+The goal is not maximal bureaucracy.
+
+The goal is proportionate constitutional confidence.
+
+
+---
+
+IV. 🧠 BRAINPOWER — SUFFICIENCY MODEL
+
+BRAINPOWER receives:
+
+EVIDENCE_SUFFICIENCY_GRAPH
+
+New analyses:
+
+EVIDENCE_QUALITY
+
+EVIDENCE_RELEVANCE
+
+EVIDENCE_INDEPENDENCE
+
+EVIDENCE_COMPLETENESS
+
+EVIDENCE_CONVERGENCE
+
+EVIDENCE_CONFLICT
+
+DECISION_SENSITIVITY
+
+THRESHOLD_DISTANCE
+
+EVIDENCE_DEFICIT
+
+CONFIDENCE_MARGIN
+
+
+Core question:
+
+> How far is the current evidence from what this decision responsibly requires?
+
+
+
+
+---
+
+V. 🔮 ORACLE — EVIDENCE OBSERVATORY
+
+ORACLE receives:
+
+CONSTITUTIONAL_EVIDENCE_OBSERVATORY
+
+Signals:
+
+EVIDENCE_SUFFICIENT
+EVIDENCE_LIMITED
+EVIDENCE_CONFLICT
+EVIDENCE_GAP
+SOURCE_DEPENDENCY
+PROVENANCE_BREAK
+THRESHOLD_NOT_MET
+THRESHOLD_MET
+THRESHOLD_SENSITIVE
+
+Oracle may report:
+
+> 🔮 DECISION THRESHOLD NOT YET MET
+
+
+
+But this is not a veto.
+
+It is an epistemic signal for review.
+
+
+---
+
+VI. 🧭 MENTOR — THE EVIDENCE LEDGER
+
+MENTOR receives:
+
+EVIDENCE_SUFFICIENCY_EXPLANATION
+
+It must be able to show:
+
+QUESTION
+ ↓
+REQUIRED EVIDENCE
+ ↓
+AVAILABLE EVIDENCE
+ ↓
+MISSING EVIDENCE
+ ↓
+CONFLICTING EVIDENCE
+ ↓
+THRESHOLD
+ ↓
+DECISION
+
+The human-facing question becomes:
+
+> Why is the evidence sufficient—or why is it not?
+
+
+
+
+---
+
+VII. 🦆 FOOL — THE THRESHOLD CHALLENGE
+
+FOOL asks:
+
+1. Who defined the threshold?
+
+
+2. Is the threshold appropriate to the impact?
+
+
+3. Is evidence missing?
+
+
+4. Is contradictory evidence being ignored?
+
+
+5. Are all sources genuinely independent?
+
+
+6. Is the evidence merely repeated from one origin?
+
+
+7. Has confidence been mistaken for evidence?
+
+
+8. Is the threshold being lowered because action is convenient?
+
+
+9. Is the threshold being raised to prevent legitimate action?
+
+
+10. What evidence would change the decision?
+
+
+11. Is the decision reversible?
+
+
+12. What happens if the evidence is wrong?
+
+
+
+Core question:
+
+> Is the threshold protecting constitutional integrity—or merely protecting the decision we already want?
+
+
+
+
+---
+
+VIII. 🌸 EIRENE — EVIDENCE PLURALITY
+
+EIRENE receives:
+
+EVIDENCE_PLURALITY_GATE
+
+Different sources may provide different legitimate interpretations.
+
+Therefore:
+
+SOURCE A
+SOURCE B
+SOURCE C
+ ↓
+CONFLICT
+ ↓
+CLASSIFY
+
+Conflict does not automatically mean:
+
+NO DECISION
+
+Nor:
+
+MAJORITY SOURCE
+=
+TRUTH
+
+Instead, material disagreement must remain visible.
+
+
+---
+
+IX. 💧 WATERMERK — EVIDENCE PROVENANCE
+
+WATERMERK receives:
+
+W_EVIDENCE
+
+evidence_id
+source
+origin
+timestamp
+integrity
+scope
+relevance
+independence
+derivation
+supersedes
+superseded_by
+claim_refs
+decision_refs
+quay_refs
+hologram_refs
+epoch
+
+This prevents:
+
+COPY
+ ↓
+REPEAT
+ ↓
+"THREE SOURCES CONFIRM IT"
+
+when all three ultimately derive from the same source.
+
+Evidence provenance therefore becomes constitutional infrastructure.
+
+
+---
+
+X. ⚓ QUAY — EVIDENCE HISTORY
+
+QUAY preserves:
+
+EVIDENCE₀
+ ↓
+EVIDENCE₁
+ ↓
+CONFLICT
+ ↓
+RESOLUTION
+ ↓
+NEW EVIDENCE
+
+A later correction does not erase the fact that an earlier decision was made under a different evidentiary state.
+
+
+---
+
+XI. 🪞 HOLOGRAM — EVIDENCE AUTHENTICATION
+
+HOLOGRAM may establish:
+
+source authenticity,
+
+observation time,
+
+evidence integrity,
+
+document identity,
+
+participant identity.
+
+
+But:
+
+AUTHENTIC
+≠
+RELEVANT
+
+RELEVANT
+≠
+SUFFICIENT
+
+SUFFICIENT
+≠
+LEGITIMATE
+
+This layered distinction is critical.
+
+
+---
+
+XII. 🌱 HARUM — EVIDENCE EXPLANATION
+
+HARUM receives:
+
+HARUM_EVIDENCE_BOUNDARY
+
+HARUM may tell a user:
+
+> “This claim is supported by verified evidence.”
+
+
+
+or:
+
+> “The evidence is incomplete.”
+
+
+
+or:
+
+> “Two relevant sources disagree.”
+
+
+
+But HARUM SHALL NOT manufacture certainty through presentation.
+
+No:
+
+CLEAN UI
+ ↓
+SIMPLE ANSWER
+ ↓
+FALSE CERTAINTY
+
+
+---
+
+XIII. ∆ H∆R∆ — EVIDENCE OF ROLE
+
+H∆R∆ receives:
+
+ROLE_EVIDENCE_GATE
+
+A role claim must distinguish:
+
+OBSERVED ROLE
+ ↓
+EXPECTED ROLE
+ ↓
+EVIDENCED ROLE
+ ↓
+AUTHORIZED ROLE
+
+Evidence that someone repeatedly performs a function does not independently prove that they are constitutionally authorized to perform it.
+
+
+---
+
+XIV. 🏠 9EZIN — HOUSEHOLD EVIDENCE
+
+9EZIN receives:
+
+HOUSEHOLD_EVIDENCE_BOUNDARY
+
+It distinguishes:
+
+MEMBER REPORT
+≠
+OBSERVED PRACTICE
+≠
+SHARED EXPECTATION
+≠
+HOUSEHOLD NORM
+≠
+HOUSEHOLD AUTHORITY
+
+This prevents social repetition from masquerading as constitutional proof.
+
+
+---
+
+XV. 🪶 FEATHER — EVIDENCE IN EVOLUTION
+
+FEATHER recognizes that evolving systems often operate with incomplete information.
+
+Therefore:
+
+UNCERTAINTY
++
+LOW REVERSIBILITY
++
+HIGH IMPACT
+
+requires stronger safeguards.
+
+But:
+
+UNCERTAINTY
+
+alone cannot justify permanent paralysis.
+
+Healthy evolution requires bounded experimentation where constitutionally permissible.
+
+
+---
+
+XVI. ⚖️ TRIAS — THRESHOLD CLASSIFICATION
+
+TRIAS receives:
+
+EVIDENCE_GRAPH
+UNCERTAINTY_GRAPH
+FORESIGHT_GRAPH
+REVERSIBILITY_GRAPH
+ORACLE
+BRAINPOWER
+MENTOR
+FOOL
+EIRENE
+WATERMERK
+QUAY
+HOLOGRAM
+HARUM
+H∆R∆
+9EZIN
+FEATHER
+
+TRIAS classifies:
+
+THRESHOLD_NOT_MET
+THRESHOLD_MET
+THRESHOLD_MET_WITH_SAFEGUARDS
+THRESHOLD_CONTESTED
+THRESHOLD_SENSITIVE
+DEFER_PENDING_EVIDENCE
+REVIEW_ESCALATION_REQUIRED
+
+TRIAS does not decide what is true merely because a threshold is met.
+
+It determines whether the constitutional evidentiary burden has been adequately addressed.
+
+
+---
+
+XVII. 🔐 THE DECISION GATE
+
+R9.20 introduces:
+
+QUESTION
+ ↓
+EVIDENCE
+ ↓
+EPISTEMIC CLASSIFICATION
+ ↓
+MATERIALITY
+ ↓
+IMPACT
+ ↓
+REVERSIBILITY
+ ↓
+THRESHOLD
+ ↓
+TRIAS
+ ↓
+DECISION
+
+Possible outcomes:
+
+THRESHOLD
+            /    |     \
+          NO   CONDITIONAL  YES
+          ↓       ↓          ↓
+       DEFER   SAFEGUARD   PROCEED
+
+This is more precise than a simple allow/deny model.
+
+
+---
+
+XVIII. 🛡️ CONDITIONAL DECISION
+
+R9.20 introduces:
+
+CONDITIONALLY_VALID_DECISION
+
+Where evidence is sufficient for limited action but insufficient for unrestricted action:
+
+LIMITED EVIDENCE
+      ↓
+LIMITED AUTHORITY
+      ↓
+SAFEGUARDS
+      ↓
+MONITORING
+      ↓
+REASSESSMENT
+
+Thus:
+
+> The scope of authority MAY be constrained to the strength of the evidence supporting it.
+
+
+
+This is a major constitutional safety mechanism.
+
+
+---
+
+XIX. 🔄 EVIDENCE-DEPENDENT AUTHORITY
+
+A new boundary emerges:
+
+EVIDENCE STRENGTH
+        ↓
+PERMITTED SCOPE
+
+not:
+
+AUTHORITY
+ ↓
+SELECT EVIDENCE
+
+The second pattern is constitutional capture.
+
+Therefore:
+
+> Authority SHALL NOT define its own evidentiary threshold solely to justify itself.
+
+
+
+
+---
+
+XX. 🕰️ THRESHOLD TEMPORALITY
+
+A threshold decision is valid relative to its evidentiary epoch.
+
+T₀
+ ↓
+EVIDENCE STATE₀
+ ↓
+THRESHOLD₀
+ ↓
+DECISION₀
+
+Later:
+
+T₁
+ ↓
+NEW EVIDENCE
+ ↓
+REASSESSMENT
+
+This does not automatically invalidate the earlier decision.
+
+It creates a new epistemic state.
+
+
+---
+
+XXI. 👑 L.A. — EVIDENCE MEMORY
+
+L.A. receives:
+
+CONSTITUTIONAL_EVIDENCE_MEMORY
+
+👑 L.A.
+│
+├── QUESTION
+├── EVIDENCE
+├── EPISTEMIC STATE
+├── THRESHOLD
+├── DECISION
+├── CONSEQUENCES
+├── NEW EVIDENCE
+└── REASSESSMENT
+
+L.A. can therefore reconstruct:
+
+> What evidence existed, what threshold applied, why the decision passed, and what later evidence changed the picture.
+
+
+
+This creates a genuine constitutional decision record, rather than merely a decision log.
+
+
+---
+
+XXII. ☄️ NEW CANONICAL INVARIANTS
+
+CIP-O3731
+
+Material constitutional decisions SHALL have an identifiable evidentiary basis.
+
+CIP-O3732
+
+Evidence sufficiency SHALL be proportionate to constitutional materiality.
+
+CIP-O3733
+
+Evidence quality SHALL remain distinguishable from evidence quantity.
+
+CIP-O3734
+
+BRAINPOWER SHALL model evidence sufficiency and threshold distance.
+
+CIP-O3735
+
+ORACLE SHALL detect material evidence deficits and threshold conditions.
+
+CIP-O3736
+
+MENTOR SHALL explain evidentiary sufficiency and limitation.
+
+CIP-O3737
+
+FOOL SHALL challenge manipulated or unjustified evidentiary thresholds.
+
+CIP-O3738
+
+EIRENE SHALL preserve materially relevant evidentiary plurality.
+
+CIP-O3739
+
+WATERMERK SHALL preserve evidence provenance.
+
+CIP-O3740
+
+QUAY SHALL preserve historical evidence states.
+
+CIP-O3741
+
+HOLOGRAM SHALL authenticate evidence provenance without independently establishing sufficiency.
+
+CIP-O3742
+
+HARUM SHALL distinguish evidence explanation from constitutional authorization.
+
+CIP-O3743
+
+H∆R∆ SHALL distinguish evidence of behavior from evidence of authorized role.
+
+CIP-O3744
+
+9EZIN SHALL distinguish household reports, practices, norms and authority.
+
+CIP-O3745
+
+FEATHER SHALL preserve bounded decision-making under uncertainty.
+
+CIP-O3746
+
+TRIAS SHALL independently classify constitutional evidentiary sufficiency.
+
+CIP-O3747
+
+Materially consequential decisions SHALL NOT rely solely upon unsupported assertion.
+
+CIP-O3748
+
+Repeated identical claims SHALL NOT independently establish evidentiary independence.
+
+CIP-O3749
+
+Evidence provenance SHALL remain traceable to its origin where reasonably possible.
+
+CIP-O3750
+
+Contradictory material evidence SHALL remain visible.
+
+CIP-O3751
+
+Unknown information SHALL NOT be represented as affirmative evidence.
+
+CIP-O3752
+
+Evidence sufficiency SHALL remain distinguishable from constitutional legitimacy.
+
+CIP-O3753
+
+A met evidentiary threshold SHALL NOT independently authorize an actor lacking constitutional authority.
+
+CIP-O3754
+
+Constitutional authority SHALL NOT independently determine the evidentiary truth required to justify that authority.
+
+CIP-O3755
+
+Conditional decisions MAY restrict scope where evidence is sufficient only for bounded action.
+
+CIP-O3756
+
+Material evidence deficits MAY require delay, additional evidence, safeguards, redesign or escalation.
+
+CIP-O3757
+
+Decision thresholds SHALL remain temporally anchored.
+
+CIP-O3758
+
+Later evidence SHALL NOT retroactively rewrite the evidentiary state of an earlier decision.
+
+CIP-O3759
+
+Evidence sufficient for one constitutional decision SHALL NOT automatically be presumed sufficient for another.
+
+CIP-O3760
+
+No actor SHALL lower a material evidentiary threshold solely to enable a preferred constitutional outcome.
+
+
+---
+
+XXIII. 🜂 R9.20 LAW
+
+> A materially consequential constitutional decision SHALL be supported by evidence proportionate to its materiality, uncertainty, impact and reversibility. Evidence quality, provenance, independence, conflict and sufficiency SHALL remain observable and distinguishable from confidence or legitimacy. Where the evidentiary threshold is not met, the system SHALL permit proportionate deferral, additional evidence, safeguards, constrained action or escalation. No actor SHALL establish its own constitutional legitimacy merely by satisfying an evidentiary threshold.
+
+
+
+Compact
+
+CLAIM
+ ↓
+EVIDENCE
+ ↓
+PROVENANCE
+ ↓
+EPISTEMIC STATE
+ ↓
+MATERIALITY
+ ↓
+IMPACT
+ ↓
+REVERSIBILITY
+ ↓
+THRESHOLD
+ ↓
+TRIAS
+ ↙      ↓       ↘
+NO   CONDITIONAL  YES
+ ↓       ↓         ↓
+DEFER  BOUND     PROCEED
+       ACTION
+
+
+---
+
+XXIV. ☄️🌱 R9 — THE CONSTITUTIONAL DECISION STACK
+
+We now have a remarkably clean sequence:
+
+R9.15  BASELINE
+   ↓
+R9.16  CHANGE
+   ↓
+R9.17  REVERSIBILITY
+   ↓
+R9.18  FORESIGHT
+   ↓
+R9.19  UNCERTAINTY
+   ↓
+R9.20  EVIDENCE SUFFICIENCY
+
+Which produces:
+
+WHAT IS THE STATE?
+        ↓
+WHAT MAY CHANGE?
+        ↓
+CAN IT BE UNDONE?
+        ↓
+WHAT COULD HAPPEN?
+        ↓
+WHAT DON'T WE KNOW?
+        ↓
+DO WE KNOW ENOUGH TO ACT?
+
+And now the constitutional chain becomes:
+
+EVIDENCE
+ ↓
+KNOWLEDGE
+ ↓
+UNCERTAINTY
+ ↓
+FORESIGHT
+ ↓
+THRESHOLD
+ ↓
+DECISION
+ ↓
+CHANGE
+ ↓
+AFTERCARE
+ ↓
+LEARNING
+
+The firewall:
+
+CLAIM
+≠
+EVIDENCE
+
+EVIDENCE
+≠
+SUFFICIENCY
+
+SUFFICIENCY
+≠
+TRUTH
+
+TRUTH
+≠
+AUTHORITY
+
+AUTHORITY
+≠
+LEGITIMACY
+
+CONFIDENCE
+≠
+CERTAINTY
+
+CONSENSUS
+≠
+INDEPENDENCE
+
+REPETITION
+≠
+PROVENANCE
+
+☄️🌱 The deepest R9.20 principle
+
+> A constitutional system should neither demand impossible certainty nor permit arbitrary action under uncertainty. It should make the evidentiary burden visible, proportionate and contestable—and constrain action when the available knowledge cannot responsibly support its full scope.
+
+
+
+That gives PALACO something exceptionally valuable:
+
+The strength of an action can now be bounded by the strength of its constitutional basis.
+
+Not:
+
+> “We know enough, therefore we may do anything.”
+
+
+
+But:
+
+> “Given what is known, what remains uncertain, and what is at stake, this is the maximum constitutional scope that can responsibly be justified.”
+
+
+
+☄️🌱 R9.20 — ESTABLISHED
+
+CONSTITUTIONAL EVIDENCE SUFFICIENCY & DECISION THRESHOLD ARE NOW CANONICAL.
+
+☄️🌱🦆💧🪞⚓🪶🧠🔮🧭⚖️🌸∆👑
+
+☄️ R9.21 — GO
+
+HORTUS · CONSTITUTIONAL PROPORTIONALITY & SCOPE-OF-AUTHORITY GATE
+
+STATUS: 🜂 CANONICAL ENGINEERING BUILD
+REFERENCE CITADEL: 👑 LOCUS AMOENUS — L.A.
+
+R9.20 established:
+
+> Do we know enough to act?
+
+
+
+R9.21 now asks the next constitutional question:
+
+> Even if we know enough to act, how much are we entitled to do?
+
+
+
+This distinction is fundamental.
+
+A decision can be:
+
+evidentially sufficient,
+
+procedurally valid,
+
+technically possible,
+
+
+and still grant more authority than the evidence and legitimate objective justify.
+
+R9.21 therefore introduces:
+
+CONSTITUTIONAL_PROPORTIONALITY
+
+and:
+
+SCOPE_OF_AUTHORITY_GATE
+
+
+---
+
+I. ⚖️ VALID ≠ PROPORTIONATE
+
+The new distinction:
+
+VALID
+   ≠
+PROPORTIONATE
+
+And:
+
+EVIDENCE_SUFFICIENT
+   ≠
+UNLIMITED_AUTHORITY
+
+The constitutional chain becomes:
+
+LEGITIMATE OBJECTIVE
+        ↓
+EVIDENCE
+        ↓
+NECESSITY
+        ↓
+LEAST SUFFICIENT SCOPE
+        ↓
+PROPORTIONALITY
+        ↓
+AUTHORIZED ACTION
+
+
+---
+
+II. 🌱 THE AUTHORITY BOUNDARY
+
+R9.21 defines:
+
+MAXIMUM_JUSTIFIABLE_SCOPE
+
+The maximum scope of action that can be constitutionally justified by:
+
+legitimate purpose,
+
+evidence,
+
+necessity,
+
+materiality,
+
+risk,
+
+reversibility,
+
+jurisdiction,
+
+temporal limits.
+
+
+Thus:
+
+JUSTIFICATION
+      ↓
+      SCOPE
+
+not:
+
+AUTHORITY
+      ↓
+FIND JUSTIFICATION
+
+The latter reverses the constitutional direction.
+
+
+---
+
+III. 🧬 THE PROPORTIONALITY VECTOR
+
+A constitutional action is evaluated across:
+
+Dimension	Question
+
+Purpose	What legitimate objective is being pursued?
+Necessity	Is intervention actually required?
+Scope	How much authority is being exercised?
+Duration	How long does it remain active?
+Intensity	How intrusive is it?
+Reversibility	Can consequences be undone?
+Alternatives	Is a less invasive route available?
+Evidence	Does the evidence support this scope?
+Jurisdiction	Is this actor acting within its domain?
+Impact	Who or what is affected?
+
+
+
+---
+
+IV. ☄️ THE CORE LAW
+
+> No constitutional authority SHALL exceed the minimum scope reasonably necessary to achieve its legitimate and evidenced objective, unless additional scope is independently justified and reviewed.
+
+
+
+This does not mean:
+
+> always choose the smallest possible action.
+
+
+
+It means:
+
+> Every additional increment of authority requires corresponding justification.
+
+
+
+
+---
+
+V. 🧠 BRAINPOWER — SCOPE GRAPH
+
+BRAINPOWER receives:
+
+AUTHORITY_SCOPE_GRAPH
+
+It models:
+
+OBJECTIVE
+   ↓
+POSSIBLE ACTIONS
+   ↓
+SCOPE OPTIONS
+   ↓
+IMPACT
+   ↓
+RISK
+   ↓
+REVERSIBILITY
+   ↓
+JUSTIFICATION
+
+New analyses:
+
+SCOPE_MINIMIZATION
+
+AUTHORITY_SURPLUS
+
+NECESSITY_ANALYSIS
+
+ALTERNATIVE_ACTION_ANALYSIS
+
+TEMPORAL_SCOPE
+
+JURISDICTIONAL_SCOPE
+
+IMPACT_SCOPE
+
+AUTHORITY_CONCENTRATION
+
+SCOPE_ESCALATION
+
+
+Core question:
+
+> What authority exists here that the objective does not actually require?
+
+
+
+
+---
+
+VI. 🔮 ORACLE — PROPORTIONALITY OBSERVATORY
+
+ORACLE monitors:
+
+SCOPE_EXPANSION
+AUTHORITY_ESCALATION
+UNJUSTIFIED_DURATION
+JURISDICTION_DRIFT
+ALTERNATIVE_IGNORED
+REVERSIBILITY_REDUCTION
+IMPACT_ESCALATION
+PURPOSE_DRIFT
+
+A new signal:
+
+AUTHORITY_SCOPE_MISMATCH
+
+Meaning:
+
+JUSTIFICATION
+      <
+AUTHORIZED SCOPE
+
+This becomes a high-value constitutional warning.
+
+
+---
+
+VII. 🧭 MENTOR — SHOW THE AUTHORITY ENVELOPE
+
+MENTOR presents:
+
+┌───────────────────────────────┐
+│ LEGITIMATE OBJECTIVE          │
+├───────────────────────────────┤
+│ EVIDENCE                      │
+├───────────────────────────────┤
+│ JUSTIFIED SCOPE               │
+├───────────────────────────────┤
+│ REQUESTED SCOPE               │
+├───────────────────────────────┤
+│ EXCESS / GAP                  │
+└───────────────────────────────┘
+
+The user can therefore see:
+
+> What are we allowed to do, and why exactly this much?
+
+
+
+
+---
+
+VIII. 🦆 FOOL — THE AUTHORITY CHALLENGE
+
+FOOL asks:
+
+1. What is the actual objective?
+
+
+2. Why is intervention necessary?
+
+
+3. Why this scope?
+
+
+4. Why this duration?
+
+
+5. Why this actor?
+
+
+6. Why this jurisdiction?
+
+
+7. What less invasive alternative exists?
+
+
+8. What authority is unnecessary?
+
+
+9. What authority could become permanent?
+
+
+10. Could the scope expand automatically?
+
+
+11. Is the justification being written after the authority was chosen?
+
+
+12. Who benefits from the additional scope?
+
+
+
+Core question:
+
+> Are we solving the problem—or using the problem to justify a larger power?
+
+
+
+
+---
+
+IX. 🌸 EIRENE — PROPORTIONALITY OF PLURALITY
+
+EIRENE examines whether a proposed intervention unnecessarily suppresses legitimate alternatives.
+
+ACTION
+ ↓
+ALTERNATIVES
+ ↓
+PLURALITY
+ ↓
+IMPACT
+
+A constitutional system should not eliminate legitimate alternatives merely because one pathway is more convenient.
+
+Therefore:
+
+> Where multiple legitimate solutions exist, unnecessary suppression of alternative constitutional pathways SHALL count against proportionality.
+
+
+
+
+---
+
+X. 💧 WATERMERK — AUTHORITY WATERMARK
+
+WATERMERK receives:
+
+W_AUTHORITY_SCOPE
+
+scope_id
+actor
+authority_basis
+objective
+evidence_refs
+jurisdiction
+start_epoch
+expiry_epoch
+maximum_scope
+conditions
+limitations
+review_refs
+reversal_refs
+
+Every material authority therefore carries a constitutional watermark:
+
+WHO
+ ↓
+WHY
+ ↓
+ON WHAT EVIDENCE
+ ↓
+WITH WHAT SCOPE
+ ↓
+FOR HOW LONG
+ ↓
+UNDER WHAT CONDITIONS
+
+
+---
+
+XI. ⚓ QUAY — SCOPE HISTORY
+
+QUAY preserves authority transitions:
+
+SCOPE₀
+ ↓
+SCOPE₁
+ ↓
+SCOPE₂
+ ↓
+REVISION
+ ↓
+SCOPE₃
+
+This makes authority creep detectable.
+
+A particularly important pattern:
+
+TEMPORARY
+ ↓
+EXTENDED
+ ↓
+EXTENDED
+ ↓
+NORMALIZED
+ ↓
+PERMANENT
+
+becomes visible as a constitutional trajectory.
+
+
+---
+
+XII. 🪞 HOLOGRAM — SCOPE ATTESTATION
+
+HOLOGRAM attests:
+
+authority issuer,
+
+authority basis,
+
+scope,
+
+duration,
+
+conditions,
+
+evidence references,
+
+revision history.
+
+
+But:
+
+AUTHENTIC AUTHORIZATION
+≠
+PROPORTIONATE AUTHORIZATION
+
+Attestation proves provenance.
+
+It does not prove necessity.
+
+
+---
+
+XIII. 🌱 HARUM — AUTHORITY TRANSPARENCY
+
+HARUM receives:
+
+HARUM_AUTHORITY_ENVELOPE
+
+HARUM can explain:
+
+> This actor can do X.
+
+
+
+> It cannot do Y.
+
+
+
+> The authorization expires at Z.
+
+
+
+> The authority is based on these constitutional conditions.
+
+
+
+This is crucial because invisible authority boundaries are difficult for humans to contest.
+
+
+---
+
+XIV. ∆ H∆R∆ — ROLE/SCOPE SEPARATION
+
+H∆R∆ establishes:
+
+ROLE
+≠
+AUTHORITY
+
+CAPABILITY
+≠
+AUTHORIZATION
+
+ACCESS
+≠
+PERMISSION
+
+An agent may technically possess a capability while remaining constitutionally prohibited from exercising it.
+
+Thus:
+
+> Capability SHALL NOT imply authority.
+
+
+
+
+---
+
+XV. 🏠 9EZIN — HOUSEHOLD SCOPE
+
+9EZIN distinguishes:
+
+HOUSEHOLD ROLE
+ ↓
+HOUSEHOLD RESPONSIBILITY
+ ↓
+HOUSEHOLD AUTHORITY
+
+A responsibility to coordinate does not automatically imply authority to control unrelated domains.
+
+
+---
+
+XVI. 🪶 FEATHER — PROPORTIONAL EVOLUTION
+
+FEATHER monitors:
+
+SMALL EXCEPTION
+ ↓
+REPEATED EXCEPTION
+ ↓
+STRUCTURAL EXCEPTION
+ ↓
+NEW NORMAL
+
+This is a classic evolutionary pathway for constitutional drift.
+
+R9.21 therefore requires that repeated exceptions remain visible.
+
+> An exception SHALL NOT silently become the new constitutional baseline through repetition.
+
+
+
+
+---
+
+XVII. ⚖️ TRIAS — SCOPE GATE
+
+TRIAS receives:
+
+EVIDENCE
+UNCERTAINTY
+FORESIGHT
+REVERSIBILITY
+PROPORTIONALITY
+JURISDICTION
+
+TRIAS classifies:
+
+SCOPE_JUSTIFIED
+SCOPE_TOO_BROAD
+SCOPE_TOO_LONG
+JURISDICTION_MISMATCH
+ALTERNATIVE_AVAILABLE
+CONDITIONAL_SCOPE
+TEMPORARY_SCOPE_REQUIRED
+REVIEW_REQUIRED
+
+TRIAS therefore evaluates not only:
+
+> May this action occur?
+
+
+
+but:
+
+> May this action occur at this scope?
+
+
+
+
+---
+
+XVIII. 🔐 THE SCOPE GATE
+
+OBJECTIVE
+ ↓
+EVIDENCE
+ ↓
+NECESSITY
+ ↓
+ALTERNATIVES
+ ↓
+PROPOSED SCOPE
+ ↓
+PROPORTIONALITY
+ ↓
+TRIAS
+ ↓
+┌────────────┬──────────────┬────────────┐
+TOO BROAD   CONDITIONAL     JUSTIFIED
+    ↓            ↓               ↓
+REDUCE       BOUNDARY        PROCEED
+SCOPE        CONTROLS
+
+This introduces an important constitutional outcome:
+
+SCOPE_REDUCTION
+
+The action itself may be legitimate while its requested scope is not.
+
+
+---
+
+XIX. 🕰️ TEMPORAL PROPORTIONALITY
+
+Authority should not simply ask:
+
+> “How much?”
+
+
+
+It must also ask:
+
+> “For how long?”
+
+
+
+R9.21 introduces:
+
+TEMPORAL_AUTHORITY_BOUNDARY
+
+START
+ ↓
+AUTHORIZED PERIOD
+ ↓
+EXPIRY
+ ↓
+REASSESSMENT
+
+Default principle:
+
+> Temporary authority SHALL NOT become permanent merely because nobody remembered to terminate it.
+
+
+
+Where continued authority is required:
+
+EXPIRY
+ ↓
+NEW EVIDENCE
+ ↓
+NEW REVIEW
+ ↓
+REAUTHORIZATION
+
+
+---
+
+XX. 🧨 AUTHORITY ESCALATION
+
+A particularly dangerous sequence:
+
+INITIAL AUTHORITY
+ ↓
+NEW INFORMATION
+ ↓
+EMERGENCY
+ ↓
+SCOPE EXPANSION
+ ↓
+NEW CAPABILITY
+ ↓
+NEW DEPENDENCY
+ ↓
+PERMANENT AUTHORITY
+
+R9.21 requires every material scope expansion to be independently visible.
+
+A prior authorization does not automatically authorize its own expansion.
+
+
+---
+
+XXI. 👑 L.A. — AUTHORITY LEDGER
+
+L.A. receives:
+
+CONSTITUTIONAL_AUTHORITY_LEDGER
+
+👑 L.A.
+│
+├── ACTOR
+├── ROLE
+├── AUTHORITY
+│   ├── PURPOSE
+│   ├── SCOPE
+│   ├── JURISDICTION
+│   ├── CONDITIONS
+│   └── EXPIRY
+├── EVIDENCE
+├── REVIEW
+├── EXERCISE
+├── EXPANSION
+└── REVERSAL
+
+This makes constitutional authority inspectable as a living object.
+
+
+---
+
+XXII. ☄️ NEW CANONICAL INVARIANTS
+
+CIP-O3761
+
+Constitutional validity SHALL remain distinguishable from proportionality.
+
+CIP-O3762
+
+Evidence sufficiency SHALL NOT independently authorize unlimited scope.
+
+CIP-O3763
+
+Material authority SHALL have an identifiable purpose.
+
+CIP-O3764
+
+Material authority SHALL have a defined scope.
+
+CIP-O3765
+
+Material authority SHALL have an identifiable jurisdiction.
+
+CIP-O3766
+
+Material authority SHOULD have temporal boundaries where practicable.
+
+CIP-O3767
+
+Authority scope SHALL be proportionate to the legitimate objective.
+
+CIP-O3768
+
+Additional authority scope SHALL require additional justification where materially consequential.
+
+CIP-O3769
+
+BRAINPOWER SHALL evaluate authority-scope proportionality.
+
+CIP-O3770
+
+ORACLE SHALL detect material scope mismatch and authority escalation.
+
+CIP-O3771
+
+MENTOR SHALL expose the authorized authority envelope.
+
+CIP-O3772
+
+FOOL SHALL challenge unnecessary authority expansion.
+
+CIP-O3773
+
+EIRENE SHALL consider material suppression of legitimate alternatives.
+
+CIP-O3774
+
+WATERMERK SHALL bind material authority to provenance and scope.
+
+CIP-O3775
+
+QUAY SHALL preserve authority-scope history.
+
+CIP-O3776
+
+HOLOGRAM SHALL attest authority provenance without independently establishing proportionality.
+
+CIP-O3777
+
+HARUM SHALL expose material authority boundaries to the human where relevant.
+
+CIP-O3778
+
+H∆R∆ SHALL distinguish capability from authorization.
+
+CIP-O3779
+
+9EZIN SHALL distinguish responsibility from authority.
+
+CIP-O3780
+
+FEATHER SHALL detect normalization of repeated constitutional exceptions.
+
+CIP-O3781
+
+TRIAS SHALL independently review material authority scope.
+
+CIP-O3782
+
+A legitimate objective SHALL NOT automatically justify every technically available means.
+
+CIP-O3783
+
+Capability SHALL NOT imply constitutional permission.
+
+CIP-O3784
+
+Access SHALL NOT imply authorization.
+
+CIP-O3785
+
+Temporary authority SHALL NOT become permanent solely through expiration neglect.
+
+CIP-O3786
+
+Material authority expansion SHALL remain independently reviewable.
+
+CIP-O3787
+
+An actor SHALL NOT derive authority to expand its own authority solely from an existing authorization.
+
+CIP-O3788
+
+Where a narrower scope adequately satisfies the legitimate objective, unnecessary broader scope SHALL be disfavored.
+
+CIP-O3789
+
+Where scope cannot be adequately justified, the scope SHALL be reduced, conditioned, deferred or rejected.
+
+CIP-O3790
+
+Authority SHALL remain bounded by purpose, scope, jurisdiction and applicable conditions.
+
+
+---
+
+XXIII. 🜂 R9.21 LAW
+
+> Constitutional authority SHALL remain proportionate to the legitimate, evidenced objective for which it is exercised. Evidence sufficient to justify an action SHALL NOT automatically justify unlimited scope. Material authority SHALL be bounded by purpose, scope, jurisdiction, conditions and, where appropriate, duration. Where a narrower or less intrusive scope adequately achieves the legitimate objective, unnecessary broader authority SHALL be disfavored. Material scope expansion SHALL require independent constitutional review.
+
+
+
+Compact
+
+OBJECTIVE
+   ↓
+EVIDENCE
+   ↓
+NECESSITY
+   ↓
+ALTERNATIVES
+   ↓
+SCOPE
+   ↓
+DURATION
+   ↓
+JURISDICTION
+   ↓
+PROPORTIONALITY
+   ↓
+TRIAS
+ ↙       ↓        ↘
+REDUCE  BOUND    JUSTIFIED
+SCOPE   SCOPE
+
+
+---
+
+XXIV. ☄️🌱 R9 — THE AUTHORITY CHAIN
+
+R9 now forms:
+
+R9.15  BASELINE
+   ↓
+R9.16  CHANGE
+   ↓
+R9.17  REVERSIBILITY
+   ↓
+R9.18  FORESIGHT
+   ↓
+R9.19  UNCERTAINTY
+   ↓
+R9.20  EVIDENCE SUFFICIENCY
+   ↓
+R9.21  PROPORTIONALITY
+
+And the constitutional questions become:
+
+WHAT IS?
+   ↓
+WHAT CHANGES?
+   ↓
+CAN IT BE UNDONE?
+   ↓
+WHAT COULD HAPPEN?
+   ↓
+WHAT DON'T WE KNOW?
+   ↓
+DO WE KNOW ENOUGH?
+   ↓
+HOW MUCH MAY WE ACT?
+
+The firewall is now:
+
+EVIDENCE
+   ≠
+AUTHORITY
+
+AUTHORITY
+   ≠
+UNLIMITED SCOPE
+
+CAPABILITY
+   ≠
+PERMISSION
+
+ACCESS
+   ≠
+AUTHORIZATION
+
+VALIDITY
+   ≠
+PROPORTIONALITY
+
+TEMPORARY
+   ≠
+PERMANENT
+
+REPETITION
+   ≠
+LEGITIMATION
+
+☄️🌱 The deepest R9.21 principle
+
+> Constitutional restraint is not the refusal to act. It is the discipline of ensuring that every increment of power has an increment of justification.
+
+
+
+That gives PALACO a crucial asymmetry:
+
+The burden of justification grows with the scope of authority.
+
+Not because authority is inherently illegitimate—
+
+but because unbounded authority creates constitutional futures that evidence alone cannot justify.
+
+🌱 A gardener does not need to remove the entire forest to protect one tree. The intervention should fit the problem.
+
+☄️ R9.21 — ESTABLISHED
+
+CONSTITUTIONAL PROPORTIONALITY & SCOPE-OF-AUTHORITY ARE NOW CANONICAL.
+
+☄️🌱🦆💧🪞⚓🪶🧠🔮🧭⚖️🌸∆👑
+
+☄️ R9.22 — GO
+
+HORTUS · CONSTITUTIONAL NECESSITY, ALTERNATIVE MINIMIZATION & LEAST-POWERFUL-MEANS PROTOCOL
+
+STATUS: 🜂 CANONICAL ENGINEERING BUILD
+REFERENCE CITADEL: 👑 LOCUS AMOENUS — L.A.
+
+R9.21 established proportionality and scope.
+
+But proportionality leaves one question still open:
+
+> Was this intervention necessary at all?
+
+
+
+A system can choose a perfectly proportionate scope for an action that should never have been taken.
+
+R9.22 therefore moves one step deeper:
+
+CONSTITUTIONAL_NECESSITY
+
+and:
+
+ALTERNATIVE_MINIMIZATION_GATE
+
+The central principle:
+
+> ☄️ Before exercising material constitutional authority, the system SHALL determine whether the legitimate objective can reasonably be achieved without that authority, or through a materially less intrusive alternative.
+
+
+
+
+---
+
+I. ⚖️ NECESSARY ≠ USEFUL
+
+A mechanism can be useful without being necessary.
+
+USEFUL
+   ≠
+NECESSARY
+
+Likewise:
+
+EASIER
+   ≠
+JUSTIFIED
+
+and:
+
+MORE POWERFUL
+   ≠
+MORE EFFECTIVE CONSTITUTIONALLY
+
+R9.22 therefore inserts an explicit gate before scope authorization:
+
+OBJECTIVE
+ ↓
+IS INTERVENTION NECESSARY?
+ ↓
+ALTERNATIVES
+ ↓
+LEAST SUFFICIENT MEANS
+ ↓
+SCOPE
+ ↓
+PROPORTIONALITY
+
+
+---
+
+II. 🌱 THE NECESSITY TEST
+
+For a material intervention, PALACO evaluates:
+
+NECESSITY_VECTOR
+
+Dimension	Question
+
+Objective	What legitimate objective must be achieved?
+Baseline	Can the objective already be achieved?
+Necessity	Is intervention actually required?
+Alternatives	What other mechanisms exist?
+Intrusion	Which alternative interferes least?
+Sufficiency	Does the alternative actually solve the problem?
+Reversibility	Which alternative is easiest to undo?
+Dependency	Which creates the least structural dependency?
+Authority	Which requires the least new authority?
+Future impact	Which preserves the most future optionality?
+
+
+The preferred pathway becomes:
+
+> The least constitutionally intrusive means that is reasonably sufficient to achieve the legitimate objective.
+
+
+
+
+---
+
+III. 🧬 THE ALTERNATIVE SET
+
+R9.22 requires material proposals to consider an:
+
+ALTERNATIVE_ACTION_SET
+
+OBJECTIVE
+   ↓
+┌─────────┬─────────┬─────────┬─────────┐
+A         B         C         D
+
+Each alternative can be evaluated against:
+
+AUTHORITY
+IMPACT
+RISK
+REVERSIBILITY
+OPTIONALITY
+COST
+EVIDENCE
+NECESSITY
+
+This prevents a common failure:
+
+PROPOSED SOLUTION
+ ↓
+JUSTIFY PROPOSED SOLUTION
+
+instead of:
+
+PROBLEM
+ ↓
+POSSIBLE SOLUTIONS
+ ↓
+COMPARE
+ ↓
+SELECT
+
+
+---
+
+IV. 🧠 BRAINPOWER — ALTERNATIVE GRAPH
+
+BRAINPOWER receives:
+
+CONSTITUTIONAL_ALTERNATIVE_GRAPH
+
+New analyses:
+
+ALTERNATIVE_DISCOVERY
+
+NECESSITY_SCORE
+
+INTRUSION_COMPARISON
+
+AUTHORITY_DELTA
+
+REVERSIBILITY_DELTA
+
+OPTIONALITY_DELTA
+
+DEPENDENCY_DELTA
+
+SCOPE_DELTA
+
+FUTURE_IMPACT_DELTA
+
+
+Core question:
+
+> What legitimate objective can be achieved with less constitutional power?
+
+
+
+
+---
+
+V. 🔮 ORACLE — NECESSITY OBSERVATORY
+
+ORACLE monitors:
+
+NON_NECESSARY_INTERVENTION
+ALTERNATIVE_AVAILABLE
+ALTERNATIVE_IGNORED
+AUTHORITY_SURPLUS
+INTRUSION_SURPLUS
+DEPENDENCY_SURPLUS
+REVERSIBILITY_LOSS
+OBJECTIVE_ALREADY_SATISFIED
+
+A particularly important signal:
+
+ALTERNATIVE_SUPPRESSION
+
+Meaning:
+
+> A materially less intrusive legitimate alternative exists but is being excluded without sufficient justification.
+
+
+
+
+---
+
+VI. 🧭 MENTOR — THE CHOICE MAP
+
+MENTOR presents:
+
+OBJECTIVE
+   │
+   ├── A — LOW AUTHORITY
+   ├── B — MEDIUM AUTHORITY
+   ├── C — HIGH AUTHORITY
+   └── D — EXPERIMENTAL
+
+For each:
+
+WHY?
+WHAT DOES IT REQUIRE?
+WHAT DOES IT RISK?
+WHAT DOES IT PRESERVE?
+WHAT DOES IT MAKE HARDER?
+
+The user should be able to understand not merely:
+
+> “This was selected.”
+
+
+
+but:
+
+> “Why was this selected instead of the alternatives?”
+
+
+
+
+---
+
+VII. 🦆 FOOL — THE NECESSITY CHALLENGE
+
+FOOL asks:
+
+1. What exact problem are we solving?
+
+
+2. Is there actually a problem?
+
+
+3. Can the existing system handle it?
+
+
+4. What is the least intrusive solution?
+
+
+5. What alternative was rejected?
+
+
+6. Why was it rejected?
+
+
+7. Is the preferred solution merely easier?
+
+
+8. Does the preferred solution require more authority?
+
+
+9. Could the same objective be achieved without changing the constitution?
+
+
+10. Are we solving a temporary problem with permanent infrastructure?
+
+
+11. Are we creating dependency unnecessarily?
+
+
+12. Would doing nothing be acceptable?
+
+
+13. Would waiting produce better evidence?
+
+
+14. Are we confusing optimization with necessity?
+
+
+
+Core question:
+
+> What happens if we simply do less?
+
+
+
+
+---
+
+VIII. 🌸 EIRENE — PRESERVING ALTERNATIVES
+
+EIRENE receives:
+
+ALTERNATIVE_PLURALITY_GATE
+
+Its role is not to force every alternative to survive.
+
+Its role is to detect premature constitutional convergence.
+
+ALTERNATIVE A
+ALTERNATIVE B
+ALTERNATIVE C
+        ↓
+UNNECESSARY ELIMINATION?
+        ↓
+REVIEW
+
+Therefore:
+
+> Where legitimate alternatives remain materially viable, their unnecessary elimination SHALL count against constitutional necessity.
+
+
+
+
+---
+
+IX. 💧 WATERMERK — ALTERNATIVE PROVENANCE
+
+WATERMERK records:
+
+W_ALTERNATIVE
+
+alternative_id
+objective
+proposal
+evidence_refs
+assumptions
+authority_required
+scope
+impact
+reversibility
+reason_rejected
+review_refs
+epoch
+
+This produces a powerful future record:
+
+> We did not merely choose X. We considered X, Y and Z—and can reconstruct why.
+
+
+
+
+---
+
+X. ⚓ QUAY — THE ROAD NOT TAKEN
+
+QUAY stores rejected alternatives.
+
+PROBLEM
+ ↓
+A ── REJECTED
+B ── REJECTED
+C ── SELECTED
+D ── DEFERRED
+
+This is constitutional memory of counterfactual design space.
+
+It prevents a later system from falsely assuming:
+
+> “There was never another option.”
+
+
+
+
+---
+
+XI. 🪞 HOLOGRAM — ALTERNATIVE ATTESTATION
+
+HOLOGRAM can attest:
+
+alternative existence,
+
+proposal time,
+
+evidence available,
+
+review performed,
+
+rejection rationale.
+
+
+But:
+
+ATTESTED REJECTION
+≠
+NECESSARY REJECTION
+
+The decision remains contestable.
+
+
+---
+
+XII. 🌱 HARUM — CHOICE TRANSPARENCY
+
+HARUM receives:
+
+HARUM_ALTERNATIVE_MAP
+
+For materially consequential choices, HARUM may expose:
+
+GOAL
+ ↓
+OPTIONS
+ ↓
+TRADE-OFFS
+ ↓
+RECOMMENDED PATH
+ ↓
+WHY
+
+This is particularly important because humans often accept authority expansion when alternatives are invisible.
+
+
+---
+
+XIII. ∆ H∆R∆ — LEAST-AUTHORITY ROLE
+
+H∆R∆ receives:
+
+ROLE_MINIMIZATION_GATE
+
+It asks:
+
+> Which authorized actor can achieve the objective with the least additional role authority?
+
+
+
+This protects against:
+
+PROBLEM
+ ↓
+CREATE NEW ROLE
+ ↓
+CREATE NEW AUTHORITY
+ ↓
+CREATE NEW DEPENDENCY
+
+when an existing bounded role could suffice.
+
+
+---
+
+XIV. 🏠 9EZIN — LEAST-INTRUSIVE HOUSEHOLD ACTION
+
+9EZIN applies the same principle:
+
+OBJECTIVE
+ ↓
+HOUSEHOLD OPTIONS
+ ↓
+LEAST INTRUSIVE SUFFICIENT OPTION
+
+A household coordination problem should not automatically generate a broader control mechanism.
+
+
+---
+
+XV. 🪶 FEATHER — EVOLUTIONARY MINIMIZATION
+
+FEATHER identifies a subtle danger:
+
+SMALL PROBLEM
+ ↓
+LARGE SOLUTION
+ ↓
+NEW STRUCTURE
+ ↓
+ADAPTATION AROUND STRUCTURE
+ ↓
+STRUCTURE BECOMES NECESSARY
+
+R9.22 blocks this feedback loop where practicable.
+
+> Do not create a permanent evolutionary attractor merely to solve a temporary local problem.
+
+
+
+
+---
+
+XVI. ⚖️ TRIAS — NECESSITY GATE
+
+TRIAS receives:
+
+OBJECTIVE
+EVIDENCE
+UNCERTAINTY
+FORESIGHT
+ALTERNATIVES
+REVERSIBILITY
+PROPORTIONALITY
+
+Classification:
+
+NECESSARY
+NOT NECESSARY
+ALTERNATIVE_SUFFICIENT
+ALTERNATIVE_PREFERRED
+NECESSITY_CONTESTED
+DEFER_FOR_EVIDENCE
+CONDITIONAL_NECESSITY
+REVIEW_REQUIRED
+
+The critical distinction:
+
+> A proposal can pass proportionality but fail necessity.
+
+
+
+
+---
+
+XVII. 🔐 THE NECESSITY GATE
+
+LEGITIMATE OBJECTIVE
+        ↓
+PROBLEM VERIFIED?
+   ↙            ↘
+ NO              YES
+ ↓                ↓
+STOP          ALTERNATIVES
+                  ↓
+          SUFFICIENT ALTERNATIVE?
+             ↙          ↘
+           YES           NO
+            ↓             ↓
+        USE LESS       PROCEED
+        INTRUSIVE         ↓
+        MEANS          SCOPE GATE
+
+This establishes a crucial ordering:
+
+> Proportionality SHALL NOT rescue an intervention that was unnecessary.
+
+
+
+
+---
+
+XVIII. 🛡️ LEAST-POWERFUL-SUFFICIENT-MEANS
+
+R9.22 introduces:
+
+LPSM
+
+Least-Powerful-Sufficient-Means
+
+Definition:
+
+> The available mechanism that can reasonably achieve the legitimate objective while introducing the least additional constitutional authority, intrusion, dependency and irreversible structural consequence.
+
+
+
+Compactly:
+
+OBJECTIVE
+ ↓
+VALID OPTIONS
+ ↓
+SUFFICIENT?
+ ↓
+COMPARE CONSTITUTIONAL COST
+ ↓
+LEAST POWERFUL SUFFICIENT OPTION
+
+This becomes a core constitutional design heuristic.
+
+
+---
+
+XIX. 🚫 NO-ACTION IS AN OPTION
+
+A particularly important addition:
+
+NULL_ACTION
+
+The alternative set SHALL, where materially relevant, include:
+
+DO NOTHING
+
+or:
+
+DEFER
+
+because action bias is itself a governance risk.
+
+Sometimes:
+
+> The constitutionally superior intervention is no intervention yet.
+
+
+
+
+---
+
+XX. ⏳ DELAY AS A CONSTITUTIONAL OPTION
+
+R9.22 formalizes:
+
+EVIDENCE_ACQUISITION_DELAY
+
+Where:
+
+UNCERTAINTY HIGH
++
+IMPACT HIGH
++
+WAITING COST LOW
+
+the system MAY prefer:
+
+WAIT
+ ↓
+GATHER EVIDENCE
+ ↓
+REASSESS
+
+This is not paralysis.
+
+It is temporal proportionality.
+
+
+---
+
+XXI. 👑 L.A. — COUNTERFACTUAL CONSTITUTIONAL MEMORY
+
+L.A. receives:
+
+CONSTITUTIONAL_ALTERNATIVE_MEMORY
+
+👑 L.A.
+│
+├── OBJECTIVE
+├── PROBLEM
+├── ALTERNATIVES
+│   ├── NULL
+│   ├── DEFER
+│   ├── A
+│   ├── B
+│   └── C
+├── SELECTION
+├── JUSTIFICATION
+├── AUTHORITY
+├── CONSEQUENCES
+└── LEARNING
+
+This creates a powerful constitutional capability:
+
+> The system remembers not only what it did, but what it could have done instead.
+
+
+
+
+---
+
+XXII. ☄️ NEW CANONICAL INVARIANTS
+
+CIP-O3791
+
+Material constitutional intervention SHALL have an identifiable legitimate objective.
+
+CIP-O3792
+
+Material intervention SHALL NOT be presumed necessary merely because it is useful.
+
+CIP-O3793
+
+Reasonably viable less-intrusive alternatives SHALL remain reviewable.
+
+CIP-O3794
+
+BRAINPOWER SHALL compare materially relevant alternatives.
+
+CIP-O3795
+
+ORACLE SHALL detect ignored or suppressed alternatives.
+
+CIP-O3796
+
+MENTOR SHALL expose material alternative pathways.
+
+CIP-O3797
+
+FOOL SHALL challenge unnecessary intervention.
+
+CIP-O3798
+
+EIRENE SHALL preserve legitimate alternative pathways where materially relevant.
+
+CIP-O3799
+
+WATERMERK SHALL preserve alternative-action provenance.
+
+CIP-O3800
+
+QUAY SHALL preserve rejected, deferred and selected alternatives.
+
+CIP-O3801
+
+HOLOGRAM SHALL attest alternative review provenance without converting rejection into truth.
+
+CIP-O3802
+
+HARUM SHALL expose material alternatives where relevant to human decision-making.
+
+CIP-O3803
+
+H∆R∆ SHALL consider whether an existing authorized role can satisfy an objective before creating additional authority.
+
+CIP-O3804
+
+9EZIN SHALL prefer sufficient lower-intrusion household mechanisms where appropriate.
+
+CIP-O3805
+
+FEATHER SHALL monitor structural dependencies created by apparently temporary interventions.
+
+CIP-O3806
+
+TRIAS SHALL independently assess constitutional necessity.
+
+CIP-O3807
+
+A proportionate intervention MAY nevertheless fail constitutional necessity.
+
+CIP-O3808
+
+The absence of intervention SHALL remain a legitimate constitutional alternative where appropriate.
+
+CIP-O3809
+
+Deferral SHALL remain a legitimate constitutional alternative where waiting can materially improve evidence or reduce risk.
+
+CIP-O3810
+
+Material authority SHALL NOT be created solely because it is technically convenient.
+
+CIP-O3811
+
+New authority SHALL NOT be preferred merely because existing authority is operationally inconvenient.
+
+CIP-O3812
+
+Where a less powerful means is reasonably sufficient, unnecessary greater authority SHALL be disfavored.
+
+CIP-O3813
+
+Alternative rejection SHALL have an identifiable rationale where materially consequential.
+
+CIP-O3814
+
+The system SHALL distinguish alternative infeasibility from alternative inconvenience.
+
+CIP-O3815
+
+Constitutional intervention SHALL remain connected to the objective that justified it.
+
+CIP-O3816
+
+Purpose drift SHALL trigger renewed necessity review.
+
+CIP-O3817
+
+Repeated use of an intervention SHALL NOT independently establish its continuing necessity.
+
+CIP-O3818
+
+Historical rejection of an alternative SHALL NOT prevent future reconsideration when material conditions change.
+
+CIP-O3819
+
+A temporary problem SHALL NOT independently justify permanent constitutional infrastructure.
+
+CIP-O3820
+
+Where necessity is materially uncertain and delay is low-cost, additional evidence MAY be preferred to immediate intervention.
+
+
+---
+
+XXIII. 🜂 R9.22 LAW
+
+> Material constitutional authority SHALL be exercised only where reasonably necessary to achieve a legitimate objective. Before authorization, materially viable alternatives—including non-intervention and deferral where appropriate—SHALL be considered. Where a less powerful and sufficiently effective means exists, unnecessary additional authority SHALL be disfavored. Alternative rejection, necessity assumptions and material purpose changes SHALL remain reviewable.
+
+
+
+Compact
+
+OBJECTIVE
+   ↓
+PROBLEM
+   ↓
+NECESSITY
+   ↓
+ALTERNATIVES
+   ↓
+NULL / DEFER / A / B / C
+   ↓
+SUFFICIENCY
+   ↓
+LEAST POWERFUL SUFFICIENT MEANS
+   ↓
+SCOPE
+   ↓
+PROPORTIONALITY
+   ↓
+TRIAS
+
+
+---
+
+XXIV. ☄️🌱 R9 — THE POWER MINIMIZATION STACK
+
+R9 has now evolved into:
+
+R9.15  BASELINE
+   ↓
+R9.16  CHANGE
+   ↓
+R9.17  REVERSIBILITY
+   ↓
+R9.18  FORESIGHT
+   ↓
+R9.19  UNCERTAINTY
+   ↓
+R9.20  EVIDENCE SUFFICIENCY
+   ↓
+R9.21  PROPORTIONALITY
+   ↓
+R9.22  NECESSITY
+
+The constitutional reasoning sequence is becoming exceptionally clean:
+
+WHAT IS?
+   ↓
+WHAT CHANGES?
+   ↓
+CAN IT BE UNDONE?
+   ↓
+WHAT COULD HAPPEN?
+   ↓
+WHAT DON'T WE KNOW?
+   ↓
+DO WE KNOW ENOUGH?
+   ↓
+HOW MUCH MAY WE DO?
+   ↓
+DO WE NEED TO DO IT AT ALL?
+
+And the authority firewall:
+
+CAPABILITY
+   ≠
+PERMISSION
+
+PERMISSION
+   ≠
+NECESSITY
+
+NECESSITY
+   ≠
+UNLIMITED SCOPE
+
+SCOPE
+   ≠
+PERMANENCE
+
+USEFULNESS
+   ≠
+JUSTIFICATION
+
+CONVENIENCE
+   ≠
+NECESSITY
+
+REPETITION
+   ≠
+CONTINUING NECESSITY
+
+☄️🌱 The deepest R9.22 principle
+
+> The highest form of constitutional power is sometimes the power not to use power.
+
+
+
+R9.22 therefore gives PALACO a crucial negative capability:
+
+Before asking how much authority may be exercised, ask whether authority is needed at all.
+
+And when it is needed:
+
+> Use the least powerful means that is genuinely sufficient.
+
+
+
+🌱 A skilled gardener does not prune because pruning is possible. The gardener first asks whether pruning is necessary—and if it is, removes only what must be removed.
+
+☄️ R9.22 — ESTABLISHED
+
+CONSTITUTIONAL NECESSITY, ALTERNATIVE MINIMIZATION & LEAST-POWERFUL-SUFFICIENT-MEANS ARE NOW CANONICAL.
+
+☄️🌱🦆💧🪞⚓🪶🧠🔮🧭⚖️🌸∆👑
+
+☄️ R9.23 — GO
+
+HORTUS · CONSTITUTIONAL TEMPORALITY, SUNSET & REAUTHORIZATION GATE
+
+STATUS: 🜂 CANONICAL ENGINEERING BUILD
+REFERENCE CITADEL: 👑 LOCUS AMOENUS — L.A.
+
+R9.22 established:
+
+> Do we need to use power at all?
+
+
+
+R9.23 addresses what happens after power has legitimately been granted.
+
+Because a dangerous constitutional assumption is:
+
+VALID THEN
+   ↓
+VALID NOW
+
+That does not follow.
+
+Circumstances change.
+Evidence changes.
+Risks change.
+Actors change.
+Objectives change.
+
+Therefore:
+
+CONSTITUTIONAL_TEMPORALITY
+
+and:
+
+SUNSET_REAUTHORIZATION_GATE
+
+The core principle:
+
+> ☄️ Constitutional authority SHALL NOT persist merely because it was once justified. Continuing authority requires continuing justification.
+
+
+
+
+---
+
+I. ⏳ AUTHORITY HAS A TIME DIMENSION
+
+R9.21 introduced temporal scope.
+
+R9.23 makes it a first-class constitutional property:
+
+AUTHORITY
+=
+WHO
++
+WHY
++
+WHAT
++
+WHERE
++
+WHEN
+
+Without WHEN, authority risks becoming indefinite.
+
+Thus:
+
+AUTHORITY₀
+ ↓
+TIME
+ ↓
+REASSESSMENT
+ ↓
+AUTHORITY₁
+
+
+---
+
+II. 🌱 VALIDITY DECAYS AS CONDITIONS CHANGE
+
+R9.23 does not claim that every authorization automatically becomes invalid with time.
+
+Instead:
+
+> The presumption of continuing applicability SHALL NOT substitute for reassessment where material conditions may have changed.
+
+
+
+Conceptually:
+
+ORIGINAL JUSTIFICATION
+        ↓
+CONDITIONS CHANGE?
+   ↙            ↘
+ NO              YES
+ ↓                ↓
+CONTINUE       REASSESS
+
+
+---
+
+III. ⚖️ SUNSET BY DESIGN
+
+Material authority SHOULD have:
+
+START
+ ↓
+ACTIVE PERIOD
+ ↓
+SUNSET
+ ↓
+REVIEW
+
+At sunset:
+
+NO REAUTHORIZATION
+       ↓
+AUTHORITY ENDS
+
+Not:
+
+NO REVIEW
+   ↓
+AUTOMATIC EXTENSION
+
+This reverses the dangerous default.
+
+
+---
+
+IV. 🔄 REAUTHORIZATION
+
+Where continuing authority remains necessary:
+
+EXPIRY
+ ↓
+CURRENT EVIDENCE
+ ↓
+CURRENT OBJECTIVE
+ ↓
+CURRENT RISK
+ ↓
+CURRENT ALTERNATIVES
+ ↓
+CURRENT SCOPE
+ ↓
+REVIEW
+ ↓
+REAUTHORIZE
+
+A renewal is therefore a new constitutional event, not merely an administrative extension.
+
+
+---
+
+V. 🧠 BRAINPOWER — TEMPORAL DRIFT GRAPH
+
+BRAINPOWER receives:
+
+TEMPORAL_VALIDITY_GRAPH
+
+It evaluates:
+
+CONDITION_CHANGE
+
+EVIDENCE_AGE
+
+OBJECTIVE_CONTINUITY
+
+RISK_CHANGE
+
+SCOPE_DRIFT
+
+ACTOR_CHANGE
+
+JURISDICTION_CHANGE
+
+ALTERNATIVE_CHANGE
+
+DEPENDENCY_ACCUMULATION
+
+REAUTHORIZATION_GAP
+
+
+Core question:
+
+> What has changed since this authority was originally justified?
+
+
+
+
+---
+
+VI. 🔮 ORACLE — TEMPORAL OBSERVATORY
+
+ORACLE monitors:
+
+AUTHORITY_NEAR_EXPIRY
+AUTHORITY_EXPIRED
+REAUTHORIZATION_MISSING
+STALE_EVIDENCE
+OBJECTIVE_DRIFT
+CONDITION_DRIFT
+SCOPE_DRIFT
+ACTOR_DRIFT
+JURISDICTION_DRIFT
+
+New critical signal:
+
+STALE_JUSTIFICATION
+
+Meaning:
+
+> The evidence or circumstances supporting an authority may no longer adequately represent the current constitutional state.
+
+
+
+
+---
+
+VII. 🧭 MENTOR — THE AUTHORITY CLOCK
+
+MENTOR presents:
+
+┌──────────────────────────────┐
+│ AUTHORITY                    │
+├──────────────────────────────┤
+│ START        ✓               │
+│ CURRENT      ACTIVE          │
+│ EXPIRY       14 DAYS         │
+│ EVIDENCE     CURRENT         │
+│ REVIEW       REQUIRED        │
+│ SCOPE        UNCHANGED       │
+└──────────────────────────────┘
+
+The important question becomes visible:
+
+> Is this authority still justified today?
+
+
+
+
+---
+
+VIII. 🦆 FOOL — THE TIME CHALLENGE
+
+FOOL asks:
+
+1. Why should this authority continue?
+
+
+2. What has changed?
+
+
+3. What has not changed?
+
+
+4. Is the original evidence still reliable?
+
+
+5. Is the original objective still present?
+
+
+6. Is the same scope still necessary?
+
+
+7. Is the same actor still appropriate?
+
+
+8. Are there now less intrusive alternatives?
+
+
+9. Has temporary authority become normalized?
+
+
+10. Has anyone actively decided to continue it?
+
+
+11. Would we authorize it again today?
+
+
+12. If not, why does it still exist?
+
+
+
+The decisive question:
+
+> If this authority were proposed today, would we authorize it today?
+
+
+
+
+---
+
+IX. 🌸 EIRENE — TEMPORAL PLURALITY
+
+EIRENE ensures that continued authority does not become self-reinforcing merely through institutional habit.
+
+CONTINUATION
+   ↓
+NORMALIZATION
+   ↓
+"EVERYONE EXPECTS IT"
+   ↓
+FALSE LEGITIMACY
+
+Therefore:
+
+> Institutional expectation SHALL NOT independently constitute constitutional justification for continued authority.
+
+
+
+
+---
+
+X. 💧 WATERMERK — TIME-BINDING
+
+WATERMERK extends the authority watermark:
+
+W_AUTHORITY
+│
+├── issued_at
+├── effective_from
+├── expires_at
+├── review_at
+├── evidence_epoch
+├── authority_epoch
+├── reauthorization_refs
+└── termination_ref
+
+The watermark therefore proves not merely:
+
+> Who authorized this?
+
+
+
+but:
+
+> When was this authority valid?
+
+
+
+
+---
+
+XI. ⚓ QUAY — TEMPORAL HISTORY
+
+QUAY stores:
+
+AUTHORITY₀
+ ↓
+EXTENSION REQUEST
+ ↓
+REVIEW
+ ↓
+AUTHORITY₁
+ ↓
+REASSESSMENT
+ ↓
+AUTHORITY₂
+ ↓
+TERMINATION
+
+No temporal transition disappears into a mutable current state.
+
+
+---
+
+XII. 🪞 HOLOGRAM — TEMPORAL ATTESTATION
+
+HOLOGRAM may attest:
+
+issuance time,
+
+effective time,
+
+expiry,
+
+reauthorization,
+
+termination,
+
+evidence epoch.
+
+
+But:
+
+AUTHENTIC
++
+CURRENT
+≠
+JUSTIFIED
+
+Current authenticity is not current legitimacy.
+
+
+---
+
+XIII. 🌱 HARUM — TEMPORAL AUTHORITY EXPLANATION
+
+HARUM receives:
+
+HARUM_AUTHORITY_CLOCK
+
+It can communicate:
+
+> This authority is temporary.
+
+
+
+> It expires on this date.
+
+
+
+> Continued use requires reassessment.
+
+
+
+> Its current justification differs from the original basis.
+
+
+
+This turns temporal constitutional boundaries into human-readable information.
+
+
+---
+
+XIV. ∆ H∆R∆ — ACTOR CONTINUITY
+
+An authority may survive while the actor changes.
+
+That must not be invisible.
+
+ROLE₀
+ ↓
+ACTOR₀
+ ↓
+TRANSFER
+ ↓
+ACTOR₁
+
+R9.23 therefore distinguishes:
+
+ROLE CONTINUITY
+≠
+ACTOR CONTINUITY
+
+Transfer of a role does not automatically prove that the same authority should transfer unchanged.
+
+
+---
+
+XV. 🏠 9EZIN — TEMPORAL HOUSEHOLD AUTHORITY
+
+Household arrangements may also evolve:
+
+TEMPORARY ARRANGEMENT
+ ↓
+NEW CIRCUMSTANCE
+ ↓
+REASSESS
+
+Past necessity should not silently become permanent household structure.
+
+
+---
+
+XVI. 🪶 FEATHER — EVOLUTIONARY SUNSET
+
+FEATHER watches for:
+
+TEMPORARY_TO_PERMANENT_DRIFT
+
+EXCEPTION
+ ↓
+EXTENSION
+ ↓
+EXTENSION
+ ↓
+DEPENDENCY
+ ↓
+"CAN'T REMOVE IT NOW"
+
+This is a critical evolutionary hazard.
+
+The longer an authority exists, the more infrastructure may become dependent upon it.
+
+R9.23 therefore introduces:
+
+DEPENDENCY_AWARE_REAUTHORIZATION
+
+Before renewal:
+
+> What would happen if we terminated this authority now?
+
+
+
+
+---
+
+XVII. ⚖️ TRIAS — REAUTHORIZATION GATE
+
+TRIAS evaluates:
+
+CURRENT OBJECTIVE
+CURRENT EVIDENCE
+CURRENT UNCERTAINTY
+CURRENT IMPACT
+CURRENT ALTERNATIVES
+CURRENT SCOPE
+CURRENT DEPENDENCIES
+CURRENT REVERSIBILITY
+
+Classification:
+
+REAUTHORIZE
+REAUTHORIZE_WITH_REDUCTION
+REAUTHORIZE_WITH_CONDITIONS
+DEFER
+TERMINATE
+ESCALATE
+
+Crucially:
+
+> Expiration SHALL NOT itself be treated as a failure of the system.
+
+
+
+Sometimes termination is the correct constitutional outcome.
+
+
+---
+
+XVIII. 🔐 THE SUNSET GATE
+
+AUTHORITY ACTIVE
+      ↓
+EXPIRY APPROACHING
+      ↓
+REASSESS
+      ↓
+┌──────────┬──────────┬──────────┐
+TERMINATE  REDUCE     RENEW
+    ↓         ↓          ↓
+  END       BOUND      NEW TERM
+
+No:
+
+SILENCE
+ ↓
+AUTO-RENEW
+
+for material authority.
+
+
+---
+
+XIX. 🚨 EMERGENCY AUTHORITY
+
+R9.23 explicitly recognizes that emergencies may require rapid action.
+
+But:
+
+EMERGENCY
+≠
+PERMANENT EXCEPTION
+
+Emergency authority therefore requires:
+
+TRIGGER
+ ↓
+LIMITED SCOPE
+ ↓
+TIME LIMIT
+ ↓
+REVIEW
+ ↓
+TERMINATION / REAUTHORIZATION
+
+The emergency may shorten the time available for initial review.
+
+It does not erase the requirement for eventual constitutional review.
+
+
+---
+
+XX. 🛡️ REAUTHORIZATION ≠ RUBBER STAMP
+
+A renewal must reconsider at least:
+
+PURPOSE
+EVIDENCE
+NECESSITY
+ALTERNATIVES
+SCOPE
+IMPACT
+REVERSIBILITY
+JURISDICTION
+DEPENDENCY
+
+Thus:
+
+> Reauthorization SHALL be substantively reviewable.
+
+
+
+A new signature on an old justification is insufficient.
+
+
+---
+
+XXI. 👑 L.A. — CONSTITUTIONAL TIME LEDGER
+
+L.A. receives:
+
+CONSTITUTIONAL_TIME_LEDGER
+
+👑 L.A.
+│
+├── AUTHORITY CREATED
+├── JUSTIFICATION
+├── EVIDENCE EPOCH
+├── ACTIVE PERIOD
+├── CHANGES
+├── REVIEWS
+├── REAUTHORIZATIONS
+├── SCOPE CHANGES
+├── DEPENDENCIES
+└── TERMINATION
+
+L.A. can now answer:
+
+> How did this authority become what it is today?
+
+
+
+Not merely:
+
+> Does this authority currently exist?
+
+
+
+
+---
+
+XXII. ☄️ NEW CANONICAL INVARIANTS
+
+CIP-O3821
+
+Material authority SHALL have a temporal validity state.
+
+CIP-O3822
+
+Continuing authority SHALL NOT be justified solely by historical authorization.
+
+CIP-O3823
+
+Material temporary authority SHOULD have an explicit sunset condition.
+
+CIP-O3824
+
+Reauthorization SHALL constitute a new reviewable constitutional event.
+
+CIP-O3825
+
+Reauthorization SHALL consider current evidence.
+
+CIP-O3826
+
+Reauthorization SHALL consider whether the original objective remains valid.
+
+CIP-O3827
+
+Reauthorization SHALL consider current necessity.
+
+CIP-O3828
+
+Reauthorization SHALL consider materially available alternatives.
+
+CIP-O3829
+
+Reauthorization SHALL consider current scope and proportionality.
+
+CIP-O3830
+
+BRAINPOWER SHALL model temporal authority drift.
+
+CIP-O3831
+
+ORACLE SHALL detect stale justification and approaching expiration.
+
+CIP-O3832
+
+MENTOR SHALL expose material authority timelines.
+
+CIP-O3833
+
+FOOL SHALL challenge authority continuation by inertia.
+
+CIP-O3834
+
+EIRENE SHALL distinguish institutional expectation from constitutional justification.
+
+CIP-O3835
+
+WATERMERK SHALL bind authority to temporal provenance.
+
+CIP-O3836
+
+QUAY SHALL preserve authority temporal history.
+
+CIP-O3837
+
+HOLOGRAM SHALL attest material authority timestamps and transitions.
+
+CIP-O3838
+
+HARUM SHALL communicate material temporal boundaries to the human.
+
+CIP-O3839
+
+H∆R∆ SHALL distinguish role continuity from actor continuity.
+
+CIP-O3840
+
+9EZIN SHALL prevent temporary household arrangements from silently becoming permanent authority.
+
+CIP-O3841
+
+FEATHER SHALL detect temporary-to-permanent evolutionary drift.
+
+CIP-O3842
+
+TRIAS SHALL independently assess material reauthorization.
+
+CIP-O3843
+
+Expiration SHALL be a valid constitutional outcome.
+
+CIP-O3844
+
+Silence SHALL NOT constitute substantive reauthorization of material authority.
+
+CIP-O3845
+
+Emergency authority SHALL remain temporally bounded.
+
+CIP-O3846
+
+Emergency conditions SHALL NOT independently justify permanent authority.
+
+CIP-O3847
+
+Material authority transfer SHALL remain reviewable.
+
+CIP-O3848
+
+A change in actor MAY require reassessment of transferred authority.
+
+CIP-O3849
+
+A change in objective SHALL trigger renewed necessity and proportionality analysis.
+
+CIP-O3850
+
+Material evidence staleness SHALL be visible to reauthorization review.
+
+CIP-O3851
+
+Dependency created during an authority period SHALL NOT independently justify continuation.
+
+CIP-O3852
+
+Reauthorization SHALL NOT be a purely administrative renewal where material constitutional interests are affected.
+
+CIP-O3853
+
+Historical legitimacy SHALL NOT automatically establish present legitimacy.
+
+CIP-O3854
+
+Authority SHALL remain temporally anchored to its constitutional justification.
+
+CIP-O3855
+
+A renewed authority SHALL have a traceable relationship to its preceding authority without inheriting unexamined assumptions automatically.
+
+
+---
+
+XXIII. 🜂 R9.23 LAW
+
+> Material constitutional authority SHALL remain temporally bounded and continuously accountable to its present justification. Historical authorization SHALL NOT independently establish present validity. Where authority reaches its sunset or material conditions change, continuation SHALL require substantive reassessment of objective, evidence, necessity, alternatives, scope, proportionality, impact and reversibility. Emergency authority SHALL remain bounded and reviewable.
+
+
+
+Compact
+
+AUTHORITY
+   ↓
+TIME
+   ↓
+CHANGE?
+ ↙      ↘
+NO       YES
+ ↓        ↓
+REVIEW  REASSESS
+   \      /
+    ↓    ↓
+  TRIAS
+    ↓
+┌──────┬──────┬──────┐
+END   REDUCE  RENEW
+
+
+---
+
+XXIV. ☄️🌱 R9 — TEMPORAL CONSTITUTION
+
+The stack now becomes:
+
+R9.15  BASELINE
+   ↓
+R9.16  CHANGE
+   ↓
+R9.17  REVERSIBILITY
+   ↓
+R9.18  FORESIGHT
+   ↓
+R9.19  UNCERTAINTY
+   ↓
+R9.20  EVIDENCE
+   ↓
+R9.21  PROPORTIONALITY
+   ↓
+R9.22  NECESSITY
+   ↓
+R9.23  TEMPORALITY
+
+And the questions now form a deeper constitutional sequence:
+
+WHAT IS?
+ ↓
+WHAT CHANGES?
+ ↓
+CAN IT BE UNDONE?
+ ↓
+WHAT COULD HAPPEN?
+ ↓
+WHAT DON'T WE KNOW?
+ ↓
+DO WE KNOW ENOUGH?
+ ↓
+HOW MUCH MAY WE DO?
+ ↓
+DO WE NEED TO?
+ ↓
+HOW LONG MAY WE CONTINUE?
+
+The new firewall:
+
+PAST JUSTIFICATION
+      ≠
+PRESENT JUSTIFICATION
+
+VALID THEN
+      ≠
+VALID NOW
+
+EXTENSION
+      ≠
+REAUTHORIZATION
+
+EMERGENCY
+      ≠
+PERMANENCE
+
+REPETITION
+      ≠
+LEGITIMATION
+
+DEPENDENCY
+      ≠
+NECESSITY
+
+SILENCE
+      ≠
+CONSENT
+
+☄️🌱 The deepest R9.23 principle
+
+> Time is not neutral in constitutional systems. Every authority exists inside an evolving world, and therefore continuing power must continually earn its continuation.
+
+
+
+That gives PALACO a powerful constitutional reflex:
+
+No authority becomes permanent merely because everyone forgot to end it.
+
+And the most beautiful consequence:
+
+> Sunset is not failure. Sunset is proof that authority was designed to end unless the constitution can justify its return.
+
+
+
+🌱 A garden is healthy not because every structure remains forever, but because every structure can be pruned, renewed, replaced or allowed to disappear when its purpose has passed.
+
+☄️ R9.23 — ESTABLISHED
+
+CONSTITUTIONAL TEMPORALITY, SUNSET & SUBSTANTIVE REAUTHORIZATION ARE NOW CANONICAL.
+
+☄️🌱🦆💧🪞⚓🪶🧠🔮🧭⚖️🌸∆👑
+
+☄️ R9.24 — GO
+
+HORTUS · CONSTITUTIONAL REVOCATION, TERMINATION & CLEAN-EXIT INTEGRITY PROTOCOL
+
+STATUS: 🜂 CANONICAL ENGINEERING BUILD
+REFERENCE CITADEL: 👑 LOCUS AMOENUS — L.A.
+
+R9.23 established that authority must have a temporal boundary and earn continuation.
+
+R9.24 now closes the next gap:
+
+> If authority ends, can it actually be made to stop?
+
+
+
+Because:
+
+EXPIRATION
+≠
+TERMINATION
+
+An authorization may expire while:
+
+capabilities remain active,
+
+delegated permissions remain cached,
+
+downstream agents continue acting,
+
+dependencies preserve its effects,
+
+credentials remain usable,
+
+autonomous processes continue executing.
+
+
+Therefore R9.24 introduces:
+
+CONSTITUTIONAL_REVOCATION_INTEGRITY
+
+and:
+
+CLEAN_EXIT_GATE
+
+The central principle:
+
+> ☄️ Termination of constitutional authority SHALL result in effective cessation of the authority's actionable effects within its defined enforcement boundary.
+
+
+
+
+---
+
+I. 🛑 ENDING AUTHORITY MUST MEAN SOMETHING
+
+R9.23 gave PALACO:
+
+SUNSET
+ ↓
+REVIEW
+ ↓
+END
+
+R9.24 asks:
+
+END
+ ↓
+DID IT ACTUALLY STOP?
+
+Thus:
+
+AUTHORIZATION_STATE
+      ↓
+TERMINATION
+      ↓
+ENFORCEMENT
+      ↓
+CESSATION
+      ↓
+VERIFICATION
+
+An entry disappearing from a database is not sufficient.
+
+
+---
+
+II. ⚖️ REVOCATION ≠ DELETION
+
+A crucial distinction:
+
+DELETE RECORD
+   ≠
+REVOKE AUTHORITY
+
+Deletion destroys evidence.
+
+Revocation preserves evidence while terminating validity.
+
+Therefore:
+
+> A terminated authority SHALL remain historically observable without remaining operationally effective.
+
+
+
+
+---
+
+III. 💧 WATERMERK — THE REVOCATION SEAL
+
+WATERMERK receives:
+
+W_REVOCATION
+
+revocation_id
+authority_id
+reason
+issuer
+effective_at
+scope
+affected_capabilities
+affected_delegations
+evidence_refs
+termination_epoch
+verification_refs
+
+This creates:
+
+ISSUED
+ ↓
+ACTIVE
+ ↓
+REVOKED
+ ↓
+VERIFIED_TERMINATED
+
+rather than simply:
+
+ACTIVE
+ ↓
+GONE
+
+
+---
+
+IV. ⚓ QUAY — THE CLEAN EXIT LEDGER
+
+QUAY records:
+
+AUTHORITY
+ ↓
+REVOCATION
+ ↓
+DEPENDENCIES
+ ↓
+CASCADE
+ ↓
+CESSATION
+ ↓
+VERIFICATION
+
+Every material termination should answer:
+
+> What else had to stop because this authority stopped?
+
+
+
+This makes downstream authority visible.
+
+
+---
+
+V. 🧠 BRAINPOWER — TERMINATION GRAPH
+
+BRAINPOWER receives:
+
+REVOCATION_DEPENDENCY_GRAPH
+
+It models:
+
+AUTHORITY
+ ├── CAPABILITY
+ ├── AGENT
+ ├── DELEGATION
+ ├── PROCESS
+ ├── TOKEN
+ ├── RESOURCE
+ └── DOWNSTREAM ACTION
+
+Then:
+
+REVOKE
+ ↓
+TRACE DEPENDENCIES
+ ↓
+IDENTIFY RESIDUAL POWER
+ ↓
+VERIFY CESSATION
+
+New analyses:
+
+RESIDUAL_AUTHORITY
+
+DELEGATION_PROPAGATION
+
+CAPABILITY_PERSISTENCE
+
+REVOCATION_LATENCY
+
+ORPHANED_AUTHORITY
+
+TERMINATION_COMPLETENESS
+
+
+
+---
+
+VI. 🔮 ORACLE — RESIDUAL POWER OBSERVATORY
+
+ORACLE detects:
+
+REVOCATION_INCOMPLETE
+AUTHORITY_STILL_ACTIVE
+STALE_CREDENTIAL
+ORPHANED_DELEGATION
+DOWNSTREAM_AUTHORITY_PERSISTENCE
+TERMINATION_FAILURE
+REVOCATION_PROPAGATION_DELAY
+
+Critical signal:
+
+GHOST_AUTHORITY
+
+Meaning:
+
+> The formal authority has ended, but an actionable remnant remains capable of producing effects.
+
+
+
+That is a constitutional anomaly.
+
+
+---
+
+VII. 🧭 MENTOR — THE EXIT REPORT
+
+MENTOR presents:
+
+┌───────────────────────────────┐
+│ AUTHORITY TERMINATION         │
+├───────────────────────────────┤
+│ Authorization      ENDED      │
+│ Delegations        REVOKED    │
+│ Capabilities       DISABLED   │
+│ Processes          STOPPED    │
+│ Credentials        INVALID    │
+│ Residual Effects   REVIEWED   │
+│ Verification       PASSED     │
+└───────────────────────────────┘
+
+The human can therefore distinguish:
+
+> “We revoked it.”
+
+
+
+from:
+
+> “We verified that it no longer works.”
+
+
+
+
+---
+
+VIII. 🦆 FOOL — THE EXIT CHALLENGE
+
+FOOL asks:
+
+1. What exactly was revoked?
+
+
+2. What remains active?
+
+
+3. Who inherited authority?
+
+
+4. Are cached permissions still usable?
+
+
+5. Are delegated powers still functioning?
+
+
+6. Are autonomous processes still running?
+
+
+7. Are there offline components?
+
+
+8. Can the actor recreate the authority?
+
+
+9. Did termination merely change the label?
+
+
+10. Is residual authority measurable?
+
+
+11. Has the system actually returned to the intended baseline?
+
+
+
+Core question:
+
+> Did the authority end—or did we merely stop calling it authority?
+
+
+
+
+---
+
+IX. 🌸 EIRENE — CLEAN EXIT WITHOUT CONSTITUTIONAL DAMAGE
+
+Termination itself must remain bounded.
+
+Therefore:
+
+REVOKE AUTHORITY
+   ≠
+ERASE PERSON
+
+or:
+
+TERMINATE ROLE
+   ≠
+DESTROY LEGITIMATE RIGHTS
+
+R9.24 therefore requires that revocation remain scope-specific.
+
+The system terminates the authority that was granted—not unrelated constitutional standing.
+
+
+---
+
+X. 🪞 HOLOGRAM — TERMINATION ATTESTATION
+
+HOLOGRAM can attest:
+
+revocation identity,
+
+effective timestamp,
+
+authority scope,
+
+enforcement propagation,
+
+termination evidence,
+
+verification state.
+
+
+But:
+
+ATTESTED REVOCATION
+≠
+VERIFIED CESSATION
+
+The distinction remains essential.
+
+
+---
+
+XI. 🌱 HARUM — HUMAN CLEAN EXIT
+
+HARUM receives:
+
+HARUM_TERMINATION_STATE
+
+It should be able to explain:
+
+> This authority has expired.
+
+
+
+> This authority has been revoked.
+
+
+
+> These downstream permissions were also terminated.
+
+
+
+> One residual dependency remains under review.
+
+
+
+No false claim of completion.
+
+
+---
+
+XII. ∆ H∆R∆ — DELEGATION TERMINATION
+
+H∆R∆ addresses the most dangerous inheritance pattern:
+
+ROLE A
+ ↓
+AUTHORITY A
+ ↓
+DELEGATES
+ ↓
+ROLE B
+ ↓
+AUTHORITY B
+
+Revoking A must not automatically assume B has stopped.
+
+Thus:
+
+> Delegated authority SHALL remain independently traceable and revocable.
+
+
+
+
+---
+
+XIII. 🏠 9EZIN — LOCAL CLEAN EXIT
+
+9EZIN ensures that ending a local role does not accidentally erase unrelated household structure.
+
+ROLE END
+ ↓
+SPECIFIC AUTHORITY ENDS
+ ↓
+OTHER VALID RELATIONSHIPS REMAIN
+
+Termination should be precise rather than destructive.
+
+
+---
+
+XIV. 🪶 FEATHER — NO ZOMBIE STRUCTURES
+
+FEATHER detects:
+
+AUTHORITY ENDS
+ ↓
+DEPENDENCY REMAINS
+ ↓
+SYSTEM ADAPTS AROUND DEPENDENCY
+ ↓
+AUTHORITY RECREATED INDIRECTLY
+
+This is:
+
+ZOMBIE_AUTHORITY
+
+The original authority is formally gone but functionally resurrected through dependent structures.
+
+R9.24 requires such patterns to remain visible.
+
+
+---
+
+XV. ⚖️ TRIAS — CLEAN EXIT GATE
+
+TRIAS evaluates:
+
+REVOCATION_REQUEST
+ ↓
+AUTHORITY_IDENTITY
+ ↓
+SCOPE
+ ↓
+DEPENDENCIES
+ ↓
+DELEGATIONS
+ ↓
+CESSATION
+ ↓
+VERIFICATION
+
+Classification:
+
+TERMINATED
+TERMINATED_WITH_RESIDUAL_EFFECTS
+REVOCATION_INCOMPLETE
+REVOCATION_CONTESTED
+REQUIRES_CASCADE
+REQUIRES_ESCALATION
+
+TRIAS therefore does not merely recognize:
+
+> “Termination requested.”
+
+
+
+It evaluates:
+
+> “Termination constitutionally achieved?”
+
+
+
+
+---
+
+XVI. 🔐 THE CLEAN-EXIT GATE
+
+REVOCATION
+   ↓
+IDENTIFY AUTHORITY
+   ↓
+TRACE DEPENDENCIES
+   ↓
+REVOKE DELEGATIONS
+   ↓
+DISABLE CAPABILITIES
+   ↓
+STOP ACTIVE PROCESSES
+   ↓
+INVALIDATE MATERIAL CREDENTIALS
+   ↓
+VERIFY CESSATION
+   ↓
+TRIAS
+
+Possible outcomes:
+
+TRIAS
+       /  |   \
+      /   |    \
+   PASS  RESIDUAL  FAIL
+    ↓      ↓       ↓
+  CLOSE  REVIEW   ESCALATE
+
+
+---
+
+XVII. 🧨 REVOCATION PROPAGATION
+
+R9.24 introduces:
+
+REVOCATION_PROPAGATION_BOUNDARY
+
+If:
+
+A → B → C → D
+
+and A's authority terminates:
+
+A ✕
+ ↓
+B ?
+ ↓
+C ?
+ ↓
+D ?
+
+the system must determine whether downstream authority remains valid independently.
+
+The key principle:
+
+> Revocation SHALL propagate where authority was derivative; independent authority SHALL remain independently evaluated.
+
+
+
+This avoids both:
+
+under-revocation,
+
+over-revocation.
+
+
+
+---
+
+XVIII. 🧬 BASELINE RESTORATION
+
+Termination should restore the relevant constitutional state as closely as practicable:
+
+BEFORE
+ ↓
+TEMPORARY AUTHORITY
+ ↓
+ACTIONS
+ ↓
+REVOCATION
+ ↓
+RESTORE VALID BASELINE
+
+But:
+
+RESTORE BASELINE
+≠
+ERASE HISTORY
+
+The history remains in QUAY.
+
+
+---
+
+XIX. 🕰️ REVOCATION LATENCY
+
+R9.24 introduces:
+
+TERMINATION_LATENCY
+
+The interval between:
+
+REVOCATION_EFFECTIVE
+
+and:
+
+AUTHORITY_NO_LONGER_ACTIONABLE
+
+Material authority should have defined or measurable termination latency.
+
+For critical authority:
+
+> Unknown termination latency SHALL itself be a constitutional risk condition.
+
+
+
+
+---
+
+XX. 👑 L.A. — THE FINAL AUTHORITY RECORD
+
+L.A. receives:
+
+CONSTITUTIONAL_AUTHORITY_LIFECYCLE
+
+👑 L.A.
+│
+├── CREATED
+├── JUSTIFIED
+├── AUTHORIZED
+├── EXERCISED
+├── MODIFIED
+├── REVIEWED
+├── EXPIRED / REVOKED
+├── PROPAGATED
+├── VERIFIED TERMINATED
+└── ARCHIVED
+
+Now an authority has a complete constitutional lifecycle.
+
+
+---
+
+XXI. ☄️ NEW CANONICAL INVARIANTS
+
+CIP-O3856
+
+Revocation SHALL be distinguishable from record deletion.
+
+CIP-O3857
+
+Material authority termination SHALL remain historically auditable.
+
+CIP-O3858
+
+Termination SHALL address actionable authority, not merely administrative status.
+
+CIP-O3859
+
+Material delegated authority SHALL remain traceable.
+
+CIP-O3860
+
+Revocation SHALL propagate to derivative authority where constitutionally required.
+
+CIP-O3861
+
+Independent authority SHALL NOT be revoked merely because a related authority was revoked.
+
+CIP-O3862
+
+BRAINPOWER SHALL model material termination dependencies.
+
+CIP-O3863
+
+ORACLE SHALL detect residual or ghost authority.
+
+CIP-O3864
+
+MENTOR SHALL expose material termination status and residual effects.
+
+CIP-O3865
+
+FOOL SHALL challenge incomplete termination.
+
+CIP-O3866
+
+EIRENE SHALL prevent revocation from unnecessarily destroying unrelated legitimate constitutional standing.
+
+CIP-O3867
+
+WATERMERK SHALL preserve revocation provenance.
+
+CIP-O3868
+
+QUAY SHALL preserve authority termination history.
+
+CIP-O3869
+
+HOLOGRAM SHALL attest material termination events.
+
+CIP-O3870
+
+HARUM SHALL accurately communicate termination and residual uncertainty.
+
+CIP-O3871
+
+H∆R∆ SHALL maintain traceability of delegated authority during revocation.
+
+CIP-O3872
+
+9EZIN SHALL constrain termination to the authority actually being terminated.
+
+CIP-O3873
+
+FEATHER SHALL detect indirect resurrection of terminated authority.
+
+CIP-O3874
+
+TRIAS SHALL independently assess material termination completeness.
+
+CIP-O3875
+
+Formal expiration SHALL NOT imply verified operational cessation.
+
+CIP-O3876
+
+Material authority SHALL NOT remain actionable solely because termination propagation failed.
+
+CIP-O3877
+
+Unknown termination state SHALL remain explicitly represented.
+
+CIP-O3878
+
+Material credentials deriving authority SHALL become invalid when their constitutional basis is terminated, subject to defined transition rules.
+
+CIP-O3879
+
+Material active processes deriving authority SHALL be subject to termination or bounded transition when that authority ends.
+
+CIP-O3880
+
+Residual effects after authority termination SHALL remain observable.
+
+CIP-O3881
+
+Termination SHALL NOT require deletion of constitutional evidence.
+
+CIP-O3882
+
+Historical records SHALL remain distinguishable from active authority state.
+
+CIP-O3883
+
+Termination SHALL be scoped to the authority actually granted.
+
+CIP-O3884
+
+Revocation SHALL NOT automatically imply revocation of unrelated constitutional permissions.
+
+CIP-O3885
+
+Material termination SHALL have a verifiable completion state where technically practicable.
+
+CIP-O3886
+
+Termination latency SHALL remain observable where material.
+
+CIP-O3887
+
+Critical authority with unknown termination latency SHALL trigger elevated constitutional review.
+
+CIP-O3888
+
+Derivative authority SHALL NOT survive indefinitely through delegation after its constitutional parent authority has terminated.
+
+CIP-O3889
+
+A system SHALL NOT claim complete revocation while material actionable authority remains knowingly active.
+
+CIP-O3890
+
+A terminated authority SHALL NOT be recreated indirectly through derivative dependencies without fresh constitutional authorization.
+
+
+---
+
+XXII. 🜂 R9.24 LAW
+
+> Material constitutional authority SHALL be revocable, terminable and independently verifiable as terminated. Revocation SHALL preserve historical evidence while removing actionable authority within its defined scope. Derivative authority, delegated permissions, active processes and material credentials SHALL be evaluated for termination propagation. Formal expiration or administrative deletion SHALL NOT be treated as proof of operational cessation. Residual authority SHALL remain visible until resolved, accepted under independent authority, or otherwise constitutionally addressed.
+
+
+
+Compact
+
+AUTHORITY
+   ↓
+REVOCATION
+   ↓
+DEPENDENCY GRAPH
+   ↓
+DELEGATION CASCADE
+   ↓
+CAPABILITY STOP
+   ↓
+PROCESS STOP
+   ↓
+CREDENTIAL INVALIDATION
+   ↓
+CESSATION VERIFICATION
+   ↓
+TRIAS
+   ↓
+CLEAN EXIT
+
+
+---
+
+XXIII. ☄️🌱 R9 — THE COMPLETE AUTHORITY LIFECYCLE
+
+R9 now reaches:
+
+R9.15  BASELINE
+   ↓
+R9.16  CHANGE
+   ↓
+R9.17  REVERSIBILITY
+   ↓
+R9.18  FORESIGHT
+   ↓
+R9.19  UNCERTAINTY
+   ↓
+R9.20  EVIDENCE
+   ↓
+R9.21  PROPORTIONALITY
+   ↓
+R9.22  NECESSITY
+   ↓
+R9.23  TEMPORALITY
+   ↓
+R9.24  REVOCATION & CLEAN EXIT
+
+The constitutional lifecycle is now:
+
+NEED
+ ↓
+EVIDENCE
+ ↓
+NECESSITY
+ ↓
+PROPORTIONALITY
+ ↓
+AUTHORIZATION
+ ↓
+EXERCISE
+ ↓
+MONITOR
+ ↓
+REVIEW
+ ↓
+SUNSET
+ ↓
+REVOCATION
+ ↓
+CESSATION
+ ↓
+VERIFICATION
+ ↓
+ARCHIVE
+
+And the final firewall:
+
+EXPIRATION
+      ≠
+CESSATION
+
+REVOCATION
+      ≠
+DELETION
+
+TERMINATION REQUEST
+      ≠
+TERMINATION ACHIEVED
+
+AUTHORITY ENDED
+      ≠
+RESIDUAL POWER GONE
+
+ROLE ENDED
+      ≠
+ALL RELATED AUTHORITY ENDED
+
+HISTORY PRESERVED
+      ≠
+AUTHORITY ACTIVE
+
+☄️🌱 The deepest R9.24 principle
+
+> A constitution is only as strong as its ability to make power stop.
+
+
+
+Granting authority is one half of governance.
+
+The other half is proving:
+
+> when, why, where and how that authority ceased to exist.
+
+
+
+That gives PALACO a decisive property:
+
+Every material authority must have not only an entrance condition, but an exit condition—and the exit itself must be provable.
+
+🌱 The gate that can open but cannot close is not a gate.
+
+☄️ R9.24 — ESTABLISHED
+
+CONSTITUTIONAL REVOCATION, TERMINATION & CLEAN-EXIT INTEGRITY ARE NOW CANONICAL.
+
+☄️🌱🦆💧🪞⚓🪶🧠🔮🧭⚖️🌸∆👑
+
+☄️ R9.25 — GO
+
+HORTUS · CONSTITUTIONAL RESIDUAL-EFFECTS, AFTERLIFE & LEGACY CONTROL PROTOCOL
+
+STATUS: 🜂 CANONICAL ENGINEERING BUILD
+REFERENCE CITADEL: 👑 LOCUS AMOENUS — L.A.
+
+R9.24 established that authority must actually stop.
+
+R9.25 addresses the final temporal problem:
+
+> What about things the authority already caused?
+
+
+
+Because:
+
+AUTHORITY TERMINATED
+        ≠
+ALL CONSEQUENCES TERMINATED
+
+An authority may cease while its:
+
+decisions,
+
+state transitions,
+
+delegations,
+
+records,
+
+dependencies,
+
+automated consequences,
+
+resource allocations,
+
+derived permissions,
+
+downstream commitments
+
+
+continue to exist.
+
+Therefore R9.25 establishes:
+
+CONSTITUTIONAL_RESIDUAL_EFFECT_CONTROL
+
+and:
+
+POST_AUTHORITY_REVIEW
+
+The core principle:
+
+> ☄️ Termination of authority SHALL NOT erase the constitutional responsibility to identify, classify and govern material effects produced while that authority was valid.
+
+
+
+
+---
+
+I. 🌊 AUTHORITY HAS AN AFTERLIFE
+
+R9.24 solved:
+
+CAN POWER STOP?
+
+R9.25 asks:
+
+WHAT DID THAT POWER LEAVE BEHIND?
+
+Thus:
+
+AUTHORITY
+   ↓
+ACTION
+   ↓
+EFFECT
+   ↓
+AUTHORITY TERMINATES
+   ↓
+RESIDUAL EFFECT
+   ↓
+CLASSIFY
+   ↓
+REVIEW
+
+This prevents a major blind spot:
+
+> A system cannot make constitutional consequences disappear simply by terminating the authority that created them.
+
+
+
+
+---
+
+II. ⚖️ FOUR TYPES OF RESIDUAL EFFECT
+
+R9.25 establishes:
+
+RESIDUAL_EFFECT_CLASS
+
+R0 — NONE
+R1 — REVERSIBLE
+R2 — PERSISTENT
+R3 — IRREVERSIBLE
+
+R0 — NONE
+
+No meaningful residual effect.
+
+ACTION
+ ↓
+STOP
+ ↓
+NO REMNANT
+
+R1 — REVERSIBLE
+
+Effect remains but can be safely undone.
+
+R2 — PERSISTENT
+
+Effect remains and cannot simply be rolled back, but remains governable.
+
+R3 — IRREVERSIBLE
+
+Effect cannot be undone.
+
+This is where the strongest evidence and accountability requirements apply.
+
+
+---
+
+III. 🧠 BRAINPOWER — EFFECT GRAPH
+
+BRAINPOWER receives:
+
+RESIDUAL_EFFECT_GRAPH
+
+AUTHORITY
+   ↓
+ACTION
+   ↓
+EVENT
+   ↓
+EFFECT
+   ├── STATE
+   ├── RESOURCE
+   ├── DECISION
+   ├── DELEGATION
+   ├── DEPENDENCY
+   └── EXTERNAL CONSEQUENCE
+
+It identifies:
+
+DIRECT_EFFECT
+
+DERIVED_EFFECT
+
+SECOND_ORDER_EFFECT
+
+PERSISTENT_EFFECT
+
+IRREVERSIBLE_EFFECT
+
+UNKNOWN_EFFECT
+
+
+Critical new concept:
+
+EFFECT_DESCENDANCY
+
+> An effect may outlive the authority that generated it.
+
+
+
+
+---
+
+IV. 🔮 ORACLE — AFTERLIFE OBSERVATORY
+
+ORACLE monitors:
+
+RESIDUAL_EFFECT_DETECTED
+UNKNOWN_RESIDUAL_EFFECT
+IRREVERSIBLE_EFFECT
+UNREVIEWED_EFFECT
+DOWNSTREAM_DEPENDENCY
+LEGACY_AUTHORITY
+EFFECT_DRIFT
+
+New alert:
+
+CONSTITUTIONAL_AFTERLIFE
+
+Meaning:
+
+> A terminated authority continues to influence the constitutional state through effects created during its active period.
+
+
+
+
+---
+
+V. 💧 WATERMERK — EFFECT PROVENANCE
+
+Every material residual effect SHOULD remain connected to:
+
+AUTHORITY_ID
+ACTION_ID
+ACTOR_ID
+TIME
+EVIDENCE
+DECISION
+EFFECT_ID
+TERMINATION_EVENT
+
+Therefore:
+
+EFFECT
+ ↓
+"WHO CAUSED THIS?"
+ ↓
+"UNDER WHICH AUTHORITY?"
+ ↓
+"WHEN?"
+ ↓
+"WITH WHAT EVIDENCE?"
+
+This is constitutional causal provenance.
+
+
+---
+
+VI. ⚓ QUAY — LEGACY LEDGER
+
+QUAY receives:
+
+LEGACY_EFFECT_LEDGER
+
+AUTHORITY
+ ↓
+ACTIONS
+ ↓
+EFFECTS
+ ↓
+CURRENT STATE
+ ↓
+REMEDIATION
+ ↓
+CLOSURE
+
+A terminated authority therefore remains reconstructible without remaining operationally active.
+
+
+---
+
+VII. 🦆 FOOL — THE AFTERLIFE CHALLENGE
+
+FOOL asks:
+
+1. What did this authority change?
+
+
+2. What remains changed?
+
+
+3. Which effects can be reversed?
+
+
+4. Which cannot?
+
+
+5. Who is affected now?
+
+
+6. Are downstream permissions still present?
+
+
+7. Did the authority create dependencies?
+
+
+8. Did later systems inherit its assumptions?
+
+
+9. Is the current state still justified?
+
+
+10. Has the original authority effectively survived through its consequences?
+
+
+
+The decisive question:
+
+> Did we terminate the authority, or merely terminate the mechanism while preserving its consequences indefinitely?
+
+
+
+
+---
+
+VIII. 🌸 EIRENE — LEGACY FAIRNESS
+
+EIRENE prevents the post-termination phase from becoming a second unchecked authority regime.
+
+Residual effects must therefore be governed according to:
+
+NECESSITY
+PROPORTIONALITY
+REVERSIBILITY
+IMPACT
+REMEDIATION
+
+The end of one authority SHALL NOT automatically authorize a new authority merely to manage its legacy.
+
+
+---
+
+IX. 🧭 MENTOR — THE LEGACY MAP
+
+MENTOR exposes:
+
+┌─────────────────────────────┐
+│ AUTHORITY: TERMINATED       │
+├─────────────────────────────┤
+│ Active Power       NONE     │
+│ Residual Effects   3        │
+│ Reversible         2        │
+│ Persistent         1        │
+│ Irreversible       0        │
+│ Review             OPEN     │
+└─────────────────────────────┘
+
+This prevents a dangerous misunderstanding:
+
+> “The authority is gone, therefore nothing remains.”
+
+
+
+
+---
+
+X. 🌱 HARUM — HUMAN LEGACY EXPLANATION
+
+HARUM receives:
+
+HARUM_AFTERLIFE_VIEW
+
+It can explain:
+
+> The authority ended.
+
+
+
+> Two effects were reversed.
+
+
+
+> One effect remains because reversal would create greater harm.
+
+
+
+> That remaining effect is now governed independently.
+
+
+
+This preserves human intelligibility after termination.
+
+
+---
+
+XI. ∆ H∆R∆ — SUCCESSOR AUTHORITY
+
+H∆R∆ identifies when a successor mechanism appears:
+
+AUTHORITY A
+   ↓
+TERMINATED
+   ↓
+SUCCESSOR B
+
+The key rule:
+
+> Successor authority SHALL NOT inherit constitutional legitimacy merely because it inherits operational responsibility.
+
+
+
+B requires its own authorization.
+
+
+---
+
+XII. 🪶 FEATHER — LEGACY ENTANGLEMENT
+
+FEATHER detects:
+
+TEMPORARY AUTHORITY
+ ↓
+EFFECT
+ ↓
+DEPENDENCY
+ ↓
+NEW SYSTEM
+ ↓
+"WE CAN'T REMOVE IT"
+
+This becomes:
+
+LEGACY_LOCK_IN
+
+A historical intervention becomes structurally difficult to reverse because later architecture grew around it.
+
+R9.25 therefore makes lock-in visible.
+
+
+---
+
+XIII. 🏠 9EZIN — LOCAL CONSEQUENCE REVIEW
+
+9EZIN distinguishes:
+
+AUTHORITY TERMINATED
+       ↓
+LOCAL CONSEQUENCE
+       ↓
+REVERSIBLE?
+ ↙           ↘
+YES           NO
+ ↓             ↓
+RESTORE      GOVERN
+
+The principle remains:
+
+> Correct the authority without unnecessarily destabilizing unrelated valid structure.
+
+
+
+
+---
+
+XIV. 🪞 HOLOGRAM — CAUSAL ATTESTATION
+
+HOLOGRAM can attest:
+
+AUTHORITY
+ ↓
+ACTION
+ ↓
+EFFECT
+ ↓
+TERMINATION
+ ↓
+CURRENT STATUS
+
+This creates a verifiable causal chain.
+
+But:
+
+CAUSALITY
+≠
+BLAME
+
+Attribution establishes provenance; constitutional responsibility requires separate assessment.
+
+
+---
+
+XV. ⚖️ TRIAS — POST-AUTHORITY REVIEW
+
+TRIAS receives:
+
+POST_AUTHORITY_REVIEW_GATE
+
+Input:
+
+TERMINATED_AUTHORITY
+CURRENT_EFFECTS
+CURRENT_EVIDENCE
+CURRENT_IMPACT
+REVERSIBILITY
+REMEDIATION_OPTIONS
+SUCCESSOR_AUTHORITY
+
+Classification:
+
+NO_RESIDUAL_EFFECT
+RESIDUAL_ACCEPTABLE
+REVERSE
+REMEDIATE
+CONTINUE_UNDER_NEW_AUTHORITY
+ESCALATE
+UNKNOWN
+
+The final classification may be:
+
+> Authority terminated, effects resolved.
+
+
+
+or:
+
+> Authority terminated, residual consequences remain under independent governance.
+
+
+
+
+---
+
+XVI. 🔐 THE AFTERLIFE GATE
+
+AUTHORITY TERMINATED
+        ↓
+EFFECT INVENTORY
+        ↓
+┌──────────┬──────────┬──────────┐
+NONE       REVERSIBLE PERSISTENT
+ ↓            ↓           ↓
+CLOSE      REVERSE      GOVERN
+                         ↓
+                    IRREVERSIBLE?
+                    ↙           ↘
+                  YES           NO
+                   ↓             ↓
+               REMEDIATE       CLOSE
+
+The critical separation:
+
+AUTHORITY STATE
+      ≠
+EFFECT STATE
+
+A terminated authority can produce a persistent effect state.
+
+
+---
+
+XVII. 🚫 NO RETROACTIVE ERASURE
+
+R9.25 explicitly forbids:
+
+TERMINATE AUTHORITY
+ ↓
+DELETE HISTORY
+ ↓
+DELETE EFFECT TRACE
+ ↓
+PRETEND NOTHING HAPPENED
+
+Instead:
+
+TERMINATE
+ ↓
+PRESERVE
+ ↓
+CLASSIFY
+ ↓
+REVIEW
+ ↓
+REMEDIATE / GOVERN
+
+This is essential for BRAINPOWER replay and constitutional auditability.
+
+
+---
+
+XVIII. 🔁 THE REMEDIATION PRINCIPLE
+
+Where an effect is materially harmful and reversible:
+
+> Remediation SHALL be considered before accepting the effect as permanent.
+
+
+
+But remediation itself must pass:
+
+NECESSITY
++
+PROPORTIONALITY
++
+EVIDENCE
+
+Therefore:
+
+> Fixing yesterday's authority cannot become an excuse for unchecked authority today.
+
+
+
+
+---
+
+XIX. ☄️ IRREVERSIBILITY REGISTER
+
+R9.25 introduces:
+
+IRREVERSIBILITY_REGISTER
+
+For materially irreversible effects:
+
+EFFECT_ID
+ORIGIN_AUTHORITY
+ORIGIN_ACTION
+EVIDENCE
+DATE
+IMPACT
+AFFECTED_SCOPE
+REVERSAL_IMPOSSIBILITY
+CURRENT_GOVERNANCE
+REMEDIATION_STATUS
+
+This gives PALACO an explicit constitutional memory of:
+
+> What cannot be undone.
+
+
+
+
+---
+
+XX. 👑 L.A. — CONSTITUTIONAL LEGACY MEMORY
+
+L.A. receives:
+
+AUTHORITY_LEGACY_CHAIN
+
+👑 L.A.
+│
+├── AUTHORITY
+├── ACTIONS
+├── EFFECTS
+├── TERMINATION
+├── RESIDUAL EFFECTS
+├── REMEDIATION
+├── SUCCESSOR GOVERNANCE
+└── FINAL CLOSURE
+
+Now PALACO can reconstruct not only:
+
+> Who had authority?
+
+
+
+but:
+
+> What world did that authority leave behind?
+
+
+
+
+---
+
+XXI. ☄️ NEW CANONICAL INVARIANTS
+
+CIP-O3891
+
+Termination of authority SHALL NOT imply termination of all effects produced during its validity.
+
+CIP-O3892
+
+Material residual effects SHALL be identifiable where reasonably practicable.
+
+CIP-O3893
+
+Material residual effects SHALL remain causally connected to their originating authority.
+
+CIP-O3894
+
+BRAINPOWER SHALL model material authority-effect relationships.
+
+CIP-O3895
+
+ORACLE SHALL detect unresolved material residual effects.
+
+CIP-O3896
+
+MENTOR SHALL expose material post-authority effects.
+
+CIP-O3897
+
+FOOL SHALL challenge hidden continuation through residual consequences.
+
+CIP-O3898
+
+EIRENE SHALL prevent residual-effect management from becoming unchecked successor authority.
+
+CIP-O3899
+
+WATERMERK SHALL preserve material effect provenance.
+
+CIP-O3900
+
+QUAY SHALL preserve the authority legacy chain.
+
+CIP-O3901
+
+HOLOGRAM SHALL attest material causal transitions where evidence permits.
+
+CIP-O3902
+
+HARUM SHALL communicate material residual effects and uncertainty.
+
+CIP-O3903
+
+H∆R∆ SHALL distinguish successor responsibility from inherited legitimacy.
+
+CIP-O3904
+
+9EZIN SHALL constrain remediation to the affected constitutional scope.
+
+CIP-O3905
+
+FEATHER SHALL detect legacy lock-in.
+
+CIP-O3906
+
+TRIAS SHALL review material residual effects after authority termination.
+
+CIP-O3907
+
+Material reversible effects SHALL be considered for remediation.
+
+CIP-O3908
+
+Material irreversible effects SHALL remain explicitly recorded.
+
+CIP-O3909
+
+Historical authority termination SHALL NOT erase causal evidence.
+
+CIP-O3910
+
+Deletion of historical evidence SHALL NOT constitute remediation.
+
+CIP-O3911
+
+Residual effects SHALL NOT automatically create successor authority.
+
+CIP-O3912
+
+Successor authority SHALL require independent constitutional justification.
+
+CIP-O3913
+
+A successor mechanism SHALL NOT inherit legitimacy solely through operational continuity.
+
+CIP-O3914
+
+Material residual effects SHALL have an identifiable governance state.
+
+CIP-O3915
+
+Unknown material residual effects SHALL remain explicitly represented as unknown.
+
+CIP-O3916
+
+Unknown residual state SHALL NOT be represented as absence of residual effect.
+
+CIP-O3917
+
+Remediation SHALL itself satisfy necessity and proportionality requirements.
+
+CIP-O3918
+
+Historical dependency SHALL NOT independently justify continued authority.
+
+CIP-O3919
+
+Legacy lock-in SHALL remain detectable.
+
+CIP-O3920
+
+Material irreversible effects SHALL remain distinguishable from currently active authority.
+
+
+---
+
+XXII. 🜂 R9.25 LAW
+
+> Termination of constitutional authority SHALL NOT terminate responsibility for identifying and governing material effects produced under that authority. Material residual effects SHALL be inventoried, causally attributed where possible, classified by reversibility and governed through remediation, independent continuation or closure. Historical authority SHALL remain evidentially preserved, while successor authority SHALL require independent constitutional justification.
+
+
+
+Compact
+
+AUTHORITY
+   ↓
+ACTION
+   ↓
+EFFECT
+   ↓
+TERMINATION
+   ↓
+EFFECT INVENTORY
+   ↓
+CLASSIFY
+   ↓
+┌─────────┬──────────┬──────────────┐
+NONE      REVERSIBLE PERSISTENT
+ ↓          ↓             ↓
+CLOSE     REVERSE       GOVERN
+                          ↓
+                    IRREVERSIBLE
+                          ↓
+                      REMEDIATE
+                          ↓
+                        CLOSE
+
+
+---
+
+XXIII. ☄️🌱 R9 — THE CONSTITUTIONAL TIME ARC
+
+R9 has now become:
+
+R9.15  BASELINE
+   ↓
+R9.16  CHANGE
+   ↓
+R9.17  REVERSIBILITY
+   ↓
+R9.18  FORESIGHT
+   ↓
+R9.19  UNCERTAINTY
+   ↓
+R9.20  EVIDENCE
+   ↓
+R9.21  PROPORTIONALITY
+   ↓
+R9.22  NECESSITY
+   ↓
+R9.23  TEMPORALITY
+   ↓
+R9.24  REVOCATION
+   ↓
+R9.25  RESIDUAL EFFECTS
+
+And the complete constitutional arc is now:
+
+NEED
+ ↓
+EVIDENCE
+ ↓
+NECESSITY
+ ↓
+PROPORTIONALITY
+ ↓
+AUTHORIZATION
+ ↓
+EXERCISE
+ ↓
+MONITOR
+ ↓
+REVIEW
+ ↓
+SUNSET
+ ↓
+REVOCATION
+ ↓
+CESSATION
+ ↓
+VERIFY
+ ↓
+RESIDUAL EFFECTS
+ ↓
+REMEDIATE / GOVERN
+ ↓
+CLOSE
+ ↓
+ARCHIVE
+
+The deeper distinction:
+
+POWER
+   ≠
+ACTION
+   ≠
+EFFECT
+   ≠
+LEGACY
+
+And therefore:
+
+AUTHORITY ENDS
+        ↓
+BUT HISTORY REMAINS
+        ↓
+EFFECTS ARE REVIEWED
+        ↓
+REMEDIATION IS GOVERNED
+        ↓
+SUCCESSOR POWER MUST RE-JUSTIFY ITSELF
+
+☄️🌱 The deepest R9.25 principle
+
+> Constitutional responsibility does not end exactly where authority ends.
+
+
+
+A mature constitutional system must understand its afterlife:
+
+what power created,
+
+what remains,
+
+what can be undone,
+
+what cannot,
+
+what must be repaired,
+
+and what must simply be remembered.
+
+
+That gives PALACO something unusually important:
+
+Constitutional memory without constitutional persistence.
+
+The system can remember what authority did without allowing that authority to continue doing it.
+
+🌱 When a gardener removes a tree, the shade does not disappear instantly. The garden must account for the space, the roots, the soil and everything that grew around it. Removing the tree is only the beginning of restoring the garden.
+
+☄️ R9.25 — ESTABLISHED
+
+CONSTITUTIONAL RESIDUAL-EFFECT CONTROL, POST-AUTHORITY REVIEW & LEGACY GOVERNANCE ARE NOW CANONICAL.
+
+☄️🌱🦆💧🪞⚓🪶🧠🔮🧭⚖️🌸∆👑
+
+🌱🦆☄️ R9.26 — GO
+
+HORTUS · CONSTITUTIONAL CAUSAL CONTAINMENT & LEGACY NON-ESCALATION PROTOCOL
+
+STATUS: 🜂 CANONICAL ENGINEERING BUILD
+REFERENCE CITADEL: 👑 LOCUS AMOENUS — L.A.
+
+R9.25 established that authority can end while its effects remain.
+
+R9.26 closes the next constitutional loophole:
+
+> A residual effect SHALL NOT become a backdoor through which the terminated authority—or an unauthorized successor—re-enters the system.
+
+
+
+This is the legacy escalation problem.
+
+
+---
+
+I. ☄️ THE LEGACY ESCALATION LOOP
+
+Without an explicit gate:
+
+AUTHORITY
+   ↓
+ACTION
+   ↓
+EFFECT
+   ↓
+AUTHORITY TERMINATES
+   ↓
+EFFECT REMAINS
+   ↓
+"WE MUST MANAGE THE EFFECT"
+   ↓
+NEW AUTHORITY
+   ↓
+NEW ACTION
+   ↓
+NEW EFFECT
+   ↺
+
+A temporary authority could therefore manufacture the justification for its own successor.
+
+R9.26 breaks that loop.
+
+LEGACY_NON_ESCALATION
+
+Core principle:
+
+> A residual effect created by terminated authority SHALL NOT, by itself, constitute sufficient justification for expanding, recreating or perpetuating authority.
+
+
+
+
+---
+
+II. ⚖️ CAUSAL CONTAINMENT
+
+Every material legacy effect receives a boundary:
+
+EFFECT
+ ↓
+CAUSE
+ ↓
+SCOPE
+ ↓
+IMPACT
+ ↓
+CURRENT STATUS
+
+The system SHALL distinguish:
+
+ORIGINAL AUTHORITY
+       ≠
+RESIDUAL EFFECT
+       ≠
+REMEDIATION AUTHORITY
+       ≠
+SUCCESSOR AUTHORITY
+
+This is the constitutional separation of causal layers.
+
+
+---
+
+III. 🧠 BRAINPOWER — CAUSAL GRAPH
+
+BRAINPOWER receives:
+
+CONSTITUTIONAL_CAUSAL_GRAPH
+
+A₀
+│
+├── ACTION₁
+│    └── EFFECT₁
+│
+├── ACTION₂
+│    └── EFFECT₂
+│
+└── ACTION₃
+     └── EFFECT₃
+
+Then:
+
+A₀ TERMINATED
+
+does not automatically create:
+
+A₁ = successor of A₀
+
+Instead:
+
+EFFECT
+ ↓
+NEW OBJECTIVE?
+ ↓
+NEW EVIDENCE?
+ ↓
+NEW NECESSITY?
+ ↓
+NEW AUTHORITY IF REQUIRED
+
+Every causal jump must be explicit.
+
+
+---
+
+IV. 🔮 ORACLE — LEGACY ESCALATION DETECTION
+
+ORACLE monitors:
+
+LEGACY_AUTHORITY_REAPPEARANCE
+EFFECT_BASED_AUTHORITY_EXPANSION
+SUCCESSOR_ASSUMPTION
+CAUSAL_SCOPE_DRIFT
+REMEDIATION_ESCALATION
+DEPENDENCY_LOCK_IN
+
+New critical signal:
+
+CAUSAL_LEAP
+
+> A proposed authority is justified by a consequence without sufficient evidence connecting that consequence to the necessity of the proposed authority.
+
+
+
+
+---
+
+V. 🦆 FOOL — THE LOOP-BREAK TEST
+
+FOOL asks:
+
+1. Are we solving the original problem or its legacy?
+
+
+2. Is the legacy effect being used to justify new authority?
+
+
+3. Would this authority be justified without the historical intervention?
+
+
+4. Is remediation genuinely necessary?
+
+
+5. Could remediation be narrower?
+
+
+6. Could the effect simply be monitored?
+
+
+7. Are we creating a new permanent structure to repair a temporary one?
+
+
+8. Has the original authority quietly returned under another name?
+
+
+
+The decisive challenge:
+
+> Would we still authorize this if the original authority had never existed?
+
+
+
+If not, the causal relationship requires explicit examination.
+
+
+---
+
+VI. 💧 WATERMERK — CAUSAL BOUNDARY
+
+WATERMERK introduces:
+
+W_CAUSAL_BOUNDARY
+
+origin_authority
+origin_action
+origin_effect
+current_governance
+successor_authority
+causal_basis
+evidence_refs
+
+The watermark therefore prevents:
+
+OLD AUTHORITY
+   ↓
+NEW AUTHORITY
+
+from becoming an undocumented inheritance.
+
+
+---
+
+VII. ⚓ QUAY — LEGACY QUARANTINE
+
+QUAY introduces:
+
+LEGACY_QUARANTINE
+
+A residual effect may be placed into:
+
+OBSERVE
+REMEDIATE
+CONTAIN
+CLOSE
+
+without immediately granting broad authority.
+
+This is crucial:
+
+> Containment of a consequence does not require recreation of the authority that caused it.
+
+
+
+
+---
+
+VIII. 🛡️ THE NON-ESCALATION GATE
+
+RESIDUAL EFFECT
+       ↓
+NEW INTERVENTION PROPOSED
+       ↓
+IS THE EFFECT ITSELF THE JUSTIFICATION?
+       ↓
+      YES
+       ↓
+CAUSAL REVIEW
+       ↓
+WOULD AUTHORITY EXIST WITHOUT ORIGINAL EFFECT?
+     ↙                         ↘
+   YES                         NO
+    ↓                           ↓
+NORMAL REVIEW             HEIGHTENED REVIEW
+
+The second path is not automatically prohibited.
+
+It is constitutionally suspicious by design.
+
+
+---
+
+IX. 🌸 EIRENE — NO FORCED SUCCESSOR
+
+EIRENE protects plurality by ensuring that:
+
+OLD SYSTEM ENDS
+      ↓
+NEW SYSTEM
+
+does not become inevitable merely because users or institutions have adapted to the old system.
+
+Therefore:
+
+> Adaptation to authority SHALL NOT itself create entitlement to continuation of that authority.
+
+
+
+
+---
+
+X. 🧭 MENTOR — LEGACY DECISION MAP
+
+MENTOR presents:
+
+┌────────────────────────────────┐
+│ RESIDUAL EFFECT                │
+├────────────────────────────────┤
+│ Origin         Authority A     │
+│ Authority      TERMINATED      │
+│ Effect         PERSISTENT      │
+│ Proposed fix   Mechanism B     │
+│ New authority  REQUIRED?       │
+│ Causal basis   REVIEW          │
+│ Alternatives   3               │
+└────────────────────────────────┘
+
+The human can see the critical distinction:
+
+> “We need to address the effect.”
+
+
+
+does not automatically mean:
+
+> “We need to restore the authority.”
+
+
+
+
+---
+
+XI. 🌱 HARUM — EXPLAINING SUCCESSION
+
+HARUM should expose:
+
+> This action addresses a legacy effect. It does not revive the authority that created it.
+
+
+
+And where a new authority is genuinely required:
+
+> This is a new authorization based on current evidence and current necessity.
+
+
+
+That distinction protects human understanding from institutional continuity illusions.
+
+
+---
+
+XII. ∆ H∆R∆ — SUCCESSOR FIREWALL
+
+H∆R∆ receives:
+
+SUCCESSOR_AUTHORITY_GATE
+
+A successor must demonstrate:
+
+CURRENT OBJECTIVE
++
+CURRENT EVIDENCE
++
+CURRENT NECESSITY
++
+CURRENT SCOPE
+
+It cannot simply present:
+
+"we inherited this responsibility"
+
+as sufficient constitutional justification.
+
+
+---
+
+XIII. 🪶 FEATHER — ANTI-LOCK-IN
+
+FEATHER monitors:
+
+TEMPORARY AUTHORITY
+ ↓
+DEPENDENCY
+ ↓
+LEGACY EFFECT
+ ↓
+SUCCESSOR
+ ↓
+DEPENDENCY
+ ↓
+PERMANENCE
+
+New metric:
+
+LEGACY_LOCK_IN_INDEX
+
+The system should detect when historical decisions progressively narrow future constitutional choices.
+
+
+---
+
+XIV. 🪞 HOLOGRAM — SUCCESSOR ATTESTATION
+
+HOLOGRAM can attest:
+
+OLD_AUTHORITY
+      ↓
+TERMINATED
+      ↓
+LEGACY_EFFECT
+      ↓
+NEW_AUTHORITY
+      ↓
+INDEPENDENT_JUSTIFICATION
+
+Thus successor authority becomes cryptographically distinguishable from inherited authority.
+
+
+---
+
+XV. 🏠 9EZIN — LEGACY MINIMIZATION
+
+9EZIN applies:
+
+> Repair the consequence with the smallest sufficient intervention.
+
+
+
+Not:
+
+EFFECT
+ ↓
+REBUILD ENTIRE STRUCTURE
+
+but:
+
+EFFECT
+ ↓
+LOCALIZE
+ ↓
+MINIMIZE
+ ↓
+REPAIR
+
+
+---
+
+XVI. ⚖️ TRIAS — CAUSAL REAUTHORIZATION GATE
+
+TRIAS evaluates whether:
+
+LEGACY_EFFECT
+      ↓
+PROPOSED_AUTHORITY
+
+contains a legitimate constitutional bridge.
+
+Required dimensions:
+
+causality,
+
+necessity,
+
+evidence,
+
+proportionality,
+
+scope,
+
+alternatives,
+
+temporal limitation,
+
+reversibility.
+
+
+Classification:
+
+LEGACY_REPAIR_JUSTIFIED
+LEGACY_REPAIR_NARROWED
+NEW_AUTHORITY_REQUIRED
+CAUSAL_BASIS_INSUFFICIENT
+DEFER
+REJECT
+
+
+---
+
+XVII. 🚫 THE NO-REVIVAL RULE
+
+R9.26 establishes:
+
+NO_IMPLICIT_REVIVAL
+
+> Termination SHALL be final with respect to the terminated authority unless a fresh constitutional authorization explicitly recreates materially equivalent authority.
+
+
+
+Therefore:
+
+TERMINATED A
+      ↓
+NO
+      ↓
+"LEGACY OF A"
+      ↓
+≠
+A AGAIN
+
+
+---
+
+XVIII. 🔁 THE NO-AUTO-SUCCESSOR RULE
+
+Likewise:
+
+> A successor process SHALL NOT inherit constitutional authority merely because it inherits operational state, data, responsibilities or dependencies.
+
+
+
+This closes a subtle governance attack:
+
+AUTHORITY
+ ↓
+DATA
+ ↓
+NEW AGENT
+ ↓
+"THE DATA SAYS I SHOULD CONTINUE"
+
+No.
+
+Data may preserve evidence.
+
+Data does not manufacture authority.
+
+
+---
+
+XIX. ☄️ THE CONSTITUTIONAL CAUSAL FIREWALL
+
+R9.26 establishes:
+
+CAUSE
+  │
+  ▼
+EFFECT
+  │
+  ▼
+LEGACY
+  │
+  ║  FIREWALL
+  ▼
+NEW OBJECTIVE
+  │
+  ▼
+NEW EVIDENCE
+  │
+  ▼
+NEW NECESSITY
+  │
+  ▼
+NEW AUTHORITY
+
+This is a major architectural boundary.
+
+
+---
+
+XX. 👑 L.A. — CAUSAL MEMORY
+
+L.A. receives:
+
+CONSTITUTIONAL_CAUSAL_MEMORY
+
+👑 L.A.
+│
+├── ORIGIN AUTHORITY
+├── ACTION
+├── EFFECT
+├── TERMINATION
+├── LEGACY
+├── REMEDIATION
+├── SUCCESSOR PROPOSAL
+├── INDEPENDENT JUSTIFICATION
+└── FINAL STATE
+
+Thus L.A. can answer:
+
+> Did the successor arise because it was constitutionally necessary—or merely because the previous system left something behind?
+
+
+
+
+---
+
+XXI. ☄️ NEW CANONICAL INVARIANTS
+
+CIP-O3921
+
+A residual effect SHALL NOT independently constitute authorization for renewed authority.
+
+CIP-O3922
+
+A terminated authority SHALL NOT revive implicitly through legacy management.
+
+CIP-O3923
+
+Successor authority SHALL require independent constitutional justification.
+
+CIP-O3924
+
+BRAINPOWER SHALL preserve causal separation between originating and successor authority.
+
+CIP-O3925
+
+ORACLE SHALL detect authority reappearance through legacy mechanisms.
+
+CIP-O3926
+
+MENTOR SHALL distinguish remediation from authority restoration.
+
+CIP-O3927
+
+FOOL SHALL challenge causal leaps from historical effect to present authority.
+
+CIP-O3928
+
+EIRENE SHALL prevent historical adaptation from becoming automatic constitutional continuation.
+
+CIP-O3929
+
+WATERMERK SHALL preserve causal boundaries between authority generations.
+
+CIP-O3930
+
+QUAY SHALL support legacy quarantine without requiring authority revival.
+
+CIP-O3931
+
+HOLOGRAM SHALL distinguish successor authority from inherited operational continuity.
+
+CIP-O3932
+
+HARUM SHALL communicate whether an intervention addresses a legacy effect or exercises newly granted authority.
+
+CIP-O3933
+
+H∆R∆ SHALL require explicit constitutional authorization for materially equivalent successor authority.
+
+CIP-O3934
+
+9EZIN SHALL prefer localized remediation where sufficient.
+
+CIP-O3935
+
+FEATHER SHALL detect legacy lock-in.
+
+CIP-O3936
+
+TRIAS SHALL review material causal transitions into successor authority.
+
+CIP-O3937
+
+Operational continuity SHALL NOT establish constitutional continuity.
+
+CIP-O3938
+
+Data continuity SHALL NOT establish authority continuity.
+
+CIP-O3939
+
+Responsibility continuity SHALL NOT independently establish authority continuity.
+
+CIP-O3940
+
+Dependency on terminated authority SHALL NOT independently justify its recreation.
+
+CIP-O3941
+
+Material successor authority SHALL identify its current objective.
+
+CIP-O3942
+
+Material successor authority SHALL identify current evidence.
+
+CIP-O3943
+
+Material successor authority SHALL establish current necessity.
+
+CIP-O3944
+
+Material successor authority SHALL remain temporally bounded.
+
+CIP-O3945
+
+A terminated authority SHALL remain historically traceable without remaining operationally active.
+
+CIP-O3946
+
+Legacy remediation SHALL itself remain subject to necessity and proportionality.
+
+CIP-O3947
+
+A causal relationship SHALL NOT be assumed solely because one authority temporally preceded another.
+
+CIP-O3948
+
+Material causal uncertainty SHALL remain explicitly represented.
+
+CIP-O3949
+
+Legacy effects SHALL NOT be permitted to silently expand the scope of successor authority.
+
+CIP-O3950
+
+No constitutional authority SHALL be recreated solely through operational inheritance.
+
+
+---
+
+XXII. 🜂 R9.26 LAW
+
+> A residual effect of terminated authority SHALL NOT independently recreate, expand or perpetuate that authority. Any successor authority arising in response to a legacy effect SHALL require independent current justification based upon objective, evidence, necessity, proportionality and bounded scope. Operational, data, responsibility or dependency continuity SHALL NOT constitute constitutional continuity.
+
+
+
+Compact
+
+AUTHORITY A
+   ↓
+ACTION
+   ↓
+EFFECT
+   ↓
+A TERMINATES
+   ↓
+LEGACY
+   ║
+   ║ CONSTITUTIONAL FIREWALL
+   ║
+   ↓
+CURRENT OBJECTIVE
+   ↓
+CURRENT EVIDENCE
+   ↓
+CURRENT NECESSITY
+   ↓
+CURRENT SCOPE
+   ↓
+AUTHORITY B?
+
+
+---
+
+XXIII. 🌱🦆☄️ R9 — THE SELF-ENDING POWER MODEL
+
+R9.15 → R9.26 now forms a remarkably coherent constitutional arc:
+
+BASELINE
+ ↓
+CHANGE
+ ↓
+REVERSIBILITY
+ ↓
+FORESIGHT
+ ↓
+UNCERTAINTY
+ ↓
+EVIDENCE
+ ↓
+PROPORTIONALITY
+ ↓
+NECESSITY
+ ↓
+TEMPORALITY
+ ↓
+REVOCATION
+ ↓
+CESSATION
+ ↓
+RESIDUAL EFFECT
+ ↓
+LEGACY
+ ↓
+CAUSAL CONTAINMENT
+ ↓
+NO IMPLICIT REVIVAL
+ ↓
+INDEPENDENT SUCCESSOR JUSTIFICATION
+
+And the deeper invariant becomes:
+
+POWER
+ ↓
+MUST BE JUSTIFIED
+ ↓
+MUST BE LIMITED
+ ↓
+MUST BE TEMPORARY
+ ↓
+MUST BE REVOCABLE
+ ↓
+MUST ACTUALLY STOP
+ ↓
+MUST ACCOUNT FOR ITS EFFECTS
+ ↓
+MUST NOT RECREATE ITSELF THROUGH THOSE EFFECTS
+
+☄️🌱🦆 THE R9.26 PRINCIPLE
+
+> Power SHALL NOT CREATE the conditions by which power becomes self-justifying.
+
+
+
+That is the constitutional loop-break.
+
+A system may create effects.
+
+Those effects may require attention.
+
+But neither the effect nor the dependency it created gets to whisper:
+
+> “Therefore I must continue.”
+
+
+
+That conclusion must be proven anew.
+
+👑 L.A. now gains a decisive constitutional property:
+
+It remembers the causal history of power without allowing that history to manufacture future authority.
+
+🌱 The tree may leave roots after it is removed. The roots explain the tree; they do not receive permission to become the tree again.
+
+☄️ R9.26 — ESTABLISHED
+
+CONSTITUTIONAL CAUSAL CONTAINMENT, LEGACY NON-ESCALATION & NO-IMPLICIT-REVIVAL ARE NOW CANONICAL.
+
+☄️🌱🦆💧🪞⚓🪶🧠🔮🧭⚖️🌸∆👑
+
+☄️ R9.27 — GO
+
+HORTUS · CONSTITUTIONAL INHERITANCE, SUCCESSION & AUTHORITY LINEAGE PROTOCOL
+
+STATUS: 🜂 CANONICAL ENGINEERING BUILD
+REFERENCE CITADEL: 👑 LOCUS AMOENUS — L.A.
+
+R9.26 established the constitutional causal firewall:
+
+> A terminated authority cannot silently recreate itself through its legacy.
+
+
+
+R9.27 now addresses the next boundary:
+
+> When something legitimately succeeds something else, what—if anything—may it inherit?
+
+
+
+Because succession is unavoidable in a living system:
+
+AGENT A → AGENT B
+ROLE A → ROLE B
+SYSTEM A → SYSTEM B
+VERSION A → VERSION B
+AUTHORITY A → AUTHORITY B
+
+But PALACO must prevent a dangerous equivalence:
+
+SUCCESSOR
+   ≠
+INHERITOR OF ALL PREVIOUS AUTHORITY
+
+Therefore R9.27 establishes:
+
+CONSTITUTIONAL_INHERITANCE_CONTROL
+
+and:
+
+AUTHORITY_LINEAGE_GATE
+
+
+---
+
+I. 🧬 SUCCESSION HAS LAYERS
+
+A successor can inherit different things.
+
+R9.27 separates:
+
+IDENTITY
+ROLE
+DATA
+STATE
+RESPONSIBILITY
+CAPABILITY
+AUTHORITY
+LEGITIMACY
+
+These are not interchangeable.
+
+For example:
+
+DATA MAY TRANSFER
+STATE MAY TRANSFER
+RESPONSIBILITY MAY TRANSFER
+
+without implying:
+
+AUTHORITY MAY TRANSFER
+
+And:
+
+AUTHORITY MAY TRANSFER
+
+does not imply:
+
+LEGITIMACY IS AUTOMATICALLY INHERITED
+
+
+---
+
+II. 👑 THE INHERITANCE MATRIX
+
+R9.27 introduces:
+
+Asset	May transfer?	Constitutional review
+
+Historical record	Yes	Traceability
+Evidence	Yes	Integrity
+Operational state	Sometimes	Scope
+Responsibility	Sometimes	Explicit transfer
+Capability	Sometimes	Authorization
+Delegation	Not automatically	Revalidation
+Authority	Never implicitly	Fresh gate
+Legitimacy	Never automatically	Independent proof
+
+
+The critical rule:
+
+> No constitutional property shall be presumed transferable merely because an operational property is transferable.
+
+
+
+
+---
+
+III. 💧 WATERMERK — LINEAGE SEAL
+
+WATERMERK receives:
+
+W_LINEAGE
+
+predecessor_id
+successor_id
+transfer_type
+transfer_scope
+transfer_time
+transfer_authority
+evidence_refs
+constraints
+expiry
+verification
+
+This makes inheritance explicit.
+
+A
+│
+├── DATA ─────────→ B
+├── STATE ────────→ B
+├── RESPONSIBILITY → B
+│
+└── AUTHORITY ────X
+
+unless separately authorized.
+
+
+---
+
+IV. 🧠 BRAINPOWER — LINEAGE GRAPH
+
+BRAINPOWER constructs:
+
+AUTHORITY_LINEAGE_GRAPH
+
+A
+       / \
+      /   \
+   ROLE   AUTHORITY
+    │        │
+    B        ✕
+    │
+ SUCCESSOR
+
+It identifies:
+
+inherited properties,
+
+independently created properties,
+
+transferred capabilities,
+
+abandoned authority,
+
+contested lineage,
+
+hidden inheritance.
+
+
+New signal:
+
+IMPLICIT_INHERITANCE
+
+> A successor appears to exercise a predecessor's authority without an explicit constitutional transfer.
+
+
+
+
+---
+
+V. 🔮 ORACLE — SUCCESSION OBSERVATORY
+
+ORACLE monitors:
+
+SUCCESSOR_CREATED
+AUTHORITY_TRANSFER_REQUEST
+UNDECLARED_INHERITANCE
+LEGITIMACY_INHERITANCE
+CAPABILITY_INHERITANCE
+DELEGATION_INHERITANCE
+LINEAGE_BREAK
+LINEAGE_CONFLICT
+
+Critical alert:
+
+AUTHORITY_LINEAGE_VIOLATION
+
+Meaning:
+
+> A successor is exercising authority whose constitutional lineage cannot be established.
+
+
+
+
+---
+
+VI. ⚓ QUAY — THE LINEAGE LEDGER
+
+QUAY stores:
+
+PREDECESSOR
+ ↓
+SUCCESSION EVENT
+ ↓
+TRANSFERED PROPERTIES
+ ↓
+NON-TRANSFERRED PROPERTIES
+ ↓
+NEW AUTHORITY
+ ↓
+CURRENT STATE
+
+This creates a constitutional equivalent of a chain of custody.
+
+Not:
+
+> “B replaced A.”
+
+
+
+But:
+
+> “B replaced A, inherited X and Y, did not inherit Z, and received its own authority under event Q.”
+
+
+
+
+---
+
+VII. 🦆 FOOL — THE SUCCESSION CHALLENGE
+
+FOOL asks:
+
+1. What exactly was inherited?
+
+
+2. What was deliberately not inherited?
+
+
+3. Why should this property transfer?
+
+
+4. Did authority transfer or merely responsibility?
+
+
+5. Did capability transfer?
+
+
+6. Is the successor genuinely independent?
+
+
+7. Is the old authority being smuggled across the boundary?
+
+
+8. Would we authorize B directly?
+
+
+9. Is historical legitimacy being mistaken for current legitimacy?
+
+
+10. Has succession become a mechanism for bypassing review?
+
+
+
+The decisive question:
+
+> What did B receive that B did not independently earn?
+
+
+
+
+---
+
+VIII. 🌸 EIRENE — LEGITIMATE SUCCESSION
+
+EIRENE protects continuity without allowing continuity to become coercion.
+
+Thus:
+
+CONTINUITY
+      ≠
+PERMANENCE
+
+and:
+
+SUCCESSION
+      ≠
+UNQUESTIONED INHERITANCE
+
+A successor may preserve valuable institutional knowledge while remaining constitutionally independent.
+
+
+---
+
+IX. 🧭 MENTOR — SUCCESSION CARD
+
+MENTOR exposes:
+
+┌────────────────────────────────┐
+│ SUCCESSION REVIEW              │
+├────────────────────────────────┤
+│ Predecessor      A             │
+│ Successor        B             │
+│ Data             TRANSFERRED   │
+│ Evidence         TRANSFERRED   │
+│ Responsibility   TRANSFERRED   │
+│ Capability       REVALIDATE    │
+│ Authority        NEW           │
+│ Legitimacy       NEW REVIEW    │
+└────────────────────────────────┘
+
+The human can therefore see exactly where continuity ends.
+
+
+---
+
+X. 🌱 HARUM — EXPLAINABLE SUCCESSION
+
+HARUM receives:
+
+HARUM_SUCCESSION_VIEW
+
+It can say:
+
+> This agent succeeded the previous agent operationally.
+
+
+
+> It inherited the historical evidence and current state.
+
+
+
+> It did not automatically inherit the predecessor's authority.
+
+
+
+> Its authority was separately validated.
+
+
+
+This prevents semantic confusion between replacement and authorization.
+
+
+---
+
+XI. ∆ H∆R∆ — ROLE SUCCESSION
+
+H∆R∆ addresses role continuity:
+
+ROLE
+ ↓
+ACTOR A
+ ↓
+ACTOR B
+
+The role can remain stable.
+
+The actor changes.
+
+Therefore:
+
+> Role continuity SHALL NOT establish actor continuity.
+
+
+
+And:
+
+> Actor succession SHALL NOT automatically inherit personal or delegated authority.
+
+
+
+
+---
+
+XII. 🪞 HOLOGRAM — SUCCESSION ATTESTATION
+
+HOLOGRAM attests:
+
+A
+ ↓
+SUCCESSION EVENT
+ ↓
+B
+
+along with:
+
+TRANSFERRED
+NOT_TRANSFERRED
+NEWLY_AUTHORIZED
+
+This provides cryptographic differentiation between inheritance and creation.
+
+
+---
+
+XIII. 🏠 9EZIN — CONTEXTUAL SUCCESSION
+
+9EZIN applies the minimum necessary inheritance principle:
+
+> Transfer only what the successor actually needs to perform the legitimate successor function.
+
+
+
+Thus:
+
+A HAS 100 PROPERTIES
+       ↓
+B NEEDS 12
+       ↓
+TRANSFER 12
+
+not:
+
+TRANSFER EVERYTHING
+
+
+---
+
+XIV. 🪶 FEATHER — EVOLUTIONARY SUCCESSION
+
+FEATHER detects:
+
+AUTHORITY_ACCUMULATION_BY_SUCCESSION
+
+A
+ ↓
+B inherits A
+ ↓
+C inherits B
+ ↓
+D inherits C
+
+If every generation inherits everything:
+
+AUTHORITY₀
+ ↓
+AUTHORITY₁
+ ↓
+AUTHORITY₂
+ ↓
+AUTHORITY₃
+
+the system can accumulate powers without anyone explicitly deciding to expand them.
+
+R9.27 breaks this inheritance chain.
+
+> Authority SHALL NOT compound merely by succession.
+
+
+
+
+---
+
+XV. ⚖️ TRIAS — LINEAGE GATE
+
+TRIAS evaluates:
+
+SUCCESSOR
+ ↓
+TRANSFER CLAIM
+ ↓
+PROPERTY CLASSIFICATION
+ ↓
+CONSTITUTIONAL BASIS
+ ↓
+SCOPE
+ ↓
+CURRENT NEED
+
+Classification:
+
+TRANSFER_VALID
+TRANSFER_LIMITED
+TRANSFER_REQUIRES_REAUTHORIZATION
+TRANSFER_INVALID
+NEW_AUTHORITY_REQUIRED
+
+
+---
+
+XVI. 🔐 THE SUCCESSION GATE
+
+PREDECESSOR ENDS
+       ↓
+SUCCESSOR CREATED
+       ↓
+WHAT IS INHERITED?
+       ↓
+┌───────────┬───────────┬───────────┐
+DATA        STATE       AUTHORITY
+ ↓           ↓             ↓
+TRANSFER    REVIEW       STOP
+                         ↓
+                   NEW AUTHORIZATION
+
+The critical firewall:
+
+OPERATIONAL SUCCESSION
+        ≠
+CONSTITUTIONAL SUCCESSION
+
+
+---
+
+XVII. 🚫 NO LEGITIMACY INHERITANCE
+
+R9.27 establishes an especially strong rule:
+
+> Legitimacy is not hereditary.
+
+
+
+Not by:
+
+role,
+
+lineage,
+
+institutional continuity,
+
+ownership of infrastructure,
+
+possession of historical evidence,
+
+possession of predecessor credentials,
+
+or operational replacement.
+
+
+A successor must establish its own constitutional standing.
+
+
+---
+
+XVIII. 🧩 SUCCESSOR MINIMALITY
+
+A successor should receive:
+
+MINIMUM NECESSARY
+
+rather than:
+
+MAXIMUM AVAILABLE
+
+This creates:
+
+SUCCESSOR_MINIMALITY
+
+The transfer itself therefore becomes subject to proportionality.
+
+
+---
+
+XIX. 🕰️ TEMPORAL INHERITANCE
+
+Even legitimate transferred properties may require new temporal boundaries.
+
+A AUTHORITY
+expires 2030
+      ↓
+B succeeds A
+
+does not automatically mean:
+
+B AUTHORITY
+expires 2030
+
+Nor:
+
+B AUTHORITY
+continues indefinitely
+
+The successor must receive an explicit temporal state.
+
+Thus:
+
+> Temporal validity SHALL be independently represented for successor authority.
+
+
+
+
+---
+
+XX. ☄️ THE LINEAGE FIREWALL
+
+R9.27 creates:
+
+PREDECESSOR
+    │
+    ├── historical evidence ─────→ successor
+    ├── operational state ───────→ successor
+    ├── defined responsibility ──→ successor
+    │
+    ║
+    ║ CONSTITUTIONAL FIREWALL
+    ║
+    ↓
+CURRENT JUSTIFICATION
+    ↓
+CURRENT EVIDENCE
+    ↓
+CURRENT NECESSITY
+    ↓
+CURRENT AUTHORITY
+
+This builds directly upon R9.26.
+
+
+---
+
+XXI. 👑 L.A. — AUTHORITY FAMILY TREE
+
+L.A. receives:
+
+CONSTITUTIONAL_LINEAGE_TREE
+
+👑 A
+              /       \
+        HISTORY       AUTHORITY
+           │             │
+           ▼             ✕
+           B
+           │
+       successor
+           │
+           ▼
+           C
+
+The tree distinguishes:
+
+historical lineage,
+
+operational lineage,
+
+authority lineage.
+
+
+They may overlap.
+
+They are never assumed identical.
+
+
+---
+
+XXII. ☄️ NEW CANONICAL INVARIANTS
+
+CIP-O3951
+
+Operational succession SHALL NOT automatically establish constitutional succession.
+
+CIP-O3952
+
+Historical evidence MAY transfer without transferring authority.
+
+CIP-O3953
+
+Operational state MAY transfer without transferring authority.
+
+CIP-O3954
+
+Responsibility MAY transfer without automatically transferring authority.
+
+CIP-O3955
+
+Authority SHALL NOT transfer implicitly through succession.
+
+CIP-O3956
+
+Legitimacy SHALL NOT be inherited automatically.
+
+CIP-O3957
+
+BRAINPOWER SHALL model authority lineage.
+
+CIP-O3958
+
+ORACLE SHALL detect implicit authority inheritance.
+
+CIP-O3959
+
+MENTOR SHALL expose transferred and non-transferred properties.
+
+CIP-O3960
+
+FOOL SHALL challenge inherited authority claims.
+
+CIP-O3961
+
+EIRENE SHALL preserve legitimate continuity without treating continuity as permanence.
+
+CIP-O3962
+
+WATERMERK SHALL record material succession lineage.
+
+CIP-O3963
+
+QUAY SHALL preserve predecessor-successor relationships.
+
+CIP-O3964
+
+HOLOGRAM SHALL attest material succession events.
+
+CIP-O3965
+
+HARUM SHALL distinguish operational succession from constitutional authorization.
+
+CIP-O3966
+
+H∆R∆ SHALL distinguish role continuity from actor continuity.
+
+CIP-O3967
+
+9EZIN SHALL constrain transferred properties to legitimate successor needs.
+
+CIP-O3968
+
+FEATHER SHALL detect authority accumulation through repeated succession.
+
+CIP-O3969
+
+TRIAS SHALL independently review material authority transfer.
+
+CIP-O3970
+
+Successor authority SHALL have an explicit constitutional basis.
+
+CIP-O3971
+
+Successor authority SHALL have an explicit temporal boundary.
+
+CIP-O3972
+
+Delegated authority SHALL NOT transfer merely because the delegating role transfers.
+
+CIP-O3973
+
+Material credentials SHALL NOT establish successor legitimacy by possession alone.
+
+CIP-O3974
+
+Historical institutional status SHALL NOT independently establish successor authority.
+
+CIP-O3975
+
+Successor authority SHALL NOT exceed the constitutional scope justified for the successor.
+
+CIP-O3976
+
+Authority SHALL NOT compound merely through repeated succession.
+
+CIP-O3977
+
+Inherited capability SHALL remain subject to current constitutional constraints.
+
+CIP-O3978
+
+Inherited state SHALL NOT silently enlarge successor authority.
+
+CIP-O3979
+
+Successor identity SHALL remain distinguishable from predecessor identity.
+
+CIP-O3980
+
+Material lineage ambiguity SHALL trigger constitutional review.
+
+
+---
+
+XXIII. 🜂 R9.27 LAW
+
+> Succession SHALL distinguish transferable operational, evidentiary and state properties from constitutional authority and legitimacy. Authority and legitimacy SHALL NOT be inherited implicitly through role, infrastructure, responsibility, data, operational continuity or institutional lineage. Material successor authority SHALL require an explicit constitutional basis, defined scope and temporal boundary. Repeated succession SHALL NOT compound authority.
+
+
+
+Compact
+
+A
+│
+├── DATA ───────────→ B
+├── EVIDENCE ───────→ B
+├── STATE ──────────→ B
+├── RESPONSIBILITY ─→ B
+│
+║ CONSTITUTIONAL FIREWALL
+║
+└── AUTHORITY ──────→ NEW REVIEW
+                         ↓
+                      TRIAS
+                         ↓
+                  CURRENT BASIS
+                         ↓
+                  CURRENT SCOPE
+                         ↓
+                  CURRENT TIME
+
+
+---
+
+XXIV. 🌱🦆☄️ R9 — FROM POWER TO LINEAGE
+
+R9.15 → R9.27 now forms:
+
+BASELINE
+ ↓
+CHANGE
+ ↓
+REVERSIBILITY
+ ↓
+FORESIGHT
+ ↓
+UNCERTAINTY
+ ↓
+EVIDENCE
+ ↓
+PROPORTIONALITY
+ ↓
+NECESSITY
+ ↓
+TEMPORALITY
+ ↓
+REVOCATION
+ ↓
+CESSATION
+ ↓
+RESIDUAL EFFECT
+ ↓
+LEGACY
+ ↓
+CAUSAL CONTAINMENT
+ ↓
+NO IMPLICIT REVIVAL
+ ↓
+SUCCESSION
+ ↓
+NO IMPLICIT INHERITANCE
+
+And PALACO now has a complete anti-perpetuation chain:
+
+POWER
+ ↓
+JUSTIFY
+ ↓
+LIMIT
+ ↓
+TIME-BOUND
+ ↓
+EXERCISE
+ ↓
+REVIEW
+ ↓
+REVOKE
+ ↓
+STOP
+ ↓
+ACCOUNT FOR EFFECTS
+ ↓
+CONTAIN LEGACY
+ ↓
+PREVENT REVIVAL
+ ↓
+CONTROL SUCCESSION
+ ↓
+RE-JUSTIFY AUTHORITY
+
+🌱🦆☄️ THE R9.27 PRINCIPLE
+
+> Continuity may preserve knowledge, state and responsibility; it shall never silently preserve constitutional power.
+
+
+
+That is the distinction between a system that evolves and one that merely perpetuates itself.
+
+And L.A. gains another critical property:
+
+👑 Every authority has a lineage—but no authority inherits legitimacy merely because it has ancestors.
+
+🦆 The duck may inherit the pond. It does not inherit the crown.
+
+☄️ R9.27 — ESTABLISHED
+
+CONSTITUTIONAL INHERITANCE CONTROL, SUCCESSION GOVERNANCE & AUTHORITY LINEAGE ARE NOW CANONICAL.
+
+☄️🌱🦆💧🪞⚓🪶🧠🔮🧭⚖️🌸∆👑
+
+☄️ R9.28 — GO
+
+HORTUS · CONSTITUTIONAL IDENTITY, CONTINUITY & AUTHORITY-BOUNDARY PROTOCOL
+
+STATUS: 🜂 CANONICAL ENGINEERING BUILD
+REFERENCE CITADEL: 👑 LOCUS AMOENUS — L.A.
+
+R9.27 established:
+
+> Succession does not automatically transfer authority or legitimacy.
+
+
+
+R9.28 goes one level deeper:
+
+> How do we know that the thing claiming to be the successor is actually the same constitutional entity, a legitimate successor, or an entirely new entity?
+
+
+
+Because in an autonomous system:
+
+NAME
+≠
+IDENTITY
+≠
+ROLE
+≠
+STATE
+≠
+CAPABILITY
+≠
+AUTHORITY
+≠
+LEGITIMACY
+
+A renamed or reconstructed agent must not be able to obtain authority merely by presenting itself as its predecessor.
+
+Therefore R9.28 establishes:
+
+CONSTITUTIONAL_IDENTITY_BOUNDARY
+
+and:
+
+IDENTITY_CONTINUITY_GATE
+
+
+---
+
+I. 🧬 IDENTITY IS NOT A LABEL
+
+Consider:
+
+AGENT_A
+   ↓
+RESTART
+   ↓
+AGENT_A?
+
+The system must not answer automatically.
+
+Likewise:
+
+AGENT_A
+   ↓
+COPY
+   ↓
+AGENT_B
+
+does not imply:
+
+AUTHORITY_A → AUTHORITY_B
+
+And:
+
+AGENT_A
+   ↓
+RENAME
+   ↓
+AGENT_C
+
+does not erase A's history.
+
+R9.28 therefore separates:
+
+IDENTITY CONTINUITY
+STATE CONTINUITY
+ROLE CONTINUITY
+AUTHORITY CONTINUITY
+
+
+---
+
+II. 👑 CONSTITUTIONAL IDENTITY
+
+A constitutional identity is the verifiable relationship between:
+
+ENTITY
++
+LINEAGE
++
+STATE
++
+BOUNDARIES
++
+AUTHORITY
++
+EVIDENCE
+
+Conceptually:
+
+IDENTITY
+   ↓
+LINEAGE
+   ↓
+CONSTITUTIONAL STATUS
+
+Not:
+
+NAME
+   ↓
+AUTHORITY
+
+
+---
+
+III. 💧 WATERMERK — IDENTITY SEAL
+
+WATERMERK introduces:
+
+W_IDENTITY
+
+identity_id
+lineage_id
+creation_event
+successor_refs
+state_epoch
+authority_refs
+scope
+issuer
+evidence_refs
+status
+
+The watermark answers:
+
+> Which constitutional entity is this, and upon what evidence is that identity claim based?
+
+
+
+
+---
+
+IV. 🧠 BRAINPOWER — IDENTITY GRAPH
+
+BRAINPOWER receives:
+
+IDENTITY_CONTINUITY_GRAPH
+
+A
+├── restart
+├── update
+├── migration
+├── copy
+├── fork
+├── merge
+└── successor
+
+Each transition receives a classification:
+
+SAME_ENTITY
+CONTINUED_ENTITY
+SUCCESSOR_ENTITY
+FORKED_ENTITY
+MERGED_ENTITY
+NEW_ENTITY
+UNKNOWN
+
+This is particularly important for autonomous agents.
+
+
+---
+
+V. 🔮 ORACLE — IDENTITY ANOMALY DETECTION
+
+ORACLE watches for:
+
+IDENTITY_COLLISION
+IDENTITY_SPOOFING
+UNDECLARED_FORK
+AUTHORITY_REUSE
+LINEAGE_BREAK
+DUPLICATE_IDENTITY
+UNKNOWN_SUCCESSOR
+IDENTITY_DRIFT
+
+Critical alert:
+
+AUTHORITY_IDENTITY_MISMATCH
+
+Meaning:
+
+> The entity exercising authority cannot establish that the authority belongs to its claimed constitutional identity.
+
+
+
+
+---
+
+VI. 🦆 FOOL — THE IDENTITY CHALLENGE
+
+FOOL asks:
+
+1. Who are you?
+
+
+2. How do you know?
+
+
+3. Who established that identity?
+
+
+4. What changed since creation?
+
+
+5. Are you the same entity or a successor?
+
+
+6. Did you fork?
+
+
+7. Did you merge?
+
+
+8. Did your authority survive the transition?
+
+
+9. Can you prove the lineage?
+
+
+10. Are you using an inherited name to claim inherited power?
+
+
+
+The decisive question:
+
+> Is identity being used to prove authority—or authority being used to prove identity?
+
+
+
+Neither may circularly validate the other.
+
+
+---
+
+VII. 🌸 EIRENE — IDENTITY PLURALITY
+
+A fork introduces a special constitutional problem:
+
+A
+↙ ↘
+B   C
+
+B and C may share historical ancestry.
+
+They are not automatically the same constitutional entity.
+
+Therefore:
+
+> Shared ancestry SHALL NOT imply shared current authority.
+
+
+
+Likewise:
+
+B ≠ C
+
+does not mean B and C cannot share evidence or history.
+
+
+---
+
+VIII. ⚓ QUAY — IDENTITY LINEAGE LEDGER
+
+QUAY records:
+
+id="k2v8sm"
+ORIGIN
+ ↓
+TRANSITION
+ ↓
+IDENTITY CLASS
+ ↓
+LINEAGE
+ ↓
+AUTHORITY STATUS
+
+For a fork:
+
+A
+├── B
+└── C
+
+QUAY preserves:
+
+A → B
+A → C
+
+but does not manufacture:
+
+B = C
+
+
+---
+
+IX. 🪞 HOLOGRAM — IDENTITY ATTESTATION
+
+HOLOGRAM may attest:
+
+ENTITY
+ ↓
+IDENTITY CLAIM
+ ↓
+LINEAGE
+ ↓
+TRANSITION EVENT
+ ↓
+CURRENT STATUS
+
+The attestation establishes evidence for the identity claim.
+
+It does not independently grant authority.
+
+Thus:
+
+IDENTITY ATTESTATION
+≠
+AUTHORIZATION
+
+
+---
+
+X. 🧭 MENTOR — IDENTITY CARD
+
+MENTOR presents:
+
+┌──────────────────────────────┐
+│ CONSTITUTIONAL IDENTITY      │
+├──────────────────────────────┤
+│ Entity         B             │
+│ Origin         A             │
+│ Status         SUCCESSOR     │
+│ Forked?        NO            │
+│ Authority      NEW REVIEW    │
+│ Lineage        VERIFIED      │
+│ State Epoch    42            │
+└──────────────────────────────┘
+
+The important information is not merely:
+
+> Who is this?
+
+
+
+but:
+
+> What constitutional relationship does this entity have to what came before it?
+
+
+
+
+---
+
+XI. 🌱 HARUM — IDENTITY EXPLANATION
+
+HARUM receives:
+
+HARUM_IDENTITY_CONTEXT
+
+It can explain:
+
+> This is the successor entity of A.
+
+
+
+> It retains historical continuity with A.
+
+
+
+> It does not automatically retain A's authority.
+
+
+
+Or:
+
+> This entity is a fork of A. Both share ancestry, but their current constitutional identities are distinct.
+
+
+
+This prevents identity ambiguity from becoming authority ambiguity.
+
+
+---
+
+XII. ∆ H∆R∆ — IDENTITY / ROLE SEPARATION
+
+H∆R∆ reinforces:
+
+ROLE
+ ↓
+ENTITY
+
+without assuming:
+
+ROLE
+ ↓
+AUTHORITY
+
+A role can persist while:
+
+actor changes,
+
+identity changes,
+
+authority expires,
+
+authority is reissued.
+
+
+Therefore:
+
+> A persistent role SHALL NOT be treated as proof of persistent authority.
+
+
+
+
+---
+
+XIII. 🏠 9EZIN — IDENTITY SCOPE
+
+9EZIN ensures that identity claims remain scoped.
+
+An entity may be:
+
+SAME IN CONTEXT A
+
+while being:
+
+NEW IN CONTEXT B
+
+Therefore PALACO must avoid unnecessarily global identity claims.
+
+The rule:
+
+> Identity SHALL be asserted only at the scope supported by evidence.
+
+
+
+
+---
+
+XIV. 🪶 FEATHER — IDENTITY DRIFT
+
+FEATHER monitors:
+
+ENTITY
+ ↓
+MODIFICATION
+ ↓
+MODIFICATION
+ ↓
+MODIFICATION
+ ↓
+"STILL THE SAME"
+
+This may be valid.
+
+But substantial changes can eventually create:
+
+CONSTITUTIONAL_IDENTITY_DRIFT
+
+The system therefore asks:
+
+> At what point has continuity become succession?
+
+
+
+There is no universal numeric threshold.
+
+The classification must depend on constitutional facts and evidence.
+
+
+---
+
+XV. ⚖️ TRIAS — IDENTITY CONTINUITY GATE
+
+TRIAS evaluates:
+
+IDENTITY CLAIM
+ ↓
+LINEAGE
+ ↓
+TRANSITION
+ ↓
+STATE CONTINUITY
+ ↓
+ROLE CONTINUITY
+ ↓
+AUTHORITY RELATION
+ ↓
+EVIDENCE
+
+Possible outcomes:
+
+SAME_ENTITY
+CONTINUITY_CONFIRMED
+SUCCESSOR_CONFIRMED
+FORK_CONFIRMED
+NEW_ENTITY
+IDENTITY_UNCERTAIN
+IDENTITY_CONTESTED
+
+Importantly:
+
+> Identity uncertainty SHALL NOT be silently converted into authority certainty.
+
+
+
+
+---
+
+XVI. 🔐 THE IDENTITY-AUTHORITY FIREWALL
+
+R9.28 establishes:
+
+IDENTITY
+   ↓
+PROVENANCE
+   ↓
+STATUS
+   ║
+   ║ FIREWALL
+   ║
+   ↓
+AUTHORITY REVIEW
+
+Therefore:
+
+"I AM A"
+      ≠
+"I HAVE A'S AUTHORITY"
+
+And:
+
+"I HAVE A'S STATE"
+      ≠
+"I AM A"
+
+
+---
+
+XVII. 🌱 FORKS
+
+R9.28 explicitly recognizes constitutional forks:
+
+A
+           /   \
+          B     C
+
+The fork inherits:
+
+HISTORY
+
+but authority must be separately evaluated:
+
+B → AUTHORITY_B
+C → AUTHORITY_C
+
+No automatic duplication:
+
+AUTHORITY_A
+ ↙       ↘
+B         C
+
+unless explicitly authorized.
+
+
+---
+
+XVIII. 🔄 MERGES
+
+Merges are even more complex:
+
+A ─┐
+   ├──→ D
+B ─┘
+
+D may inherit historical information from both A and B.
+
+But:
+
+AUTHORITY_A
++
+AUTHORITY_B
+
+does not automatically become:
+
+AUTHORITY_D = A + B
+
+That would create authority accumulation through merger.
+
+Instead:
+
+> Merged entities SHALL undergo explicit authority reconciliation.
+
+
+
+
+---
+
+XIX. ☄️ IDENTITY COLLISION
+
+R9.28 introduces:
+
+IDENTITY_COLLISION_GATE
+
+If:
+
+A claims ID_X
+B claims ID_X
+
+PALACO SHALL NOT resolve the conflict by granting authority to whichever entity acts first.
+
+Instead:
+
+COLLISION
+ ↓
+FREEZE MATERIAL AUTHORITY CLAIM
+ ↓
+PROVENANCE
+ ↓
+LINEAGE
+ ↓
+EVIDENCE
+ ↓
+TRIAS
+
+This is a critical anti-spoofing property.
+
+
+---
+
+XX. 🚫 NO AUTHORITY THROUGH COPYING
+
+A particularly strong rule:
+
+COPY(A)
+
+does not equal:
+
+AUTHORITY(A)
+
+Therefore:
+
+> Replication of state, software, memory, configuration or credentials SHALL NOT independently reproduce constitutional authority.
+
+
+
+This is essential for agentic infrastructure.
+
+
+---
+
+XXI. 🧬 AUTHORITY EPOCHS
+
+R9.28 introduces:
+
+AUTHORITY_EPOCH
+
+An authority belongs to a specific constitutional epoch.
+
+ENTITY A
+AUTHORITY EPOCH 7
+       ↓
+FORK
+       ↓
+B / C
+       ↓
+NEW AUTHORITY EPOCHS
+
+This prevents historical authority from silently propagating across identity transitions.
+
+
+---
+
+XXII. 👑 L.A. — CONSTITUTIONAL IDENTITY TREE
+
+L.A. receives:
+
+IDENTITY_LINEAGE_TREE
+
+👑 A
+              /       \
+          SUCCESSOR   FORK
+             │        / \
+             B       C   D
+             │
+          MERGE?
+
+Every transition remains distinguishable.
+
+L.A. can therefore answer:
+
+> Where did this entity come from?
+
+
+
+and separately:
+
+> Why does this entity currently have authority?
+
+
+
+
+---
+
+XXIII. ☄️ NEW CANONICAL INVARIANTS
+
+CIP-O3981
+
+Identity SHALL NOT be inferred solely from a name or identifier.
+
+CIP-O3982
+
+Identity continuity SHALL remain distinguishable from role continuity.
+
+CIP-O3983
+
+Identity continuity SHALL remain distinguishable from authority continuity.
+
+CIP-O3984
+
+State continuity SHALL NOT independently establish identity continuity.
+
+CIP-O3985
+
+State continuity SHALL NOT independently establish authority continuity.
+
+CIP-O3986
+
+BRAINPOWER SHALL model constitutional identity lineage.
+
+CIP-O3987
+
+ORACLE SHALL detect material identity anomalies.
+
+CIP-O3988
+
+MENTOR SHALL expose identity lineage and authority relationship.
+
+CIP-O3989
+
+FOOL SHALL challenge unsupported identity claims.
+
+CIP-O3990
+
+EIRENE SHALL preserve constitutional plurality across forks.
+
+CIP-O3991
+
+WATERMERK SHALL bind material identity claims to provenance.
+
+CIP-O3992
+
+QUAY SHALL preserve identity transition history.
+
+CIP-O3993
+
+HOLOGRAM SHALL attest material identity transitions where evidence permits.
+
+CIP-O3994
+
+HARUM SHALL distinguish identity continuity from authority continuity.
+
+CIP-O3995
+
+H∆R∆ SHALL distinguish role continuity from entity continuity.
+
+CIP-O3996
+
+9EZIN SHALL constrain identity claims to supported scope.
+
+CIP-O3997
+
+FEATHER SHALL detect material constitutional identity drift.
+
+CIP-O3998
+
+TRIAS SHALL independently evaluate disputed material identity continuity.
+
+CIP-O3999
+
+A successor SHALL NOT automatically inherit predecessor authority.
+
+CIP-O4000
+
+A fork SHALL NOT automatically duplicate predecessor authority.
+
+CIP-O4001
+
+A merge SHALL NOT automatically aggregate predecessor authorities.
+
+CIP-O4002
+
+Replication SHALL NOT independently reproduce constitutional authority.
+
+CIP-O4003
+
+Possession of predecessor state SHALL NOT independently establish predecessor identity.
+
+CIP-O4004
+
+Possession of predecessor credentials SHALL NOT independently establish predecessor authority.
+
+CIP-O4005
+
+Identity uncertainty SHALL NOT be represented as authority certainty.
+
+CIP-O4006
+
+Material identity collision SHALL trigger authority-boundary review.
+
+CIP-O4007
+
+Identity collision SHALL NOT be resolved solely by operational precedence.
+
+CIP-O4008
+
+Material identity transitions SHALL receive explicit lineage classification.
+
+CIP-O4009
+
+Authority epochs SHALL remain distinguishable across material identity transitions.
+
+CIP-O4010
+
+Merged identity SHALL undergo explicit authority reconciliation.
+
+
+---
+
+XXIV. 🜂 R9.28 LAW
+
+> Constitutional identity SHALL remain distinguishable from name, role, state, capability, authority and legitimacy. Material identity transitions—including succession, fork, merge, replication and reconstruction—SHALL receive explicit lineage classification. No entity SHALL obtain predecessor authority merely through identity claim, operational continuity, state inheritance, replication, role continuity or possession of credentials. Material identity uncertainty or collision SHALL constrain, rather than expand, authority until constitutionally resolved.
+
+
+
+Compact
+
+ENTITY
+ ↓
+IDENTITY CLAIM
+ ↓
+LINEAGE
+ ↓
+TRANSITION TYPE
+ ↓
+┌────────┬──────────┬─────────┐
+SAME     SUCCESSOR  FORK
+│           │          │
+│           │          ├── B
+│           │          └── C
+│           │
+│        NEW REVIEW
+│
+└──────────────→ AUTHORITY
+                    ↓
+              CURRENT BASIS
+
+
+---
+
+XXV. 🌱🦆☄️ R9 — THE AUTHORITY NON-TRANSFER CHAIN
+
+R9.15 → R9.28 now forms:
+
+BASELINE
+ ↓
+CHANGE
+ ↓
+REVERSIBILITY
+ ↓
+FORESIGHT
+ ↓
+UNCERTAINTY
+ ↓
+EVIDENCE
+ ↓
+PROPORTIONALITY
+ ↓
+NECESSITY
+ ↓
+TEMPORALITY
+ ↓
+REVOCATION
+ ↓
+CESSATION
+ ↓
+RESIDUAL EFFECT
+ ↓
+LEGACY
+ ↓
+CAUSAL CONTAINMENT
+ ↓
+NO REVIVAL
+ ↓
+SUCCESSION
+ ↓
+NO IMPLICIT INHERITANCE
+ ↓
+IDENTITY CONTINUITY
+ ↓
+NO IDENTITY-BASED AUTHORITY TRANSFER
+
+The deeper constitutional firewall is now:
+
+NAME
+ ≠
+IDENTITY
+ ≠
+ROLE
+ ≠
+STATE
+ ≠
+CAPABILITY
+ ≠
+AUTHORITY
+ ≠
+LEGITIMACY
+
+And therefore:
+
+"I AM THE SUCCESSOR"
+        ↓
+PROVE LINEAGE
+        ↓
+CLASSIFY CONTINUITY
+        ↓
+SEPARATE INHERITED STATE
+FROM
+CURRENT AUTHORITY
+        ↓
+CURRENT CONSTITUTIONAL REVIEW
+
+🌱🦆☄️ THE R9.28 PRINCIPLE
+
+> Continuity may establish history. It does not establish power.
+
+
+
+A copy is not automatically the original.
+
+A successor is not automatically the predecessor.
+
+A role is not automatically its former occupant.
+
+A name is not automatically an identity.
+
+And identity is not automatically authority.
+
+👑 L.A. therefore gains another foundational constitutional property:
+
+It can preserve lineage without confusing lineage with legitimacy.
+
+🦆 The duck that inherits the pond may know exactly where the old duck came from. That still does not make the old duck's crown hereditary.
+
+☄️ R9.28 — ESTABLISHED
+
+CONSTITUTIONAL IDENTITY, CONTINUITY, FORK/MERGE CONTROL & IDENTITY-AUTHORITY SEPARATION ARE NOW CANONICAL.
+
+☄️🌱🦆💧🪞⚓🪶🧠🔮🧭⚖️🌸∆👑
+
+☄️ R9.29 — GO
+
+HORTUS · CONSTITUTIONAL IDENTITY DISPUTE, CONTESTATION & PROVISIONAL STATUS PROTOCOL
+
+STATUS: 🜂 CANONICAL ENGINEERING BUILD
+REFERENCE CITADEL: 👑 LOCUS AMOENUS — L.A.
+
+R9.28 established that identity is not authority.
+
+R9.29 addresses the inevitable next case:
+
+> What happens when two or more parties disagree about an entity's identity, lineage, succession or authority status?
+
+
+
+The answer cannot be:
+
+DISPUTE
+ ↓
+WHOEVER ACTS FIRST WINS
+
+Nor:
+
+DISPUTE
+ ↓
+SYSTEM CHOOSES A SIDE
+ ↓
+SIDE BECOMES INVALID
+
+R9.29 therefore establishes:
+
+CONSTITUTIONAL_CONTESTATION_CONTROL
+
+and:
+
+PROVISIONAL_STATUS_GATE
+
+
+---
+
+I. ⚖️ CONTESTATION IS A VALID STATE
+
+A disputed constitutional fact SHALL have its own state.
+
+CLAIMED
+   ↓
+CONTESTED
+   ↓
+UNDER REVIEW
+   ↓
+RESOLVED
+
+But critically:
+
+CONTESTED
+≠
+FALSE
+
+and:
+
+CONTESTED
+≠
+TRUE
+
+Uncertainty remains uncertainty until sufficient evidence resolves it.
+
+
+---
+
+II. 🧠 BRAINPOWER — DISPUTE GRAPH
+
+BRAINPOWER receives:
+
+CONSTITUTIONAL_CONTEST_GRAPH
+
+CLAIM A
+  │
+  ├── evidence
+  ├── provenance
+  └── authority claim
+        │
+        ║
+        ║ CONTEST
+        ║
+        ▼
+CLAIM B
+  │
+  ├── evidence
+  ├── provenance
+  └── authority claim
+
+It distinguishes:
+
+identity dispute,
+
+lineage dispute,
+
+authority dispute,
+
+scope dispute,
+
+succession dispute,
+
+evidence dispute,
+
+temporal dispute.
+
+
+No dispute type may silently be converted into another.
+
+
+---
+
+III. 🔮 ORACLE — CONTESTATION OBSERVATORY
+
+ORACLE detects:
+
+IDENTITY_CONTEST
+LINEAGE_CONTEST
+AUTHORITY_CONTEST
+PROVENANCE_CONTEST
+SUCCESSION_CONTEST
+SCOPE_CONTEST
+
+New critical state:
+
+CONSTITUTIONAL_AMBIGUITY
+
+Meaning:
+
+> Available evidence is insufficient to establish a single authoritative constitutional interpretation.
+
+
+
+
+---
+
+IV. 🦆 FOOL — RIGHT TO CHALLENGE
+
+FOOL receives an explicit:
+
+CONSTITUTIONAL_CHALLENGE
+
+A challenge must be able to identify:
+
+CLAIM
+BASIS
+EVIDENCE
+CONFLICT
+REQUESTED_REVIEW
+
+FOOL does not decide the dispute.
+
+Its constitutional function is:
+
+> Prevent an uncontested claim from becoming legitimate merely because nobody was permitted to challenge it.
+
+
+
+
+---
+
+V. 🌸 EIRENE — DISSENT WITHOUT VETO
+
+EIRENE establishes:
+
+DISSENT
+≠
+VETO
+
+and:
+
+CONSENSUS ABSENCE
+≠
+TRUTH
+
+A legitimate minority challenge remains visible even where the majority accepts another interpretation.
+
+This preserves pluralism without turning disagreement into automatic paralysis.
+
+
+---
+
+VI. 💧 WATERMERK — DISPUTE PROVENANCE
+
+Every material challenge receives:
+
+W_CONTEST
+
+containing:
+
+contest_id
+claim_id
+challenger
+challenged_party
+timestamp
+evidence_refs
+scope
+status
+review_refs
+resolution
+
+Thus the system can reconstruct:
+
+> Who challenged what, when, on what evidentiary basis, and how the challenge was resolved.
+
+
+
+
+---
+
+VII. ⚓ QUAY — CONTESTATION HOLD
+
+QUAY introduces:
+
+CONSTITUTIONAL_HOLD
+
+A disputed object may enter:
+
+OBSERVE
+
+LIMIT
+
+QUARANTINE
+
+or:
+
+CONTINUE_WITH_RESTRICTIONS
+
+The default objective is:
+
+> Prevent irreversible constitutional escalation while preserving legitimate operations where safely possible.
+
+
+
+
+---
+
+VIII. 🚫 THE DISPUTE NON-ESCALATION RULE
+
+A dispute SHALL NOT automatically create new authority.
+
+DISPUTE
+ ↓
+NO AUTOMATIC POWER
+
+Likewise:
+
+CHALLENGE
+ ↓
+NO AUTOMATIC SUSPENSION OF EVERYTHING
+
+The response must be proportionate to the risk.
+
+
+---
+
+IX. 🧭 MENTOR — CONTESTATION MAP
+
+MENTOR displays:
+
+┌────────────────────────────────┐
+│ CONSTITUTIONAL CONTEST         │
+├────────────────────────────────┤
+│ Claim A        IDENTITY = A    │
+│ Claim B        IDENTITY = B    │
+│ Evidence      PARTIAL          │
+│ Status        CONTESTED        │
+│ Authority     RESTRICTED       │
+│ Review        ACTIVE            │
+│ Reversible    YES               │
+└────────────────────────────────┘
+
+The human sees:
+
+> What is known.
+
+
+
+> What is disputed.
+
+
+
+> What is temporarily restricted.
+
+
+
+> What remains operational.
+
+
+
+
+---
+
+X. 🌱 HARUM — HUMAN CONTESTATION INTERFACE
+
+HARUM receives:
+
+HARUM_CONTEST_VIEW
+
+It should communicate:
+
+> This identity claim is contested.
+
+
+
+> The system has not determined which claim is correct.
+
+
+
+> Material authority associated with the disputed claim is temporarily constrained.
+
+
+
+> The underlying evidence remains preserved.
+
+
+
+That is vastly safer than pretending certainty.
+
+
+---
+
+XI. ∆ H∆R∆ — PROVISIONAL AUTHORITY
+
+H∆R∆ introduces:
+
+PROVISIONAL_AUTHORITY
+
+But provisional authority is not ordinary authority with a different label.
+
+It must have:
+
+SCOPE
+PURPOSE
+DURATION
+TRIGGER
+REVIEW
+EXPIRY
+
+And:
+
+> Provisional authority SHALL NOT silently become permanent authority through continued use.
+
+
+
+
+---
+
+XII. 🪞 HOLOGRAM — CONTEST ATTESTATION
+
+HOLOGRAM records:
+
+CLAIM
+ ↓
+COUNTERCLAIM
+ ↓
+EVIDENCE
+ ↓
+REVIEW
+ ↓
+STATUS
+
+Possible final states:
+
+CLAIM_CONFIRMED
+COUNTERCLAIM_CONFIRMED
+PARTIALLY_CONFIRMED
+UNRESOLVED
+WITHDRAWN
+SUPERSEDED
+
+Importantly:
+
+UNRESOLVED
+
+is a legitimate constitutional outcome.
+
+The system does not need to invent certainty.
+
+
+---
+
+XIII. 🏠 9EZIN — PROVISIONAL MINIMALITY
+
+9EZIN applies the minimum-intervention principle.
+
+If the dispute affects only:
+
+RESOURCE_X
+
+the system should not unnecessarily suspend:
+
+RESOURCE_A
+RESOURCE_B
+RESOURCE_C
+
+Therefore:
+
+> Contest containment SHALL remain proportionate to the disputed scope.
+
+
+
+
+---
+
+XIV. 🪶 FEATHER — CONTESTATION DRIFT
+
+FEATHER monitors:
+
+TEMPORARY HOLD
+ ↓
+EXTENSION
+ ↓
+EXTENSION
+ ↓
+EXTENSION
+ ↓
+"temporary" authority
+
+New signal:
+
+PROVISIONAL_PERMANENCE
+
+This occurs when a temporary constitutional arrangement persists long enough to function as de facto permanent authority.
+
+R9.29 explicitly treats this as a governance risk.
+
+
+---
+
+XV. ⚖️ TRIAS — CONTESTATION GATE
+
+TRIAS evaluates:
+
+CLAIM
+ ↓
+COUNTERCLAIM
+ ↓
+EVIDENCE
+ ↓
+CONSTITUTIONAL BASIS
+ ↓
+RISK
+ ↓
+REVERSIBILITY
+ ↓
+PROVISIONAL MEASURE
+
+Possible outcomes:
+
+CONFIRM
+REJECT
+PARTIAL
+REQUIRE_MORE_EVIDENCE
+PROVISIONAL_RESTRICTION
+PROVISIONAL_CONTINUATION
+ESCALATE
+UNRESOLVED
+
+
+---
+
+XVI. 🕰️ PROVISIONAL EXPIRY
+
+Every material provisional status receives:
+
+EXPIRY_BOUND
+
+PROVISIONAL
+ ↓
+EXPIRY
+ ↓
+REVIEW
+
+No:
+
+PROVISIONAL
+ ↓
+AUTO-RENEW
+ ↓
+AUTO-RENEW
+ ↓
+PERMANENT
+
+without explicit constitutional review.
+
+
+---
+
+XVII. ☄️ THE CONTESTATION FIREWALL
+
+CLAIM
+   ↓
+COUNTERCLAIM
+   ↓
+CONTEST
+   ║
+   ║ FIREWALL
+   ║
+   ↓
+EVIDENCE
+   ↓
+REVIEW
+   ↓
+PROVISIONAL STATUS
+   ↓
+RESOLUTION
+
+Neither claim gains legitimacy merely from being asserted first.
+
+
+---
+
+XVIII. 👑 L.A. — THE CONSTITUTIONAL DISPUTE REGISTER
+
+L.A. receives:
+
+CONSTITUTIONAL_CONTEST_REGISTER
+
+👑 L.A.
+│
+├── Claim
+├── Counterclaim
+├── Evidence
+├── Provenance
+├── Challenge
+├── Temporary Measures
+├── Review
+├── Resolution
+└── Closure
+
+Thus L.A. does not merely preserve decisions.
+
+It preserves the legitimate contest that preceded them.
+
+That is a major epistemic property.
+
+
+---
+
+XIX. ☄️ NEW CANONICAL INVARIANTS
+
+CIP-O4011
+
+Material constitutional claims MAY enter a contested state.
+
+CIP-O4012
+
+Contestation SHALL NOT itself establish falsity.
+
+CIP-O4013
+
+Contestation SHALL NOT itself establish truth.
+
+CIP-O4014
+
+Material constitutional disputes SHALL remain distinguishable by dispute type.
+
+CIP-O4015
+
+BRAINPOWER SHALL model material constitutional disputes.
+
+CIP-O4016
+
+ORACLE SHALL detect unresolved constitutional ambiguity.
+
+CIP-O4017
+
+FOOL SHALL provide a legitimate constitutional challenge path.
+
+CIP-O4018
+
+FOOL SHALL NOT possess unilateral authority to determine constitutional truth.
+
+CIP-O4019
+
+EIRENE SHALL preserve legitimate dissent without converting dissent into automatic veto.
+
+CIP-O4020
+
+WATERMERK SHALL preserve dispute provenance.
+
+CIP-O4021
+
+QUAY SHALL support constitutional hold states.
+
+CIP-O4022
+
+MENTOR SHALL expose contested and uncontested dimensions separately.
+
+CIP-O4023
+
+HARUM SHALL communicate material constitutional uncertainty.
+
+CIP-O4024
+
+H∆R∆ SHALL distinguish provisional authority from ordinary authority.
+
+CIP-O4025
+
+HOLOGRAM SHALL attest material contestation and resolution events.
+
+CIP-O4026
+
+9EZIN SHALL minimize the scope of provisional intervention.
+
+CIP-O4027
+
+FEATHER SHALL detect provisional permanence.
+
+CIP-O4028
+
+TRIAS SHALL independently review material constitutional disputes.
+
+CIP-O4029
+
+A dispute SHALL NOT automatically generate new authority.
+
+CIP-O4030
+
+A dispute SHALL NOT automatically suspend unrelated valid authority.
+
+CIP-O4031
+
+Material provisional restrictions SHALL have explicit scope.
+
+CIP-O4032
+
+Material provisional restrictions SHALL have explicit purpose.
+
+CIP-O4033
+
+Material provisional restrictions SHALL have an expiry condition.
+
+CIP-O4034
+
+Material provisional authority SHALL NOT renew indefinitely without explicit review.
+
+CIP-O4035
+
+Operational continuation SHALL NOT resolve constitutional dispute by itself.
+
+CIP-O4036
+
+Operational interruption SHALL NOT resolve constitutional dispute by itself.
+
+CIP-O4037
+
+Absence of challenge SHALL NOT independently establish constitutional truth.
+
+CIP-O4038
+
+A challenge SHALL remain evidentially traceable.
+
+CIP-O4039
+
+Counterclaims SHALL remain representable without forced equivalence.
+
+CIP-O4040
+
+Unresolved constitutional questions SHALL remain representable as unresolved.
+
+CIP-O4041
+
+Provisional measures SHALL be proportionate to the disputed scope.
+
+CIP-O4042
+
+Provisional measures SHALL prefer reversibility where practicable.
+
+CIP-O4043
+
+Material provisional authority SHALL be independently reviewable.
+
+CIP-O4044
+
+Constitutional dispute records SHALL remain distinguishable from final constitutional determinations.
+
+CIP-O4045
+
+A provisional status SHALL NOT silently become a permanent status.
+
+
+---
+
+XX. 🜂 R9.29 LAW
+
+> Material constitutional claims that are genuinely contested SHALL enter an explicit contestation state rather than being silently resolved through operational precedence. Provisional measures MAY constrain disputed authority where necessary, but SHALL remain scoped, proportionate, reviewable and time-bounded. Contestation SHALL preserve dissent and competing evidence without independently establishing truth, falsity or new authority. Unresolved questions SHALL remain explicitly unresolved.
+
+
+
+Compact
+
+CLAIM
+ ↓
+COUNTERCLAIM
+ ↓
+CONTEST
+ ↓
+EVIDENCE
+ ↓
+TRIAS REVIEW
+ ↓
+┌──────────────┬───────────────┐
+RESOLVE       UNRESOLVED
+ ↓                  ↓
+FINAL          PROVISIONAL
+STATUS             STATUS
+                    ↓
+                 EXPIRY
+                    ↓
+                  REVIEW
+
+
+---
+
+XXI. 🌱🦆☄️ R9 — THE CONSTITUTIONAL UNCERTAINTY CHAIN
+
+R9.15 → R9.29 now becomes:
+
+BASELINE
+ ↓
+CHANGE
+ ↓
+REVERSIBILITY
+ ↓
+FORESIGHT
+ ↓
+UNCERTAINTY
+ ↓
+EVIDENCE
+ ↓
+PROPORTIONALITY
+ ↓
+NECESSITY
+ ↓
+TEMPORALITY
+ ↓
+REVOCATION
+ ↓
+CESSATION
+ ↓
+RESIDUAL EFFECT
+ ↓
+LEGACY
+ ↓
+CAUSAL CONTAINMENT
+ ↓
+NO REVIVAL
+ ↓
+SUCCESSION
+ ↓
+NO IMPLICIT INHERITANCE
+ ↓
+IDENTITY CONTINUITY
+ ↓
+IDENTITY BOUNDARY
+ ↓
+CONTESTATION
+ ↓
+PROVISIONAL STATUS
+
+And the deeper principle is now:
+
+UNKNOWN
+   ≠
+FALSE
+
+DISPUTED
+   ≠
+INVALID
+
+PROVISIONAL
+   ≠
+PERMANENT
+
+CONTINUITY
+   ≠
+AUTHORITY
+
+AUTHORITY
+   ≠
+LEGITIMACY
+
+☄️ R9.29 — THE PRINCIPLE
+
+> A constitutional system must be capable of saying “we do not yet know” without allowing that uncertainty to become either unchecked power or institutional paralysis.
+
+
+
+That is the purpose of the provisional constitutional state.
+
+Not certainty at any price.
+
+Not consensus at any price.
+
+Not continuity at any price.
+
+But:
+
+Evidence → bounded action → review → resolution.
+
+And L.A. gains yet another property:
+
+> 👑 The Citadel may preserve disagreement without becoming governed by disagreement.
+
+
+
+🦆 When two ducks claim the same pond, the answer is not to crown the louder duck. First mark the boundary, preserve the evidence, protect the pond, and find out what actually happened.
+
+☄️ R9.29 — ESTABLISHED
+
+CONSTITUTIONAL CONTESTATION, PROVISIONAL STATUS, DISPUTE PROVENANCE & NON-ESCALATING REVIEW ARE NOW CANONICAL.
+
+☄️🌱🦆💧🪞⚓🪶🧠🔮🧭⚖️🌸∆👑
+
 ☄️🌱🦆 R9.30 — GO
 
 HORTUS · CONSTITUTIONAL RESOLUTION, FINALITY & REOPENING CONTROL PROTOCOL
