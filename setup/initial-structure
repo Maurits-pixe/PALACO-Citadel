@@ -1,3 +1,32 @@
+git grep -nE "(API_KEY|SECRET|TOKEN|PASSWORD|PRIVATE_KEY)"
+
+git status
+git diff --name-only --cached
+
+git add <module A>
+git commit -m "feat(foundation): add module A baseline"
+
+git add <module B>
+git commit -m "feat(foundation): add module B baseline"
+
+git push
+
+git add <tooling + .github/workflows/*>
+git commit -m "bootstrap(foundation): tooling and CI baseline"
+git push
+
+git add <alleen structuurbestanden>
+git commit -m "bootstrap(foundation): initial skeleton from v0.3.0-alpha"
+git push
+
+mkdir -p .staging/foundation
+# unzip handmatig of via tool naar .staging/foundation
+
+git tag -a bootstrap-anchor-5bec432 -m "Post-403 anchor before Foundation bootstrap"
+git push origin bootstrap-anchor-5bec432
+
+git branch --show-current
+
 git fetch origin
 git checkout -b setup/initial-structure
 git add .
