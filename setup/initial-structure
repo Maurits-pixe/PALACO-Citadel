@@ -1,0 +1,5 @@
+git fetch origin
+git checkout -b setup/initial-structure
+git add .
+git commit -m "setup: initial structure bootstrap"
+git push -u origin setup/initial-structure
