@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "palaco/emerald/world-object.schema.json",
+  "title": "Emerald World Object",
+  "type": "object",
+  "required": ["world_id", "world_name", "domain", "source", "identity", "provenance", "citadel", "authority"],
+  "properties": {
+    "world_id": { "type": "string", "pattern": "^EW-[0-9]{4}$" },
+    "world_name": { "type": "string" },
+    "domain": {
+      "type": "object",
+      "required": ["imperium", "district"],
+      "properties": {
+        "imperium": { "type": "string" },
+        "district": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "source": {
+      "type": "object",
+      "required": ["authority", "epoch"],
+      "properties": {
+        "authority": { "type": "string" },
+        "epoch": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "identity": {
+      "type": "object",
+      "required": ["object_type", "mineral_name"],
+      "properties": {
+        "object_type": { "type": "string" },
+        "mineral_name": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["watermerk", "hologram"],
+      "properties": {
+        "watermerk": { "type": "string" },
+        "hologram": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "citadel": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "authority": {
+      "type": "object",
+      "required": ["constitutional", "sovereign"],
+      "properties": {
+        "constitutional": { "type": "boolean" },
+        "sovereign": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
