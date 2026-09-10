@@ -1,0 +1,7 @@
+:root { color-scheme: dark; }
+body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 760px; }
+.row { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+button { cursor: pointer; padding: .5rem .75rem; }
+a { color: #8ecbff; }
+ul { line-height: 1.7; }
+small { opacity: .8; }
