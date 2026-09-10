@@ -8,20 +8,41 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <h1 data-i18n="title">PALACO Citadel</h1>
-    <p data-i18n="subtitle">Canonical gateway and structured source map.</p>
+    <header>
+      <h1 data-i18n="title">PALACO Citadel</h1>
+      <p data-i18n="subtitle">Canonical gateway and structured source map.</p>
+    </header>
 
-    <div class="row">
-      <button id="lang-toggle" type="button" aria-live="polite"></button>
-      <small id="status" data-i18n="statusReady">Ready.</small>
-    </div>
+    <main>
+      <section aria-labelledby="mission-title">
+        <h2 id="mission-title" data-i18n="missionTitle">Mission</h2>
+        <p data-i18n="missionBody">
+          A single entrypoint for canonical PALACO files, baseline rules, and source navigation.
+        </p>
+      </section>
 
-    <h2 data-i18n="quickLinks">Quick links</h2>
-    <ul>
-      <li><a href="CANON/README.md" data-i18n="linkCanonMap">CANON map</a></li>
-      <li><a href="BIG_BANG_BASELINE_CHECKLIST.md" data-i18n="linkChecklist">Big Bang baseline checklist</a></li>
-      <li><a href="%23%20☄️%20THE%20BIG%20BANG%20%E2%80%94%20PALACO" data-i18n="linkBigBang">Big Bang source file</a></li>
-    </ul>
+      <div class="row">
+        <button id="lang-toggle" type="button" aria-live="polite"></button>
+        <small id="status" data-i18n="statusReady">Ready.</small>
+      </div>
+
+      <section aria-labelledby="canon-links-title">
+        <h2 id="canon-links-title" data-i18n="quickLinks">Canonical links</h2>
+        <ul>
+          <li><a href="CANON/README.md" data-i18n="linkCanonMap">CANON map</a></li>
+          <li><a href="BIG_BANG_BASELINE_CHECKLIST.md" data-i18n="linkChecklist">Big Bang baseline checklist</a></li>
+          <li><a href="%23%20☄️%20THE%20BIG%20BANG%20%E2%80%94%20PALACO" data-i18n="linkBigBang">Big Bang source file</a></li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="hubs-title">
+        <h2 id="hubs-title" data-i18n="hubsTitle">GitHub hubs</h2>
+        <ul>
+          <li><a href="https://github.com/Maurits-pixe/PALACO" target="_blank" rel="noopener noreferrer" data-i18n="hubPalaco">PALACO repository</a></li>
+          <li><a href="https://github.com/Maurits-pixe/PALACO-Industrie" target="_blank" rel="noopener noreferrer" data-i18n="hubIndustrie">PALACO-Industrie repository</a></li>
+        </ul>
+      </section>
+    </main>
 
     <script src="app.js"></script>
   </body>
