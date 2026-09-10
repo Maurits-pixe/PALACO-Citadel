@@ -54,6 +54,34 @@
       </section>
     </main>
 
+    <section class="control-room">
+      <div class="control-room-head">
+        <h2 data-i18n="masterTitle">MA5TER Dashboard Control Room</h2>
+        <p data-i18n="masterSubtitle">Central command for PALACO Industry and PALACO internal operations.</p>
+      </div>
+
+      <div class="control-grid">
+        <article class="card control-card">
+          <h3 data-i18n="industryTitle">PALACO Industry</h3>
+          <p data-i18n="industryBody">Monitor and activate industrial production mode.</p>
+          <p><span data-i18n="statusLabel">Status</span>: <strong id="industry-status" class="status-output"></strong></p>
+          <button type="button" class="control-btn" data-control-target="industry"></button>
+        </article>
+
+        <article class="card control-card">
+          <h3 data-i18n="internalTitle">PALACO Internal</h3>
+          <p data-i18n="internalBody">Manage internal Citadel operation mode.</p>
+          <p><span data-i18n="statusLabel">Status</span>: <strong id="citadel-status" class="status-output"></strong></p>
+          <button type="button" class="control-btn" data-control-target="citadel"></button>
+        </article>
+      </div>
+
+      <div class="sync-row">
+        <button id="sync-btn" type="button" class="sync-btn" data-i18n="syncNow">Sync now</button>
+        <p id="sync-output" aria-live="polite"></p>
+      </div>
+    </section>
+
     <footer>
       <small data-i18n="footer">PALACO · Build conditions. Make it count.</small>
     </footer>

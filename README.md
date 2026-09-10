@@ -7,6 +7,7 @@ First executable PALACO UI foundation.
 - Responsive website UI for desktop, tablet, and mobile.
 - Multilingual interface (English, Dutch, Esperanto).
 - Basic interactive "GO" flow (save and show latest objective).
+- MA5TER Dashboard Control Room for PALACO Industry and PALACO internal control modes.
 - Progressive Web App baseline (manifest + service worker + install prompt support).
 
 ## Run locally
