@@ -57,3 +57,11 @@ For each extra domain, choose one approach:
 - Wait for DNS propagation.
 - Visit `https://hoofdkantoor.info` and `https://www.hoofdkantoor.info`.
 - Confirm PALACO loads and HTTPS certificate is active.
+
+## Bulk rollout for all repositories
+
+Reusable template files are available at:
+
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/templates/github-pages/pages.yml`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/templates/github-pages/CNAME.example`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/templates/github-pages/README.md`
