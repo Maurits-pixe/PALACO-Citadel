@@ -16,6 +16,7 @@ IMA-CNMNC MASTER LIST
 → CITADEL GENERATOR
 → IMMORTAL LINEAGE
 → 4444 ALLOCATION
+→ EXPANSION LEDGER
 → REGISTRY HASH
 → VALIDATION
 → COMMIT
@@ -36,7 +37,9 @@ Each release stores:
 
 - Full mineral registry remains complete and versioned
 - 4444 allocation lane is bounded and explicit
-- Additional valid species remain tracked in non-primary lanes
+- Additional valid species remain tracked in the Expansion Ledger lane
+- WORLD_PENDING and WORLD_ACTIVE are allocation states, not identity tiers
+- Allocation transitions are governed by constitutional ∆ with evidence and provenance gates
 
 ## Constitutional rule
 

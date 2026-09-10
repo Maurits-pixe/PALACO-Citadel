@@ -59,6 +59,9 @@ Then open `http://localhost:8080`.
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/hologram.schema.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/registry-seal.schema.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-REGISTRY-SEAL-2026-09.example.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/GO-EMERALD-007.md`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/expansion-ledger.schema.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-EXPANSION-LEDGER-2026-09.example.json`
 
 ## Domain + GitHub account linking (STRATO)
 

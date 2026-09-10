@@ -9,6 +9,8 @@ This directory defines machine-readable contracts for Emerald registry artifacts
 - `schemas/provenance.schema.json`
 - `schemas/watermerk.schema.json`
 - `schemas/hologram.schema.json`
+- `schemas/registry-seal.schema.json`
+- `schemas/expansion-ledger.schema.json`
 
 ## Compatibility schemas
 
