@@ -10,44 +10,52 @@
   </head>
   <body>
     <header class="hero">
-      <p class="eyebrow">GO · Scheppen · Create</p>
+      <div class="hero-top">
+        <p class="eyebrow" data-i18n="eyebrow">GO · Scheppen · Create</p>
+        <div class="language-switch" aria-label="Language selector">
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+          <button type="button" class="lang-btn" data-lang="nl">NL</button>
+          <button type="button" class="lang-btn" data-lang="eo">EO</button>
+        </div>
+      </div>
       <h1>PALACO Citadel</h1>
-      <p class="subtitle">
+      <p class="subtitle" data-i18n="subtitle">
         The first executable UI foundation for desktop, tablet, and mobile.
       </p>
     </header>
 
     <main class="layout">
       <section class="card">
-        <h2>Vision</h2>
-        <p>
+        <h2 data-i18n="visionTitle">Vision</h2>
+        <p data-i18n="visionBody">
           PALACO means “palace” in Esperanto: a shared digital place to build,
           create, and bring ideas to life.
         </p>
       </section>
 
       <section class="card">
-        <h2>Launch Pad</h2>
+        <h2 data-i18n="launchTitle">Launch Pad</h2>
         <form id="goal-form">
-          <label for="goal">What will you create today?</label>
-          <input id="goal" name="goal" maxlength="120" placeholder="Type your first PALACO goal" required />
-          <button type="submit">GO</button>
+          <label for="goal" data-i18n="goalLabel">What will you create today?</label>
+          <input id="goal" name="goal" maxlength="120" data-i18n-placeholder="goalPlaceholder" placeholder="Type your first PALACO goal" required />
+          <button type="submit" data-i18n="goButton">GO</button>
         </form>
         <p id="goal-output" class="goal-output" aria-live="polite"></p>
+        <button id="install-btn" type="button" class="install-btn" hidden data-i18n="installButton">Install app</button>
       </section>
 
       <section class="card">
-        <h2>Platform readiness</h2>
+        <h2 data-i18n="readinessTitle">Platform readiness</h2>
         <ul>
-          <li>Responsive layout for computer, tablet, and mobile.</li>
-          <li>Installable web app foundation (PWA).</li>
-          <li>Ready for domain + HTTPS deployment.</li>
+          <li data-i18n="readinessOne">Responsive layout for computer, tablet, and mobile.</li>
+          <li data-i18n="readinessTwo">Installable web app foundation (PWA).</li>
+          <li data-i18n="readinessThree">Ready for domain + HTTPS deployment.</li>
         </ul>
       </section>
     </main>
 
     <footer>
-      <small>PALACO · Build conditions. Make it count.</small>
+      <small data-i18n="footer">PALACO · Build conditions. Make it count.</small>
     </footer>
 
     <script src="/app.js" defer></script>

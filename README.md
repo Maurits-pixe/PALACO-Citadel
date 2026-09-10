@@ -5,8 +5,9 @@ First executable PALACO UI foundation.
 ## What is included
 
 - Responsive website UI for desktop, tablet, and mobile.
+- Multilingual interface (English, Dutch, Esperanto).
 - Basic interactive "GO" flow (save and show latest objective).
-- Progressive Web App baseline (manifest + service worker).
+- Progressive Web App baseline (manifest + service worker + install prompt support).
 
 ## Run locally
 
