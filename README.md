@@ -40,6 +40,9 @@ Then open `http://localhost:8080`.
 
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/EMERALD-IMPERIUM-001.md`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/EMERALD-IMPERIUM-ALLOCATION-V1.md`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/GO-EMERALD-003.md`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/EMERALD-WORLD-REGISTRY-SCHEMA.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/EMERALD-WORLD-INDEX-SEED-V1.json`
 
 ## Domain + GitHub account linking (STRATO)
 

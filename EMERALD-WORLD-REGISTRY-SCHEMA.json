@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "palaco/emerald-world-registry.schema.json",
+  "title": "PALACO Emerald World Registry Record",
+  "type": "object",
+  "required": [
+    "world_id",
+    "world_name",
+    "mineral",
+    "domain",
+    "identity",
+    "provenance",
+    "integrity",
+    "citadel",
+    "authority",
+    "lineage"
+  ],
+  "properties": {
+    "world_id": {
+      "type": "string",
+      "pattern": "^EW-[0-9]{4}$"
+    },
+    "world_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "registry_status": {
+      "type": "string",
+      "enum": [
+        "ACTIVE",
+        "HISTORICAL",
+        "SUPERSEDED",
+        "DISCREDITED",
+        "UNALLOCATED"
+      ]
+    },
+    "mineral": {
+      "type": "object",
+      "required": ["canonical_name"],
+      "properties": {
+        "canonical_name": { "type": "string" },
+        "mineral_class": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "domain": {
+      "type": "object",
+      "required": ["imperium", "district"],
+      "properties": {
+        "imperium": { "type": "string" },
+        "district": { "type": "string" },
+        "secondary_tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "identity": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["registry", "epoch"],
+      "properties": {
+        "registry": { "type": "string" },
+        "epoch": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "integrity": {
+      "type": "object",
+      "required": ["watermerk", "hologram"],
+      "properties": {
+        "watermerk": { "type": "string" },
+        "hologram": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "citadel": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "authority": {
+      "type": "object",
+      "required": ["constitutional", "sovereign"],
+      "properties": {
+        "constitutional": { "type": "string" },
+        "sovereign": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "lineage": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "evidence_state": {
+      "type": "string",
+      "enum": [
+        "OBSERVED",
+        "ATTESTED",
+        "PROVEN",
+        "CONFIRMED",
+        "FINAL",
+        "DISPUTED",
+        "CONFLICTED",
+        "IN_DOUBT"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

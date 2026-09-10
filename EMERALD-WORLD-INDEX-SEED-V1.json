@@ -1,0 +1,88 @@
+{
+  "registry": "IMA-CNMNC",
+  "epoch": "2026-09",
+  "imperium": "THE-EMERALD-IMPERIUM",
+  "district": "MINERAL-REGISTRY",
+  "records": [
+    {
+      "world_id": "EW-0001",
+      "world_name": "Abellaite",
+      "registry_status": "ACTIVE",
+      "mineral": { "canonical_name": "Abellaite" },
+      "integrity": { "watermerk": "EM-WM-EW-0001", "hologram": "EM-HO-EW-0001" },
+      "citadel": { "id": "CITADEL-EM-EW-0001" }
+    },
+    {
+      "world_id": "EW-0002",
+      "world_name": "Abelloemringerite",
+      "registry_status": "ACTIVE",
+      "mineral": { "canonical_name": "Abelloemringerite" },
+      "integrity": { "watermerk": "EM-WM-EW-0002", "hologram": "EM-HO-EW-0002" },
+      "citadel": { "id": "CITADEL-EM-EW-0002" }
+    },
+    {
+      "world_id": "EW-0003",
+      "world_name": "Abelsonite",
+      "registry_status": "ACTIVE",
+      "mineral": { "canonical_name": "Abelsonite" },
+      "integrity": { "watermerk": "EM-WM-EW-0003", "hologram": "EM-HO-EW-0003" },
+      "citadel": { "id": "CITADEL-EM-EW-0003" }
+    },
+    {
+      "world_id": "EW-0004",
+      "world_name": "Abenakiite-(Ce)",
+      "registry_status": "ACTIVE",
+      "mineral": { "canonical_name": "Abenakiite-(Ce)" },
+      "integrity": { "watermerk": "EM-WM-EW-0004", "hologram": "EM-HO-EW-0004" },
+      "citadel": { "id": "CITADEL-EM-EW-0004" }
+    },
+    {
+      "world_id": "EW-0005",
+      "world_name": "Abernathyite",
+      "registry_status": "ACTIVE",
+      "mineral": { "canonical_name": "Abernathyite" },
+      "integrity": { "watermerk": "EM-WM-EW-0005", "hologram": "EM-HO-EW-0005" },
+      "citadel": { "id": "CITADEL-EM-EW-0005" }
+    },
+    {
+      "world_id": "EW-0006",
+      "world_name": "Abhurite",
+      "registry_status": "ACTIVE",
+      "mineral": { "canonical_name": "Abhurite" },
+      "integrity": { "watermerk": "EM-WM-EW-0006", "hologram": "EM-HO-EW-0006" },
+      "citadel": { "id": "CITADEL-EM-EW-0006" }
+    },
+    {
+      "world_id": "EW-0007",
+      "world_name": "Abramovite",
+      "registry_status": "ACTIVE",
+      "mineral": { "canonical_name": "Abramovite" },
+      "integrity": { "watermerk": "EM-WM-EW-0007", "hologram": "EM-HO-EW-0007" },
+      "citadel": { "id": "CITADEL-EM-EW-0007" }
+    },
+    {
+      "world_id": "EW-0008",
+      "world_name": "Abswurmbachite",
+      "registry_status": "ACTIVE",
+      "mineral": { "canonical_name": "Abswurmbachite" },
+      "integrity": { "watermerk": "EM-WM-EW-0008", "hologram": "EM-HO-EW-0008" },
+      "citadel": { "id": "CITADEL-EM-EW-0008" }
+    },
+    {
+      "world_id": "EW-0009",
+      "world_name": "Abuite",
+      "registry_status": "ACTIVE",
+      "mineral": { "canonical_name": "Abuite" },
+      "integrity": { "watermerk": "EM-WM-EW-0009", "hologram": "EM-HO-EW-0009" },
+      "citadel": { "id": "CITADEL-EM-EW-0009" }
+    },
+    {
+      "world_id": "EW-0010",
+      "world_name": "Acanthite",
+      "registry_status": "ACTIVE",
+      "mineral": { "canonical_name": "Acanthite" },
+      "integrity": { "watermerk": "EM-WM-EW-0010", "hologram": "EM-HO-EW-0010" },
+      "citadel": { "id": "CITADEL-EM-EW-0010" }
+    }
+  ]
+}
