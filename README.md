@@ -65,3 +65,4 @@ Reusable template files are available at:
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/templates/github-pages/pages.yml`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/templates/github-pages/CNAME.example`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/templates/github-pages/README.md`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/templates/github-pages/BULK-ROLLOUT.md`
