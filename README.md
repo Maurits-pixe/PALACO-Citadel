@@ -60,8 +60,15 @@ Then open `http://localhost:8080`.
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/registry-seal.schema.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-REGISTRY-SEAL-2026-09.example.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/GO-EMERALD-007.md`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/GO-EMERALD-008.md`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/expansion-ledger.schema.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/world-layer-registry.schema.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/allocation-registry.schema.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/world-indexes.schema.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-EXPANSION-LEDGER-2026-09.example.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-WORLD-REGISTRY-2026-09.example.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/allocation/4444/WORLD-ALLOCATION-REGISTRY-2026-09.example.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-INDEXES-2026-09.example.json`
 
 ## Domain + GitHub account linking (STRATO)
 

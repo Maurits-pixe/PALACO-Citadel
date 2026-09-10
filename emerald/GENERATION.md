@@ -36,10 +36,15 @@ Each release stores:
 ## Allocation boundaries
 
 - Full mineral registry remains complete and versioned
+- World registry keeps one immutable EW identity per canonical mineral
 - 4444 allocation lane is bounded and explicit
 - Additional valid species remain tracked in the Expansion Ledger lane
 - WORLD_PENDING and WORLD_ACTIVE are allocation states, not identity tiers
 - Allocation transitions are governed by constitutional ∆ with evidence and provenance gates
+
+## Constitutional order
+
+CONSTITUTION > GOVERNANCE > POLICY > ACTION
 
 ## Constitutional rule
 

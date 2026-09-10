@@ -87,6 +87,25 @@ met evidence, provenance en authorization gates.
 
 Emerald Imperium mag registreren, ordenen, visualiseren en verifiëren; het mag geen sovereignty of constitutionele authority claimen.
 
+Constitutionele volgorde blijft:
+
+CONSTITUTION > GOVERNANCE > POLICY > ACTION
+
 ## GO-EMERALD-008 status
 
-GO-EMERALD-008 establishes first executable world-layer specification artifacts (schema + release examples) for the three-layer model, dual indexes, and slot allocation separation.
+🟢 SEALED
+
+Canonieke componenten:
+
+- EMERALD MINERAL REGISTRY
+- EMERALD WORLD REGISTRY
+- WORLD ALLOCATION REGISTRY
+- EMERALD EXPANSION LEDGER
+- CANONICAL NAME INDEX
+- IMMUTABLE WORLD INDEX
+
+Iedere mineral species kan een unieke Emerald World Identity hebben, ongeacht actuele 4444-slotbeschikbaarheid.
+
+De Edelsteenbuurt kan onbeperkt groeien zonder hernummering of verlies van historische identiteit.
+
+∆ GO-EMERALD-008 — SEALED.

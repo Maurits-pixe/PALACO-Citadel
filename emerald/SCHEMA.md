@@ -11,6 +11,9 @@ This directory defines machine-readable contracts for Emerald registry artifacts
 - `schemas/hologram.schema.json`
 - `schemas/registry-seal.schema.json`
 - `schemas/expansion-ledger.schema.json`
+- `schemas/world-layer-registry.schema.json`
+- `schemas/allocation-registry.schema.json`
+- `schemas/world-indexes.schema.json`
 
 ## Compatibility schemas
 

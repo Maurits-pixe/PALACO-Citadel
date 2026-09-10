@@ -1,0 +1,27 @@
+{
+  "source_epoch": "2026-09",
+  "canonical_name_index": [
+    { "canonical_name": "Abellaite", "world_id": "EW-0001" },
+    { "canonical_name": "Abelloemringerite", "world_id": "EW-0002" },
+    { "canonical_name": "Abelsonite", "world_id": "EW-0003" },
+    { "canonical_name": "Abenakiite-(Ce)", "world_id": "EW-0004" },
+    { "canonical_name": "Abernathyite", "world_id": "EW-0005" },
+    { "canonical_name": "Abhurite", "world_id": "EW-0006" },
+    { "canonical_name": "Abramovite", "world_id": "EW-0007" },
+    { "canonical_name": "Abswurmbachite", "world_id": "EW-0008" },
+    { "canonical_name": "Abuite", "world_id": "EW-0009" },
+    { "canonical_name": "Acanthite", "world_id": "EW-0010" }
+  ],
+  "immutable_world_index": [
+    { "world_id": "EW-0001", "canonical_name": "Abellaite" },
+    { "world_id": "EW-0002", "canonical_name": "Abelloemringerite" },
+    { "world_id": "EW-0003", "canonical_name": "Abelsonite" },
+    { "world_id": "EW-0004", "canonical_name": "Abenakiite-(Ce)" },
+    { "world_id": "EW-0005", "canonical_name": "Abernathyite" },
+    { "world_id": "EW-0006", "canonical_name": "Abhurite" },
+    { "world_id": "EW-0007", "canonical_name": "Abramovite" },
+    { "world_id": "EW-0008", "canonical_name": "Abswurmbachite" },
+    { "world_id": "EW-0009", "canonical_name": "Abuite" },
+    { "world_id": "EW-0010", "canonical_name": "Acanthite" }
+  ]
+}
