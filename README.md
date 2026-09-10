@@ -36,6 +36,11 @@ Then open `http://localhost:8080`.
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/VISITCARD-PROV-001.md`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/VISITCARD-REVOKE-001.md`
 
+## Emerald Imperium canon
+
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/EMERALD-IMPERIUM-001.md`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/EMERALD-IMPERIUM-ALLOCATION-V1.md`
+
 ## Domain + GitHub account linking (STRATO)
 
 ### 1) GitHub repository settings
