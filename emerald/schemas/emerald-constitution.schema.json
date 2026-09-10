@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://palaco.local/emerald/schemas/emerald-constitution.schema.json",
+  "title": "Emerald Imperium Constitution",
+  "type": "object",
+  "required": [
+    "constitution_id",
+    "version",
+    "title",
+    "hierarchy",
+    "articles",
+    "canonical_sentence"
+  ],
+  "properties": {
+    "constitution_id": {
+      "const": "EIC-001"
+    },
+    "version": {
+      "pattern": "^v[0-9]+\\.[0-9]+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "hierarchy": {
+      "type": "array",
+      "const": [
+        "CONSTITUTION",
+        "GOVERNANCE",
+        "POLICY",
+        "ACTION"
+      ]
+    },
+    "articles": {
+      "type": "array",
+      "minItems": 25,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "rule"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^EIC-[0-9]{3}(\\.[0-9]+)?$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rule": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "canonical_sentence": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": false
+}

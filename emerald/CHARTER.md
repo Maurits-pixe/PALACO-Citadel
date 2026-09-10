@@ -1,5 +1,6 @@
 # Emerald Charter
 
+- Constitutional charter: `CONSTITUTION.md` (EIC-001 v1.0).
 - Source authority for ingestion: IMA-CNMNC master list snapshots.
 - Allocation follows canonical alphabetical order after status and identity filtering.
 - EW IDs are immutable and never recycled.

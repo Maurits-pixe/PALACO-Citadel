@@ -21,6 +21,7 @@ This directory defines machine-readable contracts for Emerald registry artifacts
 - `schemas/capacity-change.schema.json`
 - `schemas/elixer-factory.schema.json`
 - `schemas/fail-closed-test-suite.schema.json`
+- `schemas/emerald-constitution.schema.json`
 
 ## Compatibility schemas
 
