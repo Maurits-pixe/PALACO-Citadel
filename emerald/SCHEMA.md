@@ -19,6 +19,8 @@ This directory defines machine-readable contracts for Emerald registry artifacts
 - `schemas/mineral-world-factory-output.schema.json`
 - `schemas/mineral-relation-edge.schema.json`
 - `schemas/capacity-change.schema.json`
+- `schemas/elixer-factory.schema.json`
+- `schemas/fail-closed-test-suite.schema.json`
 
 ## Compatibility schemas
 

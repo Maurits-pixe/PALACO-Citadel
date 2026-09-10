@@ -111,3 +111,90 @@ Without evidence: no official relation edge.
 ## Constitutional boundary
 
 Factory outputs are representational and evidentiary; they do not grant sovereignty or constitutional authority.
+
+Scientific mineral authority remains external.
+
+## Emerald City controlled interface
+
+Emerald City is a controlled interface for:
+
+- registry
+- allocation
+- expansion
+- provenance
+- evidence
+- history
+- exploration
+
+EMERALD CITY ≠ AUTHORITY OVER MINERALOGY.
+
+## Elixer architecture
+
+Factory-compatible Emerald ELIXERS:
+
+- Emerald Explorer
+- Mineral Search
+- Mineral Identifier
+- Gem Atlas
+- Crystal Atlas
+- Mineral Map
+- Provenance Viewer
+- Watermerk Viewer
+- Immortal Timeline
+
+Each ELIXER includes identity, frame, context, evidence, interaction, and traceability, with no constitutional authority.
+
+## Fail-closed test gates
+
+Production gate suite:
+
+- TEST-EM-001 duplicate mineral → FAIL
+- TEST-EM-002 missing provenance → FAIL
+- TEST-EM-003 invalid source status → FAIL
+- TEST-EM-004 world-id collision → FAIL
+- TEST-EM-005 slot collision → FAIL
+- TEST-EM-006 historical deletion → FAIL
+- TEST-EM-007 identity recycling → FAIL
+- TEST-EM-008 unverified inference → FAIL
+- TEST-EM-009 capacity overflow → EXPANSION
+- TEST-EM-010 valid allocation → PASS
+
+## Integrated model
+
+PALACO CONSTITUTION
+→ THE EMERALD IMPERIUM
+→ MINERAL REGISTRY
+→ EMERALD WORLD
+→ IDENTITY + PROVENANCE + EVIDENCE
+→ WATERMERK + HOLOGRAM + IMMORTAL
+→ CITADEL
+→ ELIXERS
+
+Parallel allocation lane:
+
+- 4444 current slots
+- expansion worlds
+
+## GO-EMERALD-009 status
+
+🟢 SEALED
+
+Canonical components established:
+
+- Emerald World Factory
+- Source Ingestion Contract
+- Identity Gate
+- World Creation Gate
+- 4444 World Allocator
+- Expansion Factory
+- Capacity Expansion Gate
+- Dynamic Identity Index
+- Nomenclature Lineage
+- Evidence Chain
+- Relation Integrity Gate
+- Emerald ELIXER Factory
+- Fail-Closed Test Suite
+
+De Edelsteenbuurt mag groeien; de eerste 4444 werelden hoeven daarvoor nooit opnieuw gedefinieerd te worden.
+
+∆ GO-EMERALD-009 = SEALED.

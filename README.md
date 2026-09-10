@@ -71,6 +71,8 @@ Then open `http://localhost:8080`.
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/mineral-world-factory-output.schema.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/mineral-relation-edge.schema.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/capacity-change.schema.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/elixer-factory.schema.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/fail-closed-test-suite.schema.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-EXPANSION-LEDGER-2026-09.example.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-WORLD-REGISTRY-2026-09.example.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/allocation/4444/WORLD-ALLOCATION-REGISTRY-2026-09.example.json`
@@ -78,6 +80,8 @@ Then open `http://localhost:8080`.
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-WORLD-FACTORY-RUN-2026-09.example.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-RELATION-GRAPH-2026-09.example.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/allocation/4444/CAPACITY-CHANGE-4444-5000.example.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-ELIXER-FACTORY-2026-09.example.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-FACTORY-TEST-GATES-2026-09.example.json`
 
 ## Domain + GitHub account linking (STRATO)
 

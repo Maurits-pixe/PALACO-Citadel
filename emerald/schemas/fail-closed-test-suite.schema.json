@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://palaco.local/emerald/schemas/fail-closed-test-suite.schema.json",
+  "title": "Emerald Factory Fail-Closed Test Suite",
+  "type": "object",
+  "required": [
+    "suite_id",
+    "tests"
+  ],
+  "properties": {
+    "suite_id": {
+      "type": "string",
+      "pattern": "^TEST-EM-SUITE-[0-9]{4}-[0-9]{2}$"
+    },
+    "tests": {
+      "type": "array",
+      "minItems": 10,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "description",
+          "expected_result"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^TEST-EM-[0-9]{3}$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expected_result": {
+            "type": "string",
+            "enum": [
+              "FAIL",
+              "PASS",
+              "EXPANSION"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
