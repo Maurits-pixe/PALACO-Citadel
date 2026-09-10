@@ -1,0 +1,576 @@
+∆ GO-6 — PALACO.NL FULL WEBSITE
+PALACO VORM9EVIN9 · PVD-001 v1.0 · PUBLIC GATEWAY MASTER
+
+We maken PALACO.NL nu als een volwaardige website-architectuur, niet als een simpele homepage. De site wordt de publieke poort naar het hele systeem: PALACO → Citadels → L.A. → PROMO → PROMA → Proof → Identity → H∆R∆M.
+
+PALACO.NL
+
+GO-6 — FULL WEBSITE MASTER SPECIFICATION
+
+SYSTEM: PALACO VORM9EVIN9
+VERSION: PVD-001 · v1.0
+STATUS: DESIGN + CONTENT + UX MASTER
+PUBLIC GATEWAY: PALACO.NL
+REFERENCE CITADEL: L.A. / LOCUS AMOENUS
+
+---
+
+00 — WEBSITE THESIS
+
+PALACO.NL is not a corporate website.
+
+It is not primarily:
+
+- a brochure
+- a webshop
+- a news site
+- a governance dashboard
+- a conventional company homepage
+
+PALACO.NL is:
+
+«the public gateway into the PALACO constitutional architecture.»
+
+The website has one central task:
+
+make PALACO understandable before asking the visitor to enter it.
+
+---
+
+01 — MASTER EXPERIENCE
+
+The complete website journey:
+
+PALACO.NL
+     │
+     ├── UNDERSTAND
+     │
+     ├── EXPLORE
+     │
+     ├── ENTER
+     │
+     ├── VERIFY
+     │
+     └── IDENTIFY
+            │
+            ▼
+           L.A.
+     LOCUS AMOENUS
+            │
+    ┌───────┼────────┐
+    ▼       ▼        ▼
+  PROMO   PROMA    H∆R∆M
+    │       │        │
+    └───────┼────────┘
+            ▼
+         CITADELS
+            │
+            ▼
+          PROOF
+            │
+            ▼
+         IDENTITY
+
+---
+
+02 — PRIMARY NAVIGATION
+
+Desktop:
+
+PALACO
+
+CITADELS
+ELIXIRS
+PROOF
+INDUSTRIE
+GOVERNANCE
+EVOLUTION
+
+                    ENTER
+
+Utility:
+
+SEARCH
+IDENTITY
+STATUS
+
+Mobile:
+
+PALACO
+
+☰
+
+CITADELS
+ELIXIRS
+PROOF
+INDUSTRIE
+GOVERNANCE
+EVOLUTION
+
+ENTER PALACO
+
+Navigation remains deliberately sparse.
+
+---
+
+03 — SITE MAP
+
+/
+├── /citadels
+│   ├── /la-001
+│   └── /[citadel-id]
+│
+├── /elixirs
+│   └── /[elixir-id]
+│
+├── /proof
+│   ├── /verify
+│   ├── /provenance
+│   ├── /watermerk
+│   └── /status
+│
+├── /industrie
+│
+├── /governance
+│
+├── /evolution
+│
+├── /identity
+│   └── /[identity-id]
+│
+├── /haram
+│
+├── /stewardship
+│
+├── /about
+│
+├── /constitution
+│
+└── /contact
+
+---
+
+04 — HOMEPAGE
+
+HERO
+
+The first viewport should contain almost nothing.
+
+                         PALACO
+
+              CONSTITUTIONAL INFRASTRUCTURE
+                   FOR THE AUTONOMOUS ERA
+
+
+                       ENTER PALACO
+
+
+              CITADELS · ELIXIRS · PROOF
+         INDUSTRIE · GOVERNANCE · EVOLUTION
+
+No carousel.
+
+No pop-up.
+
+No giant marketing paragraph.
+
+No stock photography.
+
+The visitor gets a moment of silence.
+
+---
+
+05 — HERO INTERACTION
+
+When the visitor selects:
+
+ENTER PALACO
+
+the perimeter constructs itself.
+
+Sequence:
+
+PALACO
+ ↓
+PERIMETER
+ ↓
+CROWN
+ ↓
+FOUR TOWERS
+ ↓
+CORE
+ ↓
+L.A.
+
+Then:
+
+LOCUS AMOENUS
+
+appears.
+
+This makes entering PALACO feel architectural.
+
+---
+
+06 — HOMEPAGE SECTION 02
+
+WHAT IS PALACO?
+
+Headline:
+
+«Constitutional infrastructure for the autonomous era.»
+
+Supporting text:
+
+«PALACO is a framework for building bounded environments in which identity, participation, provenance and evidence remain visible and understandable.»
+
+Three entry points:
+
+CITADELS
+Places and environments
+
+PROOF
+Identity and provenance
+
+EVOLUTION
+Systems, experiments and future development
+
+CTA:
+
+UNDERSTAND PALACO
+
+---
+
+07 — HOMEPAGE SECTION 03
+
+THE CITADELS
+
+Headline:
+
+«Architecture for bounded environments.»
+
+The site presents Citadels as members of one visual family.
+
+Featured:
+
+L.A.
+LOCUS AMOENUS
+REFERENCE CITADEL
+LA-001
+
+Then future Citadels.
+
+CTA:
+
+EXPLORE CITADELS
+
+---
+
+08 — HOMEPAGE SECTION 04
+
+L.A.
+
+The homepage gives L.A. special status.
+
+LOCUS AMOENUS
+
+REFERENCE CITADEL
+
+LA-001
+
+
+CROWN
+FOUR TOWERS
+CORE
+PERIMETER
+
+OBSERVATORY
+COMMONS
+ELIXIRS
+H∆R∆M
+
+
+[ ENTER L.A. ]
+
+L.A. is the visual demonstration of the entire system.
+
+---
+
+09 — HOMEPAGE SECTION 05
+
+ELIXIRS
+
+This is the human/commercial doorway.
+
+Headline:
+
+«Things worth experiencing.»
+
+The section can display curated offerings.
+
+Every item has:
+
+- origin
+- Citadel
+- Watermerk
+- provenance
+- status
+
+CTA:
+
+DISCOVER ELIXIRS
+
+---
+
+10 — HOMEPAGE SECTION 06
+
+PROOF
+
+Headline:
+
+«Identity should be inspectable.»
+
+Supporting:
+
+«PALACO connects identity with provenance, status and evidence so that relationships can be examined rather than assumed.»
+
+Three modules:
+
+IDENTITY
+Who or what is this?
+
+PROVENANCE
+Where did it come from?
+
+VALIDITY
+What is its current state?
+
+CTA:
+
+ENTER PROOF
+
+---
+
+11 — HOMEPAGE SECTION 07
+
+H∆R∆M
+
+Headline:
+
+«A human interface to the architecture.»
+
+Supporting:
+
+«H∆R∆M helps people navigate PALACO, understand context and reach the appropriate action without replacing the underlying constitutional structure.»
+
+CTA:
+
+MEET H∆R∆M
+
+---
+
+12 — HOMEPAGE SECTION 08
+
+INDUSTRIE
+
+Headline:
+
+«Where the architecture becomes useful.»
+
+Industrie is the practical layer.
+
+Possible categories:
+
+IDENTITY
+INFRASTRUCTURE
+COMMERCE
+RESEARCH
+PROVENANCE
+SYSTEMS
+
+CTA:
+
+EXPLORE INDUSTRIE
+
+---
+
+13 — HOMEPAGE SECTION 09
+
+GOVERNANCE
+
+This page explains bounded authority.
+
+Headline:
+
+«Authority with boundaries.»
+
+Core principles:
+
+ATTRIBUTABLE
+BOUNDED
+REVIEWABLE
+REVOCABLE
+
+The website should explain governance in plain language before showing technical detail.
+
+CTA:
+
+UNDERSTAND GOVERNANCE
+
+---
+
+14 — HOMEPAGE SECTION 10
+
+EVOLUTION
+
+Headline:
+
+«The system remains capable of becoming better.»
+
+Evolution contains:
+
+- versions
+- experiments
+- proposals
+- research
+- design evolution
+- architectural changes
+
+The important distinction:
+
+change is visible
+
+rather than hidden.
+
+CTA:
+
+VIEW EVOLUTION
+
+---
+
+15 — HOMEPAGE FINAL SECTION
+
+The page becomes quiet again.
+
+PALACO
+
+CONSTITUTIONAL INFRASTRUCTURE
+FOR THE AUTONOMOUS ERA
+
+
+ENTER PALACO
+
+
+CITADELS
+ELIXIRS
+PROOF
+INDUSTRIE
+GOVERNANCE
+EVOLUTION
+
+Then:
+
+PVD-001 · v1.0
+
+---
+
+16 — /CITADELS
+
+Page title:
+
+«CITADELS»
+
+Subtitle:
+
+«Bounded environments within the PALACO architecture.»
+
+Grid:
+
+┌────────────────┐
+│ L.A.           │
+│ LOCUS AMOENUS  │
+│ REFERENCE      │
+│ LA-001         │
+│                │
+│ ENTER →        │
+└────────────────┘
+
+Future Citadels use the same component.
+
+---
+
+17 — CITADEL DETAIL
+
+URL concept:
+
+"/citadels/la-001"
+
+Header:
+
+PALACO
+
+LOCUS AMOENUS
+REFERENCE CITADEL
+
+LA-001
+ACTIVE
+
+Then full Citadel architecture.
+
+Navigation:
+
+OVERVIEW
+ARCHITECTURE
+OBSERVATORY
+COMMONS
+ELIXIRS
+H∆R∆M
+PROOF
+STEWARDSHIP
+
+---
+
+18 — /ELIXIRS
+
+The Elixirs landing page is more sensorial.
+
+Hero:
+
+«ELIXIRS»
+
+«Curated experiences within the PALACO ecosystem.»
+
+Content architecture:
+
+FEATURED
+COLLECTIONS
+ORIGIN
+CITADELS
+PROVENANCE
+ACCESS
+
+No product may visually outrank its provenance.
+
+---
+
+19 — ELIXIR DETAIL
+
+ELIXIR NAME
+
+SHORT DESCRIPTION
+
+ORIGIN
+ISSUER
+CITADEL
+
+WATERMERK
+
+PROVENANCE
+
+STATUS
+VALIDITY
+
+[ ACCESS ]
+[ VERIFY ]
+
+The commercial action and verification action remain separate.
