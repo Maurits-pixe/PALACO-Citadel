@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "palaco/emerald/hologram.schema.json",
+  "title": "Emerald Hologram",
+  "type": "object",
+  "required": ["id", "world_id", "authenticity", "epoch"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^EM-HO-EW-[0-9]{4}$" },
+    "world_id": { "type": "string", "pattern": "^EW-[0-9]{4}$" },
+    "authenticity": { "type": "string", "enum": ["VERIFIED", "PENDING", "REVOKED"] },
+    "epoch": { "type": "string" }
+  },
+  "additionalProperties": true
+}

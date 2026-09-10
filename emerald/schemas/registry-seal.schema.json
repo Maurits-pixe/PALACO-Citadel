@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "palaco/emerald/registry-seal.schema.json",
+  "title": "Emerald Registry Seal",
+  "type": "object",
+  "required": ["registry_seal"],
+  "properties": {
+    "registry_seal": {
+      "type": "object",
+      "required": ["registry_id", "source", "integrity", "generation", "validation"],
+      "properties": {
+        "registry_id": { "type": "string" },
+        "source": {
+          "type": "object",
+          "required": ["authority", "epoch"],
+          "properties": {
+            "authority": { "type": "string" },
+            "epoch": { "type": "string" }
+          }
+        },
+        "integrity": {
+          "type": "object",
+          "required": ["source_hash", "registry_hash", "schema_hash", "generator_hash"],
+          "properties": {
+            "source_hash": { "type": "string" },
+            "registry_hash": { "type": "string" },
+            "schema_hash": { "type": "string" },
+            "generator_hash": { "type": "string" }
+          }
+        },
+        "generation": {
+          "type": "object",
+          "required": ["timestamp", "generator_version"],
+          "properties": {
+            "timestamp": { "type": "string" },
+            "generator_version": { "type": "string" }
+          }
+        },
+        "validation": {
+          "type": "object",
+          "required": ["duplicate_check", "provenance_check", "identity_check", "ordering_check", "allocation_check"],
+          "properties": {
+            "duplicate_check": { "enum": ["PASS", "FAIL"] },
+            "provenance_check": { "enum": ["PASS", "FAIL"] },
+            "identity_check": { "enum": ["PASS", "FAIL"] },
+            "ordering_check": { "enum": ["PASS", "FAIL"] },
+            "allocation_check": { "enum": ["PASS", "FAIL"] }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

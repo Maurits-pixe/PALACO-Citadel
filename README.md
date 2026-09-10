@@ -49,6 +49,16 @@ Then open `http://localhost:8080`.
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/source-record.schema.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/world-object.schema.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-REGISTRY-2026-09.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/GO-EMERALD-005.md`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/SCHEMA.md`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/GENERATION.md`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/mineral.schema.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/world.schema.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/provenance.schema.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/watermerk.schema.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/hologram.schema.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/registry-seal.schema.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-REGISTRY-SEAL-2026-09.example.json`
 
 ## Domain + GitHub account linking (STRATO)
 
