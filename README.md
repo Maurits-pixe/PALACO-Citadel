@@ -30,6 +30,11 @@ Then open `http://localhost:8080`.
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/RIO-UNIVERSAL-001.md`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/RIO-UIC-001.md`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/RIO-VISITCARD-001.md`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/VISITCARD-INTRO-001.md`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/VISITCARD-BEACON-001.md`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/VISITCARD-CONSENT-001.md`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/VISITCARD-PROV-001.md`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/VISITCARD-REVOKE-001.md`
 
 ## Domain + GitHub account linking (STRATO)
 

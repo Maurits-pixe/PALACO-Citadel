@@ -1,32 +1,66 @@
-# RIO-VISITCARD-001 — VISITCARD BEACON INTRODUCTION
+# RIO-VISITCARD-001 — PALACO VISITCARD 03
 
-## Canonical law
+## Standard direction
 
-RIO SHALL SUPPORT PALACO VISITCARDS AS PORTABLE, VERIFIABLE INTRODUCTION OBJECTS THROUGH WHICH PERSONS, CITADELS, WORLDS AND ELIXERS MAY INTRODUCE THEMSELVES ACROSS SUPPORTED PHYSICAL AND DIGITAL SURFACES, INCLUDING BLUETOOTH-BASED PROXIMITY DISCOVERY, WITHOUT THEREBY GRANTING AUTHORITY, ACCESS OR AUTHORIZATION.
+A PALACO VisitCard is not a file transfer. It is a living, verifiable introduction to a PALACO identity, Citadel, World, or ELIXER.
 
-## Principle set
+## Canonical object
 
-- PALACO VISITCARD = constitutionally bounded digital introduction.
-- PALACO BEACON = discovery without authority.
-- A RIO Link identifies a communication destination; it does not confer permission.
-
-## Discovery flow
-
-BEACON DISCOVERY → RIO LINK RESOLUTION → VISITCARD FETCH → WATERMERK CHECK → HOLOGRAM CONTEXT → RIO HANDSHAKE → RIO CONVERSATION
-
-## Privacy & safety
-
-- Beacon payload should be minimal and privacy-preserving.
-- Public discovery identifiers should be rotating where possible.
-- Rich identity disclosure happens only after user-driven continuation and context checks.
-
-## VisitCard object hints
-
+PALACO VISITCARD
 - identity
-- citadel/world/elixer/person reference
-- introduction text
-- rio link/address
-- watermark reference
-- hologram reference
-- timestamp/epoch
-- fingerprint
+- object reference (person/citadel/world/elixer)
+- introduction
+- rio_address
+- watermerk
+- hologram
+- provenance
+- validity
+- presentation
+- discovery_methods
+
+Discovery methods may include BLE, NFC, QR, RIO Link, web, 5LEUTEL, and wearable carriers.
+
+## Introduction flow
+
+DISCOVER → RECOGNIZE → MEET → EXPLORE
+
+- Discover: beacon indicates nearby PALACO introduction.
+- Recognize: resolver + watermark/hologram/provenance checks identify object.
+- Meet: explicit user choice opens controlled handshake to RIO.
+- Explore: user can continue toward conversation and optional deeper interaction.
+
+## Encounter lifecycle
+
+ENCOUNTERED → INTRODUCED → RECOGNIZED → ACCEPTED → CONNECTED
+
+And always:
+- connected ≠ authorized
+- visitcard ≠ key
+- beacon ≠ permission
+- rio ≠ authority
+
+## Privacy and anti-flood
+
+- beacon payload is minimal and privacy-preserving
+- discovery identifiers should be rotating where possible
+- deduplication and relevance reduce spam-like repeated prompts
+- user consent is required before rich identity disclosure
+
+## Revocation and time
+
+- temporary cards may expire by validity window
+- explicit revocation is supported
+- revoke/expire does not delete historical provenance records
+
+## Canonical stack
+
+USER
+→ VORM9EVIN9
+→ RIO
+→ VISITCARD PROTOCOL
+→ DISCOVERY (BLE/NFC/QR/LINK)
+→ WATERMERK / HOLOGRAM
+→ IDENTITY / PROVENANCE
+→ PALACO OBJECT
+
+Constitutional governance remains above and across this stack.
