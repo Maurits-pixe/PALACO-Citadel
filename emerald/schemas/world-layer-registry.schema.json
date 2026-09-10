@@ -66,8 +66,9 @@
           },
           "mineral": {
             "type": "object",
-            "required": ["canonical_name"],
+            "required": ["id", "canonical_name"],
             "properties": {
+              "id": { "type": "string", "pattern": "^MIN-[0-9]{4,}$" },
               "canonical_name": { "type": "string", "minLength": 1 }
             },
             "additionalProperties": false
@@ -107,9 +108,10 @@
           },
           "provenance": {
             "type": "object",
-            "required": ["verified"],
+            "required": ["verified", "source_reference"],
             "properties": {
-              "verified": { "const": true }
+              "verified": { "const": true },
+              "source_reference": { "type": "string", "minLength": 1 }
             },
             "additionalProperties": false
           },

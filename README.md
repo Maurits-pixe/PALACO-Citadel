@@ -61,14 +61,23 @@ Then open `http://localhost:8080`.
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-REGISTRY-SEAL-2026-09.example.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/GO-EMERALD-007.md`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/GO-EMERALD-008.md`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/GO-EMERALD-009.md`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/expansion-ledger.schema.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/world-layer-registry.schema.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/allocation-registry.schema.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/world-indexes.schema.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/world-factory-input.schema.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/identity-gate-result.schema.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/mineral-world-factory-output.schema.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/mineral-relation-edge.schema.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/schemas/capacity-change.schema.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-EXPANSION-LEDGER-2026-09.example.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-WORLD-REGISTRY-2026-09.example.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/allocation/4444/WORLD-ALLOCATION-REGISTRY-2026-09.example.json`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-INDEXES-2026-09.example.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-WORLD-FACTORY-RUN-2026-09.example.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/registry/releases/EMERALD-RELATION-GRAPH-2026-09.example.json`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/emerald/allocation/4444/CAPACITY-CHANGE-4444-5000.example.json`
 
 ## Domain + GitHub account linking (STRATO)
 

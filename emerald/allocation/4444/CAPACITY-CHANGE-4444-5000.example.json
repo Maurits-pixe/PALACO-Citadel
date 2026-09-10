@@ -1,0 +1,10 @@
+{
+  "from": 4444,
+  "to": 5000,
+  "transition": {
+    "operator": "∆"
+  },
+  "authorization": "REQUIRED",
+  "evidence": "REQUIRED",
+  "provenance": "REQUIRED"
+}

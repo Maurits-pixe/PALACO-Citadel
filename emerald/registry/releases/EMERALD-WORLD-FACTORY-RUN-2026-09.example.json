@@ -1,0 +1,64 @@
+{
+  "factory_run": {
+    "id": "EMERALD-FACTORY-2026-09-001",
+    "source_epoch": "2026-09",
+    "source_authority": "IMA-CNMNC"
+  },
+  "source_record": {
+    "source": "IMA-CNMNC",
+    "source_epoch": "2026-09",
+    "mineral": {
+      "canonical_name": "Abellaite",
+      "status": "A"
+    },
+    "provenance": {
+      "source_reference": "IMA-2026-09-Abellaite"
+    },
+    "validation": {
+      "source_verified": true
+    }
+  },
+  "identity_gate_result": {
+    "decision": "PASS",
+    "checks": {
+      "canonical_name": "PASS",
+      "source_identity": "PASS",
+      "duplicate_identity": "PASS",
+      "nomenclature_state": "PASS",
+      "provenance": "PASS",
+      "status": "PASS",
+      "lineage": "PASS"
+    }
+  },
+  "world_output": {
+    "world": {
+      "id": "EW-0001",
+      "name": "Abellaite",
+      "type": "MINERAL-WORLD"
+    },
+    "mineral": {
+      "id": "MIN-0001",
+      "canonical_name": "Abellaite"
+    },
+    "source": {
+      "authority": "IMA-CNMNC",
+      "epoch": "2026-09"
+    },
+    "allocation": {
+      "state": "WORLD_ACTIVE",
+      "slot": "OW-0001"
+    },
+    "integrity": {
+      "watermerk": "EM-WM-EW-0001",
+      "hologram": "EM-HO-EW-0001"
+    },
+    "context": {
+      "citadel": "CITADEL-EM-EW-0001",
+      "immortal": "IMMORTAL-EM-EW-0001"
+    },
+    "authority": {
+      "sovereign": false,
+      "constitutional": false
+    }
+  }
+}

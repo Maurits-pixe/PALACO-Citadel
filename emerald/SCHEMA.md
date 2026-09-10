@@ -14,6 +14,11 @@ This directory defines machine-readable contracts for Emerald registry artifacts
 - `schemas/world-layer-registry.schema.json`
 - `schemas/allocation-registry.schema.json`
 - `schemas/world-indexes.schema.json`
+- `schemas/world-factory-input.schema.json`
+- `schemas/identity-gate-result.schema.json`
+- `schemas/mineral-world-factory-output.schema.json`
+- `schemas/mineral-relation-edge.schema.json`
+- `schemas/capacity-change.schema.json`
 
 ## Compatibility schemas
 

@@ -3,13 +3,14 @@
 ## Canonical pipeline
 
 IMA-CNMNC MASTER LIST
-→ SOURCE INGESTION
+→ SOURCE INGESTOR
 → PARSER
 → NORMALIZER
 → CANONICAL IDENTITY GATE
 → ALPHABETICAL SORT
 → DUPLICATE GATE
 → PROVENANCE GATE
+→ WORLD FACTORY
 → WORLD-ID ALLOCATOR
 → WATERMERK GENERATOR
 → HOLOGRAM GENERATOR
@@ -41,6 +42,8 @@ Each release stores:
 - Additional valid species remain tracked in the Expansion Ledger lane
 - WORLD_PENDING and WORLD_ACTIVE are allocation states, not identity tiers
 - Allocation transitions are governed by constitutional ∆ with evidence and provenance gates
+- Pending worlds are valid outputs when no current slot exists
+- No automatic pending→active transition without explicit constitutional ∆ authorization
 
 ## Constitutional order
 

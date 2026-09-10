@@ -23,5 +23,45 @@
     { "world_id": "EW-0008", "canonical_name": "Abswurmbachite" },
     { "world_id": "EW-0009", "canonical_name": "Abuite" },
     { "world_id": "EW-0010", "canonical_name": "Acanthite" }
+  ],
+  "mineral_id_index": [
+    { "mineral_id": "MIN-0001", "world_id": "EW-0001" },
+    { "mineral_id": "MIN-0002", "world_id": "EW-0002" },
+    { "mineral_id": "MIN-0003", "world_id": "EW-0003" },
+    { "mineral_id": "MIN-0004", "world_id": "EW-0004" },
+    { "mineral_id": "MIN-0005", "world_id": "EW-0005" },
+    { "mineral_id": "MIN-0006", "world_id": "EW-0006" },
+    { "mineral_id": "MIN-0007", "world_id": "EW-0007" },
+    { "mineral_id": "MIN-0008", "world_id": "EW-0008" },
+    { "mineral_id": "MIN-0009", "world_id": "EW-0009" },
+    { "mineral_id": "MIN-0010", "world_id": "EW-0010" }
+  ],
+  "world_slot_index": [
+    { "world_id": "EW-0001", "world_slot": "OW-0001" },
+    { "world_id": "EW-0002", "world_slot": "OW-0002" },
+    { "world_id": "EW-0003", "world_slot": "OW-0003" },
+    { "world_id": "EW-0004", "world_slot": "OW-0004" },
+    { "world_id": "EW-0005", "world_slot": "OW-0005" },
+    { "world_id": "EW-0006", "world_slot": "OW-0006" },
+    { "world_id": "EW-0007", "world_slot": "OW-0007" },
+    { "world_id": "EW-0008", "world_slot": "OW-0008" },
+    { "world_id": "EW-0009", "world_slot": "OW-0009" },
+    { "world_id": "EW-0010", "world_slot": "OW-0010" },
+    { "world_id": "EW-4445", "world_slot": null }
+  ],
+  "former_name_index": [
+    { "former_name": "Example Old Name", "world_id": "EW-4445" }
+  ],
+  "source_reference_index": [
+    { "source_reference": "IMA-2026-09-Abellaite", "world_id": "EW-0001" },
+    { "source_reference": "IMA-2026-09-Abelloemringerite", "world_id": "EW-0002" },
+    { "source_reference": "IMA-2026-09-Abelsonite", "world_id": "EW-0003" },
+    { "source_reference": "IMA-2026-09-Abenakiite-(Ce)", "world_id": "EW-0004" },
+    { "source_reference": "IMA-2026-09-Abernathyite", "world_id": "EW-0005" },
+    { "source_reference": "IMA-2026-09-Abhurite", "world_id": "EW-0006" },
+    { "source_reference": "IMA-2026-09-Abramovite", "world_id": "EW-0007" },
+    { "source_reference": "IMA-2026-09-Abswurmbachite", "world_id": "EW-0008" },
+    { "source_reference": "IMA-2026-09-Abuite", "world_id": "EW-0009" },
+    { "source_reference": "IMA-2026-09-Acanthite", "world_id": "EW-0010" }
   ]
 }

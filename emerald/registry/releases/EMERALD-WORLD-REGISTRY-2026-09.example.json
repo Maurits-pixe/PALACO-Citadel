@@ -10,161 +10,480 @@
   "records": [
     {
       "world_id": "EW-0001",
-      "world": { "name": "Abellaite", "type": "MINERAL-WORLD" },
-      "mineral": { "canonical_name": "Abellaite" },
-      "registry": { "id": "THE-EMERALD-IMPERIUM", "source": "IMA-CNMNC", "epoch": "2026-09" },
-      "allocation": { "state": "WORLD_ACTIVE", "slot": "OW-0001" },
-      "identity": { "immutable": true },
-      "provenance": { "verified": true },
-      "watermerk": { "id": "EM-WM-EW-0001" },
-      "hologram": { "id": "EM-HO-EW-0001" },
-      "citadel": { "id": "CITADEL-EM-EW-0001" },
-      "immortal": { "id": "IMMORTAL-EM-EW-0001" },
-      "authority": { "sovereign": false, "constitutional": false }
+      "world": {
+        "name": "Abellaite",
+        "type": "MINERAL-WORLD"
+      },
+      "mineral": {
+        "canonical_name": "Abellaite",
+        "id": "MIN-0001"
+      },
+      "registry": {
+        "id": "THE-EMERALD-IMPERIUM",
+        "source": "IMA-CNMNC",
+        "epoch": "2026-09"
+      },
+      "allocation": {
+        "state": "WORLD_ACTIVE",
+        "slot": "OW-0001"
+      },
+      "identity": {
+        "immutable": true
+      },
+      "provenance": {
+        "verified": true,
+        "source_reference": "IMA-2026-09-Abellaite"
+      },
+      "watermerk": {
+        "id": "EM-WM-EW-0001"
+      },
+      "hologram": {
+        "id": "EM-HO-EW-0001"
+      },
+      "citadel": {
+        "id": "CITADEL-EM-EW-0001"
+      },
+      "immortal": {
+        "id": "IMMORTAL-EM-EW-0001"
+      },
+      "authority": {
+        "sovereign": false,
+        "constitutional": false
+      }
     },
     {
       "world_id": "EW-0002",
-      "world": { "name": "Abelloemringerite", "type": "MINERAL-WORLD" },
-      "mineral": { "canonical_name": "Abelloemringerite" },
-      "registry": { "id": "THE-EMERALD-IMPERIUM", "source": "IMA-CNMNC", "epoch": "2026-09" },
-      "allocation": { "state": "WORLD_ACTIVE", "slot": "OW-0002" },
-      "identity": { "immutable": true },
-      "provenance": { "verified": true },
-      "watermerk": { "id": "EM-WM-EW-0002" },
-      "hologram": { "id": "EM-HO-EW-0002" },
-      "citadel": { "id": "CITADEL-EM-EW-0002" },
-      "immortal": { "id": "IMMORTAL-EM-EW-0002" },
-      "authority": { "sovereign": false, "constitutional": false }
+      "world": {
+        "name": "Abelloemringerite",
+        "type": "MINERAL-WORLD"
+      },
+      "mineral": {
+        "canonical_name": "Abelloemringerite",
+        "id": "MIN-0002"
+      },
+      "registry": {
+        "id": "THE-EMERALD-IMPERIUM",
+        "source": "IMA-CNMNC",
+        "epoch": "2026-09"
+      },
+      "allocation": {
+        "state": "WORLD_ACTIVE",
+        "slot": "OW-0002"
+      },
+      "identity": {
+        "immutable": true
+      },
+      "provenance": {
+        "verified": true,
+        "source_reference": "IMA-2026-09-Abelloemringerite"
+      },
+      "watermerk": {
+        "id": "EM-WM-EW-0002"
+      },
+      "hologram": {
+        "id": "EM-HO-EW-0002"
+      },
+      "citadel": {
+        "id": "CITADEL-EM-EW-0002"
+      },
+      "immortal": {
+        "id": "IMMORTAL-EM-EW-0002"
+      },
+      "authority": {
+        "sovereign": false,
+        "constitutional": false
+      }
     },
     {
       "world_id": "EW-0003",
-      "world": { "name": "Abelsonite", "type": "MINERAL-WORLD" },
-      "mineral": { "canonical_name": "Abelsonite" },
-      "registry": { "id": "THE-EMERALD-IMPERIUM", "source": "IMA-CNMNC", "epoch": "2026-09" },
-      "allocation": { "state": "WORLD_ACTIVE", "slot": "OW-0003" },
-      "identity": { "immutable": true },
-      "provenance": { "verified": true },
-      "watermerk": { "id": "EM-WM-EW-0003" },
-      "hologram": { "id": "EM-HO-EW-0003" },
-      "citadel": { "id": "CITADEL-EM-EW-0003" },
-      "immortal": { "id": "IMMORTAL-EM-EW-0003" },
-      "authority": { "sovereign": false, "constitutional": false }
+      "world": {
+        "name": "Abelsonite",
+        "type": "MINERAL-WORLD"
+      },
+      "mineral": {
+        "canonical_name": "Abelsonite",
+        "id": "MIN-0003"
+      },
+      "registry": {
+        "id": "THE-EMERALD-IMPERIUM",
+        "source": "IMA-CNMNC",
+        "epoch": "2026-09"
+      },
+      "allocation": {
+        "state": "WORLD_ACTIVE",
+        "slot": "OW-0003"
+      },
+      "identity": {
+        "immutable": true
+      },
+      "provenance": {
+        "verified": true,
+        "source_reference": "IMA-2026-09-Abelsonite"
+      },
+      "watermerk": {
+        "id": "EM-WM-EW-0003"
+      },
+      "hologram": {
+        "id": "EM-HO-EW-0003"
+      },
+      "citadel": {
+        "id": "CITADEL-EM-EW-0003"
+      },
+      "immortal": {
+        "id": "IMMORTAL-EM-EW-0003"
+      },
+      "authority": {
+        "sovereign": false,
+        "constitutional": false
+      }
     },
     {
       "world_id": "EW-0004",
-      "world": { "name": "Abenakiite-(Ce)", "type": "MINERAL-WORLD" },
-      "mineral": { "canonical_name": "Abenakiite-(Ce)" },
-      "registry": { "id": "THE-EMERALD-IMPERIUM", "source": "IMA-CNMNC", "epoch": "2026-09" },
-      "allocation": { "state": "WORLD_ACTIVE", "slot": "OW-0004" },
-      "identity": { "immutable": true },
-      "provenance": { "verified": true },
-      "watermerk": { "id": "EM-WM-EW-0004" },
-      "hologram": { "id": "EM-HO-EW-0004" },
-      "citadel": { "id": "CITADEL-EM-EW-0004" },
-      "immortal": { "id": "IMMORTAL-EM-EW-0004" },
-      "authority": { "sovereign": false, "constitutional": false }
+      "world": {
+        "name": "Abenakiite-(Ce)",
+        "type": "MINERAL-WORLD"
+      },
+      "mineral": {
+        "canonical_name": "Abenakiite-(Ce)",
+        "id": "MIN-0004"
+      },
+      "registry": {
+        "id": "THE-EMERALD-IMPERIUM",
+        "source": "IMA-CNMNC",
+        "epoch": "2026-09"
+      },
+      "allocation": {
+        "state": "WORLD_ACTIVE",
+        "slot": "OW-0004"
+      },
+      "identity": {
+        "immutable": true
+      },
+      "provenance": {
+        "verified": true,
+        "source_reference": "IMA-2026-09-Abenakiite-(Ce)"
+      },
+      "watermerk": {
+        "id": "EM-WM-EW-0004"
+      },
+      "hologram": {
+        "id": "EM-HO-EW-0004"
+      },
+      "citadel": {
+        "id": "CITADEL-EM-EW-0004"
+      },
+      "immortal": {
+        "id": "IMMORTAL-EM-EW-0004"
+      },
+      "authority": {
+        "sovereign": false,
+        "constitutional": false
+      }
     },
     {
       "world_id": "EW-0005",
-      "world": { "name": "Abernathyite", "type": "MINERAL-WORLD" },
-      "mineral": { "canonical_name": "Abernathyite" },
-      "registry": { "id": "THE-EMERALD-IMPERIUM", "source": "IMA-CNMNC", "epoch": "2026-09" },
-      "allocation": { "state": "WORLD_ACTIVE", "slot": "OW-0005" },
-      "identity": { "immutable": true },
-      "provenance": { "verified": true },
-      "watermerk": { "id": "EM-WM-EW-0005" },
-      "hologram": { "id": "EM-HO-EW-0005" },
-      "citadel": { "id": "CITADEL-EM-EW-0005" },
-      "immortal": { "id": "IMMORTAL-EM-EW-0005" },
-      "authority": { "sovereign": false, "constitutional": false }
+      "world": {
+        "name": "Abernathyite",
+        "type": "MINERAL-WORLD"
+      },
+      "mineral": {
+        "canonical_name": "Abernathyite",
+        "id": "MIN-0005"
+      },
+      "registry": {
+        "id": "THE-EMERALD-IMPERIUM",
+        "source": "IMA-CNMNC",
+        "epoch": "2026-09"
+      },
+      "allocation": {
+        "state": "WORLD_ACTIVE",
+        "slot": "OW-0005"
+      },
+      "identity": {
+        "immutable": true
+      },
+      "provenance": {
+        "verified": true,
+        "source_reference": "IMA-2026-09-Abernathyite"
+      },
+      "watermerk": {
+        "id": "EM-WM-EW-0005"
+      },
+      "hologram": {
+        "id": "EM-HO-EW-0005"
+      },
+      "citadel": {
+        "id": "CITADEL-EM-EW-0005"
+      },
+      "immortal": {
+        "id": "IMMORTAL-EM-EW-0005"
+      },
+      "authority": {
+        "sovereign": false,
+        "constitutional": false
+      }
     },
     {
       "world_id": "EW-0006",
-      "world": { "name": "Abhurite", "type": "MINERAL-WORLD" },
-      "mineral": { "canonical_name": "Abhurite" },
-      "registry": { "id": "THE-EMERALD-IMPERIUM", "source": "IMA-CNMNC", "epoch": "2026-09" },
-      "allocation": { "state": "WORLD_ACTIVE", "slot": "OW-0006" },
-      "identity": { "immutable": true },
-      "provenance": { "verified": true },
-      "watermerk": { "id": "EM-WM-EW-0006" },
-      "hologram": { "id": "EM-HO-EW-0006" },
-      "citadel": { "id": "CITADEL-EM-EW-0006" },
-      "immortal": { "id": "IMMORTAL-EM-EW-0006" },
-      "authority": { "sovereign": false, "constitutional": false }
+      "world": {
+        "name": "Abhurite",
+        "type": "MINERAL-WORLD"
+      },
+      "mineral": {
+        "canonical_name": "Abhurite",
+        "id": "MIN-0006"
+      },
+      "registry": {
+        "id": "THE-EMERALD-IMPERIUM",
+        "source": "IMA-CNMNC",
+        "epoch": "2026-09"
+      },
+      "allocation": {
+        "state": "WORLD_ACTIVE",
+        "slot": "OW-0006"
+      },
+      "identity": {
+        "immutable": true
+      },
+      "provenance": {
+        "verified": true,
+        "source_reference": "IMA-2026-09-Abhurite"
+      },
+      "watermerk": {
+        "id": "EM-WM-EW-0006"
+      },
+      "hologram": {
+        "id": "EM-HO-EW-0006"
+      },
+      "citadel": {
+        "id": "CITADEL-EM-EW-0006"
+      },
+      "immortal": {
+        "id": "IMMORTAL-EM-EW-0006"
+      },
+      "authority": {
+        "sovereign": false,
+        "constitutional": false
+      }
     },
     {
       "world_id": "EW-0007",
-      "world": { "name": "Abramovite", "type": "MINERAL-WORLD" },
-      "mineral": { "canonical_name": "Abramovite" },
-      "registry": { "id": "THE-EMERALD-IMPERIUM", "source": "IMA-CNMNC", "epoch": "2026-09" },
-      "allocation": { "state": "WORLD_ACTIVE", "slot": "OW-0007" },
-      "identity": { "immutable": true },
-      "provenance": { "verified": true },
-      "watermerk": { "id": "EM-WM-EW-0007" },
-      "hologram": { "id": "EM-HO-EW-0007" },
-      "citadel": { "id": "CITADEL-EM-EW-0007" },
-      "immortal": { "id": "IMMORTAL-EM-EW-0007" },
-      "authority": { "sovereign": false, "constitutional": false }
+      "world": {
+        "name": "Abramovite",
+        "type": "MINERAL-WORLD"
+      },
+      "mineral": {
+        "canonical_name": "Abramovite",
+        "id": "MIN-0007"
+      },
+      "registry": {
+        "id": "THE-EMERALD-IMPERIUM",
+        "source": "IMA-CNMNC",
+        "epoch": "2026-09"
+      },
+      "allocation": {
+        "state": "WORLD_ACTIVE",
+        "slot": "OW-0007"
+      },
+      "identity": {
+        "immutable": true
+      },
+      "provenance": {
+        "verified": true,
+        "source_reference": "IMA-2026-09-Abramovite"
+      },
+      "watermerk": {
+        "id": "EM-WM-EW-0007"
+      },
+      "hologram": {
+        "id": "EM-HO-EW-0007"
+      },
+      "citadel": {
+        "id": "CITADEL-EM-EW-0007"
+      },
+      "immortal": {
+        "id": "IMMORTAL-EM-EW-0007"
+      },
+      "authority": {
+        "sovereign": false,
+        "constitutional": false
+      }
     },
     {
       "world_id": "EW-0008",
-      "world": { "name": "Abswurmbachite", "type": "MINERAL-WORLD" },
-      "mineral": { "canonical_name": "Abswurmbachite" },
-      "registry": { "id": "THE-EMERALD-IMPERIUM", "source": "IMA-CNMNC", "epoch": "2026-09" },
-      "allocation": { "state": "WORLD_ACTIVE", "slot": "OW-0008" },
-      "identity": { "immutable": true },
-      "provenance": { "verified": true },
-      "watermerk": { "id": "EM-WM-EW-0008" },
-      "hologram": { "id": "EM-HO-EW-0008" },
-      "citadel": { "id": "CITADEL-EM-EW-0008" },
-      "immortal": { "id": "IMMORTAL-EM-EW-0008" },
-      "authority": { "sovereign": false, "constitutional": false }
+      "world": {
+        "name": "Abswurmbachite",
+        "type": "MINERAL-WORLD"
+      },
+      "mineral": {
+        "canonical_name": "Abswurmbachite",
+        "id": "MIN-0008"
+      },
+      "registry": {
+        "id": "THE-EMERALD-IMPERIUM",
+        "source": "IMA-CNMNC",
+        "epoch": "2026-09"
+      },
+      "allocation": {
+        "state": "WORLD_ACTIVE",
+        "slot": "OW-0008"
+      },
+      "identity": {
+        "immutable": true
+      },
+      "provenance": {
+        "verified": true,
+        "source_reference": "IMA-2026-09-Abswurmbachite"
+      },
+      "watermerk": {
+        "id": "EM-WM-EW-0008"
+      },
+      "hologram": {
+        "id": "EM-HO-EW-0008"
+      },
+      "citadel": {
+        "id": "CITADEL-EM-EW-0008"
+      },
+      "immortal": {
+        "id": "IMMORTAL-EM-EW-0008"
+      },
+      "authority": {
+        "sovereign": false,
+        "constitutional": false
+      }
     },
     {
       "world_id": "EW-0009",
-      "world": { "name": "Abuite", "type": "MINERAL-WORLD" },
-      "mineral": { "canonical_name": "Abuite" },
-      "registry": { "id": "THE-EMERALD-IMPERIUM", "source": "IMA-CNMNC", "epoch": "2026-09" },
-      "allocation": { "state": "WORLD_ACTIVE", "slot": "OW-0009" },
-      "identity": { "immutable": true },
-      "provenance": { "verified": true },
-      "watermerk": { "id": "EM-WM-EW-0009" },
-      "hologram": { "id": "EM-HO-EW-0009" },
-      "citadel": { "id": "CITADEL-EM-EW-0009" },
-      "immortal": { "id": "IMMORTAL-EM-EW-0009" },
-      "authority": { "sovereign": false, "constitutional": false }
+      "world": {
+        "name": "Abuite",
+        "type": "MINERAL-WORLD"
+      },
+      "mineral": {
+        "canonical_name": "Abuite",
+        "id": "MIN-0009"
+      },
+      "registry": {
+        "id": "THE-EMERALD-IMPERIUM",
+        "source": "IMA-CNMNC",
+        "epoch": "2026-09"
+      },
+      "allocation": {
+        "state": "WORLD_ACTIVE",
+        "slot": "OW-0009"
+      },
+      "identity": {
+        "immutable": true
+      },
+      "provenance": {
+        "verified": true,
+        "source_reference": "IMA-2026-09-Abuite"
+      },
+      "watermerk": {
+        "id": "EM-WM-EW-0009"
+      },
+      "hologram": {
+        "id": "EM-HO-EW-0009"
+      },
+      "citadel": {
+        "id": "CITADEL-EM-EW-0009"
+      },
+      "immortal": {
+        "id": "IMMORTAL-EM-EW-0009"
+      },
+      "authority": {
+        "sovereign": false,
+        "constitutional": false
+      }
     },
     {
       "world_id": "EW-0010",
-      "world": { "name": "Acanthite", "type": "MINERAL-WORLD" },
-      "mineral": { "canonical_name": "Acanthite" },
-      "registry": { "id": "THE-EMERALD-IMPERIUM", "source": "IMA-CNMNC", "epoch": "2026-09" },
-      "allocation": { "state": "WORLD_ACTIVE", "slot": "OW-0010" },
-      "identity": { "immutable": true },
-      "provenance": { "verified": true },
-      "watermerk": { "id": "EM-WM-EW-0010" },
-      "hologram": { "id": "EM-HO-EW-0010" },
-      "citadel": { "id": "CITADEL-EM-EW-0010" },
-      "immortal": { "id": "IMMORTAL-EM-EW-0010" },
-      "authority": { "sovereign": false, "constitutional": false }
+      "world": {
+        "name": "Acanthite",
+        "type": "MINERAL-WORLD"
+      },
+      "mineral": {
+        "canonical_name": "Acanthite",
+        "id": "MIN-0010"
+      },
+      "registry": {
+        "id": "THE-EMERALD-IMPERIUM",
+        "source": "IMA-CNMNC",
+        "epoch": "2026-09"
+      },
+      "allocation": {
+        "state": "WORLD_ACTIVE",
+        "slot": "OW-0010"
+      },
+      "identity": {
+        "immutable": true
+      },
+      "provenance": {
+        "verified": true,
+        "source_reference": "IMA-2026-09-Acanthite"
+      },
+      "watermerk": {
+        "id": "EM-WM-EW-0010"
+      },
+      "hologram": {
+        "id": "EM-HO-EW-0010"
+      },
+      "citadel": {
+        "id": "CITADEL-EM-EW-0010"
+      },
+      "immortal": {
+        "id": "IMMORTAL-EM-EW-0010"
+      },
+      "authority": {
+        "sovereign": false,
+        "constitutional": false
+      }
     },
     {
       "world_id": "EW-4445",
-      "world": { "name": "Example Mineral", "type": "MINERAL-WORLD" },
-      "mineral": { "canonical_name": "Example Mineral" },
-      "registry": { "id": "THE-EMERALD-IMPERIUM", "source": "IMA-CNMNC", "epoch": "2026-09" },
-      "allocation": { "state": "WORLD_PENDING", "slot": null },
-      "identity": { "immutable": true },
-      "provenance": { "verified": true },
-      "watermerk": { "id": "EM-WM-EW-4445" },
-      "hologram": { "id": "EM-HO-EW-4445" },
-      "citadel": { "id": "CITADEL-EM-EW-4445" },
-      "immortal": { "id": "IMMORTAL-EM-EW-4445" },
+      "world": {
+        "name": "Example Mineral",
+        "type": "MINERAL-WORLD"
+      },
+      "mineral": {
+        "canonical_name": "Example Mineral",
+        "id": "MIN-4445"
+      },
+      "registry": {
+        "id": "THE-EMERALD-IMPERIUM",
+        "source": "IMA-CNMNC",
+        "epoch": "2026-09"
+      },
+      "allocation": {
+        "state": "WORLD_PENDING",
+        "slot": null
+      },
+      "identity": {
+        "immutable": true
+      },
+      "provenance": {
+        "verified": true,
+        "source_reference": "IMA-2026-09-Example Mineral"
+      },
+      "watermerk": {
+        "id": "EM-WM-EW-4445"
+      },
+      "hologram": {
+        "id": "EM-HO-EW-4445"
+      },
+      "citadel": {
+        "id": "CITADEL-EM-EW-4445"
+      },
+      "immortal": {
+        "id": "IMMORTAL-EM-EW-4445"
+      },
       "expansion": {
         "eligible": true,
         "reason": "CURRENT_CAPACITY_EXCEEDED"
       },
-      "authority": { "sovereign": false, "constitutional": false }
+      "authority": {
+        "sovereign": false,
+        "constitutional": false
+      }
     }
   ]
 }

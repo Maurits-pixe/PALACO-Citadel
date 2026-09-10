@@ -5,6 +5,7 @@ This folder contains the executable repository structure for Emerald Imperium re
 Core intent:
 
 - import source safely
+- run identity-gated world factory generation
 - preserve lineage
 - allocate immutable EW identities
 - track release integrity
