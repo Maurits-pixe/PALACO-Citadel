@@ -10,13 +10,16 @@ RIO CONNECTS.
 VORM9EVIN9 EXPLAINS.
 CONSTITUTION GOVERNS.
 
-## Fabric model
+## Fabric capabilities
 
-- One communication fabric, many surfaces.
-- Cross-surface continuity is a conversation capability, not a device capability.
-- RIO Bridge links communication contexts, never unrestricted system rights.
-- RIO Handoff must re-check identity, context, and access.
-- Notifications must distinguish message, action-required, and authorization-required states.
+- RIO Rooms: conversation contexts with identity, participants, context, access, provenance, state, and history.
+- RIO Bridge: controlled linking of communication contexts across surfaces.
+- RIO Handoff: continuity between old and new surface after identity/context/access checks.
+- Cross-surface continuity: same conversation across mobile, web, and ELIXER contexts.
+
+## Delivery semantics
+
+Message lifecycle may include CREATED, QUEUED, DELIVERED, RECEIVED, READ, ACKNOWLEDGED.
 
 ## Hard constraints
 

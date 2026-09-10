@@ -1,6 +1,6 @@
 # RIO-PLATFORM-001 — CROSS-SURFACE COMMUNICATION
 
-## Canonical statement
+## Canonical law
 
 RIO SHALL PROVIDE A SURFACE-INDEPENDENT COMMUNICATION LAYER THROUGH WHICH VALIDLY IDENTIFIED PARTICIPANTS, CITADELS, ELIXERS AND OTHER PERMITTED PALACO ENTITIES MAY COMMUNICATE ACROSS MOBILE, WEB AND OTHER SUPPORTED INTERFACES, WHILE PRESERVING CONTEXT, IDENTITY, PROVENANCE, USER CONTROL, TRACEABILITY AND CONSTITUTIONAL BOUNDARIES.
 
@@ -8,14 +8,27 @@ RIO SHALL PROVIDE A SURFACE-INDEPENDENT COMMUNICATION LAYER THROUGH WHICH VALIDL
 
 RIO MAY CONNECT COMMUNICATION; RIO SHALL NOT CREATE AUTHORITY.
 
-## Architectural chain
+## Core platform model
 
-IDENTITY → PRESENCE → CONNECTION → CONVERSATION → CONTEXT → UNDERSTANDING → CHOICE → [IF RELEVANT] AUTHORIZATION → ACTION → PROOF
+- One RIO, many surfaces (mobile, web, Citadel, ELIXER, desktop, future devices).
+- Conversations are PALACO objects, not device-owned sessions.
+- Presence means reachable and never implies authorization.
+- Progressive disclosure applies: hide irrelevant complexity, reveal material complexity.
 
-## Platform interpretation
+## Conversation object
 
-- RIO is not merely a chat window.
-- RIO is PALACO's conversation and communication platform.
-- Surfaces (mobile, web, Citadel, ELIXER, desktop) are access points to the same logical conversation layer.
-- Presence indicates reachability and never grants constitutional authority.
-- Provenance, lineage (WATERMERK), and authenticity context (HOLOGRAM) must remain visible where materially relevant.
+RIO-CONVERSATION
+- conversation_id
+- participants
+- context
+- created_at
+- current_state
+- provenance
+- permissions
+- message_history
+
+## Constitutional separation
+
+COMMUNICATION ≠ AUTHORITY
+
+A communication request can carry intent, but intent is not decision, authorization, execution, or proof.

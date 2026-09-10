@@ -9,6 +9,7 @@ First executable PALACO UI foundation.
 - Basic interactive "GO" flow (save and show latest objective).
 - MA5TER Dashboard Control Room for PALACO Industry and PALACO internal control modes.
 - RIO Platform Ascension section describing cross-surface conversation architecture.
+- RIO Universal Communication Fabric + VisitCard Beacon canonical model set.
 - Progressive Web App baseline (manifest + service worker + install prompt support).
 - GitHub Pages deployment workflow with custom domain support.
 
@@ -27,6 +28,8 @@ Then open `http://localhost:8080`.
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/RIO-PLATFORM-001.md`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/RIO-FABRIC-001.md`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/RIO-UNIVERSAL-001.md`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/RIO-UIC-001.md`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/RIO-VISITCARD-001.md`
 
 ## Domain + GitHub account linking (STRATO)
 
