@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PALACO Citadel</title>
+    <style>
+      :root { color-scheme: dark; }
+      body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 760px; }
+      .row { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+      button { cursor: pointer; padding: .5rem .75rem; }
+      a { color: #8ecbff; }
+      ul { line-height: 1.7; }
+      small { opacity: .8; }
+    </style>
+  </head>
+  <body>
+    <h1 data-i18n="title">PALACO Citadel</h1>
+    <p data-i18n="subtitle">Canonical gateway and structured source map.</p>
+
+    <div class="row">
+      <button id="lang-toggle" type="button" aria-live="polite"></button>
+      <small id="status" data-i18n="statusReady">Ready.</small>
+    </div>
+
+    <h2 data-i18n="quickLinks">Quick links</h2>
+    <ul>
+      <li><a href="CANON/README.md" data-i18n="linkCanonMap">CANON map</a></li>
+      <li><a href="BIG_BANG_BASELINE_CHECKLIST.md" data-i18n="linkChecklist">Big Bang baseline checklist</a></li>
+      <li><a href="%23%20☄️%20THE%20BIG%20BANG%20%E2%80%94%20PALACO" data-i18n="linkBigBang">Big Bang source file</a></li>
+    </ul>
+
+    <script src="app.js"></script>
+  </body>
+  </html>
