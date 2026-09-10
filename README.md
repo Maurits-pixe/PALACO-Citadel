@@ -81,3 +81,9 @@ Reusable template files are available at:
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/templates/github-pages/CNAME.example`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/templates/github-pages/README.md`
 - `/home/runner/work/PALACO-Citadel/PALACO-Citadel/templates/github-pages/BULK-ROLLOUT.md`
+
+
+## GitHub links
+
+- PALACO: `https://github.com/Maurits-pixe/PALACO`
+- PALACO Industrie: `https://github.com/Maurits-pixe/PALACO-Industrie`

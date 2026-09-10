@@ -206,7 +206,8 @@ footer {
 @media (max-width: 900px) {
   .layout,
   .control-grid,
-  .rio-grid {
+  .rio-grid,
+  .github-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -219,7 +220,8 @@ footer {
 
   .layout,
   .control-grid,
-  .rio-grid {
+  .rio-grid,
+  .github-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -231,4 +233,36 @@ footer {
 
 .rio-extended ul {
   margin-bottom: 0;
+}
+
+
+.github-links {
+  width: min(1000px, 92vw);
+  margin: 0 auto;
+  padding-bottom: 2rem;
+}
+
+.github-head p {
+  margin-top: 0;
+  color: var(--muted);
+}
+
+.github-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.github-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: rgba(15, 34, 64, 0.9);
+  border: 1px solid rgba(86, 182, 255, 0.25);
+  border-radius: 16px;
+  padding: 1rem;
+}
+
+.github-card:hover {
+  border-color: var(--accent);
 }
