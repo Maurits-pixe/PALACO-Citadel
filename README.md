@@ -8,6 +8,7 @@ First executable PALACO UI foundation.
 - Multilingual interface (English, Dutch, Esperanto).
 - Basic interactive "GO" flow (save and show latest objective).
 - MA5TER Dashboard Control Room for PALACO Industry and PALACO internal control modes.
+- RIO Platform Ascension section describing cross-surface conversation architecture.
 - Progressive Web App baseline (manifest + service worker + install prompt support).
 - GitHub Pages deployment workflow with custom domain support.
 
@@ -20,6 +21,12 @@ python3 -m http.server 8080
 ```
 
 Then open `http://localhost:8080`.
+
+## RIO canonical law
+
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/RIO-PLATFORM-001.md`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/RIO-FABRIC-001.md`
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/RIO-UNIVERSAL-001.md`
 
 ## Domain + GitHub account linking (STRATO)
 

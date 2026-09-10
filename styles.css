@@ -23,6 +23,7 @@ body {
 .hero,
 .layout,
 .control-room,
+.rio-platform,
 footer {
   width: min(1000px, 92vw);
   margin: 0 auto;
@@ -134,19 +135,29 @@ button {
   color: #a7dcff;
 }
 
-.control-room {
+.control-room,
+.rio-platform {
   padding-bottom: 2rem;
 }
 
-.control-room-head p {
+.control-room-head p,
+.rio-head p {
   margin-top: 0;
   color: var(--muted);
 }
 
-.control-grid {
+.control-grid,
+.rio-grid {
   display: grid;
   gap: 1rem;
+}
+
+.control-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.rio-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .control-btn {
@@ -176,9 +187,15 @@ button {
   color: #eef4ff;
 }
 
-#sync-output {
+#sync-output,
+.rio-law {
   margin: 0;
   color: var(--muted);
+}
+
+.rio-law {
+  margin-top: 0.8rem;
+  font-weight: 700;
 }
 
 footer {
@@ -188,7 +205,8 @@ footer {
 
 @media (max-width: 900px) {
   .layout,
-  .control-grid {
+  .control-grid,
+  .rio-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -200,7 +218,17 @@ footer {
   }
 
   .layout,
-  .control-grid {
+  .control-grid,
+  .rio-grid {
     grid-template-columns: 1fr;
   }
+}
+
+
+.rio-extended {
+  margin-top: 1rem;
+}
+
+.rio-extended ul {
+  margin-bottom: 0;
 }
