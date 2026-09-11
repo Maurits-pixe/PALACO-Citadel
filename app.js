@@ -1,7 +1,7 @@
 const form = document.querySelector('#goal-form');
 const input = document.querySelector('#goal');
 const output = document.querySelector('#goal-output');
-const languageButtons = document.querySelectorAll('.lang-btn');
+const languageSwitch = document.querySelector('.language-switch');
 const installBtn = document.querySelector('#install-btn');
 const controlButtons = document.querySelectorAll('.control-btn');
 const industryStatus = document.querySelector('#industry-status');
@@ -174,17 +174,69 @@ const translations = {
   }
 };
 
-let currentLanguage = localStorage.getItem('palaco-language') || 'en';
+const defaultLanguage = 'en';
+const languageConfig = {
+  en: { label: 'EN', locale: 'en-US', dir: 'ltr' },
+  nl: { label: 'NL', locale: 'nl-NL', dir: 'ltr' },
+  eo: { label: 'EO', locale: 'eo', dir: 'ltr' }
+};
+
+const availableLanguages = Object.keys(translations);
+let languageButtons = [];
+let currentLanguage = localStorage.getItem('palaco-language') || defaultLanguage;
 const controlState = JSON.parse(localStorage.getItem('palaco-control-state') || '{"industry":false,"citadel":false}');
 
 const saveControlState = () => {
   localStorage.setItem('palaco-control-state', JSON.stringify(controlState));
 };
 
+const isSupportedLanguage = (lang) => availableLanguages.includes(lang);
+
+const getLanguageMeta = (lang) => ({
+  label: lang.toUpperCase(),
+  locale: lang,
+  dir: 'ltr',
+  ...languageConfig[lang]
+});
+
+const getTranslation = (lang, key) => {
+  if (translations[lang]?.[key] !== undefined) return translations[lang][key];
+  if (translations[defaultLanguage]?.[key] !== undefined) return translations[defaultLanguage][key];
+  return '';
+};
+
+const validateTranslations = () => {
+  const requiredKeys = Object.keys(translations[defaultLanguage] || {});
+  availableLanguages.forEach((lang) => {
+    const missingKeys = requiredKeys.filter((key) => translations[lang]?.[key] === undefined);
+    if (missingKeys.length) {
+      console.warn(`[i18n] Missing ${missingKeys.length} key(s) for "${lang}": ${missingKeys.join(', ')}`);
+    }
+  });
+};
+
+const renderLanguageButtons = () => {
+  if (!languageSwitch) return;
+  languageSwitch.innerHTML = '';
+
+  const fragment = document.createDocumentFragment();
+  availableLanguages.forEach((lang) => {
+    const button = document.createElement('button');
+    const meta = getLanguageMeta(lang);
+    button.type = 'button';
+    button.className = 'lang-btn';
+    button.dataset.lang = lang;
+    button.textContent = meta.label;
+    button.addEventListener('click', () => setLanguage(lang));
+    fragment.appendChild(button);
+  });
+
+  languageSwitch.appendChild(fragment);
+  languageButtons = Array.from(languageSwitch.querySelectorAll('.lang-btn'));
+};
+
 const getLocale = () => {
-  if (currentLanguage === 'nl') return 'nl-NL';
-  if (currentLanguage === 'eo') return 'eo';
-  return 'en-US';
+  return getLanguageMeta(currentLanguage).locale;
 };
 
 const updateSyncOutput = () => {
@@ -203,26 +255,26 @@ const updateSyncOutput = () => {
     month: '2-digit',
     day: '2-digit'
   });
-  syncOutput.textContent = `${translations[currentLanguage].lastSync} ${formatter.format(new Date(lastSync))}`;
+  syncOutput.textContent = `${getTranslation(currentLanguage, 'lastSync')} ${formatter.format(new Date(lastSync))}`;
 };
 
 const updateControlUI = () => {
   if (industryStatus) {
     industryStatus.textContent = controlState.industry
-      ? translations[currentLanguage].statusActive
-      : translations[currentLanguage].statusStandby;
+      ? getTranslation(currentLanguage, 'statusActive')
+      : getTranslation(currentLanguage, 'statusStandby');
   }
 
   if (citadelStatus) {
     citadelStatus.textContent = controlState.citadel
-      ? translations[currentLanguage].statusActive
-      : translations[currentLanguage].statusStandby;
+      ? getTranslation(currentLanguage, 'statusActive')
+      : getTranslation(currentLanguage, 'statusStandby');
   }
 
   controlButtons.forEach((button) => {
     const target = button.dataset.controlTarget;
     const enabled = Boolean(controlState[target]);
-    button.textContent = enabled ? translations[currentLanguage].deactivate : translations[currentLanguage].activate;
+    button.textContent = enabled ? getTranslation(currentLanguage, 'deactivate') : getTranslation(currentLanguage, 'activate');
     button.classList.toggle('is-active', enabled);
   });
 
@@ -230,21 +282,20 @@ const updateControlUI = () => {
 };
 
 const setLanguage = (lang) => {
-  if (!translations[lang]) return;
+  if (!isSupportedLanguage(lang)) return;
   currentLanguage = lang;
   localStorage.setItem('palaco-language', lang);
   document.documentElement.lang = lang;
+  document.documentElement.dir = getLanguageMeta(lang).dir;
 
   document.querySelectorAll('[data-i18n]').forEach((el) => {
     const key = el.getAttribute('data-i18n');
-    const value = translations[lang][key];
-    if (value) el.textContent = value;
+    el.textContent = getTranslation(lang, key);
   });
 
   document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
     const key = el.getAttribute('data-i18n-placeholder');
-    const value = translations[lang][key];
-    if (value) el.setAttribute('placeholder', value);
+    el.setAttribute('placeholder', getTranslation(lang, key));
   });
 
   languageButtons.forEach((btn) => {
@@ -253,22 +304,18 @@ const setLanguage = (lang) => {
 
   const previousGoal = localStorage.getItem('palaco-goal');
   if (previousGoal && output) {
-    output.textContent = `${translations[lang].latestGoal} ${previousGoal}`;
+    output.textContent = `${getTranslation(lang, 'latestGoal')} ${previousGoal}`;
   }
 
   updateControlUI();
 };
-
-languageButtons.forEach((button) => {
-  button.addEventListener('click', () => setLanguage(button.dataset.lang));
-});
 
 form?.addEventListener('submit', (event) => {
   event.preventDefault();
   const goal = input?.value.trim();
   if (!goal || !output) return;
 
-  output.textContent = `${translations[currentLanguage].goalSet} ${goal}`;
+  output.textContent = `${getTranslation(currentLanguage, 'goalSet')} ${goal}`;
   localStorage.setItem('palaco-goal', goal);
   form.reset();
 });
@@ -307,4 +354,6 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
 }
 
-setLanguage(currentLanguage);
+validateTranslations();
+renderLanguageButtons();
+setLanguage(isSupportedLanguage(currentLanguage) ? currentLanguage : defaultLanguage);
