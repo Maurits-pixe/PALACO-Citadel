@@ -410,6 +410,34 @@ button {
   margin: 0.2rem 0;
 }
 
+.rio-conversation-dashboard {
+  margin-top: 0.2rem;
+}
+
+.rio-conversation-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.rio-conversation-panel,
+.rio-context-panel,
+.rio-consequence-panel {
+  border: 1px solid rgba(86, 182, 255, 0.2);
+  border-radius: 12px;
+  padding: 0.65rem 0.75rem;
+  background: rgba(8, 24, 47, 0.4);
+}
+
+.rio-conversation-panel ul {
+  margin: 0.3rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.rio-context-panel p,
+.rio-consequence-panel p {
+  margin: 0.3rem 0 0;
+}
+
 #sync-output,
 .rio-law {
   margin: 0;
