@@ -16,6 +16,7 @@ const CONTENT_REPOSITORY = 'Maurits-pixe/PALACO-Citadel';
 const CONTENT_REPOSITORY_ROOT = `https://github.com/${CONTENT_REPOSITORY}/blob/main/`;
 const REPO_CACHE_KEY = 'palaco-github-cache-v1';
 const LAST_SYNC_KEY = 'palaco-last-sync';
+const AUTO_REFRESH_INTERVAL = 5 * 60 * 1000;
 
 const translations = {
   en: {
@@ -418,6 +419,7 @@ let contentState = {
   })),
   source: 'fallback'
 };
+let liveRefreshInFlight = null;
 
 const getLocale = () => {
   if (currentLanguage === 'nl') return 'nl-NL';
@@ -636,6 +638,19 @@ const renderRepos = () => {
   renderHeroStats();
 };
 
+const refreshLiveContent = async ({ force = false } = {}) => {
+  if (liveRefreshInFlight) return liveRefreshInFlight;
+
+  liveRefreshInFlight = Promise.all([
+    fetchContentSpotlights({ force }),
+    fetchGitHubRepos({ force })
+  ]).finally(() => {
+    liveRefreshInFlight = null;
+  });
+
+  return liveRefreshInFlight;
+};
+
 const applyTranslations = () => {
   document.documentElement.lang = currentLanguage;
 
@@ -727,7 +742,7 @@ const extractContentSnippet = (text, source) => {
   };
 };
 
-const fetchContentSpotlights = async () => {
+const fetchContentSpotlights = async ({ force = false } = {}) => {
   if (spotlightGrid) {
     const loadingCard = createCard('article', 'card spotlight-card');
     loadingCard.append(createTextElement('p', translations[currentLanguage].contentLoading, 'spotlight-body'));
@@ -737,7 +752,7 @@ const fetchContentSpotlights = async () => {
   try {
     const responses = await Promise.all(
       contentSources.map(async (source) => {
-        const response = await fetch(source.path, { cache: 'no-store' });
+        const response = await fetch(source.path, { cache: force ? 'no-store' : 'default' });
         if (!response.ok) throw new Error(`Failed to load ${source.path}`);
         const text = await response.text();
         return extractContentSnippet(text, source);
@@ -813,12 +828,48 @@ languageButtons.forEach((button) => {
 });
 
 repoSearch?.addEventListener('input', () => renderRepos());
-syncBtn?.addEventListener('click', () => fetchGitHubRepos({ force: true }));
+syncBtn?.addEventListener('click', () => refreshLiveContent({ force: true }));
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+  window.addEventListener('load', async () => {
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    });
+
+    const registration = await navigator.serviceWorker.register('/sw.js');
+
+    if (registration.waiting) {
+      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+    }
+
+    registration.addEventListener('updatefound', () => {
+      const installing = registration.installing;
+      if (!installing) return;
+
+      installing.addEventListener('statechange', () => {
+        if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+          installing.postMessage({ type: 'SKIP_WAITING' });
+        }
+      });
+    });
+
+    registration.update();
+    window.setInterval(() => {
+      registration.update();
+      refreshLiveContent({ force: true });
+    }, AUTO_REFRESH_INTERVAL);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        registration.update();
+        refreshLiveContent({ force: true });
+      }
+    });
+  });
 }
 
 rerenderAll();
-fetchContentSpotlights();
-fetchGitHubRepos();
+refreshLiveContent();

@@ -27,6 +27,12 @@ Read from top to bottom to move from principle to execution.
 
 - [PALACO-GITHUB-001 — Foundation Repository Assembly Manifest v1.0.0](PALACO-GITHUB-001.md)
 
+## Automatic update flow
+
+- GitHub Pages deploys automatically on every push to `main` via `.github/workflows/pages.yml`.
+- The PALACO PWA shell now revalidates same-origin content from the network so website and app changes propagate automatically.
+- The homepage refreshes live repository and content data automatically when the app regains focus and at periodic intervals.
+
 Legacy synthesis materials are preserved under [ARCHIVE/legacy-sources/](ARCHIVE/legacy-sources/).
 
 Emerald-specific source documents are consolidated through [emerald/README.md](emerald/README.md), including the normalized standalone `GO-EMERALD-011.md` through `GO-EMERALD-036.md` series.

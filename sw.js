@@ -1,5 +1,37 @@
-const CACHE_NAME = 'palaco-universe-shell-v3';
-const SHELL_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/manifest.webmanifest'];
+const CACHE_NAME = 'palaco-universe-shell-v4';
+const SHELL_ASSETS = [
+  '/',
+  '/index.html',
+  '/styles.css',
+  '/app.js',
+  '/manifest.webmanifest',
+  '/assets/icon-192.svg',
+  '/assets/icon-512.svg'
+];
+
+const isSameOrigin = (request) => new URL(request.url).origin === self.location.origin;
+
+const networkFirst = async (request) => {
+  const cache = await caches.open(CACHE_NAME);
+
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+
+    if (request.mode === 'navigate') {
+      const fallback = await cache.match('/index.html');
+      if (fallback) return fallback;
+    }
+
+    throw new Error(`Request failed for ${request.url}`);
+  }
+};
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_ASSETS)));
@@ -15,5 +47,16 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request)));
+  if (!isSameOrigin(event.request)) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  event.respondWith(networkFirst(event.request));
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
