@@ -1,0 +1,189 @@
+∆ GO-9 — RIO CHAT-PLATFORM
+PALACO VORM9EVIN9 · RCP-001 v1.0 · CONVERSATIONAL COMMUNICATION MASTER
+
+Van chat-interface naar communicatie-infrastructuur.
+
+RIO is niet slechts “de chat in PALACO”.
+RIO is het conversationele communicatieplatform van PALACO.
+
+SYSTEM: PALACO VORM9EVIN9
+VERSION: RCP-001 · v1.0
+STATUS: DESIGN + SEMANTICS + INFRASTRUCTURE MASTER
+REFERENCE CITADEL: L.A. / LOCUS AMOENUS
+
+---
+
+00 — THESIS
+
+RIO SHALL BE SURFACE-INDEPENDENT.
+
+Een RIO-conversatie hoort niet bij één apparaat of één site.
+De conversatie is een eigen PALACO-object,
+weergeefbaar over meerdere surfaces.
+
+---
+
+01 — CROSS-SURFACE MODEL
+
+Dezelfde RIO-identiteit en conversatie kunnen bewegen tussen:
+
+MOBILE ↔ MOBILE
+WEB ↔ WEB
+MOBILE ↔ WEB
+WEB ↔ MOBILE
+
+Gebruikers communiceren met een RIO-endpoint,
+niet met een specifieke client-technologie.
+
+---
+
+02 — PLATFORM INTERPRETATION
+
+RIO kan tegelijk zijn:
+
+1) Interface
+2) Communicatiekanaal
+3) Cross-surface platform
+
+RIO PLATFORM
+   │
+   ├── MOBILE
+   ├── WEB
+   └── ELIXER
+         │
+   CONVERSATION
+         │
+   PERSON A / PERSON B / SYSTEM
+
+---
+
+03 — CONVERSATION AS PALACO OBJECT
+
+RIO CONVERSATION
+  ├── Identity
+  ├── Participants
+  ├── Context
+  ├── Messages
+  ├── Provenance
+  ├── State
+  ├── Permissions
+  ├── Evidence
+  └── Traceability
+
+De conversatie is onafhankelijk van device ownership.
+
+---
+
+04 — DELIVERY EXPERIENCE
+
+Voor de gebruiker blijft het eenvoudig:
+
+“Ik praat met jou.”
+
+Niet:
+“Ik praat met een webclient vanaf een mobiel client.”
+
+VORM9EVING houdt de interactie menselijk,
+terwijl de infrastructuur technisch complex mag zijn.
+
+---
+
+05 — WEBSITE ↔ WEBSITE / MOBILE ↔ WEBSITE
+
+RIO ondersteunt communicatie tussen:
+- websites onderling via gecontroleerde RIO-platformlaag
+- mobiel en website in beide richtingen
+
+Dit maakt RIO frontend-onafhankelijk.
+
+---
+
+06 — SEMANTIC CORE
+
+RIO SEMANTIC CORE blijft gelijk over surfaces:
+
+- zelfde identiteit
+- zelfde conversatie
+- zelfde betekenis
+- zelfde veiligheidsgrenzen
+
+Presentatie mag per oppervlak verschillen,
+semantiek niet.
+
+---
+
+07 — CONNECTIVITY STATES
+
+CONNECTED → DISCONNECTED → QUEUED → SYNCHRONIZED
+
+Offline betekent geen verlies van conversatie.
+Bij reconnect wordt ontbrekende status gesynchroniseerd.
+
+---
+
+08 — PALACO CONTEXT ENRICHMENT
+
+RIO-berichten kunnen context dragen voor:
+
+IDENTITY
+CONTEXT (Citadel/World/ELIXER)
+PROVENANCE
+TIME
+TRACEABILITY
+AUTHORITY RELEVANCE
+
+---
+
+09 — HARD BOUNDARY
+
+COMMUNICATION ≠ AUTHORITY.
+
+Een bericht is geen besluit.
+Een verzoek is geen toestemming.
+Een gesprek is geen gate-bypass.
+
+---
+
+10 — MESSAGE VS ACTION
+
+Voorbeeld:
+
+Gebruiker: “Verwijder deze ELIXER.”
+
+RIO geeft niet direct “Gedaan.”
+RIO contextualiseert:
+- impact preview
+- benodigde toestemming
+- relevante boundary
+
+Eerst begrijpen,
+dan pas handelen via juiste autorisatiepad.
+
+---
+
+11 — UNIVERSAL COMMUNICATION LAW
+
+RIO — PALACO COMMUNICATION PLATFORM
+
+RIO is de human-facing, cross-surface communication layer van PALACO,
+waarmee personen, Citadels, ELIXERS en geautoriseerde digitale omgevingen
+kunnen communiceren over mobile, web en andere ondersteunde interfaces,
+met behoud van identity, context, provenance, user control, evidence
+en constitutional boundaries.
+
+---
+
+GO-9 STATUS
+
+SURFACE INDEPENDENCE — LOCKED
+CROSS-SURFACE CONVERSATION MODEL — LOCKED
+CONVERSATION OBJECT MODEL — LOCKED
+SEMANTIC CORE — LOCKED
+OFFLINE/SYNC STATES — LOCKED
+MOBILE↔WEB / WEB↔WEB PATHS — LOCKED
+COMMUNICATION ≠ AUTHORITY — LOCKED
+MESSAGE VS ACTION BOUNDARY — LOCKED
+PALACO CONTEXT ENRICHMENT — LOCKED
+UNIVERSAL COMMUNICATION LAW — CANONICAL
+
+∆ GO-9 COMPLETE
