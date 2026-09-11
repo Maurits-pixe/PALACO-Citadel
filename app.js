@@ -40,7 +40,7 @@ const translations = {
     repoSearchPlaceholder: 'Type a repository name',
     footer: 'PALACO Universe Portal · Citadel content + Emerald structure + live GitHub discovery.',
     statLayers: 'canonical lanes',
-    statEmerald: 'Emerald docs',
+    statEmerald: 'Emerald entry points',
     statRepos: 'public repos loaded',
     cardOpen: 'Open',
     cardUpdated: 'Updated',
@@ -54,6 +54,7 @@ const translations = {
     lastSync: 'Last sync:',
     syncing: 'Syncing GitHub repositories…',
     liveCount: 'Public repositories currently visible:',
+    filteredCount: 'Repositories visible for this search:',
     privateNote: 'Public GitHub data only; direct hub links remain available for other PALACO spaces.',
     contentLoading: 'Loading repository excerpts…',
     contentFallback: 'Repository excerpts are unavailable right now; showing curated summaries.',
@@ -83,7 +84,7 @@ const translations = {
     repoSearchPlaceholder: 'Typ een repositorynaam',
     footer: 'PALACO Universe Portal · Citadel-content + Emerald-structuur + live GitHub-ontdekking.',
     statLayers: 'canonieke lagen',
-    statEmerald: 'Emerald-docs',
+    statEmerald: 'Emerald-ingangen',
     statRepos: 'geladen publieke repos',
     cardOpen: 'Open',
     cardUpdated: 'Bijgewerkt',
@@ -97,6 +98,7 @@ const translations = {
     lastSync: 'Laatste sync:',
     syncing: 'GitHub repositories worden gesynchroniseerd…',
     liveCount: 'Publieke repositories momenteel zichtbaar:',
+    filteredCount: 'Repositories zichtbaar voor deze zoekopdracht:',
     privateNote: 'Alleen publieke GitHub-data; directe hub-links blijven beschikbaar voor andere PALACO-ruimtes.',
     contentLoading: 'Repository-fragmenten worden geladen…',
     contentFallback: 'Repository-fragmenten zijn nu niet beschikbaar; samengestelde samenvattingen worden getoond.',
@@ -126,7 +128,7 @@ const translations = {
     repoSearchPlaceholder: 'Tajpu deponejan nomon',
     footer: 'PALACO Universe Portal · Citadel-enhavo + Smeralda strukturo + viva GitHub-malkovrado.',
     statLayers: 'kanonaj tavoloj',
-    statEmerald: 'Smeraldaj dokumentoj',
+    statEmerald: 'Smeraldaj enirejoj',
     statRepos: 'ŝargitaj publikaj deponejoj',
     cardOpen: 'Malfermi',
     cardUpdated: 'Ĝisdatigita',
@@ -140,6 +142,7 @@ const translations = {
     lastSync: 'Lasta sinkronigo:',
     syncing: 'GitHub-deponejoj sinkroniĝas…',
     liveCount: 'Publikaj deponejoj nun videblaj:',
+    filteredCount: 'Deponejoj videblaj por ĉi tiu serĉo:',
     privateNote: 'Nur publika GitHub-datumo; rektaj nodaj ligiloj restas disponeblaj por aliaj PALACO-spacoj.',
     contentLoading: 'Deponejaj eltiraĵoj ŝargiĝas…',
     contentFallback: 'Deponejaj eltiraĵoj nun ne disponeblas; montriĝas kuracitaj resumoj.',
@@ -393,6 +396,12 @@ const contentSources = [
     fallbackTitle: 'GO-EMERALD-009 — THE MINERAL WORLD FACTORY',
     fallbackBody:
       'Defines Emerald Registry as a controlled generative system that reproduces PALACO world objects from validated IMA-CNMNC source records.'
+  },
+  {
+    path: 'GO-EMERALD-025.md',
+    fallbackTitle: 'GO-EMERALD-025 — RIO INTERSTELLAR CONVERSATIONAL ARCHITECTURE',
+    fallbackBody:
+      'The consumer should understand how to operate the platform within 2 minutes; complexity stays behind RIO until it becomes materially relevant.'
   }
 ];
 
@@ -473,7 +482,7 @@ const renderHeroStats = () => {
   if (!heroStats) return;
   const stats = [
     ['08', translations[currentLanguage].statLayers],
-    ['26', translations[currentLanguage].statEmerald],
+    [String(content[currentLanguage].emerald.length), translations[currentLanguage].statEmerald],
     [String(repoState.repos.length), translations[currentLanguage].statRepos]
   ];
 
@@ -571,8 +580,11 @@ const updateGithubStatus = (visibleRepos) => {
         ? translations[currentLanguage].cacheStatusCached
         : translations[currentLanguage].cacheStatusFallback;
 
-  const countMessage = visibleRepos.length
-    ? `${translations[currentLanguage].liveCount} ${visibleRepos.length}.`
+  const searchActive = Boolean(repoSearch?.value.trim());
+  const countLabel = searchActive ? translations[currentLanguage].filteredCount : translations[currentLanguage].liveCount;
+  const countValue = searchActive ? visibleRepos.length : repoState.repos.length;
+  const countMessage = visibleRepos.length || !searchActive
+    ? `${countLabel} ${countValue}.`
     : translations[currentLanguage].cacheStatusEmpty;
 
   githubStatus.textContent = `${sourceMessage} ${countMessage} ${translations[currentLanguage].privateNote}`;

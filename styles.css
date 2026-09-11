@@ -188,15 +188,22 @@ h1 {
 }
 
 .hub-card:hover,
-.hub-card:focus-visible,
 .map-card:hover,
-.map-card:focus-visible,
 .repo-card a:hover,
-.repo-card a:focus-visible,
 button:hover,
 button:focus-visible {
   transform: translateY(-2px);
   border-color: rgba(124, 240, 188, 0.55);
+}
+
+.hub-card:focus-visible,
+.map-card:focus-visible,
+.repo-card a:focus-visible,
+button:focus-visible,
+.search-field input:focus-visible {
+  outline: 3px solid rgba(94, 203, 255, 0.9);
+  outline-offset: 3px;
+  border-color: rgba(124, 240, 188, 0.8);
 }
 
 .card-link {
