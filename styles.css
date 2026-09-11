@@ -216,6 +216,35 @@ button {
   padding: 0.2rem 0;
 }
 
+.compass-intro {
+  margin-bottom: 0.4rem;
+}
+
+.compass-flow {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.proof-action-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.proof-action-item {
+  border: 1px solid rgba(86, 182, 255, 0.2);
+  border-radius: 12px;
+  padding: 0.7rem 0.8rem;
+  background: rgba(8, 24, 47, 0.55);
+}
+
+.proof-action-item p {
+  margin: 0.2rem 0;
+}
+
 #sync-output,
 .rio-law {
   margin: 0;

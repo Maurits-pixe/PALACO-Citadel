@@ -132,6 +132,8 @@
       <div class="control-room-head">
         <h2 data-i18n="compassTitle">PALACO 2040 Compass</h2>
         <p data-i18n="compassSubtitle">Understand first. Act with proof.</p>
+        <p class="compass-intro" data-i18n="proofDashboardIntro">Per action: see status, proof chain, and traceability chain in one view.</p>
+        <p class="compass-flow"><span data-i18n="flowContext">Context</span> → <span data-i18n="flowAction">Action</span> → <span data-i18n="flowProof">Proof</span> → <span data-i18n="flowTraceability">Traceability</span></p>
       </div>
 
       <div class="rio-grid">
@@ -149,18 +151,27 @@
         </article>
 
         <article class="card">
-          <h3 data-i18n="consequenceTitle">Consequence preview</h3>
-          <p data-i18n="consequenceBeforeConfirm">Read consequence before confirm.</p>
-          <p><span data-i18n="riskLevel">Risk level</span>: <span data-i18n="riskLevelMedium">Medium</span></p>
-          <button type="button" data-i18n="confirmAction">Confirm action</button>
-          <hr />
-          <h4 data-i18n="proofStripTitle">Proof status</h4>
-          <ul>
-            <li data-i18n="proofAvailable">Proof available</li>
-            <li data-i18n="proofInReview">Proof in review</li>
-            <li data-i18n="proofMissing">Proof missing</li>
+          <h3 data-i18n="proofDashboardTitle">Proof dashboard</h3>
+          <ul class="proof-action-list">
+            <li class="proof-action-item">
+              <p><strong data-i18n="primaryAction">Primary action</strong></p>
+              <p><span data-i18n="actionStatusLabel">Status</span>: <span data-i18n="proofAvailable">Proof available</span></p>
+              <p><span data-i18n="proofChainLabel">Proof chain</span>: <span data-i18n="openProofChain">Direct proof chain</span></p>
+              <p><span data-i18n="traceabilityChainLabel">Traceability chain</span>: <span data-i18n="openSourceChain">Open source chain</span></p>
+            </li>
+            <li class="proof-action-item">
+              <p><strong data-i18n="secondaryAction">Secondary action</strong></p>
+              <p><span data-i18n="actionStatusLabel">Status</span>: <span data-i18n="proofInReview">Proof in review</span></p>
+              <p><span data-i18n="proofChainLabel">Proof chain</span>: <span data-i18n="openProofChain">Direct proof chain</span></p>
+              <p><span data-i18n="traceabilityChainLabel">Traceability chain</span>: <span data-i18n="openSourceChain">Open source chain</span></p>
+            </li>
+            <li class="proof-action-item">
+              <p><strong data-i18n="tertiaryAction">Tertiary action</strong></p>
+              <p><span data-i18n="actionStatusLabel">Status</span>: <span data-i18n="proofMissing">Proof missing</span></p>
+              <p><span data-i18n="proofChainLabel">Proof chain</span>: <span data-i18n="openProofChain">Direct proof chain</span></p>
+              <p><span data-i18n="traceabilityChainLabel">Traceability chain</span>: <span data-i18n="openSourceChain">Open source chain</span></p>
+            </li>
           </ul>
-          <p><strong data-i18n="traceabilityTitle">Traceability</strong>: <span data-i18n="openSourceChain">Open source chain</span></p>
         </article>
 
         <article class="card">

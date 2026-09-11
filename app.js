@@ -80,9 +80,15 @@ const translations = {
     riskLevel: 'Risk level',
     confirmAction: 'Confirm action',
     proofStripTitle: 'Proof status',
+    proofDashboardTitle: 'Proof dashboard',
+    proofDashboardIntro: 'Per action: see status, proof chain, and traceability chain in one view.',
     proofAvailable: 'Proof available',
     proofInReview: 'Proof in review',
     proofMissing: 'Proof missing',
+    actionStatusLabel: 'Status',
+    proofChainLabel: 'Proof chain',
+    traceabilityChainLabel: 'Traceability chain',
+    openProofChain: 'Direct proof chain',
     traceabilityTitle: 'Traceability',
     openSourceChain: 'Open source chain',
     authorityTitle: 'Authority boundaries',
@@ -114,7 +120,11 @@ const translations = {
     twoMinuteCheckPass: 'Passed: understandable in under 2 minutes.',
     riskLevelMedium: 'Medium',
     sessionLive: 'Live',
-    layerUnderstand: 'Understand'
+    layerUnderstand: 'Understand',
+    flowContext: 'Context',
+    flowAction: 'Action',
+    flowProof: 'Proof',
+    flowTraceability: 'Traceability'
   },
   nl: {
     eyebrow: 'GO · Scheppen · Creëren',
@@ -185,9 +195,15 @@ const translations = {
     riskLevel: 'Risiconiveau',
     confirmAction: 'Bevestig actie',
     proofStripTitle: 'Bewijsstatus',
+    proofDashboardTitle: 'Bewijsdashboard',
+    proofDashboardIntro: 'Per actie: zie status, proof-keten en traceability-keten in één overzicht.',
     proofAvailable: 'Bewijs beschikbaar',
     proofInReview: 'Bewijs in review',
     proofMissing: 'Bewijs ontbreekt',
+    actionStatusLabel: 'Status',
+    proofChainLabel: 'Proof-keten',
+    traceabilityChainLabel: 'Traceability-keten',
+    openProofChain: 'Directe proof-keten',
     traceabilityTitle: 'Traceerbaarheid',
     openSourceChain: 'Open bronketen',
     authorityTitle: 'Authority-grenzen',
@@ -219,7 +235,11 @@ const translations = {
     twoMinuteCheckPass: 'Geslaagd: begrijpelijk binnen 2 minuten.',
     riskLevelMedium: 'Midden',
     sessionLive: 'Live',
-    layerUnderstand: 'Begrijpen'
+    layerUnderstand: 'Begrijpen',
+    flowContext: 'Context',
+    flowAction: 'Actie',
+    flowProof: 'Bewijs',
+    flowTraceability: 'Traceability'
   },
   eo: {
     eyebrow: 'GO · Krei · Estigi',
@@ -290,9 +310,15 @@ const translations = {
     riskLevel: 'Riska nivelo',
     confirmAction: 'Konfirmu agon',
     proofStripTitle: 'Pruva stato',
+    proofDashboardTitle: 'Pruva panelo',
+    proofDashboardIntro: 'Por ĉiu ago: vidu staton, pruvĉenon kaj spureblecan ĉenon en unu vido.',
     proofAvailable: 'Pruvo disponebla',
     proofInReview: 'Pruvo en revizio',
     proofMissing: 'Pruvo mankas',
+    actionStatusLabel: 'Stato',
+    proofChainLabel: 'Pruvĉeno',
+    traceabilityChainLabel: 'Spurebleca ĉeno',
+    openProofChain: 'Rekta pruvĉeno',
     traceabilityTitle: 'Spurebleco',
     openSourceChain: 'Malferma font-ĉeno',
     authorityTitle: 'Aŭtoritataj limoj',
@@ -324,7 +350,11 @@ const translations = {
     twoMinuteCheckPass: 'Sukcesis: komprenebla ene de 2 minutoj.',
     riskLevelMedium: 'Meza',
     sessionLive: 'Viva',
-    layerUnderstand: 'Kompreni'
+    layerUnderstand: 'Kompreni',
+    flowContext: 'Kunteksto',
+    flowAction: 'Ago',
+    flowProof: 'Pruvo',
+    flowTraceability: 'Spurebleco'
   }
 };
 
