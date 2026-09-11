@@ -669,4 +669,3 @@ OR6IT maakt World creation mogelijk binnen de Citadel.
 Emerald maakt mineralen tot navigeerbare Worlds.
 En de Constitution blijft boven alles staan.
 
-Nagedacht gedurende 5s
