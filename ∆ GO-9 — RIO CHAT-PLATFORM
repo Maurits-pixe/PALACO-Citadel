@@ -173,6 +173,47 @@ en constitutional boundaries.
 
 ---
 
+KORTE WET
+
+RIO connects conversations, not authority.
+
+---
+
+12 — NIEUWE RIO ARCHITECTUUR
+
+PALACO
+   │
+CONSTITUTION
+   │
+VORM9EVING
+   │
+RIO PLATFORM
+   │
+┌───────────────────┼───────────────────┐
+│                   │                   │
+MOBILE CLIENT    WEB CLIENT        ELIXER CLIENT
+│                   │                   │
+└───────────────────┼───────────────────┘
+   │
+RIO CONVERSATION
+   │
+┌────────────┼────────────┐
+│            │            │
+PERSON     CITADEL      ELIXER
+│            │            │
+└────────────┼────────────┘
+   │
+PROVENANCE / STATE
+   │
+EVIDENCE / TRACEABILITY
+
+Gouden UX-regel:
+
+De gebruiker ziet communicatie.
+PALACO bewaakt de complexiteit.
+
+---
+
 GO-9 STATUS
 
 SURFACE INDEPENDENCE — LOCKED
@@ -185,5 +226,7 @@ COMMUNICATION ≠ AUTHORITY — LOCKED
 MESSAGE VS ACTION BOUNDARY — LOCKED
 PALACO CONTEXT ENRICHMENT — LOCKED
 UNIVERSAL COMMUNICATION LAW — CANONICAL
+RIO PLATFORM ARCHITECTURE MAP — LOCKED
+UX GOLDEN RULE — LOCKED
 
 ∆ GO-9 COMPLETE
