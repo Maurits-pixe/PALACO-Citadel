@@ -356,13 +356,73 @@ translations.fr = {
   layerUnderstand: 'Comprendre'
 };
 
+translations.zh = {
+  ...translations.en,
+  eyebrow: 'GO · 创建 · 构建',
+  subtitle: '适用于桌面、平板和移动设备的首个可执行 UI 基础。',
+  compassTitle: 'PALACO 2040 指南针',
+  compassSubtitle: '先理解，再基于证据行动。',
+  safeReturn: '安全返回',
+  commandLayerTitle: '指令层',
+  backToStart: '返回起点',
+  riskLevelMedium: '中',
+  sessionLive: '在线',
+  layerUnderstand: '理解'
+};
+
+translations.ru = {
+  ...translations.en,
+  eyebrow: 'GO · Создавать · Строить',
+  subtitle: 'Первая исполняемая UI-основа для десктопа, планшета и мобильных устройств.',
+  compassTitle: 'Компас PALACO 2040',
+  compassSubtitle: 'Сначала понять. Затем действовать с доказательством.',
+  safeReturn: 'Безопасный возврат',
+  commandLayerTitle: 'Командный слой',
+  backToStart: 'Назад к началу',
+  riskLevelMedium: 'Средний',
+  sessionLive: 'Активна',
+  layerUnderstand: 'Понимание'
+};
+
+translations.ar = {
+  ...translations.en,
+  eyebrow: 'انطلق · أنشئ · ابنِ',
+  subtitle: 'أول أساس واجهة قابل للتنفيذ لسطح المكتب والجهاز اللوحي والهاتف.',
+  compassTitle: 'بوصلة PALACO 2040',
+  compassSubtitle: 'افهم أولًا، ثم تصرّف بالدليل.',
+  safeReturn: 'عودة آمنة',
+  commandLayerTitle: 'طبقة الأوامر',
+  backToStart: 'العودة إلى البداية',
+  riskLevelMedium: 'متوسط',
+  sessionLive: 'نشط',
+  layerUnderstand: 'فهم'
+};
+
+translations.atl = {
+  ...translations.en,
+  eyebrow: 'GO · Zhara · Kora',
+  subtitle: 'The first executable UI foundation for all PALACO surfaces in Atlantis mode.',
+  compassTitle: 'PALACO 2040 Star Compass',
+  compassSubtitle: 'Attune first. Then act with proof.',
+  safeReturn: 'Return to origin',
+  commandLayerTitle: 'Signal layer',
+  backToStart: 'Back to origin',
+  riskLevelMedium: 'Tide-mid',
+  sessionLive: 'Flowing',
+  layerUnderstand: 'Attunement'
+};
+
 const defaultLanguage = 'en';
 const languageConfig = {
   en: { label: 'EN', locale: 'en-US', dir: 'ltr' },
   nl: { label: 'NL', locale: 'nl-NL', dir: 'ltr' },
   eo: { label: 'EO', locale: 'eo', dir: 'ltr' },
   es: { label: 'ES', locale: 'es-ES', dir: 'ltr' },
-  fr: { label: 'FR', locale: 'fr-FR', dir: 'ltr' }
+  fr: { label: 'FR', locale: 'fr-FR', dir: 'ltr' },
+  zh: { label: 'ZH', locale: 'zh-CN', dir: 'ltr' },
+  ru: { label: 'RU', locale: 'ru-RU', dir: 'ltr' },
+  ar: { label: 'AR', locale: 'ar', dir: 'rtl' },
+  atl: { label: 'ATL', locale: 'en-US', dir: 'ltr' }
 };
 
 const availableLanguages = Object.keys(translations);
