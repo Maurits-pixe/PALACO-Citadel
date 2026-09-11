@@ -702,7 +702,3 @@ CANONICAL SEAL
 
 
 GO-EMERALD-024 — SEALED.
-
-Ja. Dit is een belangrijke uitbreiding van de WORLD-architectuur. Een PALACO-Planeet hoeft dus niet uitsluitend een geografisch, mineralogisch of fysiek hemellichaam te representeren.
-
-We kunnen dit canoniek uitbreiden zonder de bestaande Emerald-architectuur te breken.

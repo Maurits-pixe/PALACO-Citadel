@@ -74,7 +74,7 @@ Key entry points:
 
 - [`worlds/`](worlds/README.md)
 - [`citadels/`](citadels/README.md)
-- [`districts/`](districts/gemstone/README.md)
+- [`districts/gemstone/`](districts/gemstone/README.md)
 - [`elixers/`](elixers/README.md)
 - [`immortal/`](immortal/README.md)
 - [`watermerk/`](watermerk/README.md)
