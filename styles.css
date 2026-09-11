@@ -320,6 +320,21 @@ button {
   margin: 0.15rem 0;
 }
 
+.identity-overview {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.identity-item {
+  border: 1px solid rgba(86, 182, 255, 0.2);
+  border-radius: 10px;
+  padding: 0.45rem 0.6rem;
+  background: rgba(8, 24, 47, 0.35);
+}
+
 #sync-output,
 .rio-law {
   margin: 0;

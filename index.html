@@ -207,9 +207,15 @@
             </li>
           </ul>
           <h4 data-i18n="identityTitle">Identity & session</h4>
-          <p><span data-i18n="activeIdentity">Active identity</span>: A-01</p>
-          <p><span data-i18n="sessionState">Session state</span>: <span data-i18n="sessionLive">Live</span></p>
-          <p><span data-i18n="ownedByMe">Owned by me</span>: 3</p>
+          <p data-i18n="identityDashboardIntro">Identity, session, verification, and ownership in one overview.</p>
+          <ul class="identity-overview">
+            <li class="identity-item"><strong data-i18n="activeIdentity">Active identity</strong>: A-01</li>
+            <li class="identity-item"><strong data-i18n="sessionState">Session state</strong>: <span data-i18n="sessionLive">Live</span></li>
+            <li class="identity-item"><strong data-i18n="verificationStatusLabel">Verification</strong>: <span data-i18n="verificationVerified">Verified</span></li>
+            <li class="identity-item"><strong data-i18n="sessionAgeLabel">Session age</strong>: <span data-i18n="sessionAgeNow">Current</span></li>
+            <li class="identity-item"><strong data-i18n="sessionBoundaryLabel">Session boundary</strong>: <span data-i18n="sessionBoundaryBounded">Bounded by policy gates</span></li>
+            <li class="identity-item"><strong data-i18n="ownershipLabel">Ownership</strong>: <span data-i18n="ownedByMe">Owned by me</span> 3 · <span data-i18n="ownershipScopePrivate">Private scope</span></li>
+          </ul>
           <h4 data-i18n="navigationCompassTitle">Navigation compass</h4>
           <p><span data-i18n="currentLayer">Current layer</span>: <span data-i18n="layerUnderstand">Understand</span></p>
           <p><button id="compass-back-top" type="button" class="compass-back-btn" data-i18n="backToStart">Back to start</button></p>
