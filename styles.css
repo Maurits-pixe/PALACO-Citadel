@@ -245,6 +245,25 @@ button {
   margin: 0.2rem 0;
 }
 
+.constitution-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.constitution-item {
+  border: 1px solid rgba(86, 182, 255, 0.2);
+  border-radius: 12px;
+  padding: 0.7rem 0.8rem;
+  background: rgba(8, 24, 47, 0.45);
+}
+
+.constitution-item p {
+  margin: 0.15rem 0;
+}
+
 .proof-status {
   display: inline-flex;
   align-items: center;
