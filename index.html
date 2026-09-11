@@ -322,6 +322,28 @@
         </div>
       </article>
 
+      <article class="card elixer-dashboard">
+        <h3 data-i18n="elixerDashboardTitle">ELIXER dashboard</h3>
+        <p data-i18n="elixerDashboardIntro">Available apps and capabilities per context, with clear choice impact.</p>
+        <ul class="elixer-context-list">
+          <li class="elixer-context-item">
+            <p><strong data-i18n="elixerContextHolderTitle">Holder context</strong></p>
+            <p><span data-i18n="elixerCapabilityLabel">Capabilities</span>: <span data-i18n="elixerContextHolderCapabilities">Identity wallet, proof viewer, bounded execution.</span></p>
+            <p><span data-i18n="elixerImpactLabel">Choice impact</span>: <span data-i18n="elixerContextHolderImpact">Execution starts only inside approved scope and writes traceability evidence.</span></p>
+          </li>
+          <li class="elixer-context-item">
+            <p><strong data-i18n="elixerContextStewardTitle">Steward context</strong></p>
+            <p><span data-i18n="elixerCapabilityLabel">Capabilities</span>: <span data-i18n="elixerContextStewardCapabilities">Review workspace, dual-confirmation gate, revocation tools.</span></p>
+            <p><span data-i18n="elixerImpactLabel">Choice impact</span>: <span data-i18n="elixerContextStewardImpact">Approval or rejection updates governance state and opens mandatory follow-up logs.</span></p>
+          </li>
+          <li class="elixer-context-item">
+            <p><strong data-i18n="elixerContextOpsTitle">Operations context</strong></p>
+            <p><span data-i18n="elixerCapabilityLabel">Capabilities</span>: <span data-i18n="elixerContextOpsCapabilities">Continuity monitor, policy alignment checks, incident replay.</span></p>
+            <p><span data-i18n="elixerImpactLabel">Choice impact</span>: <span data-i18n="elixerContextOpsImpact">Operational choices can trigger policy review windows and resilience actions.</span></p>
+          </li>
+        </ul>
+      </article>
+
       <div class="sync-row compass-command-row">
         <label for="compass-command" data-i18n="commandLayerTitle">Command layer</label>
         <input id="compass-command" class="compass-command-input" type="text" data-i18n-placeholder="commandPlaceholder" placeholder="Type natural command…" />
