@@ -592,6 +592,7 @@ const loadCachedRepos = () => {
     const raw = localStorage.getItem(REPO_CACHE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
+    if (parsed.source !== 'live') return null;
     return Array.isArray(parsed.repos) ? parsed.repos : null;
   } catch {
     return null;
@@ -599,7 +600,7 @@ const loadCachedRepos = () => {
 };
 
 const saveCachedRepos = (repos) => {
-  localStorage.setItem(REPO_CACHE_KEY, JSON.stringify({ repos }));
+  localStorage.setItem(REPO_CACHE_KEY, JSON.stringify({ source: 'live', repos }));
 };
 
 const fetchGitHubRepos = async ({ force = false } = {}) => {
@@ -628,7 +629,7 @@ const fetchGitHubRepos = async ({ force = false } = {}) => {
       source: repos.length ? 'live' : 'fallback'
     };
 
-    saveCachedRepos(repoState.repos);
+    if (repos.length) saveCachedRepos(repos);
     localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
   } catch {
     const cachedRepos = loadCachedRepos();
