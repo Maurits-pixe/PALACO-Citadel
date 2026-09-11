@@ -13,8 +13,9 @@ Read from top to bottom to move from principle to execution.
 6. [06-INTELLIGENCE](06-INTELLIGENCE/README.md) — Governed AI and decision frameworks
 7. [07-IMMORTALITY](07-IMMORTALITY/README.md) — Certification and OMEGA components
 8. [08-IMPLEMENTATION](08-IMPLEMENTATION/README.md) — Code, schemas, tests, examples
-9. [DOCS](DOCS/README.md) — Glossary, FAQ, status reference
-10. [CANONIEKE_FORMULE](CANONIEKE_FORMULE.md) — Unified synthesis statement
+9. [emerald/README.md](emerald/README.md) — Consolidated Emerald canon, source map, workspace, schemas, and releases
+10. [DOCS](DOCS/README.md) — Glossary, FAQ, status reference
+11. [CANONIEKE_FORMULE](CANONIEKE_FORMULE.md) — Unified synthesis statement
 
 ## GitHub links
 
@@ -27,3 +28,5 @@ Read from top to bottom to move from principle to execution.
 - [PALACO-GITHUB-001 — Foundation Repository Assembly Manifest v1.0.0](PALACO-GITHUB-001.md)
 
 Legacy synthesis materials are preserved under [ARCHIVE/legacy-sources/](ARCHIVE/legacy-sources/).
+
+Emerald-specific source documents are consolidated through [emerald/README.md](emerald/README.md), including the normalized `GO-EMERALD-026.md` and `GO-EMERALD-036.md` source files.
