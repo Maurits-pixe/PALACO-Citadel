@@ -139,3 +139,7 @@ Reusable template files are available at:
 - PALACO: `https://github.com/Maurits-pixe/PALACO`
 - PALACO Industrie: `https://github.com/Maurits-pixe/PALACO-Industrie`
 - PALACO Genesis: `https://github.com/Maurits-pixe/palaco-genesis`
+
+## GitHub preparation canon
+
+- `/home/runner/work/PALACO-Citadel/PALACO-Citadel/PALACO-GITHUB-001.md`
