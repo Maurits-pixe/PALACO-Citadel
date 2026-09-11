@@ -8,15 +8,18 @@ const SHELL_ASSETS = [
   '/assets/icon-192.svg',
   '/assets/icon-512.svg'
 ];
+const SHELL_PATHS = new Set(SHELL_ASSETS);
 
 const isSameOrigin = (request) => new URL(request.url).origin === self.location.origin;
 
 const networkFirst = async (request) => {
   const cache = await caches.open(CACHE_NAME);
+  const requestUrl = new URL(request.url);
+  const cacheable = SHELL_PATHS.has(requestUrl.pathname);
 
   try {
     const response = await fetch(request);
-    if (response.ok) {
+    if (response.ok && cacheable) {
       cache.put(request, response.clone());
     }
     return response;

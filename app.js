@@ -420,6 +420,7 @@ let contentState = {
   source: 'fallback'
 };
 let liveRefreshInFlight = null;
+let liveRefreshMode = 'idle';
 
 const getLocale = () => {
   if (currentLanguage === 'nl') return 'nl-NL';
@@ -639,13 +640,17 @@ const renderRepos = () => {
 };
 
 const refreshLiveContent = async ({ force = false } = {}) => {
-  if (liveRefreshInFlight) return liveRefreshInFlight;
+  if (liveRefreshInFlight && (!force || liveRefreshMode === 'force')) {
+    return liveRefreshInFlight;
+  }
 
+  liveRefreshMode = force ? 'force' : 'default';
   liveRefreshInFlight = Promise.all([
     fetchContentSpotlights({ force }),
     fetchGitHubRepos({ force })
   ]).finally(() => {
     liveRefreshInFlight = null;
+    liveRefreshMode = 'idle';
   });
 
   return liveRefreshInFlight;
@@ -793,6 +798,10 @@ const fetchGitHubRepos = async ({ force = false } = {}) => {
     }
 
     const payload = await response.json();
+    if (!Array.isArray(payload)) {
+      throw new Error('GitHub API returned a non-array response');
+    }
+
     const repos = payload
       .filter((repo) => !repo.fork)
       .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
