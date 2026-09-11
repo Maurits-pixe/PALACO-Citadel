@@ -494,6 +494,28 @@ PROVENANCE
 
 ---
 
+19. Replay
+
+Signature verification alleen voorkomt replay niet.
+
+Een oude, perfect geldige signature kan opnieuw worden uitgezonden.
+
+Daarom:
+
+signature
++
+discovery_id
++
+epoch
++
+validity
++
+resolver state
+
+moeten gezamenlijk worden geëvalueerd.
+
+---
+
 20. Anti-downgrade
 
 Een aanvaller mag niet proberen:
