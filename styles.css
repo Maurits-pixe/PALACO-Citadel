@@ -364,6 +364,29 @@ button {
   font-weight: 700;
 }
 
+.governance-dashboard {
+  margin-top: 0.2rem;
+}
+
+.governance-section + .governance-section {
+  margin-top: 0.7rem;
+}
+
+.governance-section h4 {
+  margin: 0 0 0.3rem;
+}
+
+.governance-section ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.governance-note {
+  margin: 0.8rem 0 0;
+  font-weight: 700;
+  color: var(--muted);
+}
+
 #sync-output,
 .rio-law {
   margin: 0;
