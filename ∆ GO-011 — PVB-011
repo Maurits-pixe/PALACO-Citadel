@@ -491,3 +491,426 @@ AUTHENTICITY
 WATERMERK
     ↓
 PROVENANCE
+
+---
+
+20. Anti-downgrade
+
+Een aanvaller mag niet proberen:
+
+PVB v2
+ ↓
+force interpretation
+ ↓
+PVB v1
+
+wanneer dat security controls verzwakt.
+
+Protocol policy:
+
+> Backward compatibility SHALL NOT silently become a security downgrade.
+
+---
+
+21. Re-signing
+
+Een presentation change hoeft niet altijd een nieuwe cryptografische identity-binding te betekenen.
+
+Maar een identity-bound change wel.
+
+Bijvoorbeeld:
+
+display_name change
+
+kan presentation-only zijn.
+
+Maar:
+
+identity_ref change
+epoch change
+validity change
+provenance_ref change
+control_state change
+
+vereist een nieuwe signed representation.
+
+---
+
+22. Immutability principle
+
+Na signing:
+
+SIGNED PAYLOAD
+
+is logisch immutable.
+
+Een wijziging betekent:
+
+OLD RECORD
+   ↓
+NEW RECORD
+   ↓
+NEW CANONICAL BYTES
+   ↓
+NEW SIGNATURE
+
+Niet:
+
+mutate bytes
+keep signature
+
+---
+
+23. Rust representation
+
+Conceptueel:
+
+pub struct CanonicalPayload {
+    bytes: CanonicalBytes,
+}
+
+met:
+
+pub struct CanonicalBytes {
+    // private representation
+}
+
+Alleen een canonical encoder kan CanonicalBytes construeren.
+
+Record
+  ↓
+CanonicalEncoder
+  ↓
+CanonicalBytes
+
+Niet rechtstreeks:
+
+Vec     → CanonicalBytes
+
+zonder validatie.
+
+---
+
+24. Signature envelope
+
+De wire-level structuur kan conceptueel worden:
+
+PVB_SIGNATURE_ENVELOPE_V1 {
+    domain
+    protocol_version
+    algorithm
+    key_id
+    epoch
+    payload_hash
+    signature
+}
+
+De payload_hash geeft een compacte binding aan de canonical representation.
+
+Belangrijk:
+
+> The hash does not replace the signature.
+
+---
+
+25. Hashing
+
+Conceptueel:
+
+canonical_payload
+       ↓
+cryptographic hash
+       ↓
+payload_hash
+       ↓
+signature
+
+De hash moet afkomstig zijn van een PALACO-approved cryptographic profile.
+
+Een hash identifier moet expliciet zijn wanneer meerdere hash algorithms mogelijk zijn.
+
+---
+
+26. Key compromise
+
+Bij compromise:
+
+KEY-001
+   ↓
+COMPROMISED
+   ↓
+REVOKED
+
+Daarna:
+
+KEY-002
+   ↓
+NEW SIGNATURES
+
+Historische signatures blijven historisch.
+
+Het systeem mag niet doen alsof KEY-001 nooit bestaan heeft.
+
+---
+
+27. Revocation check
+
+De verifier moet onderscheid maken tussen:
+
+signature mathematically valid
+
+en:
+
+key currently trusted for this purpose
+
+Dus:
+
+Signature valid
+      +
+Key revoked
+      =
+NOT CURRENTLY TRUSTED
+
+Dit is opnieuw een voorbeeld van:
+
+> Cryptographic validity ≠ operational validity.
+
+---
+
+28. Failure taxonomy
+
+PVB-011 voegt cryptografische fouten toe:
+
+pub enum SignatureError {
+    UnsupportedAlgorithm,
+    UnknownKey,
+    InvalidKeyBinding,
+    MalformedSignature,
+    InvalidSignature,
+    CanonicalizationFailure,
+    PayloadMismatch,
+    KeyRevoked,
+    KeyExpired,
+    UnsupportedProtocolVersion,
+}
+
+Geen algemene:
+
+CryptoError("something went wrong")
+
+voor alles.
+
+---
+
+29. Security invariant
+
+De belangrijkste cryptografische invariant:
+
+canonical_bytes_verified
+        ==
+canonical_bytes_signed
+
+Niet:
+
+semantically similar
+
+maar:
+
+> EXACTLY THE SAME CANONICAL REPRESENTATION.
+
+---
+
+30. PVB-011 laws
+
+PVB-011-01 — EXACT REPRESENTATION
+
+Only canonical representations SHALL be signed and verified.
+
+PVB-011-02 — DOMAIN SEPARATION
+
+Signatures SHALL be bound to their protocol/object domain.
+
+PVB-011-03 — KEY BINDING
+
+Signatures SHALL identify the cryptographic key context used for verification.
+
+PVB-011-04 — IDENTITY SEPARATION
+
+Cryptographic identity SHALL remain distinct from presentation.
+
+PVB-011-05 — TEMPORALITY
+
+Signature validity SHALL NOT imply current temporal validity.
+
+PVB-011-06 — PROVENANCE SEPARATION
+
+Signature validity SHALL NOT imply provenance validity.
+
+PVB-011-07 — ANTI-REPLAY
+
+Cryptographic verification SHALL be combined with temporal/contextual replay controls.
+
+PVB-011-08 — KEY ROTATION
+
+Key rotation SHALL preserve reconstructable lineage.
+
+PVB-011-09 — REVOCATION
+
+Revoked keys SHALL NOT silently regain current trust.
+
+PVB-011-10 — AUTHORITY SEPARATION
+
+No cryptographic signature SHALL independently constitute constitutional authorization.
+
+---
+
+31. Complete trust equation
+
+PVB heeft nu een veel scherper model:
+
+┌──────────────┐
+                 │  SIGNATURE   │
+                 └──────┬───────┘
+                        ↓
+                  AUTHENTICITY
+                        │
+                        +
+                 ┌──────▼───────┐
+                 │  WATERMERK   │
+                 └──────┬───────┘
+                        ↓
+                   PROVENANCE
+                        │
+                        +
+                 ┌──────▼───────┐
+                 │    EPOCH     │
+                 └──────┬───────┘
+                        ↓
+                    TEMPORAL
+                        │
+                        +
+                 ┌──────▼───────┐
+                 │   VALIDITY   │
+                 └──────┬───────┘
+                        ↓
+                   CURRENTNESS
+                        │
+                        +
+                 ┌──────▼───────┐
+                 │    STATE     │
+                 └──────┬───────┘
+                        ↓
+                    PVB VALID
+
+En zelfs dan:
+
+PVB VALID
+    ≠
+AUTHORIZED
+
+---
+
+32. ∆ PVB security stack
+
+Daarmee is de volledige beveiligingsketen:
+
+BEACON
+   ↓
+DISCOVERY
+   ↓
+CANONICAL FRAME
+   ↓
+INTEGRITY
+   ↓
+SIGNATURE
+   ↓
+IDENTITY
+   ↓
+WATERMERK
+   ↓
+PROVENANCE
+   ↓
+EPOCH
+   ↓
+VALIDITY
+   ↓
+REVOCATION
+   ↓
+VISITCARD STATE
+   ↓
+RIO
+   ↓
+CONVERSATION
+   ↓
+TRIAS
+   ↓
+AUTHORIZATION
+   ↓
+ACTION
+
+Elke laag heeft één duidelijke verantwoordelijkheid.
+
+Dat is precies wat we willen: geen magisch “verified” vakje waar vervolgens alle betekenis in wordt gestopt.
+
+---
+
+∆ PVB-011 STATUS
+
+CANONICAL SERIALIZATION + CRYPTOGRAPHIC CONTRACT: 🟢 LOCKED
+
+PVB-001  Physical Beacon
+PVB-002  Experience
+PVB-003  Object Model
+PVB-004  Cryptography
+PVB-005  State Machine
+PVB-006  RIO Continuity
+PVB-007  Physical Protocol
+PVB-008  Threat Model
+PVB-009  Formal Specification
+PVB-010  Rust Type System
+PVB-011  Canonical Crypto Contract
+         ─────────────────────────
+                    ∆
+                    ↓
+             IMPLEMENTATION
+                CONTRACT
+
+∆ VOLGENDE GO
+
+PVB-012 — CONFORMANCE TEST SUITE & ADVERSARIAL TESTING
+
+Nu maken we het contract falsifieerbaar.
+
+We ontwerpen de volledige testmatrix voor:
+
+canonical serialization vectors;
+
+signature vectors;
+
+malformed frames;
+
+replay;
+
+cloning;
+
+key rotation;
+
+revocation;
+
+expiry;
+
+resolver poisoning;
+
+identity substitution;
+
+CONFLICTED;
+
+IN_DOUBT;
+
+privacy/rotation;
+
+cross-surface RIO handoff;
+
+en vooral de constitutionele negative tests.
+
+Daarna hebben we niet alleen een architectuur die zegt dat PVB veilig is, maar een protocol dat moet kunnen aantonen wanneer het níét veilig genoeg is. ∆
