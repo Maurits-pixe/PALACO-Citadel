@@ -214,6 +214,128 @@ PALACO bewaakt de complexiteit.
 
 ---
 
+13 — RIO PLATFORM ASCENSION
+
+RIO is niet meer “de chat”.
+
+Canonical interpretation:
+
+RIO = PALACO CONVERSATION & COMMUNICATION PLATFORM
+
+Een chat is één gebruiksvorm van RIO.
+RIO zelf is de infrastructuurlaag.
+
+---
+
+14 — ONE RIO, MANY ENTRANCES
+
+RIO kan geopend worden via:
+- mobiel
+- website
+- Citadel
+- ELIXER
+- desktop
+- toekomstige PALACO-devices
+
+De surface verandert.
+De logische RIO-conversatie blijft.
+
+---
+
+15 — RIO CONVERSATION ID
+
+Elke conversatie heeft een eigen identiteit:
+
+RIO-CONVERSATION
+  ├── conversation_id
+  ├── participants
+  ├── context
+  ├── created_at
+  ├── current_state
+  ├── provenance
+  ├── permissions
+  └── message_history
+
+Een device is access surface,
+nooit eigenaar van de conversatie.
+
+---
+
+16 — CROSS-SURFACE DELIVERY PATHS
+
+MOBILE → MOBILE
+WEB → WEB
+MOBILE → WEB
+WEB → MOBILE
+
+Communication context, identity en toegang
+blijven leidend boven kanaaltype.
+
+---
+
+17 — RIO PRESENCE
+
+Een persoon, Citadel, ELIXER of toegestane omgeving
+kan een RIO presence hebben.
+
+Presence betekent:
+bereikbaar / communiceerbaar
+
+Presence betekent nooit:
+bevoegd / gezaghebbend
+
+---
+
+18 — STATE DISTINCTION LAW
+
+ONLINE
+≠ AVAILABLE
+≠ IDENTIFIED
+≠ AUTHORIZED
+≠ TRUSTED
+≠ CONSTITUTIONALLY VALID
+
+RIO mag deze staten nooit verwarren.
+
+---
+
+19 — PLATFORM UX RULE
+
+De gebruiker ziet communicatie.
+PALACO bewaakt de complexiteit.
+
+---
+
+20 — EXTENDED RIO ARCHITECTURE
+
+PALACO
+   │
+CONSTITUTION
+   │
+ARCHITECTURE
+   │
+VORM9EVING
+   │
+RIO PLATFORM
+   │
+┌───────────────┼────────────────┐
+│               │                │
+MOBILE         WEB            ELIXER
+│               │                │
+└───────────────┼────────────────┘
+   │
+CONVERSATION
+   │
+┌───────────────┼────────────────┐
+│               │                │
+PERSON        CITADEL          SYSTEM
+   │
+PROVENANCE / STATE
+   │
+EVIDENCE / TRACEABILITY
+
+---
+
 GO-9 STATUS
 
 SURFACE INDEPENDENCE — LOCKED
@@ -228,5 +350,11 @@ PALACO CONTEXT ENRICHMENT — LOCKED
 UNIVERSAL COMMUNICATION LAW — CANONICAL
 RIO PLATFORM ARCHITECTURE MAP — LOCKED
 UX GOLDEN RULE — LOCKED
+RIO PLATFORM ASCENSION — LOCKED
+MULTI-ENTRANCE MODEL — LOCKED
+CONVERSATION ID MODEL — LOCKED
+RIO PRESENCE MODEL — LOCKED
+STATE DISTINCTION LAW — LOCKED
+EXTENDED ARCHITECTURE CHAIN — LOCKED
 
 ∆ GO-9 COMPLETE
