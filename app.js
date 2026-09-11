@@ -11,6 +11,8 @@ const emeraldGrid = document.querySelector('#emerald-grid');
 const repoGrid = document.querySelector('#repo-grid');
 
 const ACCOUNT_NAME = 'Maurits-pixe';
+const CONTENT_REPOSITORY = 'Maurits-pixe/PALACO-Citadel';
+const CONTENT_REPOSITORY_ROOT = `https://github.com/${CONTENT_REPOSITORY}/blob/main/`;
 const REPO_CACHE_KEY = 'palaco-github-cache-v1';
 const LAST_SYNC_KEY = 'palaco-last-sync';
 
@@ -49,7 +51,10 @@ const translations = {
     lastSync: 'Last sync:',
     syncing: 'Syncing GitHub repositories…',
     liveCount: 'Public repositories currently visible:',
-    privateNote: 'Public GitHub data only; direct hub links remain available for other PALACO spaces.'
+    privateNote: 'Public GitHub data only; direct hub links remain available for other PALACO spaces.',
+    langEn: 'English',
+    langNl: 'Dutch',
+    langEo: 'Esperanto'
   },
   nl: {
     eyebrow: 'GO · Maurits-pixe · PALACO Universum',
@@ -85,7 +90,10 @@ const translations = {
     lastSync: 'Laatste sync:',
     syncing: 'GitHub repositories worden gesynchroniseerd…',
     liveCount: 'Publieke repositories momenteel zichtbaar:',
-    privateNote: 'Alleen publieke GitHub-data; directe hub-links blijven beschikbaar voor andere PALACO-ruimtes.'
+    privateNote: 'Alleen publieke GitHub-data; directe hub-links blijven beschikbaar voor andere PALACO-ruimtes.',
+    langEn: 'Engels',
+    langNl: 'Nederlands',
+    langEo: 'Esperanto'
   },
   eo: {
     eyebrow: 'GO · Maurits-pixe · PALACO Universo',
@@ -121,7 +129,10 @@ const translations = {
     lastSync: 'Lasta sinkronigo:',
     syncing: 'GitHub-deponejoj sinkroniĝas…',
     liveCount: 'Publikaj deponejoj nun videblaj:',
-    privateNote: 'Nur publika GitHub-datumo; rektaj nodaj ligiloj restas disponeblaj por aliaj PALACO-spacoj.'
+    privateNote: 'Nur publika GitHub-datumo; rektaj nodaj ligiloj restas disponeblaj por aliaj PALACO-spacoj.',
+    langEn: 'Angla',
+    langNl: 'Nederlanda',
+    langEo: 'Esperanto'
   }
 };
 
@@ -371,7 +382,7 @@ const createTextElement = (tagName, text, className = '') => {
   return el;
 };
 
-const setExternalLink = (anchor, href) => {
+const setExternalLink = (anchor, href, newTab = true) => {
   try {
     const url = new URL(href, window.location.origin);
     if (!['http:', 'https:'].includes(url.protocol)) throw new Error('Invalid protocol');
@@ -379,8 +390,15 @@ const setExternalLink = (anchor, href) => {
   } catch {
     anchor.href = '#';
   }
-  anchor.target = '_blank';
-  anchor.rel = 'noopener noreferrer';
+  if (newTab) {
+    anchor.target = '_blank';
+    anchor.rel = 'noopener noreferrer';
+  }
+};
+
+const setContentLink = (anchor, path) => {
+  const normalizedPath = path.replace(/^\//, '');
+  setExternalLink(anchor, `${CONTENT_REPOSITORY_ROOT}${normalizedPath}`);
 };
 
 const renderHeroStats = () => {
@@ -392,7 +410,7 @@ const renderHeroStats = () => {
   ];
 
   heroStats.replaceChildren(...stats.map(([value, label]) => {
-    const card = createCard('div', 'stat-card');
+    const card = createCard('li', 'stat-card');
     card.append(createTextElement('strong', value), createTextElement('span', label));
     return card;
   }));
@@ -435,7 +453,7 @@ const renderMap = (target, items) => {
         createTextElement('p', body),
         createTextElement('span', translations[currentLanguage].cardOpen, 'card-link')
       );
-      setExternalLink(card, href);
+      setContentLink(card, href);
       return card;
     })
   );
@@ -534,7 +552,18 @@ const applyTranslations = () => {
     if (value) el.setAttribute('placeholder', value);
   });
 
-  languageButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.lang === currentLanguage));
+  const languageLabels = {
+    en: translations[currentLanguage].langEn,
+    nl: translations[currentLanguage].langNl,
+    eo: translations[currentLanguage].langEo
+  };
+
+  languageButtons.forEach((btn) => {
+    const selected = btn.dataset.lang === currentLanguage;
+    btn.classList.toggle('active', selected);
+    btn.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    btn.setAttribute('aria-label', languageLabels[btn.dataset.lang] || btn.dataset.lang);
+  });
 };
 
 const rerenderAll = () => {
