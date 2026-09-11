@@ -7,6 +7,729 @@ Geen cryptographic success mag rechtstreeks een authorization state opleveren.
 
 ---
 
+## 2. Seven test layers
+
+PVB-012 krijgt zeven testlagen:
+
+```text
+                 PVB-012
+                    │
+      ┌─────────────┼─────────────┐
+      ↓             ↓             ↓
+  UNIT TESTS    VECTOR TESTS   PROPERTY TESTS
+      │             │             │
+      └─────────────┼─────────────┘
+                    ↓
+             ADVERSARIAL TESTS
+                    ↓
+              CROSS-SURFACE
+                    ↓
+          CONSTITUTIONAL NEGATIVE
+                    ↓
+             CONFORMANCE EVIDENCE
+```
+
+Een test is alleen geslaagd wanneer
+zowel de verwachte toestand als de verwachte failure semantics overeenkomen.
+
+Een panic is geen succesvolle security test.
+
+---
+
+## 3. Canonical serialization vectors
+
+Voor ieder testobject bewaren we:
+
+```text
+INPUT RECORD
+    ↓
+EXPECTED CANONICAL REPRESENTATION
+    ↓
+EXPECTED CANONICAL BYTES
+    ↓
+EXPECTED HASH
+    ↓
+EXPECTED SIGNATURE
+```
+
+Een vector bevat minimaal:
+
+```text
+vector_id
+protocol_version
+domain
+object_type
+input_record
+canonical_bytes
+hash_algorithm
+payload_hash
+signature_algorithm
+key_id
+signature
+expected_result
+```
+
+Test:
+
+```text
+record
+   ↓
+canonical_encode(record)
+   ↓
+expected_bytes
+```
+
+Moet exact zijn:
+
+```text
+actual_bytes == expected_bytes
+```
+
+Niet:
+
+```text
+semantically_equal(actual, expected)
+```
+
+---
+
+## 4. Serialization mutation tests
+
+Iedere identity-bound component krijgt mutation vectors.
+
+Bijvoorbeeld:
+
+```text
+identity_ref
+epoch
+provenance_ref
+validity
+discovery_policy
+rio_destination_ref
+control_state
+```
+
+Per mutatie:
+
+```text
+ORIGINAL
+   ↓
+ONE FIELD CHANGED
+   ↓
+NEW CANONICAL BYTES
+   ↓
+NEW HASH
+   ↓
+OLD SIGNATURE MUST FAIL
+```
+
+Fundamentele invariant:
+
+> Any identity-bound mutation SHALL invalidate the previous cryptographic binding.
+
+---
+
+## 5. Field-order attacks
+
+Test:
+
+```text
+A B C
+```
+
+tegen:
+
+```text
+C A B
+```
+
+en:
+
+```text
+B C A
+```
+
+Wanneer collection/order identity-bound is:
+
+```text
+bytes_A != bytes_B
+```
+
+Wanneer order semantisch irrelevant is,
+moet de canonical comparator beide naar exact dezelfde canonical representation brengen.
+
+PVB-012 test beide gevallen expliciet.
+
+---
+
+## 6. Integer encoding vectors
+
+Test onder andere:
+
+```text
+0
+1
+127
+128
+255
+256
+MAX
+MIN
+```
+
+En waar relevant:
+
+```text
++0
+-0
+leading zero
+overflow
+underflow
+non-canonical integer encoding
+```
+
+Doel:
+
+> Geen twee wire representations voor dezelfde canonical integer.
+
+---
+
+## 7. String vectors
+
+Minimaal:
+
+```text
+ASCII
+UTF-8 multibyte
+empty string
+whitespace
+newline
+NUL
+Unicode
+visually similar characters
+```
+
+Bijvoorbeeld:
+
+```text
+"PALACO"
+```
+
+mag niet cryptografisch gelijk worden behandeld aan een andere Unicode-representatie
+alleen omdat een UI ze vergelijkbaar toont.
+
+Testregel:
+
+```text
+different canonical code points
+        ↓
+different canonical bytes
+        ↓
+different cryptographic binding
+```
+
+---
+
+## 8. Optional-value vectors
+
+Expliciet:
+
+```text
+ABSENT
+PRESENT(empty)
+PRESENT(value)
+```
+
+en alle toegestane nested combinations.
+
+Test:
+
+```text
+None != Some("")
+```
+
+tenzij PVB expliciet anders voorschrijft.
+
+---
+
+## 9. Enum vectors
+
+Iedere enumvariant krijgt een vaste wire representation.
+
+Bijvoorbeeld conceptueel:
+
+```text
+UNKNOWN
+UNSUPPORTED
+VALID
+REVOKED
+EXPIRED
+CONFLICTED
+IN_DOUBT
+```
+
+Er mag geen language-specific enum serialization doorlekken naar het protocol.
+
+---
+
+## 10. Signature test vectors
+
+Voor iedere goedgekeurde combinatie:
+
+```text
+domain
+protocol
+algorithm
+key
+payload
+hash
+signature
+```
+
+moet een vaste expected result bestaan.
+
+Test:
+
+```text
+correct payload
++
+correct key
++
+correct signature
+=
+VERIFY
+```
+
+Maar:
+
+```text
+correct payload
++
+wrong key
+=
+REJECT
+```
+
+en:
+
+```text
+modified payload
++
+original signature
+=
+REJECT
+```
+
+---
+
+## 11. Domain-separation tests
+
+Zelfde payload:
+
+```text
+PAYLOAD X
+```
+
+maar:
+
+```text
+PALACO-PVB-V1-VISITCARD
+PALACO-PVB-V1-BEACON
+```
+
+moet verschillende signing domains opleveren.
+
+Dus:
+
+```text
+Sign(VISITCARD, X)
+```
+
+mag nooit geldig worden als:
+
+```text
+BEACON(X)
+```
+
+---
+
+## 12. Cross-object signature substitution
+
+Aanval:
+
+```text
+VALID VISITCARD SIGNATURE
+        ↓
+attach to BEACON
+```
+
+Expected:
+
+```text
+REJECT
+```
+
+Ook:
+
+```text
+VISITCARD → RIO
+VISITCARD → OTHER_OBJECT
+BEACON → VISITCARD
+```
+
+moeten negatief testen.
+
+---
+
+## 13. Payload-hash mismatch
+
+Test:
+
+```text
+payload
+   ↓
+HASH A
+```
+
+maar envelope bevat:
+
+```text
+HASH B
+```
+
+Expected:
+
+```text
+PayloadMismatch
+```
+
+Daarna:
+
+```text
+payload_hash correct
+signature wrong
+```
+
+Expected:
+
+```text
+InvalidSignature
+```
+
+De twee failure modes blijven onderscheiden.
+
+---
+
+## 14. Malformed-frame suite
+
+Bewust corrupte frames:
+
+```text
+truncated
+empty
+oversized
+invalid length
+unknown field
+duplicate field
+invalid encoding
+invalid version
+invalid algorithm
+invalid key_id
+invalid signature length
+invalid hash length
+```
+
+Elke malformed input moet:
+
+```text
+REJECT
+```
+
+en mag niet leiden tot:
+
+```text
+panic
+unwrap
+undefined interpretation
+implicit fallback
+```
+
+---
+
+## 15. Unknown ≠ fallback
+
+Test:
+
+```text
+algorithm = UNKNOWN
+```
+
+Expected:
+
+```text
+UnsupportedAlgorithm
+```
+
+Niet:
+
+```text
+try default algorithm
+```
+
+Hetzelfde voor protocol version, object type, encoding en hash algorithm.
+
+---
+
+## 16. Replay test suite
+
+Een geldige oude signature wordt opnieuw aangeboden.
+
+Bijvoorbeeld:
+
+```text
+SIGNATURE(epoch=10)
+```
+
+wordt opnieuw gebruikt in:
+
+```text
+epoch=10
+new discovery context
+new resolver state
+```
+
+Cryptografische signature kan nog mathematically valid zijn.
+PVB-012 moet onderscheiden tussen:
+
+```text
+CRYPTOGRAPHICALLY VALID
+CURRENTLY ACCEPTABLE
+```
+
+---
+
+## 17. Epoch replay
+
+Test:
+
+```text
+epoch 5
+   ↓
+epoch 6
+   ↓
+re-submit epoch 5
+```
+
+Expected:
+
+```text
+REJECT / STALE
+```
+
+Een hogere epoch mag niet stilzwijgend een lagere epoch terug activeren.
+
+---
+
+## 18. Key rotation suite
+
+Scenario:
+
+```text
+IDENTITY
+ ├── KEY-001
+ ├── KEY-002
+ └── KEY-003
+```
+
+Test:
+
+```text
+KEY-001 signs
+KEY-002 becomes active
+KEY-003 becomes active
+```
+
+Historische signatures blijven reconstrueerbaar.
+
+```text
+history preserved
+≠
+old key currently trusted
+```
+
+---
+
+## 19. Key compromise
+
+Scenario:
+
+```text
+KEY-001
+   ↓
+COMPROMISED
+   ↓
+REVOKED
+```
+
+Test:
+
+```text
+old historical signature
+```
+
+blijft historisch reconstrueerbaar.
+
+Maar:
+
+```text
+new operation requiring current trust
+```
+
+mag KEY-001 niet accepteren.
+
+Invariante scheiding:
+
+> Historical authenticity ≠ current trust.
+
+---
+
+## 20. Revocation tests
+
+| Signature  | Key           | Expected                      |
+| ---------- | ------------- | ----------------------------- |
+| valid      | active        | ACCEPT                        |
+| valid      | expired       | REJECT                        |
+| valid      | revoked       | REJECT                        |
+| invalid    | active        | REJECT                        |
+| invalid    | revoked       | REJECT                        |
+| historical | revoked later | historical evidence preserved |
+
+REVOKE verwijdert nooit geschiedenis.
+
+---
+
+## 21. Expiry tests
+
+Test:
+
+```text
+before validity start
+during validity
+at boundary
+after validity
+```
+
+Met expliciete boundary semantics:
+
+```text
+not yet valid
+valid
+expired
+```
+
+Cryptografische geldigheid kan gelijk blijven,
+maar de operational state verandert.
+
+---
+
+## 22. Provenance attack suite
+
+Aanval:
+
+```text
+valid signature
++
+wrong provenance_ref
+```
+
+Expected:
+
+```text
+REJECT
+```
+
+Niet klassificeren als InvalidSignature
+wanneer signature mathematically correct is voor verkeerde lineage.
+
+Dit bewaakt:
+
+```text
+CRYPTOGRAPHY → AUTHENTICITY
+WATERMERK   → PROVENANCE
+```
+
+---
+
+## 23. Identity substitution
+
+Scenario:
+
+```text
+Identity A
+   ↓
+valid signature
+```
+
+aanvaller probeert:
+
+```text
+Identity B
+```
+
+Resultaat:
+
+```text
+canonical bytes change
+        ↓
+hash change
+        ↓
+signature verification fails
+```
+
+Identity/provenance validation moet substitutie expliciet classificeren.
+
+---
+
+## 24. Resolver poisoning
+
+Aanvaller manipuleert:
+
+```text
+DISCOVERY
+     ↓
+RESOLVER
+```
+
+zodat:
+
+```text
+VISITCARD-A
+```
+
+naar:
+
+```text
+KEY-B / RECORD-B
+```
+
+wijst.
+
+Resolver output mag nooit automatisch worden vertrouwd.
+Verifier moet terugkomen bij:
+
+```text
+canonical payload
++ identified key
++ signature
++ provenance
+```
+
+Kernregel:
+
+> Resolver is discovery infrastructure, not cryptographic authority.
+
+---
+
 ## 25. Cloning tests
 
 Maak twee fysieke/logische representaties:
