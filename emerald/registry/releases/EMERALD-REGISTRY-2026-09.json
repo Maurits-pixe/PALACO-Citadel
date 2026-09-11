@@ -1,0 +1,18 @@
+{
+  "registry": "THE-EMERALD-IMPERIUM",
+  "source": "IMA-CNMNC",
+  "source_epoch": "2026-09",
+  "allocation": {
+    "domain": "4444_OTHER_WORLDS",
+    "maximum_primary_worlds": 4444,
+    "ordering": "CANONICAL_ALPHABETICAL"
+  },
+  "integrity": {
+    "source_hash": null,
+    "registry_hash": null,
+    "schema_version": "GO-EMERALD-004-v1",
+    "generation_timestamp": null,
+    "generator_version": "manual-protocol-bootstrap-v1"
+  },
+  "notes": "Hashes and timestamp remain null until official source ingestion pipeline execution."
+}

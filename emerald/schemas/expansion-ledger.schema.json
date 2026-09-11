@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://palaco.local/emerald/schemas/expansion-ledger.schema.json",
+  "title": "Emerald Expansion Ledger",
+  "type": "object",
+  "required": [
+    "registry",
+    "version",
+    "source_epoch",
+    "capacity",
+    "rules",
+    "entries"
+  ],
+  "properties": {
+    "registry": {
+      "type": "string",
+      "const": "THE-EMERALD-IMPERIUM"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "source_epoch": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}$"
+    },
+    "capacity": {
+      "type": "object",
+      "required": [
+        "current_world_slots",
+        "expansion"
+      ],
+      "properties": {
+        "current_world_slots": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "expansion": {
+          "type": "string",
+          "enum": [
+            "ENABLED",
+            "DISABLED"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "rules": {
+      "type": "object",
+      "required": [
+        "truncation",
+        "identity_recycling",
+        "renumbering",
+        "historical_deletion"
+      ],
+      "properties": {
+        "truncation": {
+          "const": "FORBIDDEN"
+        },
+        "identity_recycling": {
+          "const": "FORBIDDEN"
+        },
+        "renumbering": {
+          "const": "FORBIDDEN"
+        },
+        "historical_deletion": {
+          "const": "FORBIDDEN"
+        }
+      },
+      "additionalProperties": false
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "world_id",
+          "canonical_name",
+          "allocation_state",
+          "slot_state",
+          "lineage_state",
+          "updated_at"
+        ],
+        "properties": {
+          "world_id": {
+            "type": "string",
+            "pattern": "^EW-[0-9]{4,}$"
+          },
+          "canonical_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "allocation_state": {
+            "type": "string",
+            "enum": [
+              "WORLD_PENDING",
+              "WORLD_ACTIVE"
+            ]
+          },
+          "slot_state": {
+            "type": "string",
+            "enum": [
+              "UNASSIGNED",
+              "ASSIGNED",
+              "REVOKED"
+            ]
+          },
+          "lineage_state": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "RENAMED",
+              "REDEFINED",
+              "QUESTIONABLE",
+              "DISREDITED",
+              "HISTORICAL"
+            ]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

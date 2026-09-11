@@ -16,4 +16,14 @@ Read from top to bottom to move from principle to execution.
 9. [DOCS](DOCS/README.md) — Glossary, FAQ, status reference
 10. [CANONIEKE_FORMULE](CANONIEKE_FORMULE.md) — Unified synthesis statement
 
+## GitHub links
+
+- PALACO: `https://github.com/Maurits-pixe/PALACO`
+- PALACO Industrie: `https://github.com/Maurits-pixe/PALACO-INDUSTRIE`
+- PALACO Genesis: `https://github.com/Maurits-pixe/palaco-genesis`
+
+## GitHub preparation canon
+
+- [PALACO-GITHUB-001 — Foundation Repository Assembly Manifest v1.0.0](PALACO-GITHUB-001.md)
+
 Legacy synthesis materials are preserved under [ARCHIVE/legacy-sources/](ARCHIVE/legacy-sources/).

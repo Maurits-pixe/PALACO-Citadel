@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://palaco.local/emerald/schemas/allocation-registry.schema.json",
+  "title": "PALACO World Allocation Registry",
+  "type": "object",
+  "required": [
+    "domain",
+    "capacity",
+    "slots"
+  ],
+  "properties": {
+    "domain": {
+      "const": "4444_OTHER_WORLDS"
+    },
+    "capacity": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "slots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "slot",
+          "world_id"
+        ],
+        "properties": {
+          "slot": {
+            "type": "string",
+            "pattern": "^OW-[0-9]{4,}$"
+          },
+          "world_id": {
+            "type": "string",
+            "pattern": "^EW-[0-9]{4,}$"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

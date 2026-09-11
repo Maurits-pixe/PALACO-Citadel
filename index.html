@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b1f3a" />
+    <title>PALACO Citadel</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero-top">
+        <p class="eyebrow" data-i18n="eyebrow">GO · Scheppen · Create</p>
+        <div class="language-switch" aria-label="Language selector">
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+          <button type="button" class="lang-btn" data-lang="nl">NL</button>
+          <button type="button" class="lang-btn" data-lang="eo">EO</button>
+        </div>
+      </div>
+      <h1>PALACO Citadel</h1>
+      <p class="subtitle" data-i18n="subtitle">
+        The first executable UI foundation for desktop, tablet, and mobile.
+      </p>
+    </header>
+
+    <main class="layout">
+      <section class="card">
+        <h2 data-i18n="visionTitle">Vision</h2>
+        <p data-i18n="visionBody">
+          PALACO means “palace” in Esperanto: a shared digital place to build,
+          create, and bring ideas to life.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2 data-i18n="launchTitle">Launch Pad</h2>
+        <form id="goal-form">
+          <label for="goal" data-i18n="goalLabel">What will you create today?</label>
+          <input id="goal" name="goal" maxlength="120" data-i18n-placeholder="goalPlaceholder" placeholder="Type your first PALACO goal" required />
+          <button type="submit" data-i18n="goButton">GO</button>
+        </form>
+        <p id="goal-output" class="goal-output" aria-live="polite"></p>
+        <button id="install-btn" type="button" class="install-btn" hidden data-i18n="installButton">Install app</button>
+      </section>
+
+      <section class="card">
+        <h2 data-i18n="readinessTitle">Platform readiness</h2>
+        <ul>
+          <li data-i18n="readinessOne">Responsive layout for computer, tablet, and mobile.</li>
+          <li data-i18n="readinessTwo">Installable web app foundation (PWA).</li>
+          <li data-i18n="readinessThree">Ready for domain + HTTPS deployment.</li>
+        </ul>
+      </section>
+    </main>
+
+    <section class="control-room">
+      <div class="control-room-head">
+        <h2 data-i18n="masterTitle">MA5TER Dashboard Control Room</h2>
+        <p data-i18n="masterSubtitle">Central command for PALACO Industry and PALACO internal operations.</p>
+      </div>
+
+      <div class="control-grid">
+        <article class="card control-card">
+          <h3 data-i18n="industryTitle">PALACO Industry</h3>
+          <p data-i18n="industryBody">Monitor and activate industrial production mode.</p>
+          <p><span data-i18n="statusLabel">Status</span>: <strong id="industry-status" class="status-output"></strong></p>
+          <button type="button" class="control-btn" data-control-target="industry"></button>
+        </article>
+
+        <article class="card control-card">
+          <h3 data-i18n="internalTitle">PALACO Internal</h3>
+          <p data-i18n="internalBody">Manage internal Citadel operation mode.</p>
+          <p><span data-i18n="statusLabel">Status</span>: <strong id="citadel-status" class="status-output"></strong></p>
+          <button type="button" class="control-btn" data-control-target="citadel"></button>
+        </article>
+      </div>
+
+      <div class="sync-row">
+        <button id="sync-btn" type="button" class="sync-btn" data-i18n="syncNow">Sync now</button>
+        <p id="sync-output" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="rio-platform">
+      <div class="rio-head">
+        <h2 data-i18n="rioTitle">RIO Platform Ascension</h2>
+        <p data-i18n="rioSubtitle">RIO evolves from chat interface to PALACO conversation and communication platform.</p>
+      </div>
+      <div class="rio-grid">
+        <article class="card">
+          <h3 data-i18n="rioPillarOneTitle">Surface-independent conversation</h3>
+          <ul>
+            <li data-i18n="rioPillarOneA">One conversation identity across mobile, web, Citadel, ELIXER, and desktop.</li>
+            <li data-i18n="rioPillarOneB">Conversation belongs to PALACO context, not to one device.</li>
+            <li data-i18n="rioPillarOneC">Cross-surface continuity remains active through sync and reconnect states.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3 data-i18n="rioPillarTwoTitle">Presence with boundaries</h3>
+          <ul>
+            <li data-i18n="rioPillarTwoA">Presence means reachable, never automatic authority.</li>
+            <li data-i18n="rioPillarTwoB">Online ≠ authorized; constitutional gates remain separate.</li>
+            <li data-i18n="rioPillarTwoC">RIO connects communication while PALACO protects authority boundaries.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3 data-i18n="rioPillarThreeTitle">Provenance-aware communication</h3>
+          <ul>
+            <li data-i18n="rioPillarThreeA">Messages preserve identity, context, origin, time, and traceability.</li>
+            <li data-i18n="rioPillarThreeB">WATERMERK and HOLOGRAM support authenticity and lineage visibility.</li>
+            <li data-i18n="rioPillarThreeC">Complexity is hidden when irrelevant and revealed when material.</li>
+          </ul>
+        </article>
+      </div>
+      <p class="rio-law" data-i18n="rioLaw">Canonical law: RIO may connect communication; RIO shall not create authority.</p>
+      <div class="rio-extended card">
+        <h3>RIO Fabric, Rooms, Address, Handoff</h3>
+        <ul>
+          <li>One communication fabric across Mobile, Web, Citadel, and ELIXER surfaces.</li>
+          <li>RIO Rooms are conversation contexts: joining a room never grants authority.</li>
+          <li>RIO Address and RIO Link route communication destinations without granting permission.</li>
+          <li>RIO Handshake and Trust Indicators clarify identity, context, and communication risk.</li>
+          <li>Conversation continuity supports handoff between surfaces with context re-check.</li>
+          <li>VisitCard Beacon supports discovery-first introduction with Watermerk/Hologram verification before handshake.</li>
+          <li>VisitCard 03 interaction flow: Discover → Recognize → Meet → Connect → Explore.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="github-links">
+      <div class="github-head">
+        <h2 data-i18n="githubTitle">GitHub hubs</h2>
+        <p data-i18n="githubSubtitle">Direct toegang tot PALACO, PALACO Industrie en PALACO Genesis op GitHub.</p>
+      </div>
+      <div class="github-grid">
+        <a class="github-card" href="https://github.com/Maurits-pixe/PALACO" target="_blank" rel="noopener noreferrer">
+          <h3 data-i18n="githubPalacoTitle">PALACO</h3>
+          <p data-i18n="githubPalacoBody">Open de hoofdrepository van PALACO.</p>
+        </a>
+        <a class="github-card" href="https://github.com/Maurits-pixe/PALACO-INDUSTRIE" target="_blank" rel="noopener noreferrer">
+          <h3 data-i18n="githubIndustryTitle">PALACO Industrie</h3>
+          <p data-i18n="githubIndustryBody">Open de industriële repository van PALACO.</p>
+        </a>
+        <a class="github-card" href="https://github.com/Maurits-pixe/palaco-genesis" target="_blank" rel="noopener noreferrer">
+          <h3 data-i18n="githubGenesisTitle">PALACO Genesis</h3>
+          <p data-i18n="githubGenesisBody">Open de genesis-repository van PALACO.</p>
+        </a>
+      </div>
+    </section>
+
+    <footer>
+      <small data-i18n="footer">PALACO · Build conditions. Make it count.</small>
+    </footer>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
