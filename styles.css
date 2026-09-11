@@ -387,6 +387,29 @@ button {
   color: var(--muted);
 }
 
+.health-dashboard {
+  margin-top: 0.2rem;
+}
+
+.health-signal-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.health-signal-item {
+  border: 1px solid rgba(86, 182, 255, 0.2);
+  border-radius: 12px;
+  padding: 0.65rem 0.75rem;
+  background: rgba(8, 24, 47, 0.4);
+}
+
+.health-signal-item p {
+  margin: 0.2rem 0;
+}
+
 #sync-output,
 .rio-law {
   margin: 0;

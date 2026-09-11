@@ -277,6 +277,28 @@
         <p class="governance-note" data-i18n="noScoreMagicNote">No single trust score: governance is shown as explicit facts and review states.</p>
       </article>
 
+      <article class="card health-dashboard">
+        <h3 data-i18n="citadelHealthTitle">Citadel Health dashboard</h3>
+        <p data-i18n="citadelHealthIntro">Operational health and semantic risks with explanation per signal.</p>
+        <ul class="health-signal-list">
+          <li class="health-signal-item">
+            <p><strong data-i18n="healthSignalOpsTitle">Operational continuity</strong></p>
+            <p><span data-i18n="healthStatusLabel">Status</span>: <span class="proof-status proof-status-available" data-i18n="healthStatusStable">Stable</span></p>
+            <p data-i18n="healthSignalOpsBody">Core services respond within expected bounds and sync checkpoints are current.</p>
+          </li>
+          <li class="health-signal-item">
+            <p><strong data-i18n="healthSignalSemanticsTitle">Semantic coherence</strong></p>
+            <p><span data-i18n="healthStatusLabel">Status</span>: <span class="proof-status proof-status-review" data-i18n="healthStatusWatch">Watch</span></p>
+            <p data-i18n="healthSignalSemanticsBody">One context label mismatch detected; review keeps meaning aligned across actions.</p>
+          </li>
+          <li class="health-signal-item">
+            <p><strong data-i18n="healthSignalGovernanceTitle">Governance signal clarity</strong></p>
+            <p><span data-i18n="healthStatusLabel">Status</span>: <span class="proof-status proof-status-available" data-i18n="healthStatusClear">Clear</span></p>
+            <p data-i18n="healthSignalGovernanceBody">Policy and authority indicators remain explicit, with no hidden score-magic.</p>
+          </li>
+        </ul>
+      </article>
+
       <div class="sync-row compass-command-row">
         <label for="compass-command" data-i18n="commandLayerTitle">Command layer</label>
         <input id="compass-command" class="compass-command-input" type="text" data-i18n-placeholder="commandPlaceholder" placeholder="Type natural command…" />
