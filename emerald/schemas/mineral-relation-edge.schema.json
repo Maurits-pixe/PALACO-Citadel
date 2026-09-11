@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://palaco.local/emerald/schemas/mineral-relation-edge.schema.json",
+  "title": "Mineral Relation Graph Edge",
+  "type": "object",
+  "required": [
+    "source_world_id",
+    "type",
+    "target_world_id",
+    "evidence",
+    "confidence"
+  ],
+  "properties": {
+    "source_world_id": {
+      "type": "string",
+      "pattern": "^EW-[0-9]{4,}$"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "chemical_relation",
+        "structural_relation",
+        "group_relation",
+        "paragenetic_relation",
+        "historical_relation"
+      ]
+    },
+    "target_world_id": {
+      "type": "string",
+      "pattern": "^EW-[0-9]{4,}$"
+    },
+    "evidence": {
+      "type": "object",
+      "required": [
+        "required",
+        "source_reference"
+      ],
+      "properties": {
+        "required": { "const": true },
+        "source_reference": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "confidence": {
+      "type": "object",
+      "required": ["state"],
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": [
+            "VERIFIED",
+            "ATTESTED",
+            "DERIVED_WITH_EVIDENCE",
+            "PROVEN"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

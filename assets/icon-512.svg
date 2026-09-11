@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="PALACO icon">
+  <rect width="512" height="512" fill="#0b1f3a"/>
+  <rect x="52" y="52" width="408" height="408" rx="40" fill="none" stroke="#56b6ff" stroke-width="18"/>
+  <text x="256" y="328" text-anchor="middle" font-size="248" font-family="Inter, Arial, sans-serif" fill="#eef4ff">P</text>
+</svg>

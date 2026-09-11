@@ -1,5 +1,7 @@
 # ARCHIVE
 
+Historical and legacy source material preserved for traceability.
+
 Deze map bewaart de eerdere losse PALACO-consolidaties, concept-notes en historische bronbestanden die vóór de canonieke hiërarchische herstructurering in de repository-root stonden.
 
 ## Inhoud

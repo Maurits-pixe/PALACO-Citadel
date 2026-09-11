@@ -1,0 +1,33 @@
+{
+  "registry": "THE-EMERALD-IMPERIUM",
+  "version": "1.0",
+  "source_epoch": "2026-09",
+  "capacity": {
+    "current_world_slots": 4444,
+    "expansion": "ENABLED"
+  },
+  "rules": {
+    "truncation": "FORBIDDEN",
+    "identity_recycling": "FORBIDDEN",
+    "renumbering": "FORBIDDEN",
+    "historical_deletion": "FORBIDDEN"
+  },
+  "entries": [
+    {
+      "world_id": "EW-0001",
+      "canonical_name": "Abellaite",
+      "allocation_state": "WORLD_ACTIVE",
+      "slot_state": "ASSIGNED",
+      "lineage_state": "ACTIVE",
+      "updated_at": "2026-09-30T00:00:00Z"
+    },
+    {
+      "world_id": "EW-4445",
+      "canonical_name": "Exampleite",
+      "allocation_state": "WORLD_PENDING",
+      "slot_state": "UNASSIGNED",
+      "lineage_state": "ACTIVE",
+      "updated_at": "2026-09-30T00:00:00Z"
+    }
+  ]
+}
