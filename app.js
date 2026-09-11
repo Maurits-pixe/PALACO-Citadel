@@ -843,32 +843,43 @@ if ('serviceWorker' in navigator) {
       window.location.reload();
     });
 
-    const registration = await navigator.serviceWorker.register('/sw.js');
+    let registration = null;
 
-    if (registration.waiting) {
-      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+    try {
+      registration = await navigator.serviceWorker.register('/sw.js');
+
+      if (registration.waiting) {
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+
+      registration.addEventListener('updatefound', () => {
+        const installing = registration.installing;
+        if (!installing) return;
+
+        installing.addEventListener('statechange', () => {
+          if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+            installing.postMessage({ type: 'SKIP_WAITING' });
+          }
+        });
+      });
+
+      registration.update();
+    } catch {
+      registration = null;
     }
 
-    registration.addEventListener('updatefound', () => {
-      const installing = registration.installing;
-      if (!installing) return;
-
-      installing.addEventListener('statechange', () => {
-        if (installing.state === 'installed' && navigator.serviceWorker.controller) {
-          installing.postMessage({ type: 'SKIP_WAITING' });
-        }
-      });
-    });
-
-    registration.update();
     window.setInterval(() => {
-      registration.update();
+      if (registration) {
+        registration.update();
+      }
       refreshLiveContent({ force: true });
     }, AUTO_REFRESH_INTERVAL);
 
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
-        registration.update();
+        if (registration) {
+          registration.update();
+        }
         refreshLiveContent({ force: true });
       }
     });

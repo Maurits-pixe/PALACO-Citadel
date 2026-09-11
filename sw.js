@@ -37,6 +37,16 @@ const networkFirst = async (request) => {
   }
 };
 
+const networkOnlyWithCacheFallback = async (request) => {
+  try {
+    return await fetch(request);
+  } catch {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    throw new Error(`Request failed for ${request.url}`);
+  }
+};
+
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_ASSETS)));
   self.skipWaiting();
@@ -56,7 +66,13 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  event.respondWith(networkFirst(event.request));
+  const requestPath = new URL(event.request.url).pathname;
+  if (SHELL_PATHS.has(requestPath)) {
+    event.respondWith(networkFirst(event.request));
+    return;
+  }
+
+  event.respondWith(networkOnlyWithCacheFallback(event.request));
 });
 
 self.addEventListener('message', (event) => {
