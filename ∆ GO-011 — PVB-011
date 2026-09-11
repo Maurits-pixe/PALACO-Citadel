@@ -1,0 +1,493 @@
+∆ GO-011 — PVB-011
+
+CANONICAL SERIALIZATION + CRYPTOGRAPHIC SIGNATURE CONTRACT
+
+GO ontvangen.
+
+We zetten nu PVB-004 cryptographic trust om in een formeel, implementeerbaar contract. De centrale regel wordt:
+
+> WHAT IS SIGNED SHALL BE EXACTLY WHAT IS VERIFIED.
+
+Geen semantische interpretatie vóór de cryptografische grens. Geen alternatieve serialisatie. Geen verborgen velden.
+
+---
+
+1. Trust chain
+
+IDENTITY
+   ↓
+IDENTITY KEY
+   ↓
+VISITCARD RECORD
+   ↓
+CANONICAL REPRESENTATION
+   ↓
+CANONICAL BYTES
+   ↓
+SIGNATURE
+   ↓
+DISCOVERY
+   ↓
+RESOLVER
+   ↓
+RECONSTRUCT CANONICAL BYTES
+   ↓
+VERIFY SIGNATURE
+   ↓
+WATERMERK / PROVENANCE
+   ↓
+VALIDITY
+   ↓
+VORM9EVIN9
+   ↓
+RIO
+
+De signature bewijst authenticity/integrity van het ondertekende object.
+
+WATERMERK bewijst lineage/provenance.
+
+Geen van beide verleent authority.
+
+---
+
+2. Wat wordt ondertekend?
+
+We definiëren een strikt onderscheid tussen:
+
+Identity-bound data
+
+visitcard_id
+object_type
+identity_ref
+epoch
+provenance_ref
+validity
+discovery_policy
+rio_destination_ref
+control_state
+
+Presentation data
+
+display_name
+description
+icon
+layout
+language
+VORM9EVIN9 presentation
+
+De tweede categorie mag veranderen zonder noodzakelijk dezelfde identity-bound cryptografische representatie te behouden.
+
+Daarom:
+
+> PRESENTATION ≠ IDENTITY TRUTH.
+
+---
+
+3. Signed VisitCard payload
+
+Conceptueel:
+
+SIGNED_VISITCARD_PAYLOAD_V1 {
+    protocol_version
+    visitcard_id
+    object_type
+    identity_ref
+    epoch
+    provenance_ref
+    validity
+    discovery_policy
+    rio_destination_ref
+    control_state
+}
+
+Niet opgenomen:
+
+display_name
+layout
+icon
+language
+UI decoration
+
+tenzij een toekomstige protocolversie deze expliciet identity-bound maakt.
+
+---
+
+4. Domain separation
+
+Een cruciale cryptografische bescherming:
+
+PALACO-PVB-V1-VISITCARD
+
+wordt onderdeel van het signing domain.
+
+Conceptueel:
+
+domain_separator
++
+protocol_version
++
+object_type
++
+canonical_payload
+
+Zo voorkomen we dat dezelfde bytes onverwacht als een ander PALACO-object of ander protocolobject kunnen worden geïnterpreteerd.
+
+Dus:
+
+VisitCard signature
+    ≠
+Beacon signature
+    ≠
+RIO signature
+
+Zelfs wanneer bepaalde payloadvelden overeenkomen.
+
+---
+
+5. Canonical serialization
+
+De volgorde wordt:
+
+STRUCTURED OBJECT
+      ↓
+VALIDATE TYPES
+      ↓
+CANONICAL SERIALIZE
+      ↓
+BYTES
+      ↓
+SIGN
+
+Niet:
+
+OBJECT
+ ↓
+JSON
+ ↓
+maybe whitespace
+ ↓
+maybe field ordering
+ ↓
+SIGN
+
+Canonical serialization moet deterministisch zijn:
+
+> dezelfde identity-bound inhoud → exact dezelfde bytes.
+
+---
+
+6. Canonicalization invariant
+
+Voor dezelfde semantische record:
+
+serialize(record)
+==
+serialize(record)
+
+op iedere conformerende implementation.
+
+Daarom moeten onder meer expliciet vaststaan:
+
+veldvolgorde;
+
+integer encoding;
+
+byte ordering;
+
+string encoding;
+
+optional values;
+
+collection ordering;
+
+enum representation;
+
+version encoding;
+
+length encoding.
+
+Er mag geen verborgen serializerbeleid bestaan.
+
+---
+
+7. Strings
+
+Voor protocoldata:
+
+UTF-8
+
+met expliciete canonical regels.
+
+Belangrijk:
+
+"PALACO"
+
+en een visueel vergelijkbare maar anders gecodeerde Unicode-representatie mogen niet automatisch als cryptografisch identiek worden behandeld.
+
+Canonicalization is een protocoloperatie, geen UI-operatie.
+
+---
+
+8. Collections
+
+Een collection die identity-bound is moet deterministisch zijn.
+
+Bijvoorbeeld:
+
+[a, b, c]
+
+mag niet op implementation A als:
+
+[c, a, b]
+
+worden geserialiseerd.
+
+Als volgorde semantisch irrelevant is, moet het protocol expliciet bepalen dat er wordt gesorteerd volgens een canonieke comparator.
+
+---
+
+9. Optional values
+
+Ook None / Some krijgt een expliciete wire representation.
+
+Bijvoorbeeld conceptueel:
+
+ABSENT
+
+is niet hetzelfde als:
+
+PRESENT + EMPTY
+
+tenzij het protocol dat expliciet definieert.
+
+Cryptografie mag niet afhankelijk zijn van programmeertaal-specifieke defaultsemantiek.
+
+---
+
+10. Signature object
+
+Conceptueel:
+
+pub struct Signature {
+    algorithm: SignatureAlgorithm,
+    key_id: KeyId,
+    value: SignatureBytes,
+}
+
+De Signature zelf is geen authority token.
+
+Signature
+    ↓
+proves cryptographic binding
+
+niet:
+
+Signature
+    ↓
+authorizes action
+
+---
+
+11. Algorithm agility
+
+Het protocol moet een algorithm identifier dragen.
+
+Conceptueel:
+
+pub enum SignatureAlgorithm {
+    // protocol-approved algorithms
+}
+
+Maar:
+
+> Algorithm agility SHALL NOT mean algorithm ambiguity.
+
+Een onbekend algoritme:
+
+UNKNOWN
+   ↓
+UNSUPPORTED
+
+Niet:
+
+UNKNOWN → try something
+
+---
+
+12. Key identity
+
+Een signature verwijst naar een cryptografische key identity:
+
+Identity
+   │
+   └── KeyVersion
+          │
+          └── PublicKey
+
+Daarmee wordt key rotation mogelijk:
+
+KEY-001
+   ↓
+KEY-002
+   ↓
+KEY-003
+
+zonder noodzakelijk de PALACO identity te vervangen.
+
+---
+
+13. Key rotation + WATERMERK
+
+De lineage:
+
+IDENTITY
+   │
+   ├── KEY-001
+   │
+   ├── KEY-002
+   │
+   └── KEY-003
+
+wordt via provenance reconstrueerbaar.
+
+Dus:
+
+> KEY ROTATION SHALL PRESERVE AUDITABLE LINEAGE.
+
+Een nieuwe sleutel mag niet stilzwijgend historische signatures herschrijven.
+
+---
+
+14. Signing boundary
+
+De signing API hoort uitsluitend canonical identity-bound data te accepteren.
+
+Conceptueel:
+
+pub trait Signer {
+    fn sign(
+        &self,
+        payload: &CanonicalPayload,
+    ) -> Result<Signature, SigningError>;
+}
+
+Niet:
+
+fn sign(&self, arbitrary_bytes: Vec<u8>)
+
+als dat binnen de publieke VisitCard API tot semantische verwarring kan leiden.
+
+De cryptografische laag mag natuurlijk intern bytes verwerken; de domeinlaag moet voorkomen dat verkeerde objecttypen worden ondertekend.
+
+---
+
+15. Verification boundary
+
+pub trait SignatureVerifier {
+    fn verify(
+        &self,
+        payload: &CanonicalPayload,
+        signature: &Signature,
+        key: &PublicKey,
+    ) -> Result<VerifiedSignature, VerificationError>;
+}
+
+Succes levert:
+
+pub struct VerifiedSignature {
+    // private fields
+}
+
+Dus opnieuw:
+
+bool
+
+wordt vervangen door:
+
+evidence-bearing type
+
+---
+
+16. Verification order
+
+De veilige volgorde:
+
+RECEIVE
+  ↓
+PARSE
+  ↓
+VERSION CHECK
+  ↓
+STRUCTURAL VALIDATION
+  ↓
+CANONICAL RECONSTRUCTION
+  ↓
+KEY RESOLUTION
+  ↓
+SIGNATURE VERIFICATION
+  ↓
+EPOCH / VALIDITY
+  ↓
+PROVENANCE
+  ↓
+STATE
+
+Een signature die technisch geldig is maar verwijst naar een verlopen object blijft:
+
+cryptographically authentic
++
+temporally invalid
+
+---
+
+17. Signature ≠ validity
+
+Dit onderscheid wordt hard gecodeerd.
+
+Signature = VALID
+
+betekent:
+
+> de ondertekende representatie is cryptografisch gekoppeld aan de betreffende key.
+
+Het betekent niet:
+
+> de VisitCard is nu geldig.
+
+Daarvoor zijn ook nodig:
+
+identity
++
+provenance
++
+epoch
++
+validity
++
+revocation state
+
+---
+
+18. Signature ≠ provenance
+
+Even belangrijk:
+
+VALID SIGNATURE
+
+kan aantonen dat een key iets heeft ondertekend.
+
+Maar de vraag:
+
+> Is deze key/representatie correct verbonden met de historische lineage?
+
+is een provenance-vraag.
+
+Dus:
+
+CRYPTOGRAPHY
+    ↓
+AUTHENTICITY
+
+WATERMERK
+    ↓
+PROVENANCE
