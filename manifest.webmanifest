@@ -1,11 +1,11 @@
 {
-  "name": "PALACO Citadel",
+  "name": "PALACO Universe Portal",
   "short_name": "PALACO",
-  "description": "First executable PALACO UI foundation for desktop, tablet, and mobile.",
+  "description": "PALACO GitHub universe portal for Citadel structure, Emerald canon, and live Maurits-pixe repository discovery.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#061127",
-  "theme_color": "#0b1f3a",
+  "background_color": "#050b15",
+  "theme_color": "#07111f",
   "lang": "en",
   "icons": [
     {

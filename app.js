@@ -1,184 +1,344 @@
-const form = document.querySelector('#goal-form');
-const input = document.querySelector('#goal');
-const output = document.querySelector('#goal-output');
 const languageButtons = document.querySelectorAll('.lang-btn');
-const installBtn = document.querySelector('#install-btn');
-const controlButtons = document.querySelectorAll('.control-btn');
-const industryStatus = document.querySelector('#industry-status');
-const citadelStatus = document.querySelector('#citadel-status');
 const syncBtn = document.querySelector('#sync-btn');
 const syncOutput = document.querySelector('#sync-output');
+const githubStatus = document.querySelector('#github-status');
+const repoSearch = document.querySelector('#repo-search');
+const heroStats = document.querySelector('#hero-stats');
+const overviewGrid = document.querySelector('#overview-grid');
+const hubGrid = document.querySelector('#hub-grid');
+const canonGrid = document.querySelector('#canon-grid');
+const emeraldGrid = document.querySelector('#emerald-grid');
+const repoGrid = document.querySelector('#repo-grid');
+
+const ACCOUNT_NAME = 'Maurits-pixe';
+const REPO_CACHE_KEY = 'palaco-github-cache-v1';
+const LAST_SYNC_KEY = 'palaco-last-sync';
 
 const translations = {
   en: {
-    eyebrow: 'GO · Scheppen · Create',
-    subtitle: 'The first executable UI foundation for desktop, tablet, and mobile.',
-    visionTitle: 'Vision',
-    visionBody: 'PALACO means “palace” in Esperanto: a shared digital place to build, create, and bring ideas to life.',
-    launchTitle: 'Launch Pad',
-    goalLabel: 'What will you create today?',
-    goalPlaceholder: 'Type your first PALACO goal',
-    goButton: 'GO',
-    installButton: 'Install app',
-    readinessTitle: 'Platform readiness',
-    readinessOne: 'Responsive layout for computer, tablet, and mobile.',
-    readinessTwo: 'Installable web app foundation (PWA).',
-    readinessThree: 'Ready for domain + HTTPS deployment.',
-    masterTitle: 'MA5TER Dashboard Control Room',
-    masterSubtitle: 'Central command for PALACO Industry and PALACO internal operations.',
-    industryTitle: 'PALACO Industry',
-    industryBody: 'Monitor and activate industrial production mode.',
-    internalTitle: 'PALACO Internal',
-    internalBody: 'Manage internal Citadel operation mode.',
-    statusLabel: 'Status',
-    statusActive: 'Active',
-    statusStandby: 'Standby',
-    activate: 'Activate',
-    deactivate: 'Deactivate',
+    eyebrow: 'GO · Maurits-pixe · PALACO Universe',
+    heroKicker: 'A working website for the PALACO GitHub universe.',
+    heroTitle: 'PALACO Universe Portal',
+    heroSubtitle: 'Explore the Citadel structure, Emerald canon, and Maurits-pixe repositories from one live GitHub-powered front door.',
     syncNow: 'Sync now',
+    overviewTitle: 'What this site does',
+    overviewSubtitle: 'One responsive surface that combines PALACO-Citadel content with live GitHub repository data.',
+    hubsTitle: 'Featured GitHub hubs',
+    hubsSubtitle: 'Direct routes to the main PALACO repositories and the current Citadel portal.',
+    citadelTitle: 'Citadel reading map',
+    citadelSubtitle: 'The canonical route through the current repository.',
+    emeraldTitle: 'Emerald system',
+    emeraldSubtitle: 'Key Emerald entry points, governance, generation, and extended GO documents.',
+    repoTitle: 'Maurits-pixe repository explorer',
+    repoSubtitle: 'Loads public repositories live from GitHub and falls back to curated PALACO links when needed.',
+    repoSearchLabel: 'Search repositories',
+    repoSearchPlaceholder: 'Type a repository name',
+    footer: 'PALACO Universe Portal · Citadel content + Emerald structure + live GitHub discovery.',
+    statLayers: 'canonical lanes',
+    statEmerald: 'Emerald docs',
+    statRepos: 'public repos loaded',
+    cardOpen: 'Open',
+    cardUpdated: 'Updated',
+    cardLanguage: 'Language',
+    cardIssues: 'Open issues',
+    cardStars: 'Stars',
+    cacheStatusLive: 'Live GitHub data loaded.',
+    cacheStatusCached: 'GitHub is unavailable right now; showing the latest cached repository data.',
+    cacheStatusFallback: 'GitHub is unavailable right now; showing curated PALACO hubs.',
+    cacheStatusEmpty: 'No repositories matched your search.',
     lastSync: 'Last sync:',
-    githubTitle: 'GitHub hubs',
-    githubSubtitle: 'Direct access to PALACO, PALACO Industrie, and PALACO Genesis on GitHub.',
-    githubPalacoTitle: 'PALACO',
-    githubPalacoBody: 'Open the PALACO main repository.',
-    githubIndustryTitle: 'PALACO Industrie',
-    githubIndustryBody: 'Open the PALACO industry repository.',
-    githubGenesisTitle: 'PALACO Genesis',
-    githubGenesisBody: 'Open the PALACO genesis repository.',
-    rioTitle: 'RIO Platform Ascension',
-    rioSubtitle: 'RIO evolves from chat interface to PALACO conversation and communication platform.',
-    rioPillarOneTitle: 'Surface-independent conversation',
-    rioPillarOneA: 'One conversation identity across mobile, web, Citadel, ELIXER, and desktop.',
-    rioPillarOneB: 'Conversation belongs to PALACO context, not to one device.',
-    rioPillarOneC: 'Cross-surface continuity remains active through sync and reconnect states.',
-    rioPillarTwoTitle: 'Presence with boundaries',
-    rioPillarTwoA: 'Presence means reachable, never automatic authority.',
-    rioPillarTwoB: 'Online ≠ authorized; constitutional gates remain separate.',
-    rioPillarTwoC: 'RIO connects communication while PALACO protects authority boundaries.',
-    rioPillarThreeTitle: 'Provenance-aware communication',
-    rioPillarThreeA: 'Messages preserve identity, context, origin, time, and traceability.',
-    rioPillarThreeB: 'WATERMERK and HOLOGRAM support authenticity and lineage visibility.',
-    rioPillarThreeC: 'Complexity is hidden when irrelevant and revealed when material.',
-    rioLaw: 'Canonical law: RIO may connect communication; RIO shall not create authority.',
-    footer: 'PALACO · Build conditions. Make it count.',
-    goalSet: 'PALACO objective set:',
-    latestGoal: 'Latest objective:'
+    syncing: 'Syncing GitHub repositories…',
+    liveCount: 'Public repositories currently visible:',
+    privateNote: 'Public GitHub data only; direct hub links remain available for other PALACO spaces.'
   },
   nl: {
-    eyebrow: 'GO · Scheppen · Creëren',
-    subtitle: 'De eerste uitvoerbare UI-basis voor desktop, tablet en mobiel.',
-    visionTitle: 'Visie',
-    visionBody: 'PALACO betekent “paleis” in Esperanto: een gedeelde digitale plek om te bouwen, te creëren en ideeën tot leven te brengen.',
-    launchTitle: 'Startplatform',
-    goalLabel: 'Wat ga jij vandaag creëren?',
-    goalPlaceholder: 'Typ je eerste PALACO-doel',
-    goButton: 'GO',
-    installButton: 'Installeer app',
-    readinessTitle: 'Platformgereedheid',
-    readinessOne: 'Responsive lay-out voor computer, tablet en mobiel.',
-    readinessTwo: 'Installeerbare webapp-basis (PWA).',
-    readinessThree: 'Klaar voor domein + HTTPS uitrol.',
-    masterTitle: 'MA5TER Dashboard Controlekamer',
-    masterSubtitle: 'Centraal commando voor PALACO Industrie en PALACO interne operaties.',
-    industryTitle: 'PALACO Industrie',
-    industryBody: 'Monitor en activeer industriële productiemodus.',
-    internalTitle: 'PALACO Intern',
-    internalBody: 'Beheer interne Citadel-operatiemodus.',
-    statusLabel: 'Status',
-    statusActive: 'Actief',
-    statusStandby: 'Stand-by',
-    activate: 'Activeren',
-    deactivate: 'Deactiveren',
+    eyebrow: 'GO · Maurits-pixe · PALACO Universum',
+    heroKicker: 'Een werkende website voor het PALACO GitHub-universum.',
+    heroTitle: 'PALACO Universe Portal',
+    heroSubtitle: 'Verken de Citadel-structuur, de Emerald-canon en Maurits-pixe repositories vanuit één live GitHub-voordeur.',
     syncNow: 'Nu synchroniseren',
+    overviewTitle: 'Wat deze site doet',
+    overviewSubtitle: 'Één responsive surface die PALACO-Citadel-content combineert met live GitHub repository-data.',
+    hubsTitle: 'Uitgelichte GitHub-hubs',
+    hubsSubtitle: 'Directe routes naar de belangrijkste PALACO-repositories en het huidige Citadel-portaal.',
+    citadelTitle: 'Citadel leeskaart',
+    citadelSubtitle: 'De canonieke route door de huidige repository.',
+    emeraldTitle: 'Emerald-systeem',
+    emeraldSubtitle: 'Belangrijke Emerald-ingangen, governance, generatie en uitgebreide GO-documenten.',
+    repoTitle: 'Maurits-pixe repository-verkenner',
+    repoSubtitle: 'Laadt publieke repositories live vanaf GitHub en valt terug op PALACO-links als dat nodig is.',
+    repoSearchLabel: 'Zoek repositories',
+    repoSearchPlaceholder: 'Typ een repositorynaam',
+    footer: 'PALACO Universe Portal · Citadel-content + Emerald-structuur + live GitHub-ontdekking.',
+    statLayers: 'canonieke lagen',
+    statEmerald: 'Emerald-docs',
+    statRepos: 'geladen publieke repos',
+    cardOpen: 'Open',
+    cardUpdated: 'Bijgewerkt',
+    cardLanguage: 'Taal',
+    cardIssues: 'Open issues',
+    cardStars: 'Stars',
+    cacheStatusLive: 'Live GitHub-data geladen.',
+    cacheStatusCached: 'GitHub is nu niet beschikbaar; de laatst gecachete repository-data wordt getoond.',
+    cacheStatusFallback: 'GitHub is nu niet beschikbaar; uitgelichte PALACO-hubs worden getoond.',
+    cacheStatusEmpty: 'Geen repositories gevonden voor je zoekopdracht.',
     lastSync: 'Laatste sync:',
-    githubTitle: 'GitHub hubs',
-    githubSubtitle: 'Directe toegang tot PALACO, PALACO Industrie en PALACO Genesis op GitHub.',
-    githubPalacoTitle: 'PALACO',
-    githubPalacoBody: 'Open de hoofdrepository van PALACO.',
-    githubIndustryTitle: 'PALACO Industrie',
-    githubIndustryBody: 'Open de industriële repository van PALACO.',
-    githubGenesisTitle: 'PALACO Genesis',
-    githubGenesisBody: 'Open de genesis-repository van PALACO.',
-    rioTitle: 'RIO Platform Ascension',
-    rioSubtitle: 'RIO groeit van chat-interface naar PALACO conversatie- en communicatieplatform.',
-    rioPillarOneTitle: 'Surface-onafhankelijke conversatie',
-    rioPillarOneA: 'Eén conversatie-identiteit over mobiel, web, Citadel, ELIXER en desktop.',
-    rioPillarOneB: 'De conversatie hoort bij PALACO-context, niet bij één apparaat.',
-    rioPillarOneC: 'Cross-surface continuïteit blijft bestaan via sync- en reconnect-staten.',
-    rioPillarTwoTitle: 'Presence met grenzen',
-    rioPillarTwoA: 'Presence betekent bereikbaar, nooit automatische authority.',
-    rioPillarTwoB: 'Online ≠ bevoegd; constitutionele poorten blijven gescheiden.',
-    rioPillarTwoC: 'RIO verbindt communicatie terwijl PALACO de authority-grenzen bewaakt.',
-    rioPillarThreeTitle: 'Provenance-bewuste communicatie',
-    rioPillarThreeA: 'Berichten behouden identiteit, context, herkomst, tijd en traceerbaarheid.',
-    rioPillarThreeB: 'WATERMERK en HOLOGRAM ondersteunen authenticiteit en lineage-zichtbaarheid.',
-    rioPillarThreeC: 'Complexiteit wordt verborgen wanneer irrelevant en getoond wanneer materieel.',
-    rioLaw: 'Canonieke wet: RIO mag communicatie verbinden; RIO mag geen authority creëren.',
-    footer: 'PALACO · Bouw de voorwaarden. Maak het groots.',
-    goalSet: 'PALACO-doel gezet:',
-    latestGoal: 'Laatste doel:'
+    syncing: 'GitHub repositories worden gesynchroniseerd…',
+    liveCount: 'Publieke repositories momenteel zichtbaar:',
+    privateNote: 'Alleen publieke GitHub-data; directe hub-links blijven beschikbaar voor andere PALACO-ruimtes.'
   },
   eo: {
-    eyebrow: 'GO · Krei · Estigi',
-    subtitle: 'La unua plenumebla UI-bazo por komputilo, tablojdo kaj poŝtelefono.',
-    visionTitle: 'Vizio',
-    visionBody: 'PALACO signifas “palaco” en Esperanto: komuna cifereca loko por konstrui, krei kaj vivigi ideojn.',
-    launchTitle: 'Lanĉejo',
-    goalLabel: 'Kion vi kreos hodiaŭ?',
-    goalPlaceholder: 'Tajpu vian unuan PALACO-celon',
-    goButton: 'GO',
-    installButton: 'Instalu apon',
-    readinessTitle: 'Platforma preteco',
-    readinessOne: 'Respondema aranĝo por komputilo, tablojdo kaj poŝtelefono.',
-    readinessTwo: 'Instalebla ret-apo bazo (PWA).',
-    readinessThree: 'Preta por domajno + HTTPS publikigo.',
-    masterTitle: 'MA5TER Panela Kontrolĉambro',
-    masterSubtitle: 'Centra komando por PALACO-Industrio kaj internaj PALACO-operacioj.',
-    industryTitle: 'PALACO Industrio',
-    industryBody: 'Monitoru kaj aktivigu industrian produktadan reĝimon.',
-    internalTitle: 'PALACO Interna',
-    internalBody: 'Administru internan Citadel-operacian reĝimon.',
-    statusLabel: 'Stato',
-    statusActive: 'Aktiva',
-    statusStandby: 'Atenda',
-    activate: 'Aktivigi',
-    deactivate: 'Malaktivigi',
+    eyebrow: 'GO · Maurits-pixe · PALACO Universo',
+    heroKicker: 'Funkcianta retejo por la PALACO GitHub-universo.',
+    heroTitle: 'PALACO Universe Portal',
+    heroSubtitle: 'Esploru la Citadel-strukturon, la Smeraldan kanonon kaj la deponejojn de Maurits-pixe el unu viva GitHub-enirpordo.',
     syncNow: 'Sinkronigi nun',
+    overviewTitle: 'Kion ĉi tiu retejo faras',
+    overviewSubtitle: 'Unu respondema surfaco kiu kunigas PALACO-Citadel-enhavon kun viva GitHub-deponeja datumo.',
+    hubsTitle: 'Elstaraj GitHub-nodoj',
+    hubsSubtitle: 'Rektaj vojoj al la ĉefaj PALACO-deponejoj kaj la nuna Citadel-portalo.',
+    citadelTitle: 'Citadel-legomapo',
+    citadelSubtitle: 'La kanona vojo tra la nuna deponejo.',
+    emeraldTitle: 'Smeralda sistemo',
+    emeraldSubtitle: 'Ĉefaj Smeraldaj enirejoj, administrado, generado, kaj plilongigitaj GO-dokumentoj.',
+    repoTitle: 'Deponeja esplorilo de Maurits-pixe',
+    repoSubtitle: 'Ŝargas publikajn deponejojn vive el GitHub kaj uzas rezervajn PALACO-ligilojn kiam necese.',
+    repoSearchLabel: 'Serĉi deponejojn',
+    repoSearchPlaceholder: 'Tajpu deponejan nomon',
+    footer: 'PALACO Universe Portal · Citadel-enhavo + Smeralda strukturo + viva GitHub-malkovrado.',
+    statLayers: 'kanonaj tavoloj',
+    statEmerald: 'Smeraldaj dokumentoj',
+    statRepos: 'ŝargitaj publikaj deponejoj',
+    cardOpen: 'Malfermi',
+    cardUpdated: 'Ĝisdatigita',
+    cardLanguage: 'Lingvo',
+    cardIssues: 'Malfermitaj temoj',
+    cardStars: 'Steloj',
+    cacheStatusLive: 'Viva GitHub-datumo ŝargita.',
+    cacheStatusCached: 'GitHub nun ne disponeblas; montriĝas la plej lasta kaŝmemora deponeja datumo.',
+    cacheStatusFallback: 'GitHub nun ne disponeblas; montriĝas elektitaj PALACO-nodoj.',
+    cacheStatusEmpty: 'Neniu deponejo kongruas kun via serĉo.',
     lastSync: 'Lasta sinkronigo:',
-    githubTitle: 'GitHub nodoj',
-    githubSubtitle: 'Rekta aliro al PALACO, PALACO Industrie kaj PALACO Genesis en GitHub.',
-    githubPalacoTitle: 'PALACO',
-    githubPalacoBody: 'Malfermu la ĉefan deponejon de PALACO.',
-    githubIndustryTitle: 'PALACO Industrie',
-    githubIndustryBody: 'Malfermu la industrian deponejon de PALACO.',
-    githubGenesisTitle: 'PALACO Genesis',
-    githubGenesisBody: 'Malfermu la genesis-deponejon de PALACO.',
-    rioTitle: 'RIO Platform Ascension',
-    rioSubtitle: 'RIO evoluas de babila interfaco al konversacia kaj komunikada platformo de PALACO.',
-    rioPillarOneTitle: 'Surfaco-sendependa konversacio',
-    rioPillarOneA: 'Unu konversacia identeco tra poŝtelefono, reto, Citadel, ELIXER kaj labortablo.',
-    rioPillarOneB: 'La konversacio apartenas al PALACO-kunteksto, ne al unu aparato.',
-    rioPillarOneC: 'Trans-surfaca kontinueco restas aktiva per sinkronigo kaj rekonekto-statoj.',
-    rioPillarTwoTitle: 'Ĉeesto kun limoj',
-    rioPillarTwoA: 'Ĉeesto signifas atingebla, neniam aŭtomata aŭtoritato.',
-    rioPillarTwoB: 'Rete ≠ rajtigita; konstituciaj pordegoj restas apartaj.',
-    rioPillarTwoC: 'RIO ligas komunikadon dum PALACO protektas aŭtoritatajn limojn.',
-    rioPillarThreeTitle: 'Provenienco-konscia komunikado',
-    rioPillarThreeA: 'Mesaĝoj konservas identecon, kuntekston, originon, tempon kaj spureblecon.',
-    rioPillarThreeB: 'WATERMERK kaj HOLOGRAM subtenas aŭtentikecon kaj videblecon de devenlinio.',
-    rioPillarThreeC: 'Komplekseco kaŝiĝas kiam negrava kaj montriĝas kiam materia.',
-    rioLaw: 'Kanona leĝo: RIO rajtas ligi komunikadon; RIO ne rajtas krei aŭtoritaton.',
-    footer: 'PALACO · Konstruu la kondiĉojn. Faru ĝin grava.',
-    goalSet: 'PALACO-celo agordita:',
-    latestGoal: 'Plej lasta celo:'
+    syncing: 'GitHub-deponejoj sinkroniĝas…',
+    liveCount: 'Publikaj deponejoj nun videblaj:',
+    privateNote: 'Nur publika GitHub-datumo; rektaj nodaj ligiloj restas disponeblaj por aliaj PALACO-spacoj.'
   }
 };
 
-let currentLanguage = localStorage.getItem('palaco-language') || 'en';
-const controlState = JSON.parse(localStorage.getItem('palaco-control-state') || '{"industry":false,"citadel":false}');
+const content = {
+  en: {
+    overview: [
+      {
+        title: 'Live GitHub front door',
+        body: 'The portal loads Maurits-pixe public repositories directly from GitHub and keeps a local fallback cache for continuity.'
+      },
+      {
+        title: 'Citadel content map',
+        body: 'The layered PALACO-Citadel canon is turned into a browsable reading route instead of a loose file list.'
+      },
+      {
+        title: 'Emerald access point',
+        body: 'The Emerald workspace and GO-EMERALD series are grouped into one visible system for governance, schemas, and generation.'
+      }
+    ],
+    hubs: [
+      {
+        title: 'PALACO-Citadel',
+        body: 'This repository: the layered Citadel portal and current website front door.',
+        href: 'https://github.com/Maurits-pixe/PALACO-Citadel'
+      },
+      {
+        title: 'PALACO',
+        body: 'Main PALACO repository and broader canonical development stream.',
+        href: 'https://github.com/Maurits-pixe/PALACO'
+      },
+      {
+        title: 'PALACO Industrie',
+        body: 'Industrial branch and production-oriented PALACO space.',
+        href: 'https://github.com/Maurits-pixe/PALACO-INDUSTRIE'
+      },
+      {
+        title: 'PALACO Genesis',
+        body: 'Genesis-oriented PALACO hub for origin and early-formation tracks.',
+        href: 'https://github.com/Maurits-pixe/palaco-genesis'
+      }
+    ],
+    canon: [
+      ['01-FOUNDATION', '01-FOUNDATION/README.md', 'Constitutional principles and authority.'],
+      ['02-CORE-SYSTEMS', '02-CORE-SYSTEMS/README.md', 'CITADEL, QUAY, AUDIT, REPLAY, and sealing.'],
+      ['03-EVIDENCE', '03-EVIDENCE/README.md', 'Proof, verification, and evidentiary structure.'],
+      ['04-GOVERNANCE', '04-GOVERNANCE/README.md', 'Rules of change, custody, and evolution boundaries.'],
+      ['05-OPERATIONS', '05-OPERATIONS/README.md', 'Deployment, federation, and operational protocol.'],
+      ['06-INTELLIGENCE', '06-INTELLIGENCE/README.md', 'Governed intelligence and decision frameworks.'],
+      ['07-IMMORTALITY', '07-IMMORTALITY/README.md', 'Certification, continuity, and OMEGA components.'],
+      ['08-IMPLEMENTATION', '08-IMPLEMENTATION/README.md', 'Code, schemas, tests, and examples.'],
+      ['DOCS', 'DOCS/README.md', 'Glossary, FAQ, and status reference.']
+    ],
+    emerald: [
+      ['emerald/README', 'emerald/README.md', 'Consolidated Emerald reading order and workspace structure.'],
+      ['EMERALD-IMPERIUM-001', 'EMERALD-IMPERIUM-001.md', 'Domain identity and authority boundary.'],
+      ['GO-EMERALD-010', 'GO-EMERALD-010.md', 'Emerald constitution and article baseline.'],
+      ['GO-EMERALD-009', 'GO-EMERALD-009.md', 'Mineral World Factory and fail-closed gates.'],
+      ['GO-EMERALD-036', 'GO-EMERALD-036.md', 'Personal device constellation extension.']
+    ]
+  },
+  nl: {
+    overview: [
+      {
+        title: 'Live GitHub-voordeur',
+        body: 'Het portaal laadt publieke Maurits-pixe repositories direct vanaf GitHub en bewaart een lokale fallback-cache voor continuïteit.'
+      },
+      {
+        title: 'Citadel-contentkaart',
+        body: 'De gelaagde PALACO-Citadel-canon wordt omgezet in een browsebare leesroute in plaats van een losse bestandslijst.'
+      },
+      {
+        title: 'Emerald-ingang',
+        body: 'De Emerald-workspace en GO-EMERALD-serie zijn gegroepeerd tot één zichtbaar systeem voor governance, schema’s en generatie.'
+      }
+    ],
+    hubs: [
+      {
+        title: 'PALACO-Citadel',
+        body: 'Deze repository: het gelaagde Citadel-portaal en de huidige website-voordeur.',
+        href: 'https://github.com/Maurits-pixe/PALACO-Citadel'
+      },
+      {
+        title: 'PALACO',
+        body: 'Hoofdrepository van PALACO en de bredere canonieke ontwikkelstroom.',
+        href: 'https://github.com/Maurits-pixe/PALACO'
+      },
+      {
+        title: 'PALACO Industrie',
+        body: 'Industriële tak en productiegerichte PALACO-ruimte.',
+        href: 'https://github.com/Maurits-pixe/PALACO-INDUSTRIE'
+      },
+      {
+        title: 'PALACO Genesis',
+        body: 'Genesisgerichte PALACO-hub voor oorsprong en vroege vormingssporen.',
+        href: 'https://github.com/Maurits-pixe/palaco-genesis'
+      }
+    ],
+    canon: [
+      ['01-FOUNDATION', '01-FOUNDATION/README.md', 'Constitutionele principes en authority.'],
+      ['02-CORE-SYSTEMS', '02-CORE-SYSTEMS/README.md', 'CITADEL, QUAY, AUDIT, REPLAY en sealing.'],
+      ['03-EVIDENCE', '03-EVIDENCE/README.md', 'Bewijs, verificatie en evidentiële structuur.'],
+      ['04-GOVERNANCE', '04-GOVERNANCE/README.md', 'Regels van verandering, custody en evolutiegrenzen.'],
+      ['05-OPERATIONS', '05-OPERATIONS/README.md', 'Deployment, federatie en operationeel protocol.'],
+      ['06-INTELLIGENCE', '06-INTELLIGENCE/README.md', 'Governed intelligence en besliskaders.'],
+      ['07-IMMORTALITY', '07-IMMORTALITY/README.md', 'Certificering, continuïteit en OMEGA-componenten.'],
+      ['08-IMPLEMENTATION', '08-IMPLEMENTATION/README.md', 'Code, schema’s, tests en voorbeelden.'],
+      ['DOCS', 'DOCS/README.md', 'Glossary, FAQ en statusreferentie.']
+    ],
+    emerald: [
+      ['emerald/README', 'emerald/README.md', 'Geconsolideerde Emerald-leesvolgorde en workspacestructuur.'],
+      ['EMERALD-IMPERIUM-001', 'EMERALD-IMPERIUM-001.md', 'Domeinidentiteit en authority-grens.'],
+      ['GO-EMERALD-010', 'GO-EMERALD-010.md', 'Emerald-grondwet en artikelbasis.'],
+      ['GO-EMERALD-009', 'GO-EMERALD-009.md', 'Mineral World Factory en fail-closed gates.'],
+      ['GO-EMERALD-036', 'GO-EMERALD-036.md', 'Personal device constellation-uitbreiding.']
+    ]
+  },
+  eo: {
+    overview: [
+      {
+        title: 'Viva GitHub-enirpordo',
+        body: 'La portalo ŝargas publikajn deponejojn de Maurits-pixe rekte el GitHub kaj konservas lokan rezervan kaŝmemoron por kontinueco.'
+      },
+      {
+        title: 'Citadel-enhava mapo',
+        body: 'La tavoligita PALACO-Citadel-kanono fariĝas trarigardebla legovojo anstataŭ malligita dosierlisto.'
+      },
+      {
+        title: 'Smeralda enirejo',
+        body: 'La Smeralda laborspaco kaj GO-EMERALD-serio estas grupigitaj kiel unu videbla sistemo por administrado, skemoj, kaj generado.'
+      }
+    ],
+    hubs: [
+      {
+        title: 'PALACO-Citadel',
+        body: 'Ĉi tiu deponejo: la tavoligita Citadel-portalo kaj nuna reteja enirpordo.',
+        href: 'https://github.com/Maurits-pixe/PALACO-Citadel'
+      },
+      {
+        title: 'PALACO',
+        body: 'Ĉefa PALACO-deponejo kaj la pli vasta kanona evoluofluo.',
+        href: 'https://github.com/Maurits-pixe/PALACO'
+      },
+      {
+        title: 'PALACO Industrie',
+        body: 'Industria branĉo kaj produktada PALACO-spaco.',
+        href: 'https://github.com/Maurits-pixe/PALACO-INDUSTRIE'
+      },
+      {
+        title: 'PALACO Genesis',
+        body: 'Genesis-orientita PALACO-nodo por originaj kaj fruformaj trakoj.',
+        href: 'https://github.com/Maurits-pixe/palaco-genesis'
+      }
+    ],
+    canon: [
+      ['01-FOUNDATION', '01-FOUNDATION/README.md', 'Konstituciaj principoj kaj aŭtoritato.'],
+      ['02-CORE-SYSTEMS', '02-CORE-SYSTEMS/README.md', 'CITADEL, QUAY, AUDIT, REPLAY, kaj sigelado.'],
+      ['03-EVIDENCE', '03-EVIDENCE/README.md', 'Pruvo, konfirmo, kaj evidenta strukturo.'],
+      ['04-GOVERNANCE', '04-GOVERNANCE/README.md', 'Reguloj de ŝanĝo, gardado, kaj evoluaj limoj.'],
+      ['05-OPERATIONS', '05-OPERATIONS/README.md', 'Deplojo, federacio, kaj operacia protokolo.'],
+      ['06-INTELLIGENCE', '06-INTELLIGENCE/README.md', 'Regata inteligenteco kaj decidaj kadroj.'],
+      ['07-IMMORTALITY', '07-IMMORTALITY/README.md', 'Atestado, kontinueco, kaj OMEGA-partoj.'],
+      ['08-IMPLEMENTATION', '08-IMPLEMENTATION/README.md', 'Kodo, skemoj, testoj, kaj ekzemploj.'],
+      ['DOCS', 'DOCS/README.md', 'Terminaro, oftaj demandoj, kaj stato-referenco.']
+    ],
+    emerald: [
+      ['emerald/README', 'emerald/README.md', 'Kunigita Smeralda legordo kaj laborspaca strukturo.'],
+      ['EMERALD-IMPERIUM-001', 'EMERALD-IMPERIUM-001.md', 'Domajna identeco kaj aŭtoritata limo.'],
+      ['GO-EMERALD-010', 'GO-EMERALD-010.md', 'Smeralda konstitucio kaj artikola bazo.'],
+      ['GO-EMERALD-009', 'GO-EMERALD-009.md', 'Minerala Monda Fabriko kaj fiasko-fermitaj pordegoj.'],
+      ['GO-EMERALD-036', 'GO-EMERALD-036.md', 'Etendo pri persona aparata konstelacio.']
+    ]
+  }
+};
 
-const saveControlState = () => {
-  localStorage.setItem('palaco-control-state', JSON.stringify(controlState));
+const fallbackRepos = [
+  {
+    name: 'PALACO-Citadel',
+    html_url: 'https://github.com/Maurits-pixe/PALACO-Citadel',
+    description: 'Current repository and website portal.',
+    language: 'JavaScript',
+    stargazers_count: 0,
+    open_issues_count: 1,
+    updated_at: '2026-09-11T11:55:14Z'
+  },
+  {
+    name: 'PALACO',
+    html_url: 'https://github.com/Maurits-pixe/PALACO',
+    description: 'Main PALACO repository.',
+    language: 'Markdown',
+    stargazers_count: 1,
+    open_issues_count: 20,
+    updated_at: '2026-09-10T19:39:52Z'
+  },
+  {
+    name: 'PALACO-INDUSTRIE',
+    html_url: 'https://github.com/Maurits-pixe/PALACO-INDUSTRIE',
+    description: 'Featured PALACO industrial hub.',
+    language: '—',
+    stargazers_count: 0,
+    open_issues_count: 0,
+    updated_at: '2026-09-01T00:00:00Z'
+  },
+  {
+    name: 'palaco-genesis',
+    html_url: 'https://github.com/Maurits-pixe/palaco-genesis',
+    description: 'Featured PALACO genesis hub.',
+    language: '—',
+    stargazers_count: 0,
+    open_issues_count: 0,
+    updated_at: '2026-09-01T00:00:00Z'
+  }
+];
+
+let currentLanguage = localStorage.getItem('palaco-language') || 'en';
+let repoState = {
+  repos: [],
+  source: 'fallback'
 };
 
 const getLocale = () => {
@@ -187,124 +347,260 @@ const getLocale = () => {
   return 'en-US';
 };
 
+const formatDateTime = (value) => {
+  if (!value) return '—';
+  return new Intl.DateTimeFormat(getLocale(), {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(new Date(value));
+};
+
+const createCard = (tagName, className, innerHTML) => {
+  const el = document.createElement(tagName);
+  el.className = className;
+  el.innerHTML = innerHTML;
+  return el;
+};
+
+const renderHeroStats = () => {
+  if (!heroStats) return;
+  const stats = [
+    ['08', translations[currentLanguage].statLayers],
+    ['26', translations[currentLanguage].statEmerald],
+    [String(repoState.repos.length), translations[currentLanguage].statRepos]
+  ];
+
+  heroStats.replaceChildren(
+    ...stats.map(([value, label]) => createCard('div', 'stat-card', `<strong>${value}</strong><span>${label}</span>`))
+  );
+};
+
+const renderOverview = () => {
+  if (!overviewGrid) return;
+  overviewGrid.replaceChildren(
+    ...content[currentLanguage].overview.map((item) =>
+      createCard('article', 'card info-card', `<h3>${item.title}</h3><p>${item.body}</p>`)
+    )
+  );
+};
+
+const renderHubs = () => {
+  if (!hubGrid) return;
+  hubGrid.replaceChildren(
+    ...content[currentLanguage].hubs.map((item) => {
+      const card = createCard(
+        'a',
+        'card hub-card',
+        `<h3>${item.title}</h3><p>${item.body}</p><span class="card-link">${translations[currentLanguage].cardOpen}</span>`
+      );
+      card.href = item.href;
+      card.target = '_blank';
+      card.rel = 'noopener noreferrer';
+      return card;
+    })
+  );
+};
+
+const renderMap = (target, items) => {
+  if (!target) return;
+  target.replaceChildren(
+    ...items.map(([title, href, body]) => {
+      const card = createCard(
+        'a',
+        'card map-card',
+        `<h3>${title}</h3><p>${body}</p><span class="card-link">${translations[currentLanguage].cardOpen}</span>`
+      );
+      card.href = href;
+      return card;
+    })
+  );
+};
+
+const getFilteredRepos = () => {
+  const query = repoSearch?.value.trim().toLowerCase() || '';
+  if (!query) return repoState.repos;
+  return repoState.repos.filter((repo) => {
+    const haystack = [repo.name, repo.description, repo.language].filter(Boolean).join(' ').toLowerCase();
+    return haystack.includes(query);
+  });
+};
+
 const updateSyncOutput = () => {
-  const lastSync = localStorage.getItem('palaco-last-sync');
   if (!syncOutput) return;
-  if (!lastSync) {
-    syncOutput.textContent = '';
+  const lastSync = localStorage.getItem(LAST_SYNC_KEY);
+  syncOutput.textContent = lastSync ? `${translations[currentLanguage].lastSync} ${formatDateTime(lastSync)}` : '';
+};
+
+const updateGithubStatus = (visibleRepos) => {
+  if (!githubStatus) return;
+
+  const sourceMessage =
+    repoState.source === 'live'
+      ? translations[currentLanguage].cacheStatusLive
+      : repoState.source === 'cache'
+        ? translations[currentLanguage].cacheStatusCached
+        : translations[currentLanguage].cacheStatusFallback;
+
+  const countMessage = visibleRepos.length
+    ? `${translations[currentLanguage].liveCount} ${visibleRepos.length}.`
+    : translations[currentLanguage].cacheStatusEmpty;
+
+  githubStatus.textContent = `${sourceMessage} ${countMessage} ${translations[currentLanguage].privateNote}`;
+};
+
+const renderRepos = () => {
+  if (!repoGrid) return;
+  const repos = getFilteredRepos();
+
+  if (!repos.length) {
+    repoGrid.replaceChildren(
+      createCard('article', 'card repo-card repo-empty', `<h3>${translations[currentLanguage].cacheStatusEmpty}</h3>`)
+    );
+    updateGithubStatus(repos);
+    renderHeroStats();
     return;
   }
 
-  const formatter = new Intl.DateTimeFormat(getLocale(), {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  });
-  syncOutput.textContent = `${translations[currentLanguage].lastSync} ${formatter.format(new Date(lastSync))}`;
+  repoGrid.replaceChildren(
+    ...repos.map((repo) => {
+      const card = createCard(
+        'article',
+        'card repo-card',
+        `
+          <div class="repo-card-head">
+            <h3>${repo.name}</h3>
+            <span class="repo-language">${repo.language || '—'}</span>
+          </div>
+          <p>${repo.description || '—'}</p>
+          <dl class="repo-meta">
+            <div><dt>${translations[currentLanguage].cardUpdated}</dt><dd>${formatDateTime(repo.updated_at)}</dd></div>
+            <div><dt>${translations[currentLanguage].cardIssues}</dt><dd>${repo.open_issues_count ?? 0}</dd></div>
+            <div><dt>${translations[currentLanguage].cardStars}</dt><dd>${repo.stargazers_count ?? 0}</dd></div>
+          </dl>
+          <a class="card-link" href="${repo.html_url}" target="_blank" rel="noopener noreferrer">${translations[currentLanguage].cardOpen}</a>
+        `
+      );
+      return card;
+    })
+  );
+
+  updateGithubStatus(repos);
+  renderHeroStats();
 };
 
-const updateControlUI = () => {
-  if (industryStatus) {
-    industryStatus.textContent = controlState.industry
-      ? translations[currentLanguage].statusActive
-      : translations[currentLanguage].statusStandby;
-  }
+const applyTranslations = () => {
+  document.documentElement.lang = currentLanguage;
 
-  if (citadelStatus) {
-    citadelStatus.textContent = controlState.citadel
-      ? translations[currentLanguage].statusActive
-      : translations[currentLanguage].statusStandby;
-  }
-
-  controlButtons.forEach((button) => {
-    const target = button.dataset.controlTarget;
-    const enabled = Boolean(controlState[target]);
-    button.textContent = enabled ? translations[currentLanguage].deactivate : translations[currentLanguage].activate;
-    button.classList.toggle('is-active', enabled);
+  document.querySelectorAll('[data-i18n]').forEach((el) => {
+    const key = el.getAttribute('data-i18n');
+    const value = translations[currentLanguage][key];
+    if (value) el.textContent = value;
   });
 
+  document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    const value = translations[currentLanguage][key];
+    if (value) el.setAttribute('placeholder', value);
+  });
+
+  languageButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.lang === currentLanguage));
+};
+
+const rerenderAll = () => {
+  applyTranslations();
+  renderHeroStats();
+  renderOverview();
+  renderHubs();
+  renderMap(canonGrid, content[currentLanguage].canon);
+  renderMap(emeraldGrid, content[currentLanguage].emerald);
+  renderRepos();
   updateSyncOutput();
+};
+
+const normalizeRepo = (repo) => ({
+  name: repo.name,
+  html_url: repo.html_url,
+  description: repo.description,
+  language: repo.language || '—',
+  stargazers_count: repo.stargazers_count || 0,
+  open_issues_count: repo.open_issues_count || 0,
+  updated_at: repo.updated_at
+});
+
+const loadCachedRepos = () => {
+  try {
+    const raw = localStorage.getItem(REPO_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed.repos) ? parsed.repos : null;
+  } catch {
+    return null;
+  }
+};
+
+const saveCachedRepos = (repos) => {
+  localStorage.setItem(REPO_CACHE_KEY, JSON.stringify({ repos }));
+};
+
+const fetchGitHubRepos = async ({ force = false } = {}) => {
+  if (githubStatus) githubStatus.textContent = translations[currentLanguage].syncing;
+
+  try {
+    const response = await fetch(`https://api.github.com/users/${ACCOUNT_NAME}/repos?per_page=100&sort=updated`, {
+      headers: {
+        Accept: 'application/vnd.github+json'
+      },
+      cache: force ? 'no-store' : 'default'
+    });
+
+    if (!response.ok) {
+      throw new Error(`GitHub request failed with status ${response.status}`);
+    }
+
+    const payload = await response.json();
+    const repos = payload
+      .filter((repo) => !repo.fork)
+      .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
+      .map(normalizeRepo);
+
+    repoState = {
+      repos: repos.length ? repos : fallbackRepos,
+      source: repos.length ? 'live' : 'fallback'
+    };
+
+    saveCachedRepos(repoState.repos);
+    localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
+  } catch {
+    const cachedRepos = loadCachedRepos();
+    repoState = cachedRepos?.length
+      ? { repos: cachedRepos, source: 'cache' }
+      : { repos: fallbackRepos, source: 'fallback' };
+  }
+
+  updateSyncOutput();
+  renderRepos();
 };
 
 const setLanguage = (lang) => {
   if (!translations[lang]) return;
   currentLanguage = lang;
   localStorage.setItem('palaco-language', lang);
-  document.documentElement.lang = lang;
-
-  document.querySelectorAll('[data-i18n]').forEach((el) => {
-    const key = el.getAttribute('data-i18n');
-    const value = translations[lang][key];
-    if (value) el.textContent = value;
-  });
-
-  document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
-    const key = el.getAttribute('data-i18n-placeholder');
-    const value = translations[lang][key];
-    if (value) el.setAttribute('placeholder', value);
-  });
-
-  languageButtons.forEach((btn) => {
-    btn.classList.toggle('active', btn.dataset.lang === lang);
-  });
-
-  const previousGoal = localStorage.getItem('palaco-goal');
-  if (previousGoal && output) {
-    output.textContent = `${translations[lang].latestGoal} ${previousGoal}`;
-  }
-
-  updateControlUI();
+  rerenderAll();
 };
 
 languageButtons.forEach((button) => {
   button.addEventListener('click', () => setLanguage(button.dataset.lang));
 });
 
-form?.addEventListener('submit', (event) => {
-  event.preventDefault();
-  const goal = input?.value.trim();
-  if (!goal || !output) return;
-
-  output.textContent = `${translations[currentLanguage].goalSet} ${goal}`;
-  localStorage.setItem('palaco-goal', goal);
-  form.reset();
-});
-
-controlButtons.forEach((button) => {
-  button.addEventListener('click', () => {
-    const target = button.dataset.controlTarget;
-    if (!target || !(target in controlState)) return;
-    controlState[target] = !controlState[target];
-    saveControlState();
-    updateControlUI();
-  });
-});
-
-syncBtn?.addEventListener('click', () => {
-  localStorage.setItem('palaco-last-sync', new Date().toISOString());
-  updateSyncOutput();
-});
-
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (event) => {
-  event.preventDefault();
-  deferredPrompt = event;
-  if (installBtn) installBtn.hidden = false;
-});
-
-installBtn?.addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  installBtn.hidden = true;
-});
+repoSearch?.addEventListener('input', () => renderRepos());
+syncBtn?.addEventListener('click', () => fetchGitHubRepos({ force: true }));
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
 }
 
-setLanguage(currentLanguage);
+rerenderAll();
+fetchGitHubRepos();

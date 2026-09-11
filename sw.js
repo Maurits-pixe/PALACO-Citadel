@@ -1,4 +1,4 @@
-const CACHE_NAME = 'palaco-shell-v1';
+const CACHE_NAME = 'palaco-universe-shell-v2';
 const SHELL_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
