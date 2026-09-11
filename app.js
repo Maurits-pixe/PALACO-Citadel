@@ -358,11 +358,29 @@ const formatDateTime = (value) => {
   }).format(new Date(value));
 };
 
-const createCard = (tagName, className, innerHTML) => {
+const createCard = (tagName, className) => {
   const el = document.createElement(tagName);
   el.className = className;
-  el.innerHTML = innerHTML;
   return el;
+};
+
+const createTextElement = (tagName, text, className = '') => {
+  const el = document.createElement(tagName);
+  if (className) el.className = className;
+  el.textContent = text;
+  return el;
+};
+
+const setExternalLink = (anchor, href) => {
+  try {
+    const url = new URL(href, window.location.origin);
+    if (!['http:', 'https:'].includes(url.protocol)) throw new Error('Invalid protocol');
+    anchor.href = url.href;
+  } catch {
+    anchor.href = '#';
+  }
+  anchor.target = '_blank';
+  anchor.rel = 'noopener noreferrer';
 };
 
 const renderHeroStats = () => {
@@ -373,17 +391,21 @@ const renderHeroStats = () => {
     [String(repoState.repos.length), translations[currentLanguage].statRepos]
   ];
 
-  heroStats.replaceChildren(
-    ...stats.map(([value, label]) => createCard('div', 'stat-card', `<strong>${value}</strong><span>${label}</span>`))
-  );
+  heroStats.replaceChildren(...stats.map(([value, label]) => {
+    const card = createCard('div', 'stat-card');
+    card.append(createTextElement('strong', value), createTextElement('span', label));
+    return card;
+  }));
 };
 
 const renderOverview = () => {
   if (!overviewGrid) return;
   overviewGrid.replaceChildren(
-    ...content[currentLanguage].overview.map((item) =>
-      createCard('article', 'card info-card', `<h3>${item.title}</h3><p>${item.body}</p>`)
-    )
+    ...content[currentLanguage].overview.map((item) => {
+      const card = createCard('article', 'card info-card');
+      card.append(createTextElement('h3', item.title), createTextElement('p', item.body));
+      return card;
+    })
   );
 };
 
@@ -391,14 +413,13 @@ const renderHubs = () => {
   if (!hubGrid) return;
   hubGrid.replaceChildren(
     ...content[currentLanguage].hubs.map((item) => {
-      const card = createCard(
-        'a',
-        'card hub-card',
-        `<h3>${item.title}</h3><p>${item.body}</p><span class="card-link">${translations[currentLanguage].cardOpen}</span>`
+      const card = createCard('a', 'card hub-card');
+      card.append(
+        createTextElement('h3', item.title),
+        createTextElement('p', item.body),
+        createTextElement('span', translations[currentLanguage].cardOpen, 'card-link')
       );
-      card.href = item.href;
-      card.target = '_blank';
-      card.rel = 'noopener noreferrer';
+      setExternalLink(card, item.href);
       return card;
     })
   );
@@ -408,12 +429,13 @@ const renderMap = (target, items) => {
   if (!target) return;
   target.replaceChildren(
     ...items.map(([title, href, body]) => {
-      const card = createCard(
-        'a',
-        'card map-card',
-        `<h3>${title}</h3><p>${body}</p><span class="card-link">${translations[currentLanguage].cardOpen}</span>`
+      const card = createCard('a', 'card map-card');
+      card.append(
+        createTextElement('h3', title),
+        createTextElement('p', body),
+        createTextElement('span', translations[currentLanguage].cardOpen, 'card-link')
       );
-      card.href = href;
+      setExternalLink(card, href);
       return card;
     })
   );
@@ -456,9 +478,9 @@ const renderRepos = () => {
   const repos = getFilteredRepos();
 
   if (!repos.length) {
-    repoGrid.replaceChildren(
-      createCard('article', 'card repo-card repo-empty', `<h3>${translations[currentLanguage].cacheStatusEmpty}</h3>`)
-    );
+    const emptyCard = createCard('article', 'card repo-card repo-empty');
+    emptyCard.append(createTextElement('h3', translations[currentLanguage].cacheStatusEmpty));
+    repoGrid.replaceChildren(emptyCard);
     updateGithubStatus(repos);
     renderHeroStats();
     return;
@@ -466,23 +488,29 @@ const renderRepos = () => {
 
   repoGrid.replaceChildren(
     ...repos.map((repo) => {
-      const card = createCard(
-        'article',
-        'card repo-card',
-        `
-          <div class="repo-card-head">
-            <h3>${repo.name}</h3>
-            <span class="repo-language">${repo.language || '—'}</span>
-          </div>
-          <p>${repo.description || '—'}</p>
-          <dl class="repo-meta">
-            <div><dt>${translations[currentLanguage].cardUpdated}</dt><dd>${formatDateTime(repo.updated_at)}</dd></div>
-            <div><dt>${translations[currentLanguage].cardIssues}</dt><dd>${repo.open_issues_count ?? 0}</dd></div>
-            <div><dt>${translations[currentLanguage].cardStars}</dt><dd>${repo.stargazers_count ?? 0}</dd></div>
-          </dl>
-          <a class="card-link" href="${repo.html_url}" target="_blank" rel="noopener noreferrer">${translations[currentLanguage].cardOpen}</a>
-        `
+      const card = createCard('article', 'card repo-card');
+      const head = createCard('div', 'repo-card-head');
+      head.append(
+        createTextElement('h3', repo.name),
+        createTextElement('span', repo.language || '—', 'repo-language')
       );
+
+      const description = createTextElement('p', repo.description || '—');
+      const meta = createCard('dl', 'repo-meta');
+      [
+        [translations[currentLanguage].cardUpdated, formatDateTime(repo.updated_at)],
+        [translations[currentLanguage].cardIssues, String(repo.open_issues_count ?? 0)],
+        [translations[currentLanguage].cardStars, String(repo.stargazers_count ?? 0)]
+      ].forEach(([label, value]) => {
+        const wrap = document.createElement('div');
+        wrap.append(createTextElement('dt', label), createTextElement('dd', value));
+        meta.append(wrap);
+      });
+
+      const link = createTextElement('a', translations[currentLanguage].cardOpen, 'card-link');
+      setExternalLink(link, repo.html_url);
+
+      card.append(head, description, meta, link);
       return card;
     })
   );

@@ -314,9 +314,6 @@ button:focus-visible {
 }
 
 @media (max-width: 780px) {
-  .hero-top,
-  .hero-actions,
-  .repo-toolbar,
   .hero-stats,
   .info-grid,
   .hub-grid,
