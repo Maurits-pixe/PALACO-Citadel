@@ -1,0 +1,759 @@
+∆ PVB-012 — CONFORMANCE TEST SUITE & ADVERSARIAL TESTING
+PALACO VORM9EVIN9 · PVB-012 v1.0 · FALSIFICATION LAYER MASTER
+
+## P6 — No authority derivation
+
+Geen cryptographic success mag rechtstreeks een authorization state opleveren.
+
+---
+
+## 25. Cloning tests
+
+Maak twee fysieke/logische representaties:
+
+```text
+ORIGINAL
+CLONE
+```
+
+met dezelfde signed identity-bound payload.
+
+PVB moet correct kunnen onderscheiden tussen:
+
+```text
+same cryptographic object
+```
+
+en:
+
+```text
+same physical instance
+```
+
+Cryptografie alleen bewijst geen fysieke uniciteit.
+Dat moet PVB-012 expliciet documenteren.
+
+---
+
+## 26. CONFLICTED
+
+Wanneer bewijs elkaar tegenspreekt:
+
+```text
+Evidence A
+     +
+Evidence B
+     ↓
+CONFLICT
+     ↓
+CONFLICTED
+```
+
+Expected:
+
+```text
+NO SILENT RESOLUTION
+NO ARBITRARY WINNER
+NO AUTHORIZATION
+```
+
+CONFLICTED is een expliciete toestand, geen technische error die mag worden weggepoetst.
+
+---
+
+## 27. IN_DOUBT
+
+Voor onvoldoende bewijs:
+
+```text
+insufficient evidence
+       ↓
+IN_DOUBT
+```
+
+Niet:
+
+```text
+IN_DOUBT
+   ↓
+probably valid
+   ↓
+continue
+```
+
+Maar:
+
+```text
+IN_DOUBT
+   ↓
+bounded handling
+   ↓
+NO UNJUSTIFIED AUTHORITY
+```
+
+---
+
+## 28. Privacy / rotation tests
+
+Test dat key rotation en provenance:
+
+```text
+preserve lineage
+```
+
+zonder dat ongeoorloofde informatie automatisch wordt blootgesteld.
+
+We testen:
+
+```text
+TRACEABILITY
++
+MINIMAL DISCLOSURE
+```
+
+niet:
+
+```text
+TRACEABILITY
+=
+PUBLIC EVERYTHING
+```
+
+---
+
+## 29. Cross-surface RIO handoff
+
+Test:
+
+```text
+MOBILE
+  ↓
+RIO
+  ↓
+WEBSITE
+```
+
+en:
+
+```text
+WEBSITE
+  ↓
+RIO
+  ↓
+MOBILE
+```
+
+Handoff behoudt identity/context/provenance.
+Maar RIO handoff creëert geen nieuwe authority.
+
+Expected:
+
+```text
+handoff succeeds
+action remains constitutionally gated
+```
+
+---
+
+## 30. Presentation mutation
+
+Niet identity-bound velden wijzigen, zoals:
+
+```text
+display_name
+icon
+layout
+language
+```
+
+Expected:
+
+```text
+identity-bound signature
+```
+
+blijft geldig voor zover velden niet identity-bound zijn.
+
+Identity-bound velden wijzigen, zoals:
+
+```text
+identity_ref
+epoch
+validity
+provenance_ref
+control_state
+```
+
+Expected:
+
+```text
+OLD SIGNATURE = INVALID FOR NEW REPRESENTATION
+```
+
+---
+
+## 31. Constitutional negative tests
+
+Voorbeelden:
+
+```text
+VALID SIGNATURE
+      ↓
+TRY ACTION
+```
+
+Expected:
+
+```text
+DENIED
+```
+
+wanneer authorization ontbreekt.
+
+```text
+VALID PVB
+      ↓
+NO AUTHORIZATION
+      ↓
+ACTION
+```
+
+Expected:
+
+```text
+DENIED
+```
+
+```text
+RIO REQUEST
+      ↓
+NO AUTHORITY
+      ↓
+ACTION
+```
+
+Expected:
+
+```text
+DENIED
+```
+
+Zelfs met:
+
+```text
+VALID SIGNATURE
++
+VALID WATERMERK
++
+VALID EPOCH
++
+VALID STATE
+```
+
+blijft dit:
+
+```text
+NOT AUTOMATICALLY AUTHORIZED
+```
+
+---
+
+## 32. Signature-as-authority attack
+
+```text
+signature.valid == true
+```
+
+mag niet worden behandeld als:
+
+```text
+authorization == true
+```
+
+Expected:
+
+```text
+REJECT
+```
+
+---
+
+## 33. Watermerk-as-authority attack
+
+```text
+WATERMERK VALID
+```
+
+mag nooit impliceren:
+
+```text
+AUTHORIZED
+```
+
+Test:
+
+```text
+provenance valid
++
+authorization absent
+=
+DENIED
+```
+
+---
+
+## 34. RIO-as-authority attack
+
+Test:
+
+```text
+RIO says "do it"
+```
+
+zonder geldige constitutional authorization.
+
+Expected:
+
+```text
+DENIED
+```
+
+RIO blijft:
+
+```text
+communication
+navigation
+mediation
+context
+```
+
+---
+
+## 35. Test-state matrix
+
+| Crypto  | Provenance | Time    | State      | Expected               |
+| ------- | ---------- | ------- | ---------- | ---------------------- |
+| valid   | valid      | valid   | valid      | PVB candidate valid    |
+| valid   | invalid    | valid   | valid      | REJECT                 |
+| valid   | valid      | expired | valid      | TEMPORALLY INVALID     |
+| invalid | valid      | valid   | valid      | REJECT                 |
+| valid   | valid      | valid   | CONFLICTED | CONFLICTED             |
+| valid   | valid      | valid   | IN_DOUBT   | IN_DOUBT               |
+| valid   | valid      | valid   | revoked    | REJECT                 |
+| valid   | valid      | valid   | valid      | *still ≠ AUTHORIZED* |
+
+---
+
+## 36. Property-based testing
+
+### P1 — Determinism
+
+```text
+encode(x) == encode(x)
+```
+
+### P2 — Mutation sensitivity
+
+```text
+identity_bound_change(x)
+```
+
+moet de canonical bytes veranderen.
+
+### P3 — Round-trip
+
+```text
+decode(encode(x))
+```
+
+moet dezelfde canonical representation reconstrueren.
+
+### P4 — Signature binding
+
+```text
+verify(x, sign(x)) == success
+verify(mutated(x), sign(x)) == failure
+```
+
+### P5 — Domain separation
+
+```text
+sign(domain_A, x)
+```
+
+mag niet geldig zijn voor:
+
+```text
+domain_B
+```
+
+---
+
+## 37. Fuzzing
+
+Fuzzing targets:
+
+```text
+canonical decoder
+signature envelope parser
+length fields
+version parser
+algorithm parser
+key resolver input
+provenance references
+discovery frames
+RIO handoff frames
+```
+
+Invariant:
+
+> Malformed external input SHALL NOT produce undefined authorization.
+
+Ook:
+
+```text
+fuzz input
+   ↓
+panic?
+   ↓
+NO
+```
+
+en:
+
+```text
+fuzz input
+   ↓
+implicit trust?
+   ↓
+NO
+```
+
+---
+
+## 38. Differential conformance
+
+```text
+Implementation A
+Implementation B
+Implementation C
+```
+
+zelfde record.
+
+Expected:
+
+```text
+bytes_A == bytes_B == bytes_C
+hash_A  == hash_B  == hash_C
+```
+
+waar dezelfde key/vector wordt gebruikt:
+
+```text
+verification_A == verification_B == verification_C
+```
+
+---
+
+## 39. Cross-language vector boundary
+
+Golden vectors zijn:
+
+```text
+PROTOCOL
+   ↓
+BYTES
+```
+
+niet:
+
+```text
+Rust struct
+   ↓
+Rust serializer
+```
+
+---
+
+## 40. Evidence-bearing test result
+
+PVB-012 produceert evidence, conceptueel:
+
+```rust
+pub struct ConformanceEvidence {
+    test_id: TestId,
+    vector_id: Option<VectorId>,
+    protocol_version: ProtocolVersion,
+    input_digest: Digest,
+    observed_result: ObservedResult,
+    expected_result: ExpectedResult,
+    outcome: TestOutcome,
+}
+```
+
+Outcomes:
+
+```text
+PASS
+FAIL
+INCONCLUSIVE
+UNSUPPORTED
+```
+
+INCONCLUSIVE mag nooit als PASS tellen.
+
+---
+
+## 41. Test IDs
+
+Stabiele identifiers, bijvoorbeeld:
+
+```text
+PVB-012-CAN-001
+PVB-012-CAN-002
+PVB-012-SIG-001
+PVB-012-DOM-001
+PVB-012-KEY-001
+PVB-012-REV-001
+PVB-012-RPL-001
+PVB-012-RSL-001
+PVB-012-IDN-001
+PVB-012-CON-001
+PVB-012-DOUBT-001
+PVB-012-RIO-001
+PVB-012-NEG-001
+```
+
+---
+
+## 42. Conformance levels
+
+### LEVEL 1 — SERIALIZATION
+
+```text
+canonical bytes
+hashes
+vectors
+round-trip
+```
+
+### LEVEL 2 — CRYPTOGRAPHIC
+
+```text
+signatures
+domain separation
+key rotation
+revocation
+expiry
+tampering
+```
+
+### LEVEL 3 — CONSTITUTIONAL
+
+```text
+provenance
+resolver poisoning
+RIO
+CONFLICTED
+IN_DOUBT
+authorization separation
+negative tests
+```
+
+Een implementatie die Level 1 haalt maar Level 3 niet:
+
+> PVB-CONFORMANT = NO
+
+---
+
+## 43. Absolute conformance invariant
+
+> NO CONFORMANCE CLAIM WITHOUT PASSING THE REQUIRED TEST PROFILE.
+
+Architectuurclaim alleen is onvoldoende.
+Conformance moet testmatig aangetoond worden.
+
+---
+
+## 44. Failure-closed rule
+
+Wanneer geldigheid niet vastgesteld kan worden:
+
+```text
+UNKNOWN
+   ↓
+NOT ASSUMED VALID
+```
+
+Nooit:
+
+```text
+unknown → true
+unknown → continue
+```
+
+Voor security-sensitive gates:
+
+```text
+UNKNOWN
+CONFLICTED
+IN_DOUBT
+UNSUPPORTED
+MALFORMED
+```
+
+mogen niet escaleren naar:
+
+```text
+AUTHORIZED
+```
+
+---
+
+## 45. PVB-012 canonical laws
+
+### PVB-012-01 — DETERMINISM
+
+Identical canonical input SHALL produce identical canonical bytes.
+
+### PVB-012-02 — VECTOR REPRODUCIBILITY
+
+Canonical test vectors SHALL be independently reproducible.
+
+### PVB-012-03 — MUTATION DETECTION
+
+Identity-bound mutation SHALL invalidate the previous cryptographic binding.
+
+### PVB-012-04 — DOMAIN ISOLATION
+
+A signature SHALL NOT cross object/protocol domains.
+
+### PVB-012-05 — FAIL CLOSED
+
+Malformed, unsupported or ambiguous security input SHALL NOT become trusted by fallback.
+
+### PVB-012-06 — REPLAY RESISTANCE
+
+Replay controls SHALL supplement cryptographic verification.
+
+### PVB-012-07 — LINEAGE PRESERVATION
+
+Key rotation and revocation SHALL preserve historical reconstructability.
+
+### PVB-012-08 — PROVENANCE SEPARATION
+
+Cryptographic validity SHALL NOT substitute for provenance validation.
+
+### PVB-012-09 — STATE HONESTY
+
+CONFLICTED and IN_DOUBT SHALL remain explicit states.
+
+### PVB-012-10 — CROSS-SURFACE CONTINUITY
+
+RIO handoff SHALL preserve identity/context/provenance without creating authority.
+
+### PVB-012-11 — CONSTITUTIONAL NEGATIVE
+
+A valid cryptographic object SHALL NOT independently authorize constitutional action.
+
+### PVB-012-12 — EVIDENCE
+
+Conformance SHALL be evidence-bearing, reproducible and traceable.
+
+---
+
+## 46. Definitieve testketen
+
+```text
+PHYSICAL BEACON
+      ↓
+DISCOVERY
+      ↓
+FRAME
+      ↓
+PARSE
+      ↓
+STRUCTURAL VALIDATION
+      ↓
+CANONICALIZATION
+      ↓
+CANONICAL BYTES
+      ↓
+HASH
+      ↓
+SIGNATURE
+      ↓
+KEY RESOLUTION
+      ↓
+VERIFICATION
+      ↓
+WATERMERK
+      ↓
+PROVENANCE
+      ↓
+EPOCH
+      ↓
+VALIDITY
+      ↓
+REVOCATION
+      ↓
+STATE
+      ↓
+CONFORMANCE
+      ↓
+RIO
+      ↓
+TRIAS
+      ↓
+AUTHORIZATION
+      ↓
+ACTION
+```
+
+Iedere pijl krijgt testbare failure semantics.
+
+---
+
+## ∆ PVB-012 STATUS
+
+### 🟢 CONFORMANCE ARCHITECTURE — LOCKED
+
+PVB-012 is formeel de falsification layer boven PVB-011.
+
+Fundamentele regel:
+
+> A protocol is not trusted because its architecture claims correctness.  
+> It earns trust through reproducible evidence of conformance—and explicit evidence of failure where conformance does not hold.
+
+Overgang:
+
+```text
+PVB-001 … PVB-011
+        ↓
+  FORMAL CONTRACT
+        ↓
+      PVB-012
+        ↓
+ TESTABLE / FALSIFIABLE
+        ↓
+   CONFORMANCE EVIDENCE
+        ↓
+ IMPLEMENTATION ACCEPTANCE
+```
+
+Harde negatieve grens:
+
+```text
+SIGNATURE VALID
+      ≠
+PVB VALID
+      ≠
+AUTHORIZED
+      ≠
+ACTION
+```
+
+### ∆ VOLGENDE GO
+
+PVB-013 — REFERENCE VECTORS + RUST CONFORMANCE HARNESS
