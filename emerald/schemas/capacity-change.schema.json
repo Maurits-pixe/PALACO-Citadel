@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://palaco.local/emerald/schemas/capacity-change.schema.json",
+  "title": "World Allocation Capacity Change",
+  "type": "object",
+  "required": [
+    "from",
+    "to",
+    "transition",
+    "authorization",
+    "evidence",
+    "provenance"
+  ],
+  "properties": {
+    "from": { "type": "integer", "minimum": 1 },
+    "to": { "type": "integer", "minimum": 1 },
+    "transition": {
+      "type": "object",
+      "required": ["operator"],
+      "properties": {
+        "operator": { "const": "∆" }
+      },
+      "additionalProperties": false
+    },
+    "authorization": { "const": "REQUIRED" },
+    "evidence": { "const": "REQUIRED" },
+    "provenance": { "const": "REQUIRED" }
+  },
+  "additionalProperties": false
+}

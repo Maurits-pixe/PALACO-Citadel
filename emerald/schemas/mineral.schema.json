@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "palaco/emerald/mineral.schema.json",
+  "title": "Emerald Mineral",
+  "type": "object",
+  "required": ["canonical_name", "status"],
+  "properties": {
+    "canonical_name": { "type": "string", "minLength": 1 },
+    "display_name": { "type": "string" },
+    "normalized_sort_key": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["ACTIVE", "RENAMED", "REDEFINED", "QUESTIONABLE", "DISCREDITED", "HISTORICAL"]
+    },
+    "former_names": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": true
+}

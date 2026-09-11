@@ -1,0 +1,39 @@
+{
+  "constitution_id": "EIC-001",
+  "version": "v1.0",
+  "title": "EMERALD IMPERIUM CONSTITUTION",
+  "hierarchy": [
+    "CONSTITUTION",
+    "GOVERNANCE",
+    "POLICY",
+    "ACTION"
+  ],
+  "articles": [
+    { "id": "EIC-001.1", "title": "IDENTITY", "rule": "Each canonical mineral species may map to one unique immutable Emerald World ID." },
+    { "id": "EIC-002", "title": "ONE MINERAL, ONE WORLD", "rule": "One canonical mineral identity maps to one Emerald World ID; layers remain separated." },
+    { "id": "EIC-003", "title": "THE 4444 PRINCIPLE", "rule": "4444 is capacity, not registry cardinality; excess records are preserved for expansion." },
+    { "id": "EIC-004", "title": "EXPANSION", "rule": "New minerals and new slots are independent constitutional events." },
+    { "id": "EIC-005", "title": "NO TRUNCATION", "rule": "Capacity limits never justify identity deletion." },
+    { "id": "EIC-006", "title": "ALPHABETICAL ORDER", "rule": "Initial alphabetical ordering must not override immutable identity." },
+    { "id": "EIC-007", "title": "IMMUTABLE IDENTITY", "rule": "EW IDs are permanent and never recycled." },
+    { "id": "EIC-008", "title": "NOMENCLATURE", "rule": "Rename transitions preserve world identity and lineage." },
+    { "id": "EIC-009", "title": "PROVENANCE", "rule": "Canonical worlds require source authority, epoch, and source reference." },
+    { "id": "EIC-010", "title": "WATERMERK", "rule": "Each world has a Watermerk marker; Watermerk is not authority." },
+    { "id": "EIC-011", "title": "HOLOGRAM", "rule": "Hologram is an authenticity layer, not truth, authority, or sovereignty." },
+    { "id": "EIC-012", "title": "IMMORTAL", "rule": "Historical lineage remains reconstructable." },
+    { "id": "EIC-013", "title": "UNCERTAINTY", "rule": "IN_DOUBT and CONFLICTED states are preserved when certainty is unsupported." },
+    { "id": "EIC-014", "title": "Z.A.N.D.", "rule": "Determine first, never infer canonical identity from guesses." },
+    { "id": "EIC-015", "title": "RELATIONSHIPS", "rule": "Relation edges must be typed and evidence-bound." },
+    { "id": "EIC-016", "title": "CITADEL", "rule": "Citadel is context and interaction infrastructure, not mineral identity." },
+    { "id": "EIC-017", "title": "ELIXERS", "rule": "Elixers may explore and verify but may not authorize, govern, command, or claim sovereignty." },
+    { "id": "EIC-018", "title": "ALLOCATION", "rule": "Slot allocation is mutable; world identity is immutable." },
+    { "id": "EIC-019", "title": "∆ TRANSITIONS", "rule": "Meaningful transitions require context, evidence, decision, authorization, and traceability." },
+    { "id": "EIC-020", "title": "REVOKE", "rule": "Revoke may change allocation state but never deletes world identity." },
+    { "id": "EIC-021", "title": "CEFCG", "rule": "Evidence finality states remain explicitly separated." },
+    { "id": "EIC-022", "title": "NO MINERAL SOVEREIGNTY", "rule": "No mineral-world grants political, constitutional, sovereignty, or command authority." },
+    { "id": "EIC-023", "title": "PALACO SUPREMACY", "rule": "PALACO Constitution outranks Emerald constitution, governance, policy, and action." },
+    { "id": "EIC-024", "title": "EXPANSION HORIZON", "rule": "Expansion capability is open-ended and remains under constitutional control." },
+    { "id": "EIC-025", "title": "THE LIVING EMERALD", "rule": "Evolution is allowed, but evolution must not outrank constitution." }
+  ],
+  "canonical_sentence": "THE EMERALD IMPERIUM SHALL NEVER BE LIMITED BY THE NUMBER OF WORLDS IT CURRENTLY HAS THE CAPACITY TO DISPLAY."
+}

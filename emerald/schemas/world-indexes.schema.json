@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://palaco.local/emerald/schemas/world-indexes.schema.json",
+  "title": "Emerald Dual Indexes",
+  "type": "object",
+  "required": [
+    "source_epoch",
+    "canonical_name_index",
+    "immutable_world_index",
+    "mineral_id_index",
+    "world_slot_index",
+    "former_name_index",
+    "source_reference_index"
+  ],
+  "properties": {
+    "source_epoch": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}$"
+    },
+    "canonical_name_index": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "canonical_name",
+          "world_id"
+        ],
+        "properties": {
+          "canonical_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "world_id": {
+            "type": "string",
+            "pattern": "^EW-[0-9]{4,}$"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "immutable_world_index": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "world_id",
+          "canonical_name"
+        ],
+        "properties": {
+          "world_id": {
+            "type": "string",
+            "pattern": "^EW-[0-9]{4,}$"
+          },
+          "canonical_name": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "mineral_id_index": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "mineral_id",
+          "world_id"
+        ],
+        "properties": {
+          "mineral_id": {
+            "type": "string",
+            "pattern": "^MIN-[0-9]{4,}$"
+          },
+          "world_id": {
+            "type": "string",
+            "pattern": "^EW-[0-9]{4,}$"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "world_slot_index": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "world_id",
+          "world_slot"
+        ],
+        "properties": {
+          "world_id": {
+            "type": "string",
+            "pattern": "^EW-[0-9]{4,}$"
+          },
+          "world_slot": {
+            "type": ["string", "null"],
+            "pattern": "^OW-[0-9]{4,}$"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "former_name_index": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "former_name",
+          "world_id"
+        ],
+        "properties": {
+          "former_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "world_id": {
+            "type": "string",
+            "pattern": "^EW-[0-9]{4,}$"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "source_reference_index": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "source_reference",
+          "world_id"
+        ],
+        "properties": {
+          "source_reference": {
+            "type": "string",
+            "minLength": 1
+          },
+          "world_id": {
+            "type": "string",
+            "pattern": "^EW-[0-9]{4,}$"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "palaco/emerald/provenance.schema.json",
+  "title": "Emerald Provenance",
+  "type": "object",
+  "required": ["source_verified", "source", "epoch"],
+  "properties": {
+    "source_verified": { "type": "boolean" },
+    "source": { "type": "string" },
+    "epoch": { "type": "string" },
+    "approval_reference": { "type": ["string", "null"] },
+    "evidence_state": {
+      "type": "string",
+      "enum": ["OBSERVED", "ATTESTED", "PROVEN", "CONFIRMED", "FINAL", "DISPUTED", "CONFLICTED", "IN_DOUBT"]
+    }
+  },
+  "additionalProperties": true
+}
