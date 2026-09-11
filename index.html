@@ -176,10 +176,29 @@
 
         <article class="card">
           <h3 data-i18n="authorityTitle">Authority boundaries</h3>
-          <ul>
-            <li data-i18n="youCan">You can</li>
-            <li data-i18n="reviewRequired">Review required</li>
-            <li data-i18n="notAllowed">Not allowed</li>
+          <p data-i18n="authorityIntro">Who may do what, why, and under which boundaries.</p>
+          <ul class="authority-matrix">
+            <li class="authority-row">
+              <p><strong data-i18n="authorityWhoLabel">Who</strong>: <span data-i18n="authorityWhoHolder">Holder</span></p>
+              <p><strong data-i18n="authorityWhatLabel">What</strong>: <span data-i18n="authorityWhatHolder">Can execute own approved actions</span></p>
+              <p><strong data-i18n="authorityWhyLabel">Why</strong>: <span data-i18n="authorityWhyHolder">Identity-bound ownership</span></p>
+              <p><strong data-i18n="authorityBoundaryLabel">Boundary</strong>: <span data-i18n="authorityBoundaryHolder">Only within granted scope</span></p>
+              <p><strong data-i18n="authorityConditionLabel">Conditions</strong>: <span data-i18n="authorityConditionHolder">Valid proof + active session</span></p>
+            </li>
+            <li class="authority-row">
+              <p><strong data-i18n="authorityWhoLabel">Who</strong>: <span data-i18n="authorityWhoSteward">Steward</span></p>
+              <p><strong data-i18n="authorityWhatLabel">What</strong>: <span data-i18n="authorityWhatSteward">Can review and co-authorize sensitive actions</span></p>
+              <p><strong data-i18n="authorityWhyLabel">Why</strong>: <span data-i18n="authorityWhySteward">Governance and duty of care</span></p>
+              <p><strong data-i18n="authorityBoundaryLabel">Boundary</strong>: <span data-i18n="authorityBoundarySteward">Cannot impersonate holder authority</span></p>
+              <p><strong data-i18n="authorityConditionLabel">Conditions</strong>: <span data-i18n="authorityConditionSteward">Review trail + dual confirmation</span></p>
+            </li>
+            <li class="authority-row">
+              <p><strong data-i18n="authorityWhoLabel">Who</strong>: <span data-i18n="authorityWhoSystem">System</span></p>
+              <p><strong data-i18n="authorityWhatLabel">What</strong>: <span data-i18n="authorityWhatSystem">Can validate, log, and enforce policy gates</span></p>
+              <p><strong data-i18n="authorityWhyLabel">Why</strong>: <span data-i18n="authorityWhySystem">Constitutional integrity</span></p>
+              <p><strong data-i18n="authorityBoundaryLabel">Boundary</strong>: <span data-i18n="authorityBoundarySystem">No creation of human authority</span></p>
+              <p><strong data-i18n="authorityConditionLabel">Conditions</strong>: <span data-i18n="authorityConditionSystem">Policy match + verifiable evidence</span></p>
+            </li>
           </ul>
           <h4 data-i18n="identityTitle">Identity & session</h4>
           <p><span data-i18n="activeIdentity">Active identity</span>: A-01</p>

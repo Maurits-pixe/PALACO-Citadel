@@ -245,6 +245,25 @@ button {
   margin: 0.2rem 0;
 }
 
+.authority-matrix {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.authority-row {
+  border: 1px solid rgba(86, 182, 255, 0.2);
+  border-radius: 12px;
+  padding: 0.7rem 0.8rem;
+  background: rgba(8, 24, 47, 0.45);
+}
+
+.authority-row p {
+  margin: 0.15rem 0;
+}
+
 #sync-output,
 .rio-law {
   margin: 0;
