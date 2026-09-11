@@ -8,6 +8,7 @@ const industryStatus = document.querySelector('#industry-status');
 const citadelStatus = document.querySelector('#citadel-status');
 const syncBtn = document.querySelector('#sync-btn');
 const syncOutput = document.querySelector('#sync-output');
+const compassBackTopBtn = document.querySelector('#compass-back-top');
 
 const translations = {
   en: {
@@ -110,7 +111,10 @@ const translations = {
     statusConsequence: 'Consequence shown',
     statusConfirmation: 'Waiting confirmation',
     twoMinuteCheckTitle: '2-minute clarity check',
-    twoMinuteCheckPass: 'Passed: understandable in under 2 minutes.'
+    twoMinuteCheckPass: 'Passed: understandable in under 2 minutes.',
+    riskLevelMedium: 'Medium',
+    sessionLive: 'Live',
+    layerUnderstand: 'Understand'
   },
   nl: {
     eyebrow: 'GO · Scheppen · Creëren',
@@ -212,7 +216,10 @@ const translations = {
     statusConsequence: 'Consequentie getoond',
     statusConfirmation: 'Wacht op bevestiging',
     twoMinuteCheckTitle: '2-minuten duidelijkheidscheck',
-    twoMinuteCheckPass: 'Geslaagd: begrijpelijk binnen 2 minuten.'
+    twoMinuteCheckPass: 'Geslaagd: begrijpelijk binnen 2 minuten.',
+    riskLevelMedium: 'Midden',
+    sessionLive: 'Live',
+    layerUnderstand: 'Begrijpen'
   },
   eo: {
     eyebrow: 'GO · Krei · Estigi',
@@ -314,15 +321,48 @@ const translations = {
     statusConsequence: 'Efiko montrita',
     statusConfirmation: 'Atendas konfirmon',
     twoMinuteCheckTitle: '2-minuta klareco-kontrolo',
-    twoMinuteCheckPass: 'Sukcesis: komprenebla ene de 2 minutoj.'
+    twoMinuteCheckPass: 'Sukcesis: komprenebla ene de 2 minutoj.',
+    riskLevelMedium: 'Meza',
+    sessionLive: 'Viva',
+    layerUnderstand: 'Kompreni'
   }
+};
+
+translations.es = {
+  ...translations.en,
+  eyebrow: 'GO · Crear · Construir',
+  subtitle: 'La primera base de interfaz ejecutable para escritorio, tablet y móvil.',
+  compassTitle: 'Brújula PALACO 2040',
+  compassSubtitle: 'Primero entender. Después actuar con prueba.',
+  safeReturn: 'Regreso seguro',
+  commandLayerTitle: 'Capa de comandos',
+  backToStart: 'Volver al inicio',
+  riskLevelMedium: 'Medio',
+  sessionLive: 'Activo',
+  layerUnderstand: 'Entender'
+};
+
+translations.fr = {
+  ...translations.en,
+  eyebrow: 'GO · Créer · Construire',
+  subtitle: 'La première base UI exécutable pour ordinateur, tablette et mobile.',
+  compassTitle: 'Boussole PALACO 2040',
+  compassSubtitle: 'Comprendre d’abord. Agir avec preuve.',
+  safeReturn: 'Retour sûr',
+  commandLayerTitle: 'Couche de commande',
+  backToStart: 'Retour au départ',
+  riskLevelMedium: 'Moyen',
+  sessionLive: 'Actif',
+  layerUnderstand: 'Comprendre'
 };
 
 const defaultLanguage = 'en';
 const languageConfig = {
   en: { label: 'EN', locale: 'en-US', dir: 'ltr' },
   nl: { label: 'NL', locale: 'nl-NL', dir: 'ltr' },
-  eo: { label: 'EO', locale: 'eo', dir: 'ltr' }
+  eo: { label: 'EO', locale: 'eo', dir: 'ltr' },
+  es: { label: 'ES', locale: 'es-ES', dir: 'ltr' },
+  fr: { label: 'FR', locale: 'fr-FR', dir: 'ltr' }
 };
 
 const availableLanguages = Object.keys(translations);
@@ -477,6 +517,10 @@ controlButtons.forEach((button) => {
 syncBtn?.addEventListener('click', () => {
   localStorage.setItem('palaco-last-sync', new Date().toISOString());
   updateSyncOutput();
+});
+
+compassBackTopBtn?.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 let deferredPrompt;

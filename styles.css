@@ -200,6 +200,22 @@ button {
   flex: 1;
 }
 
+.compass-back-btn {
+  background: transparent;
+  color: var(--accent);
+  border-color: rgba(86, 182, 255, 0.45);
+  padding-inline: 0.9rem;
+}
+
+.compass-back-btn:hover {
+  border-color: var(--accent);
+  background: rgba(86, 182, 255, 0.12);
+}
+
+.compass-dashboard .sync-row {
+  padding: 0.2rem 0;
+}
+
 #sync-output,
 .rio-law {
   margin: 0;
