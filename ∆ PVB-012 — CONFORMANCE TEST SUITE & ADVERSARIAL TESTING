@@ -1,13 +1,66 @@
 ∆ PVB-012 — CONFORMANCE TEST SUITE & ADVERSARIAL TESTING
 PALACO VORM9EVIN9 · PVB-012 v1.0 · FALSIFICATION LAYER MASTER
 
+## ∆ GO-012 — PVB-012
+
+## CONFORMANCE TEST SUITE + ADVERSARIAL TESTING
+
+GO ontvangen. PVB-011 staat LOCKED.
+
+Van contract naar falsifieerbaar bewijs.
+
+Kern:
+
+> WHAT IS CLAIMED SHALL BE TESTABLE.  
+> WHAT IS VERIFIED SHALL BE REPRODUCIBLE.  
+> WHAT FAILS SHALL FAIL CLOSED.
+
+PVB-012 is het conformance- en adversarial evidence contract voor PVB.
+
+---
+
+## 1. PVB-012 doel
+
+PVB-012 toont aan dat een conformerende implementatie:
+
+1. exact dezelfde canonical bytes produceert;
+2. alleen correcte objecten kan laten signen;
+3. signatures exact reproduceerbaar kan verifiëren;
+4. verkeerde canonicalisatie detecteert;
+5. verkeerde keys detecteert;
+6. replay detecteert;
+7. cloning detecteert;
+8. key rotation correct behandelt;
+9. revocation correct toepast;
+10. expiry/temporaliteit correct toepast;
+11. provenance niet verwart met cryptografische authenticiteit;
+12. CONFLICTED en IN_DOUBT correct behandelt;
+13. resolver poisoning niet vertrouwt;
+14. identity substitution afwijst;
+15. RIO handoff niet als authority escalation behandelt;
+16. constitutionele negative paths daadwerkelijk blokkeert.
+
+```text
+PVB-011
+CONTRACT
+   ↓
+PVB-012
+FALSIFICATION
+   ↓
+EVIDENCE
+   ↓
+CONFORMANCE
+```
+
+---
+
 ## P6 — No authority derivation
 
 Geen cryptographic success mag rechtstreeks een authorization state opleveren.
 
 ---
 
-## 2. Seven test layers
+## 2. Testarchitectuur
 
 PVB-012 krijgt zeven testlagen:
 
