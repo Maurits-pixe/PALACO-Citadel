@@ -5,6 +5,7 @@ const githubStatus = document.querySelector('#github-status');
 const repoSearch = document.querySelector('#repo-search');
 const heroStats = document.querySelector('#hero-stats');
 const overviewGrid = document.querySelector('#overview-grid');
+const spotlightGrid = document.querySelector('#spotlight-grid');
 const hubGrid = document.querySelector('#hub-grid');
 const canonGrid = document.querySelector('#canon-grid');
 const emeraldGrid = document.querySelector('#emerald-grid');
@@ -25,6 +26,8 @@ const translations = {
     syncNow: 'Sync now',
     overviewTitle: 'What this site does',
     overviewSubtitle: 'One responsive surface that combines PALACO-Citadel content with live GitHub repository data.',
+    contentTitle: 'Content spotlight',
+    contentSubtitle: 'Direct excerpts from the repository canon so the homepage shows the content itself, not only navigation.',
     hubsTitle: 'Featured GitHub hubs',
     hubsSubtitle: 'Direct routes to the main PALACO repositories and the current Citadel portal.',
     citadelTitle: 'Citadel reading map',
@@ -52,6 +55,8 @@ const translations = {
     syncing: 'Syncing GitHub repositories…',
     liveCount: 'Public repositories currently visible:',
     privateNote: 'Public GitHub data only; direct hub links remain available for other PALACO spaces.',
+    contentLoading: 'Loading repository excerpts…',
+    contentFallback: 'Repository excerpts are unavailable right now; showing curated summaries.',
     langEn: 'English',
     langNl: 'Dutch',
     langEo: 'Esperanto'
@@ -64,6 +69,8 @@ const translations = {
     syncNow: 'Nu synchroniseren',
     overviewTitle: 'Wat deze site doet',
     overviewSubtitle: 'Één responsive surface die PALACO-Citadel-content combineert met live GitHub repository-data.',
+    contentTitle: 'Content spotlight',
+    contentSubtitle: 'Directe fragmenten uit de repository-canon zodat de homepage de content zelf toont, niet alleen navigatie.',
     hubsTitle: 'Uitgelichte GitHub-hubs',
     hubsSubtitle: 'Directe routes naar de belangrijkste PALACO-repositories en het huidige Citadel-portaal.',
     citadelTitle: 'Citadel leeskaart',
@@ -91,6 +98,8 @@ const translations = {
     syncing: 'GitHub repositories worden gesynchroniseerd…',
     liveCount: 'Publieke repositories momenteel zichtbaar:',
     privateNote: 'Alleen publieke GitHub-data; directe hub-links blijven beschikbaar voor andere PALACO-ruimtes.',
+    contentLoading: 'Repository-fragmenten worden geladen…',
+    contentFallback: 'Repository-fragmenten zijn nu niet beschikbaar; samengestelde samenvattingen worden getoond.',
     langEn: 'Engels',
     langNl: 'Nederlands',
     langEo: 'Esperanto'
@@ -103,6 +112,8 @@ const translations = {
     syncNow: 'Sinkronigi nun',
     overviewTitle: 'Kion ĉi tiu retejo faras',
     overviewSubtitle: 'Unu respondema surfaco kiu kunigas PALACO-Citadel-enhavon kun viva GitHub-deponeja datumo.',
+    contentTitle: 'Enhava fokuso',
+    contentSubtitle: 'Rektaj eltiraĵoj el la deponeja kanono por ke la hejmpaĝo montru la enhavon mem, ne nur navigadon.',
     hubsTitle: 'Elstaraj GitHub-nodoj',
     hubsSubtitle: 'Rektaj vojoj al la ĉefaj PALACO-deponejoj kaj la nuna Citadel-portalo.',
     citadelTitle: 'Citadel-legomapo',
@@ -130,6 +141,8 @@ const translations = {
     syncing: 'GitHub-deponejoj sinkroniĝas…',
     liveCount: 'Publikaj deponejoj nun videblaj:',
     privateNote: 'Nur publika GitHub-datumo; rektaj nodaj ligiloj restas disponeblaj por aliaj PALACO-spacoj.',
+    contentLoading: 'Deponejaj eltiraĵoj ŝargiĝas…',
+    contentFallback: 'Deponejaj eltiraĵoj nun ne disponeblas; montriĝas kuracitaj resumoj.',
     langEn: 'Angla',
     langNl: 'Nederlanda',
     langEo: 'Esperanto'
@@ -346,9 +359,54 @@ const fallbackRepos = [
   }
 ];
 
+const contentSources = [
+  {
+    path: 'CANONIEKE_FORMULE.md',
+    fallbackTitle: 'CANONIEKE FORMULE',
+    fallbackBody:
+      'geen autoriteit zonder constitutie, geen uitvoering zonder toelating, geen gevolg zonder bewijs, geen bewijs zonder provenance, geen evolutie zonder governance.'
+  },
+  {
+    path: '01-FOUNDATION/README.md',
+    fallbackTitle: '01-FOUNDATION',
+    fallbackBody: 'Constitutional principles, source authority, and legitimacy boundaries.'
+  },
+  {
+    path: '04-GOVERNANCE/README.md',
+    fallbackTitle: '04-GOVERNANCE',
+    fallbackBody: 'Rules of change, custody constraints, and constitutional evolution controls.'
+  },
+  {
+    path: 'emerald/README.md',
+    fallbackTitle: 'Emerald Registry Workspace',
+    fallbackBody:
+      'Consolidated access point for the Emerald document set, registry workspace, schemas, release artifacts, and identity-gated generation model.'
+  },
+  {
+    path: 'GO-EMERALD-010.md',
+    fallbackTitle: '∆ GO-EMERALD-010 — THE EMERALD CONSTITUTION',
+    fallbackBody:
+      'The Emerald Imperium is a constitutionally governed world-domain for mineral identity, provenance, history, exploration, and expansion.'
+  },
+  {
+    path: 'GO-EMERALD-009.md',
+    fallbackTitle: 'GO-EMERALD-009 — THE MINERAL WORLD FACTORY',
+    fallbackBody:
+      'Defines Emerald Registry as a controlled generative system that reproduces PALACO world objects from validated IMA-CNMNC source records.'
+  }
+];
+
 let currentLanguage = localStorage.getItem('palaco-language') || 'en';
 let repoState = {
   repos: [],
+  source: 'fallback'
+};
+let contentState = {
+  items: contentSources.map((source) => ({
+    ...source,
+    title: source.fallbackTitle,
+    body: source.fallbackBody
+  })),
   source: 'fallback'
 };
 
@@ -381,6 +439,16 @@ const createTextElement = (tagName, text, className = '') => {
   el.textContent = text;
   return el;
 };
+
+const cleanMarkdownLine = (line) =>
+  line
+    .replace(/^#+\s*/, '')
+    .replace(/^>\s?/, '')
+    .replace(/^[-*]\s+/, '')
+    .replace(/^\d+\.\s+/, '')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .trim();
 
 const setExternalLink = (anchor, href, newTab = true) => {
   try {
@@ -422,6 +490,25 @@ const renderOverview = () => {
     ...content[currentLanguage].overview.map((item) => {
       const card = createCard('article', 'card info-card');
       card.append(createTextElement('h3', item.title), createTextElement('p', item.body));
+      return card;
+    })
+  );
+};
+
+const renderSpotlights = () => {
+  if (!spotlightGrid) return;
+
+  spotlightGrid.replaceChildren(
+    ...contentState.items.map((item) => {
+      const card = createCard('article', 'card spotlight-card');
+      card.append(
+        createTextElement('p', item.path, 'spotlight-path'),
+        createTextElement('h3', item.title),
+        createTextElement('p', item.body, 'spotlight-body')
+      );
+      const link = createTextElement('a', translations[currentLanguage].cardOpen, 'card-link');
+      setContentLink(link, item.path);
+      card.append(link);
       return card;
     })
   );
@@ -570,6 +657,7 @@ const rerenderAll = () => {
   applyTranslations();
   renderHeroStats();
   renderOverview();
+  renderSpotlights();
   renderHubs();
   renderMap(canonGrid, content[currentLanguage].canon);
   renderMap(emeraldGrid, content[currentLanguage].emerald);
@@ -601,6 +689,65 @@ const loadCachedRepos = () => {
 
 const saveCachedRepos = (repos) => {
   localStorage.setItem(REPO_CACHE_KEY, JSON.stringify({ source: 'live', repos }));
+};
+
+const extractContentSnippet = (text, source) => {
+  const lines = text.split('\n').map((line) => line.trim());
+  const titleLine = lines.find((line) => line.startsWith('#')) || source.fallbackTitle;
+
+  const snippetLines = [];
+  for (const line of lines) {
+    if (!line || line.startsWith('## ')) {
+      if (snippetLines.length) break;
+      continue;
+    }
+    if (line.startsWith('# ')) continue;
+    const cleaned = cleanMarkdownLine(line);
+    if (!cleaned) continue;
+    snippetLines.push(cleaned);
+    if (snippetLines.join(' ').length >= 220 || snippetLines.length >= 3) break;
+  }
+
+  return {
+    ...source,
+    title: cleanMarkdownLine(titleLine) || source.fallbackTitle,
+    body: snippetLines.join(' ').slice(0, 260) || source.fallbackBody
+  };
+};
+
+const fetchContentSpotlights = async () => {
+  if (spotlightGrid) {
+    const loadingCard = createCard('article', 'card spotlight-card');
+    loadingCard.append(createTextElement('p', translations[currentLanguage].contentLoading, 'spotlight-body'));
+    spotlightGrid.replaceChildren(loadingCard);
+  }
+
+  try {
+    const responses = await Promise.all(
+      contentSources.map(async (source) => {
+        const response = await fetch(source.path, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`Failed to load ${source.path}`);
+        const text = await response.text();
+        return extractContentSnippet(text, source);
+      })
+    );
+
+    contentState = {
+      items: responses,
+      source: 'live'
+    };
+  } catch {
+    contentState = {
+      items: contentSources.map((source) => ({
+        ...source,
+        title: source.fallbackTitle,
+        body: source.fallbackBody
+      })),
+      source: 'fallback'
+    };
+  }
+
+  renderSpotlights();
 };
 
 const fetchGitHubRepos = async ({ force = false } = {}) => {
@@ -661,4 +808,5 @@ if ('serviceWorker' in navigator) {
 }
 
 rerenderAll();
+fetchContentSpotlights();
 fetchGitHubRepos();

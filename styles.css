@@ -94,6 +94,7 @@ h1 {
 
 .hero-stats,
 .info-grid,
+.spotlight-grid,
 .hub-grid,
 .map-grid,
 .repo-grid {
@@ -157,6 +158,10 @@ h1 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.spotlight-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .hub-grid,
 .repo-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -200,6 +205,18 @@ button:focus-visible {
   margin-top: 0.9rem;
   color: var(--accent-strong);
   font-weight: 700;
+}
+
+.spotlight-path {
+  margin: 0 0 0.75rem;
+  color: var(--accent);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.spotlight-body {
+  line-height: 1.7;
 }
 
 .language-switch {
@@ -310,6 +327,7 @@ button:focus-visible {
 
 @media (max-width: 1024px) {
   .info-grid,
+  .spotlight-grid,
   .map-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -318,6 +336,7 @@ button:focus-visible {
 @media (max-width: 780px) {
   .hero-stats,
   .info-grid,
+  .spotlight-grid,
   .hub-grid,
   .map-grid,
   .repo-grid {
