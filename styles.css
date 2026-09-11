@@ -335,6 +335,35 @@ button {
   background: rgba(8, 24, 47, 0.35);
 }
 
+.participation-dashboard {
+  margin-top: 0.2rem;
+}
+
+.participation-flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  align-items: stretch;
+}
+
+.participation-step {
+  flex: 1 1 170px;
+  border: 1px solid rgba(86, 182, 255, 0.25);
+  border-radius: 12px;
+  padding: 0.6rem 0.75rem;
+  background: rgba(8, 24, 47, 0.4);
+}
+
+.participation-step p {
+  margin: 0.35rem 0 0;
+}
+
+.participation-arrow {
+  align-self: center;
+  color: var(--accent);
+  font-weight: 700;
+}
+
 #sync-output,
 .rio-law {
   margin: 0;
