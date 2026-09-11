@@ -17,6 +17,11 @@ const CONTENT_REPOSITORY_ROOT = `https://github.com/${CONTENT_REPOSITORY}/blob/m
 const REPO_CACHE_KEY = 'palaco-github-cache-v1';
 const LAST_SYNC_KEY = 'palaco-last-sync';
 const AUTO_REFRESH_INTERVAL = 5 * 60 * 1000;
+const {
+  getRepositoryStatusCount,
+  normalizeRepositoryPayload,
+  shouldReuseRefresh
+} = window.PalacoAppLogic;
 
 const translations = {
   en: {
@@ -583,10 +588,14 @@ const updateGithubStatus = (visibleRepos) => {
         ? translations[currentLanguage].cacheStatusCached
         : translations[currentLanguage].cacheStatusFallback;
 
-  const searchActive = Boolean(repoSearch?.value.trim());
-  const countLabel = searchActive ? translations[currentLanguage].filteredCount : translations[currentLanguage].liveCount;
-  const countValue = searchActive ? visibleRepos.length : repoState.repos.length;
-  const countMessage = visibleRepos.length || !searchActive
+  const statusCount = getRepositoryStatusCount({
+    searchQuery: repoSearch?.value || '',
+    visibleCount: visibleRepos.length,
+    totalCount: repoState.repos.length
+  });
+  const countLabel = statusCount.searchActive ? translations[currentLanguage].filteredCount : translations[currentLanguage].liveCount;
+  const countValue = statusCount.count;
+  const countMessage = visibleRepos.length || !statusCount.searchActive
     ? `${countLabel} ${countValue}.`
     : translations[currentLanguage].cacheStatusEmpty;
 
@@ -640,7 +649,7 @@ const renderRepos = () => {
 };
 
 const refreshLiveContent = async ({ force = false } = {}) => {
-  if (liveRefreshInFlight && (!force || liveRefreshMode === 'force')) {
+  if (shouldReuseRefresh({ force, inFlight: Boolean(liveRefreshInFlight), mode: liveRefreshMode })) {
     return liveRefreshInFlight;
   }
 
@@ -696,16 +705,6 @@ const rerenderAll = () => {
   renderRepos();
   updateSyncOutput();
 };
-
-const normalizeRepo = (repo) => ({
-  name: repo.name,
-  html_url: repo.html_url,
-  description: repo.description,
-  language: repo.language || '—',
-  stargazers_count: repo.stargazers_count || 0,
-  open_issues_count: repo.open_issues_count || 0,
-  updated_at: repo.updated_at
-});
 
 const loadCachedRepos = () => {
   try {
@@ -798,14 +797,10 @@ const fetchGitHubRepos = async ({ force = false } = {}) => {
     }
 
     const payload = await response.json();
+    const repos = normalizeRepositoryPayload(payload);
     if (!Array.isArray(payload)) {
       throw new Error('GitHub API returned a non-array response');
     }
-
-    const repos = payload
-      .filter((repo) => !repo.fork)
-      .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
-      .map(normalizeRepo);
 
     repoState = {
       repos: repos.length ? repos : fallbackRepos,

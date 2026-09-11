@@ -2,6 +2,7 @@ const CACHE_NAME = 'palaco-universe-shell-v4';
 const SHELL_ASSETS = [
   '/',
   '/index.html',
+  '/app-logic.js',
   '/styles.css',
   '/app.js',
   '/manifest.webmanifest',
@@ -27,7 +28,7 @@ const networkFirst = async (request) => {
     const cached = await cache.match(request);
     if (cached) return cached;
 
-    if (request.mode === 'navigate') {
+    if (request.mode === 'navigate' && (requestUrl.pathname === '/' || requestUrl.pathname === '/index.html')) {
       const fallback = await cache.match('/index.html');
       if (fallback) return fallback;
     }
