@@ -38,8 +38,19 @@ This folder is now the consolidated access point for the Emerald document set, r
 
 ### 4. Extended Emerald-series source documents
 
-1. [`../GO-EMERALD-026.md`](../GO-EMERALD-026.md) — RIO as the conversational front door into the broader PALACO world/context stack
-2. [`../GO-EMERALD-036.md`](../GO-EMERALD-036.md) — personal device constellation extension across PALACO surfaces
+The previously bundled Emerald-series material is now normalized into standalone files:
+
+- `GO-EMERALD-011.md` → `GO-EMERALD-018.md` — atlas, catalogue, schema, constitutional world-model groundwork
+- `GO-EMERALD-019.md` → `GO-EMERALD-026.md` — constitution registry, genesis, OR6IT, planet/world representation, and RIO entry layer
+- `GO-EMERALD-027.md` → `GO-EMERALD-036.md` — conversation routing, repository preparation, gateway/mobile/device architecture, and personal device constellation
+
+Key entry points:
+
+1. [`../GO-EMERALD-018.md`](../GO-EMERALD-018.md) — Emerald world charter
+2. [`../GO-EMERALD-020.md`](../GO-EMERALD-020.md) — Emerald world genesis protocol
+3. [`../GO-EMERALD-026.md`](../GO-EMERALD-026.md) — RIO as the conversational front door into the broader PALACO world/context stack
+4. [`../GO-EMERALD-030.md`](../GO-EMERALD-030.md) — interstellar routing protocol
+5. [`../GO-EMERALD-036.md`](../GO-EMERALD-036.md) — personal device constellation extension across PALACO surfaces
 
 ## Workspace structure
 
@@ -59,16 +70,16 @@ This folder is now the consolidated access point for the Emerald document set, r
 - `registry/canonical/` — canonical sealed outputs
 - `registry/releases/` — versioned release manifests and examples
 
-### Domain lanes
+### Current domain lanes
 
-- `worlds/`
-- `citadels/`
-- `districts/`
-- `elixers/`
-- `immortal/`
-- `watermerk/`
-- `hologram/`
-- `allocation/4444/`
+- [`worlds/`](worlds/README.md)
+- [`citadels/`](citadels/README.md)
+- [`districts/`](districts/gemstone/README.md)
+- [`elixers/`](elixers/README.md)
+- [`immortal/`](immortal/README.md)
+- [`watermerk/`](watermerk/README.md)
+- [`hologram/`](hologram/README.md)
+- [`allocation/4444/`](allocation/4444/README.md)
 
 ### Contracts
 

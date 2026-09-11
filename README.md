@@ -29,4 +29,4 @@ Read from top to bottom to move from principle to execution.
 
 Legacy synthesis materials are preserved under [ARCHIVE/legacy-sources/](ARCHIVE/legacy-sources/).
 
-Emerald-specific source documents are consolidated through [emerald/README.md](emerald/README.md), including the normalized `GO-EMERALD-026.md` and `GO-EMERALD-036.md` source files.
+Emerald-specific source documents are consolidated through [emerald/README.md](emerald/README.md), including the normalized standalone `GO-EMERALD-011.md` through `GO-EMERALD-036.md` series.
