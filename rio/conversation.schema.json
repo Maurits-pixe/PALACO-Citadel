@@ -229,8 +229,85 @@
         },
         "visitcard": {
           "$ref": "#/$defs/visitcard"
+        },
+        "subjects": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/subject"
+          }
         }
       }
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subject_id",
+        "type",
+        "name",
+        "preview_reference",
+        "meaning",
+        "provenance_reference",
+        "state",
+        "boundary",
+        "next_action",
+        "presentation_effect"
+      ],
+      "properties": {
+        "subject_id": {
+          "type": "string",
+          "pattern": "^rio:subject:[A-Za-z0-9._~-]+$"
+        },
+        "object_reference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "enum": ["SYMBOL", "IMAGE", "PHOTO", "OBJECT", "PERSON", "PLACE", "VISITCARD", "CONVERSATION", "ELIXER"]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "preview_reference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "meaning": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance_reference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "type": "string",
+          "enum": ["CURRENT", "REVOKED", "EXPIRED", "UNKNOWN"]
+        },
+        "boundary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "next_action": {
+          "type": "string",
+          "minLength": 1
+        },
+        "presentation_effect": {
+          "const": "NONE"
+        }
+      },
+      "allOf": [{
+        "if": {
+          "properties": { "type": { "const": "ELIXER" } },
+          "required": ["type"]
+        },
+        "then": {
+          "required": ["object_reference"]
+        }
+      }]
     },
     "visitcard": {
       "type": "object",

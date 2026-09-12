@@ -1,5 +1,5 @@
-const CACHE_NAME = 'palaco-shell-v1';
-const SHELL_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/manifest.webmanifest'];
+const CACHE_NAME = 'palaco-rio-shell-v3';
+const SHELL_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/manifest.webmanifest', '/assets/icon-192.svg', '/assets/icon-512.svg'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_ASSETS)));

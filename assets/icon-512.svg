@@ -1,5 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="PALACO icon">
-  <rect width="512" height="512" fill="#0b1f3a"/>
-  <rect x="52" y="52" width="408" height="408" rx="40" fill="none" stroke="#56b6ff" stroke-width="18"/>
-  <text x="256" y="328" text-anchor="middle" font-size="248" font-family="Inter, Arial, sans-serif" fill="#eef4ff">P</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="PALACO RIO icon">
+  <rect width="512" height="512" rx="52" fill="#fff45c"/>
+  <rect x="32" y="32" width="448" height="448" rx="38" fill="none" stroke="#10243e" stroke-width="18"/>
+  <circle cx="422" cy="90" r="32" fill="#ff6f61"/>
+  <text x="256" y="302" text-anchor="middle" font-size="144" font-weight="700" font-family="Georgia, serif" fill="#10243e">RIO</text>
+  <path d="M132 362h248" stroke="#55d8e8" stroke-width="24"/>
 </svg>

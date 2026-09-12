@@ -6,6 +6,7 @@ import {
   canTransition,
   canTransitionVisitcardEncounter,
   createConversation,
+  expireConsent,
   grantConsent,
   invalidateVisitcard,
   policy,
@@ -79,6 +80,39 @@ const missingProvenance = clone();
 missingProvenance.provenance = [];
 expectInvalid("missing provenance", missingProvenance);
 
+const nonChronologicalProvenance = clone();
+nonChronologicalProvenance.provenance.push({
+  record_id: "prov-stale",
+  source: "conformance-fixture",
+  source_revision: "1",
+  recorded_at: "2026-09-11T23:59:59Z",
+  event: "STALE_EVENT",
+  actor_ref: "participant-1",
+  previous_record_id: "prov-1"
+});
+expectInvalid("non-chronological provenance", nonChronologicalProvenance);
+
+const skippedProvenanceLink = clone();
+skippedProvenanceLink.provenance.push({
+  record_id: "prov-2",
+  source: "conformance-fixture",
+  source_revision: "1",
+  recorded_at: "2026-09-12T00:00:01Z",
+  event: "SECOND_EVENT",
+  actor_ref: "participant-1",
+  previous_record_id: "prov-1"
+}, {
+  record_id: "prov-3",
+  source: "conformance-fixture",
+  source_revision: "1",
+  recorded_at: "2026-09-12T00:00:02Z",
+  event: "THIRD_EVENT",
+  actor_ref: "participant-1",
+  previous_record_id: "prov-1"
+});
+expectInvalid("skipped provenance predecessor", skippedProvenanceLink);
+assert.ok(validateConversation(skippedProvenanceLink).some((error) => error.includes("immediately previous record")), "skipped provenance must fail the direct-link rule");
+
 const unknownProperty = clone();
 unknownProperty.unrecognized = true;
 expectInvalid("unknown property", unknownProperty);
@@ -98,6 +132,65 @@ historicallyConnectedRevokedVisitcard.context.visitcard = {
   encounter_state: "CONNECTED"
 };
 expectValid("historically connected revoked VisitCard", historicallyConnectedRevokedVisitcard);
+
+const brokenVisitcardProvenance = structuredClone(historicallyConnectedRevokedVisitcard);
+brokenVisitcardProvenance.context.visitcard.provenance_reference = "prov-missing";
+expectInvalid("VisitCard with broken provenance reference", brokenVisitcardProvenance);
+
+const subjectConversation = clone();
+subjectConversation.context.subjects = [{
+  subject_id: "rio:subject:palaco-symbol",
+  type: "SYMBOL",
+  name: "PALACO-symbool",
+  preview_reference: "asset:palaco-symbol",
+  meaning: "Een herkenbaar teken van PALACO.",
+  provenance_reference: "prov-1",
+  state: "CURRENT",
+  boundary: "Bekijken geeft geen toegang.",
+  next_action: "Open de uitleg.",
+  presentation_effect: "NONE"
+}, {
+  subject_id: "rio:subject:elixer-example",
+  object_reference: "elixer:example",
+  type: "ELIXER",
+  name: "Voorbeeld-ELIXER",
+  preview_reference: "elixer:preview:example",
+  meaning: "Een complete ELIXER met een eigen identiteit.",
+  provenance_reference: "prov-1",
+  state: "CURRENT",
+  boundary: "Openen verleent geen permission of authority.",
+  next_action: "Kies of je hierover wilt praten.",
+  presentation_effect: "NONE"
+}];
+expectValid("conversation with symbol and complete ELIXER subjects", subjectConversation);
+
+const unknownSubjectType = structuredClone(subjectConversation);
+unknownSubjectType.context.subjects[0].type = "AUTHORITY";
+expectInvalid("subject with unknown type", unknownSubjectType);
+
+const unidentifiedElixerSubject = structuredClone(subjectConversation);
+delete unidentifiedElixerSubject.context.subjects[1].object_reference;
+expectInvalid("complete ELIXER subject without object identity", unidentifiedElixerSubject);
+
+const brokenSubjectProvenance = structuredClone(subjectConversation);
+brokenSubjectProvenance.context.subjects[0].provenance_reference = "prov-missing";
+expectInvalid("subject with broken provenance reference", brokenSubjectProvenance);
+
+const duplicateSubjectId = structuredClone(subjectConversation);
+duplicateSubjectId.context.subjects[1].subject_id = duplicateSubjectId.context.subjects[0].subject_id;
+expectInvalid("subjects with duplicate identifiers", duplicateSubjectId);
+
+const unknownSubjectField = structuredClone(subjectConversation);
+unknownSubjectField.context.subjects[0].permission = "GRANTED";
+expectInvalid("subject with unknown permission field", unknownSubjectField);
+
+const subjectPermissionEffect = structuredClone(subjectConversation);
+subjectPermissionEffect.context.subjects[0].presentation_effect = "ACCESS_GRANTED";
+expectInvalid("subject with presentation permission effect", subjectPermissionEffect);
+
+assert.equal(subjectConversation.permissions.authority_effect, "NONE", "subjects must not alter conversation authority");
+assert.deepEqual(subjectConversation.permissions.allowed_actions, validConversation.permissions.allowed_actions, "subjects must not alter permissions");
+assert.equal(subjectConversation.current_state, validConversation.current_state, "subjects must not alter conversation state");
 
 const deniedConsent = clone();
 deniedConsent.permissions.consent_state = "DENIED";
@@ -243,6 +336,53 @@ assert.equal(revokedConsent.conversation.message_history.length, activeAfterGran
 assert.equal(revokedConsent.conversation.provenance.length, activeAfterGrant.conversation.provenance.length + 1, "revocation must retain and append provenance");
 assert.match(revokedConsent.conversation.provenance.at(-1).event, /^CONSENT_REVOKED:/, "revocation event must be traceable");
 
+const consentExpiryRecord = {
+  ...consentRecord,
+  record_id: "prov-expired-6",
+  recorded_at: consentGrant.valid_until
+};
+const activeConsentSnapshot = structuredClone(activeAfterGrant.conversation);
+const expiredConsent = expireConsent(activeAfterGrant.conversation, consentExpiryRecord);
+assert.equal(expiredConsent.ok, true, "consent must expire at valid_until");
+assert.deepEqual(activeAfterGrant.conversation, activeConsentSnapshot, "consent expiration source must remain immutable");
+assert.equal(expiredConsent.conversation.current_state, "PAUSED", "consent expiration must pause active communication");
+assert.equal(expiredConsent.conversation.permissions.consent_state, "EXPIRED", "expired consent state must be explicit");
+assert.deepEqual(expiredConsent.conversation.permissions.allowed_actions, [], "consent expiration must remove allowed actions");
+assert.equal(expiredConsent.conversation.permissions.valid_until, consentGrant.valid_until, "consent expiration must retain its deadline");
+assert.equal(expiredConsent.conversation.permissions.revoked_at, null, "consent expiration must remain distinct from revocation");
+assert.equal(expiredConsent.conversation.permissions.authority_effect, "NONE", "consent expiration must not affect authority");
+assert.deepEqual(expiredConsent.conversation.message_history, activeAfterGrant.conversation.message_history, "consent expiration must retain message history");
+assert.equal(expiredConsent.conversation.provenance.length, activeAfterGrant.conversation.provenance.length + 1, "consent expiration must append provenance");
+assert.equal(expiredConsent.conversation.provenance.at(-1).event, `CONSENT_EXPIRED:${consentGrant.valid_until}`, "consent expiration event must include the deadline");
+assert.equal(expiredConsent.conversation.provenance.at(-1).previous_record_id, "prov-active-5", "consent expiration provenance must link backward");
+
+const prematureConsentExpiry = expireConsent(activeAfterGrant.conversation, {
+  ...consentExpiryRecord,
+  record_id: "prov-premature-expiry",
+  recorded_at: "2026-09-12T23:59:59Z"
+});
+assert.equal(prematureConsentExpiry.ok, false, "consent must not expire before valid_until");
+assert.equal("conversation" in prematureConsentExpiry, false, "failed premature expiration must return no candidate");
+const noDeadlineConsent = structuredClone(activeAfterGrant.conversation);
+noDeadlineConsent.permissions.valid_until = null;
+const missingDeadlineExpiry = expireConsent(noDeadlineConsent, consentExpiryRecord);
+assert.equal(missingDeadlineExpiry.ok, false, "consent without a deadline must not expire");
+assert.equal("conversation" in missingDeadlineExpiry, false, "failed missing deadline must return no candidate");
+const revokedConsentExpiry = expireConsent(revokedConsent.conversation, consentExpiryRecord);
+assert.equal(revokedConsentExpiry.ok, false, "revoked consent must not expire again");
+assert.equal("conversation" in revokedConsentExpiry, false, "failed revoked consent expiration must return no candidate");
+const duplicateExpiryRecord = expireConsent(activeAfterGrant.conversation, { ...consentExpiryRecord, record_id: "prov-active-5" });
+assert.equal(duplicateExpiryRecord.ok, false, "duplicate expiration provenance ID must fail closed");
+assert.equal("conversation" in duplicateExpiryRecord, false, "failed duplicate expiration record must return no candidate");
+const unknownExpiryActor = expireConsent(activeAfterGrant.conversation, { ...consentExpiryRecord, actor_ref: "participant-missing" });
+assert.equal(unknownExpiryActor.ok, false, "unknown expiration actor must fail closed");
+assert.equal("conversation" in unknownExpiryActor, false, "failed expiration actor must return no candidate");
+const invalidExpirySource = structuredClone(activeAfterGrant.conversation);
+invalidExpirySource.permissions.authority_effect = "GRANTED";
+const invalidSourceExpiry = expireConsent(invalidExpirySource, consentExpiryRecord);
+assert.equal(invalidSourceExpiry.ok, false, "invalid expiration source must fail closed");
+assert.equal("conversation" in invalidSourceExpiry, false, "failed expiration source must return no candidate");
+
 const reversedValidity = { ...consentGrant, valid_from: "2026-09-14T00:00:00Z", valid_until: "2026-09-13T00:00:00Z" };
 assert.equal(grantConsent(createdConversation.conversation, reversedValidity, consentRecord).ok, false, "reversed validity must fail closed");
 const unknownVisibility = structuredClone(consentGrant);
@@ -275,6 +415,19 @@ const localeRecord = {
 };
 const localeSource = clone();
 const localeSourceSnapshot = structuredClone(localeSource);
+const equalTimestampLocale = setConversationLocale(localeSource, "en", {
+  ...localeRecord,
+  record_id: "prov-locale-equal",
+  recorded_at: "2026-09-12T00:00:00Z"
+});
+assert.equal(equalTimestampLocale.ok, true, "equal provenance timestamps must remain valid");
+const staleTimestampLocale = setConversationLocale(localeSource, "en", {
+  ...localeRecord,
+  record_id: "prov-locale-stale",
+  recorded_at: "2026-09-11T23:59:59Z"
+});
+assert.equal(staleTimestampLocale.ok, false, "older provenance timestamp must fail closed");
+assert.equal("conversation" in staleTimestampLocale, false, "failed stale provenance must return no candidate");
 const arabicLocale = setConversationLocale(localeSource, "ar-SA", localeRecord);
 assert.equal(arabicLocale.ok, true, "valid locale change must pass");
 assert.deepEqual(localeSource, localeSourceSnapshot, "locale source must remain immutable");
@@ -473,6 +626,16 @@ noPermissionVisitcardSource.permissions.allowed_actions = ["SEND_MESSAGE"];
 const noPermissionVisitcard = transitionVisitcardEncounter(noPermissionVisitcardSource, "ACCEPTED", { ...visitcardRecord, record_id: "prov-visitcard-no-permission" });
 assert.equal(noPermissionVisitcard.ok, false, "VisitCard acceptance without REQUEST_CONNECTION must fail closed");
 assert.equal("conversation" in noPermissionVisitcard, false, "failed VisitCard permission must return no candidate");
+const lateVisitcardSource = structuredClone(recognizedVisitcard.conversation);
+lateVisitcardSource.permissions.valid_until = "2026-09-12T00:02:30Z";
+const lateVisitcardTransition = transitionVisitcardEncounter(lateVisitcardSource, "ACCEPTED", { ...visitcardRecord, record_id: "prov-visitcard-late", recorded_at: "2026-09-12T00:03:00Z" });
+assert.equal(lateVisitcardTransition.ok, false, "VisitCard transition after valid_until must fail closed");
+assert.equal("conversation" in lateVisitcardTransition, false, "failed late VisitCard transition must return no candidate");
+const earlyVisitcardSource = structuredClone(recognizedVisitcard.conversation);
+earlyVisitcardSource.permissions.valid_from = "2026-09-12T00:04:00Z";
+const earlyVisitcardTransition = transitionVisitcardEncounter(earlyVisitcardSource, "ACCEPTED", { ...visitcardRecord, record_id: "prov-visitcard-early", recorded_at: "2026-09-12T00:03:00Z" });
+assert.equal(earlyVisitcardTransition.ok, false, "VisitCard transition before valid_from must fail closed");
+assert.equal("conversation" in earlyVisitcardTransition, false, "failed early VisitCard transition must return no candidate");
 const prematureConnectionSource = structuredClone(acceptedVisitcard.conversation);
 prematureConnectionSource.current_state = "PAUSED";
 const prematureVisitcardConnection = transitionVisitcardEncounter(prematureConnectionSource, "CONNECTED", { ...visitcardRecord, record_id: "prov-visitcard-premature" });
@@ -587,6 +750,17 @@ assert.equal(successfulTransition.conversation.current_state, "CONNECTED", "targ
 assert.equal(successfulTransition.conversation.provenance.length, 2, "transition must append provenance");
 assert.equal(successfulTransition.conversation.provenance[1].previous_record_id, "prov-1", "transition provenance must link backward");
 
+const lateConversation = structuredClone(requestedConversation);
+lateConversation.permissions.valid_until = "2026-09-12T00:00:30Z";
+const lateConversationTransition = transitionConversation(lateConversation, "CONNECTED", transitionRecord);
+assert.equal(lateConversationTransition.ok, false, "conversation transition after valid_until must fail closed");
+assert.equal("conversation" in lateConversationTransition, false, "failed late conversation transition must return no candidate");
+const earlyConversation = structuredClone(requestedConversation);
+earlyConversation.permissions.valid_from = "2026-09-12T00:02:00Z";
+const earlyConversationTransition = transitionConversation(earlyConversation, "CONNECTED", transitionRecord);
+assert.equal(earlyConversationTransition.ok, false, "conversation transition before valid_from must fail closed");
+assert.equal("conversation" in earlyConversationTransition, false, "failed early conversation transition must return no candidate");
+
 const closedConversation = clone();
 closedConversation.current_state = "CLOSED";
 assert.equal(transitionConversation(closedConversation, "ACTIVE", transitionRecord).ok, false, "transition from CLOSED must fail closed");
@@ -616,4 +790,4 @@ assert.equal(advanceMessageDelivery(createdMessageConversation, "message-1", "CR
 assert.equal(advanceMessageDelivery(createdMessageConversation, "missing-message", "DELIVERED", deliveryRecord).ok, false, "unknown message must fail closed");
 assert.equal(advanceMessageDelivery(createdMessageConversation, "message-1", "DELIVERED", { ...deliveryRecord, record_id: "prov-1" }).ok, false, "duplicate provenance ID must fail closed");
 
-console.log(`RIO conformance PASS: ${cases.length} conversation fixtures, 20 creation assertions, 23 consent assertions, 19 localization assertions, 26 locale-mutation assertions, 4 VisitCard-policy assertions, 34 VisitCard-transition assertions, 34 VisitCard-invalidation assertions, 31 message-creation assertions, 6 policy assertions, 7 conversation-transition assertions, and 9 delivery-transition assertions`);
+console.log(`RIO conformance PASS: ${cases.length} conversation fixtures, 20 creation assertions, 23 consent assertions, 24 consent-expiration assertions, 19 localization assertions, 29 locale-mutation assertions, 4 VisitCard-policy assertions, 38 VisitCard-transition assertions, 34 VisitCard-invalidation assertions, 31 message-creation assertions, 6 policy assertions, 11 conversation-transition assertions, and 9 delivery-transition assertions`);

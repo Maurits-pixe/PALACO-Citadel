@@ -17,6 +17,8 @@ const allowedActions = new Set(schema.$defs.permissions.properties.allowed_actio
 const visitcardValidity = new Set(schema.$defs.visitcard.properties.validity.enum);
 const discoveryMethods = new Set(schema.$defs.visitcard.properties.discovery_method.enum);
 const encounterStates = new Set(schema.$defs.visitcard.properties.encounter_state.enum);
+const subjectTypes = new Set(schema.$defs.subject.properties.type.enum);
+const subjectStates = new Set(schema.$defs.subject.properties.state.enum);
 
 const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const isNonEmptyString = (value) => typeof value === "string" && value.length > 0;
@@ -91,7 +93,8 @@ export function validateConversation(conversation) {
     });
   }
 
-  const contextKeys = ["kind", "surfaces", "parent_conversation_id", "visitcard"];
+  const subjectProvenanceReferences = [];
+  const contextKeys = ["kind", "surfaces", "parent_conversation_id", "visitcard", "subjects"];
   if (requireKeys(conversation.context, ["kind", "surfaces"], contextKeys, "$.context", errors)) {
     requireEnum(conversation.context.kind, contextKinds, "$.context.kind", errors);
     if (!Array.isArray(conversation.context.surfaces) || conversation.context.surfaces.length === 0) {
@@ -100,6 +103,16 @@ export function validateConversation(conversation) {
       conversation.context.surfaces.forEach((surface, index) => requireEnum(surface, surfaces, `$.context.surfaces[${index}]`, errors));
     }
     if (conversation.context.visitcard !== undefined) validateVisitcard(conversation.context.visitcard, errors);
+    if (conversation.context.subjects !== undefined) {
+      if (!Array.isArray(conversation.context.subjects)) {
+        errors.push("$.context.subjects must be an array");
+      } else {
+        const subjectIds = new Set();
+        conversation.context.subjects.forEach((subject, index) => {
+          validateSubject(subject, index, subjectIds, subjectProvenanceReferences, errors);
+        });
+      }
+    }
   }
 
   const provenanceIds = new Set();
@@ -110,17 +123,29 @@ export function validateConversation(conversation) {
       const path = `$.provenance[${index}]`;
       const keys = ["record_id", "source", "source_revision", "recorded_at", "event", "actor_ref", "previous_record_id"];
       if (!requireKeys(record, keys, keys, path, errors)) return;
+      const previousRecord = index > 0 && isObject(conversation.provenance[index - 1]) ? conversation.provenance[index - 1] : null;
       for (const key of ["record_id", "source", "source_revision", "event", "actor_ref"]) {
         if (!isNonEmptyString(record[key])) errors.push(`${path}.${key} is required`);
       }
       if (!isDateTimeOrNull(record.recorded_at) || record.recorded_at === null) errors.push(`${path}.recorded_at must be a date-time`);
       if (!participantIds.has(record.actor_ref)) errors.push(`${path}.actor_ref must reference a participant`);
       if (index === 0 && record.previous_record_id !== null) errors.push(`${path}.previous_record_id must be null for the first record`);
-      if (index > 0 && !provenanceIds.has(record.previous_record_id)) errors.push(`${path}.previous_record_id must reference an earlier record`);
+      if (index > 0 && record.previous_record_id !== previousRecord?.record_id) errors.push(`${path}.previous_record_id must reference the immediately previous record`);
+      if (index > 0 && isDateTimeOrNull(record.recorded_at) && isDateTimeOrNull(previousRecord?.recorded_at)
+        && Date.parse(record.recorded_at) < Date.parse(previousRecord.recorded_at)) {
+        errors.push(`${path}.recorded_at must not precede the previous record`);
+      }
       if (provenanceIds.has(record.record_id)) errors.push(`${path}.record_id must be unique`);
       provenanceIds.add(record.record_id);
     });
   }
+  const visitcardProvenanceReference = conversation.context?.visitcard?.provenance_reference;
+  if (visitcardProvenanceReference !== undefined && !provenanceIds.has(visitcardProvenanceReference)) {
+    errors.push("$.context.visitcard.provenance_reference must reference a provenance record");
+  }
+  subjectProvenanceReferences.forEach(({ path, reference }) => {
+    if (!provenanceIds.has(reference)) errors.push(`${path}.provenance_reference must reference a provenance record`);
+  });
 
   validatePermissions(conversation.permissions, participantIds, errors);
 
@@ -208,6 +233,25 @@ function validateVisitcard(visitcard, errors) {
   requireEnum(visitcard.encounter_state, encounterStates, "$.context.visitcard.encounter_state", errors);
 }
 
+function validateSubject(subject, index, subjectIds, provenanceReferences, errors) {
+  const path = `$.context.subjects[${index}]`;
+  const requiredKeys = ["subject_id", "type", "name", "preview_reference", "meaning", "provenance_reference", "state", "boundary", "next_action", "presentation_effect"];
+  const allowedKeys = [...requiredKeys, "object_reference"];
+  if (!requireKeys(subject, requiredKeys, allowedKeys, path, errors)) return;
+  if (!/^rio:subject:[A-Za-z0-9._~-]+$/.test(subject.subject_id ?? "")) errors.push(`${path}.subject_id is invalid`);
+  if (subjectIds.has(subject.subject_id)) errors.push(`${path}.subject_id must be unique`);
+  subjectIds.add(subject.subject_id);
+  requireEnum(subject.type, subjectTypes, `${path}.type`, errors);
+  requireEnum(subject.state, subjectStates, `${path}.state`, errors);
+  for (const key of ["name", "preview_reference", "meaning", "provenance_reference", "boundary", "next_action"]) {
+    if (!isNonEmptyString(subject[key])) errors.push(`${path}.${key} is required`);
+  }
+  if (subject.object_reference !== undefined && !isNonEmptyString(subject.object_reference)) errors.push(`${path}.object_reference must be a non-empty string`);
+  if (subject.type === "ELIXER" && !isNonEmptyString(subject.object_reference)) errors.push(`${path}.object_reference is required for ELIXER`);
+  if (subject.presentation_effect !== "NONE") errors.push(`${path}.presentation_effect must be NONE`);
+  if (isNonEmptyString(subject.provenance_reference)) provenanceReferences.push({ path, reference: subject.provenance_reference });
+}
+
 export function canTransition(from, to) {
   return policy.conversation_transitions[from]?.includes(to) ?? false;
 }
@@ -238,7 +282,21 @@ function validateTransitionRecord(conversation, record) {
   if (conversation.provenance.some((item) => item.record_id === record.record_id)) {
     errors.push("$transition.record_id must be unique");
   }
+  const previousRecord = conversation.provenance.at(-1);
+  if (isDateTimeOrNull(record.recorded_at) && record.recorded_at !== null && previousRecord !== undefined
+    && Date.parse(record.recorded_at) < Date.parse(previousRecord.recorded_at)) {
+    errors.push("$transition.recorded_at must not precede the latest provenance record");
+  }
   return errors;
+}
+
+function isConsentValidAt(conversation, recordedAt) {
+  const permissions = conversation.permissions;
+  if (permissions.consent_state !== "GRANTED") return false;
+  const timestamp = Date.parse(recordedAt);
+  if (permissions.valid_from !== null && timestamp < Date.parse(permissions.valid_from)) return false;
+  if (permissions.valid_until !== null && timestamp > Date.parse(permissions.valid_until)) return false;
+  return true;
 }
 
 export function createConversation(input) {
@@ -380,6 +438,49 @@ export function revokeConsent(conversation, revokedAt, record) {
   return { ok: true, errors: [], conversation: candidate };
 }
 
+export function expireConsent(conversation, record) {
+  const sourceErrors = validateConversation(conversation);
+  if (sourceErrors.length > 0) {
+    return { ok: false, errors: sourceErrors };
+  }
+  if (conversation.permissions.consent_state !== "GRANTED") {
+    return { ok: false, errors: ["only granted consent can expire"] };
+  }
+  if (conversation.permissions.valid_until === null) {
+    return { ok: false, errors: ["consent without valid_until cannot expire"] };
+  }
+
+  const recordErrors = validateTransitionRecord(conversation, record);
+  if (recordErrors.length > 0) {
+    return { ok: false, errors: recordErrors };
+  }
+  if (Date.parse(record.recorded_at) < Date.parse(conversation.permissions.valid_until)) {
+    return { ok: false, errors: ["consent cannot expire before valid_until"] };
+  }
+
+  const candidate = structuredClone(conversation);
+  const previousRecord = candidate.provenance.at(-1);
+  candidate.permissions.consent_state = "EXPIRED";
+  candidate.permissions.allowed_actions = [];
+  candidate.permissions.revoked_at = null;
+  candidate.permissions.authority_effect = "NONE";
+  if (["CONNECTED", "ACTIVE", "RESUMED"].includes(candidate.current_state)) {
+    candidate.current_state = "PAUSED";
+  }
+  candidate.provenance.push({
+    ...record,
+    event: `CONSENT_EXPIRED:${candidate.permissions.valid_until}`,
+    previous_record_id: previousRecord.record_id
+  });
+
+  const targetErrors = validateConversation(candidate);
+  if (targetErrors.length > 0) {
+    return { ok: false, errors: targetErrors };
+  }
+
+  return { ok: true, errors: [], conversation: candidate };
+}
+
 export function setConversationLocale(conversation, requestedLocale, record) {
   const sourceErrors = validateConversation(conversation);
   if (sourceErrors.length > 0) {
@@ -432,18 +533,21 @@ export function transitionVisitcardEncounter(conversation, to, record) {
     return { ok: false, errors: [`VisitCard encounter transition ${from} -> ${to} is not allowed`] };
   }
 
+  const recordErrors = validateTransitionRecord(conversation, record);
+  if (recordErrors.length > 0) {
+    return { ok: false, errors: recordErrors };
+  }
+
   if (["ACCEPTED", "CONNECTED"].includes(to)) {
     if (conversation.permissions.consent_state !== "GRANTED" || !conversation.permissions.allowed_actions.includes("REQUEST_CONNECTION")) {
       return { ok: false, errors: [`VisitCard transition to ${to} requires granted REQUEST_CONNECTION permission`] };
     }
+    if (!isConsentValidAt(conversation, record.recorded_at)) {
+      return { ok: false, errors: [`VisitCard transition to ${to} is outside the consent validity window`] };
+    }
   }
   if (to === "CONNECTED" && !["CONNECTED", "ACTIVE", "RESUMED"].includes(conversation.current_state)) {
     return { ok: false, errors: ["VisitCard cannot become CONNECTED before the conversation is connected"] };
-  }
-
-  const recordErrors = validateTransitionRecord(conversation, record);
-  if (recordErrors.length > 0) {
-    return { ok: false, errors: recordErrors };
   }
 
   const candidate = structuredClone(conversation);
@@ -521,6 +625,9 @@ export function transitionConversation(conversation, to, record) {
   const recordErrors = validateTransitionRecord(conversation, record);
   if (recordErrors.length > 0) {
     return { ok: false, errors: recordErrors };
+  }
+  if (["CONNECTED", "ACTIVE", "RESUMED"].includes(to) && !isConsentValidAt(conversation, record.recorded_at)) {
+    return { ok: false, errors: [`transition to ${to} is outside the consent validity window`] };
   }
 
   const candidate = structuredClone(conversation);
