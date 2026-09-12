@@ -441,7 +441,9 @@ button {
 .rio-room-panel,
 .rio-address-panel,
 .rio-timeline-panel,
-.rio-trust-panel {
+.rio-trust-panel,
+.rio-wing-signals-panel,
+.rio-wing-routes-panel {
   border: 1px solid rgba(86, 182, 255, 0.2);
   border-radius: 12px;
   padding: 0.65rem 0.75rem;
@@ -451,6 +453,7 @@ button {
 .rio-conversation-panel ul,
 .rio-room-panel ul,
 .rio-timeline-panel ul,
+.rio-wing-signals-panel ul,
 .rio-delivery-panel ul {
   margin: 0.3rem 0 0;
   padding-left: 1.1rem;
@@ -460,7 +463,8 @@ button {
 .rio-consequence-panel p,
 .rio-consent-panel p,
 .rio-address-panel p,
-.rio-trust-panel p {
+.rio-trust-panel p,
+.rio-wing-routes-panel p {
   margin: 0.3rem 0 0;
 }
 
