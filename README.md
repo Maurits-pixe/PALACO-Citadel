@@ -6,3 +6,4 @@
 - Canon map + extra root-to-CANON mapping: `/home/runner/work/PALACO-Citadel/PALACO-Citadel/CANON/README.md`
 - Frontend entry files: `/home/runner/work/PALACO-Citadel/PALACO-Citadel/index.html`, `/home/runner/work/PALACO-Citadel/PALACO-Citadel/styles.css`, `/home/runner/work/PALACO-Citadel/PALACO-Citadel/app.js`, `/home/runner/work/PALACO-Citadel/PALACO-Citadel/manifest.webmanifest`, `/home/runner/work/PALACO-Citadel/PALACO-Citadel/sw.js`
 - GitHub Pages workflow: `/home/runner/work/PALACO-Citadel/PALACO-Citadel/.github/workflows/pages.yml`
+- Custom domain mapping: `/home/runner/work/PALACO-Citadel/PALACO-Citadel/CNAME` (`hoofdkantoor.info`)
