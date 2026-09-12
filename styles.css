@@ -443,7 +443,9 @@ button {
 .rio-timeline-panel,
 .rio-trust-panel,
 .rio-wing-signals-panel,
-.rio-wing-routes-panel {
+.rio-wing-routes-panel,
+.rio-wing-control-panel,
+.rio-wing-recovery-panel {
   border: 1px solid rgba(86, 182, 255, 0.2);
   border-radius: 12px;
   padding: 0.65rem 0.75rem;
@@ -454,6 +456,7 @@ button {
 .rio-room-panel ul,
 .rio-timeline-panel ul,
 .rio-wing-signals-panel ul,
+.rio-wing-control-panel ul,
 .rio-delivery-panel ul {
   margin: 0.3rem 0 0;
   padding-left: 1.1rem;
@@ -464,7 +467,8 @@ button {
 .rio-consent-panel p,
 .rio-address-panel p,
 .rio-trust-panel p,
-.rio-wing-routes-panel p {
+.rio-wing-routes-panel p,
+.rio-wing-recovery-panel p {
   margin: 0.3rem 0 0;
 }
 
