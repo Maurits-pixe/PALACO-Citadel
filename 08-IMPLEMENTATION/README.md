@@ -17,14 +17,15 @@ Concrete implementation assets: code, schemas, tests, examples, and setup.
 - [Runtime](../rio/runtime.mjs)
 - [Conformance suite](../rio/conformance.mjs)
 - [Web and touchscreen surface](../index.html)
+- [Browser conformance suite](../tests/browser/rio-surface.spec.mjs)
+- [Playwright configuration](../playwright.config.mjs)
 
 Validate the profile from the repository root:
 
 ```bash
-node --check rio/localization.mjs
-node --check rio/runtime.mjs
-node --check rio/conformance.mjs
-node rio/conformance.mjs
+npm ci
+npx playwright install chromium
+npm test
 ```
 
 This is a local implementation profile. Passing checks do not create canon, consent, permission, or authority.

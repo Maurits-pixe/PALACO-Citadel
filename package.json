@@ -1,0 +1,13 @@
+{
+  "name": "palaco-citadel",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "npm run test:rio && npm run test:browser",
+    "test:rio": "node rio/conformance.mjs",
+    "test:browser": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}
