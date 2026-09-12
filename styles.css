@@ -437,7 +437,9 @@ button {
 .rio-context-panel,
 .rio-consequence-panel,
 .rio-delivery-panel,
-.rio-consent-panel {
+.rio-consent-panel,
+.rio-room-panel,
+.rio-address-panel {
   border: 1px solid rgba(86, 182, 255, 0.2);
   border-radius: 12px;
   padding: 0.65rem 0.75rem;
@@ -445,6 +447,7 @@ button {
 }
 
 .rio-conversation-panel ul,
+.rio-room-panel ul,
 .rio-delivery-panel ul {
   margin: 0.3rem 0 0;
   padding-left: 1.1rem;
@@ -452,7 +455,8 @@ button {
 
 .rio-context-panel p,
 .rio-consequence-panel p,
-.rio-consent-panel p {
+.rio-consent-panel p,
+.rio-address-panel p {
   margin: 0.3rem 0 0;
 }
 
