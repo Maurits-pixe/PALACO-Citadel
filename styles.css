@@ -447,7 +447,9 @@ button {
 .rio-wing-control-panel,
 .rio-wing-recovery-panel,
 .rio-wing-telemetry-panel,
-.rio-cockpit-panel {
+.rio-cockpit-panel,
+.rio-wing-coordination-panel,
+.rio-constitutional-lock-panel {
   border: 1px solid rgba(86, 182, 255, 0.2);
   border-radius: 12px;
   padding: 0.65rem 0.75rem;
@@ -461,6 +463,7 @@ button {
 .rio-wing-control-panel ul,
 .rio-wing-telemetry-panel ul,
 .rio-cockpit-panel ul,
+.rio-wing-coordination-panel ul,
 .rio-delivery-panel ul {
   margin: 0.3rem 0 0;
   padding-left: 1.1rem;
@@ -472,7 +475,8 @@ button {
 .rio-address-panel p,
 .rio-trust-panel p,
 .rio-wing-routes-panel p,
-.rio-wing-recovery-panel p {
+.rio-wing-recovery-panel p,
+.rio-constitutional-lock-panel p {
   margin: 0.3rem 0 0;
 }
 
