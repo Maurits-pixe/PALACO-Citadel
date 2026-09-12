@@ -41,6 +41,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 nav { display: flex; justify-content: center; gap: 24px; }
 nav a { color: var(--ink); font-size: 0.9rem; font-weight: 700; text-decoration: none; }
 nav a:hover { color: var(--blue); }
+.mobile-nav { display: none; }
 .language-switch { display: flex; border: 1px solid var(--line); background: white; overflow-x: auto; }
 .lang-btn { min-width: 36px; min-height: 34px; padding: 0 8px; border: 0; border-inline-end: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; font-size: 0.75rem; font-weight: 800; }
 .lang-btn:last-child { border-inline-end: 0; }
@@ -246,6 +247,7 @@ footer small { grid-column: 1 / -1; }
 }
 
 @media (max-width: 640px) {
+  body { padding-bottom: calc(62px + env(safe-area-inset-bottom)); }
   .site-header { width: min(100% - 24px, 1180px); grid-template-columns: 1fr; gap: 10px; }
   .brand { justify-content: center; }
   .language-switch { width: 100%; justify-self: stretch; }
@@ -283,6 +285,33 @@ footer small { grid-column: 1 / -1; }
   .trust dl div { grid-template-columns: 1fr; gap: 6px; }
   footer { grid-template-columns: 1fr; }
   footer small { grid-column: auto; }
+  .mobile-nav {
+    position: fixed;
+    z-index: 20;
+    inset: auto 0 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    padding: 0 max(8px, env(safe-area-inset-right)) env(safe-area-inset-bottom) max(8px, env(safe-area-inset-left));
+    border-top: 2px solid var(--ink);
+    background: rgba(255, 253, 244, 0.97);
+    box-shadow: 0 -10px 28px rgba(16, 36, 62, 0.14);
+  }
+  .mobile-nav a {
+    min-width: 0;
+    min-height: 60px;
+    padding: 7px 4px 6px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 2px;
+    color: var(--ink);
+    font-size: 0.7rem;
+    line-height: 1.05;
+    text-align: center;
+  }
+  .mobile-nav a > span:first-child { color: var(--blue); font-size: 1.05rem; line-height: 1; }
+  .mobile-nav a:active, .mobile-nav a[aria-current="location"] { background: var(--yellow); color: var(--ink); }
 }
 
 @keyframes sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }

@@ -32,6 +32,16 @@ const subjectTranslations = {
   zh: { subjectsLabel: '触摸并发现', subjectsTitle: '每个主题都能在 RIO 中鲜活呈现。', subjectsBody: '符号、图片、照片或完整的 ELIXER。轻触查看，由你决定是否继续。', subjectsAria: '滑动浏览 RIO 主题', symbolType: '符号', symbolTitle: '有意义的标志', symbolDescription: '一个小标志能让一个大想法容易辨认。', imageType: '图片', imageTitle: 'RIO 的面孔', imageDescription: '图片能让你马上知道自己在哪里。', photoType: '照片', photoTitle: '相遇的地方', photoAlt: '暖阳下开阔的风景', photoDescription: '照片可以展示真实的地方、人物或回忆。', elixerTitle: '一个完整世界', elixerDescription: 'ELIXER 可以作为完整主题打开，并保留自己的内容和边界。', tapHint: '轻触打开', closeSubject: '关闭主题', subjectSource: '来源', subjectState: '状态', subjectVerified: '可见且可验证', subjectBoundary: '查看并不授予访问权。下一步始终由你选择。', subjectContinue: '继续这个主题', subjectChosen: '这个主题已准备好进入你的对话。' }
 };
 
+const mobileNavTranslations = {
+  nl: { navExplore: 'Ontdek', mobileNavLabel: 'Mobiele hoofdnavigatie' },
+  en: { navExplore: 'Explore', mobileNavLabel: 'Mobile main navigation' },
+  de: { navExplore: 'Entdecken', mobileNavLabel: 'Mobile Hauptnavigation' },
+  fr: { navExplore: 'Explorer', mobileNavLabel: 'Navigation principale mobile' },
+  es: { navExplore: 'Explorar', mobileNavLabel: 'Navegación principal móvil' },
+  ar: { navExplore: 'استكشف', mobileNavLabel: 'التنقل الرئيسي للجوال' },
+  zh: { navExplore: '探索', mobileNavLabel: '移动主导航' }
+};
+
 const supportedLanguages = Object.keys(translations);
 const languageButtons = document.querySelectorAll('.lang-btn');
 const meetButton = document.querySelector('#meet-btn');
@@ -52,6 +62,7 @@ const subjectKind = document.querySelector('#subject-kind');
 const subjectTitle = document.querySelector('#subject-dialog-title');
 const subjectDescription = document.querySelector('#subject-dialog-description');
 const subjectContinue = document.querySelector('#subject-continue');
+const mobileNavLinks = document.querySelectorAll('.mobile-nav a');
 
 const browserLanguage = navigator.language?.split('-')[0];
 let currentLanguage = localStorage.getItem('palaco-language') || (supportedLanguages.includes(browserLanguage) ? browserLanguage : 'nl');
@@ -60,7 +71,7 @@ let activeSubject;
 let lastSubjectTrigger;
 let touchStart;
 
-const text = (key) => translations[currentLanguage][key] ?? subjectTranslations[currentLanguage]?.[key];
+const text = (key) => translations[currentLanguage][key] ?? subjectTranslations[currentLanguage]?.[key] ?? mobileNavTranslations[currentLanguage]?.[key];
 
 const subjects = {
   symbol: { subject_id: 'rio:subject:palaco-symbol', type: 'SYMBOL', name: 'symbolTitle', preview_reference: 'asset:palaco-symbol', meaning: 'symbolDescription', provenance_reference: 'rio-web-subject-catalog-v1', state: 'CURRENT', boundary: 'subjectBoundary', next_action: 'subjectContinue', presentation_effect: 'NONE', kind: 'symbolType', preview: '∆' },
@@ -180,6 +191,26 @@ subjectContinue?.addEventListener('click', () => {
   closeSubjectDialog();
   document.querySelector('.hello-panel')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 });
+
+mobileNavLinks.forEach((link) => link.addEventListener('click', () => {
+  mobileNavLinks.forEach((item) => item.removeAttribute('aria-current'));
+  link.setAttribute('aria-current', 'location');
+}));
+
+if ('IntersectionObserver' in window) {
+  const mobileSections = [...mobileNavLinks]
+    .map((link) => document.querySelector(link.getAttribute('href')))
+    .filter(Boolean);
+  const sectionObserver = new IntersectionObserver((entries) => {
+    const visible = entries.filter((entry) => entry.isIntersecting).sort((left, right) => right.intersectionRatio - left.intersectionRatio)[0];
+    if (!visible) return;
+    mobileNavLinks.forEach((link) => {
+      if (link.getAttribute('href') === `#${visible.target.id}`) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+  }, { rootMargin: '-30% 0px -55%', threshold: [0, 0.25, 0.5] });
+  mobileSections.forEach((section) => sectionObserver.observe(section));
+}
 
 shareButton?.addEventListener('click', async () => {
   const shareData = { title: document.title, text: text('tagline'), url: window.location.href };
