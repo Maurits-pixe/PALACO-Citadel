@@ -1,107 +1,552 @@
 <!doctype html>
-<html lang="nl">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#fff45c" />
-    <meta name="description" content="RIO is het visitekaartje van PALACO. Zeg hallo en neem je gesprek overal mee naartoe." />
-    <title>RIO · Het visitekaartje van PALACO</title>
+    <meta name="theme-color" content="#0b1f3a" />
+    <title>PALACO Citadel</title>
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <header class="site-header">
-      <a class="brand" href="#top" aria-label="PALACO RIO"><img src="/assets/icon-192.svg" alt="" width="38" height="38" /><span>PALACO <strong>RIO</strong></span></a>
-      <nav aria-label="Hoofdnavigatie"><a href="#meet" data-i18n="navMeet">Ontmoet RIO</a><a href="#everywhere" data-i18n="navEverywhere">Overal</a><a href="#trust" data-i18n="navTrust">Vertrouwen</a></nav>
-      <div class="language-switch" role="group" aria-label="Taal">
-        <button type="button" class="lang-btn" data-lang="nl">NL</button><button type="button" class="lang-btn" data-lang="en">EN</button><button type="button" class="lang-btn" data-lang="de">DE</button><button type="button" class="lang-btn" data-lang="fr">FR</button><button type="button" class="lang-btn" data-lang="es">ES</button><button type="button" class="lang-btn" data-lang="ar">AR</button><button type="button" class="lang-btn" data-lang="zh">中文</button>
+    <header class="hero">
+      <div class="hero-top">
+        <p class="eyebrow" data-i18n="eyebrow">GO · Scheppen · Create</p>
+        <div class="language-switch" aria-label="Language selector">
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+          <button type="button" class="lang-btn" data-lang="nl">NL</button>
+          <button type="button" class="lang-btn" data-lang="eo">EO</button>
+        </div>
       </div>
+      <h1>PALACO Citadel</h1>
+      <p class="subtitle" data-i18n="subtitle">
+        The first executable UI foundation for desktop, tablet, and mobile.
+      </p>
     </header>
 
-    <main id="top">
-      <section class="rio-intro" aria-labelledby="rio-title">
-        <div class="spark-field" aria-hidden="true"></div>
-        <p class="eyebrow" data-i18n="eyebrow">PALACO stelt voor</p>
-        <h1 id="rio-title">RIO<span class="title-dot">.</span></h1>
-        <p class="tagline" data-i18n="tagline">Het visitekaartje van PALACO.</p>
-        <p class="intro-copy" data-i18n="intro">RIO zegt hallo. RIO helpt je mensen en ideeën te vinden. Jij kiest altijd wat je deelt.</p>
-        <div class="hero-actions"><button id="meet-btn" type="button" class="primary-action" data-i18n="meetButton">Maak kennis</button><button id="share-btn" type="button" class="secondary-action" data-i18n="shareButton">Deel RIO</button></div>
-        <p id="share-output" class="action-output" aria-live="polite"></p>
-
-        <article class="visitcard" aria-label="RIO VisitCard">
-          <div class="card-topline"><div class="card-brand"><img src="/assets/icon-192.svg" alt="PALACO" width="52" height="52" /><span>PALACO</span></div><span class="live-mark"><span aria-hidden="true"></span><span data-i18n="live">Klaar om te verbinden</span></span></div>
-          <div class="card-center"><p class="card-kicker">VISITCARD 03</p><h2 data-i18n="cardIntro">Hallo, ik ben RIO.</h2><p data-i18n="cardBody">Ik breng je veilig naar de juiste plek in PALACO.</p></div>
-          <div class="card-details"><p><span data-i18n="identityLabel">Identiteit</span><strong data-i18n="verified">Geverifieerd</strong></p><p><span data-i18n="consentLabel">Jouw keuze</span><strong data-i18n="consentValue">Altijd eerst</strong></p><p><span data-i18n="authorityLabel">Macht</span><strong data-i18n="authorityValue">Geen</strong></p></div>
-          <div class="card-footer"><p><span data-i18n="addressLabel">RIO-adres</span><strong>rio:palaco</strong></p><button id="card-toggle" type="button" aria-expanded="false" data-i18n="openCard">Open kaart</button></div>
-          <div id="card-reveal" class="card-reveal" hidden><p data-i18n="cardReveal">Eerst ontmoeten. Dan kiezen. Pas daarna verbinden.</p><div class="signal" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div>
-        </article>
+    <main class="layout">
+      <section class="card">
+        <h2 data-i18n="visionTitle">Vision</h2>
+        <p data-i18n="visionBody">
+          PALACO means “palace” in Esperanto: a shared digital place to build,
+          create, and bring ideas to life.
+        </p>
       </section>
 
-      <section id="everywhere" class="everywhere" aria-labelledby="everywhere-title">
-        <div><p class="section-label">ONE RIO · MANY SURFACES</p><h2 id="everywhere-title" data-i18n="everywhereTitle">Eén begroeting. Overal.</h2><p data-i18n="everywhereBody">Je gesprek reist met je mee. De betekenis blijft hetzelfde.</p></div>
-        <div class="surface-line" aria-label="Ondersteunde omgevingen"><span>Mobile</span><span>Web</span><span>Citadel</span><span>ELIXER</span><span>Desktop</span></div>
+      <section class="card">
+        <h2 data-i18n="launchTitle">Launch Pad</h2>
+        <form id="goal-form">
+          <label for="goal" data-i18n="goalLabel">What will you create today?</label>
+          <input id="goal" name="goal" maxlength="120" data-i18n-placeholder="goalPlaceholder" placeholder="Type your first PALACO goal" required />
+          <button type="submit" data-i18n="goButton">GO</button>
+        </form>
+        <p id="goal-output" class="goal-output" aria-live="polite"></p>
+        <button id="install-btn" type="button" class="install-btn" hidden data-i18n="installButton">Install app</button>
       </section>
 
-      <section id="subjects" class="subjects" aria-labelledby="subjects-title">
-        <div class="subjects-heading">
-          <p class="section-label" data-i18n="subjectsLabel">Raak aan en ontdek</p>
-          <h2 id="subjects-title" data-i18n="subjectsTitle">Elk onderwerp kan leven in RIO.</h2>
-          <p data-i18n="subjectsBody">Een teken, plaatje, foto of hele ELIXER. Tik om te kijken. Jij kiest of je verdergaat.</p>
-        </div>
-        <div id="subject-track" class="subject-track" aria-label="RIO-onderwerpen" data-i18n-aria-label="subjectsAria">
-          <button class="subject-tile subject-symbol" type="button" data-subject="symbol" aria-haspopup="dialog">
-            <span class="subject-visual" aria-hidden="true">∆</span><span class="subject-type" data-i18n="symbolType">Symbool</span><strong data-i18n="symbolTitle">Een teken met betekenis</strong><small data-i18n="tapHint">Tik om te openen</small>
-          </button>
-          <button class="subject-tile subject-image" type="button" data-subject="image" aria-haspopup="dialog">
-            <span class="subject-visual"><img src="/assets/icon-192.svg" alt="" width="128" height="128" /></span><span class="subject-type" data-i18n="imageType">Plaatje</span><strong data-i18n="imageTitle">Het gezicht van RIO</strong><small data-i18n="tapHint">Tik om te openen</small>
-          </button>
-          <button class="subject-tile subject-photo" type="button" data-subject="photo" aria-haspopup="dialog">
-            <span class="subject-visual photo-visual" role="img" data-i18n-aria-label="photoAlt"></span><span class="subject-type" data-i18n="photoType">Foto</span><strong data-i18n="photoTitle">Een plek om te ontmoeten</strong><small data-i18n="tapHint">Tik om te openen</small>
-          </button>
-          <button class="subject-tile subject-elixer" type="button" data-subject="elixer" aria-haspopup="dialog">
-            <span class="subject-visual elixer-visual" aria-hidden="true"><i></i><i></i><i></i><b>E</b></span><span class="subject-type">ELIXER</span><strong data-i18n="elixerTitle">Een complete wereld</strong><small data-i18n="tapHint">Tik om te openen</small>
-          </button>
-        </div>
-        <div class="swipe-cue" aria-hidden="true"><span></span><span></span><span></span></div>
-      </section>
-
-      <section id="meet" class="meet" aria-labelledby="meet-title">
-        <p class="section-label" data-i18n="flowLabel">Zo werkt RIO</p><h2 id="meet-title" data-i18n="flowTitle">Van hallo naar een echt gesprek.</h2>
-        <div class="steps"><article><span>01</span><h3 data-i18n="stepOneTitle">Kijk</h3><p data-i18n="stepOneBody">RIO laat zien wie of wat je ontmoet.</p></article><article><span>02</span><h3 data-i18n="stepTwoTitle">Kies</h3><p data-i18n="stepTwoBody">Jij beslist of je verder wilt gaan.</p></article><article><span>03</span><h3 data-i18n="stepThreeTitle">Praat</h3><p data-i18n="stepThreeBody">RIO bewaart de weg en het gesprek.</p></article></div>
-      </section>
-
-      <section class="hello-panel" aria-labelledby="hello-title">
-        <div><p class="section-label">RIO CONNECTS</p><h2 id="hello-title" data-i18n="helloTitle">Zeg hallo tegen RIO.</h2><p data-i18n="helloBody">Begin klein. Alleen je naam is genoeg.</p></div>
-        <form id="hello-form"><label for="visitor-name" data-i18n="nameLabel">Hoe mogen we je noemen?</label><div class="input-row"><input id="visitor-name" name="visitor-name" maxlength="60" autocomplete="name" required data-i18n-placeholder="namePlaceholder" placeholder="Jouw naam" /><button type="submit" data-i18n="startButton">Start</button></div><p id="hello-output" class="hello-output" aria-live="polite"></p></form>
-      </section>
-
-      <section id="trust" class="trust" aria-labelledby="trust-title">
-        <div class="trust-heading"><p class="section-label">COMMUNICATION ≠ AUTHORITY</p><h2 id="trust-title" data-i18n="trustTitle">Helder over vertrouwen.</h2><p data-i18n="trustBody">RIO verbindt. Jij houdt de regie. PALACO bewaakt de grenzen.</p></div>
-        <dl><div><dt data-i18n="trustIdentity">Wie is dit?</dt><dd data-i18n="trustIdentityBody">De identiteit is zichtbaar en controleerbaar.</dd></div><div><dt data-i18n="trustConsent">Mag dit?</dt><dd data-i18n="trustConsentBody">Niets gaat verder zonder jouw keuze.</dd></div><div><dt data-i18n="trustHistory">Wat gebeurde er?</dt><dd data-i18n="trustHistoryBody">Belangrijke stappen blijven terug te vinden.</dd></div></dl>
+      <section class="card">
+        <h2 data-i18n="readinessTitle">Platform readiness</h2>
+        <ul>
+          <li data-i18n="readinessOne">Responsive layout for computer, tablet, and mobile.</li>
+          <li data-i18n="readinessTwo">Installable web app foundation (PWA).</li>
+          <li data-i18n="readinessThree">Ready for domain + HTTPS deployment.</li>
+        </ul>
       </section>
     </main>
 
-    <dialog id="subject-dialog" class="subject-dialog" aria-labelledby="subject-dialog-title" aria-describedby="subject-dialog-description">
-      <div id="subject-sheet" class="subject-sheet">
-        <div class="sheet-handle" aria-hidden="true"></div>
-        <button id="subject-close" class="subject-close" type="button" aria-label="Sluiten" data-i18n-aria-label="closeSubject">×</button>
-        <div id="subject-preview" class="subject-preview" aria-hidden="true"></div>
-        <p id="subject-kind" class="subject-kind"></p>
-        <h2 id="subject-dialog-title"></h2>
-        <p id="subject-dialog-description"></p>
-        <dl class="subject-meta"><div><dt data-i18n="subjectSource">Herkomst</dt><dd>PALACO · RIO</dd></div><div><dt data-i18n="subjectState">Status</dt><dd data-i18n="subjectVerified">Zichtbaar en controleerbaar</dd></div></dl>
-        <p class="subject-boundary" data-i18n="subjectBoundary">Kijken geeft geen toegang. Jij kiest altijd de volgende stap.</p>
-        <button id="subject-continue" class="subject-continue" type="button" data-i18n="subjectContinue">Verder met dit onderwerp</button>
+    <section class="control-room">
+      <div class="control-room-head">
+        <h2 data-i18n="masterTitle">MA5TER Dashboard Control Room</h2>
+        <p data-i18n="masterSubtitle">Central command for PALACO Industry and PALACO internal operations.</p>
       </div>
-    </dialog>
 
-    <nav class="mobile-nav" aria-label="Mobiele hoofdnavigatie" data-i18n-aria-label="mobileNavLabel">
-      <a href="#subjects"><span aria-hidden="true">◇</span><span data-i18n="navExplore">Ontdek</span></a>
-      <a href="#meet"><span aria-hidden="true">●</span><span data-i18n="navMeet">Ontmoet RIO</span></a>
-      <a href="#trust"><span aria-hidden="true">✓</span><span data-i18n="navTrust">Vertrouwen</span></a>
-    </nav>
+      <div class="control-grid">
+        <article class="card control-card">
+          <h3 data-i18n="industryTitle">PALACO Industry</h3>
+          <p data-i18n="industryBody">Monitor and activate industrial production mode.</p>
+          <p><span data-i18n="statusLabel">Status</span>: <strong id="industry-status" class="status-output"></strong></p>
+          <button type="button" class="control-btn" data-control-target="industry"></button>
+        </article>
 
-    <footer><p>RIO CONNECTS. <span>VORM9EVIN9 EXPLAINS.</span> CONSTITUTION GOVERNS.</p><button id="install-btn" type="button" hidden data-i18n="installButton">Installeer RIO</button><small data-i18n="footer">PALACO · Een plek voor mensen en ideeën.</small></footer>
+        <article class="card control-card">
+          <h3 data-i18n="internalTitle">PALACO Internal</h3>
+          <p data-i18n="internalBody">Manage internal Citadel operation mode.</p>
+          <p><span data-i18n="statusLabel">Status</span>: <strong id="citadel-status" class="status-output"></strong></p>
+          <button type="button" class="control-btn" data-control-target="citadel"></button>
+        </article>
+      </div>
+
+      <div class="sync-row">
+        <button id="sync-btn" type="button" class="sync-btn" data-i18n="syncNow">Sync now</button>
+        <p id="sync-output" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="rio-platform">
+      <div class="rio-head">
+        <h2 data-i18n="rioTitle">RIO Platform Ascension</h2>
+        <p data-i18n="rioSubtitle">RIO evolves from chat interface to PALACO conversation and communication platform.</p>
+      </div>
+      <div class="rio-grid">
+        <article class="card">
+          <h3 data-i18n="rioPillarOneTitle">Surface-independent conversation</h3>
+          <ul>
+            <li data-i18n="rioPillarOneA">One conversation identity across mobile, web, Citadel, ELIXER, and desktop.</li>
+            <li data-i18n="rioPillarOneB">Conversation belongs to PALACO context, not to one device.</li>
+            <li data-i18n="rioPillarOneC">Cross-surface continuity remains active through sync and reconnect states.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3 data-i18n="rioPillarTwoTitle">Presence with boundaries</h3>
+          <ul>
+            <li data-i18n="rioPillarTwoA">Presence means reachable, never automatic authority.</li>
+            <li data-i18n="rioPillarTwoB">Online ≠ authorized; constitutional gates remain separate.</li>
+            <li data-i18n="rioPillarTwoC">RIO connects communication while PALACO protects authority boundaries.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3 data-i18n="rioPillarThreeTitle">Provenance-aware communication</h3>
+          <ul>
+            <li data-i18n="rioPillarThreeA">Messages preserve identity, context, origin, time, and traceability.</li>
+            <li data-i18n="rioPillarThreeB">WATERMERK and HOLOGRAM support authenticity and lineage visibility.</li>
+            <li data-i18n="rioPillarThreeC">Complexity is hidden when irrelevant and revealed when material.</li>
+          </ul>
+        </article>
+      </div>
+      <p class="rio-law" data-i18n="rioLaw">Canonical law: RIO may connect communication; RIO shall not create authority.</p>
+      <div class="rio-extended card">
+        <h3>RIO Fabric, Rooms, Address, Handoff</h3>
+        <ul>
+          <li>One communication fabric across Mobile, Web, Citadel, and ELIXER surfaces.</li>
+          <li>RIO Rooms are conversation contexts: joining a room never grants authority.</li>
+          <li>RIO Address and RIO Link route communication destinations without granting permission.</li>
+          <li>RIO Handshake and Trust Indicators clarify identity, context, and communication risk.</li>
+          <li>Conversation continuity supports handoff between surfaces with context re-check.</li>
+          <li>VisitCard Beacon supports discovery-first introduction with Watermerk/Hologram verification before handshake.</li>
+          <li>VisitCard 03 interaction flow: Discover → Recognize → Meet → Connect → Explore.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="control-room compass-dashboard">
+      <div class="control-room-head">
+        <h2 data-i18n="compassTitle">PALACO 2040 Compass</h2>
+        <p data-i18n="compassSubtitle">Understand first. Act with proof.</p>
+        <p class="compass-intro" data-i18n="proofDashboardIntro">Per action: see status, proof chain, and traceability chain in one view.</p>
+        <p class="compass-flow"><span data-i18n="flowContext">Context</span> → <span data-i18n="flowAction">Action</span> → <span data-i18n="flowProof">Proof</span> → <span data-i18n="flowTraceability">Traceability</span></p>
+      </div>
+
+      <div class="rio-grid">
+        <article class="card">
+          <h3 data-i18n="constitutionDashboardTitle">Constitution dashboard</h3>
+          <p data-i18n="constitutionDashboardIntro">Rules translated to what they mean for your current choices.</p>
+          <ul class="constitution-list">
+            <li class="constitution-item">
+              <p><strong data-i18n="constitutionRuleLabel">Rule</strong>: <span data-i18n="constitutionRuleOne">No authority without proof.</span></p>
+              <p><strong data-i18n="constitutionImpactLabel">Impact now</strong>: <span data-i18n="constitutionImpactOne">You can inspect, but cannot confirm actions missing evidence.</span></p>
+            </li>
+            <li class="constitution-item">
+              <p><strong data-i18n="constitutionRuleLabel">Rule</strong>: <span data-i18n="constitutionRuleTwo">Understand before action.</span></p>
+              <p><strong data-i18n="constitutionImpactLabel">Impact now</strong>: <span data-i18n="constitutionImpactTwo">Each action shows consequence preview before confirmation.</span></p>
+            </li>
+            <li class="constitution-item">
+              <p><strong data-i18n="constitutionRuleLabel">Rule</strong>: <span data-i18n="constitutionRuleThree">Authority stays bounded.</span></p>
+              <p><strong data-i18n="constitutionImpactLabel">Impact now</strong>: <span data-i18n="constitutionImpactThree">Roles are explicit: holder, steward, and system boundaries stay separate.</span></p>
+            </li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h3 data-i18n="proofDashboardTitle">Proof dashboard</h3>
+          <ul class="proof-action-list">
+            <li class="proof-action-item">
+              <p><strong data-i18n="primaryAction">Primary action</strong></p>
+              <p><span data-i18n="actionStatusLabel">Status</span>: <span class="proof-status proof-status-available" data-i18n="proofAvailable">Proof available</span></p>
+              <p><span data-i18n="proofChainLabel">Proof chain</span>: <a class="proof-link" href="/GO-EMERALD-009.md" data-i18n="openProofChain">Direct proof chain</a></p>
+              <p><span data-i18n="traceabilityChainLabel">Traceability chain</span>: <a class="proof-link" href="/emerald/registry/releases/EMERALD-REGISTRY-2026-09.json" data-i18n="openSourceChain">Open source chain</a></p>
+            </li>
+            <li class="proof-action-item">
+              <p><strong data-i18n="secondaryAction">Secondary action</strong></p>
+              <p><span data-i18n="actionStatusLabel">Status</span>: <span class="proof-status proof-status-review" data-i18n="proofInReview">Proof in review</span></p>
+              <p><span data-i18n="proofChainLabel">Proof chain</span>: <a class="proof-link" href="/GO-EMERALD-008.md" data-i18n="openProofChain">Direct proof chain</a></p>
+              <p><span data-i18n="traceabilityChainLabel">Traceability chain</span>: <a class="proof-link" href="/emerald/schemas/world-indexes.schema.json" data-i18n="openSourceChain">Open source chain</a></p>
+            </li>
+            <li class="proof-action-item">
+              <p><strong data-i18n="tertiaryAction">Tertiary action</strong></p>
+              <p><span data-i18n="actionStatusLabel">Status</span>: <span class="proof-status proof-status-missing" data-i18n="proofMissing">Proof missing</span></p>
+              <p><span data-i18n="proofChainLabel">Proof chain</span>: <a class="proof-link" href="/GO-EMERALD-003.md" data-i18n="openProofChain">Direct proof chain</a></p>
+              <p><span data-i18n="traceabilityChainLabel">Traceability chain</span>: <a class="proof-link" href="/EMERALD-WORLD-INDEX-SEED-V1.json" data-i18n="openSourceChain">Open source chain</a></p>
+            </li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h3 data-i18n="authorityTitle">Authority boundaries</h3>
+          <p data-i18n="authorityIntro">Who may do what, why, and under which boundaries.</p>
+          <ul class="authority-matrix">
+            <li class="authority-row">
+              <p><strong data-i18n="authorityWhoLabel">Who</strong>: <span data-i18n="authorityWhoHolder">Holder</span></p>
+              <p><strong data-i18n="authorityWhatLabel">What</strong>: <span data-i18n="authorityWhatHolder">Can execute own approved actions</span></p>
+              <p><strong data-i18n="authorityWhyLabel">Why</strong>: <span data-i18n="authorityWhyHolder">Identity-bound ownership</span></p>
+              <p><strong data-i18n="authorityBoundaryLabel">Boundary</strong>: <span data-i18n="authorityBoundaryHolder">Only within granted scope</span></p>
+              <p><strong data-i18n="authorityConditionLabel">Conditions</strong>: <span data-i18n="authorityConditionHolder">Valid proof + active session</span></p>
+            </li>
+            <li class="authority-row">
+              <p><strong data-i18n="authorityWhoLabel">Who</strong>: <span data-i18n="authorityWhoSteward">Steward</span></p>
+              <p><strong data-i18n="authorityWhatLabel">What</strong>: <span data-i18n="authorityWhatSteward">Can review and co-authorize sensitive actions</span></p>
+              <p><strong data-i18n="authorityWhyLabel">Why</strong>: <span data-i18n="authorityWhySteward">Governance and duty of care</span></p>
+              <p><strong data-i18n="authorityBoundaryLabel">Boundary</strong>: <span data-i18n="authorityBoundarySteward">Cannot impersonate holder authority</span></p>
+              <p><strong data-i18n="authorityConditionLabel">Conditions</strong>: <span data-i18n="authorityConditionSteward">Review trail + dual confirmation</span></p>
+            </li>
+            <li class="authority-row">
+              <p><strong data-i18n="authorityWhoLabel">Who</strong>: <span data-i18n="authorityWhoSystem">System</span></p>
+              <p><strong data-i18n="authorityWhatLabel">What</strong>: <span data-i18n="authorityWhatSystem">Can validate, log, and enforce policy gates</span></p>
+              <p><strong data-i18n="authorityWhyLabel">Why</strong>: <span data-i18n="authorityWhySystem">Constitutional integrity</span></p>
+              <p><strong data-i18n="authorityBoundaryLabel">Boundary</strong>: <span data-i18n="authorityBoundarySystem">No creation of human authority</span></p>
+              <p><strong data-i18n="authorityConditionLabel">Conditions</strong>: <span data-i18n="authorityConditionSystem">Policy match + verifiable evidence</span></p>
+            </li>
+          </ul>
+          <h4 data-i18n="identityTitle">Identity & session</h4>
+          <p data-i18n="identityDashboardIntro">Identity, session, verification, and ownership in one overview.</p>
+          <ul class="identity-overview">
+            <li class="identity-item"><strong data-i18n="activeIdentity">Active identity</strong>: A-01</li>
+            <li class="identity-item"><strong data-i18n="sessionState">Session state</strong>: <span data-i18n="sessionLive">Live</span></li>
+            <li class="identity-item"><strong data-i18n="verificationStatusLabel">Verification</strong>: <span data-i18n="verificationVerified">Verified</span></li>
+            <li class="identity-item"><strong data-i18n="sessionAgeLabel">Session age</strong>: <span data-i18n="sessionAgeNow">Current</span></li>
+            <li class="identity-item"><strong data-i18n="sessionBoundaryLabel">Session boundary</strong>: <span data-i18n="sessionBoundaryBounded">Bounded by policy gates</span></li>
+            <li class="identity-item"><strong data-i18n="ownershipLabel">Ownership</strong>: <span data-i18n="ownedByMe">Owned by me</span> 3 · <span data-i18n="ownershipScopePrivate">Private scope</span></li>
+          </ul>
+          <h4 data-i18n="navigationCompassTitle">Navigation compass</h4>
+          <p><span data-i18n="currentLayer">Current layer</span>: <span data-i18n="layerUnderstand">Understand</span></p>
+          <p><button id="compass-back-top" type="button" class="compass-back-btn" data-i18n="backToStart">Back to start</button></p>
+        </article>
+      </div>
+
+      <article class="card participation-dashboard">
+        <h3 data-i18n="participationDashboardTitle">Participation dashboard</h3>
+        <p data-i18n="participationDashboardIntro">Flowkaart: preview → authorization → review → revocation.</p>
+        <div class="participation-flow">
+          <div class="participation-step">
+            <strong data-i18n="participationStepPreview">Preview</strong>
+            <p data-i18n="participationStepPreviewBody">See impact and boundaries before giving authority.</p>
+          </div>
+          <span class="participation-arrow">→</span>
+          <div class="participation-step">
+            <strong data-i18n="participationStepAuthorize">Authorization</strong>
+            <p data-i18n="participationStepAuthorizeBody">Grant bounded permission with explicit conditions.</p>
+          </div>
+          <span class="participation-arrow">→</span>
+          <div class="participation-step">
+            <strong data-i18n="participationStepReview">Review</strong>
+            <p data-i18n="participationStepReviewBody">Inspect proof, traceability, and policy alignment.</p>
+          </div>
+          <span class="participation-arrow">→</span>
+          <div class="participation-step">
+            <strong data-i18n="participationStepRevoke">Revocation</strong>
+            <p data-i18n="participationStepRevokeBody">Withdraw authority when boundaries are broken.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="card governance-dashboard">
+        <h3 data-i18n="governanceDashboardTitle">Governance dashboard</h3>
+        <p data-i18n="governanceDashboardIntro">Active policies, deviations, and review moments without score-magic.</p>
+        <div class="governance-section">
+          <h4 data-i18n="activePoliciesTitle">Active policies</h4>
+          <ul>
+            <li data-i18n="activePolicyOne">Proof required before authority confirmation.</li>
+            <li data-i18n="activePolicyTwo">Bounded authorization with explicit scope.</li>
+            <li data-i18n="activePolicyThree">Traceability required for governance actions.</li>
+          </ul>
+        </div>
+        <div class="governance-section">
+          <h4 data-i18n="deviationsTitle">Deviations</h4>
+          <ul>
+            <li data-i18n="deviationOne">Secondary action pending review evidence.</li>
+            <li data-i18n="deviationTwo">One open traceability gap awaiting steward follow-up.</li>
+          </ul>
+        </div>
+        <div class="governance-section">
+          <h4 data-i18n="reviewMomentsTitle">Review moments</h4>
+          <ul>
+            <li data-i18n="reviewMomentOne">Policy review window: every 24h.</li>
+            <li data-i18n="reviewMomentTwo">Deviation checkpoint: before final confirmation.</li>
+            <li data-i18n="reviewMomentThree">Revocation audit: on every authority withdrawal.</li>
+          </ul>
+        </div>
+        <p class="governance-note" data-i18n="noScoreMagicNote">No single trust score: governance is shown as explicit facts and review states.</p>
+      </article>
+
+      <article class="card health-dashboard">
+        <h3 data-i18n="citadelHealthTitle">Citadel Health dashboard</h3>
+        <p data-i18n="citadelHealthIntro">Operational health and semantic risks with explanation per signal.</p>
+        <ul class="health-signal-list">
+          <li class="health-signal-item">
+            <p><strong data-i18n="healthSignalOpsTitle">Operational continuity</strong></p>
+            <p><span data-i18n="healthStatusLabel">Status</span>: <span class="proof-status proof-status-available" data-i18n="healthStatusStable">Stable</span></p>
+            <p data-i18n="healthSignalOpsBody">Core services respond within expected bounds and sync checkpoints are current.</p>
+          </li>
+          <li class="health-signal-item">
+            <p><strong data-i18n="healthSignalSemanticsTitle">Semantic coherence</strong></p>
+            <p><span data-i18n="healthStatusLabel">Status</span>: <span class="proof-status proof-status-review" data-i18n="healthStatusWatch">Watch</span></p>
+            <p data-i18n="healthSignalSemanticsBody">One context label mismatch detected; review keeps meaning aligned across actions.</p>
+          </li>
+          <li class="health-signal-item">
+            <p><strong data-i18n="healthSignalGovernanceTitle">Governance signal clarity</strong></p>
+            <p><span data-i18n="healthStatusLabel">Status</span>: <span class="proof-status proof-status-available" data-i18n="healthStatusClear">Clear</span></p>
+            <p data-i18n="healthSignalGovernanceBody">Policy and authority indicators remain explicit, with no hidden score-magic.</p>
+          </li>
+        </ul>
+      </article>
+
+      <article class="card rio-conversation-dashboard">
+        <h3 data-i18n="rioConversationDashboardTitle">RIO Conversation dashboard</h3>
+        <p data-i18n="rioConversationDashboardIntro">Conversations as access to actions, with context and consequence panel.</p>
+        <div class="rio-conversation-grid">
+          <section class="rio-conversation-panel">
+            <h4 data-i18n="rioConversationAccessTitle">Conversation access to actions</h4>
+            <ul>
+              <li><strong data-i18n="rioConversationOneTitle">Steward review room</strong> — <span data-i18n="rioConversationOneAction">Opens policy exception review action.</span></li>
+              <li><strong data-i18n="rioConversationTwoTitle">Holder execution room</strong> — <span data-i18n="rioConversationTwoAction">Opens bounded execution action after proof check.</span></li>
+              <li><strong data-i18n="rioConversationThreeTitle">Ops sync room</strong> — <span data-i18n="rioConversationThreeAction">Opens service continuity action with traceability logging.</span></li>
+            </ul>
+          </section>
+          <section class="rio-context-panel">
+            <h4 data-i18n="rioContextPanelTitle">Context panel</h4>
+            <p data-i18n="rioContextPanelBody">Shows active identities, relevant policy scope, and latest proof references before action selection.</p>
+          </section>
+          <section class="rio-consequence-panel">
+            <h4 data-i18n="rioConsequencePanelTitle">Consequence panel</h4>
+            <p data-i18n="rioConsequencePanelBody">Shows expected system impact, governance follow-up, and revocation path before confirmation.</p>
+          </section>
+          <section class="rio-delivery-panel">
+            <h4 data-i18n="rioDeliveryPanelTitle">Delivery state panel</h4>
+            <ul>
+              <li><strong data-i18n="rioDeliveryStateOneTitle">Delivery</strong>: <span class="proof-status proof-status-available" data-i18n="rioDeliveryStateOneValue">Delivered with identity match</span></li>
+              <li><strong data-i18n="rioDeliveryStateTwoTitle">Awaiting</strong>: <span class="proof-status proof-status-review" data-i18n="rioDeliveryStateTwoValue">Recipient confirmation pending</span></li>
+              <li><strong data-i18n="rioDeliveryStateThreeTitle">Fallback</strong>: <span class="proof-status proof-status-missing" data-i18n="rioDeliveryStateThreeValue">Route requires retry with context re-check</span></li>
+            </ul>
+          </section>
+          <section class="rio-consent-panel">
+            <h4 data-i18n="rioConsentPanelTitle">Consent panel</h4>
+            <p data-i18n="rioConsentPanelBody">Shows handshake consent scope, expiry window, and whether communication may continue without requesting authority.</p>
+          </section>
+          <section class="rio-room-panel">
+            <h4 data-i18n="rioRoomPanelTitle">Room continuity panel</h4>
+            <ul>
+              <li><strong data-i18n="rioRoomStateTitle">Room state</strong>: <span class="proof-status proof-status-available" data-i18n="rioRoomStateValue">Active with bounded participant roles</span></li>
+              <li><strong data-i18n="rioHandoffStateTitle">Handoff</strong>: <span class="proof-status proof-status-review" data-i18n="rioHandoffStateValue">Surface handoff pending context re-check</span></li>
+            </ul>
+          </section>
+          <section class="rio-address-panel">
+            <h4 data-i18n="rioAddressPanelTitle">Address and handshake panel</h4>
+            <p data-i18n="rioAddressPanelBody">Shows RIO address validity, link target scope, and handshake trust indicators before message delivery.</p>
+          </section>
+          <section class="rio-timeline-panel">
+            <h4 data-i18n="rioTimelinePanelTitle">Conversation timeline panel</h4>
+            <ul>
+              <li><strong data-i18n="rioTimelineOneTitle">Context check</strong>: <span data-i18n="rioTimelineOneValue">Completed before room entry.</span></li>
+              <li><strong data-i18n="rioTimelineTwoTitle">Handshake</strong>: <span data-i18n="rioTimelineTwoValue">Identity verified, consent scope attached.</span></li>
+              <li><strong data-i18n="rioTimelineThreeTitle">Delivery</strong>: <span data-i18n="rioTimelineThreeValue">Message route sealed with traceability marker.</span></li>
+            </ul>
+          </section>
+          <section class="rio-trust-panel">
+            <h4 data-i18n="rioTrustPanelTitle">Trust indicator panel</h4>
+            <p><strong data-i18n="rioTrustLevelLabel">Trust level</strong>: <span class="proof-status proof-status-available" data-i18n="rioTrustLevelValue">Transparent and bounded</span></p>
+            <p data-i18n="rioTrustPanelBody">Indicators show communication confidence only; they never create authority.</p>
+          </section>
+          <section class="rio-wing-signals-panel">
+            <h4 data-i18n="rioWingSignalsTitle">RIO wing signals</h4>
+            <ul>
+              <li><strong data-i18n="rioWingSignalOneTitle">Lift</strong>: <span class="proof-status proof-status-available" data-i18n="rioWingSignalOneValue">Cross-surface continuity stable</span></li>
+              <li><strong data-i18n="rioWingSignalTwoTitle">Turbulence</strong>: <span class="proof-status proof-status-review" data-i18n="rioWingSignalTwoValue">One channel awaits renewed consent</span></li>
+            </ul>
+          </section>
+          <section class="rio-wing-routes-panel">
+            <h4 data-i18n="rioWingRoutesTitle">Wing routes panel</h4>
+            <p data-i18n="rioWingRoutesBody">Shows preferred conversation routes (mobile, web, Citadel, ELIXER) and when fallback routing is activated.</p>
+          </section>
+          <section class="rio-wing-control-panel">
+            <h4 data-i18n="rioWingControlTitle">Wing control panel</h4>
+            <ul>
+              <li><strong data-i18n="rioWingControlModeTitle">Mode</strong>: <span class="proof-status proof-status-available" data-i18n="rioWingControlModeValue">Glide mode with bounded delivery</span></li>
+              <li><strong data-i18n="rioWingControlGuardTitle">Guardrail</strong>: <span data-i18n="rioWingControlGuardValue">Communication can continue; authority gates remain separate.</span></li>
+            </ul>
+          </section>
+          <section class="rio-wing-recovery-panel">
+            <h4 data-i18n="rioWingRecoveryTitle">Wing recovery panel</h4>
+            <p data-i18n="rioWingRecoveryBody">If route confidence drops, RIO falls back to context refresh, renewed handshake, and explicit user confirmation before resend.</p>
+          </section>
+          <section class="rio-wing-telemetry-panel">
+            <h4 data-i18n="rioWingTelemetryTitle">Wing telemetry panel</h4>
+            <ul>
+              <li><strong data-i18n="rioWingTelemetryLatencyTitle">Latency</strong>: <span class="proof-status proof-status-available" data-i18n="rioWingTelemetryLatencyValue">Within continuity threshold</span></li>
+              <li><strong data-i18n="rioWingTelemetryIntegrityTitle">Integrity</strong>: <span class="proof-status proof-status-available" data-i18n="rioWingTelemetryIntegrityValue">Traceability marker verified</span></li>
+              <li><strong data-i18n="rioWingTelemetryDriftTitle">Drift</strong>: <span class="proof-status proof-status-review" data-i18n="rioWingTelemetryDriftValue">Minor context drift queued for steward review</span></li>
+            </ul>
+          </section>
+          <section class="rio-cockpit-panel">
+            <h4 data-i18n="rioCockpitTitle">RIO cockpit checklist</h4>
+            <ul>
+              <li data-i18n="rioCockpitStepOne">Confirm address validity and consent scope.</li>
+              <li data-i18n="rioCockpitStepTwo">Verify handoff context before cross-surface routing.</li>
+              <li data-i18n="rioCockpitStepThree">Log delivery outcome and keep authority boundaries explicit.</li>
+            </ul>
+          </section>
+          <section class="rio-wing-coordination-panel">
+            <h4 data-i18n="rioWingCoordinationTitle">Wing coordination panel</h4>
+            <ul>
+              <li><strong data-i18n="rioWingCoordinationOneTitle">Route sync</strong>: <span data-i18n="rioWingCoordinationOneValue">Mobile and web channels aligned.</span></li>
+              <li><strong data-i18n="rioWingCoordinationTwoTitle">Citadel sync</strong>: <span data-i18n="rioWingCoordinationTwoValue">Citadel relay active with replay anchor.</span></li>
+              <li><strong data-i18n="rioWingCoordinationThreeTitle">ELIXER sync</strong>: <span data-i18n="rioWingCoordinationThreeValue">Capability context attached before transfer.</span></li>
+            </ul>
+          </section>
+          <section class="rio-constitutional-lock-panel">
+            <h4 data-i18n="rioConstitutionalLockTitle">Constitutional lock panel</h4>
+            <p><strong data-i18n="rioConstitutionalLockStateLabel">Lock state</strong>: <span class="proof-status proof-status-available" data-i18n="rioConstitutionalLockStateValue">Communication open, authority creation blocked</span></p>
+            <p data-i18n="rioConstitutionalLockBody">RIO remains a communication layer; any authority action requires separate constitutional confirmation.</p>
+          </section>
+        </div>
+      </article>
+
+      <article class="card elixer-dashboard">
+        <h3 data-i18n="elixerDashboardTitle">ELIXER dashboard</h3>
+        <p data-i18n="elixerDashboardIntro">Available apps and capabilities per context, with clear choice impact.</p>
+        <ul class="elixer-context-list">
+          <li class="elixer-context-item">
+            <p><strong data-i18n="elixerContextHolderTitle">Holder context</strong></p>
+            <p><span data-i18n="elixerCapabilityLabel">Capabilities</span>: <span data-i18n="elixerContextHolderCapabilities">Identity wallet, proof viewer, bounded execution.</span></p>
+            <p><span data-i18n="elixerImpactLabel">Choice impact</span>: <span data-i18n="elixerContextHolderImpact">Execution starts only inside approved scope and writes traceability evidence.</span></p>
+          </li>
+          <li class="elixer-context-item">
+            <p><strong data-i18n="elixerContextStewardTitle">Steward context</strong></p>
+            <p><span data-i18n="elixerCapabilityLabel">Capabilities</span>: <span data-i18n="elixerContextStewardCapabilities">Review workspace, dual-confirmation gate, revocation tools.</span></p>
+            <p><span data-i18n="elixerImpactLabel">Choice impact</span>: <span data-i18n="elixerContextStewardImpact">Approval or rejection updates governance state and opens mandatory follow-up logs.</span></p>
+          </li>
+          <li class="elixer-context-item">
+            <p><strong data-i18n="elixerContextOpsTitle">Operations context</strong></p>
+            <p><span data-i18n="elixerCapabilityLabel">Capabilities</span>: <span data-i18n="elixerContextOpsCapabilities">Continuity monitor, policy alignment checks, incident replay.</span></p>
+            <p><span data-i18n="elixerImpactLabel">Choice impact</span>: <span data-i18n="elixerContextOpsImpact">Operational choices can trigger policy review windows and resilience actions.</span></p>
+          </li>
+        </ul>
+      </article>
+
+      <article class="card evolution-dashboard">
+        <h3 data-i18n="evolutionDashboardTitle">Evolution dashboard</h3>
+        <p data-i18n="evolutionDashboardIntro">Changes in canon and systems, with a clear “what changes for me?” summary.</p>
+        <div class="evolution-grid">
+          <section class="evolution-panel">
+            <h4 data-i18n="evolutionCanonTitle">Canon changes</h4>
+            <ul>
+              <li data-i18n="evolutionCanonItemOne">Authority boundaries are clarified for holder/steward/system actions.</li>
+              <li data-i18n="evolutionCanonItemTwo">Proof-first confirmation remains mandatory before sensitive execution.</li>
+            </ul>
+          </section>
+          <section class="evolution-panel">
+            <h4 data-i18n="evolutionSystemTitle">System changes</h4>
+            <ul>
+              <li data-i18n="evolutionSystemItemOne">Dashboard cards now show context, consequence, and capability views side by side.</li>
+              <li data-i18n="evolutionSystemItemTwo">Review and revocation checkpoints are visible earlier in the flow.</li>
+            </ul>
+          </section>
+          <section class="evolution-panel evolution-impact-panel">
+            <h4 data-i18n="evolutionForMeTitle">What changes for me?</h4>
+            <p data-i18n="evolutionForMeBody">You choose actions with clearer impact upfront, while policy boundaries and follow-up obligations are shown before confirmation.</p>
+          </section>
+        </div>
+      </article>
+
+      <article class="card gateway-dashboard">
+        <h3 data-i18n="gatewayDashboardTitle">Public Gateway dashboard</h3>
+        <p data-i18n="gatewayDashboardIntro">Public understanding layer: orientation, core concepts, and safe onboarding.</p>
+        <div class="gateway-grid">
+          <section class="gateway-panel">
+            <h4 data-i18n="gatewayOrientationTitle">Orientation</h4>
+            <p data-i18n="gatewayOrientationBody">Start with where you are, what this layer does, and which actions are read-only versus protected.</p>
+          </section>
+          <section class="gateway-panel">
+            <h4 data-i18n="gatewayConceptsTitle">Core concepts</h4>
+            <ul>
+              <li data-i18n="gatewayConceptOne">Context before action.</li>
+              <li data-i18n="gatewayConceptTwo">Proof before authority.</li>
+              <li data-i18n="gatewayConceptThree">Traceability before confirmation.</li>
+            </ul>
+          </section>
+          <section class="gateway-panel gateway-safe-panel">
+            <h4 data-i18n="gatewaySafeStartTitle">Safe onboarding</h4>
+            <p data-i18n="gatewaySafeStartBody">You can explore public context first; sensitive execution requires explicit authority and visible consequence checks.</p>
+          </section>
+          <section class="gateway-panel gateway-status-panel">
+            <h4 data-i18n="gatewayStatusTitle">New status update</h4>
+            <ul>
+              <li><strong data-i18n="gatewayStatusPlatformLabel">Platform</strong>: <span class="proof-status proof-status-available" data-i18n="gatewayStatusPlatformValue">Compass dashboards expanded and live.</span></li>
+              <li><strong data-i18n="gatewayStatusRioLabel">RIO</strong>: <span class="proof-status proof-status-available" data-i18n="gatewayStatusRioValue">Delivery and consent visibility panels active.</span></li>
+              <li><strong data-i18n="gatewayStatusEntryLabel">Safe entry</strong>: <span class="proof-status proof-status-review" data-i18n="gatewayStatusEntryValue">Public onboarding open; authority remains gated.</span></li>
+            </ul>
+          </section>
+        </div>
+      </article>
+
+      <div class="sync-row compass-command-row">
+        <label for="compass-command" data-i18n="commandLayerTitle">Command layer</label>
+        <input id="compass-command" class="compass-command-input" type="text" data-i18n-placeholder="commandPlaceholder" placeholder="Type natural command…" />
+        <p data-i18n="commandHint">Context first, action second.</p>
+      </div>
+
+      <div class="sync-row">
+        <strong data-i18n="adaptiveDepthTitle">Adaptive depth</strong>
+        <button type="button" data-i18n="beginnerMode">Beginner mode</button>
+        <button type="button" data-i18n="expertMode">Expert mode</button>
+        <button type="button" data-i18n="showMoreDetail">Show more detail</button>
+        <button type="button" data-i18n="showLessDetail">Show less detail</button>
+      </div>
+
+      <div class="sync-row">
+        <strong data-i18n="policyGuardTitle">Policy guardrail</strong>
+        <span data-i18n="policyGuardRule">Context → Action → Consequence → Confirmation</span>
+      </div>
+
+      <div class="sync-row">
+        <strong data-i18n="statusContext">Context ready</strong>
+        <span>→</span>
+        <strong data-i18n="statusAction">Action selected</strong>
+        <span>→</span>
+        <strong data-i18n="statusConsequence">Consequence shown</strong>
+        <span>→</span>
+        <strong data-i18n="statusConfirmation">Waiting confirmation</strong>
+      </div>
+
+      <div class="sync-row">
+        <strong data-i18n="twoMinuteCheckTitle">2-minute clarity check</strong>
+        <span data-i18n="twoMinuteCheckPass">Passed: understandable in under 2 minutes.</span>
+      </div>
+    </section>
+
+    <section class="github-links">
+      <div class="github-head">
+        <h2 data-i18n="githubTitle">GitHub hubs</h2>
+        <p data-i18n="githubSubtitle">Direct toegang tot PALACO, PALACO Industrie en PALACO Genesis op GitHub.</p>
+      </div>
+      <div class="github-grid">
+        <a class="github-card" href="https://github.com/Maurits-pixe/PALACO" target="_blank" rel="noopener noreferrer">
+          <h3 data-i18n="githubPalacoTitle">PALACO</h3>
+          <p data-i18n="githubPalacoBody">Open de hoofdrepository van PALACO.</p>
+        </a>
+        <a class="github-card" href="https://github.com/Maurits-pixe/PALACO-INDUSTRIE" target="_blank" rel="noopener noreferrer">
+          <h3 data-i18n="githubIndustryTitle">PALACO Industrie</h3>
+          <p data-i18n="githubIndustryBody">Open de industriële repository van PALACO.</p>
+        </a>
+        <a class="github-card" href="https://github.com/Maurits-pixe/palaco-genesis" target="_blank" rel="noopener noreferrer">
+          <h3 data-i18n="githubGenesisTitle">PALACO Genesis</h3>
+          <p data-i18n="githubGenesisBody">Open de genesis-repository van PALACO.</p>
+        </a>
+      </div>
+    </section>
+
+    <footer>
+      <small data-i18n="footer">PALACO · Build conditions. Make it count.</small>
+    </footer>
+
     <script src="/app.js" defer></script>
   </body>
 </html>

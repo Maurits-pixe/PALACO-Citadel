@@ -1,253 +1,1213 @@
+const form = document.querySelector('#goal-form');
+const input = document.querySelector('#goal');
+const output = document.querySelector('#goal-output');
+const languageSwitch = document.querySelector('.language-switch');
+const installBtn = document.querySelector('#install-btn');
+const controlButtons = document.querySelectorAll('.control-btn');
+const industryStatus = document.querySelector('#industry-status');
+const citadelStatus = document.querySelector('#citadel-status');
+const syncBtn = document.querySelector('#sync-btn');
+const syncOutput = document.querySelector('#sync-output');
+const compassBackTopBtn = document.querySelector('#compass-back-top');
+
 const translations = {
-  nl: {
-    navMeet: 'Ontmoet RIO', navEverywhere: 'Overal', navTrust: 'Vertrouwen', eyebrow: 'PALACO stelt voor', tagline: 'Het visitekaartje van PALACO.', intro: 'RIO zegt hallo. RIO helpt je mensen en ideeën te vinden. Jij kiest altijd wat je deelt.', meetButton: 'Maak kennis', shareButton: 'Deel RIO', shareReady: 'De link naar RIO is klaar om te delen.', shareUnavailable: 'Delen lukt nu niet.', live: 'Klaar om te verbinden', cardIntro: 'Hallo, ik ben RIO.', cardBody: 'Ik breng je veilig naar de juiste plek in PALACO.', identityLabel: 'Identiteit', verified: 'Geverifieerd', consentLabel: 'Jouw keuze', consentValue: 'Altijd eerst', authorityLabel: 'Macht', authorityValue: 'Geen', addressLabel: 'RIO-adres', openCard: 'Open kaart', closeCard: 'Sluit kaart', cardReveal: 'Eerst ontmoeten. Dan kiezen. Pas daarna verbinden.', everywhereTitle: 'Eén begroeting. Overal.', everywhereBody: 'Je gesprek reist met je mee. De betekenis blijft hetzelfde.', flowLabel: 'Zo werkt RIO', flowTitle: 'Van hallo naar een echt gesprek.', stepOneTitle: 'Kijk', stepOneBody: 'RIO laat zien wie of wat je ontmoet.', stepTwoTitle: 'Kies', stepTwoBody: 'Jij beslist of je verder wilt gaan.', stepThreeTitle: 'Praat', stepThreeBody: 'RIO bewaart de weg en het gesprek.', helloTitle: 'Zeg hallo tegen RIO.', helloBody: 'Begin klein. Alleen je naam is genoeg.', nameLabel: 'Hoe mogen we je noemen?', namePlaceholder: 'Jouw naam', startButton: 'Start', helloPrefix: 'Hallo', helloSuffix: 'RIO is er. Jij kiest wat je deelt.', trustTitle: 'Helder over vertrouwen.', trustBody: 'RIO verbindt. Jij houdt de regie. PALACO bewaakt de grenzen.', trustIdentity: 'Wie is dit?', trustIdentityBody: 'De identiteit is zichtbaar en controleerbaar.', trustConsent: 'Mag dit?', trustConsentBody: 'Niets gaat verder zonder jouw keuze.', trustHistory: 'Wat gebeurde er?', trustHistoryBody: 'Belangrijke stappen blijven terug te vinden.', installButton: 'Installeer RIO', footer: 'PALACO · Een plek voor mensen en ideeën.'
-  },
   en: {
-    navMeet: 'Meet RIO', navEverywhere: 'Everywhere', navTrust: 'Trust', eyebrow: 'PALACO presents', tagline: "PALACO's calling card.", intro: 'RIO says hello. RIO helps you find people and ideas. You always choose what you share.', meetButton: 'Meet RIO', shareButton: 'Share RIO', shareReady: 'The RIO link is ready to share.', shareUnavailable: 'Sharing is not available now.', live: 'Ready to connect', cardIntro: 'Hello, I am RIO.', cardBody: 'I take you safely to the right place in PALACO.', identityLabel: 'Identity', verified: 'Verified', consentLabel: 'Your choice', consentValue: 'Always first', authorityLabel: 'Authority', authorityValue: 'None', addressLabel: 'RIO address', openCard: 'Open card', closeCard: 'Close card', cardReveal: 'Meet first. Then choose. Only then connect.', everywhereTitle: 'One hello. Everywhere.', everywhereBody: 'Your conversation travels with you. Its meaning stays the same.', flowLabel: 'How RIO works', flowTitle: 'From hello to a real conversation.', stepOneTitle: 'Look', stepOneBody: 'RIO shows who or what you meet.', stepTwoTitle: 'Choose', stepTwoBody: 'You decide if you want to continue.', stepThreeTitle: 'Talk', stepThreeBody: 'RIO remembers the path and the conversation.', helloTitle: 'Say hello to RIO.', helloBody: 'Start small. Your name is enough.', nameLabel: 'What may we call you?', namePlaceholder: 'Your name', startButton: 'Start', helloPrefix: 'Hello', helloSuffix: 'RIO is here. You choose what you share.', trustTitle: 'Clear about trust.', trustBody: 'RIO connects. You stay in control. PALACO guards the boundaries.', trustIdentity: 'Who is this?', trustIdentityBody: 'Identity is visible and can be checked.', trustConsent: 'Is this allowed?', trustConsentBody: 'Nothing continues without your choice.', trustHistory: 'What happened?', trustHistoryBody: 'Important steps remain traceable.', installButton: 'Install RIO', footer: 'PALACO · A place for people and ideas.'
+    eyebrow: 'GO · Scheppen · Create',
+    subtitle: 'The first executable UI foundation for desktop, tablet, and mobile.',
+    visionTitle: 'Vision',
+    visionBody: 'PALACO means “palace” in Esperanto: a shared digital place to build, create, and bring ideas to life.',
+    launchTitle: 'Launch Pad',
+    goalLabel: 'What will you create today?',
+    goalPlaceholder: 'Type your first PALACO goal',
+    goButton: 'GO',
+    installButton: 'Install app',
+    readinessTitle: 'Platform readiness',
+    readinessOne: 'Responsive layout for computer, tablet, and mobile.',
+    readinessTwo: 'Installable web app foundation (PWA).',
+    readinessThree: 'Ready for domain + HTTPS deployment.',
+    masterTitle: 'MA5TER Dashboard Control Room',
+    masterSubtitle: 'Central command for PALACO Industry and PALACO internal operations.',
+    industryTitle: 'PALACO Industry',
+    industryBody: 'Monitor and activate industrial production mode.',
+    internalTitle: 'PALACO Internal',
+    internalBody: 'Manage internal Citadel operation mode.',
+    statusLabel: 'Status',
+    statusActive: 'Active',
+    statusStandby: 'Standby',
+    activate: 'Activate',
+    deactivate: 'Deactivate',
+    syncNow: 'Sync now',
+    lastSync: 'Last sync:',
+    githubTitle: 'GitHub hubs',
+    githubSubtitle: 'Direct access to PALACO, PALACO Industrie, and PALACO Genesis on GitHub.',
+    githubPalacoTitle: 'PALACO',
+    githubPalacoBody: 'Open the PALACO main repository.',
+    githubIndustryTitle: 'PALACO Industrie',
+    githubIndustryBody: 'Open the PALACO industry repository.',
+    githubGenesisTitle: 'PALACO Genesis',
+    githubGenesisBody: 'Open the PALACO genesis repository.',
+    rioTitle: 'RIO Platform Ascension',
+    rioSubtitle: 'RIO evolves from chat interface to PALACO conversation and communication platform.',
+    rioPillarOneTitle: 'Surface-independent conversation',
+    rioPillarOneA: 'One conversation identity across mobile, web, Citadel, ELIXER, and desktop.',
+    rioPillarOneB: 'Conversation belongs to PALACO context, not to one device.',
+    rioPillarOneC: 'Cross-surface continuity remains active through sync and reconnect states.',
+    rioPillarTwoTitle: 'Presence with boundaries',
+    rioPillarTwoA: 'Presence means reachable, never automatic authority.',
+    rioPillarTwoB: 'Online ≠ authorized; constitutional gates remain separate.',
+    rioPillarTwoC: 'RIO connects communication while PALACO protects authority boundaries.',
+    rioPillarThreeTitle: 'Provenance-aware communication',
+    rioPillarThreeA: 'Messages preserve identity, context, origin, time, and traceability.',
+    rioPillarThreeB: 'WATERMERK and HOLOGRAM support authenticity and lineage visibility.',
+    rioPillarThreeC: 'Complexity is hidden when irrelevant and revealed when material.',
+    rioLaw: 'Canonical law: RIO may connect communication; RIO shall not create authority.',
+    footer: 'PALACO · Build conditions. Make it count.',
+    goalSet: 'PALACO objective set:',
+    latestGoal: 'Latest objective:',
+    compassTitle: 'PALACO 2040 Compass',
+    compassSubtitle: 'Understand first. Act with proof.',
+    whereAmI: 'Where am I?',
+    whatAmISeeing: 'What am I seeing?',
+    whatCanIDoNow: 'What can I do now?',
+    safeReturn: 'Safe return',
+    actionsNowTitle: 'Actions now',
+    constitutionDashboardTitle: 'Constitution dashboard',
+    constitutionDashboardIntro: 'Rules translated to what they mean for your current choices.',
+    constitutionRuleLabel: 'Rule',
+    constitutionImpactLabel: 'Impact now',
+    constitutionRuleOne: 'No authority without proof.',
+    constitutionImpactOne: 'You can inspect, but cannot confirm actions missing evidence.',
+    constitutionRuleTwo: 'Understand before action.',
+    constitutionImpactTwo: 'Each action shows consequence preview before confirmation.',
+    constitutionRuleThree: 'Authority stays bounded.',
+    constitutionImpactThree: 'Roles are explicit: holder, steward, and system boundaries stay separate.',
+    primaryAction: 'Primary action',
+    secondaryAction: 'Secondary action',
+    tertiaryAction: 'Tertiary action',
+    requiresAuthority: 'Requires authority',
+    consequenceTitle: 'Consequence preview',
+    consequenceBeforeConfirm: 'Read consequence before confirm.',
+    riskLevel: 'Risk level',
+    confirmAction: 'Confirm action',
+    proofStripTitle: 'Proof status',
+    proofDashboardTitle: 'Proof dashboard',
+    proofDashboardIntro: 'Per action: see status, proof chain, and traceability chain in one view.',
+    proofAvailable: 'Proof available',
+    proofInReview: 'Proof in review',
+    proofMissing: 'Proof missing',
+    actionStatusLabel: 'Status',
+    proofChainLabel: 'Proof chain',
+    traceabilityChainLabel: 'Traceability chain',
+    openProofChain: 'Direct proof chain',
+    traceabilityTitle: 'Traceability',
+    openSourceChain: 'Open source chain',
+    authorityTitle: 'Authority boundaries',
+    authorityIntro: 'Who may do what, why, and under which boundaries.',
+    authorityWhoLabel: 'Who',
+    authorityWhatLabel: 'What',
+    authorityWhyLabel: 'Why',
+    authorityBoundaryLabel: 'Boundary',
+    authorityConditionLabel: 'Conditions',
+    authorityWhoHolder: 'Holder',
+    authorityWhatHolder: 'Can execute own approved actions',
+    authorityWhyHolder: 'Identity-bound ownership',
+    authorityBoundaryHolder: 'Only within granted scope',
+    authorityConditionHolder: 'Valid proof + active session',
+    authorityWhoSteward: 'Steward',
+    authorityWhatSteward: 'Can review and co-authorize sensitive actions',
+    authorityWhySteward: 'Governance and duty of care',
+    authorityBoundarySteward: 'Cannot impersonate holder authority',
+    authorityConditionSteward: 'Review trail + dual confirmation',
+    authorityWhoSystem: 'System',
+    authorityWhatSystem: 'Can validate, log, and enforce policy gates',
+    authorityWhySystem: 'Constitutional integrity',
+    authorityBoundarySystem: 'No creation of human authority',
+    authorityConditionSystem: 'Policy match + verifiable evidence',
+    youCan: 'You can',
+    reviewRequired: 'Review required',
+    notAllowed: 'Not allowed',
+    identityTitle: 'Identity & session',
+    identityDashboardIntro: 'Identity, session, verification, and ownership in one overview.',
+    activeIdentity: 'Active identity',
+    sessionState: 'Session state',
+    verificationStatusLabel: 'Verification',
+    verificationVerified: 'Verified',
+    sessionAgeLabel: 'Session age',
+    sessionAgeNow: 'Current',
+    sessionBoundaryLabel: 'Session boundary',
+    sessionBoundaryBounded: 'Bounded by policy gates',
+    ownershipLabel: 'Ownership',
+    ownershipScopePrivate: 'Private scope',
+    ownedByMe: 'Owned by me',
+    participationDashboardTitle: 'Participation dashboard',
+    participationDashboardIntro: 'Flowcard: preview → authorization → review → revocation.',
+    participationStepPreview: 'Preview',
+    participationStepPreviewBody: 'See impact and boundaries before giving authority.',
+    participationStepAuthorize: 'Authorization',
+    participationStepAuthorizeBody: 'Grant bounded permission with explicit conditions.',
+    participationStepReview: 'Review',
+    participationStepReviewBody: 'Inspect proof, traceability, and policy alignment.',
+    participationStepRevoke: 'Revocation',
+    participationStepRevokeBody: 'Withdraw authority when boundaries are broken.',
+    governanceDashboardTitle: 'Governance dashboard',
+    governanceDashboardIntro: 'Active policies, deviations, and review moments without score-magic.',
+    activePoliciesTitle: 'Active policies',
+    activePolicyOne: 'Proof required before authority confirmation.',
+    activePolicyTwo: 'Bounded authorization with explicit scope.',
+    activePolicyThree: 'Traceability required for governance actions.',
+    deviationsTitle: 'Deviations',
+    deviationOne: 'Secondary action pending review evidence.',
+    deviationTwo: 'One open traceability gap awaiting steward follow-up.',
+    reviewMomentsTitle: 'Review moments',
+    reviewMomentOne: 'Policy review window: every 24h.',
+    reviewMomentTwo: 'Deviation checkpoint: before final confirmation.',
+    reviewMomentThree: 'Revocation audit: on every authority withdrawal.',
+    noScoreMagicNote: 'No single trust score: governance is shown as explicit facts and review states.',
+    citadelHealthTitle: 'Citadel Health dashboard',
+    citadelHealthIntro: 'Operational health and semantic risks with explanation per signal.',
+    healthStatusLabel: 'Status',
+    healthStatusStable: 'Stable',
+    healthStatusWatch: 'Watch',
+    healthStatusClear: 'Clear',
+    healthSignalOpsTitle: 'Operational continuity',
+    healthSignalOpsBody: 'Core services respond within expected bounds and sync checkpoints are current.',
+    healthSignalSemanticsTitle: 'Semantic coherence',
+    healthSignalSemanticsBody: 'One context label mismatch detected; review keeps meaning aligned across actions.',
+    healthSignalGovernanceTitle: 'Governance signal clarity',
+    healthSignalGovernanceBody: 'Policy and authority indicators remain explicit, with no hidden score-magic.',
+    rioConversationDashboardTitle: 'RIO Conversation dashboard',
+    rioConversationDashboardIntro: 'Conversations as access to actions, with context and consequence panel.',
+    rioConversationAccessTitle: 'Conversation access to actions',
+    rioConversationOneTitle: 'Steward review room',
+    rioConversationOneAction: 'Opens policy exception review action.',
+    rioConversationTwoTitle: 'Holder execution room',
+    rioConversationTwoAction: 'Opens bounded execution action after proof check.',
+    rioConversationThreeTitle: 'Ops sync room',
+    rioConversationThreeAction: 'Opens service continuity action with traceability logging.',
+    rioContextPanelTitle: 'Context panel',
+    rioContextPanelBody: 'Shows active identities, relevant policy scope, and latest proof references before action selection.',
+    rioConsequencePanelTitle: 'Consequence panel',
+    rioConsequencePanelBody: 'Shows expected system impact, governance follow-up, and revocation path before confirmation.',
+    rioDeliveryPanelTitle: 'Delivery state panel',
+    rioDeliveryStateOneTitle: 'Delivery',
+    rioDeliveryStateOneValue: 'Delivered with identity match',
+    rioDeliveryStateTwoTitle: 'Awaiting',
+    rioDeliveryStateTwoValue: 'Recipient confirmation pending',
+    rioDeliveryStateThreeTitle: 'Fallback',
+    rioDeliveryStateThreeValue: 'Route requires retry with context re-check',
+    rioConsentPanelTitle: 'Consent panel',
+    rioConsentPanelBody: 'Shows handshake consent scope, expiry window, and whether communication may continue without requesting authority.',
+    rioRoomPanelTitle: 'Room continuity panel',
+    rioRoomStateTitle: 'Room state',
+    rioRoomStateValue: 'Active with bounded participant roles',
+    rioHandoffStateTitle: 'Handoff',
+    rioHandoffStateValue: 'Surface handoff pending context re-check',
+    rioAddressPanelTitle: 'Address and handshake panel',
+    rioAddressPanelBody: 'Shows RIO address validity, link target scope, and handshake trust indicators before message delivery.',
+    rioTimelinePanelTitle: 'Conversation timeline panel',
+    rioTimelineOneTitle: 'Context check',
+    rioTimelineOneValue: 'Completed before room entry.',
+    rioTimelineTwoTitle: 'Handshake',
+    rioTimelineTwoValue: 'Identity verified, consent scope attached.',
+    rioTimelineThreeTitle: 'Delivery',
+    rioTimelineThreeValue: 'Message route sealed with traceability marker.',
+    rioTrustPanelTitle: 'Trust indicator panel',
+    rioTrustLevelLabel: 'Trust level',
+    rioTrustLevelValue: 'Transparent and bounded',
+    rioTrustPanelBody: 'Indicators show communication confidence only; they never create authority.',
+    rioWingSignalsTitle: 'RIO wing signals',
+    rioWingSignalOneTitle: 'Lift',
+    rioWingSignalOneValue: 'Cross-surface continuity stable',
+    rioWingSignalTwoTitle: 'Turbulence',
+    rioWingSignalTwoValue: 'One channel awaits renewed consent',
+    rioWingRoutesTitle: 'Wing routes panel',
+    rioWingRoutesBody: 'Shows preferred conversation routes (mobile, web, Citadel, ELIXER) and when fallback routing is activated.',
+    rioWingControlTitle: 'Wing control panel',
+    rioWingControlModeTitle: 'Mode',
+    rioWingControlModeValue: 'Glide mode with bounded delivery',
+    rioWingControlGuardTitle: 'Guardrail',
+    rioWingControlGuardValue: 'Communication can continue; authority gates remain separate.',
+    rioWingRecoveryTitle: 'Wing recovery panel',
+    rioWingRecoveryBody: 'If route confidence drops, RIO falls back to context refresh, renewed handshake, and explicit user confirmation before resend.',
+    rioWingTelemetryTitle: 'Wing telemetry panel',
+    rioWingTelemetryLatencyTitle: 'Latency',
+    rioWingTelemetryLatencyValue: 'Within continuity threshold',
+    rioWingTelemetryIntegrityTitle: 'Integrity',
+    rioWingTelemetryIntegrityValue: 'Traceability marker verified',
+    rioWingTelemetryDriftTitle: 'Drift',
+    rioWingTelemetryDriftValue: 'Minor context drift queued for steward review',
+    rioCockpitTitle: 'RIO cockpit checklist',
+    rioCockpitStepOne: 'Confirm address validity and consent scope.',
+    rioCockpitStepTwo: 'Verify handoff context before cross-surface routing.',
+    rioCockpitStepThree: 'Log delivery outcome and keep authority boundaries explicit.',
+    rioWingCoordinationTitle: 'Wing coordination panel',
+    rioWingCoordinationOneTitle: 'Route sync',
+    rioWingCoordinationOneValue: 'Mobile and web channels aligned.',
+    rioWingCoordinationTwoTitle: 'Citadel sync',
+    rioWingCoordinationTwoValue: 'Citadel relay active with replay anchor.',
+    rioWingCoordinationThreeTitle: 'ELIXER sync',
+    rioWingCoordinationThreeValue: 'Capability context attached before transfer.',
+    rioConstitutionalLockTitle: 'Constitutional lock panel',
+    rioConstitutionalLockStateLabel: 'Lock state',
+    rioConstitutionalLockStateValue: 'Communication open, authority creation blocked',
+    rioConstitutionalLockBody: 'RIO remains a communication layer; any authority action requires separate constitutional confirmation.',
+    elixerDashboardTitle: 'ELIXER dashboard',
+    elixerDashboardIntro: 'Available apps and capabilities per context, with clear choice impact.',
+    elixerCapabilityLabel: 'Capabilities',
+    elixerImpactLabel: 'Choice impact',
+    elixerContextHolderTitle: 'Holder context',
+    elixerContextHolderCapabilities: 'Identity wallet, proof viewer, bounded execution.',
+    elixerContextHolderImpact: 'Execution starts only inside approved scope and writes traceability evidence.',
+    elixerContextStewardTitle: 'Steward context',
+    elixerContextStewardCapabilities: 'Review workspace, dual-confirmation gate, revocation tools.',
+    elixerContextStewardImpact: 'Approval or rejection updates governance state and opens mandatory follow-up logs.',
+    elixerContextOpsTitle: 'Operations context',
+    elixerContextOpsCapabilities: 'Continuity monitor, policy alignment checks, incident replay.',
+    elixerContextOpsImpact: 'Operational choices can trigger policy review windows and resilience actions.',
+    evolutionDashboardTitle: 'Evolution dashboard',
+    evolutionDashboardIntro: 'Changes in canon and systems, with a clear “what changes for me?” summary.',
+    evolutionCanonTitle: 'Canon changes',
+    evolutionCanonItemOne: 'Authority boundaries are clarified for holder/steward/system actions.',
+    evolutionCanonItemTwo: 'Proof-first confirmation remains mandatory before sensitive execution.',
+    evolutionSystemTitle: 'System changes',
+    evolutionSystemItemOne: 'Dashboard cards now show context, consequence, and capability views side by side.',
+    evolutionSystemItemTwo: 'Review and revocation checkpoints are visible earlier in the flow.',
+    evolutionForMeTitle: 'What changes for me?',
+    evolutionForMeBody: 'You choose actions with clearer impact upfront, while policy boundaries and follow-up obligations are shown before confirmation.',
+    gatewayDashboardTitle: 'Public Gateway dashboard',
+    gatewayDashboardIntro: 'Public understanding layer: orientation, core concepts, and safe onboarding.',
+    gatewayOrientationTitle: 'Orientation',
+    gatewayOrientationBody: 'Start with where you are, what this layer does, and which actions are read-only versus protected.',
+    gatewayConceptsTitle: 'Core concepts',
+    gatewayConceptOne: 'Context before action.',
+    gatewayConceptTwo: 'Proof before authority.',
+    gatewayConceptThree: 'Traceability before confirmation.',
+    gatewaySafeStartTitle: 'Safe onboarding',
+    gatewaySafeStartBody: 'You can explore public context first; sensitive execution requires explicit authority and visible consequence checks.',
+    gatewayStatusTitle: 'New status update',
+    gatewayStatusPlatformLabel: 'Platform',
+    gatewayStatusPlatformValue: 'Compass dashboards expanded and live.',
+    gatewayStatusRioLabel: 'RIO',
+    gatewayStatusRioValue: 'Delivery and consent visibility panels active.',
+    gatewayStatusEntryLabel: 'Safe entry',
+    gatewayStatusEntryValue: 'Public onboarding open; authority remains gated.',
+    navigationCompassTitle: 'Navigation compass',
+    currentLayer: 'Current layer',
+    backToStart: 'Back to start',
+    commandLayerTitle: 'Command layer',
+    commandPlaceholder: 'Type natural command…',
+    commandHint: 'Context first, action second.',
+    adaptiveDepthTitle: 'Adaptive depth',
+    beginnerMode: 'Beginner mode',
+    expertMode: 'Expert mode',
+    showMoreDetail: 'Show more detail',
+    showLessDetail: 'Show less detail',
+    policyGuardTitle: 'Policy guardrail',
+    policyGuardRule: 'Context → Action → Consequence → Confirmation',
+    statusContext: 'Context ready',
+    statusAction: 'Action selected',
+    statusConsequence: 'Consequence shown',
+    statusConfirmation: 'Waiting confirmation',
+    twoMinuteCheckTitle: '2-minute clarity check',
+    twoMinuteCheckPass: 'Passed: understandable in under 2 minutes.',
+    riskLevelMedium: 'Medium',
+    sessionLive: 'Live',
+    layerUnderstand: 'Understand',
+    flowContext: 'Context',
+    flowAction: 'Action',
+    flowProof: 'Proof',
+    flowTraceability: 'Traceability'
   },
-  de: {
-    navMeet: 'RIO treffen', navEverywhere: 'Überall', navTrust: 'Vertrauen', eyebrow: 'PALACO stellt vor', tagline: 'Die Visitenkarte von PALACO.', intro: 'RIO sagt Hallo. RIO hilft dir, Menschen und Ideen zu finden. Du bestimmst immer, was du teilst.', meetButton: 'Kennenlernen', shareButton: 'RIO teilen', shareReady: 'Der RIO-Link kann geteilt werden.', shareUnavailable: 'Teilen ist gerade nicht möglich.', live: 'Bereit zum Verbinden', cardIntro: 'Hallo, ich bin RIO.', cardBody: 'Ich bringe dich sicher zum richtigen Ort in PALACO.', identityLabel: 'Identität', verified: 'Geprüft', consentLabel: 'Deine Wahl', consentValue: 'Immer zuerst', authorityLabel: 'Befugnis', authorityValue: 'Keine', addressLabel: 'RIO-Adresse', openCard: 'Karte öffnen', closeCard: 'Karte schließen', cardReveal: 'Erst treffen. Dann wählen. Erst danach verbinden.', everywhereTitle: 'Ein Hallo. Überall.', everywhereBody: 'Dein Gespräch reist mit dir. Die Bedeutung bleibt gleich.', flowLabel: 'So funktioniert RIO', flowTitle: 'Vom Hallo zum echten Gespräch.', stepOneTitle: 'Schauen', stepOneBody: 'RIO zeigt, wen oder was du triffst.', stepTwoTitle: 'Wählen', stepTwoBody: 'Du entscheidest, ob es weitergeht.', stepThreeTitle: 'Reden', stepThreeBody: 'RIO bewahrt den Weg und das Gespräch.', helloTitle: 'Sag RIO Hallo.', helloBody: 'Fang klein an. Dein Name genügt.', nameLabel: 'Wie dürfen wir dich nennen?', namePlaceholder: 'Dein Name', startButton: 'Start', helloPrefix: 'Hallo', helloSuffix: 'RIO ist da. Du wählst, was du teilst.', trustTitle: 'Vertrauen, klar erklärt.', trustBody: 'RIO verbindet. Du behältst die Kontrolle. PALACO schützt die Grenzen.', trustIdentity: 'Wer ist das?', trustIdentityBody: 'Die Identität ist sichtbar und prüfbar.', trustConsent: 'Ist das erlaubt?', trustConsentBody: 'Ohne deine Wahl geht nichts weiter.', trustHistory: 'Was geschah?', trustHistoryBody: 'Wichtige Schritte bleiben auffindbar.', installButton: 'RIO installieren', footer: 'PALACO · Ein Ort für Menschen und Ideen.'
+  nl: {
+    eyebrow: 'GO · Scheppen · Creëren',
+    subtitle: 'De eerste uitvoerbare UI-basis voor desktop, tablet en mobiel.',
+    visionTitle: 'Visie',
+    visionBody: 'PALACO betekent “paleis” in Esperanto: een gedeelde digitale plek om te bouwen, te creëren en ideeën tot leven te brengen.',
+    launchTitle: 'Startplatform',
+    goalLabel: 'Wat ga jij vandaag creëren?',
+    goalPlaceholder: 'Typ je eerste PALACO-doel',
+    goButton: 'GO',
+    installButton: 'Installeer app',
+    readinessTitle: 'Platformgereedheid',
+    readinessOne: 'Responsive lay-out voor computer, tablet en mobiel.',
+    readinessTwo: 'Installeerbare webapp-basis (PWA).',
+    readinessThree: 'Klaar voor domein + HTTPS uitrol.',
+    masterTitle: 'MA5TER Dashboard Controlekamer',
+    masterSubtitle: 'Centraal commando voor PALACO Industrie en PALACO interne operaties.',
+    industryTitle: 'PALACO Industrie',
+    industryBody: 'Monitor en activeer industriële productiemodus.',
+    internalTitle: 'PALACO Intern',
+    internalBody: 'Beheer interne Citadel-operatiemodus.',
+    statusLabel: 'Status',
+    statusActive: 'Actief',
+    statusStandby: 'Stand-by',
+    activate: 'Activeren',
+    deactivate: 'Deactiveren',
+    syncNow: 'Nu synchroniseren',
+    lastSync: 'Laatste sync:',
+    githubTitle: 'GitHub hubs',
+    githubSubtitle: 'Directe toegang tot PALACO, PALACO Industrie en PALACO Genesis op GitHub.',
+    githubPalacoTitle: 'PALACO',
+    githubPalacoBody: 'Open de hoofdrepository van PALACO.',
+    githubIndustryTitle: 'PALACO Industrie',
+    githubIndustryBody: 'Open de industriële repository van PALACO.',
+    githubGenesisTitle: 'PALACO Genesis',
+    githubGenesisBody: 'Open de genesis-repository van PALACO.',
+    rioTitle: 'RIO Platform Ascension',
+    rioSubtitle: 'RIO groeit van chat-interface naar PALACO conversatie- en communicatieplatform.',
+    rioPillarOneTitle: 'Surface-onafhankelijke conversatie',
+    rioPillarOneA: 'Eén conversatie-identiteit over mobiel, web, Citadel, ELIXER en desktop.',
+    rioPillarOneB: 'De conversatie hoort bij PALACO-context, niet bij één apparaat.',
+    rioPillarOneC: 'Cross-surface continuïteit blijft bestaan via sync- en reconnect-staten.',
+    rioPillarTwoTitle: 'Presence met grenzen',
+    rioPillarTwoA: 'Presence betekent bereikbaar, nooit automatische authority.',
+    rioPillarTwoB: 'Online ≠ bevoegd; constitutionele poorten blijven gescheiden.',
+    rioPillarTwoC: 'RIO verbindt communicatie terwijl PALACO de authority-grenzen bewaakt.',
+    rioPillarThreeTitle: 'Provenance-bewuste communicatie',
+    rioPillarThreeA: 'Berichten behouden identiteit, context, herkomst, tijd en traceerbaarheid.',
+    rioPillarThreeB: 'WATERMERK en HOLOGRAM ondersteunen authenticiteit en lineage-zichtbaarheid.',
+    rioPillarThreeC: 'Complexiteit wordt verborgen wanneer irrelevant en getoond wanneer materieel.',
+    rioLaw: 'Canonieke wet: RIO mag communicatie verbinden; RIO mag geen authority creëren.',
+    footer: 'PALACO · Bouw de voorwaarden. Maak het groots.',
+    goalSet: 'PALACO-doel gezet:',
+    latestGoal: 'Laatste doel:',
+    compassTitle: 'PALACO 2040 Kompas',
+    compassSubtitle: 'Eerst begrijpen. Dan handelen met bewijs.',
+    whereAmI: 'Waar ben ik?',
+    whatAmISeeing: 'Wat zie ik?',
+    whatCanIDoNow: 'Wat kan ik nu doen?',
+    safeReturn: 'Veilige terugkeer',
+    actionsNowTitle: 'Acties nu',
+    constitutionDashboardTitle: 'Constitution-dashboard',
+    constitutionDashboardIntro: 'Regels vertaald naar wat ze betekenen voor je huidige keuzes.',
+    constitutionRuleLabel: 'Regel',
+    constitutionImpactLabel: 'Impact nu',
+    constitutionRuleOne: 'Geen authority zonder bewijs.',
+    constitutionImpactOne: 'Je kunt bekijken, maar geen acties bevestigen zonder bewijs.',
+    constitutionRuleTwo: 'Eerst begrijpen, dan handelen.',
+    constitutionImpactTwo: 'Elke actie toont eerst de consequentie voordat je bevestigt.',
+    constitutionRuleThree: 'Authority blijft begrensd.',
+    constitutionImpactThree: 'Rollen blijven expliciet: houder, steward en systeemgrenzen blijven gescheiden.',
+    primaryAction: 'Primaire actie',
+    secondaryAction: 'Secundaire actie',
+    tertiaryAction: 'Tertiaire actie',
+    requiresAuthority: 'Vereist authority',
+    consequenceTitle: 'Consequentie-overzicht',
+    consequenceBeforeConfirm: 'Lees consequentie vóór bevestigen.',
+    riskLevel: 'Risiconiveau',
+    confirmAction: 'Bevestig actie',
+    proofStripTitle: 'Bewijsstatus',
+    proofDashboardTitle: 'Bewijsdashboard',
+    proofDashboardIntro: 'Per actie: zie status, proof-keten en traceability-keten in één overzicht.',
+    proofAvailable: 'Bewijs beschikbaar',
+    proofInReview: 'Bewijs in review',
+    proofMissing: 'Bewijs ontbreekt',
+    actionStatusLabel: 'Status',
+    proofChainLabel: 'Proof-keten',
+    traceabilityChainLabel: 'Traceability-keten',
+    openProofChain: 'Directe proof-keten',
+    traceabilityTitle: 'Traceerbaarheid',
+    openSourceChain: 'Open bronketen',
+    authorityTitle: 'Authority-grenzen',
+    authorityIntro: 'Wie mag wat, waarom, en binnen welke grenzen.',
+    authorityWhoLabel: 'Wie',
+    authorityWhatLabel: 'Wat',
+    authorityWhyLabel: 'Waarom',
+    authorityBoundaryLabel: 'Grens',
+    authorityConditionLabel: 'Voorwaarden',
+    authorityWhoHolder: 'Houder',
+    authorityWhatHolder: 'Mag eigen goedgekeurde acties uitvoeren',
+    authorityWhyHolder: 'Identiteitsgebonden eigenaarschap',
+    authorityBoundaryHolder: 'Alleen binnen toegekende scope',
+    authorityConditionHolder: 'Geldig bewijs + actieve sessie',
+    authorityWhoSteward: 'Steward',
+    authorityWhatSteward: 'Mag gevoelige acties reviewen en mede-autoriseren',
+    authorityWhySteward: 'Governance en zorgplicht',
+    authorityBoundarySteward: 'Mag houder-authority niet imiteren',
+    authorityConditionSteward: 'Reviewspoor + dubbele bevestiging',
+    authorityWhoSystem: 'Systeem',
+    authorityWhatSystem: 'Mag valideren, loggen en policy-poorten afdwingen',
+    authorityWhySystem: 'Constitutionele integriteit',
+    authorityBoundarySystem: 'Mag geen menselijke authority creëren',
+    authorityConditionSystem: 'Policy-match + verifieerbaar bewijs',
+    youCan: 'Jij mag',
+    reviewRequired: 'Review vereist',
+    notAllowed: 'Niet toegestaan',
+    identityTitle: 'Identiteit & sessie',
+    identityDashboardIntro: 'Identiteit, sessie, verificatie en eigenaarschap in één overzicht.',
+    activeIdentity: 'Actieve identiteit',
+    sessionState: 'Sessiestatus',
+    verificationStatusLabel: 'Verificatie',
+    verificationVerified: 'Geverifieerd',
+    sessionAgeLabel: 'Sessie-leeftijd',
+    sessionAgeNow: 'Huidig',
+    sessionBoundaryLabel: 'Sessiegrens',
+    sessionBoundaryBounded: 'Begrensd door policy-poorten',
+    ownershipLabel: 'Eigenaarschap',
+    ownershipScopePrivate: 'Privé-scope',
+    ownedByMe: 'Van mij',
+    participationDashboardTitle: 'Participatie-dashboard',
+    participationDashboardIntro: 'Flowkaart: preview → autorisatie → review → revocatie.',
+    participationStepPreview: 'Preview',
+    participationStepPreviewBody: 'Zie impact en grenzen vóór je authority afgeeft.',
+    participationStepAuthorize: 'Autorisatie',
+    participationStepAuthorizeBody: 'Geef begrensde toestemming met expliciete voorwaarden.',
+    participationStepReview: 'Review',
+    participationStepReviewBody: 'Controleer bewijs, traceability en policy-alignment.',
+    participationStepRevoke: 'Revocatie',
+    participationStepRevokeBody: 'Trek authority in wanneer grenzen worden gebroken.',
+    governanceDashboardTitle: 'Governance-dashboard',
+    governanceDashboardIntro: 'Actieve policies, afwijkingen en reviewmomenten zonder score-magic.',
+    activePoliciesTitle: 'Actieve policies',
+    activePolicyOne: 'Bewijs is verplicht vóór authority-bevestiging.',
+    activePolicyTwo: 'Begrensde autorisatie met expliciete scope.',
+    activePolicyThree: 'Traceability is verplicht voor governance-acties.',
+    deviationsTitle: 'Afwijkingen',
+    deviationOne: 'Secundaire actie wacht op review-bewijs.',
+    deviationTwo: 'Eén open traceability-gap wacht op steward-opvolging.',
+    reviewMomentsTitle: 'Reviewmomenten',
+    reviewMomentOne: 'Policy-reviewvenster: elke 24 uur.',
+    reviewMomentTwo: 'Afwijkingscheckpoint: vóór finale bevestiging.',
+    reviewMomentThree: 'Revocatie-audit: bij elke authority-intrekking.',
+    noScoreMagicNote: 'Geen enkele trust-score: governance wordt getoond als expliciete feiten en reviewstaten.',
+    citadelHealthTitle: 'Citadel Health-dashboard',
+    citadelHealthIntro: 'Operationele gezondheid en semantische risico’s met uitleg per signaal.',
+    healthStatusLabel: 'Status',
+    healthStatusStable: 'Stabiel',
+    healthStatusWatch: 'Waakzaam',
+    healthStatusClear: 'Helder',
+    healthSignalOpsTitle: 'Operationele continuïteit',
+    healthSignalOpsBody: 'Kernservices reageren binnen verwachte grenzen en sync-checkpoints zijn actueel.',
+    healthSignalSemanticsTitle: 'Semantische coherentie',
+    healthSignalSemanticsBody: 'Eén contextlabel-afwijking gedetecteerd; review houdt betekenis uitgelijnd over acties.',
+    healthSignalGovernanceTitle: 'Governance-signaalhelderheid',
+    healthSignalGovernanceBody: 'Policy- en authority-indicatoren blijven expliciet, zonder verborgen score-magic.',
+    rioConversationDashboardTitle: 'RIO Conversatie-dashboard',
+    rioConversationDashboardIntro: 'Gesprekken als toegang tot acties, met context- en consequentie-paneel.',
+    rioConversationAccessTitle: 'Gespreks-toegang tot acties',
+    rioConversationOneTitle: 'Steward-reviewruimte',
+    rioConversationOneAction: 'Opent actie voor policy-uitzonderingsreview.',
+    rioConversationTwoTitle: 'Houder-uitvoeringsruimte',
+    rioConversationTwoAction: 'Opent begrensde uitvoeractie na proof-check.',
+    rioConversationThreeTitle: 'Ops-syncruimte',
+    rioConversationThreeAction: 'Opent service-continuïteitsactie met traceability-logging.',
+    rioContextPanelTitle: 'Contextpaneel',
+    rioContextPanelBody: 'Toont actieve identiteiten, relevante policy-scope en laatste proof-referenties vóór actiekeuze.',
+    rioConsequencePanelTitle: 'Consequentiepaneel',
+    rioConsequencePanelBody: 'Toont verwachte systeemimpact, governance-opvolging en revocatiepad vóór bevestiging.',
+    rioDeliveryPanelTitle: 'Bezorgstatuspaneel',
+    rioDeliveryStateOneTitle: 'Bezorging',
+    rioDeliveryStateOneValue: 'Afgeleverd met identiteitsmatch',
+    rioDeliveryStateTwoTitle: 'Wachtend',
+    rioDeliveryStateTwoValue: 'Bevestiging van ontvanger in behandeling',
+    rioDeliveryStateThreeTitle: 'Fallback',
+    rioDeliveryStateThreeValue: 'Route vereist retry met context-hercontrole',
+    rioConsentPanelTitle: 'Consent-paneel',
+    rioConsentPanelBody: 'Toont handshake-consent-scope, vervalvenster en of communicatie mag doorgaan zonder authority-aanvraag.',
+    rioRoomPanelTitle: 'Room continuity-paneel',
+    rioRoomStateTitle: 'Room-status',
+    rioRoomStateValue: 'Actief met begrensde deelnemersrollen',
+    rioHandoffStateTitle: 'Handoff',
+    rioHandoffStateValue: 'Surface-handoff wacht op context-hercontrole',
+    rioAddressPanelTitle: 'Adres- en handshake-paneel',
+    rioAddressPanelBody: 'Toont RIO-adresvaliditeit, linkdoel-scope en handshake-trust-indicatoren vóór berichtbezorging.',
+    rioTimelinePanelTitle: 'Conversatie-tijdlijnpaneel',
+    rioTimelineOneTitle: 'Contextcheck',
+    rioTimelineOneValue: 'Voltooid vóór room-toegang.',
+    rioTimelineTwoTitle: 'Handshake',
+    rioTimelineTwoValue: 'Identiteit geverifieerd, consent-scope gekoppeld.',
+    rioTimelineThreeTitle: 'Bezorging',
+    rioTimelineThreeValue: 'Berichtroute verzegeld met traceability-marker.',
+    rioTrustPanelTitle: 'Trust-indicatorpaneel',
+    rioTrustLevelLabel: 'Trustniveau',
+    rioTrustLevelValue: 'Transparant en begrensd',
+    rioTrustPanelBody: 'Indicatoren tonen alleen communicatievertrouwen; ze creëren nooit authority.',
+    rioWingSignalsTitle: 'RIO-vleugelsignalen',
+    rioWingSignalOneTitle: 'Lift',
+    rioWingSignalOneValue: 'Cross-surface continuïteit stabiel',
+    rioWingSignalTwoTitle: 'Turbulentie',
+    rioWingSignalTwoValue: 'Eén kanaal wacht op vernieuwde consent',
+    rioWingRoutesTitle: 'Vleugelroutes-paneel',
+    rioWingRoutesBody: 'Toont voorkeursconversatieroutes (mobiel, web, Citadel, ELIXER) en wanneer fallback-routing wordt geactiveerd.',
+    rioWingControlTitle: 'Vleugelcontrolepaneel',
+    rioWingControlModeTitle: 'Modus',
+    rioWingControlModeValue: 'Glijmodus met begrensde bezorging',
+    rioWingControlGuardTitle: 'Guardrail',
+    rioWingControlGuardValue: 'Communicatie kan doorgaan; authority-gates blijven gescheiden.',
+    rioWingRecoveryTitle: 'Vleugelherstelpaneel',
+    rioWingRecoveryBody: 'Als routevertrouwen daalt, valt RIO terug op context-refresh, vernieuwde handshake en expliciete gebruikersbevestiging vóór opnieuw verzenden.',
+    rioWingTelemetryTitle: 'Vleugeltelemetriepaneel',
+    rioWingTelemetryLatencyTitle: 'Latentie',
+    rioWingTelemetryLatencyValue: 'Binnen continuïteitsdrempel',
+    rioWingTelemetryIntegrityTitle: 'Integriteit',
+    rioWingTelemetryIntegrityValue: 'Traceability-marker geverifieerd',
+    rioWingTelemetryDriftTitle: 'Drift',
+    rioWingTelemetryDriftValue: 'Kleine contextdrift staat klaar voor steward-review',
+    rioCockpitTitle: 'RIO-cockpitchecklist',
+    rioCockpitStepOne: 'Bevestig adresvaliditeit en consent-scope.',
+    rioCockpitStepTwo: 'Verifieer handoff-context vóór cross-surface routing.',
+    rioCockpitStepThree: 'Log bezorguitkomst en houd authority-grenzen expliciet.',
+    rioWingCoordinationTitle: 'Vleugelcoördinatiepaneel',
+    rioWingCoordinationOneTitle: 'Route-sync',
+    rioWingCoordinationOneValue: 'Mobiele en web-kanalen uitgelijnd.',
+    rioWingCoordinationTwoTitle: 'Citadel-sync',
+    rioWingCoordinationTwoValue: 'Citadel-relay actief met replay-anchor.',
+    rioWingCoordinationThreeTitle: 'ELIXER-sync',
+    rioWingCoordinationThreeValue: 'Capability-context gekoppeld vóór overdracht.',
+    rioConstitutionalLockTitle: 'Constitutioneel lock-paneel',
+    rioConstitutionalLockStateLabel: 'Lock-status',
+    rioConstitutionalLockStateValue: 'Communicatie open, authority-creatie geblokkeerd',
+    rioConstitutionalLockBody: 'RIO blijft een communicatielaag; elke authority-actie vereist aparte constitutionele bevestiging.',
+    elixerDashboardTitle: 'ELIXER-dashboard',
+    elixerDashboardIntro: 'Beschikbare apps en capabilities per context, met heldere keuze-impact.',
+    elixerCapabilityLabel: 'Capabilities',
+    elixerImpactLabel: 'Keuze-impact',
+    elixerContextHolderTitle: 'Houdercontext',
+    elixerContextHolderCapabilities: 'Identity wallet, proof viewer, begrensde uitvoering.',
+    elixerContextHolderImpact: 'Uitvoering start alleen binnen goedgekeurde scope en schrijft traceability-bewijs.',
+    elixerContextStewardTitle: 'Stewardcontext',
+    elixerContextStewardCapabilities: 'Review-werkruimte, dual-confirmation gate, revocatie-tools.',
+    elixerContextStewardImpact: 'Goedkeuring of afwijzing werkt governance-status bij en opent verplichte opvolglogs.',
+    elixerContextOpsTitle: 'Operations-context',
+    elixerContextOpsCapabilities: 'Continuïteitsmonitor, policy-alignment checks, incident replay.',
+    elixerContextOpsImpact: 'Operationele keuzes kunnen policy-reviewvensters en resilience-acties activeren.',
+    evolutionDashboardTitle: 'Evolutie-dashboard',
+    evolutionDashboardIntro: 'Wijzigingen in canon en systemen, met een heldere “wat verandert er voor mij?” samenvatting.',
+    evolutionCanonTitle: 'Canon-wijzigingen',
+    evolutionCanonItemOne: 'Authority-grenzen zijn aangescherpt voor houder/steward/systeem-acties.',
+    evolutionCanonItemTwo: 'Proof-first bevestiging blijft verplicht vóór gevoelige uitvoering.',
+    evolutionSystemTitle: 'Systeemwijzigingen',
+    evolutionSystemItemOne: 'Dashboardkaarten tonen nu context-, consequentie- en capability-views naast elkaar.',
+    evolutionSystemItemTwo: 'Review- en revocatie-checkpoints zijn eerder zichtbaar in de flow.',
+    evolutionForMeTitle: 'Wat verandert er voor mij?',
+    evolutionForMeBody: 'Je kiest acties met duidelijkere impact vooraf, terwijl policy-grenzen en opvolgverplichtingen zichtbaar zijn vóór bevestiging.',
+    gatewayDashboardTitle: 'Publieke Gateway-dashboard',
+    gatewayDashboardIntro: 'Publieke begrijp-laag: oriëntatie, kernbegrippen en veilige instap.',
+    gatewayOrientationTitle: 'Oriëntatie',
+    gatewayOrientationBody: 'Start met waar je bent, wat deze laag doet, en welke acties read-only versus beschermd zijn.',
+    gatewayConceptsTitle: 'Kernbegrippen',
+    gatewayConceptOne: 'Eerst context, dan actie.',
+    gatewayConceptTwo: 'Eerst bewijs, dan authority.',
+    gatewayConceptThree: 'Eerst traceability, dan bevestiging.',
+    gatewaySafeStartTitle: 'Veilige instap',
+    gatewaySafeStartBody: 'Je kunt eerst publieke context verkennen; gevoelige uitvoering vereist expliciete authority en zichtbare consequentie-checks.',
+    gatewayStatusTitle: 'Nieuwe stand van zaken',
+    gatewayStatusPlatformLabel: 'Platform',
+    gatewayStatusPlatformValue: 'Compass-dashboards zijn uitgebreid en live.',
+    gatewayStatusRioLabel: 'RIO',
+    gatewayStatusRioValue: 'Delivery- en consent-zichtbaarheidspanelen zijn actief.',
+    gatewayStatusEntryLabel: 'Veilige instap',
+    gatewayStatusEntryValue: 'Publieke onboarding staat open; authority blijft begrensd.',
+    navigationCompassTitle: 'Navigatiekompas',
+    currentLayer: 'Huidige laag',
+    backToStart: 'Terug naar start',
+    commandLayerTitle: 'Command-laag',
+    commandPlaceholder: 'Typ natuurlijke opdracht…',
+    commandHint: 'Eerst context, daarna actie.',
+    adaptiveDepthTitle: 'Adaptieve diepte',
+    beginnerMode: 'Beginner-modus',
+    expertMode: 'Expert-modus',
+    showMoreDetail: 'Toon meer detail',
+    showLessDetail: 'Toon minder detail',
+    policyGuardTitle: 'Policy-guardrail',
+    policyGuardRule: 'Context → Actie → Consequentie → Bevestiging',
+    statusContext: 'Context gereed',
+    statusAction: 'Actie geselecteerd',
+    statusConsequence: 'Consequentie getoond',
+    statusConfirmation: 'Wacht op bevestiging',
+    twoMinuteCheckTitle: '2-minuten duidelijkheidscheck',
+    twoMinuteCheckPass: 'Geslaagd: begrijpelijk binnen 2 minuten.',
+    riskLevelMedium: 'Midden',
+    sessionLive: 'Live',
+    layerUnderstand: 'Begrijpen',
+    flowContext: 'Context',
+    flowAction: 'Actie',
+    flowProof: 'Bewijs',
+    flowTraceability: 'Traceability'
   },
-  fr: {
-    navMeet: 'Rencontrer RIO', navEverywhere: 'Partout', navTrust: 'Confiance', eyebrow: 'PALACO présente', tagline: 'La carte de visite de PALACO.', intro: 'RIO dit bonjour. RIO vous aide à trouver des personnes et des idées. Vous choisissez toujours ce que vous partagez.', meetButton: 'Faire connaissance', shareButton: 'Partager RIO', shareReady: 'Le lien RIO est prêt à être partagé.', shareUnavailable: "Le partage n'est pas disponible.", live: 'Prêt à connecter', cardIntro: 'Bonjour, je suis RIO.', cardBody: 'Je vous guide en sécurité au bon endroit dans PALACO.', identityLabel: 'Identité', verified: 'Vérifiée', consentLabel: 'Votre choix', consentValue: "Toujours d'abord", authorityLabel: 'Autorité', authorityValue: 'Aucune', addressLabel: 'Adresse RIO', openCard: 'Ouvrir la carte', closeCard: 'Fermer la carte', cardReveal: "D'abord se rencontrer. Puis choisir. Ensuite seulement se connecter.", everywhereTitle: 'Un bonjour. Partout.', everywhereBody: 'Votre conversation voyage avec vous. Son sens reste le même.', flowLabel: 'Comment marche RIO', flowTitle: "Du bonjour à une vraie conversation.", stepOneTitle: 'Regarder', stepOneBody: 'RIO montre qui ou quoi vous rencontrez.', stepTwoTitle: 'Choisir', stepTwoBody: 'Vous décidez si vous voulez continuer.', stepThreeTitle: 'Parler', stepThreeBody: 'RIO garde le chemin et la conversation.', helloTitle: 'Dites bonjour à RIO.', helloBody: 'Commencez simplement. Votre nom suffit.', nameLabel: 'Comment pouvons-nous vous appeler ?', namePlaceholder: 'Votre nom', startButton: 'Commencer', helloPrefix: 'Bonjour', helloSuffix: 'RIO est là. Vous choisissez ce que vous partagez.', trustTitle: 'La confiance, clairement.', trustBody: 'RIO connecte. Vous gardez le contrôle. PALACO protège les limites.', trustIdentity: 'Qui est-ce ?', trustIdentityBody: "L'identité est visible et vérifiable.", trustConsent: 'Est-ce permis ?', trustConsentBody: 'Rien ne continue sans votre choix.', trustHistory: "Que s'est-il passé ?", trustHistoryBody: 'Les étapes importantes restent traçables.', installButton: 'Installer RIO', footer: 'PALACO · Un lieu pour les personnes et les idées.'
-  },
-  es: {
-    navMeet: 'Conoce a RIO', navEverywhere: 'En todas partes', navTrust: 'Confianza', eyebrow: 'PALACO presenta', tagline: 'La tarjeta de presentación de PALACO.', intro: 'RIO dice hola. RIO te ayuda a encontrar personas e ideas. Tú siempre eliges qué compartes.', meetButton: 'Conocer', shareButton: 'Compartir RIO', shareReady: 'El enlace de RIO está listo para compartir.', shareUnavailable: 'No se puede compartir ahora.', live: 'Listo para conectar', cardIntro: 'Hola, soy RIO.', cardBody: 'Te llevo de forma segura al lugar correcto en PALACO.', identityLabel: 'Identidad', verified: 'Verificada', consentLabel: 'Tu elección', consentValue: 'Siempre primero', authorityLabel: 'Autoridad', authorityValue: 'Ninguna', addressLabel: 'Dirección RIO', openCard: 'Abrir tarjeta', closeCard: 'Cerrar tarjeta', cardReveal: 'Primero conocer. Luego elegir. Solo después conectar.', everywhereTitle: 'Un hola. En todas partes.', everywhereBody: 'Tu conversación viaja contigo. El significado sigue igual.', flowLabel: 'Así funciona RIO', flowTitle: 'De hola a una conversación real.', stepOneTitle: 'Mira', stepOneBody: 'RIO muestra a quién o qué encuentras.', stepTwoTitle: 'Elige', stepTwoBody: 'Tú decides si quieres continuar.', stepThreeTitle: 'Habla', stepThreeBody: 'RIO guarda el camino y la conversación.', helloTitle: 'Saluda a RIO.', helloBody: 'Empieza con poco. Tu nombre basta.', nameLabel: '¿Cómo podemos llamarte?', namePlaceholder: 'Tu nombre', startButton: 'Empezar', helloPrefix: 'Hola', helloSuffix: 'RIO está aquí. Tú eliges qué compartes.', trustTitle: 'Confianza clara.', trustBody: 'RIO conecta. Tú tienes el control. PALACO protege los límites.', trustIdentity: '¿Quién es?', trustIdentityBody: 'La identidad es visible y verificable.', trustConsent: '¿Está permitido?', trustConsentBody: 'Nada sigue sin tu elección.', trustHistory: '¿Qué pasó?', trustHistoryBody: 'Los pasos importantes se pueden consultar.', installButton: 'Instalar RIO', footer: 'PALACO · Un lugar para personas e ideas.'
-  },
-  ar: {
-    navMeet: 'تعرّف إلى RIO', navEverywhere: 'في كل مكان', navTrust: 'الثقة', eyebrow: 'تقدّم PALACO', tagline: 'بطاقة PALACO التعريفية.', intro: 'يقول RIO مرحباً. يساعدك RIO في العثور على الناس والأفكار. أنت تختار دائماً ما تشاركه.', meetButton: 'تعرّف إليه', shareButton: 'شارك RIO', shareReady: 'رابط RIO جاهز للمشاركة.', shareUnavailable: 'المشاركة غير متاحة الآن.', live: 'جاهز للاتصال', cardIntro: 'مرحباً، أنا RIO.', cardBody: 'أوصلك بأمان إلى المكان الصحيح في PALACO.', identityLabel: 'الهوية', verified: 'موثقة', consentLabel: 'اختيارك', consentValue: 'أولاً دائماً', authorityLabel: 'السلطة', authorityValue: 'لا توجد', addressLabel: 'عنوان RIO', openCard: 'افتح البطاقة', closeCard: 'أغلق البطاقة', cardReveal: 'نتعارف أولاً. ثم تختار. وبعدها فقط نتصل.', everywhereTitle: 'تحية واحدة. في كل مكان.', everywhereBody: 'تنتقل محادثتك معك. ويبقى معناها كما هو.', flowLabel: 'هكذا يعمل RIO', flowTitle: 'من مرحباً إلى محادثة حقيقية.', stepOneTitle: 'انظر', stepOneBody: 'يعرض RIO من أو ما تقابله.', stepTwoTitle: 'اختر', stepTwoBody: 'أنت تقرر إن كنت تريد المتابعة.', stepThreeTitle: 'تحدث', stepThreeBody: 'يحفظ RIO الطريق والمحادثة.', helloTitle: 'قل مرحباً لـ RIO.', helloBody: 'ابدأ ببساطة. اسمك يكفي.', nameLabel: 'ماذا نسمّيك؟', namePlaceholder: 'اسمك', startButton: 'ابدأ', helloPrefix: 'مرحباً', helloSuffix: 'RIO هنا. أنت تختار ما تشاركه.', trustTitle: 'ثقة واضحة.', trustBody: 'RIO يصل. أنت صاحب القرار. وتحمي PALACO الحدود.', trustIdentity: 'من هذا؟', trustIdentityBody: 'الهوية ظاهرة ويمكن التحقق منها.', trustConsent: 'هل هذا مسموح؟', trustConsentBody: 'لا شيء يستمر دون اختيارك.', trustHistory: 'ماذا حدث؟', trustHistoryBody: 'يمكن الرجوع إلى الخطوات المهمة.', installButton: 'ثبّت RIO', footer: 'PALACO · مكان للناس والأفكار.'
-  },
-  zh: {
-    navMeet: '认识 RIO', navEverywhere: '无处不在', navTrust: '信任', eyebrow: 'PALACO 为你介绍', tagline: 'PALACO 的数字名片。', intro: 'RIO 向你问好。RIO 帮你找到人和想法。分享什么，始终由你决定。', meetButton: '认识 RIO', shareButton: '分享 RIO', shareReady: 'RIO 链接已准备好分享。', shareUnavailable: '现在无法分享。', live: '可以连接', cardIntro: '你好，我是 RIO。', cardBody: '我会安全地带你到 PALACO 中正确的地方。', identityLabel: '身份', verified: '已验证', consentLabel: '你的选择', consentValue: '永远优先', authorityLabel: '权限', authorityValue: '无', addressLabel: 'RIO 地址', openCard: '打开名片', closeCard: '关闭名片', cardReveal: '先认识，再选择，然后才连接。', everywhereTitle: '一次问候，无处不在。', everywhereBody: '对话跟着你走，意思始终不变。', flowLabel: 'RIO 如何工作', flowTitle: '从问候到真正的对话。', stepOneTitle: '看', stepOneBody: 'RIO 告诉你遇见的是谁或什么。', stepTwoTitle: '选择', stepTwoBody: '由你决定是否继续。', stepThreeTitle: '交谈', stepThreeBody: 'RIO 记住路径和对话。', helloTitle: '向 RIO 问好。', helloBody: '从简单开始，只要你的名字。', nameLabel: '我们怎么称呼你？', namePlaceholder: '你的名字', startButton: '开始', helloPrefix: '你好', helloSuffix: 'RIO 在这里。分享什么，由你决定。', trustTitle: '清楚地说明信任。', trustBody: 'RIO 负责连接。你掌握控制权。PALACO 守护边界。', trustIdentity: '这是谁？', trustIdentityBody: '身份清晰可查。', trustConsent: '允许吗？', trustConsentBody: '没有你的选择，什么都不会继续。', trustHistory: '发生了什么？', trustHistoryBody: '重要步骤始终可以追溯。', installButton: '安装 RIO', footer: 'PALACO · 人与想法相聚之地。'
+  eo: {
+    eyebrow: 'GO · Krei · Estigi',
+    subtitle: 'La unua plenumebla UI-bazo por komputilo, tablojdo kaj poŝtelefono.',
+    visionTitle: 'Vizio',
+    visionBody: 'PALACO signifas “palaco” en Esperanto: komuna cifereca loko por konstrui, krei kaj vivigi ideojn.',
+    launchTitle: 'Lanĉejo',
+    goalLabel: 'Kion vi kreos hodiaŭ?',
+    goalPlaceholder: 'Tajpu vian unuan PALACO-celon',
+    goButton: 'GO',
+    installButton: 'Instalu apon',
+    readinessTitle: 'Platforma preteco',
+    readinessOne: 'Respondema aranĝo por komputilo, tablojdo kaj poŝtelefono.',
+    readinessTwo: 'Instalebla ret-apo bazo (PWA).',
+    readinessThree: 'Preta por domajno + HTTPS publikigo.',
+    masterTitle: 'MA5TER Panela Kontrolĉambro',
+    masterSubtitle: 'Centra komando por PALACO-Industrio kaj internaj PALACO-operacioj.',
+    industryTitle: 'PALACO Industrio',
+    industryBody: 'Monitoru kaj aktivigu industrian produktadan reĝimon.',
+    internalTitle: 'PALACO Interna',
+    internalBody: 'Administru internan Citadel-operacian reĝimon.',
+    statusLabel: 'Stato',
+    statusActive: 'Aktiva',
+    statusStandby: 'Atenda',
+    activate: 'Aktivigi',
+    deactivate: 'Malaktivigi',
+    syncNow: 'Sinkronigi nun',
+    lastSync: 'Lasta sinkronigo:',
+    githubTitle: 'GitHub nodoj',
+    githubSubtitle: 'Rekta aliro al PALACO, PALACO Industrie kaj PALACO Genesis en GitHub.',
+    githubPalacoTitle: 'PALACO',
+    githubPalacoBody: 'Malfermu la ĉefan deponejon de PALACO.',
+    githubIndustryTitle: 'PALACO Industrie',
+    githubIndustryBody: 'Malfermu la industrian deponejon de PALACO.',
+    githubGenesisTitle: 'PALACO Genesis',
+    githubGenesisBody: 'Malfermu la genesis-deponejon de PALACO.',
+    rioTitle: 'RIO Platform Ascension',
+    rioSubtitle: 'RIO evoluas de babila interfaco al konversacia kaj komunikada platformo de PALACO.',
+    rioPillarOneTitle: 'Surfaco-sendependa konversacio',
+    rioPillarOneA: 'Unu konversacia identeco tra poŝtelefono, reto, Citadel, ELIXER kaj labortablo.',
+    rioPillarOneB: 'La konversacio apartenas al PALACO-kunteksto, ne al unu aparato.',
+    rioPillarOneC: 'Trans-surfaca kontinueco restas aktiva per sinkronigo kaj rekonekto-statoj.',
+    rioPillarTwoTitle: 'Ĉeesto kun limoj',
+    rioPillarTwoA: 'Ĉeesto signifas atingebla, neniam aŭtomata aŭtoritato.',
+    rioPillarTwoB: 'Rete ≠ rajtigita; konstituciaj pordegoj restas apartaj.',
+    rioPillarTwoC: 'RIO ligas komunikadon dum PALACO protektas aŭtoritatajn limojn.',
+    rioPillarThreeTitle: 'Provenienco-konscia komunikado',
+    rioPillarThreeA: 'Mesaĝoj konservas identecon, kuntekston, originon, tempon kaj spureblecon.',
+    rioPillarThreeB: 'WATERMERK kaj HOLOGRAM subtenas aŭtentikecon kaj videblecon de devenlinio.',
+    rioPillarThreeC: 'Komplekseco kaŝiĝas kiam negrava kaj montriĝas kiam materia.',
+    rioLaw: 'Kanona leĝo: RIO rajtas ligi komunikadon; RIO ne rajtas krei aŭtoritaton.',
+    footer: 'PALACO · Konstruu la kondiĉojn. Faru ĝin grava.',
+    goalSet: 'PALACO-celo agordita:',
+    latestGoal: 'Plej lasta celo:',
+    compassTitle: 'PALACO 2040 Kompaso',
+    compassSubtitle: 'Unue komprenu. Poste agu kun pruvo.',
+    whereAmI: 'Kie mi estas?',
+    whatAmISeeing: 'Kion mi vidas?',
+    whatCanIDoNow: 'Kion mi povas fari nun?',
+    safeReturn: 'Sekura reveno',
+    actionsNowTitle: 'Agoj nun',
+    constitutionDashboardTitle: 'Konstitucia panelo',
+    constitutionDashboardIntro: 'Reguloj tradukitaj al tio, kion ili signifas por viaj nunaj elektoj.',
+    constitutionRuleLabel: 'Regulo',
+    constitutionImpactLabel: 'Nuna efiko',
+    constitutionRuleOne: 'Neniu aŭtoritato sen pruvo.',
+    constitutionImpactOne: 'Vi povas inspekti, sed ne konfirmi agojn sen pruvo.',
+    constitutionRuleTwo: 'Komprenu antaŭ ago.',
+    constitutionImpactTwo: 'Ĉiu ago montras konsekvencon antaŭ konfirmo.',
+    constitutionRuleThree: 'Aŭtoritato restas limigita.',
+    constitutionImpactThree: 'Roloj estas klaraj: portanto, steward kaj sistemaj limoj restas apartaj.',
+    primaryAction: 'Ĉefa ago',
+    secondaryAction: 'Dua ago',
+    tertiaryAction: 'Tria ago',
+    requiresAuthority: 'Postulas aŭtoritaton',
+    consequenceTitle: 'Sekva efiko',
+    consequenceBeforeConfirm: 'Legu efikon antaŭ konfirmo.',
+    riskLevel: 'Riska nivelo',
+    confirmAction: 'Konfirmu agon',
+    proofStripTitle: 'Pruva stato',
+    proofDashboardTitle: 'Pruva panelo',
+    proofDashboardIntro: 'Por ĉiu ago: vidu staton, pruvĉenon kaj spureblecan ĉenon en unu vido.',
+    proofAvailable: 'Pruvo disponebla',
+    proofInReview: 'Pruvo en revizio',
+    proofMissing: 'Pruvo mankas',
+    actionStatusLabel: 'Stato',
+    proofChainLabel: 'Pruvĉeno',
+    traceabilityChainLabel: 'Spurebleca ĉeno',
+    openProofChain: 'Rekta pruvĉeno',
+    traceabilityTitle: 'Spurebleco',
+    openSourceChain: 'Malferma font-ĉeno',
+    authorityTitle: 'Aŭtoritataj limoj',
+    authorityIntro: 'Kiu rajtas kion, kial, kaj sub kiuj limoj.',
+    authorityWhoLabel: 'Kiu',
+    authorityWhatLabel: 'Kio',
+    authorityWhyLabel: 'Kial',
+    authorityBoundaryLabel: 'Limo',
+    authorityConditionLabel: 'Kondiĉoj',
+    authorityWhoHolder: 'Portanto',
+    authorityWhatHolder: 'Rajtas plenumi proprajn aprobitajn agojn',
+    authorityWhyHolder: 'Identec-ligita posedeco',
+    authorityBoundaryHolder: 'Nur ene de donita amplekso',
+    authorityConditionHolder: 'Valida pruvo + aktiva sesio',
+    authorityWhoSteward: 'Steward',
+    authorityWhatSteward: 'Rajtas revizii kaj kun-aŭtorizi sentemajn agojn',
+    authorityWhySteward: 'Gvidado kaj zorgodevo',
+    authorityBoundarySteward: 'Ne rajtas imiti aŭtoritaton de portanto',
+    authorityConditionSteward: 'Revizia spuro + duobla konfirmo',
+    authorityWhoSystem: 'Sistemo',
+    authorityWhatSystem: 'Rajtas validigi, registri kaj devigi politikajn pordojn',
+    authorityWhySystem: 'Konstitucia integreco',
+    authorityBoundarySystem: 'Neniu kreado de homa aŭtoritato',
+    authorityConditionSystem: 'Politika kongruo + kontrolebla pruvo',
+    youCan: 'Vi rajtas',
+    reviewRequired: 'Revizio bezonata',
+    notAllowed: 'Ne permesite',
+    identityTitle: 'Identeco kaj sesio',
+    identityDashboardIntro: 'Identeco, sesio, konfirmo kaj posedeco en unu superrigardo.',
+    activeIdentity: 'Aktiva identeco',
+    sessionState: 'Sesia stato',
+    verificationStatusLabel: 'Konfirmo',
+    verificationVerified: 'Konfirmita',
+    sessionAgeLabel: 'Sesia aĝo',
+    sessionAgeNow: 'Nuna',
+    sessionBoundaryLabel: 'Sesia limo',
+    sessionBoundaryBounded: 'Limigita de politikaj pordoj',
+    ownershipLabel: 'Posedeco',
+    ownershipScopePrivate: 'Privata amplekso',
+    ownedByMe: 'Mia',
+    participationDashboardTitle: 'Partoprena panelo',
+    participationDashboardIntro: 'Flukarto: antaŭvido → aŭtorizo → revizio → nuligo.',
+    participationStepPreview: 'Antaŭvido',
+    participationStepPreviewBody: 'Vidu efikon kaj limojn antaŭ doni aŭtoritaton.',
+    participationStepAuthorize: 'Aŭtorizo',
+    participationStepAuthorizeBody: 'Doni limigitan permeson kun klaraj kondiĉoj.',
+    participationStepReview: 'Revizio',
+    participationStepReviewBody: 'Kontrolu pruvon, spureblecon kaj politikan kongruon.',
+    participationStepRevoke: 'Nuligo',
+    participationStepRevokeBody: 'Retiru aŭtoritaton kiam limoj estas rompitaj.',
+    governanceDashboardTitle: 'Governanca panelo',
+    governanceDashboardIntro: 'Aktivaj politikoj, devioj kaj reviziaj momentoj sen poentara magio.',
+    activePoliciesTitle: 'Aktivaj politikoj',
+    activePolicyOne: 'Pruvo bezonata antaŭ aŭtoritata konfirmo.',
+    activePolicyTwo: 'Limigita aŭtorizo kun klara amplekso.',
+    activePolicyThree: 'Spurebleco bezonata por governancaj agoj.',
+    deviationsTitle: 'Devioj',
+    deviationOne: 'Dua ago atendas revizian pruvon.',
+    deviationTwo: 'Unu malfermita spurebleca breĉo atendas steward-sekvadon.',
+    reviewMomentsTitle: 'Reviziaj momentoj',
+    reviewMomentOne: 'Politika revizio: ĉiun 24h.',
+    reviewMomentTwo: 'Devia kontrolpunkto: antaŭ fina konfirmo.',
+    reviewMomentThree: 'Nuliga aŭdito: ĉe ĉiu aŭtoritata retiro.',
+    noScoreMagicNote: 'Neniu unuopa fido-poentaro: governanco montriĝas kiel klaraj faktoj kaj reviziaj statoj.',
+    citadelHealthTitle: 'Citadel Health-panelo',
+    citadelHealthIntro: 'Funkcia sano kaj semantikaj riskoj kun klarigo por ĉiu signalo.',
+    healthStatusLabel: 'Stato',
+    healthStatusStable: 'Stabila',
+    healthStatusWatch: 'Atento',
+    healthStatusClear: 'Klara',
+    healthSignalOpsTitle: 'Funkcia kontinueco',
+    healthSignalOpsBody: 'Ĉefaj servoj respondas ene de atenditaj limoj kaj sinkronigaj kontrolpunktoj estas aktualaj.',
+    healthSignalSemanticsTitle: 'Semantika kohereco',
+    healthSignalSemanticsBody: 'Unu kunteksta etiked-malkongruo trovita; revizio tenas signifon vicigita tra agoj.',
+    healthSignalGovernanceTitle: 'Governanca signala klareco',
+    healthSignalGovernanceBody: 'Politikaj kaj aŭtoritataj indikiloj restas klaraj, sen kaŝita poentara magio.',
+    rioConversationDashboardTitle: 'RIO Konversacia panelo',
+    rioConversationDashboardIntro: 'Konversacioj kiel aliro al agoj, kun kunteksta kaj konsekvenca panelo.',
+    rioConversationAccessTitle: 'Konversacia aliro al agoj',
+    rioConversationOneTitle: 'Steward-revizia ĉambro',
+    rioConversationOneAction: 'Malfermas agon por revizio de politika escepto.',
+    rioConversationTwoTitle: 'Portanta plenum-ĉambro',
+    rioConversationTwoAction: 'Malfermas limigitan plenum-agon post pruva kontrolo.',
+    rioConversationThreeTitle: 'Ops-sinkrona ĉambro',
+    rioConversationThreeAction: 'Malfermas servokontinuecan agon kun spurebleca registrado.',
+    rioContextPanelTitle: 'Kunteksta panelo',
+    rioContextPanelBody: 'Montras aktivajn identecojn, gravan politikan amplekson, kaj plej lastajn pruvajn referencojn antaŭ ago-elekto.',
+    rioConsequencePanelTitle: 'Konsekvenca panelo',
+    rioConsequencePanelBody: 'Montras atendatan sisteman efikon, governancan sekvadon, kaj nuligan vojon antaŭ konfirmo.',
+    rioDeliveryPanelTitle: 'Liverstata panelo',
+    rioDeliveryStateOneTitle: 'Livero',
+    rioDeliveryStateOneValue: 'Liverita kun identeca kongruo',
+    rioDeliveryStateTwoTitle: 'Atendanta',
+    rioDeliveryStateTwoValue: 'Konfirmo de ricevanto ankoraŭ atendas',
+    rioDeliveryStateThreeTitle: 'Fallback',
+    rioDeliveryStateThreeValue: 'Vojo postulas reprovon kun kunteksta rekontrolo',
+    rioConsentPanelTitle: 'Konsenta panelo',
+    rioConsentPanelBody: 'Montras amplekson de handshake-konsento, eksvalidiĝan fenestron, kaj ĉu komunikado povas daŭri sen peti aŭtoritaton.',
+    rioRoomPanelTitle: 'Ĉambra kontinueca panelo',
+    rioRoomStateTitle: 'Ĉambra stato',
+    rioRoomStateValue: 'Aktiva kun limigitaj partoprenantaj roloj',
+    rioHandoffStateTitle: 'Transdono',
+    rioHandoffStateValue: 'Surfaca transdono atendas kuntekstan rekontrolon',
+    rioAddressPanelTitle: 'Adresa kaj handshake-panelo',
+    rioAddressPanelBody: 'Montras validecon de RIO-adreso, amplekson de ligcelaĵo, kaj handshake-fidindikilojn antaŭ mesaĝlivero.',
+    rioTimelinePanelTitle: 'Konversacia templinia panelo',
+    rioTimelineOneTitle: 'Kunteksta kontrolo',
+    rioTimelineOneValue: 'Kompletigita antaŭ ĉambreniro.',
+    rioTimelineTwoTitle: 'Handshake',
+    rioTimelineTwoValue: 'Identeco kontrolita, konsenta amplekso alkroĉita.',
+    rioTimelineThreeTitle: 'Livero',
+    rioTimelineThreeValue: 'Mesaĝvojo sigelita per spurebleca markilo.',
+    rioTrustPanelTitle: 'Fidindika panelo',
+    rioTrustLevelLabel: 'Fidnivelo',
+    rioTrustLevelValue: 'Travidebla kaj limigita',
+    rioTrustPanelBody: 'Indikiloj montras nur komunikadan fidon; ili neniam kreas aŭtoritaton.',
+    rioWingSignalsTitle: 'RIO-flugilsignaloj',
+    rioWingSignalOneTitle: 'Levo',
+    rioWingSignalOneValue: 'Trans-surfaca kontinueco stabila',
+    rioWingSignalTwoTitle: 'Turbuleco',
+    rioWingSignalTwoValue: 'Unu kanalo atendas renovigitan konsenton',
+    rioWingRoutesTitle: 'Flugil-vojiga panelo',
+    rioWingRoutesBody: 'Montras preferatajn konversaciajn vojojn (poŝtelefono, reto, Citadel, ELIXER) kaj kiam fallback-vojigo aktiviĝas.',
+    rioWingControlTitle: 'Flugil-kontrola panelo',
+    rioWingControlModeTitle: 'Reĝimo',
+    rioWingControlModeValue: 'Glita reĝimo kun limigita livero',
+    rioWingControlGuardTitle: 'Gvidrelo',
+    rioWingControlGuardValue: 'Komunikado povas daŭri; aŭtoritataj pordegoj restas apartaj.',
+    rioWingRecoveryTitle: 'Flugil-resaniga panelo',
+    rioWingRecoveryBody: 'Se vojfido falas, RIO revenas al kunteksta refreŝigo, renovigita handshake, kaj eksplicita uzanta konfirmo antaŭ resendo.',
+    rioWingTelemetryTitle: 'Flugil-telemetria panelo',
+    rioWingTelemetryLatencyTitle: 'Latenteco',
+    rioWingTelemetryLatencyValue: 'Ene de kontinueca sojlo',
+    rioWingTelemetryIntegrityTitle: 'Integreco',
+    rioWingTelemetryIntegrityValue: 'Spurebleca markilo kontrolita',
+    rioWingTelemetryDriftTitle: 'Drivo',
+    rioWingTelemetryDriftValue: 'Malgranda kunteksta drivo vicigita por steward-revizio',
+    rioCockpitTitle: 'RIO-kokpita kontrol-listo',
+    rioCockpitStepOne: 'Konfirmu adrese validecon kaj konsentan amplekson.',
+    rioCockpitStepTwo: 'Kontrolu handoff-kuntekston antaŭ trans-surfaca vojigo.',
+    rioCockpitStepThree: 'Registru liverrezulton kaj tenu aŭtoritatajn limojn eksplicitaj.',
+    rioWingCoordinationTitle: 'Flugila kunordiga panelo',
+    rioWingCoordinationOneTitle: 'Vojiga sinkrono',
+    rioWingCoordinationOneValue: 'Poŝtelefonaj kaj retaj kanaloj vicigitaj.',
+    rioWingCoordinationTwoTitle: 'Citadel sinkrono',
+    rioWingCoordinationTwoValue: 'Citadel-relajso aktiva kun replay-ankro.',
+    rioWingCoordinationThreeTitle: 'ELIXER sinkrono',
+    rioWingCoordinationThreeValue: 'Kapabla kunteksto alkroĉita antaŭ transdono.',
+    rioConstitutionalLockTitle: 'Konstitucia serura panelo',
+    rioConstitutionalLockStateLabel: 'Serura stato',
+    rioConstitutionalLockStateValue: 'Komunikado malfermita, aŭtoritata kreado blokita',
+    rioConstitutionalLockBody: 'RIO restas komunikada tavolo; ĉiu aŭtoritata ago postulas apartan konstitucian konfirmon.',
+    elixerDashboardTitle: 'ELIXER-panelo',
+    elixerDashboardIntro: 'Disponeblaj aplikaĵoj kaj kapabloj laŭ kunteksto, kun klara elekta efiko.',
+    elixerCapabilityLabel: 'Kapabloj',
+    elixerImpactLabel: 'Elekta efiko',
+    elixerContextHolderTitle: 'Portanta kunteksto',
+    elixerContextHolderCapabilities: 'Identeca monujo, pruv-speguilo, limigita plenumo.',
+    elixerContextHolderImpact: 'Plenumo komenciĝas nur ene de aprobita amplekso kaj skribas spureblecan pruvon.',
+    elixerContextStewardTitle: 'Steward-kunteksto',
+    elixerContextStewardCapabilities: 'Revizia laborspaco, duobla-konfirma pordo, nuligaj iloj.',
+    elixerContextStewardImpact: 'Aprobo aŭ malaprobo ĝisdatigas governancan staton kaj malfermas devigajn sekvajn protokolojn.',
+    elixerContextOpsTitle: 'Operacia kunteksto',
+    elixerContextOpsCapabilities: 'Kontinueca monitoro, politik-kongruaj kontroloj, incidenta reludo.',
+    elixerContextOpsImpact: 'Operaciaj elektoj povas ekigi politikajn revizifenestrojn kaj rezistecajn agojn.',
+    evolutionDashboardTitle: 'Evolua panelo',
+    evolutionDashboardIntro: 'Ŝanĝoj en kanono kaj sistemoj, kun klara “kio ŝanĝiĝas por mi?” resumo.',
+    evolutionCanonTitle: 'Kanonaj ŝanĝoj',
+    evolutionCanonItemOne: 'Aŭtoritataj limoj estas klarigitaj por portanto/steward/sistemaj agoj.',
+    evolutionCanonItemTwo: 'Pruvo-unue konfirmo restas deviga antaŭ sentema plenumo.',
+    evolutionSystemTitle: 'Sistemaj ŝanĝoj',
+    evolutionSystemItemOne: 'Panelaj kartoj nun montras kuntekston, konsekvencon kaj kapablajn vidojn flank-al-flanke.',
+    evolutionSystemItemTwo: 'Reviziaj kaj nuligaj kontrolpunktoj videblas pli frue en la fluo.',
+    evolutionForMeTitle: 'Kio ŝanĝiĝas por mi?',
+    evolutionForMeBody: 'Vi elektas agojn kun pli klara efiko anticipe, dum politikaj limoj kaj sekvaj devojoj montriĝas antaŭ konfirmo.',
+    gatewayDashboardTitle: 'Publika Enireja panelo',
+    gatewayDashboardIntro: 'Publika kompren-tavolo: orientiĝo, kernaj konceptoj, kaj sekura eniro.',
+    gatewayOrientationTitle: 'Orientiĝo',
+    gatewayOrientationBody: 'Komencu per kie vi estas, kion ĉi tiu tavolo faras, kaj kiuj agoj estas nurlegeblaj kontraŭ protektitaj.',
+    gatewayConceptsTitle: 'Kernaj konceptoj',
+    gatewayConceptOne: 'Unue kunteksto, poste ago.',
+    gatewayConceptTwo: 'Unue pruvo, poste aŭtoritato.',
+    gatewayConceptThree: 'Unue spurebleco, poste konfirmo.',
+    gatewaySafeStartTitle: 'Sekura eniro',
+    gatewaySafeStartBody: 'Vi povas unue esplori publikan kuntekston; sentema plenumo postulas eksplicitan aŭtoritaton kaj videblajn konsekvenco-kontrolojn.',
+    gatewayStatusTitle: 'Nova stato-ĝisdatigo',
+    gatewayStatusPlatformLabel: 'Platformo',
+    gatewayStatusPlatformValue: 'Compass-paneloj estas vastigitaj kaj aktivaj.',
+    gatewayStatusRioLabel: 'RIO',
+    gatewayStatusRioValue: 'Livera kaj konsenta videblec-paneloj estas aktivaj.',
+    gatewayStatusEntryLabel: 'Sekura eniro',
+    gatewayStatusEntryValue: 'Publika enkonduko estas malfermita; aŭtoritato restas limigita.',
+    navigationCompassTitle: 'Navigada kompaso',
+    currentLayer: 'Nuna tavolo',
+    backToStart: 'Reen al komenco',
+    commandLayerTitle: 'Komanda tavolo',
+    commandPlaceholder: 'Tajpu naturan komandon…',
+    commandHint: 'Unue kunteksto, poste ago.',
+    adaptiveDepthTitle: 'Adapta profundo',
+    beginnerMode: 'Komencanta reĝimo',
+    expertMode: 'Sperta reĝimo',
+    showMoreDetail: 'Montru pli da detaloj',
+    showLessDetail: 'Montru malpli da detaloj',
+    policyGuardTitle: 'Politika gvidrelo',
+    policyGuardRule: 'Kunteksto → Ago → Efiko → Konfirmo',
+    statusContext: 'Kunteksto preta',
+    statusAction: 'Ago elektita',
+    statusConsequence: 'Efiko montrita',
+    statusConfirmation: 'Atendas konfirmon',
+    twoMinuteCheckTitle: '2-minuta klareco-kontrolo',
+    twoMinuteCheckPass: 'Sukcesis: komprenebla ene de 2 minutoj.',
+    riskLevelMedium: 'Meza',
+    sessionLive: 'Viva',
+    layerUnderstand: 'Kompreni',
+    flowContext: 'Kunteksto',
+    flowAction: 'Ago',
+    flowProof: 'Pruvo',
+    flowTraceability: 'Spurebleco'
   }
 };
 
-const subjectTranslations = {
-  nl: { subjectsLabel: 'Raak aan en ontdek', subjectsTitle: 'Elk onderwerp kan leven in RIO.', subjectsBody: 'Een teken, plaatje, foto of hele ELIXER. Tik om te kijken. Jij kiest of je verdergaat.', subjectsAria: 'Swipe door RIO-onderwerpen', symbolType: 'Symbool', symbolTitle: 'Een teken met betekenis', symbolDescription: 'Een klein teken kan een groot idee herkenbaar maken.', imageType: 'Plaatje', imageTitle: 'Het gezicht van RIO', imageDescription: 'Een plaatje helpt je meteen zien waar je bent.', photoType: 'Foto', photoTitle: 'Een plek om te ontmoeten', photoAlt: 'Een open landschap in warm zonlicht', photoDescription: 'Een foto kan een echte plek, persoon of herinnering laten zien.', elixerTitle: 'Een complete wereld', elixerDescription: 'Een ELIXER kan als compleet onderwerp openen, met zijn eigen inhoud en grenzen.', tapHint: 'Tik om te openen', closeSubject: 'Sluit onderwerp', subjectSource: 'Herkomst', subjectState: 'Status', subjectVerified: 'Zichtbaar en controleerbaar', subjectBoundary: 'Kijken geeft geen toegang. Jij kiest altijd de volgende stap.', subjectContinue: 'Verder met dit onderwerp', subjectChosen: 'Dit onderwerp staat klaar voor je gesprek.' },
-  en: { subjectsLabel: 'Touch and discover', subjectsTitle: 'Every subject can live in RIO.', subjectsBody: 'A sign, picture, photo, or full ELIXER. Tap to look. You choose whether to continue.', subjectsAria: 'Swipe through RIO subjects', symbolType: 'Symbol', symbolTitle: 'A sign with meaning', symbolDescription: 'A small sign can make a big idea easy to recognize.', imageType: 'Picture', imageTitle: 'The face of RIO', imageDescription: 'A picture helps you see where you are right away.', photoType: 'Photo', photoTitle: 'A place to meet', photoAlt: 'An open landscape in warm sunlight', photoDescription: 'A photo can show a real place, person, or memory.', elixerTitle: 'A complete world', elixerDescription: 'An ELIXER can open as a complete subject, with its own content and boundaries.', tapHint: 'Tap to open', closeSubject: 'Close subject', subjectSource: 'Source', subjectState: 'Status', subjectVerified: 'Visible and verifiable', subjectBoundary: 'Looking does not grant access. You always choose the next step.', subjectContinue: 'Continue with this subject', subjectChosen: 'This subject is ready for your conversation.' },
-  de: { subjectsLabel: 'Berühren und entdecken', subjectsTitle: 'Jedes Thema kann in RIO leben.', subjectsBody: 'Ein Zeichen, Bild, Foto oder ganzer ELIXER. Tippe zum Ansehen. Du entscheidest, ob es weitergeht.', subjectsAria: 'Durch RIO-Themen wischen', symbolType: 'Symbol', symbolTitle: 'Ein Zeichen mit Bedeutung', symbolDescription: 'Ein kleines Zeichen kann eine große Idee erkennbar machen.', imageType: 'Bild', imageTitle: 'Das Gesicht von RIO', imageDescription: 'Ein Bild zeigt dir sofort, wo du bist.', photoType: 'Foto', photoTitle: 'Ein Ort zum Treffen', photoAlt: 'Eine offene Landschaft im warmen Sonnenlicht', photoDescription: 'Ein Foto kann einen echten Ort, Menschen oder eine Erinnerung zeigen.', elixerTitle: 'Eine ganze Welt', elixerDescription: 'Ein ELIXER kann als vollständiges Thema mit eigenen Inhalten und Grenzen öffnen.', tapHint: 'Zum Öffnen tippen', closeSubject: 'Thema schließen', subjectSource: 'Herkunft', subjectState: 'Status', subjectVerified: 'Sichtbar und prüfbar', subjectBoundary: 'Ansehen gibt keinen Zugang. Du wählst immer den nächsten Schritt.', subjectContinue: 'Mit diesem Thema weiter', subjectChosen: 'Dieses Thema ist für dein Gespräch bereit.' },
-  fr: { subjectsLabel: 'Touchez et découvrez', subjectsTitle: 'Chaque sujet peut vivre dans RIO.', subjectsBody: 'Un signe, une image, une photo ou un ELIXER complet. Touchez pour regarder. Vous choisissez la suite.', subjectsAria: 'Balayer les sujets RIO', symbolType: 'Symbole', symbolTitle: 'Un signe qui a du sens', symbolDescription: 'Un petit signe peut rendre une grande idée facile à reconnaître.', imageType: 'Image', imageTitle: 'Le visage de RIO', imageDescription: 'Une image aide à voir tout de suite où vous êtes.', photoType: 'Photo', photoTitle: 'Un lieu de rencontre', photoAlt: 'Un paysage ouvert sous une lumière chaude', photoDescription: 'Une photo peut montrer un vrai lieu, une personne ou un souvenir.', elixerTitle: 'Un monde complet', elixerDescription: 'Un ELIXER peut s’ouvrir comme sujet complet, avec son contenu et ses limites.', tapHint: 'Touchez pour ouvrir', closeSubject: 'Fermer le sujet', subjectSource: 'Origine', subjectState: 'Statut', subjectVerified: 'Visible et vérifiable', subjectBoundary: 'Regarder ne donne aucun accès. Vous choisissez toujours la prochaine étape.', subjectContinue: 'Continuer avec ce sujet', subjectChosen: 'Ce sujet est prêt pour votre conversation.' },
-  es: { subjectsLabel: 'Toca y descubre', subjectsTitle: 'Cada tema puede vivir en RIO.', subjectsBody: 'Un símbolo, imagen, foto o ELIXER completo. Toca para mirar. Tú eliges si continúas.', subjectsAria: 'Desliza por los temas de RIO', symbolType: 'Símbolo', symbolTitle: 'Un signo con significado', symbolDescription: 'Un pequeño signo puede hacer reconocible una gran idea.', imageType: 'Imagen', imageTitle: 'La cara de RIO', imageDescription: 'Una imagen te ayuda a ver enseguida dónde estás.', photoType: 'Foto', photoTitle: 'Un lugar para encontrarse', photoAlt: 'Un paisaje abierto con luz cálida', photoDescription: 'Una foto puede mostrar un lugar, una persona o un recuerdo real.', elixerTitle: 'Un mundo completo', elixerDescription: 'Un ELIXER puede abrirse como tema completo, con contenido y límites propios.', tapHint: 'Toca para abrir', closeSubject: 'Cerrar tema', subjectSource: 'Origen', subjectState: 'Estado', subjectVerified: 'Visible y verificable', subjectBoundary: 'Mirar no da acceso. Tú siempre eliges el siguiente paso.', subjectContinue: 'Seguir con este tema', subjectChosen: 'Este tema está listo para tu conversación.' },
-  ar: { subjectsLabel: 'المس واكتشف', subjectsTitle: 'يمكن لكل موضوع أن يعيش في RIO.', subjectsBody: 'رمز أو صورة أو لقطة أو ELIXER كامل. المس لترى. وأنت تختار المتابعة.', subjectsAria: 'مرّر بين موضوعات RIO', symbolType: 'رمز', symbolTitle: 'إشارة لها معنى', symbolDescription: 'يمكن لإشارة صغيرة أن تجعل فكرة كبيرة سهلة التعرّف.', imageType: 'صورة', imageTitle: 'وجه RIO', imageDescription: 'تساعدك الصورة على معرفة مكانك بسرعة.', photoType: 'لقطة', photoTitle: 'مكان للقاء', photoAlt: 'منظر طبيعي مفتوح في ضوء دافئ', photoDescription: 'يمكن للصورة أن تعرض مكاناً أو شخصاً أو ذكرى حقيقية.', elixerTitle: 'عالم كامل', elixerDescription: 'يمكن فتح ELIXER كموضوع كامل له محتواه وحدوده.', tapHint: 'المس للفتح', closeSubject: 'أغلق الموضوع', subjectSource: 'المصدر', subjectState: 'الحالة', subjectVerified: 'ظاهر وقابل للتحقق', subjectBoundary: 'المشاهدة لا تمنح الوصول. أنت تختار دائماً الخطوة التالية.', subjectContinue: 'تابع مع هذا الموضوع', subjectChosen: 'هذا الموضوع جاهز لمحادثتك.' },
-  zh: { subjectsLabel: '触摸并发现', subjectsTitle: '每个主题都能在 RIO 中鲜活呈现。', subjectsBody: '符号、图片、照片或完整的 ELIXER。轻触查看，由你决定是否继续。', subjectsAria: '滑动浏览 RIO 主题', symbolType: '符号', symbolTitle: '有意义的标志', symbolDescription: '一个小标志能让一个大想法容易辨认。', imageType: '图片', imageTitle: 'RIO 的面孔', imageDescription: '图片能让你马上知道自己在哪里。', photoType: '照片', photoTitle: '相遇的地方', photoAlt: '暖阳下开阔的风景', photoDescription: '照片可以展示真实的地方、人物或回忆。', elixerTitle: '一个完整世界', elixerDescription: 'ELIXER 可以作为完整主题打开，并保留自己的内容和边界。', tapHint: '轻触打开', closeSubject: '关闭主题', subjectSource: '来源', subjectState: '状态', subjectVerified: '可见且可验证', subjectBoundary: '查看并不授予访问权。下一步始终由你选择。', subjectContinue: '继续这个主题', subjectChosen: '这个主题已准备好进入你的对话。' }
+translations.es = {
+  ...translations.en,
+  eyebrow: 'GO · Crear · Construir',
+  subtitle: 'La primera base de interfaz ejecutable para escritorio, tablet y móvil.',
+  compassTitle: 'Brújula PALACO 2040',
+  compassSubtitle: 'Primero entender. Después actuar con prueba.',
+  safeReturn: 'Regreso seguro',
+  commandLayerTitle: 'Capa de comandos',
+  backToStart: 'Volver al inicio',
+  riskLevelMedium: 'Medio',
+  sessionLive: 'Activo',
+  layerUnderstand: 'Entender'
 };
 
-const mobileNavTranslations = {
-  nl: { navExplore: 'Ontdek', mobileNavLabel: 'Mobiele hoofdnavigatie' },
-  en: { navExplore: 'Explore', mobileNavLabel: 'Mobile main navigation' },
-  de: { navExplore: 'Entdecken', mobileNavLabel: 'Mobile Hauptnavigation' },
-  fr: { navExplore: 'Explorer', mobileNavLabel: 'Navigation principale mobile' },
-  es: { navExplore: 'Explorar', mobileNavLabel: 'Navegación principal móvil' },
-  ar: { navExplore: 'استكشف', mobileNavLabel: 'التنقل الرئيسي للجوال' },
-  zh: { navExplore: '探索', mobileNavLabel: '移动主导航' }
+translations.fr = {
+  ...translations.en,
+  eyebrow: 'GO · Créer · Construire',
+  subtitle: 'La première base UI exécutable pour ordinateur, tablette et mobile.',
+  compassTitle: 'Boussole PALACO 2040',
+  compassSubtitle: 'Comprendre d’abord. Agir avec preuve.',
+  safeReturn: 'Retour sûr',
+  commandLayerTitle: 'Couche de commande',
+  backToStart: 'Retour au départ',
+  riskLevelMedium: 'Moyen',
+  sessionLive: 'Actif',
+  layerUnderstand: 'Comprendre'
 };
 
-const supportedLanguages = Object.keys(translations);
-const languageButtons = document.querySelectorAll('.lang-btn');
-const meetButton = document.querySelector('#meet-btn');
-const shareButton = document.querySelector('#share-btn');
-const shareOutput = document.querySelector('#share-output');
-const cardToggle = document.querySelector('#card-toggle');
-const cardReveal = document.querySelector('#card-reveal');
-const helloForm = document.querySelector('#hello-form');
-const visitorName = document.querySelector('#visitor-name');
-const helloOutput = document.querySelector('#hello-output');
-const installButton = document.querySelector('#install-btn');
-const subjectTiles = document.querySelectorAll('.subject-tile');
-const subjectDialog = document.querySelector('#subject-dialog');
-const subjectSheet = document.querySelector('#subject-sheet');
-const subjectClose = document.querySelector('#subject-close');
-const subjectPreview = document.querySelector('#subject-preview');
-const subjectKind = document.querySelector('#subject-kind');
-const subjectTitle = document.querySelector('#subject-dialog-title');
-const subjectDescription = document.querySelector('#subject-dialog-description');
-const subjectContinue = document.querySelector('#subject-continue');
-const mobileNavLinks = document.querySelectorAll('.mobile-nav a');
-
-const browserLanguage = navigator.language?.split('-')[0];
-let currentLanguage = localStorage.getItem('palaco-language') || (supportedLanguages.includes(browserLanguage) ? browserLanguage : 'nl');
-let deferredPrompt;
-let activeSubject;
-let lastSubjectTrigger;
-let touchStart;
-
-const text = (key) => translations[currentLanguage][key] ?? subjectTranslations[currentLanguage]?.[key] ?? mobileNavTranslations[currentLanguage]?.[key];
-
-const subjects = {
-  symbol: { subject_id: 'rio:subject:palaco-symbol', type: 'SYMBOL', name: 'symbolTitle', preview_reference: 'asset:palaco-symbol', meaning: 'symbolDescription', provenance_reference: 'rio-web-subject-catalog-v1', state: 'CURRENT', boundary: 'subjectBoundary', next_action: 'subjectContinue', presentation_effect: 'NONE', kind: 'symbolType', preview: '∆' },
-  image: { subject_id: 'rio:subject:rio-image', type: 'IMAGE', name: 'imageTitle', preview_reference: 'asset:rio-icon-192', meaning: 'imageDescription', provenance_reference: 'rio-web-subject-catalog-v1', state: 'CURRENT', boundary: 'subjectBoundary', next_action: 'subjectContinue', presentation_effect: 'NONE', kind: 'imageType', preview: 'image' },
-  photo: { subject_id: 'rio:subject:meeting-place-photo', type: 'PHOTO', name: 'photoTitle', preview_reference: 'asset:rio-meeting-place-photo', meaning: 'photoDescription', provenance_reference: 'rio-web-subject-catalog-v1', state: 'CURRENT', boundary: 'subjectBoundary', next_action: 'subjectContinue', presentation_effect: 'NONE', kind: 'photoType', preview: 'photo' },
-  elixer: { subject_id: 'rio:subject:example-elixer', object_reference: 'elixer:example-world', type: 'ELIXER', name: 'elixerTitle', preview_reference: 'elixer:example-world:preview', meaning: 'elixerDescription', provenance_reference: 'rio-web-subject-catalog-v1', state: 'CURRENT', boundary: 'subjectBoundary', next_action: 'subjectContinue', presentation_effect: 'NONE', kind: 'ELIXER', preview: 'elixer' }
+translations.zh = {
+  ...translations.en,
+  eyebrow: 'GO · 创建 · 构建',
+  subtitle: '适用于桌面、平板和移动设备的首个可执行 UI 基础。',
+  compassTitle: 'PALACO 2040 指南针',
+  compassSubtitle: '先理解，再基于证据行动。',
+  safeReturn: '安全返回',
+  commandLayerTitle: '指令层',
+  backToStart: '返回起点',
+  riskLevelMedium: '中',
+  sessionLive: '在线',
+  layerUnderstand: '理解'
 };
 
-subjectTiles.forEach((tile) => {
-  const subject = subjects[tile.dataset.subject];
-  if (!subject) return;
-  tile.dataset.subjectId = subject.subject_id;
-  tile.dataset.subjectType = subject.type;
-  tile.dataset.subjectState = subject.state;
-  tile.dataset.presentationEffect = subject.presentation_effect;
+translations.ru = {
+  ...translations.en,
+  eyebrow: 'GO · Создавать · Строить',
+  subtitle: 'Первая исполняемая UI-основа для десктопа, планшета и мобильных устройств.',
+  compassTitle: 'Компас PALACO 2040',
+  compassSubtitle: 'Сначала понять. Затем действовать с доказательством.',
+  safeReturn: 'Безопасный возврат',
+  commandLayerTitle: 'Командный слой',
+  backToStart: 'Назад к началу',
+  riskLevelMedium: 'Средний',
+  sessionLive: 'Активна',
+  layerUnderstand: 'Понимание'
+};
+
+translations.ar = {
+  ...translations.en,
+  eyebrow: 'انطلق · أنشئ · ابنِ',
+  subtitle: 'أول أساس واجهة قابل للتنفيذ لسطح المكتب والجهاز اللوحي والهاتف.',
+  compassTitle: 'بوصلة PALACO 2040',
+  compassSubtitle: 'افهم أولًا، ثم تصرّف بالدليل.',
+  safeReturn: 'عودة آمنة',
+  commandLayerTitle: 'طبقة الأوامر',
+  backToStart: 'العودة إلى البداية',
+  riskLevelMedium: 'متوسط',
+  sessionLive: 'نشط',
+  layerUnderstand: 'فهم'
+};
+
+translations.atl = {
+  ...translations.en,
+  eyebrow: 'GO · Zhara · Kora',
+  subtitle: 'The first executable UI foundation for all PALACO surfaces in Atlantis mode.',
+  compassTitle: 'PALACO 2040 Star Compass',
+  compassSubtitle: 'Attune first. Then act with proof.',
+  safeReturn: 'Return to origin',
+  commandLayerTitle: 'Signal layer',
+  backToStart: 'Back to origin',
+  riskLevelMedium: 'Tide-mid',
+  sessionLive: 'Flowing',
+  layerUnderstand: 'Attunement'
+};
+
+const defaultLanguage = 'en';
+const languageConfig = {
+  en: { label: 'EN', locale: 'en-US', dir: 'ltr' },
+  nl: { label: 'NL', locale: 'nl-NL', dir: 'ltr' },
+  eo: { label: 'EO', locale: 'eo', dir: 'ltr' },
+  es: { label: 'ES', locale: 'es-ES', dir: 'ltr' },
+  fr: { label: 'FR', locale: 'fr-FR', dir: 'ltr' },
+  zh: { label: 'ZH', locale: 'zh-CN', dir: 'ltr' },
+  ru: { label: 'RU', locale: 'ru-RU', dir: 'ltr' },
+  ar: { label: 'AR', locale: 'ar', dir: 'rtl' },
+  atl: { label: 'ATL', locale: 'en-US', dir: 'ltr' }
+};
+
+const availableLanguages = Object.keys(translations);
+let languageButtons = [];
+let currentLanguage = localStorage.getItem('palaco-language') || defaultLanguage;
+const controlState = JSON.parse(localStorage.getItem('palaco-control-state') || '{"industry":false,"citadel":false}');
+
+const saveControlState = () => {
+  localStorage.setItem('palaco-control-state', JSON.stringify(controlState));
+};
+
+const isSupportedLanguage = (lang) => availableLanguages.includes(lang);
+
+const getLanguageMeta = (lang) => ({
+  label: lang.toUpperCase(),
+  locale: lang,
+  dir: 'ltr',
+  ...languageConfig[lang]
 });
 
-const renderSubject = (subjectId) => {
-  const subject = subjects[subjectId];
-  if (!subject) return;
-  activeSubject = subjectId;
-  subjectDialog.dataset.subjectId = subject.subject_id;
-  subjectDialog.dataset.subjectType = subject.type;
-  subjectDialog.dataset.subjectState = subject.state;
-  subjectDialog.dataset.previewReference = subject.preview_reference;
-  subjectDialog.dataset.provenanceReference = subject.provenance_reference;
-  subjectDialog.dataset.presentationEffect = subject.presentation_effect;
-  if (subject.object_reference) subjectDialog.dataset.objectReference = subject.object_reference;
-  else delete subjectDialog.dataset.objectReference;
-  subjectKind.textContent = subject.kind === 'ELIXER' ? 'ELIXER' : text(subject.kind);
-  subjectTitle.textContent = text(subject.name);
-  subjectDescription.textContent = text(subject.meaning);
-  subjectPreview.className = 'subject-preview';
-  if (subject.preview === 'image') {
-    subjectPreview.innerHTML = '<img src="/assets/icon-192.svg" alt="" width="148" height="148" />';
-  } else if (subject.preview === 'photo') {
-    subjectPreview.classList.add('is-photo');
-    subjectPreview.replaceChildren();
-    subjectPreview.setAttribute('aria-label', text('photoAlt'));
-  } else if (subject.preview === 'elixer') {
-    subjectPreview.classList.add('is-elixer');
-    subjectPreview.innerHTML = '<span>E</span>';
-  } else {
-    subjectPreview.textContent = subject.preview;
+const getTranslation = (lang, key) => {
+  if (translations[lang]?.[key] !== undefined) return translations[lang][key];
+  if (translations[defaultLanguage]?.[key] !== undefined) return translations[defaultLanguage][key];
+  return '';
+};
+
+const validateTranslations = () => {
+  const requiredKeys = Object.keys(translations[defaultLanguage] || {});
+  availableLanguages.forEach((lang) => {
+    const missingKeys = requiredKeys.filter((key) => translations[lang]?.[key] === undefined);
+    if (missingKeys.length) {
+      console.warn(`[i18n] Missing ${missingKeys.length} key(s) for "${lang}": ${missingKeys.join(', ')}`);
+    }
+  });
+};
+
+const renderLanguageButtons = () => {
+  if (!languageSwitch) return;
+  languageSwitch.innerHTML = '';
+
+  const fragment = document.createDocumentFragment();
+  availableLanguages.forEach((lang) => {
+    const button = document.createElement('button');
+    const meta = getLanguageMeta(lang);
+    button.type = 'button';
+    button.className = 'lang-btn';
+    button.dataset.lang = lang;
+    button.textContent = meta.label;
+    button.addEventListener('click', () => setLanguage(lang));
+    fragment.appendChild(button);
+  });
+
+  languageSwitch.appendChild(fragment);
+  languageButtons = Array.from(languageSwitch.querySelectorAll('.lang-btn'));
+};
+
+const getLocale = () => {
+  return getLanguageMeta(currentLanguage).locale;
+};
+
+const updateSyncOutput = () => {
+  const lastSync = localStorage.getItem('palaco-last-sync');
+  if (!syncOutput) return;
+  if (!lastSync) {
+    syncOutput.textContent = '';
+    return;
   }
+
+  const formatter = new Intl.DateTimeFormat(getLocale(), {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+  syncOutput.textContent = `${getTranslation(currentLanguage, 'lastSync')} ${formatter.format(new Date(lastSync))}`;
 };
 
-const closeSubjectDialog = () => {
-  if (subjectDialog?.open) subjectDialog.close();
-};
-
-const setLanguage = (language) => {
-  if (!supportedLanguages.includes(language)) return;
-  currentLanguage = language;
-  localStorage.setItem('palaco-language', language);
-  document.documentElement.lang = language;
-  document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
-  document.querySelectorAll('[data-i18n]').forEach((element) => {
-    const value = text(element.dataset.i18n);
-    if (value) element.textContent = value;
-  });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
-    const value = text(element.dataset.i18nPlaceholder);
-    if (value) element.placeholder = value;
-  });
-  document.querySelectorAll('[data-i18n-aria-label]').forEach((element) => {
-    const value = text(element.dataset.i18nAriaLabel);
-    if (value) element.setAttribute('aria-label', value);
-  });
-  languageButtons.forEach((button) => {
-    const active = button.dataset.lang === language;
-    button.classList.toggle('active', active);
-    button.setAttribute('aria-pressed', String(active));
-  });
-  if (cardToggle?.getAttribute('aria-expanded') === 'true') cardToggle.textContent = text('closeCard');
-  if (activeSubject) renderSubject(activeSubject);
-  document.title = `RIO · ${text('tagline')}`;
-};
-
-languageButtons.forEach((button) => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
-
-meetButton?.addEventListener('click', () => document.querySelector('#meet')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-
-cardToggle?.addEventListener('click', () => {
-  const open = cardToggle.getAttribute('aria-expanded') !== 'true';
-  cardToggle.setAttribute('aria-expanded', String(open));
-  cardToggle.textContent = text(open ? 'closeCard' : 'openCard');
-  cardReveal.hidden = !open;
-});
-
-subjectTiles.forEach((tile) => tile.addEventListener('click', () => {
-  lastSubjectTrigger = tile;
-  renderSubject(tile.dataset.subject);
-  subjectDialog.showModal();
-}));
-
-subjectClose?.addEventListener('click', closeSubjectDialog);
-subjectDialog?.addEventListener('click', (event) => {
-  if (event.target === subjectDialog) closeSubjectDialog();
-});
-subjectDialog?.addEventListener('close', () => lastSubjectTrigger?.focus());
-
-subjectSheet?.addEventListener('pointerdown', (event) => {
-  if (event.pointerType === 'touch' || event.pointerType === 'pen') touchStart = { x: event.clientX, y: event.clientY };
-}, { passive: true });
-subjectSheet?.addEventListener('pointerup', (event) => {
-  if (!touchStart) return;
-  const deltaX = event.clientX - touchStart.x;
-  const deltaY = event.clientY - touchStart.y;
-  if (deltaY > 72 && Math.abs(deltaY) > Math.abs(deltaX)) closeSubjectDialog();
-  touchStart = null;
-}, { passive: true });
-
-subjectContinue?.addEventListener('click', () => {
-  if (!activeSubject) return;
-  helloOutput.textContent = `${text(subjects[activeSubject].name)}. ${text('subjectChosen')}`;
-  closeSubjectDialog();
-  document.querySelector('.hello-panel')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-});
-
-mobileNavLinks.forEach((link) => link.addEventListener('click', () => {
-  mobileNavLinks.forEach((item) => item.removeAttribute('aria-current'));
-  link.setAttribute('aria-current', 'location');
-}));
-
-if ('IntersectionObserver' in window) {
-  const mobileSections = [...mobileNavLinks]
-    .map((link) => document.querySelector(link.getAttribute('href')))
-    .filter(Boolean);
-  const sectionObserver = new IntersectionObserver((entries) => {
-    const visible = entries.filter((entry) => entry.isIntersecting).sort((left, right) => right.intersectionRatio - left.intersectionRatio)[0];
-    if (!visible) return;
-    mobileNavLinks.forEach((link) => {
-      if (link.getAttribute('href') === `#${visible.target.id}`) link.setAttribute('aria-current', 'location');
-      else link.removeAttribute('aria-current');
-    });
-  }, { rootMargin: '-30% 0px -55%', threshold: [0, 0.25, 0.5] });
-  mobileSections.forEach((section) => sectionObserver.observe(section));
-}
-
-shareButton?.addEventListener('click', async () => {
-  const shareData = { title: document.title, text: text('tagline'), url: window.location.href };
-  try {
-    if (navigator.share) await navigator.share(shareData);
-    else if (navigator.clipboard) await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
-    else throw new Error('Sharing unavailable');
-    shareOutput.textContent = text('shareReady');
-  } catch (error) {
-    if (error.name !== 'AbortError') shareOutput.textContent = text('shareUnavailable');
+const updateControlUI = () => {
+  if (industryStatus) {
+    industryStatus.textContent = controlState.industry
+      ? getTranslation(currentLanguage, 'statusActive')
+      : getTranslation(currentLanguage, 'statusStandby');
   }
-});
 
-helloForm?.addEventListener('submit', (event) => {
+  if (citadelStatus) {
+    citadelStatus.textContent = controlState.citadel
+      ? getTranslation(currentLanguage, 'statusActive')
+      : getTranslation(currentLanguage, 'statusStandby');
+  }
+
+  controlButtons.forEach((button) => {
+    const target = button.dataset.controlTarget;
+    const enabled = Boolean(controlState[target]);
+    button.textContent = enabled ? getTranslation(currentLanguage, 'deactivate') : getTranslation(currentLanguage, 'activate');
+    button.classList.toggle('is-active', enabled);
+  });
+
+  updateSyncOutput();
+};
+
+const setLanguage = (lang) => {
+  if (!isSupportedLanguage(lang)) return;
+  currentLanguage = lang;
+  localStorage.setItem('palaco-language', lang);
+  document.documentElement.lang = lang;
+  document.documentElement.dir = getLanguageMeta(lang).dir;
+
+  document.querySelectorAll('[data-i18n]').forEach((el) => {
+    const key = el.getAttribute('data-i18n');
+    el.textContent = getTranslation(lang, key);
+  });
+
+  document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    el.setAttribute('placeholder', getTranslation(lang, key));
+  });
+
+  languageButtons.forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.lang === lang);
+  });
+
+  const previousGoal = localStorage.getItem('palaco-goal');
+  if (previousGoal && output) {
+    output.textContent = `${getTranslation(lang, 'latestGoal')} ${previousGoal}`;
+  }
+
+  updateControlUI();
+};
+
+form?.addEventListener('submit', (event) => {
   event.preventDefault();
-  const name = visitorName.value.trim();
-  if (!name) return;
-  helloOutput.textContent = `${text('helloPrefix')}, ${name}. ${text('helloSuffix')}`;
-  localStorage.setItem('rio-visitor-name', name);
+  const goal = input?.value.trim();
+  if (!goal || !output) return;
+
+  output.textContent = `${getTranslation(currentLanguage, 'goalSet')} ${goal}`;
+  localStorage.setItem('palaco-goal', goal);
+  form.reset();
 });
 
+controlButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    const target = button.dataset.controlTarget;
+    if (!target || !(target in controlState)) return;
+    controlState[target] = !controlState[target];
+    saveControlState();
+    updateControlUI();
+  });
+});
+
+syncBtn?.addEventListener('click', () => {
+  localStorage.setItem('palaco-last-sync', new Date().toISOString());
+  updateSyncOutput();
+});
+
+compassBackTopBtn?.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (event) => {
   event.preventDefault();
   deferredPrompt = event;
-  installButton.hidden = false;
+  if (installBtn) installBtn.hidden = false;
 });
 
-installButton?.addEventListener('click', async () => {
+installBtn?.addEventListener('click', async () => {
   if (!deferredPrompt) return;
   deferredPrompt.prompt();
   await deferredPrompt.userChoice;
   deferredPrompt = null;
-  installButton.hidden = true;
+  installBtn.hidden = true;
 });
 
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+}
 
-const savedName = localStorage.getItem('rio-visitor-name');
-if (savedName) visitorName.value = savedName;
-setLanguage(currentLanguage);
+validateTranslations();
+renderLanguageButtons();
+setLanguage(isSupportedLanguage(currentLanguage) ? currentLanguage : defaultLanguage);
