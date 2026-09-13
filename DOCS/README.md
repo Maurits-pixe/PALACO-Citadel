@@ -6,3 +6,4 @@ Reference material for readers and contributors.
 - `FAQ.md`
 - `Master-Status.md`
 - `References.md`
+- `STATUS.md`

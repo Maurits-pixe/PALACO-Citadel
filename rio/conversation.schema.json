@@ -1,0 +1,512 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://palaco.example/schemas/rio/conversation.schema.json",
+  "title": "PALACO RIO Conversation Implementation Profile",
+  "description": "Machine-readable implementation profile for the canonical RIO conversation object. Validation does not grant authority or authorization.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "conversation_id",
+    "locale",
+    "participants",
+    "context",
+    "created_at",
+    "current_state",
+    "provenance",
+    "permissions",
+    "message_history"
+  ],
+  "properties": {
+    "conversation_id": {
+      "type": "string",
+      "pattern": "^rio:conversation:[A-Za-z0-9._~-]+$"
+    },
+    "locale": {
+      "$ref": "#/$defs/locale"
+    },
+    "participants": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/participant"
+      }
+    },
+    "context": {
+      "$ref": "#/$defs/context"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "current_state": {
+      "$ref": "#/$defs/conversationState"
+    },
+    "provenance": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/provenanceRecord"
+      }
+    },
+    "permissions": {
+      "$ref": "#/$defs/permissions"
+    },
+    "message_history": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/message"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "current_state": {
+            "enum": ["CONNECTED", "ACTIVE", "RESUMED"]
+          }
+        },
+        "required": ["current_state"]
+      },
+      "then": {
+        "properties": {
+          "permissions": {
+            "properties": {
+              "consent_state": {
+                "const": "GRANTED"
+              }
+            }
+          },
+          "participants": {
+            "items": {
+              "allOf": [
+                {
+                  "properties": {
+                    "trust_indicator": {
+                      "const": "VERIFIED"
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "endpoints": {
+                      "contains": {
+                        "properties": {
+                          "status": {
+                            "const": "VALID"
+                          }
+                        },
+                        "required": ["status"]
+                      },
+                      "minContains": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "locale": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requested", "resolved", "fallback_used", "direction", "name"],
+      "properties": {
+        "requested": {
+          "type": ["string", "null"]
+        },
+        "resolved": {
+          "type": "string",
+          "enum": ["nl", "en", "de", "fr", "es", "ar", "zh"]
+        },
+        "fallback_used": {
+          "type": "boolean"
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["ltr", "rtl"]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "conversationState": {
+      "type": "string",
+      "enum": [
+        "DISCOVERED",
+        "REQUESTED",
+        "CONNECTED",
+        "ACTIVE",
+        "PAUSED",
+        "RESUMED",
+        "CLOSED",
+        "DISPUTED",
+        "CONFLICTED",
+        "IN_DOUBT"
+      ]
+    },
+    "participant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "participant_id",
+        "identity_ref",
+        "identity_type",
+        "trust_indicator",
+        "endpoints"
+      ],
+      "properties": {
+        "participant_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "identity_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "identity_type": {
+          "type": "string",
+          "enum": ["PERSON", "CITADEL", "WORLD", "ELIXER", "PALACO_ENTITY"]
+        },
+        "trust_indicator": {
+          "type": "string",
+          "enum": ["VERIFIED", "INSUFFICIENT_VERIFICATION", "UNVERIFIED", "UNKNOWN"]
+        },
+        "endpoints": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/endpoint"
+          }
+        }
+      }
+    },
+    "endpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["address", "surface", "status"],
+      "properties": {
+        "address": {
+          "type": "string",
+          "minLength": 1
+        },
+        "surface": {
+          "type": "string",
+          "enum": ["MOBILE", "WEB", "CITADEL", "ELIXER", "DESKTOP"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["VALID", "INVALID", "REVOKED", "EXPIRED", "UNKNOWN"]
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "surfaces"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["DIRECT", "ROOM", "BRIDGE", "HANDOFF"]
+        },
+        "surfaces": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": ["MOBILE", "WEB", "CITADEL", "ELIXER", "DESKTOP"]
+          }
+        },
+        "parent_conversation_id": {
+          "type": "string",
+          "pattern": "^rio:conversation:[A-Za-z0-9._~-]+$"
+        },
+        "visitcard": {
+          "$ref": "#/$defs/visitcard"
+        },
+        "subjects": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/subject"
+          }
+        }
+      }
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subject_id",
+        "type",
+        "name",
+        "preview_reference",
+        "meaning",
+        "provenance_reference",
+        "state",
+        "boundary",
+        "next_action",
+        "presentation_effect"
+      ],
+      "properties": {
+        "subject_id": {
+          "type": "string",
+          "pattern": "^rio:subject:[A-Za-z0-9._~-]+$"
+        },
+        "object_reference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "enum": ["SYMBOL", "IMAGE", "PHOTO", "OBJECT", "PERSON", "PLACE", "VISITCARD", "CONVERSATION", "ELIXER"]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "preview_reference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "meaning": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance_reference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "type": "string",
+          "enum": ["CURRENT", "REVOKED", "EXPIRED", "UNKNOWN"]
+        },
+        "boundary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "next_action": {
+          "type": "string",
+          "minLength": 1
+        },
+        "presentation_effect": {
+          "const": "NONE"
+        }
+      },
+      "allOf": [{
+        "if": {
+          "properties": { "type": { "const": "ELIXER" } },
+          "required": ["type"]
+        },
+        "then": {
+          "required": ["object_reference"]
+        }
+      }]
+    },
+    "visitcard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "object_reference",
+        "introduction",
+        "rio_address",
+        "provenance_reference",
+        "validity",
+        "discovery_method",
+        "encounter_state"
+      ],
+      "properties": {
+        "object_reference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "introduction": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rio_address": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance_reference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "validity": {
+          "type": "string",
+          "enum": ["VALID", "REVOKED", "EXPIRED", "UNKNOWN"]
+        },
+        "discovery_method": {
+          "type": "string",
+          "enum": ["BLE", "NFC", "QR", "RIO_LINK", "WEB", "5LEUTEL", "WEARABLE"]
+        },
+        "encounter_state": {
+          "type": "string",
+          "enum": ["ENCOUNTERED", "INTRODUCED", "RECOGNIZED", "ACCEPTED", "CONNECTED"]
+        }
+      }
+    },
+    "provenanceRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_id",
+        "source",
+        "source_revision",
+        "recorded_at",
+        "event",
+        "actor_ref",
+        "previous_record_id"
+      ],
+      "properties": {
+        "record_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_revision": {
+          "type": "string",
+          "minLength": 1
+        },
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "event": {
+          "type": "string",
+          "minLength": 1
+        },
+        "actor_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "previous_record_id": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "consent_state",
+        "allowed_actions",
+        "visibility",
+        "valid_from",
+        "valid_until",
+        "revoked_at",
+        "authority_effect"
+      ],
+      "properties": {
+        "consent_state": {
+          "type": "string",
+          "enum": ["NOT_REQUESTED", "REQUESTED", "GRANTED", "DENIED", "REVOKED", "EXPIRED"]
+        },
+        "allowed_actions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": ["REQUEST_CONNECTION", "JOIN", "SEND_MESSAGE", "READ_HISTORY", "BRIDGE", "HANDOFF"]
+          }
+        },
+        "visibility": {
+          "$ref": "#/$defs/visibility"
+        },
+        "valid_from": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "valid_until": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "revoked_at": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "authority_effect": {
+          "const": "NONE"
+        }
+      }
+    },
+    "visibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "audience_participant_ids",
+        "purpose",
+        "shared_with_participant_ids",
+        "retention_until"
+      ],
+      "properties": {
+        "audience_participant_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1
+        },
+        "shared_with_participant_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "retention_until": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        }
+      }
+    },
+    "message": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "message_id",
+        "sender_participant_id",
+        "created_at",
+        "delivery_state",
+        "payload_reference"
+      ],
+      "properties": {
+        "message_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sender_participant_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "delivery_state": {
+          "type": "string",
+          "enum": ["CREATED", "QUEUED", "DELIVERED", "RECEIVED", "READ", "ACKNOWLEDGED"]
+        },
+        "payload_reference": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
