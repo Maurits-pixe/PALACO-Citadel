@@ -2,14 +2,16 @@
 
 Core mechanics: CITADEL, QUAY, AUDIT, REPLAY, and sealing primitives.
 
+Laag 2 beschrijft de mechanismen die constitutionele geldigheid omzetten in controleerbare actie: toegang, provenance, audit, replay en sealing.
+
+Gebruik deze laag als de mechanische kern van de PALACO Proof Machine.
+
 ## RIO
 
-RIO is PALACO's bounded communication and continuity layer. Start with:
+RIO is PALACO's bounded communication and continuity layer.
 
-- [RIO Universal](../RIO-UNIVERSAL-001.md) for the universal communication model.
-- [RIO Fabric](../RIO-FABRIC-001.md) and [RIO Platform](../RIO-PLATFORM-001.md) for transport and platform context.
-- [RIO UIC](../RIO-UIC-001.md) and [RIO VisitCard](../RIO-VISITCARD-001.md) for identity-aware interaction and introductions.
-- [RIO implementation profile](../rio/README.md) for the local schema, runtime, transition policy, localization, and conformance tests.
-- [VORM9EVIN9](../.github/agents/palaco-vorm9evin9.agent.md) for accessible visual and touchscreen presentation.
+- [RIO Universal](../RIO-UNIVERSAL-001.md) beschrijft het universele communicatiemodel.
+- [RIO Fabric](../RIO-FABRIC-001.md), [RIO Platform](../RIO-PLATFORM-001.md), [RIO UIC](../RIO-UIC-001.md) en [RIO VisitCard](../RIO-VISITCARD-001.md) beschrijven transport, platformcontext en identity-aware interaction.
+- [RIO implementation profile](../rio/README.md) verwijst naar lokale schema's, runtime, transition policy, localization en conformance tests.
 
-The implementation profile is not canon. Communication does not create authority, and presentation does not grant permission.
+De implementation profile is geen canon: communicatie creëert geen autoriteit, en presentatie verleent geen toestemming.

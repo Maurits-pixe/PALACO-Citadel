@@ -10,10 +10,10 @@ Baseline: PALACO Foundation Edition v1.0.0
 
 GitHub is repository infrastructure for PALACO, not constitutional authority.
 
-PALACO CONSTITUTION  
-→ PALACO ARCHITECTURE  
-→ PALACO IMPLEMENTATION  
-→ PALACO REPOSITORY  
+PALACO CONSTITUTION
+→ PALACO ARCHITECTURE
+→ PALACO IMPLEMENTATION
+→ PALACO REPOSITORY
 → GITHUB
 
 ## Assembly phases and gates
@@ -127,26 +127,26 @@ PR governance minimum questions:
 
 ### PHASE 7 — RELEASE ASSEMBLY
 
-PALACO Foundation Edition v1.0.0  
-→ Repository Validation  
-→ Evidence Seal  
-→ Release Manifest  
-→ Git Tag  
+PALACO Foundation Edition v1.0.0
+→ Repository Validation
+→ Evidence Seal
+→ Release Manifest
+→ Git Tag
 → `v1.0.0`
 
 ## Canonical execution order
 
-01 FREEZE  
-02 REPOSITORY SKELETON  
-03 CANONICAL IMPORT  
-04 RUST WORKSPACE  
-05 BUILD  
-06 TEST  
-07 PVS-001  
-08 PVS-002  
-09 EVIDENCE SEAL  
-10 AUDIT  
-11 RELEASE MANIFEST  
+01 FREEZE
+02 REPOSITORY SKELETON
+03 CANONICAL IMPORT
+04 RUST WORKSPACE
+05 BUILD
+06 TEST
+07 PVS-001
+08 PVS-002
+09 EVIDENCE SEAL
+10 AUDIT
+11 RELEASE MANIFEST
 12 IMMUTABLE `v1.0.0` TAG
 
 ## Explicit non-goals for Foundation v1.0.0
