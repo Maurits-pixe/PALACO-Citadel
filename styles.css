@@ -43,6 +43,7 @@ footer {
 .language-switch {
   display: flex;
   gap: 0.4rem;
+  flex-wrap: wrap;
 }
 
 .lang-btn {
