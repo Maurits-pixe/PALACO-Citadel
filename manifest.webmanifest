@@ -1,12 +1,12 @@
 {
-  "name": "PALACO Citadel",
-  "short_name": "PALACO",
-  "description": "First executable PALACO UI foundation for desktop, tablet, and mobile.",
+  "name": "RIO · PALACO",
+  "short_name": "RIO",
+  "description": "RIO is het visitekaartje van PALACO.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#061127",
-  "theme_color": "#0b1f3a",
-  "lang": "en",
+  "background_color": "#fffdf4",
+  "theme_color": "#fff45c",
+  "lang": "nl",
   "icons": [
     {
       "src": "/assets/icon-192.svg",
