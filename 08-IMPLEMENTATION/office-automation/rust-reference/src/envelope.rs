@@ -1,4 +1,4 @@
-use crate::{authorization::{Authorization, AuthorizationState}, event_type::EventType, provenance::Provenance, trace::TraceId};
+use crate::{authorization::{Authorization, AuthorizationState, ExecutionState}, event_type::EventType, provenance::Provenance, trace::TraceId};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
