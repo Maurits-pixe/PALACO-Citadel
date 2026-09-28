@@ -1,0 +1,45 @@
+{
+  "schema": "palaco.review-freeze/1.0.0",
+  "repository": "Maurits-pixe/PALACO-Citadel",
+  "frozen_at": "2026-09-28",
+  "contract_version": "palaco.atelier-registration/1.0.0",
+  "subjects": [
+    {
+      "pr": 12,
+      "head": "4d02c445c0ea8ff4bba6091d76254748ffb8cf61",
+      "base_ref": "main",
+      "base_sha": "4a726054761cfb85a29a2e2548694e6ed2195096",
+      "ci_run": 36384495031,
+      "tests": {
+        "targeted": 17,
+        "chromium": 1
+      }
+    },
+    {
+      "pr": 13,
+      "head": "af6162c6aa892a48e089e7060a8c19441e530d65",
+      "base_ref": "codex/go-02-citadel-proof-gate",
+      "base_sha": "4d02c445c0ea8ff4bba6091d76254748ffb8cf61",
+      "ci_run": 36385420146,
+      "tests": {
+        "targeted": 31,
+        "chromium": 1
+      }
+    }
+  ],
+  "dependency": {
+    "child_pr": 13,
+    "parent_pr": 12,
+    "merge_base": "4d02c445c0ea8ff4bba6091d76254748ffb8cf61"
+  },
+  "release": {
+    "feature_enabled": false,
+    "activation": "NOT_AUTHORIZED",
+    "production_identity": "OPEN",
+    "production_tenant_isolation": "OPEN",
+    "key_authority": "OPEN",
+    "windows_storage": "BLOCKED",
+    "independent_human_security_review": "OPEN"
+  },
+  "invalidation": "Any subject head or base/merge-base drift invalidates this snapshot; rerun PR13 against the new dependency, then create a superseding snapshot. Never edit history to reinterpret old CI evidence."
+}
