@@ -1,0 +1,14 @@
+{
+  "template_id": "LA-CITADEL-TEMPLATE",
+  "template_version": "0.1.0",
+  "source_citadel": "EVA-LA-001",
+  "source_state": "DRAFT",
+  "constitutional_kernel": ["IDENTITY", "PROVENANCE", "LIFECYCLE", "AUTHORIZATION", "REVOCATION", "AUDIT", "PROOF", "EXPORT"],
+  "required_steps": ["QUESTION", "EVIDENCE", "EPISTEMIC_STATE", "DECISION_THRESHOLD", "DECISION", "AUTHORIZATION", "EXECUTION", "CONSEQUENCE", "NEW_EVIDENCE", "REASSESSMENT"],
+  "required_gates": ["independent_review", "identity_binding", "verification", "activation_authority", "execution_commit"],
+  "default_layout": "LA-FOUNDATION",
+  "default_theme": "FOUNDATION",
+  "allowed_extensions": ["name", "logo_asset_id", "colors", "typography", "images", "visible_modules", "text", "landmarks"],
+  "prohibited_overrides": ["constitutional_kernel", "required_steps", "required_gates", "source_citadel", "source_state", "created_from", "project_id", "citadel_id", "maker_id", "audit", "state"],
+  "world_development_elixer": "OR6IT"
+}

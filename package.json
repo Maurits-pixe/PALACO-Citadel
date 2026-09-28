@@ -5,7 +5,9 @@
   "scripts": {
     "test": "npm run test:rio && npm run test:browser",
     "test:rio": "node rio/conformance.mjs",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "test:preview": "node --test registration/preview.test.mjs registration/registry.test.mjs atelier/wizard.test.mjs atelier/builder.test.mjs citadel-proof/proof.test.mjs",
+    "test:preview:browser": "node --test registration/preview.browser.test.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0"
