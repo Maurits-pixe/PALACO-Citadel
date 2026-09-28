@@ -81,9 +81,13 @@ export class PreviewAdapter {
       requireThat(decision.decision === 'ALLOW_FOR_PREVIEW_ONLY', `preview grant denied: ${decision.reason}`);
       let receipt = tx.records.find(r => r.event.type === 'PREVIEW_READY' && r.event.registrationHash === record.recordHash);
       if (!receipt) receipt = await tx.append({ type:'PREVIEW_READY', subjectId:this.makerId, actorId:this.makerId, citadelId, evidenceSha256:record.event.evidenceSha256, registrationHash:record.recordHash, manifestSha256, grantId:decision.grantId });
-      const inner = `<!doctype html><html lang="nl"><meta charset="utf-8"><title>DRAFT Citadel</title><body><h1>${escape(project.name)}</h1><p>DRAFT · ALLOW_FOR_PREVIEW_ONLY</p><p>${escape(project.intention)}</p>${project.trajectory.map(x=>`<section><h2>${escape(x.step)}</h2><p>${escape(x.value)}</p></section>`).join('')}</body></html>`;
-      const html = `<!doctype html><html lang="nl"><meta charset="utf-8"><title>PALACO lokale preview</title><body><h1>Geïsoleerde DRAFT-preview</h1><p>Single-user local preview · niet geactiveerd</p><iframe title="Citadel-concept" sandbox="" width="100%" height="700" srcdoc="${escape(inner)}"></iframe></body></html>`;
-      return { html, receiptHash:receipt.recordHash, headers:{ 'Content-Type':'text/html; charset=utf-8', 'Content-Security-Policy':"default-src 'none'; frame-src 'self'; base-uri 'none'; form-action 'none'; sandbox", 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff', 'X-Frame-Options':'DENY', 'Referrer-Policy':'no-referrer' } };
+      return renderIsolatedPreview(project, receipt.recordHash);
     });
   }
+}
+
+export function renderIsolatedPreview(project, receiptHash) {
+      const inner = `<!doctype html><html lang="nl"><meta charset="utf-8"><title>DRAFT Citadel</title><body><h1>${escape(project.name)}</h1><p>DRAFT · ALLOW_FOR_PREVIEW_ONLY</p><p>${escape(project.intention)}</p>${project.trajectory.map(x=>`<section><h2>${escape(x.step)}</h2><p>${escape(x.value)}</p></section>`).join('')}</body></html>`;
+      const html = `<!doctype html><html lang="nl"><meta charset="utf-8"><title>PALACO lokale preview</title><body><h1>Geïsoleerde DRAFT-preview</h1><p>Single-user local preview · niet geactiveerd</p><iframe title="Citadel-concept" sandbox="" width="100%" height="700" srcdoc="${escape(inner)}"></iframe></body></html>`;
+      return { html, receiptHash:receiptHash, headers:{ 'Content-Type':'text/html; charset=utf-8', 'Content-Security-Policy':"default-src 'none'; frame-src 'self'; base-uri 'none'; form-action 'none'; sandbox", 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff', 'X-Frame-Options':'DENY', 'Referrer-Policy':'no-referrer' } };
 }

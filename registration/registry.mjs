@@ -5,13 +5,14 @@ const canonical = value => JSON.stringify(value);
 const fail = message => { throw new Error(message); };
 const validId = value => typeof value === 'string' && /^[A-Za-z0-9_-]{1,80}$/.test(value);
 const hex = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
-const names = ['IDENTITY_REGISTERED','KEY_BOUND','AUTHORITY_GRANTED','AUTHORITY_REVOKED','WATERMERK_REGISTERED','HOLOGRAM_REGISTERED','ERA_ATTESTED','PROOF_RECORDED','EXECUTION_COMMITTED','DRAFT_REGISTERED','PREVIEW_READY'];
+const names = ['IDENTITY_REGISTERED','KEY_BOUND','AUTHORITY_GRANTED','AUTHORITY_REVOKED','WATERMERK_REGISTERED','HOLOGRAM_REGISTERED','ERA_ATTESTED','PROOF_RECORDED','EXECUTION_COMMITTED','DRAFT_REGISTERED','PREVIEW_READY','CONTRACT_PREVIEW_COMMITTED'];
 function checkEvent(event) {
   if (!event || !names.includes(event.type) || !validId(event.subjectId) || !validId(event.actorId) || !validId(event.citadelId) || !hex(event.evidenceSha256)) fail('invalid event envelope');
   if (event.type === 'AUTHORITY_GRANTED' && (!validId(event.grantId) || !validId(event.action) || !validId(event.scope) || !event.validUntil || !hex(event.manifestSha256) || !event.issuerKeyId || !event.signature)) fail('incomplete grant');
   if (event.type === 'AUTHORITY_REVOKED' && (!validId(event.grantId) || !event.issuerKeyId || !event.signature)) fail('incomplete revocation');
   if (['WATERMERK_REGISTERED','HOLOGRAM_REGISTERED'].includes(event.type) && (!validId(event.markerId) || !hex(event.assetSha256))) fail('invalid marker');
   if (event.type === 'ERA_ATTESTED' && (!hex(event.targetHash) || !event.attestationRef || !event.attestorKeyId)) fail('invalid ERA attestation');
+  if (event.type === 'CONTRACT_PREVIEW_COMMITTED' && (!event.envelope || !event.receipt || !hex(event.contractDigest) || !Number.isFinite(Date.parse(event.evaluatedAt)))) fail('invalid contract commit');
   if (event.type === 'DRAFT_REGISTERED' && (!validId(event.projectId) || !hex(event.manifestSha256) || !Number.isSafeInteger(event.exportSequence) || event.exportSequence < 1 || !event.package || !event.verification)) fail('invalid draft registration');
   if (event.type === 'PREVIEW_READY' && (!hex(event.registrationHash) || !hex(event.manifestSha256) || !validId(event.grantId))) fail('invalid preview receipt');
   if (event.type === 'EXECUTION_COMMITTED' && (!validId(event.ticketId) || !validId(event.grantId) || !hex(event.manifestSha256))) fail('invalid commit');
