@@ -1,0 +1,16 @@
+R1 observed: expired grant resurrected by rollback (08:00 -> 07:30; commit 07:00)
+✔ REVIEW R1: expired grant becomes usable after clock rollback above commit time (110.258984ms)
+R2 observed: ACTIVE outcome, foreign tenant and empty gates returned with valid preview HTML
+✔ REVIEW R2: modified receipt outcome accepted after recomputing local hashes (48.852216ms)
+R3 observed: commit returns ALLOW for concurrently revoked grant without generation increment
+✔ REVIEW R3: same-generation trust revocation during commit still returns ALLOW (22.406478ms)
+R4 observed: true process exit before commit leaves lock/pending, no final event; restart requires operator recovery
+✔ REVIEW R4: abrupt process death leaves lock and pending bytes; restart fails closed (129.587611ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 493.856634

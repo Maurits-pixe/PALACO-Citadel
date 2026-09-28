@@ -1,6 +1,6 @@
 # Autorisatiemodule — grens en uitrolkaart
 
-**Update v0.2:** zie [PREVIEW-INTEGRATION.md](PREVIEW-INTEGRATION.md) voor de daadwerkelijk gebouwde integratie, opslagvoorwaarden, testresultaten en herstelprocedure. De hieronder genoemde productiepoorten blijven OPEN.
+**Update v0.3:** zie [PREVIEW-INTEGRATION.md](PREVIEW-INTEGRATION.md) en [REMEDIATION-PR15.md](REMEDIATION-PR15.md) voor de gebouwde integratie, monotone trust/tijdcontrole, semantische receipts en automatische crash recovery. De hieronder genoemde productiepoorten blijven OPEN.
 
 ## Bestaand in deze repository
 
@@ -12,7 +12,9 @@
 | `citadel-proof/` | DRAFT manifest, handtekeningcontrole, overgangscontract | caller assertions zijn niet zelfstandig vertrouwd |
 | `atelier/` | lokale makerroute en RIO-gids | browserdownload is geen getekende activatie |
 | `02-CORE-SYSTEMS/AUDIT.md` | auditprincipe | geen duurzame implementatie |
-| `registration/registry.mjs` | lokale append-only referentie en previewbesluit | geen productie-autorisatiedienst |
+| `registration/registry.mjs` | lokale append-only referentie, hash chain en herstelbare previewbesluit-events | geen productie-autorisatiedienst |
+| `registration/trust-registry.mjs` | append-only trust snapshots met epoch, predecessor-digest en rollback/conflict-denial | geen externe authority of sleutel-enrollment |
+| `registration/contract-gateway.mjs` | tenant/project-bound contractpoort, semantische receipt-binding, trust pinning, idempotency en preview-only output | geen activation/execution/publicatie |
 
 ## Autorisatieketen
 
@@ -25,10 +27,10 @@ RIO may explain, prefill and request; it must not issue grants, act as independe
 1. Authenticated identity provider, enrollment, key rotation, recovery and separation of maker/reviewer/issuer.
 2. Server-side policy engine with versioned rules, Citadel tenancy, least privilege and deny-by-default enforcement at every API.
 3. Durable database/transactional ledger, atomic monotone sequence and external checkpoint to detect whole-ledger replacement.
-4. Signed ERA clock attestations with holdover, uncertainty, drift alarms and recovery; RFC 3161 TSA is a possible external evidence source, not a universal absolute clock.
+4. Signed ERA clock attestations with holdover, uncertainty, drift alarms and recovery; the local monotone high-water is fail-closed but is not an external time authority. RFC 3161 TSA is a possible external evidence source, not a universal absolute clock.
 5. Canonical serialization and interoperable signature profile, key ID and algorithm agility; the current JSON hashing is a local convention, not RFC 8785.
 6. Proof verifier for template pin, assets, key status, independence, revocation and historical reconstruction.
-7. Atomic ExecutionTicket/commit/outcome service with idempotency, crash recovery and explicit in-flight revocation behavior.
+7. Atomic ExecutionTicket/commit/outcome service for activation; the preview adapter now has idempotency and automatic local crash recovery, but execution remains OPEN.
 8. Data protection design: purpose, lawful basis, minimization, access/erasure workflow, retention schedule, encrypted backup, incident response and privacy impact assessment as applicable.
 9. Negative tests: role/scope escalation, replay, clock rollback, deleted/replaced ledger, direct API bypass, malicious assets, lost/stolen key and conflicting evidence.
 10. Browser accessibility and real-device QA; an independent security review before public activation.
@@ -37,7 +39,7 @@ RIO may explain, prefill and request; it must not issue grants, act as independe
 
 The registry requires an operator-configured absolute data root bounded by an explicit `allowedRoot`. Paths cannot be supplied by an HTTP caller. Symlinks and permissive directories are rejected. The verified storage profile is Linux/POSIX; Windows is blocked pending ACL and durability verification. Store event files, backup and keys outside the Git repository. Keep the private signing key in the OS key store or hardware key, never in the event directory. Use OS user permissions, full-disk encryption and an offline backup. This environment cannot access the user's laptop or establish its storage mount; the code has only been tested in a temporary local directory. There is no automatic sync from the browser wizard to that computer.
 
-The local adapter is single-host reference storage. Exclusive writer lock and `wx` event creation stop routine concurrent writes; a crash leaves a lock and requires manual evidence-preserving recovery. A person able to rewrite the entire directory can forge a new hash chain without a separately anchored, signed checkpoint. Therefore local storage is not a production trust anchor.
+The local adapter is single-host reference storage. Exclusive writer lock and no-replace event creation stop routine concurrent writes; a dead writer PID and orphan staging bytes are recovered automatically on the next transaction, while a live writer or malformed ownership metadata fails closed. A person able to rewrite the entire directory can forge a new hash chain without a separately anchored, signed checkpoint. Therefore local storage is not a production trust anchor.
 
 ## External baselines (design mapping, no compliance claim)
 

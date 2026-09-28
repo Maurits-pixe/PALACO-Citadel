@@ -94,8 +94,9 @@ test('tenant/project overreach denied before storage; query cannot choose anothe
 test('replay, stale sequence and concurrent registration are refused',async t=>{
   const f=await fixture(t),r=f.request();const results=await Promise.all([f.gateway.commit('valid',r),f.gateway.commit('valid',r)]);
   assert.equal(results.filter(x=>x.outcome==='ALLOW_FOR_PREVIEW_ONLY').length,1);
-  assert.equal((await f.gateway.commit('valid',r)).code,'SEQUENCE_CONFLICT');
-  assert.equal((await f.gateway.commit('valid',{...r,expected_sequence:1})).code,'REPLAY');
+  assert.equal((await f.gateway.commit('valid',r)).code,'OK');
+  const replay=structuredClone(r);replay.idempotency_key='different-replay-key';
+  assert.equal((await f.gateway.commit('valid',{...replay,expected_sequence:1})).code,'REPLAY');
 });
 test('damaged hash chain and mismatched receipt deny preview',async t=>{
   const f=await fixture(t),r=f.request();await f.gateway.commit('valid',r);
@@ -114,7 +115,7 @@ test('failure before commit leaves no final event; after-commit interruption rec
 });
 test('revocation after receipt and trust generation changes deny renewed access',async t=>{
   const f=await fixture(t),r=f.request();await f.gateway.commit('valid',r);f.state.revoked_keys=['era'];f.state.generation++;
-  assert.equal((await f.gateway.preview('valid',f.query(r))).code,'KEY_REVOKED');
+  assert.equal((await f.gateway.preview('valid',f.query(r))).code,'TRUST_CHANGED');
 });
 test('same project and Citadel IDs in two tenants occupy distinct scoped stores',async t=>{
   const f=await fixture(t),a=f.request();await f.gateway.commit('valid',a);

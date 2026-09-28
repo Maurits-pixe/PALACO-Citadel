@@ -5,7 +5,7 @@ const canonical = value => JSON.stringify(value);
 const fail = message => { throw new Error(message); };
 const validId = value => typeof value === 'string' && /^[A-Za-z0-9_-]{1,80}$/.test(value);
 const hex = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
-const names = ['IDENTITY_REGISTERED','KEY_BOUND','AUTHORITY_GRANTED','AUTHORITY_REVOKED','WATERMERK_REGISTERED','HOLOGRAM_REGISTERED','ERA_ATTESTED','PROOF_RECORDED','EXECUTION_COMMITTED','DRAFT_REGISTERED','PREVIEW_READY','CONTRACT_PREVIEW_COMMITTED'];
+const names = ['IDENTITY_REGISTERED','KEY_BOUND','AUTHORITY_GRANTED','AUTHORITY_REVOKED','WATERMERK_REGISTERED','HOLOGRAM_REGISTERED','ERA_ATTESTED','PROOF_RECORDED','EXECUTION_COMMITTED','DRAFT_REGISTERED','PREVIEW_READY','CONTRACT_PREVIEW_COMMITTED','TEMPORAL_OBSERVED'];
 function checkEvent(event) {
   if (!event || !names.includes(event.type) || !validId(event.subjectId) || !validId(event.actorId) || !validId(event.citadelId) || !hex(event.evidenceSha256)) fail('invalid event envelope');
   if (event.type === 'AUTHORITY_GRANTED' && (!validId(event.grantId) || !validId(event.action) || !validId(event.scope) || !event.validUntil || !hex(event.manifestSha256) || !event.issuerKeyId || !event.signature)) fail('incomplete grant');
@@ -13,6 +13,8 @@ function checkEvent(event) {
   if (['WATERMERK_REGISTERED','HOLOGRAM_REGISTERED'].includes(event.type) && (!validId(event.markerId) || !hex(event.assetSha256))) fail('invalid marker');
   if (event.type === 'ERA_ATTESTED' && (!hex(event.targetHash) || !event.attestationRef || !event.attestorKeyId)) fail('invalid ERA attestation');
   if (event.type === 'CONTRACT_PREVIEW_COMMITTED' && (!event.envelope || !event.receipt || !hex(event.contractDigest) || !Number.isFinite(Date.parse(event.evaluatedAt)))) fail('invalid contract commit');
+  if (event.type === 'CONTRACT_PREVIEW_COMMITTED' && (!event.idempotencyKey || event.lifecycle?.state !== 'RECEIPT_COMMITTED')) fail('invalid contract lifecycle');
+  if (event.type === 'TEMPORAL_OBSERVED' && (!Number.isFinite(Date.parse(event.observedAt)) || !Number.isSafeInteger(event.trustGeneration) || !hex(event.trustDigest))) fail('invalid temporal observation');
   if (event.type === 'DRAFT_REGISTERED' && (!validId(event.projectId) || !hex(event.manifestSha256) || !Number.isSafeInteger(event.exportSequence) || event.exportSequence < 1 || !event.package || !event.verification)) fail('invalid draft registration');
   if (event.type === 'PREVIEW_READY' && (!hex(event.registrationHash) || !hex(event.manifestSha256) || !validId(event.grantId))) fail('invalid preview receipt');
   if (event.type === 'EXECUTION_COMMITTED' && (!validId(event.ticketId) || !validId(event.grantId) || !hex(event.manifestSha256))) fail('invalid commit');
@@ -30,11 +32,13 @@ export class LocalRegistry {
     this.trustedKeys = { ...trustedKeys };
   }
   parts(citadelId) { if (!validId(citadelId)) fail('invalid citadel ID'); return ['citadels',citadelId,'events']; }
-  async events(citadelId) {
+  async events(citadelId, { locked = false } = {}) {
     const parts = this.parts(citadelId);
+    if (!locked) await this.store.recover(parts);
     const all = await this.store.list(parts);
-    // Pending files after abrupt process termination need operator recovery.
-    if (all.some(x => x.startsWith('.pending-'))) fail('pending event requires recovery');
+    // recover() removes only artifacts owned by a process that is no longer
+    // alive. A live writer remains a fail-closed condition.
+    if (!locked && all.some(x => x.startsWith('.pending-') || x === '.writer.lock')) fail('pending event requires recovery');
     const files = all.filter(x => x !== '.writer.lock').sort();
     const out=[]; let previous='0'.repeat(64);
     for(const file of files) {
@@ -55,7 +59,7 @@ export class LocalRegistry {
   }
   async transaction(citadelId, fn) {
     return this.store.locked(this.parts(citadelId), async () => {
-      const records = await this.events(citadelId);
+      const records = await this.events(citadelId, { locked: true });
       return fn({ records, append: async event => {
         if(event.citadelId !== citadelId) fail('transaction Citadel mismatch');
         const record = await this.appendLocked(event, records.length, records);

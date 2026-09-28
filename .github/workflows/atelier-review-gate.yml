@@ -1,0 +1,36 @@
+name: Atelier frozen review evidence
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+  pull-requests: read
+  actions: read
+jobs:
+  freeze-and-boundary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node review-gate/check-freeze.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - run: node --test review-gate/check-freeze.test.mjs review-gate/identity-boundary.test.mjs registration/remediation-regression.test.mjs
+      - name: Preserve PR14 findings as historical evidence
+        run: node -e "console.log('PR14 adversarial findings remain historical; remediation regressions are the active gate.')"
+  platform-boundary:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node --test review-gate/platform.test.mjs

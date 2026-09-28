@@ -8,7 +8,7 @@ Status: **SINGLE-USER LOCAL PREVIEW / NOT ACTIVATED**. Dit document vervangt de 
 2. `PreviewAdapter.register` controleert bestandenset en bytes, exact template-ID/versie/hash, maker en project, alle L.A.-stappen, assetbinding, actuele PREVIEW-grant en ondertekende ERA-attestatie.
 3. Onder één Citadel-writerlock controleert hij de bestaande makerbinding en de export-sequence. Een duplicate of oudere export wordt geweigerd.
 4. Eén `DRAFT_REGISTERED`-event bevat pakket, verificatierecord, grantverwijzing en ERA-attestatie. Het event wordt volledig gestaged, gesynchroniseerd en atomair zonder overschrijven zichtbaar gemaakt. De eventtijd zelf blijft `LOCAL_SYSTEM_CLOCK / UNATTESTED`.
-5. `preview` hercontroleert de geregistreerde bytes, grant en ERA-venster. Er volgt hoogstens één `PREVIEW_READY`-receipt per registratie. Dat receipt heeft geen activatiekracht.
+5. `preview` hercontroleert de geregistreerde bytes, grant, ERA-venster en de semantische receipt-binding. Er volgt hoogstens één previewresultaat per idempotency key. Dat receipt heeft geen activatiekracht.
 6. De optionele lokale HTTP-server bindt uitsluitend `127.0.0.1`. Alleen een willekeurige sessie-URL geeft toegang; Host en methode worden gecontroleerd. Er is geen uploadendpoint, datamap of directory listing.
 7. De server levert een iframe met lege sandbox, escaped tekst, CSP, no-store en no-referrer. Er wordt geen aangeleverde HTML, JavaScript, asset of URL uitgevoerd. Ieder nieuw verzoek controleert opnieuw op intrekking. Reeds gelezen bytes kunnen niet achteraf uit het geheugen van een kijker worden verwijderd.
 
@@ -56,8 +56,8 @@ Dit is geen RFC 3161-token en geen bewijs van een atoomklok. De verifier vergeli
 ## Crash en herstel
 
 - Fout vóór eventcommit: definitief event ontbreekt; normale exceptioncleanup verwijdert staging en lock.
-- Abrupte processtop vóór commit: staging/lock kan blijven liggen; toegang weigert. Bewaar de restanten voor onderzoek. De operator bevestigt eerst dat er geen writer meer draait, inspecteert de volledige keten en zet restanten buiten de actieve eventdirectory voordat een stale lock wordt vrijgegeven.
-- Crash ná registratie, vóór preview: het registratie-event blijft compleet. Na gecontroleerde stale-lockvrijgave leest `preview` dat record opnieuw en schrijft het ontbrekende receipt eenmaal. Herregistratie wordt als replay geweigerd.
+- Abrupte processtop vóór commit: staging/lock kan blijven liggen. De volgende transactie leest de PID-markering, verwijdert alleen een lock van een niet meer bestaand proces en verwijdert onbereikbare staged bytes; een levende writer blijft fail-closed geblokkeerd.
+- Crash ná registratie, vóór preview: het registratie-event blijft compleet. `preview` leest dat record opnieuw en schrijft het ontbrekende receipt eenmaal. Herregistratie is idempotent voor dezelfde sleutel en wordt als replay geweigerd voor een nieuwe sleutel.
 - Fout ná atomair zichtbaar maken of tijdens directory-fsync: commitstatus kan onzeker zijn. Niet blind herhalen of verwijderen. Inspecteer de keten en hervat vanuit het aanwezige event.
 - Een volledige rewritetruncatie door de beheerder is zonder extern ondertekend checkpoint niet detecteerbaar. Dat blijft een productiepoort.
 
@@ -65,7 +65,7 @@ Dit is geen RFC 3161-token en geen bewijs van een atoomklok. De verifier vergeli
 
 `node --test registration/preview.test.mjs registration/registry.test.mjs atelier/wizard.test.mjs atelier/builder.test.mjs citadel-proof/proof.test.mjs`
 
-17 tests PASS op Node 24/Linux, inclusief 11 integratietests. Ze behandelen een echte loopback-HTTP-preview, payloadmanipulatie, templateversie, grant/expiry/scope/revocation, ERA-missing/forged/expired/future, duplicate/replay/concurrent admission, twee makers op hetzelfde object, traversal/root escape/symlink/mode, een echte child-process exit na registratie, en fouten vóór sync/commit zonder gedeeltelijk definitief event.
+17 basis-tests PASS op Node 24/Linux, inclusief 11 integratietests. De remediation-suite voegt vijf regressietests toe voor clock rollback, receipt-semantiek, trust-conflict/rollback, idempotente response-loss recovery en de monotone trust registry. Ze behandelen een echte loopback-HTTP-preview, payloadmanipulatie, templateversie, grant/expiry/scope/revocation, ERA-missing/forged/expired/future, duplicate/replay/concurrent admission, twee makers op hetzelfde object, traversal/root escape/symlink/mode, een echte child-process exit na registratie, en fouten vóór sync/commit zonder gedeeltelijk definitief event.
 
 De aparte Chromium-test (`registration/preview.browser.test.mjs`) controleert daadwerkelijke iframe-rendering, markup en parent-isolatie. Lokale uitvoering was BLOCKED: browserbinary ontbreekt. De toegevoegde CI-workflow installeert Chromium en voert die test uit. Een workflowbestand is geen bewijs van een groene run; controleer de exacte commitresultaten.
 
