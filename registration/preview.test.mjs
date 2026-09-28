@@ -132,7 +132,7 @@ test('traversal, root escape, symlink ancestors, ledger symlinks and permissive 
   assert.deepEqual(await readdir(outside),[]);
 });
 
-test('abrupt process exit between registration and preview: durable record, fail-closed lock, explicit recovery',async t=>{
+test('abrupt process exit between registration and preview: durable record and automatic recovery',async t=>{
   const f=await fixture(t);await f.addGrant();
   const input=join(f.root,'input.json');await writeFile(input,JSON.stringify({pkg:f.pkg,era:f.era}),{mode:0o600});
   const child=`import { readFile } from 'node:fs/promises';
@@ -145,9 +145,7 @@ test('abrupt process exit between registration and preview: durable record, fail
   const result=spawnSync(process.execPath,['--input-type=module','-e',child],{encoding:'utf8'});
   assert.equal(result.status,87,result.stderr);
   assert.equal((await f.registry.events('C1')).length,2);
-  await assert.rejects(f.adapter.preview('C1',f.manifestSha256),/writer lock/);
-  // The test is the operator: the child exit is known; preserve the ledger and release only its stale lock.
-  await unlink(join(f.root,'citadels','C1','events','.writer.lock'));
+  // A dead writer PID and staged bytes are recovered before the next transaction.
   assert.match((await f.adapter.preview('C1',f.manifestSha256)).html,/DRAFT/);
   assert.equal((await f.registry.events('C1')).length,3);
   await assert.rejects(f.adapter.register(f.pkg,f.era),/replay/);
