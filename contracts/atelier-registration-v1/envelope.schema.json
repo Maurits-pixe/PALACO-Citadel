@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Atelier Registration Envelope v1",
+  "type": "object",
+  "required": [
+    "tenant_id",
+    "user_id",
+    "maker_id",
+    "project_id",
+    "citadel_id",
+    "schema_version",
+    "template_id",
+    "template_version",
+    "payload_digest",
+    "audit_head",
+    "asset_digests",
+    "package"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,80}$"
+    },
+    "user_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,80}$"
+    },
+    "maker_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,80}$"
+    },
+    "project_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,80}$"
+    },
+    "citadel_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,80}$"
+    },
+    "schema_version": {
+      "const": "palaco.atelier-registration/1.0.0"
+    },
+    "template_id": {
+      "const": "LA-CITADEL-TEMPLATE"
+    },
+    "template_version": {
+      "const": "0.1.0"
+    },
+    "payload_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "audit_head": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "asset_digests": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      }
+    },
+    "package": {
+      "type": "object",
+      "required": [
+        "manifest",
+        "files"
+      ],
+      "properties": {
+        "manifest": {
+          "type": "object"
+        },
+        "files": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'registration/**'
+      - 'contracts/**'
       - 'atelier/**'
       - 'citadel-proof/**'
       - 'package*.json'
@@ -21,5 +22,6 @@ jobs:
           node-version: 24
       - run: npm ci
       - run: npm run test:preview
+      - run: npm run test:contract
       - run: npx playwright install --with-deps chromium
       - run: npm run test:preview:browser

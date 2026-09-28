@@ -1,5 +1,5 @@
 import { constants } from 'node:fs';
-import { lstat, realpath, mkdir, readdir, open, link, unlink } from 'node:fs/promises';
+import { lstat, realpath, mkdir, readdir, open, link, unlink, readFile } from 'node:fs/promises';
 import { isAbsolute, resolve, relative, join, parse, sep } from 'node:path';
 import { randomUUID } from 'node:crypto';
 
@@ -52,6 +52,31 @@ export class ConfinedStore {
     try { path = await this.directory(parts); } catch (e) { if (e.code === 'ENOENT') return []; throw e; }
     return readdir(path);
   }
+  async recover(parts) {
+    let dir;
+    try { dir = await this.directory(parts); } catch (e) { if (e.code === 'ENOENT') return; throw e; }
+    const lock = join(dir, '.writer.lock');
+    let lockExists = true;
+    let metadata = null;
+    try { metadata = JSON.parse(await readFile(lock, 'utf8')); }
+    catch (e) { if (e.code === 'ENOENT') lockExists = false; else throw Error('writer lock unavailable; recovery required'); }
+    if (lockExists) {
+      const pid = Number(metadata?.pid);
+      if (!Number.isInteger(pid) || pid <= 0 || !Number.isFinite(Date.parse(metadata?.started_at))) throw Error('writer lock unavailable; recovery required');
+      let alive = false;
+      if (Number.isInteger(pid) && pid > 0) {
+        try { process.kill(pid, 0); alive = true; } catch (e) { alive = e.code !== 'ESRCH'; }
+      }
+      if (alive) throw Error('writer lock unavailable; recovery required');
+      // The owner is gone. The lock and any staged bytes are recoverable because
+      // publication uses a no-replace hard link: a final event is either absent
+      // or complete, never a partially written destination.
+      await unlink(lock).catch(e => { if (e.code !== 'ENOENT') throw e; });
+    }
+    for (const name of await readdir(dir)) {
+      if (name.startsWith('.pending-')) await unlink(join(dir, name)).catch(e => { if (e.code !== 'ENOENT') throw e; });
+    }
+  }
   async read(parts, name) {
     if (!/^[A-Za-z0-9_.-]+$/.test(name) || name === '.' || name === '..') throw Error('invalid filename');
     const path = join(await this.directory(parts), name);
@@ -87,11 +112,16 @@ export class ConfinedStore {
   }
   async locked(parts, fn) {
     const dir = await this.directory(parts, true);
+    await this.recover(parts);
     const lock = join(dir, '.writer.lock');
     let fd;
     try { fd = await open(lock, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW, 0o600); }
     catch { throw Error('writer lock unavailable; recovery required'); }
-    try { return await fn(); }
+    try {
+      await fd.writeFile(JSON.stringify({ pid: process.pid, started_at: new Date().toISOString() }));
+      await fd.sync();
+      return await fn();
+    }
     finally { await fd.close(); await unlink(lock); }
   }
 }

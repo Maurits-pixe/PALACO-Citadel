@@ -1,0 +1,8 @@
+{
+  "registration/contract-gateway.mjs": "7387da141899eef1abbfa231a03a650c8412def88642b3fc3ea64d1a9a4c3144",
+  "registration/storage.mjs": "bc5413d6cd0e0e41895e36ec916300a52e62a258910fe4a4a43256e58d88abb1",
+  "registration/registry.mjs": "9ef403f664f7159655b10084646f5b46d427c7ed4f1874de9158a78ee9cc696a",
+  "registration/preview.mjs": "221f2c321627142ec4dbff70e1df2c241a51e912ddb8f7960319b74012887de1",
+  "contracts/atelier-registration-v1/contract.mjs": "339784763206495b049d4a0a4fbfca744ee1f209fabf784025452f8cb0927ab1",
+  "contracts/atelier-registration-v1/README.md": "af9337d96a8e4c671a1a7483627fbf20bcd14de6baff3c6e5110f2549ec2a223"
+}

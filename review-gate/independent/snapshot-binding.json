@@ -1,0 +1,36 @@
+{
+  "subject_commit": "af6162c6aa892a48e089e7060a8c19441e530d65",
+  "method": "Exact UTF-8 content equality between inspected local file and GitHub fetch at immutable commit, with reviewer SHA-256 and GitHub blob SHA retained.",
+  "files": [
+    {
+      "path": "registration/contract-gateway.mjs",
+      "github_blob": "d3b37e3d4e5341d79443b081f3ac4761575adc16",
+      "sha256": "7387da141899eef1abbfa231a03a650c8412def88642b3fc3ea64d1a9a4c3144"
+    },
+    {
+      "path": "registration/storage.mjs",
+      "github_blob": "76d71d6221ab88a6ef3e2e95072d7cf7a9e6a79a",
+      "sha256": "bc5413d6cd0e0e41895e36ec916300a52e62a258910fe4a4a43256e58d88abb1"
+    },
+    {
+      "path": "registration/registry.mjs",
+      "github_blob": "5897e9f90be9dc1ae1473ef3cb0630fac35490be",
+      "sha256": "9ef403f664f7159655b10084646f5b46d427c7ed4f1874de9158a78ee9cc696a"
+    },
+    {
+      "path": "registration/preview.mjs",
+      "github_blob": "e5ffc9c9c33cd951fdabdbd403c373a9b0e41cdf",
+      "sha256": "221f2c321627142ec4dbff70e1df2c241a51e912ddb8f7960319b74012887de1"
+    },
+    {
+      "path": "contracts/atelier-registration-v1/contract.mjs",
+      "github_blob": "424cef75442381d4450bdc0b74fef411ea8143e6",
+      "sha256": "339784763206495b049d4a0a4fbfca744ee1f209fabf784025452f8cb0927ab1"
+    },
+    {
+      "path": "contracts/atelier-registration-v1/README.md",
+      "github_blob": "72758cd9f593e5e76995affb1e9f327a5aa998cc",
+      "sha256": "af9337d96a8e4c671a1a7483627fbf20bcd14de6baff3c6e5110f2549ec2a223"
+    }
+  ]
+}
