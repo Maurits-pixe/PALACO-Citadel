@@ -1,0 +1,24 @@
+import { test } from 'node:test';
+import { strict as assert } from 'node:assert';
+import { newCitadel, recordStep, customize, registerAsset, draftExport, or6itEntry, template } from './builder.mjs';
+import { verifyExport, digest } from '../citadel-proof/proof.mjs';
+test('L.A. template yields distinct maker draft with ordered trajectory and bounded customization', () => {
+  let p = newCitadel({ makerId: 'maker-1', name: 'My Citadel', intention: 'Explore', projectId: 'p1', citadelId: 'c1' });
+  assert.notEqual(p.citadel_id, p.source_citadel);
+  assert.throws(() => recordStep(p, 'maker-2', 'QUESTION', 'x'));
+  assert.throws(() => recordStep(p, 'maker-1', 'EVIDENCE', 'x'));
+  assert.throws(() => customize(p, 'maker-1', { name: 'X' }));
+  for (const step of template.required_steps) p = recordStep(p, 'maker-1', step, step.toLowerCase());
+  assert.throws(() => customize(p, 'maker-1', { constitutional_kernel: [] }));
+  p = customize(p, 'maker-1', { name: 'New name' });
+  assert.equal(p.state, 'DRAFT');
+  assert.equal(p.audit.at(-1).sequence, p.audit.length);
+  const result = registerAsset(p, 'maker-1', { bytes: Buffer.from('image'), renderer: { id: 'procedural', version: '0.1', provenance: 'local' }, rights: 'maker-owned', relation: 'c1' });
+  assert.equal(result.asset.classification, 'CREATIVE_ASSET');
+  const files = { 'citadel.json': Buffer.from(JSON.stringify(result.project)) };
+  const out = draftExport(result.project, 'maker-1', files, 1);
+  assert.equal(out.manifest.state, 'DRAFT');
+  assert.equal(verifyExport(out.manifest, files, { id: template.template_id, version: template.template_version, sha256: digest(template) }), out.manifestSha256);
+  assert.throws(() => or6itEntry(result.project, 'maker-1', { citadelId: 'c1', status: 'DRAFT' }));
+  assert.equal(or6itEntry(result.project, 'maker-1', { citadelId: 'c1', status: 'ACTIVE', authorityVerified: true }).elixer, 'OR6IT');
+});
