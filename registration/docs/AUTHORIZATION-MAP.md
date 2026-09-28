@@ -1,5 +1,7 @@
 # Autorisatiemodule — grens en uitrolkaart
 
+**Update v0.2:** zie [PREVIEW-INTEGRATION.md](PREVIEW-INTEGRATION.md) voor de daadwerkelijk gebouwde integratie, opslagvoorwaarden, testresultaten en herstelprocedure. De hieronder genoemde productiepoorten blijven OPEN.
+
 ## Bestaand in deze repository
 
 | Component | Aanwezig | Grens |
@@ -33,7 +35,7 @@ RIO may explain, prefill and request; it must not issue grants, act as independe
 
 ## Local computer as temporary external data store
 
-The registry accepts an **absolute data directory** supplied by the operator, such as `PALACO_DATA_DIR` on the maker's own computer. Store event files, backup and keys outside the Git repository. Keep the private signing key in the OS key store or hardware key, never in the event directory. Use OS user permissions, full-disk encryption and an offline backup. This environment cannot access the user's laptop or establish its storage mount; the code has only been tested in a temporary local directory. There is no automatic sync from the browser wizard to that computer.
+The registry requires an operator-configured absolute data root bounded by an explicit `allowedRoot`. Paths cannot be supplied by an HTTP caller. Symlinks and permissive directories are rejected. The verified storage profile is Linux/POSIX; Windows is blocked pending ACL and durability verification. Store event files, backup and keys outside the Git repository. Keep the private signing key in the OS key store or hardware key, never in the event directory. Use OS user permissions, full-disk encryption and an offline backup. This environment cannot access the user's laptop or establish its storage mount; the code has only been tested in a temporary local directory. There is no automatic sync from the browser wizard to that computer.
 
 The local adapter is single-host reference storage. Exclusive writer lock and `wx` event creation stop routine concurrent writes; a crash leaves a lock and requires manual evidence-preserving recovery. A person able to rewrite the entire directory can forge a new hash chain without a separately anchored, signed checkpoint. Therefore local storage is not a production trust anchor.
 

@@ -11,7 +11,7 @@ test('local hash chain, signed grant, revocation, ERA quality and tamper denial'
   const root=await mkdtemp(join(tmpdir(),'palaco-reg-'));
   try {
     const {privateKey,publicKey}=generateKeyPairSync('rsa',{modulusLength:2048});
-    const registry=new LocalRegistry(root,{clock:()=> '2026-09-28T05:00:00.000Z',trustedKeys:{issuer:publicKey}});
+    const registry=new LocalRegistry(root,{allowedRoot:root,clock:()=> '2026-09-28T05:00:00.000Z',trustedKeys:{issuer:publicKey}});
     const base={citadelId:'C1',subjectId:'maker',actorId:'issuer',evidenceSha256:hash};
     const identity=await registry.append({...base,type:'IDENTITY_REGISTERED'},0);
     assert.equal(identity.time.assurance,'UNATTESTED');

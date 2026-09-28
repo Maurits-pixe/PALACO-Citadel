@@ -1,7 +1,13 @@
-# PALACO Registration Layer v0.1 — local reference
+# PALACO Registration Layer — local preview v0.2
 
-This directory maps identity, ERA, WATERMERK, HOLOGRAM, proof and authority to a local event register. Read [the gap and rollout map](docs/AUTHORIZATION-MAP.md) and [verification documents](docs/VERIFICATION-RECORDS.md). Run `node --test registration/registry.test.mjs`.
+Identity, ERA, WATERMERK, HOLOGRAM and proof registration remain bounded to **SINGLE-USER LOCAL PREVIEW / NOT ACTIVATED**.
 
-Use an absolute path outside the repository as the data root on the operator's computer. The `LocalRegistry` constructor accepts that path and a trusted issuer-key map. The sample code does not install a service, read the maker's laptop, sync browser data, or grant production authority. No personal records or signing keys belong in GitHub. All timestamps from this adapter are `LOCAL_SYSTEM_CLOCK / UNATTESTED`. `authorize` returns only `ALLOW_FOR_PREVIEW_ONLY`; an independent commit gate is mandatory. A WATERMERK or HOLOGRAM event is a registered marker, never a credential.
+- [Integration, storage, ERA and recovery](docs/PREVIEW-INTEGRATION.md)
+- [Authorization inventory and remaining gaps](docs/AUTHORIZATION-MAP.md)
+- [Verification dossier](docs/VERIFICATION-RECORDS.md)
 
-The current reference uses JSON property insertion order and hash chaining inside a local filesystem; it has no signed external checkpoint. Do not claim RFC 8785 canonicalization, RFC 3161 timestamping, append-only storage against a malicious local administrator, or legal compliance from this module.
+`LocalRegistry` now requires an operator-configured `allowedRoot` in addition to its data root. Both must be absolute. This is an intentional fail-closed API change. `ConfinedStore` enforces canonical paths, private permissions and atomic complete event publication; Windows ACL storage remains unsupported pending verification.
+
+`createDraftPackage` connects the Atelier domain export to `PreviewAdapter`. Registration requires an exact template, maker/project binding, complete trajectory, bytes/hash checks, signed PREVIEW grant and signed application-level ERA attestation. `startLocalPreview` serves only an escaped, sandboxed preview on loopback with a per-session secret URL. Grant and ERA validity are checked on each request. The local browser wizard is not yet wired to import data into this adapter.
+
+Run `npm run test:preview` for the 17 targeted/domain/integration tests. `npm run test:preview:browser` additionally requires installed Playwright Chromium. No personal data, data directory, private keys or fixture credentials belong in GitHub. Filesystem ownership is the current local trust boundary; this code does not establish a production identity service, external time authority, tenant isolation or an external ledger checkpoint.
