@@ -223,3 +223,37 @@ export function resolveTrustedTimeConsensus({ observations, minimumSources=2, al
     outlier_source_ids:Object.freeze(sorted.filter(o=>!best.includes(o)).map(o=>o.source_id).sort())
   });
 }
+
+
+export const TIME_OBSERVATION_DOMAIN="PALACO-ERA-V1-TIME-OBSERVATION";
+
+export function timeObservationSigningInput(observation, domain=TIME_OBSERVATION_DOMAIN) {
+  const payload={
+    protocol_version:"ERA/1",
+    source_id:observation.source_id,
+    sequence:observation.sequence,
+    trusted_time:observation.trusted_time
+  };
+  return Buffer.concat([Buffer.from(domain,"ascii"),Buffer.from([0]),Buffer.from(canonicalize(payload),"utf8")]);
+}
+
+export function signTimeObservationWithTestSeed(observation, seedHex, domain=TIME_OBSERVATION_DOMAIN) {
+  return sign(null,timeObservationSigningInput(observation,domain),privateKeyFromSeed(Buffer.from(seedHex,"hex")));
+}
+
+export function verifySignedTimeObservation({ observation, signature, providerRegistry, replayState, domain=TIME_OBSERVATION_DOMAIN }) {
+  const provider=providerRegistry[observation.source_id];
+  if (!provider) return Object.freeze({accepted:false,reason:"UNKNOWN_TIME_PROVIDER"});
+  if (provider.state !== "ACTIVE") return Object.freeze({accepted:false,reason:"TIME_PROVIDER_NOT_ACTIVE"});
+  if (!Number.isSafeInteger(observation.sequence) || observation.sequence <= (replayState[observation.source_id] ?? 0)) {
+    return Object.freeze({accepted:false,reason:"TIME_OBSERVATION_REPLAY"});
+  }
+  const ok=verify(null,timeObservationSigningInput(observation,domain),publicKeyFromRaw(Buffer.from(provider.public_key_hex,"hex")),signature);
+  if (!ok) return Object.freeze({accepted:false,reason:"INVALID_TIME_SIGNATURE"});
+  return Object.freeze({
+    accepted:true,
+    reason:"AUTHENTICATED_TIME_OBSERVATION",
+    observation:Object.freeze({...observation,authenticated:true}),
+    nextReplayState:Object.freeze({...replayState,[observation.source_id]:observation.sequence})
+  });
+}
