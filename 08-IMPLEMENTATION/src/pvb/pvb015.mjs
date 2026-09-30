@@ -287,3 +287,27 @@ export function verifyTemporalEvidenceReceipt({ receipt, expectedPreviousReceipt
   if (actual !== receipt.receipt_hash) return Object.freeze({valid:false,reason:"TEMPORAL_RECEIPT_HASH_MISMATCH"});
   return Object.freeze({valid:true,reason:"TEMPORAL_RECEIPT_VERIFIED",receipt_hash:receipt.receipt_hash});
 }
+
+
+export const TEMPORAL_RECEIPT_DOMAIN="PALACO-ERA-V1-TEMPORAL-RECEIPT";
+
+export function temporalReceiptSigningInput({ receipt, signer_id, key_id }, domain=TEMPORAL_RECEIPT_DOMAIN) {
+  const payload={protocol_version:"ERA-RECEIPT-SIG/1",signer_id,key_id,receipt_hash:receipt.receipt_hash};
+  return Buffer.concat([Buffer.from(domain,"ascii"),Buffer.from([0]),Buffer.from(canonicalize(payload),"utf8")]);
+}
+
+export function signTemporalReceiptWithTestSeed({ receipt, signer_id, key_id, seedHex, domain=TEMPORAL_RECEIPT_DOMAIN }) {
+  return sign(null,temporalReceiptSigningInput({receipt,signer_id,key_id},domain),privateKeyFromSeed(Buffer.from(seedHex,"hex")));
+}
+
+export function verifySignedTemporalReceipt({ receipt, signer_id, key_id, signature, signerRegistry, domain=TEMPORAL_RECEIPT_DOMAIN }) {
+  const signer=signerRegistry[signer_id];
+  if (!signer) return Object.freeze({trusted:false,reason:"UNKNOWN_RECEIPT_SIGNER"});
+  if (signer.key_id !== key_id) return Object.freeze({trusted:false,reason:"RECEIPT_KEY_BINDING_MISMATCH"});
+  if (signer.state !== "ACTIVE") return Object.freeze({trusted:false,reason:"RECEIPT_SIGNER_NOT_ACTIVE"});
+  const actualHash=sha256(Buffer.from(canonicalize(receipt.evidence),"utf8")).toString("hex");
+  if (actualHash !== receipt.receipt_hash) return Object.freeze({trusted:false,reason:"TEMPORAL_RECEIPT_HASH_MISMATCH"});
+  const ok=verify(null,temporalReceiptSigningInput({receipt,signer_id,key_id},domain),publicKeyFromRaw(Buffer.from(signer.public_key_hex,"hex")),signature);
+  if (!ok) return Object.freeze({trusted:false,reason:"INVALID_TEMPORAL_RECEIPT_SIGNATURE"});
+  return Object.freeze({trusted:true,reason:"SIGNED_TEMPORAL_RECEIPT_VERIFIED",signer_id,key_id,receipt_hash:receipt.receipt_hash});
+}
