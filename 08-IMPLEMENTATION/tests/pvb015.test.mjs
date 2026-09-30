@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { canonicalize, projectVisitCard, signingInput, sha256, signWithTestSeed, verifyWithPublicKey, authorize, DOMAIN } from "../src/pvb/pvb015.mjs";
+import { canonicalize, projectVisitCard, signingInput, sha256, signWithTestSeed, verifyWithPublicKey, authorize, evaluateKeyTrust, evaluateTemporalValidity, DOMAIN } from "../src/pvb/pvb015.mjs";
 
 const vector=JSON.parse(fs.readFileSync(new URL("../vectors/pvb-v1/golden-0001.json", import.meta.url)));
 const canonical=canonicalize(projectVisitCard(vector.record));
@@ -24,6 +24,10 @@ const wrongPublicKey="ec172b93ad5e563bf4932c70e1245034c35467ef2efd4d64ebf8196834
 assert.equal(verifyWithPublicKey(vector.record, signature, wrongPublicKey), false, "G-0005 wrong key rejected");
 
 const verifiedVisitCard=verifyWithPublicKey(vector.record, signature, vector.public_key_hex, DOMAIN);
+assert.deepEqual(evaluateKeyTrust({cryptographicallyVerified:verifiedVisitCard,keyState:"REVOKED"}), {trusted:false,reason:"KEY_REVOKED",historicalAuthenticity:true}, "G-0006 revoked key preserves historical authenticity but loses current trust");
+assert.deepEqual(evaluateTemporalValidity(vector.record.validity,"2027-01-01T00:00:00Z"), {valid:false,reason:"EXPIRED"}, "G-0007 expiry boundary is fail-closed");
+assert.deepEqual(evaluateTemporalValidity(vector.record.validity,"2026-06-01T00:00:00Z"), {valid:true,reason:"CURRENT"}, "G-0007 current interval remains valid");
+
 assert.deepEqual(authorize({verifiedVisitCard,mandate:null}), {authorized:false,reason:"MANDATE_REQUIRED"}, "G-0008 crypto does not authorize");
 
 console.log(JSON.stringify({
@@ -31,6 +35,6 @@ console.log(JSON.stringify({
   vector:vector.vector_id,
   canonical_bytes:Buffer.byteLength(canonical,"utf8"),
   digest:vector.signing_input_sha256_hex,
-  tests:{G0001:"PASS",G0002:"PASS",G0003:"PASS",G0004:"PASS",G0005:"PASS",G0008:"PASS"},
+  tests:{G0001:"PASS",G0002:"PASS",G0003:"PASS",G0004:"PASS",G0005:"PASS",G0006:"PASS",G0007:"PASS",G0008:"PASS"},
   claim:"EXECUTION EVIDENCE ONLY — NOT PVB-V1 CONFORMANCE"
 },null,2));
