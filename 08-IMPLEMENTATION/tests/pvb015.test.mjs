@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { canonicalize, projectVisitCard, signingInput, sha256, signWithTestSeed, verifyWithPublicKey, authorize, evaluateKeyTrust, evaluateTemporalValidity, verifyWatermerkLineage, evaluateLineageSignature, buildWatermerkChain, verifyWatermerkChain, detectWatermerkFork, advanceEraTrustedTime, evaluateMonotoneTemporalState, evaluateWithEraTime, resolveTrustedTimeConsensus, signTimeObservationWithTestSeed, verifySignedTimeObservation, TIME_OBSERVATION_DOMAIN, DOMAIN } from "../src/pvb/pvb015.mjs";
+import { canonicalize, projectVisitCard, signingInput, sha256, signWithTestSeed, verifyWithPublicKey, authorize, evaluateKeyTrust, evaluateTemporalValidity, verifyWatermerkLineage, evaluateLineageSignature, buildWatermerkChain, verifyWatermerkChain, detectWatermerkFork, advanceEraTrustedTime, evaluateMonotoneTemporalState, evaluateWithEraTime, resolveTrustedTimeConsensus, signTimeObservationWithTestSeed, verifySignedTimeObservation, TIME_OBSERVATION_DOMAIN, createTemporalEvidenceReceipt, verifyTemporalEvidenceReceipt, DOMAIN } from "../src/pvb/pvb015.mjs";
 
 
 function watermerkEventHashForTest(event) {
@@ -190,12 +190,35 @@ const authenticatedConsensus=resolveTrustedTimeConsensus({observations:[
 ],minimumSources:2,allowedSkewMs:1000});
 assert.equal(authenticatedConsensus.accepted,true,"G-0056 verified observation is consumable by PVB-019 consensus");
 
+const receiptObservations=[
+  verifiedTime.observation,
+  {source_id:"TIME-B",sequence:1,trusted_time:"2026-06-01T00:00:00.300Z",authenticated:true},
+  {source_id:"TIME-C",sequence:1,trusted_time:"2026-06-01T00:10:00.000Z",authenticated:true}
+];
+const receiptConsensus=resolveTrustedTimeConsensus({observations:receiptObservations,minimumSources:2,allowedSkewMs:1000});
+const receiptEra=advanceEraTrustedTime({highestTrustedTime:null,highestSequence:0},{trusted_time:receiptConsensus.trusted_time,sequence:1});
+const temporalReceipt=createTemporalEvidenceReceipt({receiptSequence:1,verifiedObservations:receiptObservations,consensus:receiptConsensus,eraState:receiptEra});
+assert.equal(temporalReceipt.accepted,true,"G-0060 end-to-end temporal receipt created");
+assert.equal(verifyTemporalEvidenceReceipt({receipt:temporalReceipt,expectedPreviousReceiptHash:"GENESIS",minimumReceiptSequence:1}).valid,true,"G-0060 receipt reproduces and verifies");
+
+const mutatedReceipt={...temporalReceipt,evidence:{...temporalReceipt.evidence,era_state:{...temporalReceipt.evidence.era_state,highestTrustedTime:"2026-01-01T00:00:00.000Z"}}};
+assert.deepEqual(verifyTemporalEvidenceReceipt({receipt:mutatedReceipt,expectedPreviousReceiptHash:"GENESIS",minimumReceiptSequence:1}),{valid:false,reason:"TEMPORAL_RECEIPT_HASH_MISMATCH"},"G-0061 receipt mutation detected");
+
+assert.deepEqual(createTemporalEvidenceReceipt({receiptSequence:2,verifiedObservations:[{...verifiedTime.observation,authenticated:false}],consensus:receiptConsensus,eraState:receiptEra}),{accepted:false,reason:"INCOMPLETE_TEMPORAL_EVIDENCE"},"G-0062 missing authenticated evidence denied");
+
+assert.deepEqual(verifyTemporalEvidenceReceipt({receipt:temporalReceipt,expectedPreviousReceiptHash:"GENESIS",minimumReceiptSequence:2}),{valid:false,reason:"TEMPORAL_RECEIPT_REPLAY"},"G-0063 old receipt sequence replay denied");
+
+assert.deepEqual(verifyTemporalEvidenceReceipt({receipt:temporalReceipt,expectedPreviousReceiptHash:"different-head",minimumReceiptSequence:1}),{valid:false,reason:"RECEIPT_CHAIN_MISMATCH"},"G-0064 receipt chain rollback/fork denied");
+
+const secondReceipt=createTemporalEvidenceReceipt({receiptSequence:2,previousReceiptHash:temporalReceipt.receipt_hash,verifiedObservations:receiptObservations,consensus:receiptConsensus,eraState:receiptEra});
+assert.equal(verifyTemporalEvidenceReceipt({receipt:secondReceipt,expectedPreviousReceiptHash:temporalReceipt.receipt_hash,minimumReceiptSequence:2}).valid,true,"G-0065 chained temporal receipt verifies");
+
 
 console.log(JSON.stringify({
-  suite:"PVB-015+PVB-016+PVB-017+PVB-018+PVB-019+PVB-020",
+  suite:"PVB-015+PVB-016+PVB-017+PVB-018+PVB-019+PVB-020+PVB-021",
   vector:vector.vector_id,
   canonical_bytes:Buffer.byteLength(canonical,"utf8"),
   digest:vector.signing_input_sha256_hex,
-  tests:{G0001:"PASS",G0002:"PASS",G0003:"PASS",G0004:"PASS",G0005:"PASS",G0006:"PASS",G0007:"PASS",G0008:"PASS",G0010:"PASS",G0011:"PASS",G0012:"PASS",G0013:"PASS",G0014:"PASS",G0015:"PASS",G0020:"PASS",G0021:"PASS",G0022:"PASS",G0023:"PASS",G0024:"PASS",G0025:"PASS",G0030:"PASS",G0031:"PASS",G0032:"PASS",G0033:"PASS",G0034:"PASS",G0035:"PASS",G0036:"PASS",G0040:"PASS",G0041:"PASS",G0042:"PASS",G0043:"PASS",G0044:"PASS",G0045:"PASS",G0046:"PASS",G0050:"PASS",G0051:"PASS",G0052:"PASS",G0053:"PASS",G0054:"PASS",G0055:"PASS",G0056:"PASS"},
+  tests:{G0001:"PASS",G0002:"PASS",G0003:"PASS",G0004:"PASS",G0005:"PASS",G0006:"PASS",G0007:"PASS",G0008:"PASS",G0010:"PASS",G0011:"PASS",G0012:"PASS",G0013:"PASS",G0014:"PASS",G0015:"PASS",G0020:"PASS",G0021:"PASS",G0022:"PASS",G0023:"PASS",G0024:"PASS",G0025:"PASS",G0030:"PASS",G0031:"PASS",G0032:"PASS",G0033:"PASS",G0034:"PASS",G0035:"PASS",G0036:"PASS",G0040:"PASS",G0041:"PASS",G0042:"PASS",G0043:"PASS",G0044:"PASS",G0045:"PASS",G0046:"PASS",G0050:"PASS",G0051:"PASS",G0052:"PASS",G0053:"PASS",G0054:"PASS",G0055:"PASS",G0056:"PASS",G0060:"PASS",G0061:"PASS",G0062:"PASS",G0063:"PASS",G0064:"PASS",G0065:"PASS"},
   claim:"EXECUTION EVIDENCE ONLY — NOT PVB-V1 CONFORMANCE"
 },null,2));
