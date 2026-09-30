@@ -1,0 +1,41 @@
+name: PVB-024 PostgreSQL temporal ledger
+on:
+  pull_request:
+    paths:
+      - '08-IMPLEMENTATION/persistence/**'
+      - '.github/workflows/pvb-024-postgres.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  postgres-ledger:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: palaco
+          POSTGRES_PASSWORD: palaco-test
+          POSTGRES_DB: palaco
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U palaco -d palaco"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGPASSWORD: palaco-test
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Execute PostgreSQL ledger gates
+        run: psql -h localhost -U palaco -d palaco -f 08-IMPLEMENTATION/persistence/pvb024.test.sql
+      - name: Restart PostgreSQL service container
+        run: docker restart ${{ job.services.postgres.id }}
+      - name: Verify durable head after restart
+        run: |
+          for i in {1..20}; do pg_isready -h localhost -U palaco -d palaco && break; sleep 1; done
+          test "$(psql -h localhost -U palaco -d palaco -Atc "SELECT highest_receipt_sequence || ':' || head_receipt_hash FROM temporal_ledger_head WHERE singleton=TRUE")" = "2:hash-2"
