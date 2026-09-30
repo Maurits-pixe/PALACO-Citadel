@@ -110,3 +110,55 @@ export function evaluateLineageSignature({ cryptographicallyVerified, signatureK
   if (lineage.activeKey !== signatureKeyId) return Object.freeze({ trusted:false, historicalAuthenticity:true, reason:"KEY_NOT_CURRENT" });
   return Object.freeze({ trusted:true, historicalAuthenticity:true, reason:"CURRENT_LINEAGE_KEY" });
 }
+
+
+export function watermerkEventHash(event) {
+  const material={
+    epoch:event.epoch,
+    identity_ref:event.identity_ref,
+    key_id:event.key_id,
+    previous_event_hash:event.previous_event_hash,
+    type:event.type
+  };
+  return sha256(Buffer.from(canonicalize(material),"utf8")).toString("hex");
+}
+
+export function buildWatermerkChain({ identityRef, events }) {
+  let previousEventHash="GENESIS";
+  return events.map(event => {
+    const linked={...event,identity_ref:identityRef,previous_event_hash:previousEventHash};
+    const event_hash=watermerkEventHash(linked);
+    previousEventHash=event_hash;
+    return Object.freeze({...linked,event_hash});
+  });
+}
+
+export function verifyWatermerkChain({ identityRef, events }) {
+  let expectedPrevious="GENESIS";
+  let highestEpoch=-1;
+  const seenParents=new Set();
+  for (const event of events) {
+    if (event.identity_ref !== identityRef) return Object.freeze({valid:false,reason:"IDENTITY_SUBSTITUTION"});
+    if (!Number.isSafeInteger(event.epoch) || event.epoch <= highestEpoch) return Object.freeze({valid:false,reason:"NON_MONOTONE_EPOCH"});
+    if (event.previous_event_hash !== expectedPrevious) return Object.freeze({valid:false,reason:"BROKEN_PREVIOUS_HASH"});
+    if (seenParents.has(event.previous_event_hash)) return Object.freeze({valid:false,reason:"FORK_DETECTED"});
+    if (watermerkEventHash(event) !== event.event_hash) return Object.freeze({valid:false,reason:"EVENT_HASH_MISMATCH"});
+    seenParents.add(event.previous_event_hash);
+    expectedPrevious=event.event_hash;
+    highestEpoch=event.epoch;
+  }
+  return Object.freeze({valid:true,headHash:expectedPrevious,highestEpoch,eventCount:events.length});
+}
+
+export function detectWatermerkFork({ identityRef, branches }) {
+  const parentToChild=new Map();
+  for (const branch of branches) {
+    for (const event of branch) {
+      if (event.identity_ref !== identityRef) return Object.freeze({valid:false,reason:"IDENTITY_SUBSTITUTION"});
+      const existing=parentToChild.get(event.previous_event_hash);
+      if (existing && existing !== event.event_hash) return Object.freeze({valid:false,reason:"FORK_DETECTED"});
+      parentToChild.set(event.previous_event_hash,event.event_hash);
+    }
+  }
+  return Object.freeze({valid:true,reason:"NO_FORK"});
+}
