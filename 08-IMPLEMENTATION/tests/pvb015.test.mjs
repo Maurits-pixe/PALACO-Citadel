@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { canonicalize, projectVisitCard, signingInput, sha256, signWithTestSeed, verifyWithPublicKey, authorize, evaluateKeyTrust, evaluateTemporalValidity, verifyWatermerkLineage, evaluateLineageSignature, buildWatermerkChain, verifyWatermerkChain, detectWatermerkFork, advanceEraTrustedTime, evaluateMonotoneTemporalState, evaluateWithEraTime, resolveTrustedTimeConsensus, signTimeObservationWithTestSeed, verifySignedTimeObservation, TIME_OBSERVATION_DOMAIN, createTemporalEvidenceReceipt, verifyTemporalEvidenceReceipt, signTemporalReceiptWithTestSeed, verifySignedTemporalReceipt, TEMPORAL_RECEIPT_DOMAIN, DOMAIN } from "../src/pvb/pvb015.mjs";
+import { canonicalize, projectVisitCard, signingInput, sha256, signWithTestSeed, verifyWithPublicKey, authorize, evaluateKeyTrust, evaluateTemporalValidity, verifyWatermerkLineage, evaluateLineageSignature, buildWatermerkChain, verifyWatermerkChain, detectWatermerkFork, advanceEraTrustedTime, evaluateMonotoneTemporalState, evaluateWithEraTime, resolveTrustedTimeConsensus, signTimeObservationWithTestSeed, verifySignedTimeObservation, TIME_OBSERVATION_DOMAIN, createTemporalEvidenceReceipt, verifyTemporalEvidenceReceipt, signTemporalReceiptWithTestSeed, verifySignedTemporalReceipt, TEMPORAL_RECEIPT_DOMAIN, appendTemporalLedger, recoverTemporalLedger, DOMAIN } from "../src/pvb/pvb015.mjs";
 
 
 function watermerkEventHashForTest(event) {
@@ -232,12 +232,38 @@ assert.deepEqual(verifySignedTemporalReceipt({receipt:temporalReceipt,signer_id:
 
 assert.deepEqual(verifySignedTemporalReceipt({receipt:temporalReceipt,signer_id:"ERA-SIGNER-001",key_id:"ERA-KEY-ATTACKER",signature:receiptSignature,signerRegistry:receiptSignerRegistry}),{trusted:false,reason:"RECEIPT_KEY_BINDING_MISMATCH"},"G-0075 signer/key substitution denied");
 
+const ledger0={highestReceiptSequence:0,headReceiptHash:"GENESIS",highestTrustedTime:null};
+const ledger1=appendTemporalLedger(ledger0,{receipt:temporalReceipt,signedEvidence:signedReceiptEvidence});
+assert.equal(ledger1.accepted,true,"G-0080 trusted signed receipt appends to ledger");
+assert.equal(ledger1.highestReceiptSequence,1,"G-0080 ledger high-water mark advances");
+
+const secondReceiptSignature=signTemporalReceiptWithTestSeed({receipt:secondReceipt,signer_id:"ERA-SIGNER-001",key_id:"ERA-KEY-001",seedHex:vector.private_seed_hex});
+const secondSignedEvidence=verifySignedTemporalReceipt({receipt:secondReceipt,signer_id:"ERA-SIGNER-001",key_id:"ERA-KEY-001",signature:secondReceiptSignature,signerRegistry:receiptSignerRegistry});
+const ledger2=appendTemporalLedger(ledger1,{receipt:secondReceipt,signedEvidence:secondSignedEvidence});
+assert.equal(ledger2.accepted,true,"G-0081 contiguous signed receipt advances durable head");
+assert.equal(ledger2.highestReceiptSequence,2,"G-0081 durable sequence is monotone");
+
+assert.equal(appendTemporalLedger(ledger2,{receipt:temporalReceipt,signedEvidence:signedReceiptEvidence}).reason,"NON_CONTIGUOUS_LEDGER_SEQUENCE","G-0082 old receipt cannot roll ledger back");
+
+const forgedSecond={...secondReceipt,evidence:{...secondReceipt.evidence,previous_receipt_hash:"GENESIS"}};
+assert.equal(appendTemporalLedger(ledger1,{receipt:forgedSecond,signedEvidence:{...secondSignedEvidence,receipt_hash:forgedSecond.receipt_hash}}).reason,"LEDGER_HEAD_MISMATCH","G-0083 wrong parent head denied");
+
+const staleSnapshot={highestReceiptSequence:1,headReceiptHash:temporalReceipt.receipt_hash,highestTrustedTime:ledger1.highestTrustedTime};
+const recovered=recoverTemporalLedger({durableState:ledger2,snapshotState:staleSnapshot});
+assert.equal(recovered.recovered,true,"G-0084 crash recovery succeeds from durable ledger");
+assert.equal(recovered.reason,"STALE_SNAPSHOT_OVERRIDDEN","G-0084 stale snapshot cannot restore authority");
+assert.equal(recovered.state.highestReceiptSequence,2,"G-0084 durable high-water mark wins");
+
+assert.deepEqual(recoverTemporalLedger({durableState:ledger1,snapshotState:{highestReceiptSequence:2,headReceiptHash:secondReceipt.receipt_hash,highestTrustedTime:ledger2.highestTrustedTime}}),{recovered:false,reason:"SNAPSHOT_AHEAD_OF_DURABLE_LEDGER"},"G-0085 unproven snapshot-ahead state denied");
+
+assert.deepEqual(recoverTemporalLedger({durableState:ledger2,snapshotState:{highestReceiptSequence:2,headReceiptHash:"attacker-head",highestTrustedTime:ledger2.highestTrustedTime}}),{recovered:false,reason:"RECOVERY_HEAD_CONFLICT"},"G-0086 same-sequence conflicting head denied");
+
 
 console.log(JSON.stringify({
-  suite:"PVB-015+PVB-016+PVB-017+PVB-018+PVB-019+PVB-020+PVB-021+PVB-022",
+  suite:"PVB-015+PVB-016+PVB-017+PVB-018+PVB-019+PVB-020+PVB-021+PVB-022+PVB-023",
   vector:vector.vector_id,
   canonical_bytes:Buffer.byteLength(canonical,"utf8"),
   digest:vector.signing_input_sha256_hex,
-  tests:{G0001:"PASS",G0002:"PASS",G0003:"PASS",G0004:"PASS",G0005:"PASS",G0006:"PASS",G0007:"PASS",G0008:"PASS",G0010:"PASS",G0011:"PASS",G0012:"PASS",G0013:"PASS",G0014:"PASS",G0015:"PASS",G0020:"PASS",G0021:"PASS",G0022:"PASS",G0023:"PASS",G0024:"PASS",G0025:"PASS",G0030:"PASS",G0031:"PASS",G0032:"PASS",G0033:"PASS",G0034:"PASS",G0035:"PASS",G0036:"PASS",G0040:"PASS",G0041:"PASS",G0042:"PASS",G0043:"PASS",G0044:"PASS",G0045:"PASS",G0046:"PASS",G0050:"PASS",G0051:"PASS",G0052:"PASS",G0053:"PASS",G0054:"PASS",G0055:"PASS",G0056:"PASS",G0060:"PASS",G0061:"PASS",G0062:"PASS",G0063:"PASS",G0064:"PASS",G0065:"PASS",G0070:"PASS",G0071:"PASS",G0072:"PASS",G0073:"PASS",G0074:"PASS",G0075:"PASS"},
+  tests:{G0001:"PASS",G0002:"PASS",G0003:"PASS",G0004:"PASS",G0005:"PASS",G0006:"PASS",G0007:"PASS",G0008:"PASS",G0010:"PASS",G0011:"PASS",G0012:"PASS",G0013:"PASS",G0014:"PASS",G0015:"PASS",G0020:"PASS",G0021:"PASS",G0022:"PASS",G0023:"PASS",G0024:"PASS",G0025:"PASS",G0030:"PASS",G0031:"PASS",G0032:"PASS",G0033:"PASS",G0034:"PASS",G0035:"PASS",G0036:"PASS",G0040:"PASS",G0041:"PASS",G0042:"PASS",G0043:"PASS",G0044:"PASS",G0045:"PASS",G0046:"PASS",G0050:"PASS",G0051:"PASS",G0052:"PASS",G0053:"PASS",G0054:"PASS",G0055:"PASS",G0056:"PASS",G0060:"PASS",G0061:"PASS",G0062:"PASS",G0063:"PASS",G0064:"PASS",G0065:"PASS",G0070:"PASS",G0071:"PASS",G0072:"PASS",G0073:"PASS",G0074:"PASS",G0075:"PASS",G0080:"PASS",G0081:"PASS",G0082:"PASS",G0083:"PASS",G0084:"PASS",G0085:"PASS",G0086:"PASS"},
   claim:"EXECUTION EVIDENCE ONLY — NOT PVB-V1 CONFORMANCE"
 },null,2));
