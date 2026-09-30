@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { canonicalize, projectVisitCard, signingInput, sha256, signWithTestSeed, verifyWithPublicKey, authorize, evaluateKeyTrust, evaluateTemporalValidity, verifyWatermerkLineage, evaluateLineageSignature, DOMAIN } from "../src/pvb/pvb015.mjs";
+import { canonicalize, projectVisitCard, signingInput, sha256, signWithTestSeed, verifyWithPublicKey, authorize, evaluateKeyTrust, evaluateTemporalValidity, verifyWatermerkLineage, evaluateLineageSignature, buildWatermerkChain, verifyWatermerkChain, detectWatermerkFork, DOMAIN } from "../src/pvb/pvb015.mjs";
+
+
+function watermerkEventHashForTest(event) {
+  const material={epoch:event.epoch,identity_ref:event.identity_ref,key_id:event.key_id,previous_event_hash:event.previous_event_hash,type:event.type};
+  return sha256(Buffer.from(canonicalize(material),"utf8")).toString("hex");
+}
 
 const vector=JSON.parse(fs.readFileSync(new URL("../vectors/pvb-v1/golden-0001.json", import.meta.url)));
 const canonical=canonicalize(projectVisitCard(vector.record));
@@ -69,12 +75,42 @@ const substitution=verifyWatermerkLineage({
 });
 assert.deepEqual(substitution, {valid:false,reason:"IDENTITY_SUBSTITUTION"}, "G-0015 identity substitution denied");
 
+const chain=buildWatermerkChain({
+  identityRef:vector.record.identity_ref,
+  events:[
+    {type:"KEY_ACTIVATED",key_id:"KEY-001",epoch:1},
+    {type:"KEY_ACTIVATED",key_id:"KEY-002",epoch:2},
+    {type:"KEY_REVOKED",key_id:"KEY-001",epoch:3}
+  ]
+});
+const chainEvidence=verifyWatermerkChain({identityRef:vector.record.identity_ref,events:chain});
+assert.equal(chainEvidence.valid,true,"G-0020 append-only WATERMERK chain verifies");
+assert.equal(chainEvidence.eventCount,3,"G-0020 all provenance events retained");
+
+const deleted=[chain[0],chain[2]];
+assert.deepEqual(verifyWatermerkChain({identityRef:vector.record.identity_ref,events:deleted}), {valid:false,reason:"BROKEN_PREVIOUS_HASH"}, "G-0021 event deletion detected");
+
+const reordered=[chain[1],chain[0],chain[2]];
+assert.deepEqual(verifyWatermerkChain({identityRef:vector.record.identity_ref,events:reordered}), {valid:false,reason:"BROKEN_PREVIOUS_HASH"}, "G-0022 event reorder detected");
+
+const tampered=chain.map((event,i)=>i===1?{...event,key_id:"KEY-ATTACKER"}:event);
+assert.deepEqual(verifyWatermerkChain({identityRef:vector.record.identity_ref,events:tampered}), {valid:false,reason:"EVENT_HASH_MISMATCH"}, "G-0023 event mutation detected");
+
+const forkA=buildWatermerkChain({identityRef:vector.record.identity_ref,events:[{type:"KEY_ACTIVATED",key_id:"KEY-001",epoch:1},{type:"KEY_ACTIVATED",key_id:"KEY-002",epoch:2}]});
+const forkB=[forkA[0],...buildWatermerkChain({identityRef:vector.record.identity_ref,events:[{type:"KEY_ACTIVATED",key_id:"KEY-X",epoch:2}]}).slice(1)];
+const forkChild={...forkA[1],key_id:"KEY-X"};
+forkChild.event_hash=watermerkEventHashForTest(forkChild);
+assert.deepEqual(detectWatermerkFork({identityRef:vector.record.identity_ref,branches:[forkA,[forkA[0],forkChild]]}), {valid:false,reason:"FORK_DETECTED"}, "G-0024 competing child for same parent detected");
+
+const substitutedChain=chain.map((event,i)=>i===0?{...event,identity_ref:"PALACO:IDENTITY:ATTACKER"}:event);
+assert.deepEqual(verifyWatermerkChain({identityRef:vector.record.identity_ref,events:substitutedChain}), {valid:false,reason:"IDENTITY_SUBSTITUTION"}, "G-0025 provenance identity substitution denied");
+
 
 console.log(JSON.stringify({
-  suite:"PVB-015+PVB-016",
+  suite:"PVB-015+PVB-016+PVB-017",
   vector:vector.vector_id,
   canonical_bytes:Buffer.byteLength(canonical,"utf8"),
   digest:vector.signing_input_sha256_hex,
-  tests:{G0001:"PASS",G0002:"PASS",G0003:"PASS",G0004:"PASS",G0005:"PASS",G0006:"PASS",G0007:"PASS",G0008:"PASS",G0010:"PASS",G0011:"PASS",G0012:"PASS",G0013:"PASS",G0014:"PASS",G0015:"PASS"},
+  tests:{G0001:"PASS",G0002:"PASS",G0003:"PASS",G0004:"PASS",G0005:"PASS",G0006:"PASS",G0007:"PASS",G0008:"PASS",G0010:"PASS",G0011:"PASS",G0012:"PASS",G0013:"PASS",G0014:"PASS",G0015:"PASS",G0020:"PASS",G0021:"PASS",G0022:"PASS",G0023:"PASS",G0024:"PASS",G0025:"PASS"},
   claim:"EXECUTION EVIDENCE ONLY — NOT PVB-V1 CONFORMANCE"
 },null,2));
