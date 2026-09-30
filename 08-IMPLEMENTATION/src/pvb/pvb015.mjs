@@ -82,3 +82,31 @@ export function evaluateTemporalValidity(validity, nowIso) {
   if (now >= end) return Object.freeze({ valid:false, reason:"EXPIRED" });
   return Object.freeze({ valid:true, reason:"CURRENT" });
 }
+
+
+export function verifyWatermerkLineage({ identityRef, events }) {
+  let highestEpoch = -1;
+  let activeKey = null;
+  const revoked = new Set();
+  for (const event of events) {
+    if (event.identity_ref !== identityRef) return Object.freeze({ valid:false, reason:"IDENTITY_SUBSTITUTION" });
+    if (!Number.isSafeInteger(event.epoch) || event.epoch <= highestEpoch) return Object.freeze({ valid:false, reason:"NON_MONOTONE_EPOCH" });
+    highestEpoch = event.epoch;
+    if (event.type === "KEY_ACTIVATED") {
+      if (revoked.has(event.key_id)) return Object.freeze({ valid:false, reason:"REVOKED_KEY_REVIVAL" });
+      activeKey = event.key_id;
+    } else if (event.type === "KEY_REVOKED") {
+      revoked.add(event.key_id);
+      if (activeKey === event.key_id) activeKey = null;
+    } else return Object.freeze({ valid:false, reason:"UNSUPPORTED_LINEAGE_EVENT" });
+  }
+  return Object.freeze({ valid:true, activeKey, highestEpoch, revokedKeys:Object.freeze([...revoked]) });
+}
+
+export function evaluateLineageSignature({ cryptographicallyVerified, signatureKeyId, lineage }) {
+  if (!cryptographicallyVerified) return Object.freeze({ trusted:false, historicalAuthenticity:false, reason:"INVALID_SIGNATURE" });
+  if (!lineage.valid) return Object.freeze({ trusted:false, historicalAuthenticity:true, reason:lineage.reason });
+  if (lineage.revokedKeys.includes(signatureKeyId)) return Object.freeze({ trusted:false, historicalAuthenticity:true, reason:"KEY_REVOKED" });
+  if (lineage.activeKey !== signatureKeyId) return Object.freeze({ trusted:false, historicalAuthenticity:true, reason:"KEY_NOT_CURRENT" });
+  return Object.freeze({ trusted:true, historicalAuthenticity:true, reason:"CURRENT_LINEAGE_KEY" });
+}
