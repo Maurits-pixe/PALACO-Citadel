@@ -257,3 +257,33 @@ export function verifySignedTimeObservation({ observation, signature, providerRe
     nextReplayState:Object.freeze({...replayState,[observation.source_id]:observation.sequence})
   });
 }
+
+
+export function createTemporalEvidenceReceipt({ receiptSequence, previousReceiptHash="GENESIS", verifiedObservations, consensus, eraState }) {
+  if (!Number.isSafeInteger(receiptSequence) || receiptSequence < 1) return Object.freeze({accepted:false,reason:"INVALID_RECEIPT_SEQUENCE"});
+  if (!Array.isArray(verifiedObservations) || verifiedObservations.length === 0 || verifiedObservations.some(o=>o.authenticated !== true)) {
+    return Object.freeze({accepted:false,reason:"INCOMPLETE_TEMPORAL_EVIDENCE"});
+  }
+  if (!consensus?.accepted || !eraState?.accepted) return Object.freeze({accepted:false,reason:"UNACCEPTED_TEMPORAL_DECISION"});
+  const evidence={
+    protocol_version:"ERA-RECEIPT/1",
+    receipt_sequence:receiptSequence,
+    previous_receipt_hash:previousReceiptHash,
+    observations:verifiedObservations.map(o=>({source_id:o.source_id,sequence:o.sequence,trusted_time:o.trusted_time})).sort((a,b)=>a.source_id.localeCompare(b.source_id)),
+    consensus:{trusted_time:consensus.trusted_time,source_ids:[...consensus.source_ids],outlier_source_ids:[...consensus.outlier_source_ids]},
+    era_state:{highestTrustedTime:eraState.highestTrustedTime,highestSequence:eraState.highestSequence}
+  };
+  const receipt_hash=sha256(Buffer.from(canonicalize(evidence),"utf8")).toString("hex");
+  return Object.freeze({accepted:true,reason:"TEMPORAL_EVIDENCE_RECEIPT",evidence:Object.freeze(evidence),receipt_hash});
+}
+
+export function verifyTemporalEvidenceReceipt({ receipt, expectedPreviousReceiptHash, minimumReceiptSequence }) {
+  if (!receipt?.accepted || !receipt.evidence || !receipt.receipt_hash) return Object.freeze({valid:false,reason:"MALFORMED_TEMPORAL_RECEIPT"});
+  if (receipt.evidence.previous_receipt_hash !== expectedPreviousReceiptHash) return Object.freeze({valid:false,reason:"RECEIPT_CHAIN_MISMATCH"});
+  if (!Number.isSafeInteger(receipt.evidence.receipt_sequence) || receipt.evidence.receipt_sequence < minimumReceiptSequence) {
+    return Object.freeze({valid:false,reason:"TEMPORAL_RECEIPT_REPLAY"});
+  }
+  const actual=sha256(Buffer.from(canonicalize(receipt.evidence),"utf8")).toString("hex");
+  if (actual !== receipt.receipt_hash) return Object.freeze({valid:false,reason:"TEMPORAL_RECEIPT_HASH_MISMATCH"});
+  return Object.freeze({valid:true,reason:"TEMPORAL_RECEIPT_VERIFIED",receipt_hash:receipt.receipt_hash});
+}
