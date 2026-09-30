@@ -207,12 +207,19 @@ export function resolveTrustedTimeConsensus({ observations, minimumSources=2, al
   }
   if (unique.size < minimumSources) return Object.freeze({accepted:false,reason:"INSUFFICIENT_TIME_QUORUM"});
   const sorted=[...unique.values()].sort((a,b)=>a.millis-b.millis);
-  let best=[];
-  for (let i=0;i<sorted.length;i++) {
-    const cluster=sorted.filter(o=>Math.abs(o.millis-sorted[i].millis)<=allowedSkewMs);
-    if (cluster.length>best.length) best=cluster;
+  const windows=[];
+  for (let left=0;left<sorted.length;left++) {
+    let right=left;
+    while (right+1<sorted.length && sorted[right+1].millis-sorted[left].millis<=allowedSkewMs) right++;
+    windows.push(sorted.slice(left,right+1));
   }
-  if (best.length < minimumSources) return Object.freeze({accepted:false,reason:"TEMPORAL_UNCERTAIN"});
+  const bestSize=Math.max(...windows.map(w=>w.length));
+  if (bestSize < minimumSources) return Object.freeze({accepted:false,reason:"TEMPORAL_UNCERTAIN"});
+  const bestWindows=windows.filter(w=>w.length===bestSize);
+  const signatures=new Set(bestWindows.map(w=>w.map(o=>o.source_id).sort().join("|")));
+  if (signatures.size>1) return Object.freeze({accepted:false,reason:"BYZANTINE_TIME_CONFLICT"});
+  const best=bestWindows[0];
+  if (best[best.length-1].millis-best[0].millis>allowedSkewMs) return Object.freeze({accepted:false,reason:"TEMPORAL_UNCERTAIN"});
   if (best.length*2 <= sorted.length) return Object.freeze({accepted:false,reason:"BYZANTINE_TIME_CONFLICT"});
   const consensusMillis=Math.floor(best.reduce((sum,o)=>sum+o.millis,0)/best.length);
   return Object.freeze({
