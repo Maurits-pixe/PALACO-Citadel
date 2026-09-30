@@ -161,6 +161,29 @@ assert.deepEqual(resolveTrustedTimeConsensus({observations:[
   {source_id:"TIME-A",trusted_time:"2026-06-01T00:00:00Z",authenticated:true}
 ],minimumSources:2,allowedSkewMs:1000}),{accepted:false,reason:"INSUFFICIENT_TIME_QUORUM"},"G-0046 single source cannot become authority");
 
+assert.deepEqual(resolveTrustedTimeConsensus({observations:[
+  {source_id:"TIME-A",trusted_time:"2026-06-01T00:00:00.000Z",authenticated:true},
+  {source_id:"TIME-B",trusted_time:"2026-06-01T00:00:00.900Z",authenticated:true},
+  {source_id:"TIME-C",trusted_time:"2026-06-01T00:00:01.800Z",authenticated:true}
+],minimumSources:2,allowedSkewMs:1000}),{accepted:false,reason:"BYZANTINE_TIME_CONFLICT"},"G-0047 center clustering cannot admit a 2x-skew span");
+
+assert.deepEqual(resolveTrustedTimeConsensus({observations:[
+  {source_id:"TIME-A",trusted_time:"2026-06-01T00:00:00.000Z",authenticated:true},
+  {source_id:"TIME-B",trusted_time:"2026-06-01T00:00:00.500Z",authenticated:true},
+  {source_id:"TIME-C",trusted_time:"2026-06-01T00:00:10.000Z",authenticated:true},
+  {source_id:"TIME-D",trusted_time:"2026-06-01T00:00:10.500Z",authenticated:true},
+  {source_id:"TIME-E",trusted_time:"2026-06-01T00:00:30.000Z",authenticated:true}
+],minimumSources:2,allowedSkewMs:1000}),{accepted:false,reason:"BYZANTINE_TIME_CONFLICT"},"G-0048 equal strongest quorum windows fail closed");
+
+const boundedConsensus=resolveTrustedTimeConsensus({observations:[
+  {source_id:"TIME-A",trusted_time:"2026-06-01T00:00:00.000Z",authenticated:true},
+  {source_id:"TIME-B",trusted_time:"2026-06-01T00:00:00.400Z",authenticated:true},
+  {source_id:"TIME-C",trusted_time:"2026-06-01T00:00:00.999Z",authenticated:true},
+  {source_id:"TIME-D",trusted_time:"2026-06-01T00:00:10.000Z",authenticated:true}
+],minimumSources:2,allowedSkewMs:1000});
+assert.equal(boundedConsensus.accepted,true,"G-0049 bounded majority quorum remains accepted");
+assert.deepEqual(boundedConsensus.source_ids,["TIME-A","TIME-B","TIME-C"],"G-0049 full bounded majority selected");
+
 const timeProviderSeed=vector.private_seed_hex;
 const providerRegistry={"TIME-A":{public_key_hex:vector.public_key_hex,state:"ACTIVE"}};
 const timeObs={source_id:"TIME-A",sequence:1,trusted_time:"2026-06-01T00:00:00.000Z"};
