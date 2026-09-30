@@ -311,3 +311,52 @@ export function verifySignedTemporalReceipt({ receipt, signer_id, key_id, signat
   if (!ok) return Object.freeze({trusted:false,reason:"INVALID_TEMPORAL_RECEIPT_SIGNATURE"});
   return Object.freeze({trusted:true,reason:"SIGNED_TEMPORAL_RECEIPT_VERIFIED",signer_id,key_id,receipt_hash:receipt.receipt_hash});
 }
+
+
+export function appendTemporalLedger(state, { receipt, signedEvidence }) {
+  if (!signedEvidence?.trusted || signedEvidence.receipt_hash !== receipt.receipt_hash) {
+    return Object.freeze({...state,accepted:false,reason:"UNTRUSTED_LEDGER_RECEIPT"});
+  }
+  const sequence=receipt.evidence.receipt_sequence;
+  if (!Number.isSafeInteger(sequence) || sequence !== state.highestReceiptSequence + 1) {
+    return Object.freeze({...state,accepted:false,reason:"NON_CONTIGUOUS_LEDGER_SEQUENCE"});
+  }
+  if (receipt.evidence.previous_receipt_hash !== state.headReceiptHash) {
+    return Object.freeze({...state,accepted:false,reason:"LEDGER_HEAD_MISMATCH"});
+  }
+  const trustedTime=Date.parse(receipt.evidence.era_state.highestTrustedTime);
+  const highestTime=state.highestTrustedTime ? Date.parse(state.highestTrustedTime) : -Infinity;
+  if (!Number.isFinite(trustedTime) || trustedTime < highestTime) {
+    return Object.freeze({...state,accepted:false,reason:"LEDGER_TIME_ROLLBACK"});
+  }
+  return Object.freeze({
+    highestReceiptSequence:sequence,
+    headReceiptHash:receipt.receipt_hash,
+    highestTrustedTime:receipt.evidence.era_state.highestTrustedTime,
+    accepted:true,
+    reason:"TEMPORAL_LEDGER_APPENDED"
+  });
+}
+
+export function recoverTemporalLedger({ durableState, snapshotState }) {
+  if (!durableState || !snapshotState) return Object.freeze({recovered:false,reason:"RECOVERY_STATE_MISSING"});
+  if (snapshotState.highestReceiptSequence > durableState.highestReceiptSequence) {
+    return Object.freeze({recovered:false,reason:"SNAPSHOT_AHEAD_OF_DURABLE_LEDGER"});
+  }
+  if (snapshotState.highestReceiptSequence === durableState.highestReceiptSequence &&
+      snapshotState.headReceiptHash !== durableState.headReceiptHash) {
+    return Object.freeze({recovered:false,reason:"RECOVERY_HEAD_CONFLICT"});
+  }
+  const snapshotTime=snapshotState.highestTrustedTime ? Date.parse(snapshotState.highestTrustedTime) : -Infinity;
+  const durableTime=durableState.highestTrustedTime ? Date.parse(durableState.highestTrustedTime) : -Infinity;
+  if (snapshotTime > durableTime) return Object.freeze({recovered:false,reason:"SNAPSHOT_TIME_AHEAD_OF_DURABLE_LEDGER"});
+  return Object.freeze({
+    recovered:true,
+    reason:snapshotState.highestReceiptSequence < durableState.highestReceiptSequence ? "STALE_SNAPSHOT_OVERRIDDEN" : "DURABLE_STATE_CONFIRMED",
+    state:Object.freeze({
+      highestReceiptSequence:durableState.highestReceiptSequence,
+      headReceiptHash:durableState.headReceiptHash,
+      highestTrustedTime:durableState.highestTrustedTime
+    })
+  });
+}
