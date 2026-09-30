@@ -10,7 +10,7 @@ permissions:
 jobs:
   postgres-ledger:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 7
     services:
       postgres:
         image: postgres:16
@@ -33,9 +33,17 @@ jobs:
           persist-credentials: false
       - name: Execute PostgreSQL ledger gates
         run: psql -h localhost -U palaco -d palaco -f 08-IMPLEMENTATION/persistence/pvb024.test.sql
-      - name: Restart PostgreSQL service container
-        run: docker restart ${{ job.services.postgres.id }}
-      - name: Verify durable head after restart
+      - name: Execute adversarial concurrency and abort gates
+        run: bash 08-IMPLEMENTATION/persistence/pvb025.test.sh
+      - name: Hard-kill PostgreSQL service container
+        run: docker kill --signal=KILL ${{ job.services.postgres.id }}
+      - name: Restart after hard kill
+        run: docker start ${{ job.services.postgres.id }}
+      - name: Verify canonical head after hard-kill recovery
         run: |
-          for i in {1..20}; do pg_isready -h localhost -U palaco -d palaco && break; sleep 1; done
-          test "$(psql -h localhost -U palaco -d palaco -Atc "SELECT highest_receipt_sequence || ':' || head_receipt_hash FROM temporal_ledger_head WHERE singleton=TRUE")" = "2:hash-2"
+          for i in {1..30}; do pg_isready -h localhost -U palaco -d palaco && break; sleep 1; done
+          HEAD=$(psql -h localhost -U palaco -d palaco -Atc "SELECT highest_receipt_sequence || ':' || head_receipt_hash FROM temporal_ledger_head WHERE singleton=TRUE")
+          ROWS=$(psql -h localhost -U palaco -d palaco -Atc "SELECT count(*) FROM temporal_ledger")
+          test "${HEAD%%:*}" = "3"
+          test "$ROWS" = "3"
+          echo "G-0104/G-0105 PASS: $HEAD rows=$ROWS"
