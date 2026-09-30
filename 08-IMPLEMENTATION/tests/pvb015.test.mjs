@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { canonicalize, projectVisitCard, signingInput, sha256, signWithTestSeed, verifyWithPublicKey, authorize, evaluateKeyTrust, evaluateTemporalValidity, DOMAIN } from "../src/pvb/pvb015.mjs";
+import { canonicalize, projectVisitCard, signingInput, sha256, signWithTestSeed, verifyWithPublicKey, authorize, evaluateKeyTrust, evaluateTemporalValidity, verifyWatermerkLineage, evaluateLineageSignature, DOMAIN } from "../src/pvb/pvb015.mjs";
 
 const vector=JSON.parse(fs.readFileSync(new URL("../vectors/pvb-v1/golden-0001.json", import.meta.url)));
 const canonical=canonicalize(projectVisitCard(vector.record));
@@ -30,11 +30,51 @@ assert.deepEqual(evaluateTemporalValidity(vector.record.validity,"2026-06-01T00:
 
 assert.deepEqual(authorize({verifiedVisitCard,mandate:null}), {authorized:false,reason:"MANDATE_REQUIRED"}, "G-0008 crypto does not authorize");
 
+const lineage=verifyWatermerkLineage({
+  identityRef:vector.record.identity_ref,
+  events:[
+    {type:"KEY_ACTIVATED",identity_ref:vector.record.identity_ref,key_id:"KEY-001",epoch:1},
+    {type:"KEY_ACTIVATED",identity_ref:vector.record.identity_ref,key_id:"KEY-002",epoch:2},
+    {type:"KEY_REVOKED",identity_ref:vector.record.identity_ref,key_id:"KEY-001",epoch:3}
+  ]
+});
+assert.deepEqual(lineage, {valid:true,activeKey:"KEY-002",highestEpoch:3,revokedKeys:["KEY-001"]}, "G-0010 WATERMERK lineage reconstructs current key");
+assert.deepEqual(evaluateLineageSignature({cryptographicallyVerified:true,signatureKeyId:"KEY-001",lineage}), {trusted:false,historicalAuthenticity:true,reason:"KEY_REVOKED"}, "G-0011 historical KEY-001 remains authentic but untrusted");
+assert.deepEqual(evaluateLineageSignature({cryptographicallyVerified:true,signatureKeyId:"KEY-002",lineage}), {trusted:true,historicalAuthenticity:true,reason:"CURRENT_LINEAGE_KEY"}, "G-0012 KEY-002 is current trust");
+
+const revival=verifyWatermerkLineage({
+  identityRef:vector.record.identity_ref,
+  events:[
+    {type:"KEY_ACTIVATED",identity_ref:vector.record.identity_ref,key_id:"KEY-001",epoch:1},
+    {type:"KEY_REVOKED",identity_ref:vector.record.identity_ref,key_id:"KEY-001",epoch:2},
+    {type:"KEY_ACTIVATED",identity_ref:vector.record.identity_ref,key_id:"KEY-001",epoch:3}
+  ]
+});
+assert.deepEqual(revival, {valid:false,reason:"REVOKED_KEY_REVIVAL"}, "G-0013 revoked key cannot revive");
+
+const rollback=verifyWatermerkLineage({
+  identityRef:vector.record.identity_ref,
+  events:[
+    {type:"KEY_ACTIVATED",identity_ref:vector.record.identity_ref,key_id:"KEY-001",epoch:5},
+    {type:"KEY_ACTIVATED",identity_ref:vector.record.identity_ref,key_id:"KEY-002",epoch:4}
+  ]
+});
+assert.deepEqual(rollback, {valid:false,reason:"NON_MONOTONE_EPOCH"}, "G-0014 epoch rollback denied");
+
+const substitution=verifyWatermerkLineage({
+  identityRef:vector.record.identity_ref,
+  events:[
+    {type:"KEY_ACTIVATED",identity_ref:"PALACO:IDENTITY:ATTACKER",key_id:"KEY-X",epoch:1}
+  ]
+});
+assert.deepEqual(substitution, {valid:false,reason:"IDENTITY_SUBSTITUTION"}, "G-0015 identity substitution denied");
+
+
 console.log(JSON.stringify({
-  suite:"PVB-015",
+  suite:"PVB-015+PVB-016",
   vector:vector.vector_id,
   canonical_bytes:Buffer.byteLength(canonical,"utf8"),
   digest:vector.signing_input_sha256_hex,
-  tests:{G0001:"PASS",G0002:"PASS",G0003:"PASS",G0004:"PASS",G0005:"PASS",G0006:"PASS",G0007:"PASS",G0008:"PASS"},
+  tests:{G0001:"PASS",G0002:"PASS",G0003:"PASS",G0004:"PASS",G0005:"PASS",G0006:"PASS",G0007:"PASS",G0008:"PASS",G0010:"PASS",G0011:"PASS",G0012:"PASS",G0013:"PASS",G0014:"PASS",G0015:"PASS"},
   claim:"EXECUTION EVIDENCE ONLY — NOT PVB-V1 CONFORMANCE"
 },null,2));
