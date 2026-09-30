@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { canonicalize, projectVisitCard, signingInput, sha256, signWithTestSeed, verifyWithPublicKey, authorize, evaluateKeyTrust, evaluateTemporalValidity, verifyWatermerkLineage, evaluateLineageSignature, buildWatermerkChain, verifyWatermerkChain, detectWatermerkFork, advanceEraTrustedTime, evaluateMonotoneTemporalState, evaluateWithEraTime, resolveTrustedTimeConsensus, DOMAIN } from "../src/pvb/pvb015.mjs";
+import { canonicalize, projectVisitCard, signingInput, sha256, signWithTestSeed, verifyWithPublicKey, authorize, evaluateKeyTrust, evaluateTemporalValidity, verifyWatermerkLineage, evaluateLineageSignature, buildWatermerkChain, verifyWatermerkChain, detectWatermerkFork, advanceEraTrustedTime, evaluateMonotoneTemporalState, evaluateWithEraTime, resolveTrustedTimeConsensus, signTimeObservationWithTestSeed, verifySignedTimeObservation, TIME_OBSERVATION_DOMAIN, DOMAIN } from "../src/pvb/pvb015.mjs";
 
 
 function watermerkEventHashForTest(event) {
@@ -161,12 +161,41 @@ assert.deepEqual(resolveTrustedTimeConsensus({observations:[
   {source_id:"TIME-A",trusted_time:"2026-06-01T00:00:00Z",authenticated:true}
 ],minimumSources:2,allowedSkewMs:1000}),{accepted:false,reason:"INSUFFICIENT_TIME_QUORUM"},"G-0046 single source cannot become authority");
 
+const timeProviderSeed=vector.private_seed_hex;
+const providerRegistry={"TIME-A":{public_key_hex:vector.public_key_hex,state:"ACTIVE"}};
+const timeObs={source_id:"TIME-A",sequence:1,trusted_time:"2026-06-01T00:00:00.000Z"};
+const timeSig=signTimeObservationWithTestSeed(timeObs,timeProviderSeed);
+const verifiedTime=verifySignedTimeObservation({observation:timeObs,signature:timeSig,providerRegistry,replayState:{}});
+assert.equal(verifiedTime.accepted,true,"G-0050 signed provider observation verifies");
+assert.equal(verifiedTime.observation.authenticated,true,"G-0050 cryptographic verification creates authenticated observation");
+
+assert.deepEqual(verifySignedTimeObservation({observation:timeObs,signature:timeSig,providerRegistry,replayState:{"TIME-A":1}}),{accepted:false,reason:"TIME_OBSERVATION_REPLAY"},"G-0051 replayed provider sequence denied");
+
+const wrongTimeSig=signTimeObservationWithTestSeed(timeObs,"4ccd089b28ff96da9db6c346ec114e0f5b8a319f35aba624da8cf6ed4fb8a6fb");
+assert.deepEqual(verifySignedTimeObservation({observation:timeObs,signature:wrongTimeSig,providerRegistry,replayState:{}}),{accepted:false,reason:"INVALID_TIME_SIGNATURE"},"G-0052 wrong provider key denied");
+
+const crossDomainSig=signTimeObservationWithTestSeed(timeObs,timeProviderSeed,"PALACO-PVB-V1-VISITCARD");
+assert.deepEqual(verifySignedTimeObservation({observation:timeObs,signature:crossDomainSig,providerRegistry,replayState:{}}),{accepted:false,reason:"INVALID_TIME_SIGNATURE"},"G-0053 cross-domain time signature denied");
+
+const substitutedObs={...timeObs,source_id:"TIME-B"};
+assert.deepEqual(verifySignedTimeObservation({observation:substitutedObs,signature:timeSig,providerRegistry,replayState:{}}),{accepted:false,reason:"UNKNOWN_TIME_PROVIDER"},"G-0054 provider substitution denied");
+
+const revokedRegistry={"TIME-A":{public_key_hex:vector.public_key_hex,state:"REVOKED"}};
+assert.deepEqual(verifySignedTimeObservation({observation:timeObs,signature:timeSig,providerRegistry:revokedRegistry,replayState:{}}),{accepted:false,reason:"TIME_PROVIDER_NOT_ACTIVE"},"G-0055 revoked provider denied");
+
+const authenticatedConsensus=resolveTrustedTimeConsensus({observations:[
+  verifiedTime.observation,
+  {source_id:"TIME-B",trusted_time:"2026-06-01T00:00:00.300Z",authenticated:true},
+  {source_id:"TIME-C",trusted_time:"2026-06-01T00:10:00.000Z",authenticated:true}
+],minimumSources:2,allowedSkewMs:1000});
+assert.equal(authenticatedConsensus.accepted,true,"G-0056 verified observation is consumable by PVB-019 consensus");
+
 
 console.log(JSON.stringify({
-  suite:"PVB-015+PVB-016+PVB-017+PVB-018+PVB-019",
+  suite:"PVB-015+PVB-016+PVB-017+PVB-018+PVB-019+PVB-020",
   vector:vector.vector_id,
   canonical_bytes:Buffer.byteLength(canonical,"utf8"),
   digest:vector.signing_input_sha256_hex,
-  tests:{G0001:"PASS",G0002:"PASS",G0003:"PASS",G0004:"PASS",G0005:"PASS",G0006:"PASS",G0007:"PASS",G0008:"PASS",G0010:"PASS",G0011:"PASS",G0012:"PASS",G0013:"PASS",G0014:"PASS",G0015:"PASS",G0020:"PASS",G0021:"PASS",G0022:"PASS",G0023:"PASS",G0024:"PASS",G0025:"PASS",G0030:"PASS",G0031:"PASS",G0032:"PASS",G0033:"PASS",G0034:"PASS",G0035:"PASS",G0036:"PASS",G0040:"PASS",G0041:"PASS",G0042:"PASS",G0043:"PASS",G0044:"PASS",G0045:"PASS",G0046:"PASS"},
+  tests:{G0001:"PASS",G0002:"PASS",G0003:"PASS",G0004:"PASS",G0005:"PASS",G0006:"PASS",G0007:"PASS",G0008:"PASS",G0010:"PASS",G0011:"PASS",G0012:"PASS",G0013:"PASS",G0014:"PASS",G0015:"PASS",G0020:"PASS",G0021:"PASS",G0022:"PASS",G0023:"PASS",G0024:"PASS",G0025:"PASS",G0030:"PASS",G0031:"PASS",G0032:"PASS",G0033:"PASS",G0034:"PASS",G0035:"PASS",G0036:"PASS",G0040:"PASS",G0041:"PASS",G0042:"PASS",G0043:"PASS",G0044:"PASS",G0045:"PASS",G0046:"PASS",G0050:"PASS",G0051:"PASS",G0052:"PASS",G0053:"PASS",G0054:"PASS",G0055:"PASS",G0056:"PASS"},
   claim:"EXECUTION EVIDENCE ONLY — NOT PVB-V1 CONFORMANCE"
 },null,2));
