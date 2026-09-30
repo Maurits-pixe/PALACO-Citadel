@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { canonicalize, projectVisitCard, signingInput, sha256, signWithTestSeed, verifyWithPublicKey, authorize, evaluateKeyTrust, evaluateTemporalValidity, verifyWatermerkLineage, evaluateLineageSignature, buildWatermerkChain, verifyWatermerkChain, detectWatermerkFork, advanceEraTrustedTime, evaluateMonotoneTemporalState, evaluateWithEraTime, resolveTrustedTimeConsensus, signTimeObservationWithTestSeed, verifySignedTimeObservation, TIME_OBSERVATION_DOMAIN, createTemporalEvidenceReceipt, verifyTemporalEvidenceReceipt, DOMAIN } from "../src/pvb/pvb015.mjs";
+import { canonicalize, projectVisitCard, signingInput, sha256, signWithTestSeed, verifyWithPublicKey, authorize, evaluateKeyTrust, evaluateTemporalValidity, verifyWatermerkLineage, evaluateLineageSignature, buildWatermerkChain, verifyWatermerkChain, detectWatermerkFork, advanceEraTrustedTime, evaluateMonotoneTemporalState, evaluateWithEraTime, resolveTrustedTimeConsensus, signTimeObservationWithTestSeed, verifySignedTimeObservation, TIME_OBSERVATION_DOMAIN, createTemporalEvidenceReceipt, verifyTemporalEvidenceReceipt, signTemporalReceiptWithTestSeed, verifySignedTemporalReceipt, TEMPORAL_RECEIPT_DOMAIN, DOMAIN } from "../src/pvb/pvb015.mjs";
 
 
 function watermerkEventHashForTest(event) {
@@ -213,12 +213,31 @@ assert.deepEqual(verifyTemporalEvidenceReceipt({receipt:temporalReceipt,expected
 const secondReceipt=createTemporalEvidenceReceipt({receiptSequence:2,previousReceiptHash:temporalReceipt.receipt_hash,verifiedObservations:receiptObservations,consensus:receiptConsensus,eraState:receiptEra});
 assert.equal(verifyTemporalEvidenceReceipt({receipt:secondReceipt,expectedPreviousReceiptHash:temporalReceipt.receipt_hash,minimumReceiptSequence:2}).valid,true,"G-0065 chained temporal receipt verifies");
 
+const receiptSignerRegistry={"ERA-SIGNER-001":{key_id:"ERA-KEY-001",public_key_hex:vector.public_key_hex,state:"ACTIVE"}};
+const receiptSignature=signTemporalReceiptWithTestSeed({receipt:temporalReceipt,signer_id:"ERA-SIGNER-001",key_id:"ERA-KEY-001",seedHex:vector.private_seed_hex});
+const signedReceiptEvidence=verifySignedTemporalReceipt({receipt:temporalReceipt,signer_id:"ERA-SIGNER-001",key_id:"ERA-KEY-001",signature:receiptSignature,signerRegistry:receiptSignerRegistry});
+assert.equal(signedReceiptEvidence.trusted,true,"G-0070 temporal receipt signature verifies");
+
+const wrongReceiptSignature=signTemporalReceiptWithTestSeed({receipt:temporalReceipt,signer_id:"ERA-SIGNER-001",key_id:"ERA-KEY-001",seedHex:"4ccd089b28ff96da9db6c346ec114e0f5b8a319f35aba624da8cf6ed4fb8a6fb"});
+assert.deepEqual(verifySignedTemporalReceipt({receipt:temporalReceipt,signer_id:"ERA-SIGNER-001",key_id:"ERA-KEY-001",signature:wrongReceiptSignature,signerRegistry:receiptSignerRegistry}),{trusted:false,reason:"INVALID_TEMPORAL_RECEIPT_SIGNATURE"},"G-0071 wrong receipt signing key denied");
+
+const crossReceiptSignature=signTemporalReceiptWithTestSeed({receipt:temporalReceipt,signer_id:"ERA-SIGNER-001",key_id:"ERA-KEY-001",seedHex:vector.private_seed_hex,domain:TIME_OBSERVATION_DOMAIN});
+assert.deepEqual(verifySignedTemporalReceipt({receipt:temporalReceipt,signer_id:"ERA-SIGNER-001",key_id:"ERA-KEY-001",signature:crossReceiptSignature,signerRegistry:receiptSignerRegistry}),{trusted:false,reason:"INVALID_TEMPORAL_RECEIPT_SIGNATURE"},"G-0072 cross-domain receipt signature denied");
+
+const tamperedSignedReceipt={...temporalReceipt,evidence:{...temporalReceipt.evidence,receipt_sequence:99}};
+assert.deepEqual(verifySignedTemporalReceipt({receipt:tamperedSignedReceipt,signer_id:"ERA-SIGNER-001",key_id:"ERA-KEY-001",signature:receiptSignature,signerRegistry:receiptSignerRegistry}),{trusted:false,reason:"TEMPORAL_RECEIPT_HASH_MISMATCH"},"G-0073 mutated signed receipt denied");
+
+const revokedReceiptSigner={"ERA-SIGNER-001":{key_id:"ERA-KEY-001",public_key_hex:vector.public_key_hex,state:"REVOKED"}};
+assert.deepEqual(verifySignedTemporalReceipt({receipt:temporalReceipt,signer_id:"ERA-SIGNER-001",key_id:"ERA-KEY-001",signature:receiptSignature,signerRegistry:revokedReceiptSigner}),{trusted:false,reason:"RECEIPT_SIGNER_NOT_ACTIVE"},"G-0074 revoked receipt signer denied");
+
+assert.deepEqual(verifySignedTemporalReceipt({receipt:temporalReceipt,signer_id:"ERA-SIGNER-001",key_id:"ERA-KEY-ATTACKER",signature:receiptSignature,signerRegistry:receiptSignerRegistry}),{trusted:false,reason:"RECEIPT_KEY_BINDING_MISMATCH"},"G-0075 signer/key substitution denied");
+
 
 console.log(JSON.stringify({
-  suite:"PVB-015+PVB-016+PVB-017+PVB-018+PVB-019+PVB-020+PVB-021",
+  suite:"PVB-015+PVB-016+PVB-017+PVB-018+PVB-019+PVB-020+PVB-021+PVB-022",
   vector:vector.vector_id,
   canonical_bytes:Buffer.byteLength(canonical,"utf8"),
   digest:vector.signing_input_sha256_hex,
-  tests:{G0001:"PASS",G0002:"PASS",G0003:"PASS",G0004:"PASS",G0005:"PASS",G0006:"PASS",G0007:"PASS",G0008:"PASS",G0010:"PASS",G0011:"PASS",G0012:"PASS",G0013:"PASS",G0014:"PASS",G0015:"PASS",G0020:"PASS",G0021:"PASS",G0022:"PASS",G0023:"PASS",G0024:"PASS",G0025:"PASS",G0030:"PASS",G0031:"PASS",G0032:"PASS",G0033:"PASS",G0034:"PASS",G0035:"PASS",G0036:"PASS",G0040:"PASS",G0041:"PASS",G0042:"PASS",G0043:"PASS",G0044:"PASS",G0045:"PASS",G0046:"PASS",G0050:"PASS",G0051:"PASS",G0052:"PASS",G0053:"PASS",G0054:"PASS",G0055:"PASS",G0056:"PASS",G0060:"PASS",G0061:"PASS",G0062:"PASS",G0063:"PASS",G0064:"PASS",G0065:"PASS"},
+  tests:{G0001:"PASS",G0002:"PASS",G0003:"PASS",G0004:"PASS",G0005:"PASS",G0006:"PASS",G0007:"PASS",G0008:"PASS",G0010:"PASS",G0011:"PASS",G0012:"PASS",G0013:"PASS",G0014:"PASS",G0015:"PASS",G0020:"PASS",G0021:"PASS",G0022:"PASS",G0023:"PASS",G0024:"PASS",G0025:"PASS",G0030:"PASS",G0031:"PASS",G0032:"PASS",G0033:"PASS",G0034:"PASS",G0035:"PASS",G0036:"PASS",G0040:"PASS",G0041:"PASS",G0042:"PASS",G0043:"PASS",G0044:"PASS",G0045:"PASS",G0046:"PASS",G0050:"PASS",G0051:"PASS",G0052:"PASS",G0053:"PASS",G0054:"PASS",G0055:"PASS",G0056:"PASS",G0060:"PASS",G0061:"PASS",G0062:"PASS",G0063:"PASS",G0064:"PASS",G0065:"PASS",G0070:"PASS",G0071:"PASS",G0072:"PASS",G0073:"PASS",G0074:"PASS",G0075:"PASS"},
   claim:"EXECUTION EVIDENCE ONLY — NOT PVB-V1 CONFORMANCE"
 },null,2));
