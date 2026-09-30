@@ -192,3 +192,34 @@ export function evaluateWithEraTime({ validity, eraState }) {
   if (!eraState.highestTrustedTime) return Object.freeze({valid:false,reason:"TEMPORAL_UNCERTAIN"});
   return evaluateTemporalValidity(validity,eraState.highestTrustedTime);
 }
+
+
+export function resolveTrustedTimeConsensus({ observations, minimumSources=2, allowedSkewMs=1000 }) {
+  if (!Number.isSafeInteger(minimumSources) || minimumSources < 2) return Object.freeze({accepted:false,reason:"INVALID_QUORUM_POLICY"});
+  if (!Number.isFinite(allowedSkewMs) || allowedSkewMs < 0) return Object.freeze({accepted:false,reason:"INVALID_SKEW_POLICY"});
+  const unique=new Map();
+  for (const observation of observations) {
+    if (!observation.source_id || unique.has(observation.source_id)) return Object.freeze({accepted:false,reason:"DUPLICATE_TIME_SOURCE"});
+    const millis=Date.parse(observation.trusted_time);
+    if (!Number.isFinite(millis)) return Object.freeze({accepted:false,reason:"MALFORMED_TRUSTED_TIME"});
+    if (observation.authenticated !== true) return Object.freeze({accepted:false,reason:"UNAUTHENTICATED_TIME_SOURCE"});
+    unique.set(observation.source_id,{...observation,millis});
+  }
+  if (unique.size < minimumSources) return Object.freeze({accepted:false,reason:"INSUFFICIENT_TIME_QUORUM"});
+  const sorted=[...unique.values()].sort((a,b)=>a.millis-b.millis);
+  let best=[];
+  for (let i=0;i<sorted.length;i++) {
+    const cluster=sorted.filter(o=>Math.abs(o.millis-sorted[i].millis)<=allowedSkewMs);
+    if (cluster.length>best.length) best=cluster;
+  }
+  if (best.length < minimumSources) return Object.freeze({accepted:false,reason:"TEMPORAL_UNCERTAIN"});
+  if (best.length*2 <= sorted.length) return Object.freeze({accepted:false,reason:"BYZANTINE_TIME_CONFLICT"});
+  const consensusMillis=Math.floor(best.reduce((sum,o)=>sum+o.millis,0)/best.length);
+  return Object.freeze({
+    accepted:true,
+    reason:"TIME_CONSENSUS",
+    trusted_time:new Date(consensusMillis).toISOString(),
+    source_ids:Object.freeze(best.map(o=>o.source_id).sort()),
+    outlier_source_ids:Object.freeze(sorted.filter(o=>!best.includes(o)).map(o=>o.source_id).sort())
+  });
+}
