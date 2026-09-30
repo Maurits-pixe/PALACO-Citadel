@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { canonicalize, projectVisitCard, signingInput, sha256, signWithTestSeed, verifyWithPublicKey, authorize, evaluateKeyTrust, evaluateTemporalValidity, verifyWatermerkLineage, evaluateLineageSignature, buildWatermerkChain, verifyWatermerkChain, detectWatermerkFork, advanceEraTrustedTime, evaluateMonotoneTemporalState, evaluateWithEraTime, DOMAIN } from "../src/pvb/pvb015.mjs";
+import { canonicalize, projectVisitCard, signingInput, sha256, signWithTestSeed, verifyWithPublicKey, authorize, evaluateKeyTrust, evaluateTemporalValidity, verifyWatermerkLineage, evaluateLineageSignature, buildWatermerkChain, verifyWatermerkChain, detectWatermerkFork, advanceEraTrustedTime, evaluateMonotoneTemporalState, evaluateWithEraTime, resolveTrustedTimeConsensus, DOMAIN } from "../src/pvb/pvb015.mjs";
 
 
 function watermerkEventHashForTest(event) {
@@ -126,12 +126,47 @@ assert.deepEqual(evaluateMonotoneTemporalState({previousState:"REVOKED",candidat
 assert.deepEqual(evaluateMonotoneTemporalState({previousState:"EXPIRED",candidateState:"ACTIVE"}),{accepted:false,state:"EXPIRED",reason:"TERMINAL_STATE_REVIVAL_DENIED"},"G-0035 expired state cannot revive");
 assert.deepEqual(evaluateWithEraTime({validity:vector.record.validity,eraState:{highestTrustedTime:null,highestSequence:0}}),{valid:false,reason:"TEMPORAL_UNCERTAIN"},"G-0036 missing trusted time fails closed");
 
+const consensus=resolveTrustedTimeConsensus({observations:[
+  {source_id:"TIME-A",trusted_time:"2026-06-01T00:00:00.000Z",authenticated:true},
+  {source_id:"TIME-B",trusted_time:"2026-06-01T00:00:00.400Z",authenticated:true},
+  {source_id:"TIME-C",trusted_time:"2026-06-01T00:10:00.000Z",authenticated:true}
+],minimumSources:2,allowedSkewMs:1000});
+assert.equal(consensus.accepted,true,"G-0040 quorum consensus accepted");
+assert.deepEqual(consensus.source_ids,["TIME-A","TIME-B"],"G-0040 agreeing sources selected");
+assert.deepEqual(consensus.outlier_source_ids,["TIME-C"],"G-0041 Byzantine/outlier source isolated");
+
+assert.deepEqual(resolveTrustedTimeConsensus({observations:[
+  {source_id:"TIME-A",trusted_time:"2026-06-01T00:00:00Z",authenticated:true},
+  {source_id:"TIME-B",trusted_time:"2026-06-01T00:10:00Z",authenticated:true}
+],minimumSources:2,allowedSkewMs:1000}),{accepted:false,reason:"TEMPORAL_UNCERTAIN"},"G-0042 no quorum window fails closed");
+
+assert.deepEqual(resolveTrustedTimeConsensus({observations:[
+  {source_id:"TIME-A",trusted_time:"2026-06-01T00:00:00Z",authenticated:true},
+  {source_id:"TIME-A",trusted_time:"2026-06-01T00:00:00Z",authenticated:true}
+],minimumSources:2,allowedSkewMs:1000}),{accepted:false,reason:"DUPLICATE_TIME_SOURCE"},"G-0043 duplicate identity cannot manufacture quorum");
+
+assert.deepEqual(resolveTrustedTimeConsensus({observations:[
+  {source_id:"TIME-A",trusted_time:"2026-06-01T00:00:00Z",authenticated:true},
+  {source_id:"TIME-B",trusted_time:"2026-06-01T00:00:00Z",authenticated:false}
+],minimumSources:2,allowedSkewMs:1000}),{accepted:false,reason:"UNAUTHENTICATED_TIME_SOURCE"},"G-0044 unauthenticated source denied");
+
+assert.deepEqual(resolveTrustedTimeConsensus({observations:[
+  {source_id:"TIME-A",trusted_time:"2026-06-01T00:00:00Z",authenticated:true},
+  {source_id:"TIME-B",trusted_time:"2026-06-01T00:00:00Z",authenticated:true},
+  {source_id:"TIME-C",trusted_time:"2026-06-01T00:10:00Z",authenticated:true},
+  {source_id:"TIME-D",trusted_time:"2026-06-01T00:10:00Z",authenticated:true}
+],minimumSources:2,allowedSkewMs:1000}),{accepted:false,reason:"BYZANTINE_TIME_CONFLICT"},"G-0045 split quorum is conflict, never silent tie-break");
+
+assert.deepEqual(resolveTrustedTimeConsensus({observations:[
+  {source_id:"TIME-A",trusted_time:"2026-06-01T00:00:00Z",authenticated:true}
+],minimumSources:2,allowedSkewMs:1000}),{accepted:false,reason:"INSUFFICIENT_TIME_QUORUM"},"G-0046 single source cannot become authority");
+
 
 console.log(JSON.stringify({
-  suite:"PVB-015+PVB-016+PVB-017+PVB-018",
+  suite:"PVB-015+PVB-016+PVB-017+PVB-018+PVB-019",
   vector:vector.vector_id,
   canonical_bytes:Buffer.byteLength(canonical,"utf8"),
   digest:vector.signing_input_sha256_hex,
-  tests:{G0001:"PASS",G0002:"PASS",G0003:"PASS",G0004:"PASS",G0005:"PASS",G0006:"PASS",G0007:"PASS",G0008:"PASS",G0010:"PASS",G0011:"PASS",G0012:"PASS",G0013:"PASS",G0014:"PASS",G0015:"PASS",G0020:"PASS",G0021:"PASS",G0022:"PASS",G0023:"PASS",G0024:"PASS",G0025:"PASS",G0030:"PASS",G0031:"PASS",G0032:"PASS",G0033:"PASS",G0034:"PASS",G0035:"PASS",G0036:"PASS"},
+  tests:{G0001:"PASS",G0002:"PASS",G0003:"PASS",G0004:"PASS",G0005:"PASS",G0006:"PASS",G0007:"PASS",G0008:"PASS",G0010:"PASS",G0011:"PASS",G0012:"PASS",G0013:"PASS",G0014:"PASS",G0015:"PASS",G0020:"PASS",G0021:"PASS",G0022:"PASS",G0023:"PASS",G0024:"PASS",G0025:"PASS",G0030:"PASS",G0031:"PASS",G0032:"PASS",G0033:"PASS",G0034:"PASS",G0035:"PASS",G0036:"PASS",G0040:"PASS",G0041:"PASS",G0042:"PASS",G0043:"PASS",G0044:"PASS",G0045:"PASS",G0046:"PASS"},
   claim:"EXECUTION EVIDENCE ONLY — NOT PVB-V1 CONFORMANCE"
 },null,2));
