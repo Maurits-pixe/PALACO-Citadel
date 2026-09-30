@@ -162,3 +162,33 @@ export function detectWatermerkFork({ identityRef, branches }) {
   }
   return Object.freeze({valid:true,reason:"NO_FORK"});
 }
+
+
+export function advanceEraTrustedTime(state, observation) {
+  const observed=Date.parse(observation.trusted_time);
+  const highest=state.highestTrustedTime ? Date.parse(state.highestTrustedTime) : -Infinity;
+  if (!Number.isFinite(observed)) return Object.freeze({...state,accepted:false,reason:"MALFORMED_TRUSTED_TIME"});
+  if (!Number.isSafeInteger(observation.sequence) || observation.sequence <= state.highestSequence) {
+    return Object.freeze({...state,accepted:false,reason:"NON_MONOTONE_TIME_SEQUENCE"});
+  }
+  if (observed < highest) return Object.freeze({...state,accepted:false,reason:"TRUSTED_TIME_ROLLBACK"});
+  return Object.freeze({
+    highestTrustedTime:observation.trusted_time,
+    highestSequence:observation.sequence,
+    accepted:true,
+    reason:"TRUSTED_TIME_ADVANCED"
+  });
+}
+
+export function evaluateMonotoneTemporalState({ previousState, candidateState }) {
+  const terminal=new Set(["REVOKED","EXPIRED"]);
+  if (terminal.has(previousState) && candidateState !== previousState) {
+    return Object.freeze({accepted:false,state:previousState,reason:"TERMINAL_STATE_REVIVAL_DENIED"});
+  }
+  return Object.freeze({accepted:true,state:candidateState,reason:"STATE_ACCEPTED"});
+}
+
+export function evaluateWithEraTime({ validity, eraState }) {
+  if (!eraState.highestTrustedTime) return Object.freeze({valid:false,reason:"TEMPORAL_UNCERTAIN"});
+  return evaluateTemporalValidity(validity,eraState.highestTrustedTime);
+}
