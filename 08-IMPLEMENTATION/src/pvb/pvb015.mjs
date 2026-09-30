@@ -65,3 +65,20 @@ export function verifyWithPublicKey(record, signature, publicKeyHex, domain = DO
 export function authorize({ verifiedVisitCard, mandate }) {
   return Object.freeze({ authorized: Boolean(verifiedVisitCard && mandate), reason: mandate ? "MANDATE_PRESENT" : "MANDATE_REQUIRED" });
 }
+
+
+export function evaluateKeyTrust({ cryptographicallyVerified, keyState }) {
+  if (!cryptographicallyVerified) return Object.freeze({ trusted:false, reason:"INVALID_SIGNATURE" });
+  if (keyState === "REVOKED") return Object.freeze({ trusted:false, reason:"KEY_REVOKED", historicalAuthenticity:true });
+  if (keyState === "EXPIRED") return Object.freeze({ trusted:false, reason:"KEY_EXPIRED", historicalAuthenticity:true });
+  if (keyState !== "ACTIVE") return Object.freeze({ trusted:false, reason:"KEY_STATE_UNSUPPORTED" });
+  return Object.freeze({ trusted:true, reason:"KEY_ACTIVE", historicalAuthenticity:true });
+}
+
+export function evaluateTemporalValidity(validity, nowIso) {
+  const now=Date.parse(nowIso), start=Date.parse(validity.not_before), end=Date.parse(validity.not_after);
+  if (![now,start,end].every(Number.isFinite)) return Object.freeze({ valid:false, reason:"MALFORMED_TIME" });
+  if (now < start) return Object.freeze({ valid:false, reason:"NOT_YET_VALID" });
+  if (now >= end) return Object.freeze({ valid:false, reason:"EXPIRED" });
+  return Object.freeze({ valid:true, reason:"CURRENT" });
+}
