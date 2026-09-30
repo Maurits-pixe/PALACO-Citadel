@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { canonicalize, projectVisitCard, signingInput, sha256, signWithTestSeed, verifyWithPublicKey, authorize, evaluateKeyTrust, evaluateTemporalValidity, verifyWatermerkLineage, evaluateLineageSignature, buildWatermerkChain, verifyWatermerkChain, detectWatermerkFork, DOMAIN } from "../src/pvb/pvb015.mjs";
+import { canonicalize, projectVisitCard, signingInput, sha256, signWithTestSeed, verifyWithPublicKey, authorize, evaluateKeyTrust, evaluateTemporalValidity, verifyWatermerkLineage, evaluateLineageSignature, buildWatermerkChain, verifyWatermerkChain, detectWatermerkFork, advanceEraTrustedTime, evaluateMonotoneTemporalState, evaluateWithEraTime, DOMAIN } from "../src/pvb/pvb015.mjs";
 
 
 function watermerkEventHashForTest(event) {
@@ -105,12 +105,33 @@ assert.deepEqual(detectWatermerkFork({identityRef:vector.record.identity_ref,bra
 const substitutedChain=chain.map((event,i)=>i===0?{...event,identity_ref:"PALACO:IDENTITY:ATTACKER"}:event);
 assert.deepEqual(verifyWatermerkChain({identityRef:vector.record.identity_ref,events:substitutedChain}), {valid:false,reason:"IDENTITY_SUBSTITUTION"}, "G-0025 provenance identity substitution denied");
 
+let era={highestTrustedTime:null,highestSequence:0};
+era=advanceEraTrustedTime(era,{trusted_time:"2026-06-01T00:00:00Z",sequence:1});
+assert.equal(era.accepted,true,"G-0030 trusted time observation accepted");
+assert.equal(era.highestTrustedTime,"2026-06-01T00:00:00Z","G-0030 highest trusted time retained");
+
+const staleSequence=advanceEraTrustedTime(era,{trusted_time:"2026-07-01T00:00:00Z",sequence:1});
+assert.equal(staleSequence.accepted,false,"G-0031 stale time sequence denied");
+assert.equal(staleSequence.reason,"NON_MONOTONE_TIME_SEQUENCE","G-0031 explicit sequence failure");
+
+const timeRollback=advanceEraTrustedTime(era,{trusted_time:"2026-05-01T00:00:00Z",sequence:2});
+assert.equal(timeRollback.accepted,false,"G-0032 trusted-time rollback denied");
+assert.equal(timeRollback.highestTrustedTime,"2026-06-01T00:00:00Z","G-0032 highest trusted time cannot decrease");
+
+const expiredEra=advanceEraTrustedTime(era,{trusted_time:"2027-01-01T00:00:00Z",sequence:2});
+assert.equal(expiredEra.accepted,true,"G-0033 trusted time advances to expiry boundary");
+assert.deepEqual(evaluateWithEraTime({validity:vector.record.validity,eraState:expiredEra}),{valid:false,reason:"EXPIRED"},"G-0033 ERA time drives fail-closed expiry");
+
+assert.deepEqual(evaluateMonotoneTemporalState({previousState:"REVOKED",candidateState:"ACTIVE"}),{accepted:false,state:"REVOKED",reason:"TERMINAL_STATE_REVIVAL_DENIED"},"G-0034 revoked state cannot revive");
+assert.deepEqual(evaluateMonotoneTemporalState({previousState:"EXPIRED",candidateState:"ACTIVE"}),{accepted:false,state:"EXPIRED",reason:"TERMINAL_STATE_REVIVAL_DENIED"},"G-0035 expired state cannot revive");
+assert.deepEqual(evaluateWithEraTime({validity:vector.record.validity,eraState:{highestTrustedTime:null,highestSequence:0}}),{valid:false,reason:"TEMPORAL_UNCERTAIN"},"G-0036 missing trusted time fails closed");
+
 
 console.log(JSON.stringify({
-  suite:"PVB-015+PVB-016+PVB-017",
+  suite:"PVB-015+PVB-016+PVB-017+PVB-018",
   vector:vector.vector_id,
   canonical_bytes:Buffer.byteLength(canonical,"utf8"),
   digest:vector.signing_input_sha256_hex,
-  tests:{G0001:"PASS",G0002:"PASS",G0003:"PASS",G0004:"PASS",G0005:"PASS",G0006:"PASS",G0007:"PASS",G0008:"PASS",G0010:"PASS",G0011:"PASS",G0012:"PASS",G0013:"PASS",G0014:"PASS",G0015:"PASS",G0020:"PASS",G0021:"PASS",G0022:"PASS",G0023:"PASS",G0024:"PASS",G0025:"PASS"},
+  tests:{G0001:"PASS",G0002:"PASS",G0003:"PASS",G0004:"PASS",G0005:"PASS",G0006:"PASS",G0007:"PASS",G0008:"PASS",G0010:"PASS",G0011:"PASS",G0012:"PASS",G0013:"PASS",G0014:"PASS",G0015:"PASS",G0020:"PASS",G0021:"PASS",G0022:"PASS",G0023:"PASS",G0024:"PASS",G0025:"PASS",G0030:"PASS",G0031:"PASS",G0032:"PASS",G0033:"PASS",G0034:"PASS",G0035:"PASS",G0036:"PASS"},
   claim:"EXECUTION EVIDENCE ONLY — NOT PVB-V1 CONFORMANCE"
 },null,2));
