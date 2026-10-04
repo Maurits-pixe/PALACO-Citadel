@@ -1,0 +1,49 @@
+name: PVB-024 PostgreSQL temporal ledger
+on:
+  pull_request:
+    paths:
+      - '08-IMPLEMENTATION/persistence/**'
+      - '.github/workflows/pvb-024-postgres.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  postgres-ledger:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: palaco
+          POSTGRES_PASSWORD: palaco-test
+          POSTGRES_DB: palaco
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U palaco -d palaco"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGPASSWORD: palaco-test
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Execute PostgreSQL ledger gates
+        run: psql -h localhost -U palaco -d palaco -f 08-IMPLEMENTATION/persistence/pvb024.test.sql
+      - name: Execute adversarial concurrency and abort gates
+        run: bash 08-IMPLEMENTATION/persistence/pvb025.test.sh
+      - name: Hard-kill PostgreSQL service container
+        run: docker kill --signal=KILL ${{ job.services.postgres.id }}
+      - name: Restart after hard kill
+        run: docker start ${{ job.services.postgres.id }}
+      - name: Verify canonical head after hard-kill recovery
+        run: |
+          for i in {1..30}; do pg_isready -h localhost -U palaco -d palaco && break; sleep 1; done
+          HEAD=$(psql -h localhost -U palaco -d palaco -Atc "SELECT highest_receipt_sequence || ':' || head_receipt_hash FROM temporal_ledger_head WHERE singleton=TRUE")
+          ROWS=$(psql -h localhost -U palaco -d palaco -Atc "SELECT count(*) FROM temporal_ledger")
+          test "${HEAD%%:*}" = "3"
+          test "$ROWS" = "3"
+          echo "G-0104/G-0105 PASS: $HEAD rows=$ROWS"

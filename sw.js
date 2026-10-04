@@ -1,14 +1,5 @@
-const CACHE_NAME = 'palaco-universe-shell-v4';
-const SHELL_ASSETS = [
-  '/',
-  '/index.html',
-  '/app-logic.js',
-  '/styles.css',
-  '/app.js',
-  '/manifest.webmanifest',
-  '/assets/icon-192.svg',
-  '/assets/icon-512.svg'
-];
+const CACHE_NAME = 'palaco-rio-shell-v5';
+const SHELL_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/manifest.webmanifest', '/assets/icon-192.svg', '/assets/icon-512.svg'];
 const SHELL_PATHS = new Set(SHELL_ASSETS);
 
 const isSameOrigin = (request) => new URL(request.url).origin === self.location.origin;

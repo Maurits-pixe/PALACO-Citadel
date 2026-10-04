@@ -1,27 +1,48 @@
 # ☄️ THE BIG BANG — PALACO-Citadel
 
-PALACO-Citadel is now organized as a canonical layered system.
-Read from top to bottom to move from principle to execution.
+Dit document is het canonieke entry point van PALACO-Citadel en opent de leesvolgorde van de PALACO Proof Machine.
+PALACO-Citadel is now organized as a canonical layered system: read from top to bottom to move from principle to execution.
 
-## Canonical Reading Order
+## Canonieke leesvolgorde / Canonical reading order
 
-1. [01-FOUNDATION](01-FOUNDATION/README.md) — Constitutional principles and authority
-2. [02-CORE-SYSTEMS](02-CORE-SYSTEMS/README.md) — CITADEL, QUAY, AUDIT, REPLAY, sealing
-3. [03-EVIDENCE](03-EVIDENCE/README.md) — Cryptographic proofs and verification
-4. [04-GOVERNANCE](04-GOVERNANCE/README.md) — Rules, custody, and evolution constraints
-5. [05-OPERATIONS](05-OPERATIONS/README.md) — Deployment, federation, network protocol
-6. [06-INTELLIGENCE](06-INTELLIGENCE/README.md) — Governed AI and decision frameworks
-7. [07-IMMORTALITY](07-IMMORTALITY/README.md) — Certification and OMEGA components
-8. [08-IMPLEMENTATION](08-IMPLEMENTATION/README.md) — Code, schemas, tests, examples
-9. [emerald/README.md](emerald/README.md) — Consolidated Emerald canon, source map, workspace, schemas, and releases
-10. [DOCS](DOCS/README.md) — Glossary, FAQ, status reference
-11. [CANONIEKE_FORMULE](CANONIEKE_FORMULE.md) — Unified synthesis statement
+1. [01-FOUNDATION](01-FOUNDATION/README.md) — fundamentele constitutionele principes / constitutional principles and authority
+2. [02-CORE-SYSTEMS](02-CORE-SYSTEMS/README.md) — CITADEL, QUAY, AUDIT, REPLAY en sealing
+3. [03-EVIDENCE](03-EVIDENCE/README.md) — bewijsvoering, cryptographic proofs, verificatie en provenance
+4. [04-GOVERNANCE](04-GOVERNANCE/README.md) — constitutionele regels, custody en evolutie-constraints
+5. [05-OPERATIONS](05-OPERATIONS/README.md) — federatie, deployment en network protocol operations
+6. [06-INTELLIGENCE](06-INTELLIGENCE/README.md) — governed intelligence en decision frameworks
+7. [07-IMMORTALITY](07-IMMORTALITY/README.md) — duurzaamheid, certificatie en OMEGA
+8. [08-IMPLEMENTATION](08-IMPLEMENTATION/README.md) — code, schemas, tests, examples en praktische implementatie
+9. [emerald/README.md](emerald/README.md) — geconsolideerde Emerald-canon, source map, workspace, schemas en releases
+10. [DOCS](DOCS/README.md) — referentie, glossary, FAQ en status
+11. [CANONIEKE_FORMULE](CANONIEKE_FORMULE.md) — de synthesis van het geheel
 
 ## GitHub links
 
 - PALACO: `https://github.com/Maurits-pixe/PALACO`
 - PALACO Industrie: `https://github.com/Maurits-pixe/PALACO-INDUSTRIE`
 - PALACO Genesis: `https://github.com/Maurits-pixe/palaco-genesis`
+
+## Citadel dashboard content (new)
+
+The PALACO 2040 Compass section now includes the following dashboard layers in Citadel (`/index.html`):
+
+- Constitution Dashboard — rules translated into current decision impact
+- Proof Dashboard — action status + proof/traceability chains
+- Identity Dashboard — identity/session/verification/ownership in one view
+- Participation Dashboard — preview → authorization → review → revocation flow
+- Governance Dashboard — active policies, deviations, review moments (no score-magic)
+- Citadel Health Dashboard — operational + semantic risk signals with per-signal explanation
+- RIO Conversation Dashboard — conversations as access to actions with context/consequence panels
+- ELIXER Dashboard — available apps/capabilities per context with clear choice impact
+- Evolution Dashboard — canon/system changes with “what changes for me?” summary
+- Public Gateway Dashboard — public orientation layer with core concepts and safe onboarding
+
+Implementation references:
+
+- Structure/content: `/home/runner/work/PALACO-Citadel/PALACO-Citadel/index.html`
+- Localization keys: `/home/runner/work/PALACO-Citadel/PALACO-Citadel/app.js`
+- UI styling: `/home/runner/work/PALACO-Citadel/PALACO-Citadel/styles.css`
 
 ## GitHub preparation canon
 
@@ -30,9 +51,19 @@ Read from top to bottom to move from principle to execution.
 ## Automatic update flow
 
 - GitHub Pages deploys automatically on every push to `main` via `.github/workflows/pages.yml`.
-- The PALACO PWA shell now revalidates same-origin content from the network so website and app changes propagate automatically.
-- The homepage refreshes live repository and content data automatically when the app regains focus and at periodic intervals.
+- The PALACO PWA shell revalidates explicit shell assets from the network so website and app changes propagate automatically.
+- Open clients reload onto the newest shell and sync timestamps refresh when the app regains focus and at periodic intervals.
 
-Legacy synthesis materials are preserved under [ARCHIVE/legacy-sources/](ARCHIVE/legacy-sources/).
+## Migratie-overzicht
 
-Emerald-specific source documents are consolidated through [emerald/README.md](emerald/README.md), including the normalized standalone `GO-EMERALD-011.md` through `GO-EMERALD-036.md` series.
+- De vroegere losse consolidatiebestanden zijn bewaard onder [ARCHIVE/legacy-sources/](ARCHIVE/legacy-sources/).
+- De nieuwe canonieke laagstructuur is het primaire navigatiemodel voor lezers.
+- Verborgen repository-infrastructuur zoals `.github/` is behouden; historisch bootstrapmateriaal is canoniek geplaatst onder `08-IMPLEMENTATION/examples/setup/`.
+- Nieuwe website-, RIO-, VisitCard- en Emerald-documentatie van `main` blijft behouden naast de canonieke laagstructuur.
+- Emerald-specifieke source documents zijn geconsolideerd via [emerald/README.md](emerald/README.md), inclusief de genormaliseerde standalone `GO-EMERALD-011.md` tot en met `GO-EMERALD-036.md`.
+
+## Snelle oriëntatie
+
+- Begin bij de foundation als je de legitimiteitsketen wilt begrijpen.
+- Ga naar core systems als je de Proof Machine als mechaniek wilt lezen.
+- Eindig bij de canonieke formule voor de compacte synthese.

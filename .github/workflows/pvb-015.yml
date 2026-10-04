@@ -1,0 +1,24 @@
+name: PVB-015 execution slice
+on:
+  pull_request:
+    paths:
+      - '08-IMPLEMENTATION/src/pvb/**'
+      - '08-IMPLEMENTATION/tests/pvb015.test.mjs'
+      - '08-IMPLEMENTATION/vectors/pvb-v1/**'
+      - '.github/workflows/pvb-015.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pvb-015:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Execute golden vector 0001 and negative gates
+        run: node 08-IMPLEMENTATION/tests/pvb015.test.mjs
