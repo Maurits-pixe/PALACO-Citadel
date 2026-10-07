@@ -18,6 +18,8 @@ const translations = {
     previewStart: 'Start here',
     previewRio: 'RIO conversations',
     previewCompass: 'Governance compass',
+    previewAtelier: 'Atelier · DRAFT',
+    previewLevensader: 'Levensader · read-only',
     visionTitle: 'Vision',
     visionBody: 'PALACO means “palace” in Esperanto: a shared digital place to build, create, and bring ideas to life.',
     launchTitle: 'Launch Pad',
@@ -329,6 +331,8 @@ const translations = {
     previewStart: 'Begin hier',
     previewRio: 'RIO-gesprekken',
     previewCompass: 'Governancekompas',
+    previewAtelier: 'Atelier · DRAFT',
+    previewLevensader: 'Levensader · alleen-lezen',
     visionTitle: 'Visie',
     visionBody: 'PALACO betekent “paleis” in Esperanto: een gedeelde digitale plek om te bouwen, te creëren en ideeën tot leven te brengen.',
     launchTitle: 'Startplatform',
@@ -640,6 +644,8 @@ const translations = {
     previewStart: 'Komencu ĉi tie',
     previewRio: 'RIO-konversacioj',
     previewCompass: 'Administra kompaso',
+    previewAtelier: 'Atelier · MALNETO',
+    previewLevensader: 'Levensader · nurlega',
     visionTitle: 'Vizio',
     visionBody: 'PALACO signifas “palaco” en Esperanto: komuna cifereca loko por konstrui, krei kaj vivigi ideojn.',
     launchTitle: 'Lanĉejo',
@@ -1217,7 +1223,7 @@ installBtn?.addEventListener('click', async () => {
 });
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }));
 }
 
 validateTranslations();

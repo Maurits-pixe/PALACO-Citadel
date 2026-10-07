@@ -59,3 +59,22 @@ Implementation references:
 - Begin bij de foundation als je de legitimiteitsketen wilt begrijpen.
 - Ga naar core systems als je de Proof Machine als mechaniek wilt lezen.
 - Eindig bij de canonieke formule voor de compacte synthese.
+
+## Bestaande previews vernieuwen
+
+De bestaande GitHub Pages-publicatie behoudt `CNAME` (`hoofdkantoor.info`) en deze routes:
+
+- Citadel-website/PWA en RIO: `https://hoofdkantoor.info/`
+- Atelier-wizard, uitsluitend lokaal DRAFT-concept: `https://hoofdkantoor.info/atelier/wizard.html`
+- Levensader-objectinspectie, read-only fixture: `https://hoofdkantoor.info/DOCS/levensader-readonly/`
+  (ook de bestaande route met `index.html` blijft werken).
+
+De homepage linkt naar de afzonderlijke statische previews. Online vraagt de service worker
+de actuele bestanden op dezelfde URL op; offline toont hij de laatst opgeslagen versie.
+Oude Citadel-shellcaches worden bij de update verwijderd, zonder caches van andere apps te wissen.
+
+Publicatie volgt via de bestaande Pages-workflow na een push naar `main` of een handmatige
+`workflow_dispatch`. De workflow controleert de statische oppervlakken en de geïsoleerde lokale
+previewtests. Een branchwijziging alleen is geen bevestigde live publicatie.
+De Registration-preview blijft loopback-only met bestaande toelatingscontroles; andere repositories
+en externe Sites-publicaties worden hiermee niet opnieuw gepubliceerd of geactiveerd.

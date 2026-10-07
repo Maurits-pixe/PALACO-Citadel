@@ -36,6 +36,9 @@ jobs:
       - name: Test RIO
         run: npm test
 
+      - name: Test isolated local previews
+        run: npm run test:preview && npm run test:preview:browser
+
   deploy:
     needs: test
     environment:
