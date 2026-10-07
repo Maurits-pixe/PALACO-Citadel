@@ -18,7 +18,9 @@ The merge commit tree was compared with the tested PR15 head. The comparison rep
 - `package.json`
 - `.github/workflows/atelier-review-gate.yml`
 
-Fresh runs are attached to the merge commit:
+The hosted PR14 workflow used synthetic merge ref `ce4a875739d9e9712b14ae766bd60287f060a893`; its checkout merged `4ed65bc9` into the historical PR14 base. The merge-tree comparison and byte checks above show that the tested source tree contains the PR15 merge content. This is merge-ref evidence, not a claim that the workflow's internal ref SHA equals `4ed65bc9`.
+
+Hosted results for that synthetic merge:
 
 - Citadel local preview conformance: run `36418736816`, success.
 - Atelier frozen review evidence: run `36418736514`, success.
