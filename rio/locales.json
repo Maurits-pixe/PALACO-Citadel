@@ -1,0 +1,115 @@
+{
+  "profile_id": "RIO-LOCALE-PROFILE-001",
+  "version": "1.0.0",
+  "status": "IMPLEMENTATION_PROFILE",
+  "default_locale": "nl",
+  "fallback_locale": "en",
+  "supported_locales": ["nl", "en", "de", "fr", "es", "ar", "zh"],
+  "locales": {
+    "nl": {
+      "name": "Nederlands",
+      "direction": "ltr",
+      "messages": {
+        "RIO_READY": "RIO is gereed.",
+        "RIO_READY_WITH_CONDITIONS": "RIO is gereed onder voorwaarden.",
+        "RIO_PAUSED": "RIO is gepauzeerd.",
+        "RIO_CONSENT_REQUIRED": "Expliciete toestemming is vereist.",
+        "RIO_VERIFICATION_INSUFFICIENT": "De verificatie is onvoldoende.",
+        "RIO_REVOKED_OR_EXPIRED": "De toestemming is ingetrokken of verlopen.",
+        "RIO_CONFLICTED": "De RIO-context bevat een conflict.",
+        "RIO_TRIAS_REVIEW_REQUIRED": "Beoordeling door TRIAS is vereist.",
+        "RIO_CLOSED": "De RIO-conversatie is gesloten."
+      }
+    },
+    "en": {
+      "name": "English",
+      "direction": "ltr",
+      "messages": {
+        "RIO_READY": "RIO is ready.",
+        "RIO_READY_WITH_CONDITIONS": "RIO is ready with conditions.",
+        "RIO_PAUSED": "RIO is paused.",
+        "RIO_CONSENT_REQUIRED": "Explicit consent is required.",
+        "RIO_VERIFICATION_INSUFFICIENT": "Verification is insufficient.",
+        "RIO_REVOKED_OR_EXPIRED": "Consent has been revoked or has expired.",
+        "RIO_CONFLICTED": "The RIO context contains a conflict.",
+        "RIO_TRIAS_REVIEW_REQUIRED": "TRIAS review is required.",
+        "RIO_CLOSED": "The RIO conversation is closed."
+      }
+    },
+    "de": {
+      "name": "Deutsch",
+      "direction": "ltr",
+      "messages": {
+        "RIO_READY": "RIO ist bereit.",
+        "RIO_READY_WITH_CONDITIONS": "RIO ist unter Bedingungen bereit.",
+        "RIO_PAUSED": "RIO ist pausiert.",
+        "RIO_CONSENT_REQUIRED": "Eine ausdrückliche Einwilligung ist erforderlich.",
+        "RIO_VERIFICATION_INSUFFICIENT": "Die Verifizierung ist unzureichend.",
+        "RIO_REVOKED_OR_EXPIRED": "Die Einwilligung wurde widerrufen oder ist abgelaufen.",
+        "RIO_CONFLICTED": "Der RIO-Kontext enthält einen Konflikt.",
+        "RIO_TRIAS_REVIEW_REQUIRED": "Eine Prüfung durch TRIAS ist erforderlich.",
+        "RIO_CLOSED": "Die RIO-Konversation ist geschlossen."
+      }
+    },
+    "fr": {
+      "name": "Français",
+      "direction": "ltr",
+      "messages": {
+        "RIO_READY": "RIO est prêt.",
+        "RIO_READY_WITH_CONDITIONS": "RIO est prêt sous conditions.",
+        "RIO_PAUSED": "RIO est en pause.",
+        "RIO_CONSENT_REQUIRED": "Un consentement explicite est requis.",
+        "RIO_VERIFICATION_INSUFFICIENT": "La vérification est insuffisante.",
+        "RIO_REVOKED_OR_EXPIRED": "Le consentement a été révoqué ou a expiré.",
+        "RIO_CONFLICTED": "Le contexte RIO contient un conflit.",
+        "RIO_TRIAS_REVIEW_REQUIRED": "Un examen par TRIAS est requis.",
+        "RIO_CLOSED": "La conversation RIO est close."
+      }
+    },
+    "es": {
+      "name": "Español",
+      "direction": "ltr",
+      "messages": {
+        "RIO_READY": "RIO está listo.",
+        "RIO_READY_WITH_CONDITIONS": "RIO está listo con condiciones.",
+        "RIO_PAUSED": "RIO está en pausa.",
+        "RIO_CONSENT_REQUIRED": "Se requiere consentimiento explícito.",
+        "RIO_VERIFICATION_INSUFFICIENT": "La verificación es insuficiente.",
+        "RIO_REVOKED_OR_EXPIRED": "El consentimiento ha sido revocado o ha expirado.",
+        "RIO_CONFLICTED": "El contexto de RIO contiene un conflicto.",
+        "RIO_TRIAS_REVIEW_REQUIRED": "Se requiere una revisión de TRIAS.",
+        "RIO_CLOSED": "La conversación de RIO está cerrada."
+      }
+    },
+    "ar": {
+      "name": "العربية",
+      "direction": "rtl",
+      "messages": {
+        "RIO_READY": "RIO جاهز.",
+        "RIO_READY_WITH_CONDITIONS": "RIO جاهز بشروط.",
+        "RIO_PAUSED": "RIO متوقف مؤقتًا.",
+        "RIO_CONSENT_REQUIRED": "الموافقة الصريحة مطلوبة.",
+        "RIO_VERIFICATION_INSUFFICIENT": "التحقق غير كافٍ.",
+        "RIO_REVOKED_OR_EXPIRED": "تم سحب الموافقة أو انتهت صلاحيتها.",
+        "RIO_CONFLICTED": "يحتوي سياق RIO على تعارض.",
+        "RIO_TRIAS_REVIEW_REQUIRED": "مراجعة TRIAS مطلوبة.",
+        "RIO_CLOSED": "تم إغلاق محادثة RIO."
+      }
+    },
+    "zh": {
+      "name": "中文",
+      "direction": "ltr",
+      "messages": {
+        "RIO_READY": "RIO 已就绪。",
+        "RIO_READY_WITH_CONDITIONS": "RIO 已在满足条件的情况下就绪。",
+        "RIO_PAUSED": "RIO 已暂停。",
+        "RIO_CONSENT_REQUIRED": "需要明确同意。",
+        "RIO_VERIFICATION_INSUFFICIENT": "验证不足。",
+        "RIO_REVOKED_OR_EXPIRED": "同意已撤销或已过期。",
+        "RIO_CONFLICTED": "RIO 上下文存在冲突。",
+        "RIO_TRIAS_REVIEW_REQUIRED": "需要 TRIAS 审查。",
+        "RIO_CLOSED": "RIO 对话已关闭。"
+      }
+    }
+  }
+}

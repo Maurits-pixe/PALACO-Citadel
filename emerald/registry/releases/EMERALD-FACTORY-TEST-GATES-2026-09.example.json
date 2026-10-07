@@ -1,0 +1,15 @@
+{
+  "suite_id": "TEST-EM-SUITE-2026-09",
+  "tests": [
+    { "id": "TEST-EM-001", "description": "Duplicate mineral", "expected_result": "FAIL" },
+    { "id": "TEST-EM-002", "description": "Missing provenance", "expected_result": "FAIL" },
+    { "id": "TEST-EM-003", "description": "Invalid source status", "expected_result": "FAIL" },
+    { "id": "TEST-EM-004", "description": "World ID collision", "expected_result": "FAIL" },
+    { "id": "TEST-EM-005", "description": "Slot collision", "expected_result": "FAIL" },
+    { "id": "TEST-EM-006", "description": "Historical deletion", "expected_result": "FAIL" },
+    { "id": "TEST-EM-007", "description": "Identity recycling", "expected_result": "FAIL" },
+    { "id": "TEST-EM-008", "description": "Unverified inference", "expected_result": "FAIL" },
+    { "id": "TEST-EM-009", "description": "Capacity overflow", "expected_result": "EXPANSION" },
+    { "id": "TEST-EM-010", "description": "Valid allocation", "expected_result": "PASS" }
+  ]
+}

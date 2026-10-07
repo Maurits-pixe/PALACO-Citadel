@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://palaco.local/emerald/schemas/elixer-factory.schema.json",
+  "title": "Emerald Elixer Factory Spec",
+  "type": "object",
+  "required": [
+    "elixer_name",
+    "world_id",
+    "capabilities",
+    "controls"
+  ],
+  "properties": {
+    "elixer_name": {
+      "type": "string",
+      "enum": [
+        "EMERALD_EXPLORER",
+        "MINERAL_SEARCH",
+        "MINERAL_IDENTIFIER",
+        "GEM_ATLAS",
+        "CRYSTAL_ATLAS",
+        "MINERAL_MAP",
+        "PROVENANCE_VIEWER",
+        "WATERMERK_VIEWER",
+        "IMMORTAL_TIMELINE"
+      ]
+    },
+    "world_id": {
+      "type": "string",
+      "pattern": "^EW-[0-9]{4,}$"
+    },
+    "capabilities": {
+      "type": "object",
+      "required": [
+        "identity",
+        "frame",
+        "context",
+        "evidence",
+        "interaction",
+        "traceability"
+      ],
+      "properties": {
+        "identity": { "const": true },
+        "frame": { "const": true },
+        "context": { "const": true },
+        "evidence": { "const": true },
+        "interaction": { "const": true },
+        "traceability": { "const": true }
+      },
+      "additionalProperties": false
+    },
+    "controls": {
+      "type": "object",
+      "required": [
+        "constitutional_authority"
+      ],
+      "properties": {
+        "constitutional_authority": { "const": false }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

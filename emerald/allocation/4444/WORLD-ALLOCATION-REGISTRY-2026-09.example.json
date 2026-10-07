@@ -1,0 +1,16 @@
+{
+  "domain": "4444_OTHER_WORLDS",
+  "capacity": 4444,
+  "slots": [
+    { "slot": "OW-0001", "world_id": "EW-0001" },
+    { "slot": "OW-0002", "world_id": "EW-0002" },
+    { "slot": "OW-0003", "world_id": "EW-0003" },
+    { "slot": "OW-0004", "world_id": "EW-0004" },
+    { "slot": "OW-0005", "world_id": "EW-0005" },
+    { "slot": "OW-0006", "world_id": "EW-0006" },
+    { "slot": "OW-0007", "world_id": "EW-0007" },
+    { "slot": "OW-0008", "world_id": "EW-0008" },
+    { "slot": "OW-0009", "world_id": "EW-0009" },
+    { "slot": "OW-0010", "world_id": "EW-0010" }
+  ]
+}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="PALACO RIO icon">
+  <rect width="192" height="192" rx="20" fill="#fff45c"/>
+  <rect x="12" y="12" width="168" height="168" rx="14" fill="none" stroke="#10243e" stroke-width="7"/>
+  <circle cx="158" cy="34" r="12" fill="#ff6f61"/>
+  <text x="96" y="113" text-anchor="middle" font-size="54" font-weight="700" font-family="Georgia, serif" fill="#10243e">RIO</text>
+  <path d="M50 136h92" stroke="#55d8e8" stroke-width="9"/>
+</svg>

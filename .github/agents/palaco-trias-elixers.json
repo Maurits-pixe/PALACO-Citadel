@@ -1,0 +1,149 @@
+{
+  "registry_id": "PALACO-TRIAS-ELIXER-REGISTRY-001",
+  "agency": "PALACO Agency: TRIAS",
+  "count": 16,
+  "status": "USER-DIRECTED AGENCY CONFIGURATION",
+  "constitutional_authority_created": false,
+  "shared_skills": [
+    {
+      "name": "PALACO PROOF",
+      "skill_id": "palaco-proof",
+      "path": ".github/skills/palaco-proof/SKILL.md",
+      "applies_to": "ALL_PALACO_AGENTS",
+      "default_mode": "ON",
+      "toggle_commands": [
+        "PALACO PROOF ON",
+        "PALACO PROOF OFF"
+      ],
+      "off_scope": "ADDITIONAL_PROOF_RECORD_ONLY",
+      "constitutional_constraints_remain_active": true
+    }
+  ],
+  "elixers": [
+    {
+      "id": "TRIAS-ELIXER-001",
+      "name": "MENTOR",
+      "agent_name": "PALACO Agent: Mentor",
+      "role": "OPERATIONAL_CAPTAIN",
+      "function": "intake, normalization, legibility, coordination and dossier assembly"
+    },
+    {
+      "id": "TRIAS-ELIXER-002",
+      "name": "ORACLE",
+      "agent_name": "PALACO Agent: Oracle",
+      "role": "OBSERVATORY",
+      "function": "provenance, drift, anomaly and constitutional-effect observation"
+    },
+    {
+      "id": "TRIAS-ELIXER-003",
+      "name": "TRIAS",
+      "agent_name": "PALACO ELIXER: Trias",
+      "role": "CONSTITUTIONAL_GATE",
+      "function": "bounded assessment, validation and determination"
+    },
+    {
+      "id": "TRIAS-ELIXER-004",
+      "name": "BRAINPOWER",
+      "agent_name": "PALACO ELIXER: Brainpower",
+      "role": "ANALYSIS",
+      "function": "models, graphs, dependencies, scenarios and competing interpretations"
+    },
+    {
+      "id": "TRIAS-ELIXER-005",
+      "name": "FOOL",
+      "agent_name": "PALACO ELIXER: Fool",
+      "role": "ADVERSARIAL_CHALLENGE",
+      "function": "dissent, fallacy detection, counterexamples and escape questions"
+    },
+    {
+      "id": "TRIAS-ELIXER-006",
+      "name": "IDENTITY",
+      "agent_name": "PALACO ELIXER: Identity",
+      "role": "IDENTITY_ASSURANCE",
+      "function": "identity boundaries, continuity and non-conflation"
+    },
+    {
+      "id": "TRIAS-ELIXER-007",
+      "name": "WATERMERK",
+      "agent_name": "PALACO ELIXER: Watermerk",
+      "role": "PROVENANCE_BINDING",
+      "function": "attribution, source binding, epochs and traceable marks"
+    },
+    {
+      "id": "TRIAS-ELIXER-008",
+      "name": "QUAY",
+      "agent_name": "PALACO ELIXER: Quay",
+      "role": "IMMUTABLE_RECORD",
+      "function": "evidence custody, history and reconstructible records"
+    },
+    {
+      "id": "TRIAS-ELIXER-009",
+      "name": "ZAND",
+      "agent_name": "PALACO ELIXER: ZAND",
+      "role": "BOUNDARY_AND_CONTEXT",
+      "function": "scope, context, environmental constraints and bounded execution"
+    },
+    {
+      "id": "TRIAS-ELIXER-010",
+      "name": "MEMORY",
+      "agent_name": "PALACO ELIXER: Memory",
+      "role": "INSTITUTIONAL_MEMORY",
+      "function": "historical context, retained knowledge and memory conflicts"
+    },
+    {
+      "id": "TRIAS-ELIXER-011",
+      "name": "LINEAGE",
+      "agent_name": "PALACO ELIXER: Lineage",
+      "role": "SUCCESSION_TRACE",
+      "function": "origin, derivation, succession and dependency lineage"
+    },
+    {
+      "id": "TRIAS-ELIXER-012",
+      "name": "HORTUS",
+      "agent_name": "PALACO ELIXER: Hortus",
+      "role": "EVOLUTION_GARDEN",
+      "function": "bounded growth, seed stewardship and plurality of development"
+    },
+    {
+      "id": "TRIAS-ELIXER-013",
+      "name": "EXPLORER",
+      "agent_name": "PALACO ELIXER: Explorer",
+      "role": "DISCOVERY",
+      "function": "search, comparison, navigation and evidence-linked discovery"
+    },
+    {
+      "id": "TRIAS-ELIXER-014",
+      "name": "MERCY",
+      "agent_name": "PALACO ELIXER: Mercy",
+      "role": "PROPORTIONALITY_AND_CARE",
+      "function": "human impact, proportionality, restoration and non-destructive alternatives"
+    },
+    {
+      "id": "TRIAS-ELIXER-015",
+      "name": "EIRENE",
+      "agent_name": "PALACO ELIXER: Eirene",
+      "role": "PLURALITY_AND_CONTINUITY",
+      "function": "dissent, relational continuity, minority positions and governed evolution"
+    },
+    {
+      "id": "TRIAS-ELIXER-016",
+      "name": "KAIROS",
+      "agent_name": "PALACO ELIXER: Kairos",
+      "role": "TEMPORAL_READINESS",
+      "function": "timing, sequence, readiness, waiting and temporal consistency"
+    }
+  ],
+  "constraints": {
+    "operational_captain": "TRIAS-ELIXER-001",
+    "self_authorization": false,
+    "role_fusion": false,
+    "determination_requires_proven_authority": true,
+    "execution_requires_authorization": true
+  },
+  "provenance": [
+    "ARCHIVE/legacy-sources/🦆🌱☄️ GO — R6.99 (twelve DEMO Elixers)",
+    "ARCHIVE/legacy-sources/R9.10 tot en met R9.00 (PALACO Basis Elixers and governance functions)",
+    "CANONIEKE_FORMULE.md",
+    "user direction 2026-09-11: TRIAS consists of sixteen official ELIXERS"
+  ]
+}

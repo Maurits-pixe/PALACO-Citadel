@@ -1,0 +1,26 @@
+{
+  "registry_seal": {
+    "registry_id": "EMERALD-REGISTRY-2026-09",
+    "source": {
+      "authority": "IMA-CNMNC",
+      "epoch": "2026-09"
+    },
+    "integrity": {
+      "source_hash": "REQUIRED",
+      "registry_hash": "REQUIRED",
+      "schema_hash": "REQUIRED",
+      "generator_hash": "REQUIRED"
+    },
+    "generation": {
+      "timestamp": "REQUIRED",
+      "generator_version": "REQUIRED"
+    },
+    "validation": {
+      "duplicate_check": "PASS",
+      "provenance_check": "PASS",
+      "identity_check": "PASS",
+      "ordering_check": "PASS",
+      "allocation_check": "PASS"
+    }
+  }
+}

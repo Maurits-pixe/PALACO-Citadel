@@ -1,0 +1,416 @@
+∆ GO-8 — PARTICIPATION & AUTHORITY FLOW
+PALACO VORM9EVIN9 · PAF-001 v1.0 · HUMAN ACTION MASTER
+
+GO ontvangen.
+GO-8 definieert hoe een mens veilig kan deelnemen,
+zonder dat UX ooit authority simuleert.
+
+GO-8 bouwt voort op:
+- GO-6 (public gateway)
+- GO-7 (identity)
+
+SYSTEM: PALACO VORM9EVIN9
+VERSION: PAF-001 · v1.0
+STATUS: DESIGN + FLOW + GOVERNANCE MASTER
+REFERENCE CITADEL: L.A. / LOCUS AMOENUS
+
+---
+
+00 — THESIS
+
+Participation must feel simple.
+Authority must remain constitutional.
+
+De gebruiker ziet:
+KIEZEN → BEVESTIGEN → HANDELEN
+
+Het systeem bewaakt:
+SCOPE → BOUNDARY → PROOF → REVIEW
+
+---
+
+01 — MASTER LOOP
+
+ARRIVE
+ ↓
+UNDERSTAND
+ ↓
+SELECT ACTION
+ ↓
+PREVIEW CONSEQUENCE
+ ↓
+VERIFY IDENTITY CONTEXT
+ ↓
+REQUEST AUTHORIZATION
+ ↓
+EXECUTE OR DENY
+ ↓
+PROOF
+ ↓
+REVIEW
+ ↓
+RETURN
+
+---
+
+02 — CORE LAW
+
+PREVIEW SHALL SHOW CONSEQUENCE BEFORE COMMITMENT.
+
+No blind confirmation.
+No hidden side effects.
+
+---
+
+03 — HUMAN ACTION SURFACES
+
+SURFACE A — INTENT
+
+"Wat wil je doen?"
+
+SURFACE B — CONSEQUENCE
+
+"Wat gebeurt er precies als je doorgaat?"
+
+SURFACE C — DECISION
+
+"Doorgaan / Annuleren / Bekijk bewijs"
+
+SURFACE D — RESULT
+
+"Uitgevoerd / Geweigerd / Onzeker"
+
+---
+
+04 — AUTHORITY BOUNDARY
+
+The interface may:
+- explain
+- translate
+- preview
+- verify context
+- submit request
+
+The interface may not:
+- self-authorize
+- bypass gate
+- fabricate approval
+- mask denial reason
+
+Canonical rule:
+
+INTERACTION DOES NOT CONSTITUTE AUTHORITY.
+
+---
+
+05 — ACTION OBJECT
+
+Every material action should expose:
+
+WHAT
+WHO
+WHERE
+WHY
+SCOPE
+EXPECTED IMPACT
+NON-REVERSIBLE EFFECTS
+DEPENDENCIES
+REQUIRED AUTHORITY
+
+---
+
+06 — PREVIEW CONTRACT
+
+Before confirmation, preview should show:
+
+- what will change
+- what will not change
+- who can observe the change
+- whether action is reversible
+- which policy/gate applies
+- what proof will be produced
+
+---
+
+07 — DECISION STATES
+
+READY
+BLOCKED
+REQUIRES_REVIEW
+PENDING
+APPROVED
+DENIED
+EXECUTED
+ROLLED_BACK
+
+State labels must be explicit.
+
+---
+
+08 — DENIAL UX
+
+When denied, show:
+
+ACTION DENIED.
+
+Reason:
+- scope mismatch
+- policy boundary
+- missing prerequisite
+- revoked authority
+
+Next actions:
+[ VIEW DETAILS ]
+[ REQUEST REVIEW ]
+[ RETURN ]
+
+No vague denial.
+
+---
+
+09 — EXECUTION PROOF
+
+After execution, produce:
+
+ACTION ID
+TIMESTAMP
+ACTOR REF
+CITADEL
+STATUS
+VERSION
+PROVENANCE POINTER
+
+Proof availability is part of completion.
+
+---
+
+10 — REVIEW FLOW
+
+Every material action supports review path:
+
+EXECUTION
+ ↓
+RECORD
+ ↓
+REVIEW REQUEST
+ ↓
+DECISION
+ ↓
+OUTCOME LOG
+
+Review must be attributable and visible.
+
+---
+
+11 — REVOCATION FLOW
+
+If authority is revoked:
+
+- future actions are blocked
+- in-flight actions get explicit status
+- historical records remain intact
+
+No historical erasure.
+
+---
+
+12 — IDENTITY LINKAGE
+
+Action requests must bind to:
+
+IDENTITY-ID
+ROLE
+CITADEL CONTEXT
+VISIBILITY LEVEL
+CURRENT STATUS
+
+Identity presentation alone is insufficient;
+verification context is required.
+
+---
+
+13 — STEWARDSHIP LINKAGE
+
+For governed actions, expose:
+
+STEWARD
+AUTHORITY SCOPE
+REVIEW CHANNEL
+REVOCATION CHANNEL
+
+Responsibility stays bounded.
+
+---
+
+14 — SAFETY LAYERS
+
+LAYER 1: Intent clarity
+LAYER 2: Consequence preview
+LAYER 3: Identity context verification
+LAYER 4: Authorization gate
+LAYER 5: Proof emission
+LAYER 6: Reviewability
+
+Skipping layers is not allowed.
+
+---
+
+15 — ERROR ARCHITECTURE
+
+UNKNOWN ACTION
+Action could not be resolved.
+
+UNVERIFIED CONTEXT
+Identity or provenance context is incomplete.
+
+GATE UNAVAILABLE
+Authorization service temporarily unavailable.
+
+All error states remain calm, factual, and actionable.
+
+---
+
+16 — ACCESSIBILITY
+
+Participation flow must support:
+- keyboard-only progression
+- semantic status announcements
+- focus-safe confirmation dialogs
+- reduced motion for transitions
+- non-color status distinctions
+
+---
+
+17 — SECURITY / TRUST UX
+
+The UI must distinguish:
+
+REQUESTED
+vs
+AUTHORIZED
+
+AUTHORIZED
+vs
+EXECUTED
+
+EXECUTED
+vs
+VERIFIED IN PROOF
+
+No implied success chain.
+
+---
+
+18 — ROUTING MODEL (CONCEPT)
+
+/actions
+/actions/:id
+/actions/:id/preview
+/actions/:id/verify-context
+/actions/:id/decision
+/actions/:id/proof
+/actions/:id/review
+/actions/:id/history
+
+---
+
+19 — COMPONENT BASELINE
+
+ActionIntentPanel
+ActionPreviewPanel
+ConsequenceMatrix
+AuthorityGateBadge
+DecisionPanel
+ExecutionReceipt
+ProofLinkCard
+ReviewRequestPanel
+RevocationNotice
+ActionHistoryTable
+
+---
+
+20 — TESTABLE RULES
+
+A-001 Action cannot execute without preview.
+A-002 Preview must include consequence scope.
+A-003 Denied action must expose explicit reason.
+A-004 Executed action must emit proof reference.
+A-005 Revoked authority must block new execution.
+A-006 UI may not label unverified action as verified.
+A-007 Review path must be reachable from execution record.
+
+---
+
+21 — PUBLIC / PRIVATE BOUNDARY
+
+Public surfaces may show:
+- action type
+- public status
+- public proof pointer
+
+Restricted fields stay protected:
+- private rationale
+- restricted identifiers
+- non-public dependencies
+
+Metadata leakage is forbidden.
+
+---
+
+22 — THREE-SPEED PARTICIPATION
+
+SPEED 01 — QUICK INTENT
+Short, clear action choice.
+
+SPEED 02 — INFORMED DECISION
+Consequence and boundary explanation.
+
+SPEED 03 — FULL INSPECTION
+Proof, policy, lineage, review history.
+
+User chooses depth.
+System truth remains unchanged.
+
+---
+
+23 — CANONICAL FORMULA
+
+«Participation is welcome.»
+
+«Authorization is bounded.»
+
+«Execution is attributable.»
+
+«Proof is inspectable.»
+
+«Review is available.»
+
+«Revocation remains real.»
+
+---
+
+24 — FINAL RULE
+
+Nothing may appear executable
+if constitutional authorization is absent.
+
+Everything that appears executed
+must be traceable in proof.
+
+---
+
+GO-8 STATUS
+
+PARTICIPATION FLOW — LOCKED
+PREVIEW CONTRACT — LOCKED
+AUTHORITY BOUNDARY — LOCKED
+DENIAL UX — LOCKED
+EXECUTION PROOF FLOW — LOCKED
+REVIEW FLOW — LOCKED
+REVOCATION FLOW — LOCKED
+ACCESSIBILITY BASELINE — LOCKED
+SECURITY / TRUST UX — LOCKED
+COMPONENT BASELINE — CANONICAL
+ROUTING MODEL — CANONICAL
+
+∆ GO-8 COMPLETE

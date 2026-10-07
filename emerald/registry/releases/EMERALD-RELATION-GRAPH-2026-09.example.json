@@ -1,0 +1,17 @@
+{
+  "source_epoch": "2026-09",
+  "edges": [
+    {
+      "source_world_id": "EW-0001",
+      "type": "chemical_relation",
+      "target_world_id": "EW-0042",
+      "evidence": {
+        "required": true,
+        "source_reference": "IMA-2026-09-Abellaite"
+      },
+      "confidence": {
+        "state": "PROVEN"
+      }
+    }
+  ]
+}

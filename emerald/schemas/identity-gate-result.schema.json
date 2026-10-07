@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://palaco.local/emerald/schemas/identity-gate-result.schema.json",
+  "title": "Identity Gate Result",
+  "type": "object",
+  "required": [
+    "decision",
+    "checks"
+  ],
+  "properties": {
+    "decision": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL"
+      ]
+    },
+    "checks": {
+      "type": "object",
+      "required": [
+        "canonical_name",
+        "source_identity",
+        "duplicate_identity",
+        "nomenclature_state",
+        "provenance",
+        "status",
+        "lineage"
+      ],
+      "properties": {
+        "canonical_name": { "type": "string", "enum": ["PASS", "FAIL"] },
+        "source_identity": { "type": "string", "enum": ["PASS", "FAIL"] },
+        "duplicate_identity": { "type": "string", "enum": ["PASS", "FAIL"] },
+        "nomenclature_state": { "type": "string", "enum": ["PASS", "FAIL"] },
+        "provenance": { "type": "string", "enum": ["PASS", "FAIL"] },
+        "status": { "type": "string", "enum": ["PASS", "FAIL"] },
+        "lineage": { "type": "string", "enum": ["PASS", "FAIL"] }
+      },
+      "additionalProperties": false
+    },
+    "failure_lane": {
+      "type": "string",
+      "enum": [
+        "QUARANTINE",
+        "IN_DOUBT",
+        "CONFLICTED"
+      ]
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "decision": { "const": "FAIL" } },
+        "required": ["decision"]
+      },
+      "then": {
+        "required": ["failure_lane", "reasons"]
+      }
+    }
+  ],
+  "additionalProperties": false
+}

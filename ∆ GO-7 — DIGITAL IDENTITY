@@ -1,0 +1,489 @@
+∆ GO-7 — DIGITAL IDENTITY
+PALACO VORM9EVIN9 · PID-001 v1.0 · INTEGRATED IDENTITY SYSTEM
+
+GO ontvangen.
+GO-7 definieert Identity als één systeem:
+
+DIGITAL IDENTITY UX/UI
++
+TECHNICAL IDENTITY PROTOCOL
++
+PHYSICAL PREMIUM CARD
+
+PALACO IDENTITY blijft constitutioneel begrensd,
+bewijsbaar,
+inspecteerbaar,
+en revocable.
+
+SYSTEM: PALACO VORM9EVIN9
+VERSION: PID-001 · v1.0
+STATUS: DESIGN + PROTOCOL + CARD MASTER
+SCOPE: PUBLIC + PERMISSIONED IDENTITY FLOWS
+REFERENCE CITADEL: L.A. / LOCUS AMOENUS
+
+---
+
+00 — IDENTITY THESIS
+
+Identity is portable,
+but authority is never portable by appearance alone.
+
+Een identiteit is:
+- herkenbaar
+- verifieerbaar
+- contextueel
+- status-gebonden
+
+Een identiteit is niet:
+- impliciete macht
+- automatische toestemming
+- permanente geldigheid
+
+---
+
+01 — MASTER IDENTITY CHAIN
+
+PERSON
+  ↓
+PALACO IDENTITY
+  ↓
+CITADEL CONTEXT
+  ↓
+WATERMERK
+  ↓
+QR DESTINATION
+  ↓
+PROOF
+  ↓
+STEWARDSHIP
+  ↓
+LIVE STATUS
+
+---
+
+02 — THREE IDENTITY SURFACES
+
+SURFACE A — PUBLIC SNAPSHOT
+
+Wat publiek zichtbaar mag zijn.
+
+SURFACE B — VERIFIED DETAIL
+
+Wat na verificatie getoond wordt.
+
+SURFACE C — PERMISSIONED CONTROL
+
+Wat alleen met juiste rol/scope beschikbaar is.
+
+Zelfde identity.
+Andere zichtlaag.
+
+---
+
+03 — PRIMARY IDENTITY ROUTES
+
+/identity
+/identity/:id
+/identity/:id/proof
+/identity/:id/provenance
+/identity/:id/stewardship
+/identity/:id/status
+/identity/:id/history
+/identity/:id/card
+/identity/request
+
+---
+
+04 — IDENTITY HOME
+
+Hero:
+
+«IDENTITY»
+
+«Carry your PALACO identity with you, without losing provenance.»
+
+Primary actions:
+
+VERIFY IDENTITY
+VIEW IDENTITY
+REQUEST IDENTITY
+OPEN DIGITAL CARD
+CHECK STATUS
+
+---
+
+05 — DIGITAL IDENTITY CARD (UX)
+
+Visible fields:
+
+NAME
+ROLE
+CITADEL
+IDENTITY-ID
+STATUS
+VERSION
+WATERMERK
+
+Primary buttons:
+
+[ VERIFY ]
+[ VIEW PROOF ]
+[ VIEW PROVENANCE ]
+
+Rule:
+Presentation shall never imply authority.
+
+---
+
+06 — PHYSICAL PREMIUM CARD
+
+The physical card is a portability layer,
+not an authority token by itself.
+
+Card elements:
+
+PALACO MARK
+NAME
+IDENTITY-ID
+WATERMERK MARKER
+VERSION LABEL
+QR ENTRY TO PROOF
+
+Backside minimal text:
+
+VERIFY BEFORE TRUST.
+
+---
+
+07 — QR BEHAVIOR
+
+QR SHALL resolve to a verification destination,
+not to a marketing page.
+
+QR destination must expose:
+
+IDENTITY MATCH
+STATUS
+VALIDITY WINDOW
+PROVENANCE POINTER
+VERSION
+LAST VERIFIED TIME
+
+No silent redirects.
+
+---
+
+08 — STATUS MODEL
+
+Canonical identity states:
+
+DRAFT
+PROPOSED
+ACTIVE
+SUSPENDED
+REVOKED
+ARCHIVED
+
+Verification outcomes:
+
+VERIFIED
+UNVERIFIED
+EXPIRED
+UNKNOWN
+
+No ambiguous success state is allowed.
+
+---
+
+09 — AUTHORITY BOUNDARY
+
+Identity can represent:
+- relation
+- role
+- context
+
+Identity cannot self-grant:
+- authority
+- scope expansion
+- constitutional exceptions
+
+Canonical law:
+
+IDENTITY REPRESENTS AUTHORITY CONTEXT.
+IDENTITY DOES NOT GENERATE AUTHORITY.
+
+---
+
+10 — PROVENANCE REQUIREMENT
+
+Each identity record should be inspectable through:
+
+ORIGIN
+ISSUER
+CITADEL
+WATERMERK
+SEAL
+PROVENANCE
+VALIDITY
+VERSION
+
+If provenance is missing,
+status cannot be presented as verified.
+
+---
+
+11 — STEWARDSHIP LINK
+
+Each identity should expose stewardship context:
+
+STEWARD
+ROLE
+AUTHORITY SCOPE
+REVIEW LINK
+REVOCATION PATH
+
+Stewardship is responsibility,
+not ownership.
+
+---
+
+12 — PRIVACY VISIBILITY LEVELS
+
+PUBLIC
+LIMITED
+PRIVATE
+RESTRICTED
+
+Same visual system.
+Different data exposure.
+
+No private data leakage via:
+- URL structure
+- metadata previews
+- card thumbnails
+- search snippets
+
+---
+
+13 — SEARCH & DISCOVERY
+
+Search may return identity records only within visibility scope.
+
+Identity result fields (public-safe):
+
+MATCH
+NAME / LABEL
+CITADEL
+STATUS
+VERSION
+
+Action:
+
+VERIFY
+
+not:
+
+ASSUME
+
+---
+
+14 — ERROR & FAIL-CLOSED STATES
+
+Identity not found:
+
+UNKNOWN IDENTITY.
+
+Verification unavailable:
+
+EVIDENCE COULD NOT BE VERIFIED.
+STATUS: UNVERIFIED
+
+Revoked identity:
+
+IDENTITY EXISTS HISTORICALLY.
+STATUS: REVOKED
+
+UI remains calm and factual.
+
+---
+
+15 — ACCESSIBILITY REQUIREMENTS
+
+Identity flows must support:
+- keyboard navigation
+- screen reader labels
+- semantic status output
+- sufficient contrast
+- reduced motion
+- accessible QR alternatives
+
+Meaning shall not depend on color only.
+
+---
+
+16 — SECURITY / TRUST UX
+
+Always distinguish:
+
+visual identity
+vs
+verified identity
+
+and:
+
+displayed status
+vs
+verified status
+
+PALACO mark alone is never proof.
+
+---
+
+17 — DATA MODEL (CONCEPTUAL)
+
+IDENTITY
+  ├── id
+  ├── person_or_entity_ref
+  ├── citadel_ref
+  ├── role
+  ├── visibility_level
+  ├── status
+  ├── version
+  ├── watermerk_ref
+  ├── seal_ref
+  ├── provenance_ref
+  ├── validity_window
+  ├── steward_ref
+  └── revocation_ref
+
+---
+
+18 — COMPONENT BASELINE
+
+IdentityPage
+IdentityCard
+IdentityStatusBadge
+IdentityVersionLabel
+IdentityProofPanel
+IdentityProvenanceChain
+IdentityStewardPanel
+IdentityAuthorityPanel
+IdentityVerificationForm
+IdentityQRPanel
+PhysicalCardSpecPanel
+
+---
+
+19 — RELEASE PIPELINE (IDENTITY)
+
+CONCEPT
+ ↓
+IDENTITY CONTENT
+ ↓
+CARD DESIGN
+ ↓
+PROVENANCE LINKING
+ ↓
+ACCESSIBILITY
+ ↓
+SECURITY REVIEW
+ ↓
+PROTOTYPE
+ ↓
+VERIFICATION TEST
+ ↓
+VERSION
+ ↓
+RELEASE
+
+No identity release without proof linkage.
+
+---
+
+20 — TESTABLE RULES
+
+T-001 QR opens verification route.
+T-002 Verification shows explicit outcome.
+T-003 Revoked identity never appears active.
+T-004 Hidden visibility data never leaks.
+T-005 Physical card without live proof cannot pass as verified.
+T-006 Authority is never inferred from visual prominence.
+T-007 Provenance chain is inspectable from identity detail.
+
+---
+
+21 — PREMIUM CARD MATERIAL LOGIC
+
+Physical quality may be premium.
+Constitutional semantics remain primary.
+
+Material prestige may not outrank:
+- verification
+- provenance
+- revocation reality
+
+Card beauty supports comprehension,
+not hierarchy theater.
+
+---
+
+22 — USER JOURNEY
+
+ARRIVE
+ ↓
+IDENTIFY
+ ↓
+VERIFY
+ ↓
+UNDERSTAND CONTEXT
+ ↓
+CHECK STATUS
+ ↓
+PROCEED OR RETURN
+
+There is always a return path.
+
+---
+
+23 — CANONICAL FORMULA
+
+«Identity is portable.»
+
+«Authority is bounded.»
+
+«Proof is inspectable.»
+
+«Status is explicit.»
+
+«Revocation is visible.»
+
+«Presentation is never permission.»
+
+---
+
+24 — FINAL CONSTITUTIONAL RULE
+
+Nothing in digital or physical identity presentation
+may imply more authority than the constitution permits.
+
+Everything that can be trusted
+must be verifiable in proof.
+
+---
+
+GO-7 STATUS
+
+IDENTITY UX/UI — LOCKED
+TECHNICAL IDENTITY PROTOCOL — LOCKED
+PHYSICAL PREMIUM CARD INTEGRATION — LOCKED
+QR → PROOF LINKAGE — LOCKED
+STATUS MODEL — LOCKED
+PROVENANCE MODEL — LOCKED
+PRIVACY VISIBILITY MODEL — LOCKED
+AUTHORITY BOUNDARY — LOCKED
+ACCESSIBILITY BASELINE — LOCKED
+SECURITY / TRUST UX — LOCKED
+COMPONENT BASELINE — CANONICAL
+DATA MODEL — CANONICAL
+
+∆ GO-7 COMPLETE
