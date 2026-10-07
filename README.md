@@ -51,6 +51,7 @@ Implementation references:
 
 - De vroegere losse consolidatiebestanden zijn bewaard onder [ARCHIVE/legacy-sources/](ARCHIVE/legacy-sources/).
 - De nieuwe canonieke laagstructuur is het primaire navigatiemodel voor lezers.
+- De aanvullende thematische ordening van die grote bronbestanden staat in [CANON/README.md](CANON/README.md).
 - Verborgen repository-infrastructuur zoals `.github/` is behouden; historisch bootstrapmateriaal is canoniek geplaatst onder `08-IMPLEMENTATION/examples/setup/`.
 - Nieuwe website-, RIO-, VisitCard- en Emerald-documentatie van `main` blijft behouden naast de canonieke laagstructuur.
 
@@ -58,6 +59,7 @@ Implementation references:
 
 - Begin bij de foundation als je de legitimiteitsketen wilt begrijpen.
 - Ga naar core systems als je de Proof Machine als mechaniek wilt lezen.
+- Gebruik [CANON/README.md](CANON/README.md) als file map voor de grote historische syntheses.
 - Eindig bij de canonieke formule voor de compacte synthese.
 
 ## Bestaande previews vernieuwen
