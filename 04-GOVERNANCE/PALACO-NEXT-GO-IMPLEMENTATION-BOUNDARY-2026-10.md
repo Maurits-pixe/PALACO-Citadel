@@ -24,7 +24,7 @@ RIO communication
   -> Quay history
 ```
 
-The names remain proposal labels until a canonical source exists. RIO is the river/communication surface and remains distinct from ELIXER. Human-facing `VORM9EVIN9` must preserve the difference between observed, classified, verified, approved and authorized.
+The names remain proposal labels until a canonical source exists. Source independence must be represented through lineage evidence; repeated copies do not become independent corroboration by count or domain. This GO adds no public API or runtime contract. RIO is the river/communication surface and remains distinct from ELIXER. Human-facing `VORM9EVIN9` must preserve the difference between observed, classified, verified, approved and authorized.
 
 ## Required evidence before implementation
 
