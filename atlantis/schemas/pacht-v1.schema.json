@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "palaco://atlantis/pacht/v1",
+  "title": "PACHT-V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["pacht_id","subject","class","scope","jurisdiction","treaty_version","codex_version","evidence","council_positions","decision","aseg","cefcg","validity","integrity","lineage","challenge","revocation"],
+  "properties": {
+    "pacht_id": {"type":"string","pattern":"^PACHT-[0-9]{8}$"},
+    "subject": {
+      "type":"object","additionalProperties":false,
+      "required":["id","version"],
+      "properties":{"id":{"type":"string","minLength":1},"version":{"type":"string","minLength":1}}
+    },
+    "class":{"enum":["PACHT-W","PACHT-C","PACHT-E","PACHT-I","PACHT-F","PACHT-A","PACHT-H","PACHT-P","PACHT-DC"]},
+    "scope":{"type":"string","minLength":1},
+    "jurisdiction":{"type":"string","minLength":1},
+    "treaty_version":{"type":"string","minLength":1},
+    "codex_version":{"type":"string","minLength":1},
+    "evidence":{"type":"array","minItems":1,"items":{"type":"string","minLength":1}},
+    "council_positions":{
+      "type":"array","minItems":12,"maxItems":12,
+      "items":{
+        "type":"object","additionalProperties":false,
+        "required":["seat","finding","evidence","reasoning","conflicts"],
+        "properties":{
+          "seat":{"type":"integer","minimum":1,"maximum":12},
+          "finding":{"enum":["PASS","CONDITIONAL","FAIL","IN_DOUBT"]},
+          "evidence":{"type":"array","items":{"type":"string"}},
+          "reasoning":{"type":"string","minLength":1},
+          "conflicts":{"type":"array","items":{"type":"string"}}
+        }
+      }
+    },
+    "decision":{
+      "type":"object","additionalProperties":false,
+      "required":["state","authorization_basis","dissent"],
+      "properties":{
+        "state":{"enum":["PROPOSED","REVIEWED","COUNCIL_DECIDED","AUTHORIZED","ACTIVE","CONDITIONAL","IN_DOUBT","DISPUTED","CONFLICTED","SUSPENDED","EXPIRED","REVOKED","SUPERSEDED","ARCHIVED"]},
+        "authorization_basis":{"type":"string"},
+        "dissent":{"type":"array","items":{"type":"string"}}
+      }
+    },
+    "aseg":{"enum":["NOT_APPLICABLE","EQUIVALENT","EQUIVALENT_WITH_CONTEXT","AMBIGUOUS","NON_EQUIVALENT"]},
+    "cefcg":{"enum":["OBSERVED","ATTESTED","PROVEN","CONFIRMED","FINAL","DISPUTED","CONFLICTED","IN_DOUBT"]},
+    "validity":{
+      "type":"object","additionalProperties":false,
+      "required":["valid_from","valid_until","review_at"],
+      "properties":{"valid_from":{"type":"string"},"valid_until":{"type":"string"},"review_at":{"type":"string"}}
+    },
+    "integrity":{
+      "type":"object","additionalProperties":false,
+      "required":["watermerk","hologram"],
+      "properties":{"watermerk":{"type":"string","minLength":1},"hologram":{"type":"string","minLength":1}}
+    },
+    "lineage":{"type":"string","minLength":1},
+    "challenge":{"enum":["NONE","OPEN","UPHELD","MODIFIED","SUSPENDED","REVOKED","IN_DOUBT"]},
+    "revocation":{"enum":["NOT_REVOKED","REVOKED"]}
+  }
+}
