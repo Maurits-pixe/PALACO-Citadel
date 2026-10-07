@@ -22,4 +22,6 @@ bad(p=>p.integrity.watermerk="","WATERMERK");
 bad(p=>p.integrity.hologram="","HOLOGRAM");
 bad(p=>p.lineage="","IMMORTAL");
 bad(p=>p.validity.review_at="2028-01-01T00:00:00Z","validity");
-console.log("PACHT-V1 HARNESS PASS: 1 valid + 12 negative gates");
+bad(p=>p.council_positions[0].conflicts=["MATERIAL-INTEREST"],"conflicted Council seat");
+bad(p=>p.challenge="OPEN","challenge");
+console.log("PACHT-V1 HARNESS PASS: 1 valid + 14 negative gates");
