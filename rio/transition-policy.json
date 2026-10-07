@@ -1,0 +1,59 @@
+{
+  "profile_id": "RIO-TRANSITION-PROFILE-001",
+  "version": "1.0.0",
+  "status": "IMPLEMENTATION_PROFILE",
+  "constitutional_authority_created": false,
+  "description": "Local fail-closed transition profile derived from active RIO specifications. This profile does not create canon or authority.",
+  "canonical_sources": [
+    "RIO-UNIVERSAL-001.md",
+    "RIO-FABRIC-001.md",
+    "RIO-PLATFORM-001.md",
+    "RIO-UIC-001.md",
+    "RIO-VISITCARD-001.md",
+    "VISITCARD-CONSENT-001.md",
+    "VISITCARD-PROV-001.md",
+    "VISITCARD-REVOKE-001.md",
+    "CANONIEKE_FORMULE.md"
+  ],
+  "conversation_transitions": {
+    "DISCOVERED": ["REQUESTED", "DISPUTED", "CONFLICTED", "IN_DOUBT", "CLOSED"],
+    "REQUESTED": ["CONNECTED", "DISPUTED", "CONFLICTED", "IN_DOUBT", "CLOSED"],
+    "CONNECTED": ["ACTIVE", "PAUSED", "DISPUTED", "CONFLICTED", "IN_DOUBT", "CLOSED"],
+    "ACTIVE": ["PAUSED", "DISPUTED", "CONFLICTED", "IN_DOUBT", "CLOSED"],
+    "PAUSED": ["RESUMED", "DISPUTED", "CONFLICTED", "IN_DOUBT", "CLOSED"],
+    "RESUMED": ["ACTIVE", "PAUSED", "DISPUTED", "CONFLICTED", "IN_DOUBT", "CLOSED"],
+    "DISPUTED": ["CLOSED"],
+    "CONFLICTED": ["CLOSED"],
+    "IN_DOUBT": ["CLOSED"],
+    "CLOSED": []
+  },
+  "delivery_order": ["CREATED", "QUEUED", "DELIVERED", "RECEIVED", "READ", "ACKNOWLEDGED"],
+  "visitcard_encounter_transitions": {
+    "ENCOUNTERED": ["INTRODUCED"],
+    "INTRODUCED": ["RECOGNIZED"],
+    "RECOGNIZED": ["ACCEPTED"],
+    "ACCEPTED": ["CONNECTED"],
+    "CONNECTED": []
+  },
+  "gates": {
+    "REQUESTED": ["identity_present", "endpoint_present", "provenance_present"],
+    "CONNECTED": ["consent_granted", "identity_verified", "valid_endpoint", "permission_valid", "provenance_present"],
+    "ACTIVE": ["consent_granted", "identity_verified", "valid_endpoint", "permission_valid", "provenance_present"],
+    "RESUMED": ["consent_granted", "identity_verified", "valid_endpoint", "permission_valid", "provenance_present"],
+    "BRIDGE": ["identity_verified", "context_checked", "access_checked", "bridge_allowed"],
+    "HANDOFF": ["identity_verified", "context_checked", "access_checked", "handoff_allowed"]
+  },
+  "fail_closed_on": [
+    "missing_required_field",
+    "unknown_enum_or_property",
+    "missing_or_broken_provenance",
+    "missing_consent",
+    "identity_conflict",
+    "invalid_endpoint",
+    "revoked_or_expired_visitcard",
+    "backward_delivery_transition",
+    "transition_from_closed",
+    "authority_effect_not_none",
+    "unchecked_bridge_or_handoff"
+  ]
+}

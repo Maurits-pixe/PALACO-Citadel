@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://palaco.local/emerald/schemas/mineral-world-factory-output.schema.json",
+  "title": "Mineral World Factory Output",
+  "type": "object",
+  "required": [
+    "world",
+    "mineral",
+    "source",
+    "allocation",
+    "integrity",
+    "context",
+    "authority"
+  ],
+  "properties": {
+    "world": {
+      "type": "object",
+      "required": ["id", "name", "type"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^EW-[0-9]{4,}$" },
+        "name": { "type": "string", "minLength": 1 },
+        "type": { "const": "MINERAL-WORLD" }
+      },
+      "additionalProperties": false
+    },
+    "mineral": {
+      "type": "object",
+      "required": ["id", "canonical_name"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^MIN-[0-9]{4,}$" },
+        "canonical_name": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "required": ["authority", "epoch"],
+      "properties": {
+        "authority": { "const": "IMA-CNMNC" },
+        "epoch": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}$" }
+      },
+      "additionalProperties": false
+    },
+    "allocation": {
+      "type": "object",
+      "required": ["state", "slot"],
+      "properties": {
+        "state": { "type": "string", "enum": ["WORLD_ACTIVE", "WORLD_PENDING"] },
+        "slot": { "type": ["string", "null"], "pattern": "^OW-[0-9]{4,}$" }
+      },
+      "additionalProperties": false
+    },
+    "integrity": {
+      "type": "object",
+      "required": ["watermerk", "hologram"],
+      "properties": {
+        "watermerk": { "type": "string", "pattern": "^EM-WM-EW-[0-9]{4,}$" },
+        "hologram": { "type": "string", "pattern": "^EM-HO-EW-[0-9]{4,}$" }
+      },
+      "additionalProperties": false
+    },
+    "context": {
+      "type": "object",
+      "required": ["citadel", "immortal"],
+      "properties": {
+        "citadel": { "type": "string", "pattern": "^CITADEL-EM-EW-[0-9]{4,}$" },
+        "immortal": { "type": "string", "pattern": "^IMMORTAL-EM-EW-[0-9]{4,}$" }
+      },
+      "additionalProperties": false
+    },
+    "authority": {
+      "type": "object",
+      "required": ["sovereign", "constitutional"],
+      "properties": {
+        "sovereign": { "const": false },
+        "constitutional": { "const": false }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

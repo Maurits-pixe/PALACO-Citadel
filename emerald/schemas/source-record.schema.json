@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "palaco/emerald/source-record.schema.json",
+  "title": "Emerald Source Record",
+  "type": "object",
+  "required": ["source", "source_epoch", "mineral", "nomenclature", "provenance", "emerald"],
+  "properties": {
+    "source": { "type": "string" },
+    "source_epoch": { "type": "string" },
+    "mineral": {
+      "type": "object",
+      "required": ["name", "status"],
+      "properties": {
+        "name": { "type": "string" },
+        "symbol": { "type": ["string", "null"] },
+        "status": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "nomenclature": {
+      "type": "object",
+      "properties": {
+        "original_name": { "type": ["string", "null"] },
+        "current_name": { "type": ["string", "null"] },
+        "renamed_from": { "type": "array", "items": { "type": "string" } },
+        "redefined_from": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "approval_reference": { "type": ["string", "null"] },
+        "locality": { "type": ["string", "null"] },
+        "literature": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "emerald": {
+      "type": "object",
+      "required": ["allocation_status"],
+      "properties": {
+        "world_id": { "type": ["string", "null"], "pattern": "^EW-[0-9]{4}$" },
+        "allocation_status": { "type": "string", "enum": ["pending", "allocated", "rejected", "reserve"] }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,15 @@
+{
+  "elixer_name": "EMERALD_EXPLORER",
+  "world_id": "EW-0001",
+  "capabilities": {
+    "identity": true,
+    "frame": true,
+    "context": true,
+    "evidence": true,
+    "interaction": true,
+    "traceability": true
+  },
+  "controls": {
+    "constitutional_authority": false
+  }
+}

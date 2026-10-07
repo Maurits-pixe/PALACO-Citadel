@@ -1,0 +1,25 @@
+name: Citadel local preview conformance
+on:
+  pull_request:
+    paths:
+      - 'registration/**'
+      - 'atelier/**'
+      - 'citadel-proof/**'
+      - 'package*.json'
+      - '.github/workflows/citadel-preview.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npm run test:preview
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:preview:browser

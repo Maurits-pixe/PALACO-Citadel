@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://palaco.local/emerald/schemas/world-factory-input.schema.json",
+  "title": "World Factory Input Contract",
+  "type": "object",
+  "required": [
+    "source",
+    "source_epoch",
+    "mineral",
+    "provenance",
+    "validation"
+  ],
+  "properties": {
+    "source": {
+      "const": "IMA-CNMNC"
+    },
+    "source_epoch": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}$"
+    },
+    "mineral": {
+      "type": "object",
+      "required": [
+        "canonical_name",
+        "status"
+      ],
+      "properties": {
+        "canonical_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "source_reference"
+      ],
+      "properties": {
+        "source_reference": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "validation": {
+      "type": "object",
+      "required": [
+        "source_verified"
+      ],
+      "properties": {
+        "source_verified": {
+          "const": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

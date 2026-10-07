@@ -1,0 +1,323 @@
+{
+  "release": "v0.1-alpha.1-readonly",
+  "dataClass": "conceptual-and-synthetic",
+  "objects": [
+    {
+      "id": "concept:levensader",
+      "type": "CONCEPT",
+      "title": "De Levensader",
+      "description": "De kennislaag die bronnen, veranderingen en herkomst met elkaar verbindt.",
+      "status": "DERIVED",
+      "source": [
+        {
+          "repo": "PALACO-BOOK-1",
+          "path": "docs/veldgids/37-levensader-runtime.md",
+          "commit": "6476e59d4b13f54055c52793581abbc786be9a29",
+          "url": "https://github.com/Maurits-pixe/PALACO-BOOK-1/blob/6476e59d4b13f54055c52793581abbc786be9a29/docs/veldgids/37-levensader-runtime.md"
+        }
+      ],
+      "provenance": {
+        "basis": "MODEL",
+        "explanation": "Een document beschrijft een kennisflow; uitvoering en runtimegaranties zijn niet getest.",
+        "verified": false
+      },
+      "version": "0.1.0-fixture",
+      "relations": [
+        "concept:citadel",
+        "proof:palaco"
+      ],
+      "accessLevel": "PRIVATE_PREVIEW",
+      "lastUpdated": null
+    },
+    {
+      "id": "citadel:la",
+      "type": "CITADEL",
+      "title": "L.A. · Locus Amoenus",
+      "description": "L.A. is beschreven als menselijke kern en referentie-Citadel.",
+      "status": "HYPOTHESIS",
+      "source": [
+        {
+          "repo": "PALACO-Citadel",
+          "path": "ARCHIVE/legacy-sources/☄️🌱 GO — LOCUS AMOENUS 🔱 THE 33 COMMANDMENTS CAPSULE",
+          "commit": "3b8f736be8fa43b27b5082e6ba8183081047a3d5",
+          "url": "https://github.com/Maurits-pixe/PALACO-Citadel/blob/3b8f736be8fa43b27b5082e6ba8183081047a3d5/ARCHIVE/legacy-sources/%E2%98%84%EF%B8%8F%F0%9F%8C%B1%20GO%20%E2%80%94%20LOCUS%20AMOENUS%20%F0%9F%94%B1%20THE%2033%20COMMANDMENTS%20CAPSULE"
+        }
+      ],
+      "provenance": {
+        "basis": "MODEL",
+        "explanation": "Een archieftekst noemt Locus Amoenus. De huidige technische toestand van L.A. is hieruit niet vast te stellen.",
+        "verified": false
+      },
+      "version": "0.1.0-fixture",
+      "relations": [
+        "concept:citadel"
+      ],
+      "accessLevel": "PRIVATE_PREVIEW",
+      "lastUpdated": null
+    },
+    {
+      "id": "concept:citadel",
+      "type": "CITADEL",
+      "title": "Citadel",
+      "description": "Een begrensde PALACO-omgeving voor toegang, creatie en herkomst.",
+      "status": "DERIVED",
+      "source": [
+        {
+          "repo": "PALACO-Citadel",
+          "path": "02-CORE-SYSTEMS/CITADEL.md",
+          "commit": "3b8f736be8fa43b27b5082e6ba8183081047a3d5",
+          "url": "https://github.com/Maurits-pixe/PALACO-Citadel/blob/3b8f736be8fa43b27b5082e6ba8183081047a3d5/02-CORE-SYSTEMS/CITADEL.md"
+        },
+        {
+          "repo": "PALACO-INDUSTRIE",
+          "path": "README.md",
+          "commit": "67463e51de0479512802042ba1e637407fc94d5b",
+          "url": "https://github.com/Maurits-pixe/PALACO-INDUSTRIE/blob/67463e51de0479512802042ba1e637407fc94d5b/README.md"
+        }
+      ],
+      "provenance": {
+        "basis": "MODEL",
+        "explanation": "De documenten beschrijven zowel een toelatingsgrens als een persoonlijke omgeving; deze betekenissen zijn nog niet tot één werkend product gevalideerd.",
+        "verified": false
+      },
+      "version": "0.1.0-fixture",
+      "relations": [
+        "citadel:la",
+        "system:rio",
+        "system:or6it"
+      ],
+      "accessLevel": "PRIVATE_PREVIEW",
+      "lastUpdated": null
+    },
+    {
+      "id": "system:rio",
+      "type": "SYSTEM",
+      "title": "RIO",
+      "description": "De vastgelegde richting voor communicatie tussen PALACO-omgevingen en apparaten.",
+      "status": "CANONICAL",
+      "source": [
+        {
+          "repo": "PALACO-Citadel",
+          "path": "RIO-PLATFORM-001.md",
+          "commit": "3b8f736be8fa43b27b5082e6ba8183081047a3d5",
+          "url": "https://github.com/Maurits-pixe/PALACO-Citadel/blob/3b8f736be8fa43b27b5082e6ba8183081047a3d5/RIO-PLATFORM-001.md"
+        }
+      ],
+      "provenance": {
+        "basis": "MODEL",
+        "explanation": "De cross-surface regel is gedocumenteerd; werkende communicatie is niet geverifieerd.",
+        "verified": false
+      },
+      "version": "0.1.0-fixture",
+      "relations": [
+        "concept:citadel"
+      ],
+      "accessLevel": "PRIVATE_PREVIEW",
+      "lastUpdated": null
+    },
+    {
+      "id": "system:or6it",
+      "type": "SYSTEM",
+      "title": "OR6IT",
+      "description": "Het beschreven gereedschap voor WORLD-ontwikkeling binnen een Citadel.",
+      "status": "DERIVED",
+      "source": [
+        {
+          "repo": "PALACO-Citadel",
+          "path": "∆ GO-EMERALD-010 - 026",
+          "commit": "3b8f736be8fa43b27b5082e6ba8183081047a3d5",
+          "url": "https://github.com/Maurits-pixe/PALACO-Citadel/blob/3b8f736be8fa43b27b5082e6ba8183081047a3d5/%E2%88%86%20GO-EMERALD-010%20-%20026"
+        }
+      ],
+      "provenance": {
+        "basis": "MODEL",
+        "explanation": "Een bron noemt WORLD Development; een werkende OR6IT-runtime is niet geverifieerd.",
+        "verified": false
+      },
+      "version": "0.1.0-fixture",
+      "relations": [
+        "concept:citadel",
+        "anchor:earth",
+        "anchor:pluto",
+        "anchor:eva",
+        "anchor:rio",
+        "anchor:palaco",
+        "anchor:6io",
+        "anchor:e9o"
+      ],
+      "accessLevel": "PRIVATE_PREVIEW",
+      "lastUpdated": null
+    },
+    {
+      "id": "proof:palaco",
+      "type": "PROOF",
+      "title": "PALACO Proof",
+      "description": "Modellen voor provenance, verificatie en herleidbaarheid.",
+      "status": "DERIVED",
+      "source": [
+        {
+          "repo": "PALACO-Citadel",
+          "path": "03-EVIDENCE/README.md",
+          "commit": "3b8f736be8fa43b27b5082e6ba8183081047a3d5",
+          "url": "https://github.com/Maurits-pixe/PALACO-Citadel/blob/3b8f736be8fa43b27b5082e6ba8183081047a3d5/03-EVIDENCE/README.md"
+        },
+        {
+          "repo": "PALACO-Citadel",
+          "path": "03-EVIDENCE/Provenance-Model.md",
+          "commit": "3b8f736be8fa43b27b5082e6ba8183081047a3d5",
+          "url": "https://github.com/Maurits-pixe/PALACO-Citadel/blob/3b8f736be8fa43b27b5082e6ba8183081047a3d5/03-EVIDENCE/Provenance-Model.md"
+        },
+        {
+          "repo": "PALACO-Citadel",
+          "path": "03-EVIDENCE/Cryptographic-Proofs.md",
+          "commit": "3b8f736be8fa43b27b5082e6ba8183081047a3d5",
+          "url": "https://github.com/Maurits-pixe/PALACO-Citadel/blob/3b8f736be8fa43b27b5082e6ba8183081047a3d5/03-EVIDENCE/Cryptographic-Proofs.md"
+        }
+      ],
+      "provenance": {
+        "basis": "MODEL",
+        "explanation": "De bronnen beschrijven Proof. Deze pagina voert geen cryptografische verificatie uit.",
+        "verified": false
+      },
+      "version": "0.1.0-fixture",
+      "relations": [
+        "concept:levensader"
+      ],
+      "accessLevel": "PRIVATE_PREVIEW",
+      "lastUpdated": null
+    },
+    {
+      "id": "anchor:earth",
+      "type": "ANCHOR",
+      "title": "W-0001 · EARTH 🌎",
+      "description": "Bestaand WORLD-anker uit de v0.1-presentatie.",
+      "status": "UNKNOWN",
+      "source": [],
+      "provenance": {
+        "basis": "UNKNOWN",
+        "explanation": "De combinatie van ID en naam heeft in deze bronronde geen exacte repositoryverwijzing.",
+        "verified": false
+      },
+      "version": "0.1.0-fixture",
+      "relations": [
+        "system:or6it"
+      ],
+      "accessLevel": "PRIVATE_PREVIEW",
+      "lastUpdated": null
+    },
+    {
+      "id": "anchor:pluto",
+      "type": "ANCHOR",
+      "title": "W-0002 · PLUTO 🦆",
+      "description": "Bestaand WORLD-anker uit de v0.1-presentatie.",
+      "status": "UNKNOWN",
+      "source": [],
+      "provenance": {
+        "basis": "UNKNOWN",
+        "explanation": "De combinatie van ID en naam heeft in deze bronronde geen exacte repositoryverwijzing.",
+        "verified": false
+      },
+      "version": "0.1.0-fixture",
+      "relations": [
+        "system:or6it"
+      ],
+      "accessLevel": "PRIVATE_PREVIEW",
+      "lastUpdated": null
+    },
+    {
+      "id": "anchor:eva",
+      "type": "ANCHOR",
+      "title": "W-0003 · EVA",
+      "description": "Bestaand WORLD-anker uit de v0.1-presentatie.",
+      "status": "UNKNOWN",
+      "source": [],
+      "provenance": {
+        "basis": "UNKNOWN",
+        "explanation": "De combinatie van ID en naam heeft in deze bronronde geen exacte repositoryverwijzing.",
+        "verified": false
+      },
+      "version": "0.1.0-fixture",
+      "relations": [
+        "system:or6it"
+      ],
+      "accessLevel": "PRIVATE_PREVIEW",
+      "lastUpdated": null
+    },
+    {
+      "id": "anchor:rio",
+      "type": "ANCHOR",
+      "title": "W-0004 · RIO",
+      "description": "Bestaand WORLD-anker uit de v0.1-presentatie.",
+      "status": "UNKNOWN",
+      "source": [],
+      "provenance": {
+        "basis": "UNKNOWN",
+        "explanation": "De combinatie van ID en naam heeft in deze bronronde geen exacte repositoryverwijzing.",
+        "verified": false
+      },
+      "version": "0.1.0-fixture",
+      "relations": [
+        "system:or6it"
+      ],
+      "accessLevel": "PRIVATE_PREVIEW",
+      "lastUpdated": null
+    },
+    {
+      "id": "anchor:palaco",
+      "type": "ANCHOR",
+      "title": "W-0005 · PALACO",
+      "description": "Bestaand WORLD-anker uit de v0.1-presentatie.",
+      "status": "UNKNOWN",
+      "source": [],
+      "provenance": {
+        "basis": "UNKNOWN",
+        "explanation": "De combinatie van ID en naam heeft in deze bronronde geen exacte repositoryverwijzing.",
+        "verified": false
+      },
+      "version": "0.1.0-fixture",
+      "relations": [
+        "system:or6it"
+      ],
+      "accessLevel": "PRIVATE_PREVIEW",
+      "lastUpdated": null
+    },
+    {
+      "id": "anchor:6io",
+      "type": "ANCHOR",
+      "title": "W-0006 · 6IO",
+      "description": "Bestaand WORLD-anker uit de v0.1-presentatie.",
+      "status": "UNKNOWN",
+      "source": [],
+      "provenance": {
+        "basis": "UNKNOWN",
+        "explanation": "De combinatie van ID en naam heeft in deze bronronde geen exacte repositoryverwijzing.",
+        "verified": false
+      },
+      "version": "0.1.0-fixture",
+      "relations": [
+        "system:or6it"
+      ],
+      "accessLevel": "PRIVATE_PREVIEW",
+      "lastUpdated": null
+    },
+    {
+      "id": "anchor:e9o",
+      "type": "ANCHOR",
+      "title": "W-0007 · E9O",
+      "description": "Bestaand WORLD-anker uit de v0.1-presentatie.",
+      "status": "UNKNOWN",
+      "source": [],
+      "provenance": {
+        "basis": "UNKNOWN",
+        "explanation": "De combinatie van ID en naam heeft in deze bronronde geen exacte repositoryverwijzing.",
+        "verified": false
+      },
+      "version": "0.1.0-fixture",
+      "relations": [
+        "system:or6it"
+      ],
+      "accessLevel": "PRIVATE_PREVIEW",
+      "lastUpdated": null
+    }
+  ]
+}

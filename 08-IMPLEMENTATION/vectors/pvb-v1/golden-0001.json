@@ -1,0 +1,31 @@
+{
+  "vector_id": "PVB-GOLDEN-0001",
+  "profile": "PALACO-PVB-CRYPTO-V1",
+  "domain": "PALACO-PVB-V1-VISITCARD",
+  "domain_separator_hex": "00",
+  "hash_algorithm": "SHA-256",
+  "signature_algorithm": "Ed25519",
+  "test_key_source": "RFC 8032 section 7.1 test 1",
+  "private_seed_hex": "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60",
+  "public_key_hex": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a",
+  "record": {
+    "protocol_version": "PVB/1",
+    "visitcard_id": "PVB:VC:0001",
+    "object_type": "VISITCARD",
+    "identity_ref": "PALACO:IDENTITY:0001",
+    "epoch": 1,
+    "provenance_ref": "WATERMERK:PVB:0001",
+    "validity": {
+      "not_before": "2026-01-01T00:00:00Z",
+      "not_after": "2027-01-01T00:00:00Z"
+    },
+    "discovery_policy": "PUBLIC_DISCOVERY",
+    "rio_destination_ref": "RIO:PVB:0001",
+    "control_state": "ACTIVE"
+  },
+  "canonical_utf8": "{\"control_state\":\"ACTIVE\",\"discovery_policy\":\"PUBLIC_DISCOVERY\",\"epoch\":1,\"identity_ref\":\"PALACO:IDENTITY:0001\",\"object_type\":\"VISITCARD\",\"protocol_version\":\"PVB/1\",\"provenance_ref\":\"WATERMERK:PVB:0001\",\"rio_destination_ref\":\"RIO:PVB:0001\",\"validity\":{\"not_after\":\"2027-01-01T00:00:00Z\",\"not_before\":\"2026-01-01T00:00:00Z\"},\"visitcard_id\":\"PVB:VC:0001\"}",
+  "canonical_byte_length": 353,
+  "signing_input_sha256_hex": "6bdcb2d5cdd6bda9c52108f89206d92cf5a5c8e47e17d295f5716111ec776587",
+  "signature_hex": "b8e85fd019f4445b70eca7fe77b7bb1554c96915786dcd57f585624b3932a7ca65fc1dd3be3040e4cd51de8cf8f5c4d823413bdba265b76409346f858112fd03",
+  "expected": "PASS"
+}
