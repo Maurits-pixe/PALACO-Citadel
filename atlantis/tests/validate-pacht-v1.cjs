@@ -23,7 +23,7 @@ function validate(p) {
   const councilRequired = state !== "PROPOSED";
   if (!Array.isArray(p.council_positions) || (councilRequired ? p.council_positions.length !== 12 : ![0,12].includes(p.council_positions.length))) {
     fail(errors, councilRequired ? "exactly twelve Council Positions are required after PROPOSED" : "PROPOSED Council Positions must be empty or a complete set of twelve");
-  } else {
+  } else if (p.council_positions.length === 12) {
     const seats = p.council_positions.map(x => x && x.seat);
     const unique = new Set(seats);
     if (unique.size !== 12 || [...unique].some(x => !Number.isInteger(x) || x < 1 || x > 12)) fail(errors, "Council seats must be unique integers 1..12");
