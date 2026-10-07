@@ -18,7 +18,7 @@ The RIO transition profile is explicitly an implementation profile. It says `con
 3. A proof, CI result or sealed evidence bundle remains scoped to its declared claim and time. It does not authorize runtime execution or publication by implication.
 4. State changes append a new record with prior state, trigger, evidence, rationale, effective time and provenance. They do not rewrite earlier history.
 5. RIO remains a communication and interaction surface. The review filter reserves the name RIO for the river concept and keeps it distinct from ELIXER capability/catalog language.
-6. The spelling `VORM9EVING` is preserved exactly wherever the term is intentionally used.
+6. The spelling `VORM9EVIN9` is preserved exactly wherever the term is intentionally used.
 
 ## Classification
 
