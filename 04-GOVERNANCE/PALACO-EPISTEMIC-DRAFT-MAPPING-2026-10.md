@@ -32,6 +32,8 @@ ETCG, KESG and KAG are review gates and records. They do not become authority be
 - keep RIO as the river/communication surface and ELIXER distinct;
 - ensure CI and evidence results cannot silently authorize execution.
 
+ LInnaeus/HORTUS remains a draft epistemic/taxonomic layer: it may classify and expose drift, but it does not create authority. Revalidation preserves prior records.
+
 ## Review fixtures
 
 A future profile should reject direct state overwrites, missing provenance, stale time context, copied-source corroboration, unresolved identity conflict and adequacy-to-authorization shortcuts. It should replay both sides of a conflict after a resolution and retain the earlier record.
