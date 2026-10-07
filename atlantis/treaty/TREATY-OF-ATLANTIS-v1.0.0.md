@@ -1,6 +1,6 @@
 # TREATY OF ATLANTIS — v1.0.0 Candidate
 
-Status: NORMATIVE BASELINE CANDIDATE — NOT YET IN FORCE
+Status: NORMATIVE BASELINE — IN FORCE
 Version: 1.0.0
 Supreme source: PALACO Constitution
 
@@ -34,5 +34,7 @@ ATLANTIS membership shall be explicit, attributable and traceable.
 WORLD EXISTS != ATLANTIS MEMBER.
 ATLANTIS MEMBER != CONCILIE AUTHORITY.
 
-## Candidate boundary
-This file establishes a proposed first version identifier and normative text for review. It does not put Treaty v1.0.0 into force merely by existing in a branch or pull request.
+## Normative activation
+This v1.0.0 text is IN FORCE within the bounded ATLANTIS normative scope under the PALACO Constitution.
+Activation provenance: baseline merge 117e3ba7023aafd040b0babc89b878beb1dc0cc8; activation transition ∆ GO-082.
+Activation changes status only. It does not expand authority, alter constitutional hierarchy, grant PACHT, or create personal sovereignty.
