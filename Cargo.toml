@@ -2,6 +2,7 @@
 members = [
     "crates/palaco-foundation",
     "crates/palaco-kernel",
+    "crates/palaco-citadel",
 ]
 resolver = "2"
 
