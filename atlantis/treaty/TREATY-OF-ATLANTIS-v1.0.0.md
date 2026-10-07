@@ -23,6 +23,8 @@ PALACO CONSTITUTION > TREATY OF ATLANTIS > CODEX ATLANTIS > CONCILIE VAN ATLANTI
 10. WATERMERK and HOLOGRAM support provenance and authenticity; neither creates authority.
 11. REVOKE preserves history. REVOKED does not mean NEVER EXISTED.
 12. Normative evolution occurs only through a controlled ∆ transition with traceable succession.
+13. Human agency shall be preserved. No federation process, interface, translation, thinning, Council procedure or PACHT mechanism may replace attributable human choice, infer consent, or remove a lawful human exit or review path.
+14. Dissent shall remain attributable, evidence-bound and preserved in the decision record; dissent may not be silently erased by majority, authorization, challenge resolution or later succession.
 
 ## Semantic integrity
 World dialects may be translated, contextualized and optimally thinned only when constitutional meaning is preserved. Ambiguous or non-equivalent constitutional mappings fail closed.
