@@ -14,6 +14,10 @@ const translations = {
   en: {
     eyebrow: 'GO · Scheppen · Create',
     subtitle: 'The first executable UI foundation for desktop, tablet, and mobile.',
+    previewIntro: 'Explore the PALACO Citadel workspace, its RIO layer, and governance compass.',
+    previewStart: 'Start here',
+    previewRio: 'RIO conversations',
+    previewCompass: 'Governance compass',
     visionTitle: 'Vision',
     visionBody: 'PALACO means “palace” in Esperanto: a shared digital place to build, create, and bring ideas to life.',
     launchTitle: 'Launch Pad',
@@ -321,6 +325,10 @@ const translations = {
   nl: {
     eyebrow: 'GO · Scheppen · Creëren',
     subtitle: 'De eerste uitvoerbare UI-basis voor desktop, tablet en mobiel.',
+    previewIntro: 'Dit is PALACO Citadel. Bekijk rustig de onderdelen, hulpmiddelen en werkwijze.',
+    previewStart: 'Begin hier',
+    previewRio: 'RIO-gesprekken',
+    previewCompass: 'Governancekompas',
     visionTitle: 'Visie',
     visionBody: 'PALACO betekent “paleis” in Esperanto: een gedeelde digitale plek om te bouwen, te creëren en ideeën tot leven te brengen.',
     launchTitle: 'Startplatform',
@@ -628,6 +636,10 @@ const translations = {
   eo: {
     eyebrow: 'GO · Krei · Estigi',
     subtitle: 'La unua plenumebla UI-bazo por komputilo, tablojdo kaj poŝtelefono.',
+    previewIntro: 'Esploru la PALACO-Citadelan laborspacon, ĝian RIO-tavolon kaj administran kompason.',
+    previewStart: 'Komencu ĉi tie',
+    previewRio: 'RIO-konversacioj',
+    previewCompass: 'Administra kompaso',
     visionTitle: 'Vizio',
     visionBody: 'PALACO signifas “palaco” en Esperanto: komuna cifereca loko por konstrui, krei kaj vivigi ideojn.',
     launchTitle: 'Lanĉejo',
