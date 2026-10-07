@@ -30,6 +30,7 @@ function validate(p) {
       if (!Array.isArray(cp?.evidence)) fail(errors, "Council evidence must be an array");
       if (typeof cp?.reasoning !== "string" || !cp.reasoning.trim()) fail(errors, "Council reasoning is required");
       if (!Array.isArray(cp?.conflicts)) fail(errors, "Council conflicts must be an array");
+      if (activeLike === true && Array.isArray(cp?.conflicts) && cp.conflicts.length > 0) fail(errors, "ACTIVE/AUTHORIZED requires conflicted Council seat to be resolved or recused");
     }
   }
 
@@ -37,6 +38,7 @@ function validate(p) {
   const activeLike = ["AUTHORIZED","ACTIVE"].includes(state);
   if (activeLike && (typeof p.decision?.authorization_basis !== "string" || !p.decision.authorization_basis.trim())) fail(errors, "AUTHORIZED/ACTIVE requires non-empty authorization_basis");
   if (activeLike && p.revocation === "REVOKED") fail(errors, "REVOKED cannot be AUTHORIZED/ACTIVE");
+  if (activeLike && ["OPEN","IN_DOUBT"].includes(p.challenge)) fail(errors, "OPEN/IN_DOUBT challenge cannot be AUTHORIZED/ACTIVE");
   if (activeLike && ["AMBIGUOUS","NON_EQUIVALENT"].includes(p.aseg)) fail(errors, "ASEG ambiguity/non-equivalence fails closed");
   if (activeLike && ["DISPUTED","CONFLICTED","IN_DOUBT"].includes(p.cefcg)) fail(errors, "unresolved CEFCG state cannot be AUTHORIZED/ACTIVE");
   if (activeLike && Array.isArray(p.council_positions) && p.council_positions.some(x => ["FAIL","IN_DOUBT"].includes(x?.finding))) fail(errors, "unresolved Council FAIL/IN_DOUBT cannot be AUTHORIZED/ACTIVE");
