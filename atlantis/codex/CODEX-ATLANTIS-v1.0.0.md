@@ -39,6 +39,10 @@ PACHT != CONSTITUTIONAL AUTHORITY.
 ## Council positions
 Each of twelve seats records an attributable finding: PASS, CONDITIONAL, FAIL or IN_DOUBT, with evidence, reasoning and conflict disclosure before collective deliberation.
 
+## Human agency and dissent
+Human agency is a mandatory protection. No PACHT or Council process may infer consent, replace attributable human choice, or remove a lawful human review, refusal, withdrawal or exit path.
+Dissent must remain attributable, evidence-bound and preserved in the decision record. Majority, authorization, challenge resolution and normative succession shall not silently erase dissent.
+
 ## Conflict and challenge
 Material conflicts must be disclosed and resolved or recused before an ACTIVE/AUTHORIZED PACHT may rely on that position.
 An unresolved OPEN or IN_DOUBT challenge fails closed for ACTIVE/AUTHORIZED state.
