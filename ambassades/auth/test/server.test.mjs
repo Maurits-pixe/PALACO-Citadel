@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildApp, readConfiguration } from '../server.mjs';
+import { MemorySessionStore } from '../session-store.mjs';
 
 // These fixtures test application authorization and HTTP boundaries only.
 // They do not validate provider tokens or replace a real OIDC login/callback test.
@@ -325,3 +326,49 @@ test('login uses a fixed internal selected-seat return target and ignores caller
   assert.equal(body.fixtureLogin.returnTo, '/toegang.html?seat=PALACO-AMB-01');
   assert.equal(body.fixtureLogin.authorizationParams.prompt, 'select_account');
 });
+
+test('real OIDC middleware rejects unsigned and forged cookies for a populated server session',
+  { timeout: 10000 }, async t => {
+    const sessionStore = new MemorySessionStore();
+    const issuedAt = Math.floor(Date.now() / 1000);
+    const encode = object => Buffer.from(JSON.stringify(object)).toString('base64url');
+    // Seed a server-side session as if its token had already passed provider validation.
+    // This fixture tests SDK cookie integrity, not provider signature verification.
+    const token = encode({ alg: 'RS256', typ: 'JWT' }) + '.' +
+      encode({ iss: ISSUER, sub: PRIVATE_SUBJECT, aud: 'fixture-client',
+        iat: issuedAt, exp: issuedAt + 60 }) + '.' +
+      Buffer.from('non-cryptographic-test-fixture').toString('base64url');
+    const knownSessionID = 'fixture-real-sdk-session';
+    await new Promise((resolve, reject) => sessionStore.set(knownSessionID, {
+      header: { iat: issuedAt, uat: issuedAt, exp: issuedAt + 60 },
+      data: { id_token: token },
+      cookie: { expires: (issuedAt + 60) * 1000, maxAge: 60000 },
+    }, error => error ? reject(error) : resolve()));
+
+    // No authMiddleware override: use the configured SDK and the real store.
+    // These routes do not call login/callback or trigger provider discovery.
+    const request = await serve(t, {
+      env: environment(),
+      registryLoader: async () => registry(),
+      sessionStore,
+    });
+    const options = () => ({ signal: AbortSignal.timeout(3000) });
+    assert.equal((await request('/healthz', options())).status, 200);
+    const status = await request('/api/auth/status', options());
+    assert.equal(status.status, 200);
+    assert.deepEqual(await status.json(), {
+      configured: true, available: true, authenticated: false,
+    });
+    await assertDenied(await request('/api/me', options()), 401);
+    for (const cookieValue of [knownSessionID, knownSessionID + '.invalid-signature']) {
+      await assertDenied(await request('/api/seats/PALACO-AMB-01', {
+        ...options(),
+        headers: {
+          Cookie: '__Host-palacoSession=' + cookieValue,
+          'x-oidc-issuer': ISSUER,
+          'x-oidc-sub': PRIVATE_SUBJECT,
+          authorization: 'Bearer caller-supplied-fixture',
+        },
+      }), 401);
+    }
+  });

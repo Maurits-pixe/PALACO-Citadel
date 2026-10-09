@@ -34,7 +34,7 @@ Source checks confirmed:
 - all twelve canonical seat IDs present;
 - no external script or stylesheet dependencies.
 
-Browser rendering, interaction tests and online deployment have **not** been verified. The local command environment and Node runtime failed before startup during implementation. Source validation alone is not confirmation of a functioning browser preview.
+The personal access page is exercised in CI at mobile and desktop widths, with controlled API responses. Server and real-middleware session checks run separately in the same workflow. Live identity-provider enrollment and online deployment remain unverified. The local desktop command/Node runtimes fail before startup; verification therefore runs in GitHub Actions. Directory content is source-checked; these access tests do not cover every directory interaction.
 
 Before publishing, verify in a real browser:
 1. At desktop and 375px mobile widths, confirm all content fits without horizontal scrolling.

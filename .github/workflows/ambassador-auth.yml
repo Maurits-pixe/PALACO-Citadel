@@ -5,6 +5,7 @@ on:
     branches: ["main"]
     paths:
       - "ambassades/**"
+      - "tests/browser/ambassades-auth.spec.mjs"
       - ".github/workflows/ambassador-auth.yml"
   workflow_dispatch:
 
@@ -22,10 +23,7 @@ jobs:
           node-version: 24
       - name: Install isolated authentication dependencies
         working-directory: ambassades/auth
-        run: npm install --ignore-scripts --no-audit --no-fund
-      - name: Capture dependency lock for source reproducibility
-        working-directory: ambassades/auth
-        run: node -e "console.log('PALACO_LOCKFILE_BEGIN' + require('node:fs').readFileSync('package-lock.json').toString('base64') + 'PALACO_LOCKFILE_END')"
+        run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Check browser client syntax
         run: node --check ambassades/portal.js
       - name: Run access isolation and denial tests

@@ -8,7 +8,7 @@ The public page is available as ordinary static presentation, but a functioning 
 
 ## Runtime setup
 
-Use Node 24 or newer. Install dependencies in this directory with `npm install --ignore-scripts`, then run `npm start`. In production, put the service behind HTTPS. Configure only the actual reverse-proxy IP/CIDR if proxy trust is needed.
+Use Node 24 or newer. Install dependencies in this directory with `npm ci --ignore-scripts`, then run `npm start`. In production, put the service behind HTTPS. Configure only the actual reverse-proxy IP/CIDR if proxy trust is needed.
 
 The environment variable names are listed in `.env.example`. That file is documentation; the service does not automatically load it. Set secrets with the deployment environment's private configuration mechanism.
 
@@ -56,7 +56,7 @@ The middleware owns state, nonce, PKCE, signed session IDs and cookie handling. 
 
 `npm test` runs application-level negative tests against the access policy and server. Identity fixtures deliberately stand in for a principal already verified by the mature OIDC middleware; these tests do not claim to validate a real provider account or a live login.
 
-The pull-request workflow performs the test run separately from deployment. A real provider callback/login/logout test, HTTPS deployment and private account enrollment are still necessary before reporting a working login.
+The pull-request workflow performs the test run separately from deployment. The suite also checks the actual middleware's rejection of unsigned/forged session-ID cookies without a live provider. A real provider callback/login/logout test, HTTPS deployment and private account enrollment are still necessary before reporting a working login.
 
 Local command and Node startup currently fail on the desktop; implementation and review therefore use the GitHub source branch and its CI. No live URL, account credentials or successful personal login is asserted by this README.
 
