@@ -3,6 +3,7 @@ import { strict as assert } from 'node:assert';
 import { mkdtemp, rm, writeFile, readFile, readdir, symlink, chmod } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { createHash } from 'node:crypto';
 import { LocalRegistry } from './registry.mjs';
 import { inspectIncidentState } from './recovery-inspector.mjs';
 
@@ -142,14 +143,70 @@ test('permissive pending artifact fails closed instead of being trusted', async 
   assert.equal((await names(f.dir)).includes('.pending-permissive'), true);
 });
 
-test('repeated read-only inspection is stable and does not rewrite incident evidence', async t => {
+test('normal authorization remains fail-closed while inspection exposes only a non-authoritative summary', async t => {
+  const f = await fixture(t);
+  await writeFile(join(f.dir, '.pending-stale'), '{"candidate":true}\n', { mode:0o600 });
+  await assert.rejects(f.registry.events('C1'), /pending event requires recovery/);
+  const decision = await f.registry.authorize({
+    citadelId:'C1',
+    subjectId:'maker',
+    action:'PREVIEW',
+    scope:'P1',
+    manifestSha256:hash
+  });
+  assert.deepEqual(decision, { decision:'DENY', reason:'LEDGER_UNVERIFIED' });
+  assert.equal(typeof f.registry.inspectCommittedEvents, 'undefined');
+  const summary = await f.registry.inspectCommittedLedger('C1');
+  assert.equal(summary.event_count, 1);
+  assert.equal(Object.hasOwn(summary, 'records'), false);
+});
+
+test('pending residue fingerprint covers exact non-UTF8 bytes', async t => {
+  const f = await fixture(t);
+  const bytes = Buffer.from([0xff, 0xfe, 0x00, 0x80, 0x41]);
+  await writeFile(join(f.dir, '.pending-binary'), bytes, { mode:0o600 });
+  const result = await inspectIncidentState(f.registry, 'C1', { clock:() => now });
+  assert.equal(result.state, 'RECOVERY_REQUIRED');
+  assert.equal(result.pending_residue[0].size, bytes.length);
+  assert.equal(result.pending_residue[0].sha256, createHash('sha256').update(bytes).digest('hex'));
+});
+
+test('unsafe writer-lock symlink fails closed instead of being treated as ordinary recovery state', async t => {
+  const f = await fixture(t);
+  const outside = join(f.root, 'outside-lock');
+  await writeFile(outside, '', { mode:0o600 });
+  await symlink(outside, join(f.dir, '.writer.lock'));
+  const result = await inspectIncidentState(f.registry, 'C1', { clock:() => now });
+  assert.equal(result.state, 'LEDGER_UNVERIFIED');
+  assert.equal(result.writer_lock.present, true);
+  assert.equal(result.writer_lock.stale_status, 'NOT_ESTABLISHED');
+  assert.equal(result.artifact_errors.length, 1);
+  assert.equal((await names(f.dir)).includes('.writer.lock'), true);
+});
+
+test('directory-view change during inspection is IN_DOUBT', async t => {
+  const f = await fixture(t);
+  const originalList = f.registry.store.list.bind(f.registry.store);
+  let calls = 0;
+  f.registry.store.list = async parts => {
+    calls += 1;
+    const result = await originalList(parts);
+    return calls === 3 ? [...result, '.writer.lock'] : result;
+  };
+  const result = await inspectIncidentState(f.registry, 'C1', { clock:() => now });
+  assert.equal(result.concurrent_change_detected, true);
+  assert.equal(result.state, 'IN_DOUBT');
+});
+
+test('repeated read-only inspection preserves evidence but creates distinct observation IDs', async t => {
   const f = await fixture(t);
   await writeFile(join(f.dir, '.pending-stale'), '{"same":true}\n', { mode:0o600 });
   const beforeNames = await names(f.dir);
   const beforeBytes = await readFile(join(f.dir, '.pending-stale'), 'utf8');
   const first = await inspectIncidentState(f.registry, 'C1', { clock:() => now });
   const second = await inspectIncidentState(f.registry, 'C1', { clock:() => now });
-  assert.equal(first.inspection_id, second.inspection_id);
+  assert.notEqual(first.inspection_id, second.inspection_id);
+  assert.equal(first.snapshot_sha256, second.snapshot_sha256);
   assert.equal(first.state, second.state);
   assert.deepEqual(await names(f.dir), beforeNames);
   assert.equal(await readFile(join(f.dir, '.pending-stale'), 'utf8'), beforeBytes);
