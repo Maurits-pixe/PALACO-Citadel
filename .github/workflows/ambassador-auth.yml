@@ -5,7 +5,7 @@ on:
     branches: ["main"]
     paths:
       - "ambassades/**"
-      - "tests/browser/ambassades-auth.spec.mjs"
+      - "tests/browser/ambassades-*.spec.mjs"
       - ".github/workflows/ambassador-auth.yml"
   workflow_dispatch:
 
@@ -25,7 +25,9 @@ jobs:
         working-directory: ambassades/auth
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Check browser client syntax
-        run: node --check ambassades/portal.js
+        run: |
+          node --check ambassades/portal.js
+          node --check ambassades/i18n.js
       - name: Run access isolation and denial tests
         working-directory: ambassades/auth
         run: npm test
@@ -37,7 +39,7 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Verify access-page flows and responsive layout
-        run: npx playwright test tests/browser/ambassades-auth.spec.mjs
+        run: npx playwright test tests/browser/ambassades-auth.spec.mjs tests/browser/ambassades-languages.spec.mjs
 
   container:
     runs-on: ubuntu-latest

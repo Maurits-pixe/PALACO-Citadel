@@ -101,6 +101,8 @@ const publicFiles = new Map([
   ['/index.html', ['index.html', 'text/html']],
   ['/toegang.html', ['toegang.html', 'text/html']],
   ['/portal.js', ['portal.js', 'text/javascript']],
+  ['/i18n.js', ['i18n.js', 'text/javascript']],
+  ['/locales.json', ['locales.json', 'application/json']],
   ['/access-slots.json', ['access-slots.json', 'application/json']],
 ]);
 

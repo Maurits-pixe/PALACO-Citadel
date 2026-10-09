@@ -68,6 +68,10 @@ try {
       assert.ok(home.headers.get('content-security-policy')?.includes("frame-ancestors 'none'"));
       const access = await request(base, '/toegang.html');
       assert.equal(access.status, 200);
+      assert.equal((await request(base, '/i18n.js')).status, 200);
+      const translations = await request(base, '/locales.json');
+      assert.equal(translations.status, 200);
+      assert.deepEqual(Object.keys(await translations.json()).sort(), ['ar', 'de', 'en', 'eo', 'es', 'fr', 'it', 'nl', 'pt', 'ru', 'zh']);
       for (const path of ['/auth/server.mjs', '/auth/.env', '/auth/package-lock.json', '/private/members.json']) {
         assert.equal((await request(base, path)).status, 404, 'Private/runtime path must not be published: ' + path);
       }

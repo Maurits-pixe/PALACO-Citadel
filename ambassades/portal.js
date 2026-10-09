@@ -1,5 +1,6 @@
 (() => {
  'use strict';
+ const t = (text, values = {}) => window.PalacoI18n?.text(text, values) || text.replace(/\{(\w+)\}/g, (match, key) => values[key] ?? match);
  const seatPattern = /^PALACO-AMB-(0[1-9]|1[0-2])$/;
  const seats = Array.from(document.querySelectorAll('.seat'));
  const statusElement = document.getElementById('access-state');
@@ -23,8 +24,8 @@
   unavailable.hidden = false; logout.hidden = true; workspace.hidden = true;
  }
  function selectSeat(seat) {
-  selected.textContent = seat ? 'Toegang voor ' + seat : 'Kies je ambassadepost';
-  selectionNote.textContent = seat ? 'Je persoonlijke account moet aan deze zetel zijn gekoppeld.' : 'Kies hieronder de post waarvan je de persoonlijke toegang wilt openen.';
+  selected.textContent = seat ? t('Toegang voor {seat}', {seat}) : t('Kies je ambassadepost');
+  selectionNote.textContent = seat ? t('Je persoonlijke account moet aan deze zetel zijn gekoppeld.') : t('Kies hieronder de post waarvan je de persoonlijke toegang wilt openen.');
   for (const link of seats) {
    if (seat && link.getAttribute('href') === '#' + seat) link.setAttribute('aria-current', 'true');
    else link.removeAttribute('aria-current');
@@ -41,7 +42,7 @@
   resetAccess();
   const requested = chosenSeat();
   selectSeat(requested);
-  statusElement.textContent = 'Inlogstatus controleren…';
+  statusElement.textContent = t('Inlogstatus controleren…');
   try {
    const status = await readJSON('api/auth/status');
    if (version !== revision) return;
@@ -53,31 +54,31 @@
    if (status.authenticated === true && assigned) {
     logout.hidden = false;
     if (activeSeat !== assigned) {
-     statusElement.textContent = 'Geen toegang tot deze post';
-     message.textContent = 'Je account heeft toegang tot ' + assigned + '. Kies die post om je eigen omgeving te openen.';
+     statusElement.textContent = t('Geen toegang tot deze post');
+     message.textContent = t('Je account heeft toegang tot {seat}. Kies die post om je eigen omgeving te openen.', {seat: assigned});
     } else {
      const data = await readJSON('api/me');
      if (version !== revision) return;
      if (data.seat !== assigned || data.access !== 'personal-workspace-read-only') throw new Error('Unavailable');
      workspace.hidden = false;
-     document.getElementById('workspace-seat').textContent = 'Gekoppelde zetel: ' + data.seat;
-     statusElement.textContent = 'Persoonlijk account gecontroleerd';
-     message.textContent = 'Je bent ingelogd. De toegang tot je eigen post wordt opnieuw gecontroleerd bij ieder verzoek.';
+     document.getElementById('workspace-seat').textContent = t('Gekoppelde zetel: {seat}', {seat: data.seat});
+     statusElement.textContent = t('Persoonlijk account gecontroleerd');
+     message.textContent = t('Je bent ingelogd. De toegang tot je eigen post wordt opnieuw gecontroleerd bij ieder verzoek.');
     }
    } else if (activeSeat) {
-    statusElement.textContent = 'Persoonlijke inlog beschikbaar';
-    message.textContent = 'Log in met je eigen account. Alleen vooraf gekoppelde accounts krijgen toegang tot hun post.';
+    statusElement.textContent = t('Persoonlijke inlog beschikbaar');
+    message.textContent = t('Log in met je eigen account. Alleen vooraf gekoppelde accounts krijgen toegang tot hun post.');
     const url = endpoint('login'); url.searchParams.set('seat', activeSeat);
     login.href = url.pathname + url.search; login.hidden = false;
    } else {
-    statusElement.textContent = 'Kies eerst je ambassadepost';
-    message.textContent = 'De inlogdienst is beschikbaar. Kies hieronder je post om aan te melden.';
+    statusElement.textContent = t('Kies eerst je ambassadepost');
+    message.textContent = t('De inlogdienst is beschikbaar. Kies hieronder je post om aan te melden.');
    }
   } catch {
    if (version !== revision) return;
    resetAccess();
-   statusElement.textContent = 'Persoonlijke toegang momenteel niet beschikbaar';
-   message.textContent = 'De inlogdienst of accountcontrole is niet bereikbaar. Probeer het later opnieuw.';
+   statusElement.textContent = t('Persoonlijke toegang momenteel niet beschikbaar');
+   message.textContent = t('De inlogdienst of accountcontrole is niet bereikbaar. Probeer het later opnieuw.');
   } finally {
    if (version === revision) pollTimer = setTimeout(refresh, 30000);
   }
@@ -85,15 +86,16 @@
  logout.addEventListener('click', async () => {
   const version = ++revision;
   clearTimeout(pollTimer); resetAccess();
-  statusElement.textContent = 'Uitloggen…';
+  statusElement.textContent = t('Uitloggen…');
   try {
    const response = await fetch(endpoint('logout'), {method: 'POST', credentials: 'same-origin', cache: 'no-store', redirect: 'manual'});
    if (response.type !== 'opaqueredirect' && !response.ok && response.status !== 302 && response.status !== 303) throw new Error('Logout failed');
-   if (version === revision) {statusElement.textContent = 'Je sessie is afgesloten'; message.textContent = 'De persoonlijke omgeving is gesloten.';}
+   if (version === revision) {statusElement.textContent = t('Je sessie is afgesloten'); message.textContent = t('De persoonlijke omgeving is gesloten.');}
   } catch {
-   if (version === revision) {statusElement.textContent = 'Uitloggen niet bevestigd'; message.textContent = 'Het afsluiten van de sessie kon niet worden bevestigd. Probeer het opnieuw.'; logout.hidden = false;}
+   if (version === revision) {statusElement.textContent = t('Uitloggen niet bevestigd'); message.textContent = t('Het afsluiten van de sessie kon niet worden bevestigd. Probeer het opnieuw.'); logout.hidden = false;}
   } finally {if (version === revision) pollTimer = setTimeout(refresh, 1000);}
  });
+ window.addEventListener('palaco:languagechange', refresh);
  window.addEventListener('hashchange', refresh);
  document.addEventListener('visibilitychange', () => {if (!document.hidden) refresh();});
  refresh();

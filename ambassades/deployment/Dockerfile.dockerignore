@@ -5,6 +5,8 @@
 !ambassades/index.html
 !ambassades/toegang.html
 !ambassades/portal.js
+!ambassades/i18n.js
+!ambassades/locales.json
 !ambassades/access-slots.json
 !ambassades/auth/
 !ambassades/deployment/
