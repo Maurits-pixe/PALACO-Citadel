@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Ontdek de twaalf PALACO ambassadeposten, hun aandachtsgebieden en het governance-ontwerp. Review en ratificatie staan open; operatieve bevoegdheid is niet actief.">
+<meta name="theme-color" content="#19372f">
+<title>PALACO Ambassades — Twaalf posten, één Government</title>
+<style>
+:root{--paper:#f4f1e9;--white:#fffdf7;--ink:#19372f;--muted:#52635b;--line:#ccd0c4;--gold:#9d7838;--light-gold:#e7d6ae}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:30px}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+a{color:inherit}button,input,select{font:inherit}a,button,summary,input,select{-webkit-tap-highlight-color:transparent}a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #bd8837;outline-offset:4px}
+[hidden]{display:none!important}.skip{position:absolute;left:20px;top:-100px;z-index:9;background:var(--ink);color:white;padding:12px}.skip:focus{top:12px}
+.wrap{width:min(1180px,88%);margin:auto}header{border-bottom:1px solid var(--line)}.header-row{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:25px 0}
+.brand{text-decoration:none;display:flex;gap:12px;align-items:center}.brand-mark{width:34px;height:40px;border:1px solid var(--gold);border-radius:18px 18px 2px 2px;display:grid;place-items:center;font:24px Georgia,serif;color:var(--gold)}.brand-name{font-size:19px;font-weight:750;letter-spacing:.17em}.brand-sub{font-size:10px;letter-spacing:.16em;color:var(--muted);display:block}
+nav{display:flex;gap:28px;flex-wrap:wrap}nav a{font-size:13px;text-decoration:none}nav a:hover{text-decoration:underline;text-underline-offset:6px}
+.hero{display:grid;grid-template-columns:1.4fr 1fr;align-items:center;gap:80px;padding:80px 0 70px}.eyebrow{font-size:11px;letter-spacing:.17em;text-transform:uppercase;font-weight:650;color:var(--muted)}
+h1{font:clamp(54px,6.5vw,90px)/1.05 Georgia,"Times New Roman",serif;letter-spacing:-.055em;margin:22px 0 28px}h1 em{font-weight:400;color:var(--gold)}
+.lead{font-size:18px;max-width:570px;color:var(--muted)}.button{display:inline-flex;gap:28px;padding:14px 24px;color:white;background:var(--ink);text-decoration:none;font-size:14px;border:1px solid var(--ink);border-radius:2px;margin-top:24px}.button:hover{background:#2b4e42}
+.hero-note{font-size:12px;color:var(--muted);margin-top:18px}.arch{background:var(--ink);color:var(--paper);border-radius:230px 230px 8px 8px;min-height:420px;text-align:center;padding:55px 30px 35px;position:relative}
+.arch:before{content:"";position:absolute;inset:18px;border:1px solid #d3b57570;border-radius:220px 220px 3px 3px;pointer-events:none}
+.arch-number{font:112px/1 Georgia,serif;color:var(--light-gold);display:block}.arch-label{text-transform:uppercase;letter-spacing:.2em;font-size:11px;margin:20px 0}.arch-line{width:45px;height:1px;background:#d3b57580;margin:20px auto}.arch-flow{font-size:13px;line-height:1.85}.arch-flow small{font-size:11px;color:#d2dacf}
+.snapshot{border-top:1px solid var(--line);border-bottom:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);padding:22px 0;gap:25px}.snapshot strong{font-size:15px;font-weight:650}.snapshot small{display:block;font-size:12px;color:var(--muted);margin-top:4px}
+section{padding:70px 0}.section-title{display:flex;justify-content:space-between;gap:30px;align-items:end}.section-title p{max-width:390px;color:var(--muted);font-size:14px;margin:0 0 8px}
+h2{font:42px/1.12 Georgia,serif;letter-spacing:-.025em;margin:12px 0 20px}h3{font:26px/1.18 Georgia,serif;letter-spacing:-.015em;margin:24px 0 18px}
+.note{font-size:13px;color:var(--muted);border-left:2px solid var(--gold);padding:3px 0 3px 17px}.filter-bar{display:flex;gap:16px;align-items:end;margin:30px 0 24px;flex-wrap:wrap}.field{display:flex;flex-direction:column;gap:7px}.field:first-child{flex:1;min-width:220px}.field label{font-size:12px;font-weight:600}input,select{padding:12px 14px;border:1px solid #a9b3a6;color:var(--ink);background:var(--white);border-radius:2px;min-height:49px}select{min-width:210px}.filter-reset{background:transparent;color:var(--ink);border:0;text-decoration:underline;text-underline-offset:4px;padding:13px 2px;cursor:pointer}.count{font-size:12px;color:var(--muted);margin-left:auto}
+.posts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.post{background:var(--white);border:1px solid var(--line);padding:27px;display:flex;flex-direction:column;scroll-margin-top:25px;transition:border-color .2s}
+.post:hover{border-color:var(--gold)}.post-top{display:flex;justify-content:space-between;gap:15px;align-items:center}.post-number{font:34px/1 Georgia,serif;color:var(--gold)}.post-category{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.description{font-size:14px;color:var(--muted);margin:0 0 22px}.holder{margin-top:auto;display:flex;gap:8px;align-items:center;font-size:11px;padding-bottom:18px}.status-dot{width:6px;height:6px;border-radius:50%;background:#a08045;flex-shrink:0}
+details{border-top:1px solid var(--line);padding-top:16px}summary{display:flex;gap:10px;justify-content:space-between;align-items:center;cursor:pointer;font-size:12px;font-weight:600;list-style:none}summary::-webkit-details-marker{display:none}summary span{font-size:18px;color:var(--gold)}details[open] summary span{transform:rotate(45deg)}
+dl{display:grid;grid-template-columns:1fr;gap:4px;margin:23px 0 14px}dt{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}dd{font-size:13px;margin:0 0 10px;overflow-wrap:anywhere}.text-link{font-size:12px;text-underline-offset:4px}
+.empty{padding:30px;border:1px dashed var(--line);text-align:center}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:65px}.two-col p{color:var(--muted)}
+.steps{margin:0;padding:0;list-style:none;counter-reset:steps}.steps li{counter-increment:steps;border-bottom:1px solid var(--line);padding:16px 0;display:grid;grid-template-columns:35px 1fr;gap:12px;font-size:14px}.steps li:before{content:"0" counter(steps);color:var(--gold);font:21px Georgia,serif}.steps strong{display:block}
+.governance{background:var(--ink);color:var(--paper);padding:45px;border-radius:3px}.governance .eyebrow{color:var(--light-gold)}.governance h2{color:var(--light-gold)}.governance p{font-size:14px;color:#d3dcd2}
+table{width:100%;border-collapse:collapse;margin:30px 0 25px;font-size:14px}caption{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.12em;padding-bottom:12px;color:var(--light-gold)}th,td{text-align:left;border-bottom:1px solid #d3dcd240;padding:15px 10px}th{font-size:12px;font-weight:500;color:#d3dcd2}td:first-child,th:first-child{padding-left:0}.num{font:25px Georgia,serif;white-space:nowrap}.num small{font:12px system-ui,sans-serif;color:#d3dcd2}
+.governance-status{border-top:1px solid #d3dcd240;padding-top:18px;font-size:13px}.boundaries{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;padding-top:25px}.boundaries p{font-size:13px;color:var(--muted)}.boundaries strong{display:block;color:var(--ink);font-size:14px;margin-bottom:7px}
+.sources{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.source{padding:22px;border:1px solid var(--line);text-decoration:none;background:var(--white)}.source small{display:block;color:var(--muted);font-size:12px;margin-top:7px}.source:hover{border-color:var(--gold)}footer{border-top:1px solid var(--line);padding:28px 0 35px;color:var(--muted);font-size:12px}.footer-row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+@media(min-width:900px){.post h3{min-height:92px}}
+@media(max-width:900px){.hero{gap:30px}.arch{min-height:365px;padding-top:40px}.posts{grid-template-columns:repeat(2,minmax(0,1fr))}.two-col{gap:35px}.sources{grid-template-columns:1fr}.boundaries{gap:16px}}
+@media(max-width:600px){.wrap{width:89%}.header-row{align-items:flex-start;flex-direction:column;gap:18px}nav{gap:20px}.hero{grid-template-columns:1fr;padding:45px 0 35px;gap:30px}h1{font-size:57px}h2{font-size:35px}.arch{min-height:310px;border-radius:180px 180px 5px 5px;max-width:360px;width:100%;margin:auto}.arch-number{font-size:80px}.arch-label{margin:10px 0}.arch-line{margin:14px auto}.snapshot{grid-template-columns:1fr;gap:15px}.section-title{flex-direction:column;align-items:start;gap:0}.posts{grid-template-columns:1fr}.post{padding:25px}section{padding:45px 0}.two-col{grid-template-columns:1fr}.governance{padding:24px}.boundaries{grid-template-columns:1fr;gap:0}td,th{padding:12px 5px}table{font-size:12px}.num{font-size:22px}.filter-bar{align-items:stretch}.field{width:100%}select{width:100%}.filter-reset{text-align:left}.count{margin-left:0}.lead{font-size:17px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.post{transition:none}}
+</style></head>
+<body>
+<a class="skip" href="#main">Ga naar de inhoud</a>
+<header><div class="wrap header-row"><a class="brand" href="#top" aria-label="PALACO Ambassades, startpagina"><span class="brand-mark" aria-hidden="true">P</span><span class="brand-name">PALACO<span class="brand-sub">AMBASSADEPOSTEN & AMBASSADEURS</span></span></a><nav aria-label="Hoofdnavigatie"><a href="#posten">De twaalf posten</a><a href="#benoeming">Benoeming</a><a href="#governance">Governance</a><a href="#bronnen">Bronnen</a></nav></div></header>
+<main class="wrap" id="main">
+<div class="hero" id="top"><div><div class="eyebrow">PALACO GOVERNMENT · Governance in ontwerp</div><h1>Twaalf posten.<br><em>Eén Government.</em></h1><p class="lead">Ontdek de twaalf ambassadeposten van PALACO. Iedere zetel heeft een eigen aandachtsgebied. De door HOOFDKANTOOR benoemde ambassadeurs vormen gezamenlijk PALACO GOVERNMENT.</p><a class="button" href="#posten">Ontdek de ambassadeposten <span aria-hidden="true">↓</span></a><p class="hero-note">Review en ratificatie open · Geen operationeel benoemingsregister</p></div><div class="arch"><span class="arch-number">12</span><p class="arch-label">Vaste ambassadeposten</p><div class="arch-line"></div><div class="arch-flow">HOOFDKANTOOR<br><small>↓ benoemt</small><br>Twaalf ambassadeurs<br><small>↓ vormen gezamenlijk</small><br><strong>PALACO GOVERNMENT</strong></div></div></div>
+<div class="snapshot"><div><strong>Twaalf ontwerpzetels</strong><small>PALACO-AMB-01 t/m PALACO-AMB-12</small></div><div><strong>Benoemingen niet vastgelegd</strong><small>Geen personen in dit ontwerp</small></div><div><strong>Operatieve bevoegdheid niet actief</strong><small>Afzonderlijke ratificatie en activering vereist</small></div></div>
+<section id="posten" aria-labelledby="posts-title"><div class="section-title"><div><div class="eyebrow">Het ambassadeoverzicht</div><h2 id="posts-title">De twaalf posten</h2></div><p>Een vaste zetel, een helder aandachtsgebied en een herleidbare benoeming als uitgangspunt.</p></div><p class="note">Een ambassadepost is hier een governance-zetel. Locaties en diplomatieke erkenning zijn niet vastgelegd. De aandachtsgebieden zijn ontwerpvoorstellen uit GO-GOV-12-001; ze verlenen geen individuele bevoegdheid.</p>
+<div class="filter-bar" id="filters" hidden><div class="field"><label for="search">Zoek een post of aandachtsgebied</label><input id="search" type="search" placeholder="Bijv. wetenschap, privacy of audit…"></div><div class="field"><label for="category">Aandachtsgroep</label><select id="category"><option value="all">Alle aandachtsgroepen</option><option>Kaders</option><option>Bewijs</option><option>Bescherming</option><option>Samenwerking</option></select></div><button class="filter-reset" id="reset" type="button">Wis filters</button><span class="count" id="count" aria-live="polite"></span></div>
+<div class="posts"><article class="post" id="post-01" data-category="Kaders" data-search="PALACO-AMB-01 Constitutionele integriteit Voorstellen toetsen aan constitutionele grenzen en bezwaren bewaren.">
+<div class="post-top"><span class="post-number">01</span><span class="post-category">Kaders</span></div>
+<h3>Constitutionele integriteit</h3><p class="description">Voorstellen toetsen aan constitutionele grenzen en bezwaren bewaren.</p>
+<div class="holder"><span class="status-dot"></span><span>Benoeming niet vastgelegd</span></div>
+<details><summary>Bekijk de ambassadepost <span aria-hidden="true">+</span></summary>
+<dl><dt>Zetel-ID</dt><dd>PALACO-AMB-01</dd><dt>Ambassadeur</dt><dd>Geen persoon vastgelegd in dit ontwerp</dd><dt>Benoemingsrecord</dt><dd>Niet beschikbaar in deze momentopname</dd><dt>Benoemingsbron</dt><dd>HOOFDKANTOOR · toekomstig protocol</dd><dt>Governancestatus</dt><dd>Ontwerp · review en ratificatie open</dd><dt>Rolgrens</dt><dd>Aandachtsgebied voor gezamenlijke beraadslaging; geen individuele bevoegdheid.</dd></dl>
+<a class="text-link" href="https://github.com/Maurits-pixe/PALACO-Citadel/issues/33">Lees het governance-ontwerp ↗</a></details></article>
+<article class="post" id="post-02" data-category="Kaders" data-search="PALACO-AMB-02 Governance &amp; rolscheiding Bevoegdheden, benoemingsgrenzen en de scheiding van rollen onderzoeken.">
+<div class="post-top"><span class="post-number">02</span><span class="post-category">Kaders</span></div>
+<h3>Governance &amp; rolscheiding</h3><p class="description">Bevoegdheden, benoemingsgrenzen en de scheiding van rollen onderzoeken.</p>
+<div class="holder"><span class="status-dot"></span><span>Benoeming niet vastgelegd</span></div>
+<details><summary>Bekijk de ambassadepost <span aria-hidden="true">+</span></summary>
+<dl><dt>Zetel-ID</dt><dd>PALACO-AMB-02</dd><dt>Ambassadeur</dt><dd>Geen persoon vastgelegd in dit ontwerp</dd><dt>Benoemingsrecord</dt><dd>Niet beschikbaar in deze momentopname</dd><dt>Benoemingsbron</dt><dd>HOOFDKANTOOR · toekomstig protocol</dd><dt>Governancestatus</dt><dd>Ontwerp · review en ratificatie open</dd><dt>Rolgrens</dt><dd>Aandachtsgebied voor gezamenlijke beraadslaging; geen individuele bevoegdheid.</dd></dl>
+<a class="text-link" href="https://github.com/Maurits-pixe/PALACO-Citadel/issues/33">Lees het governance-ontwerp ↗</a></details></article>
+<article class="post" id="post-03" data-category="Bewijs" data-search="PALACO-AMB-03 Wetenschappelijke methode &amp; bewijs Bewijskwaliteit, onzekerheden en beperkingen beoordelen. Stemmen bepalen geen wetenschappelijke waarheid.">
+<div class="post-top"><span class="post-number">03</span><span class="post-category">Bewijs</span></div>
+<h3>Wetenschappelijke methode &amp; bewijs</h3><p class="description">Bewijskwaliteit, onzekerheden en beperkingen beoordelen. Stemmen bepalen geen wetenschappelijke waarheid.</p>
+<div class="holder"><span class="status-dot"></span><span>Benoeming niet vastgelegd</span></div>
+<details><summary>Bekijk de ambassadepost <span aria-hidden="true">+</span></summary>
+<dl><dt>Zetel-ID</dt><dd>PALACO-AMB-03</dd><dt>Ambassadeur</dt><dd>Geen persoon vastgelegd in dit ontwerp</dd><dt>Benoemingsrecord</dt><dd>Niet beschikbaar in deze momentopname</dd><dt>Benoemingsbron</dt><dd>HOOFDKANTOOR · toekomstig protocol</dd><dt>Governancestatus</dt><dd>Ontwerp · review en ratificatie open</dd><dt>Rolgrens</dt><dd>Aandachtsgebied voor gezamenlijke beraadslaging; geen individuele bevoegdheid.</dd></dl>
+<a class="text-link" href="https://github.com/Maurits-pixe/PALACO-Citadel/issues/33">Lees het governance-ontwerp ↗</a></details></article>
+<article class="post" id="post-04" data-category="Bewijs" data-search="PALACO-AMB-04 Review &amp; acceptance-toezicht Het ontwerp van reviewprocessen onderzoeken, zonder reviewerstatus of acceptancebevoegdheid toe te kennen.">
+<div class="post-top"><span class="post-number">04</span><span class="post-category">Bewijs</span></div>
+<h3>Review &amp; acceptance-toezicht</h3><p class="description">Het ontwerp van reviewprocessen onderzoeken, zonder reviewerstatus of acceptancebevoegdheid toe te kennen.</p>
+<div class="holder"><span class="status-dot"></span><span>Benoeming niet vastgelegd</span></div>
+<details><summary>Bekijk de ambassadepost <span aria-hidden="true">+</span></summary>
+<dl><dt>Zetel-ID</dt><dd>PALACO-AMB-04</dd><dt>Ambassadeur</dt><dd>Geen persoon vastgelegd in dit ontwerp</dd><dt>Benoemingsrecord</dt><dd>Niet beschikbaar in deze momentopname</dd><dt>Benoemingsbron</dt><dd>HOOFDKANTOOR · toekomstig protocol</dd><dt>Governancestatus</dt><dd>Ontwerp · review en ratificatie open</dd><dt>Rolgrens</dt><dd>Aandachtsgebied voor gezamenlijke beraadslaging; geen individuele bevoegdheid.</dd></dl>
+<a class="text-link" href="https://github.com/Maurits-pixe/PALACO-Citadel/issues/33">Lees het governance-ontwerp ↗</a></details></article>
+<article class="post" id="post-05" data-category="Bescherming" data-search="PALACO-AMB-05 Veiligheid &amp; weigering Veiligheidsargumenten, weigeringsroutes en onopgeloste risico’s onderzoeken.">
+<div class="post-top"><span class="post-number">05</span><span class="post-category">Bescherming</span></div>
+<h3>Veiligheid &amp; weigering</h3><p class="description">Veiligheidsargumenten, weigeringsroutes en onopgeloste risico’s onderzoeken.</p>
+<div class="holder"><span class="status-dot"></span><span>Benoeming niet vastgelegd</span></div>
+<details><summary>Bekijk de ambassadepost <span aria-hidden="true">+</span></summary>
+<dl><dt>Zetel-ID</dt><dd>PALACO-AMB-05</dd><dt>Ambassadeur</dt><dd>Geen persoon vastgelegd in dit ontwerp</dd><dt>Benoemingsrecord</dt><dd>Niet beschikbaar in deze momentopname</dd><dt>Benoemingsbron</dt><dd>HOOFDKANTOOR · toekomstig protocol</dd><dt>Governancestatus</dt><dd>Ontwerp · review en ratificatie open</dd><dt>Rolgrens</dt><dd>Aandachtsgebied voor gezamenlijke beraadslaging; geen individuele bevoegdheid.</dd></dl>
+<a class="text-link" href="https://github.com/Maurits-pixe/PALACO-Citadel/issues/33">Lees het governance-ontwerp ↗</a></details></article>
+<article class="post" id="post-06" data-category="Bewijs" data-search="PALACO-AMB-06 Identiteit &amp; provenance Herleidbare identiteiten, versiegebondenheid en de oorsprong van informatie onderzoeken.">
+<div class="post-top"><span class="post-number">06</span><span class="post-category">Bewijs</span></div>
+<h3>Identiteit &amp; provenance</h3><p class="description">Herleidbare identiteiten, versiegebondenheid en de oorsprong van informatie onderzoeken.</p>
+<div class="holder"><span class="status-dot"></span><span>Benoeming niet vastgelegd</span></div>
+<details><summary>Bekijk de ambassadepost <span aria-hidden="true">+</span></summary>
+<dl><dt>Zetel-ID</dt><dd>PALACO-AMB-06</dd><dt>Ambassadeur</dt><dd>Geen persoon vastgelegd in dit ontwerp</dd><dt>Benoemingsrecord</dt><dd>Niet beschikbaar in deze momentopname</dd><dt>Benoemingsbron</dt><dd>HOOFDKANTOOR · toekomstig protocol</dd><dt>Governancestatus</dt><dd>Ontwerp · review en ratificatie open</dd><dt>Rolgrens</dt><dd>Aandachtsgebied voor gezamenlijke beraadslaging; geen individuele bevoegdheid.</dd></dl>
+<a class="text-link" href="https://github.com/Maurits-pixe/PALACO-Citadel/issues/33">Lees het governance-ontwerp ↗</a></details></article>
+<article class="post" id="post-07" data-category="Bewijs" data-search="PALACO-AMB-07 Audit &amp; verantwoording Reconstrueerbaarheid en voorwaarden voor onafhankelijke audit onderzoeken.">
+<div class="post-top"><span class="post-number">07</span><span class="post-category">Bewijs</span></div>
+<h3>Audit &amp; verantwoording</h3><p class="description">Reconstrueerbaarheid en voorwaarden voor onafhankelijke audit onderzoeken.</p>
+<div class="holder"><span class="status-dot"></span><span>Benoeming niet vastgelegd</span></div>
+<details><summary>Bekijk de ambassadepost <span aria-hidden="true">+</span></summary>
+<dl><dt>Zetel-ID</dt><dd>PALACO-AMB-07</dd><dt>Ambassadeur</dt><dd>Geen persoon vastgelegd in dit ontwerp</dd><dt>Benoemingsrecord</dt><dd>Niet beschikbaar in deze momentopname</dd><dt>Benoemingsbron</dt><dd>HOOFDKANTOOR · toekomstig protocol</dd><dt>Governancestatus</dt><dd>Ontwerp · review en ratificatie open</dd><dt>Rolgrens</dt><dd>Aandachtsgebied voor gezamenlijke beraadslaging; geen individuele bevoegdheid.</dd></dl>
+<a class="text-link" href="https://github.com/Maurits-pixe/PALACO-Citadel/issues/33">Lees het governance-ontwerp ↗</a></details></article>
+<article class="post" id="post-08" data-category="Samenwerking" data-search="PALACO-AMB-08 Citadel-coördinatie Afhankelijkheden en grenzen tussen Citadels zichtbaar maken.">
+<div class="post-top"><span class="post-number">08</span><span class="post-category">Samenwerking</span></div>
+<h3>Citadel-coördinatie</h3><p class="description">Afhankelijkheden en grenzen tussen Citadels zichtbaar maken.</p>
+<div class="holder"><span class="status-dot"></span><span>Benoeming niet vastgelegd</span></div>
+<details><summary>Bekijk de ambassadepost <span aria-hidden="true">+</span></summary>
+<dl><dt>Zetel-ID</dt><dd>PALACO-AMB-08</dd><dt>Ambassadeur</dt><dd>Geen persoon vastgelegd in dit ontwerp</dd><dt>Benoemingsrecord</dt><dd>Niet beschikbaar in deze momentopname</dd><dt>Benoemingsbron</dt><dd>HOOFDKANTOOR · toekomstig protocol</dd><dt>Governancestatus</dt><dd>Ontwerp · review en ratificatie open</dd><dt>Rolgrens</dt><dd>Aandachtsgebied voor gezamenlijke beraadslaging; geen individuele bevoegdheid.</dd></dl>
+<a class="text-link" href="https://github.com/Maurits-pixe/PALACO-Citadel/issues/33">Lees het governance-ontwerp ↗</a></details></article>
+<article class="post" id="post-09" data-category="Samenwerking" data-search="PALACO-AMB-09 Menselijke participatie &amp; vertegenwoordiging Gevolgen voor betrokkenen en toegankelijkheid van deelname zichtbaar maken.">
+<div class="post-top"><span class="post-number">09</span><span class="post-category">Samenwerking</span></div>
+<h3>Menselijke participatie &amp; vertegenwoordiging</h3><p class="description">Gevolgen voor betrokkenen en toegankelijkheid van deelname zichtbaar maken.</p>
+<div class="holder"><span class="status-dot"></span><span>Benoeming niet vastgelegd</span></div>
+<details><summary>Bekijk de ambassadepost <span aria-hidden="true">+</span></summary>
+<dl><dt>Zetel-ID</dt><dd>PALACO-AMB-09</dd><dt>Ambassadeur</dt><dd>Geen persoon vastgelegd in dit ontwerp</dd><dt>Benoemingsrecord</dt><dd>Niet beschikbaar in deze momentopname</dd><dt>Benoemingsbron</dt><dd>HOOFDKANTOOR · toekomstig protocol</dd><dt>Governancestatus</dt><dd>Ontwerp · review en ratificatie open</dd><dt>Rolgrens</dt><dd>Aandachtsgebied voor gezamenlijke beraadslaging; geen individuele bevoegdheid.</dd></dl>
+<a class="text-link" href="https://github.com/Maurits-pixe/PALACO-Citadel/issues/33">Lees het governance-ontwerp ↗</a></details></article>
+<article class="post" id="post-10" data-category="Bescherming" data-search="PALACO-AMB-10 Rechten, privacy &amp; informatiebeheer Informatiegebruik en bescherming van deelnemers onderzoeken.">
+<div class="post-top"><span class="post-number">10</span><span class="post-category">Bescherming</span></div>
+<h3>Rechten, privacy &amp; informatiebeheer</h3><p class="description">Informatiegebruik en bescherming van deelnemers onderzoeken.</p>
+<div class="holder"><span class="status-dot"></span><span>Benoeming niet vastgelegd</span></div>
+<details><summary>Bekijk de ambassadepost <span aria-hidden="true">+</span></summary>
+<dl><dt>Zetel-ID</dt><dd>PALACO-AMB-10</dd><dt>Ambassadeur</dt><dd>Geen persoon vastgelegd in dit ontwerp</dd><dt>Benoemingsrecord</dt><dd>Niet beschikbaar in deze momentopname</dd><dt>Benoemingsbron</dt><dd>HOOFDKANTOOR · toekomstig protocol</dd><dt>Governancestatus</dt><dd>Ontwerp · review en ratificatie open</dd><dt>Rolgrens</dt><dd>Aandachtsgebied voor gezamenlijke beraadslaging; geen individuele bevoegdheid.</dd></dl>
+<a class="text-link" href="https://github.com/Maurits-pixe/PALACO-Citadel/issues/33">Lees het governance-ontwerp ↗</a></details></article>
+<article class="post" id="post-11" data-category="Samenwerking" data-search="PALACO-AMB-11 Continuïteit &amp; veerkracht Opvolging, vacatures en institutionele continuïteit onderzoeken.">
+<div class="post-top"><span class="post-number">11</span><span class="post-category">Samenwerking</span></div>
+<h3>Continuïteit &amp; veerkracht</h3><p class="description">Opvolging, vacatures en institutionele continuïteit onderzoeken.</p>
+<div class="holder"><span class="status-dot"></span><span>Benoeming niet vastgelegd</span></div>
+<details><summary>Bekijk de ambassadepost <span aria-hidden="true">+</span></summary>
+<dl><dt>Zetel-ID</dt><dd>PALACO-AMB-11</dd><dt>Ambassadeur</dt><dd>Geen persoon vastgelegd in dit ontwerp</dd><dt>Benoemingsrecord</dt><dd>Niet beschikbaar in deze momentopname</dd><dt>Benoemingsbron</dt><dd>HOOFDKANTOOR · toekomstig protocol</dd><dt>Governancestatus</dt><dd>Ontwerp · review en ratificatie open</dd><dt>Rolgrens</dt><dd>Aandachtsgebied voor gezamenlijke beraadslaging; geen individuele bevoegdheid.</dd></dl>
+<a class="text-link" href="https://github.com/Maurits-pixe/PALACO-Citadel/issues/33">Lees het governance-ontwerp ↗</a></details></article>
+<article class="post" id="post-12" data-category="Bescherming" data-search="PALACO-AMB-12 Dissent, beroep &amp; heroverweging Minderheidsstandpunten bewaren en onafhankelijke heroverwegingsroutes onderzoeken.">
+<div class="post-top"><span class="post-number">12</span><span class="post-category">Bescherming</span></div>
+<h3>Dissent, beroep &amp; heroverweging</h3><p class="description">Minderheidsstandpunten bewaren en onafhankelijke heroverwegingsroutes onderzoeken.</p>
+<div class="holder"><span class="status-dot"></span><span>Benoeming niet vastgelegd</span></div>
+<details><summary>Bekijk de ambassadepost <span aria-hidden="true">+</span></summary>
+<dl><dt>Zetel-ID</dt><dd>PALACO-AMB-12</dd><dt>Ambassadeur</dt><dd>Geen persoon vastgelegd in dit ontwerp</dd><dt>Benoemingsrecord</dt><dd>Niet beschikbaar in deze momentopname</dd><dt>Benoemingsbron</dt><dd>HOOFDKANTOOR · toekomstig protocol</dd><dt>Governancestatus</dt><dd>Ontwerp · review en ratificatie open</dd><dt>Rolgrens</dt><dd>Aandachtsgebied voor gezamenlijke beraadslaging; geen individuele bevoegdheid.</dd></dl>
+<a class="text-link" href="https://github.com/Maurits-pixe/PALACO-Citadel/issues/33">Lees het governance-ontwerp ↗</a></details></article></div><p id="empty" class="empty" hidden>Geen posten gevonden. Pas de zoekterm of aandachtsgroep aan.</p><noscript><p class="note">Alle twaalf posten worden hieronder weergegeven. Zoeken is beschikbaar met JavaScript.</p></noscript>
+</section>
+<section id="benoeming" aria-labelledby="appointment-title"><div class="two-col"><div><div class="eyebrow">Van zetel naar vertegenwoordiger</div><h2 id="appointment-title">Benoeming door<br>HOOFDKANTOOR</h2><p>De zetel blijft bestaan wanneer de ambassadeur wisselt. Het ontwerp voorziet in één persoon per zetel en maximaal één zetel per persoon.</p><p class="note">Naam, biografie en benoemingsbewijs worden pas toegevoegd op basis van een afzonderlijk, herleidbaar benoemingsrecord. Deze website verricht geen benoemingen.</p></div><ol class="steps"><li><div><strong>Nominatie</strong>Identiteit, instemming, ervaring en belangen vastleggen.</div></li><li><div><strong>Geschiktheidsreview</strong>Bewijs, identiteit en belangenconflicten onafhankelijk toetsen.</div></li><li><div><strong>Benoemingsrecord</strong>HOOFDKANTOOR legt een begrensde benoeming vast met termijn en scope.</div></li><li><div><strong>Afzonderlijke activering</strong>Dienst kan pas beginnen binnen een geldig operationeel kader.</div></li><li><div><strong>Termijn & opvolging</strong>Ontwerptermijn twaalf maanden, review iedere zes maanden; vervanging doorloopt dezelfde procedure.</div></li></ol></div></section>
+<section id="governance" aria-labelledby="governance-title"><div class="governance"><div class="eyebrow">Besluitvorming · Ontwerpmodel</div><h2 id="governance-title">Een gezamenlijke stem.<br>Ruimte voor dissent.</h2><p>De institutionele basis blijft twaalf zetels. Vacatures en recusals verlagen de drempels niet. Onthouding telt mee voor deelname, maar niet als een stem vóór.</p><table><caption>Voorgestelde drempels uit Issue #33</caption><thead><tr><th scope="col">Besluitklasse</th><th scope="col">Quorum</th><th scope="col">Minimaal vóór</th></tr></thead><tbody><tr><td>Gewone aanbeveling</td><td class="num">8 <small>van 12</small></td><td class="num">7 <small>van 12</small></td></tr><tr><td>Zwaarder governancevoorstel</td><td class="num">10 <small>van 12</small></td><td class="num">9 <small>van 12</small></td></tr></tbody></table><p>Stemmen zijn gebonden aan een exacte voorstelversie. Belangenconflicten, recusals en minderheidsstandpunten blijven herleidbaar. Ontbrekend quorum leidt tot <strong>NO_QUORUM</strong>; onopgeloste materiële bezwaren tot <strong>IN_DOUBT</strong>.</p><div class="governance-status"><strong>Ontwerp gedefinieerd · Review en ratificatie open · Operatieve Government authority niet actief</strong></div></div><div class="boundaries"><p><strong>Afzonderlijke entiteiten</strong>HOOFDKANTOOR en PALACO GOVERNMENT blijven onderscheiden.</p><p><strong>Een collectief van twaalf</strong>Eén ambassadeur vormt niet alleen de Government.</p><p><strong>Begrensde bevoegdheid</strong>Een benoeming of besluit geeft geen automatische merge-, release- of executionbevoegdheid.</p></div></section>
+<section id="bronnen" aria-labelledby="sources-title"><div class="eyebrow">Herleidbaarheid</div><h2 id="sources-title">Charter & ontwerp</h2><p class="lead" style="font-size:15px">De bronobjecten bevatten de volledige voorwaarden en openstaande stappen. Dit overzicht is een momentopname van 9 oktober 2026 en wordt niet automatisch bijgewerkt.</p><div class="sources"><a class="source" href="https://github.com/Maurits-pixe/PALACO-Citadel/issues/32"><strong>#32 · Government Charter ↗</strong><small>De twaalf ambassadeurs als collectief.</small></a><a class="source" href="https://github.com/Maurits-pixe/PALACO-Citadel/issues/33"><strong>#33 · GO-GOV-12-001 ↗</strong><small>Zetels, benoeming, quorum en besluitmodel.</small></a><a class="source" href="https://github.com/Maurits-pixe/PALACO-Citadel/issues/30"><strong>#30 · HOOFDKANTOOR ↗</strong><small>Afzonderlijke review-governance en grenzen.</small></a></div><p class="note">De aandachtsgroepen in het filter zijn alleen een navigatiehulpmiddel voor deze website. Ze vormen geen extra institutionele laag.</p></section>
+</main><footer><div class="wrap footer-row"><span>PALACO · Ambassadeposten & Ambassadeurs</span><span>Governance-ontwerp · Geen operationeel benoemingsregister</span></div></footer>
+<script>(() => {
+const search = document.getElementById('search');
+const category = document.getElementById('category');
+const posts = Array.from(document.querySelectorAll('.post'));
+const normalize = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('nl').trim();
+function filter() {
+ const terms = normalize(search.value).split(/\s+/).filter(Boolean);
+ let visible = 0;
+ for (const post of posts) {
+  const matches = terms.every(term => normalize(post.dataset.search).includes(term)) &&
+   (category.value === 'all' || category.value === post.dataset.category);
+  post.hidden = !matches;
+  if (matches) visible++;
+ }
+ document.getElementById('count').textContent = visible + ' van 12 posten';
+ document.getElementById('empty').hidden = visible !== 0;
+}
+search.addEventListener('input', filter);
+category.addEventListener('change', filter);
+document.getElementById('reset').addEventListener('click', () => {
+ search.value = ''; category.value = 'all'; filter(); search.focus();
+});
+document.getElementById('filters').hidden = false;
+filter();
+})();</script>
+</body></html>
