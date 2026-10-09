@@ -84,8 +84,12 @@ async function provider(req, res) {
       return res.end();
     }
     if (url.pathname === '/token' && req.method === 'POST') {
-      assert.equal(req.headers.authorization,
-        'Basic ' + Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'));
+      assert.match(req.headers.authorization || '', /^Basic [A-Za-z0-9+/]+=*$/);
+      const [encodedID, encodedSecret, ...extra] = Buffer.from(req.headers.authorization.slice(6), 'base64').toString('utf8').split(':');
+      assert.equal(extra.length, 0);
+      // OAuth client-secret basic credentials are form-encoded before base64 (RFC 6749 section 2.3.1).
+      assert.equal(new URLSearchParams('v=' + encodedID).get('v'), CLIENT_ID);
+      assert.equal(new URLSearchParams('v=' + encodedSecret).get('v'), CLIENT_SECRET);
       let body = '';
       for await (const part of req) {
         body += part;
@@ -212,13 +216,6 @@ before(async () => {
     PALACO_MEMBERS_FILE: membersFile,
   };
   const app = buildApp({ env });
-  const errorLayer = app.router.stack.at(-1);
-  const originalErrorHandler = errorLayer.handle;
-  assert.equal(originalErrorHandler.length, 4);
-  errorLayer.handle = function observeSyntheticError(error, req, res, next) {
-    console.error('Synthetic OIDC error:', error.message, error.code || '', error.cause?.message || '', error.safeCode || '');
-    return originalErrorHandler(error, req, res, next);
-  };
   appServer.on('request', app);
 });
 beforeEach(async () => {
