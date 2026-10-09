@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "status": "PREPARATION_ONLY",
+  "authentication_service": "NOT_CONFIGURED",
+  "note": "Public seat reservations, not accounts, credentials or an authoritative access registry.",
+  "seats": [
+    {
+      "seat_id": "PALACO-AMB-01",
+      "reservation_status": "RESERVED_INACTIVE",
+      "person_identity": null,
+      "appointment_record": null,
+      "granted_scopes": []
+    },
+    {
+      "seat_id": "PALACO-AMB-02",
+      "reservation_status": "RESERVED_INACTIVE",
+      "person_identity": null,
+      "appointment_record": null,
+      "granted_scopes": []
+    },
+    {
+      "seat_id": "PALACO-AMB-03",
+      "reservation_status": "RESERVED_INACTIVE",
+      "person_identity": null,
+      "appointment_record": null,
+      "granted_scopes": []
+    },
+    {
+      "seat_id": "PALACO-AMB-04",
+      "reservation_status": "RESERVED_INACTIVE",
+      "person_identity": null,
+      "appointment_record": null,
+      "granted_scopes": []
+    },
+    {
+      "seat_id": "PALACO-AMB-05",
+      "reservation_status": "RESERVED_INACTIVE",
+      "person_identity": null,
+      "appointment_record": null,
+      "granted_scopes": []
+    },
+    {
+      "seat_id": "PALACO-AMB-06",
+      "reservation_status": "RESERVED_INACTIVE",
+      "person_identity": null,
+      "appointment_record": null,
+      "granted_scopes": []
+    },
+    {
+      "seat_id": "PALACO-AMB-07",
+      "reservation_status": "RESERVED_INACTIVE",
+      "person_identity": null,
+      "appointment_record": null,
+      "granted_scopes": []
+    },
+    {
+      "seat_id": "PALACO-AMB-08",
+      "reservation_status": "RESERVED_INACTIVE",
+      "person_identity": null,
+      "appointment_record": null,
+      "granted_scopes": []
+    },
+    {
+      "seat_id": "PALACO-AMB-09",
+      "reservation_status": "RESERVED_INACTIVE",
+      "person_identity": null,
+      "appointment_record": null,
+      "granted_scopes": []
+    },
+    {
+      "seat_id": "PALACO-AMB-10",
+      "reservation_status": "RESERVED_INACTIVE",
+      "person_identity": null,
+      "appointment_record": null,
+      "granted_scopes": []
+    },
+    {
+      "seat_id": "PALACO-AMB-11",
+      "reservation_status": "RESERVED_INACTIVE",
+      "person_identity": null,
+      "appointment_record": null,
+      "granted_scopes": []
+    },
+    {
+      "seat_id": "PALACO-AMB-12",
+      "reservation_status": "RESERVED_INACTIVE",
+      "person_identity": null,
+      "appointment_record": null,
+      "granted_scopes": []
+    }
+  ]
+}
