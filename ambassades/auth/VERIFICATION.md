@@ -1,25 +1,25 @@
 # Personal login verification boundaries
 
-Run `npm ci --ignore-scripts` and `npm test` in this directory with Node 24.
+Use Node 24. Run `npm ci --ignore-scripts` and `npm test` in this directory.
 
-The backend suite contains 41 checks:
-- 9 membership policy checks;
-- 17 HTTP/configuration checks, including the actual OIDC middleware rejecting unsigned and incorrectly signed session IDs;
-- 7 callback-admission checks against the incoming SDK-validated token;
-- 8 server session-store checks, including logout replay, stale response writes, expiry and capacity.
+The application suite contains 41 checks: 9 membership-policy, 17 HTTP/configuration, 7 callback-admission and 8 server-session checks. Identity fixtures explicitly assume upstream validation. The actual middleware also rejects unsigned and incorrectly signed session IDs.
 
-The browser suite has five scenarios on each of mobile and desktop Chromium. Run `npx playwright test tests/browser/ambassades-auth.spec.mjs` from the repository root after installing the existing browser dependencies and Chromium.
+Run `npm run test:oidc` for thirteen integration scenarios. These use the real OIDC middleware, an HTTPS loopback provider, ephemeral RSA signing keys and a private synthetic membership file. The runner creates a one-day test CA certificate and trusts it only in the fresh test child. TLS validation stays enabled. Scenarios cover discovery/code exchange with matching PKCE, secure signed cookies, wrong signatures/nonce/audience/issuer/expiry, transaction state/cookie failure, unlisted and wrong-seat principals, account switching, revocation and signed-cookie replay after logout.
+
+The browser suite has five scenarios on each of mobile and desktop Chromium. Run `npx playwright test tests/browser/ambassades-auth.spec.mjs` from the repository root after installing the browser dependencies and Chromium. It uses controlled API responses rather than real user accounts.
+
+The PR workflow also builds the isolated production image, validates the Compose configuration and starts the image as its nonroot user under read-only filesystem restrictions. Container smoke checks verify public pages, absence of runtime/private publication and closed personal access with missing configuration or invalid registry data. Fixture secrets belong only to disposable local tests.
 
 ## What the checks establish
 
-Configuration fails closed. Unauthenticated, unknown, wrong-seat, suspended, expired and revoked memberships do not receive protected application metadata. Public serving excludes backend sources and private records. Signed session IDs are required; destroyed sessions cannot be restored by a late response. The access page closes its personal display when current status denies access.
+Configuration and authorization fail closed. Unknown, wrong-seat, suspended, expired and revoked memberships do not receive protected application metadata. Callback admission explicitly verifies the incoming RS256 ID token with JOSE using the configured HTTPS issuer's discovery/JWKS metadata, then matches exact issuer/subject membership. Public serving excludes backend sources and private records. Signed session IDs are required; destroyed sessions cannot be restored by a late response. The access page closes its personal display when current status denies access.
 
 ## What remains to verify against a real provider
 
-A real enrolled account must complete provider login, exact callback, signed session creation, own-seat access and logout over HTTPS. A different enrolled person must be denied that seat. Confirm the issuer/subject mapping from the provider's verified identity, and test actual provider recovery/MFA as configured.
+A real enrolled account must complete provider login, exact callback, signed session creation, own-seat access and logout over the selected host's HTTPS origin. A different enrolled person must be denied that seat. Confirm the issuer/subject mapping from the provider's verified identity and test the selected provider's recovery/MFA configuration.
 
-Most identity fixtures assume the upstream SDK has already validated a token. They are application authorization tests and do not demonstrate an actual account login. The real-middleware negative test checks local signed-session handling without provider discovery.
+Synthetic HTTPS-provider integration demonstrates the protocol/application path, not real provider provisioning, account enrollment or publication. No real contact or enabled runtime membership is included.
 
 The bounded session store supports one process. Restart ends its sessions; several independent instances require a shared durable store. No test or login grants operative Government, voting, acceptance, merge, release or execution authority.
 
-For the exact tested source and results, use the checks on PR #34. A passing workflow is not deployment, enrollment or account activation.
+For the exact tested source and results, use PR #34's checks. A passing workflow is not deployment, enrollment or account activation.

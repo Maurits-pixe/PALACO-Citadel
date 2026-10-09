@@ -1,6 +1,6 @@
 import express from 'express';
 import { auth } from 'express-openid-connect';
-import { decodeJwt } from 'jose';
+import { createIdTokenVerifier } from './token-verification.mjs';
 import { createHash } from 'node:crypto';
 import { readFileSync, realpathSync } from 'node:fs';
 import { readFile, realpath, stat } from 'node:fs/promises';
@@ -74,15 +74,18 @@ function httpError(status, code) {
   return Object.assign(new Error(code), { status, safeCode: code });
 }
 
-export function makeAfterCallback(loadMembers) {
+export function makeAfterCallback(loadMembers, verifyIdToken) {
+  if (typeof loadMembers !== 'function' || typeof verifyIdToken !== 'function') {
+    throw new TypeError('Callback requires membership and token verifiers.');
+  }
   return async function afterCallback(req, res, session, decodedState) {
     const target = typeof decodedState?.returnTo === 'string'
       ? /^\/toegang\.html\?seat=(PALACO-AMB-(?:0[1-9]|1[0-2]))$/.exec(decodedState.returnTo) : null;
     if (!target) throw httpError(400, 'INVALID_LOGIN_TARGET');
     let claims;
     try {
-      // The SDK has already verified THIS incoming ID token. Decode it directly to avoid a stale prior-session cache.
-      claims = decodeJwt(session.id_token);
+      // Verify THIS incoming token rather than a potentially stale prior-session SDK cache.
+      claims = await verifyIdToken(session?.id_token);
     } catch {
       throw httpError(400, 'INVALID_AUTHENTICATION_CALLBACK');
     }
@@ -193,7 +196,7 @@ export function buildApp({ env = process.env, registryLoader, authMiddleware, se
         absoluteDuration: 28800,
         cookie: { secure: config.secure, httpOnly: true, sameSite: 'Lax', path: '/' },
       },
-      afterCallback: makeAfterCallback(registry),
+      afterCallback: makeAfterCallback(registry, createIdTokenVerifier(config)),
     };
     app.use(authMiddleware || auth(oidcConfig));
   }

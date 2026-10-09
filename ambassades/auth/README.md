@@ -2,13 +2,13 @@
 
 ## Implemented
 
-A separate Node authentication service now sits behind the embassy access page. It uses `express-openid-connect` for the OIDC authorization-code login, token validation and a signed, secure session-ID cookie. Session contents remain on the server. The server checks a private issuer/subject-to-seat membership on each protected request. Login does not create or ratify ambassador appointments.
+A separate Node authentication service now sits behind the embassy access page. It uses `express-openid-connect` for the OIDC authorization-code login, token validation and a signed, secure session-ID cookie. The callback additionally verifies the incoming RS256 ID-token signature with JOSE against the configured issuer's HTTPS discovery/JWKS metadata. Session contents remain on the server. The server checks a private issuer/subject-to-seat membership on each protected request. Login does not create or ratify ambassador appointments.
 
 The public page is available as ordinary static presentation, but a functioning personal login requires this server plus real provider configuration. GitHub Pages alone cannot run the authentication service.
 
 ## Runtime setup
 
-Use Node 24 or newer. Install dependencies in this directory with `npm ci --ignore-scripts`, then run `npm start`. In production, put the service behind HTTPS. Configure only the actual reverse-proxy IP/CIDR if proxy trust is needed.
+Use Node 24 or newer. Install dependencies in this directory with `npm ci --ignore-scripts`, then run `npm start`. In production, put the service behind HTTPS. Configure only the actual reverse-proxy IP/CIDR if proxy trust is needed. See [DEPLOYMENT.md](DEPLOYMENT.md) for the isolated container, private Compose settings and Render blueprint.
 
 The environment variable names are listed in `.env.example`. That file is documentation; the service does not automatically load it. Set secrets with the deployment environment's private configuration mechanism.
 
@@ -19,7 +19,7 @@ Required:
 - `PALACO_SESSION_SECRET`: 32 random bytes encoded as 64 hex characters.
 - `PALACO_MEMBERS_FILE`: an absolute private file path outside the repository and web root.
 
-Register `<PALACO_BASE_URL>/callback` as the OIDC callback at the provider. Configure its allowed logout destination to the exact application origin/access page supported by the middleware configuration. The provider must support authorization-code flow for confidential clients. Account security, verification, MFA and recovery are handled by the provider.
+Register `<PALACO_BASE_URL>/callback` as the OIDC callback at the provider. Configure its allowed logout destination to the exact application origin/access page supported by the middleware configuration. The provider must support authorization-code flow with PKCE for confidential clients, RS256 ID tokens, HTTPS discovery and JWKS. Copy its exact discovery issuer, including any trailing slash, into the issuer setting. Account security, verification, MFA and recovery are handled by the provider.
 
 `NODE_ENV=development` permits a loopback HTTP application origin for local testing only; issuer transport remains HTTPS. Missing or invalid settings fail closed.
 
@@ -50,14 +50,14 @@ The read-only personal API grants no voting, independent acceptance, merge, rele
 
 The initial server session store is bounded and in memory, for one server process. It keeps logout tombstones so a late concurrent response cannot restore a destroyed session ID. Restarting the process signs everybody out. Do not run several independent instances with this store; a durable shared store is required for that deployment.
 
-The middleware owns state, nonce, PKCE, signed session IDs and cookie handling. Application code does not generate shared seat passwords or implement cryptographic login protocols.
+The middleware owns state, nonce, PKCE, signed session IDs and cookie handling. JOSE supplies the explicit extra ID-token signature verification. Application code does not generate shared seat passwords or implement cryptographic login protocols.
 
 ## Tests and limitations
 
-`npm test` runs application-level negative tests against the access policy and server. Identity fixtures deliberately stand in for a principal already verified by the mature OIDC middleware; these tests do not claim to validate a real provider account or a live login.
+`npm test` runs 41 application-level access, callback, HTTP and session-store checks. Most identity fixtures stand in for a principal already verified upstream; the suite also uses the actual middleware to reject unsigned/forged session-ID cookies.
 
-The pull-request workflow performs the test run separately from deployment. The suite also checks the actual middleware's rejection of unsigned/forged session-ID cookies without a live provider. A real provider callback/login/logout test, HTTPS deployment and private account enrollment are still necessary before reporting a working login.
+`npm run test:oidc` exercises the real middleware against a controlled HTTPS OIDC provider with synthetic principals. The runner creates an ephemeral test certificate, trusts it through the child process's extra CA setting and leaves production TLS validation intact. Discovery, code exchange, PKCE, nonce, audience, expiry, signatures, own-seat admission and logout are checked without enrolling a real person. A passing controlled-provider test does not establish that an external provider account works.
 
-Local command and Node startup currently fail on the desktop; implementation and review therefore use the GitHub source branch and its CI. No live URL, account credentials or successful personal login is asserted by this README.
+The pull-request workflow also runs ten browser checks for mobile/desktop access-page flows using controlled API responses, then builds and starts the actual nonroot image with read-only runtime restrictions. Container checks use an empty private fixture registry and verify that missing configuration or invalid membership data leaves personal access closed.
 
-Browser tests exercise availability, own-seat display, changed-seat denial, refreshed membership denial and viewport fit using controlled API responses. They complement the server access tests and do not claim a live identity-provider login.
+Real provider setup, private enrollment, HTTPS hosting and a live login/callback/logout test remain necessary before reporting a working individual account. Local command and Node startup currently fail on the desktop, so validation runs in GitHub CI. This code creates no provider client, accounts or invitations and claims no deployed URL.

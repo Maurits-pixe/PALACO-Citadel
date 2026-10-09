@@ -10,7 +10,8 @@
   "scripts": {
     "start": "node server.mjs",
     "test": "node --test test/*.test.mjs",
-    "check": "node --check server.mjs && node --check access-policy.mjs && node --check session-store.mjs"
+    "check": "node --check server.mjs && node --check access-policy.mjs && node --check session-store.mjs && node --check token-verification.mjs",
+    "test:oidc": "node integration/run.mjs"
   },
   "dependencies": {
     "express": "5.2.1",
