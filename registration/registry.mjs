@@ -58,8 +58,14 @@ export class LocalRegistry {
   async events(citadelId) {
     return this.#readEvents(citadelId);
   }
-  async inspectCommittedEvents(citadelId) {
-    return this.#readEvents(citadelId, { allowRecoveryResidue:true });
+  async inspectCommittedLedger(citadelId) {
+    const records = await this.#readEvents(citadelId, { allowRecoveryResidue:true });
+    return Object.freeze({
+      event_count:records.length,
+      head_sequence:records.at(-1)?.sequence ?? 0,
+      head_hash:records.at(-1)?.recordHash ?? null,
+      last_event_type:records.at(-1)?.event?.type ?? null
+    });
   }
   async transaction(citadelId, fn) {
     return this.store.locked(this.parts(citadelId), async () => {
