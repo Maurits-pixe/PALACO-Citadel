@@ -1,0 +1,39 @@
+name: Ambassador personal login checks
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "ambassades/**"
+      - ".github/workflows/ambassador-auth.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install isolated authentication dependencies
+        working-directory: ambassades/auth
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Capture dependency lock for source reproducibility
+        working-directory: ambassades/auth
+        run: node -e "console.log('PALACO_LOCKFILE_BEGIN' + require('node:fs').readFileSync('package-lock.json').toString('base64') + 'PALACO_LOCKFILE_END')"
+      - name: Check browser client syntax
+        run: node --check ambassades/portal.js
+      - name: Run access isolation and denial tests
+        working-directory: ambassades/auth
+        run: npm test
+      - name: Install browser test dependencies
+        run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify access-page flows and responsive layout
+        run: npx playwright test tests/browser/ambassades-auth.spec.mjs

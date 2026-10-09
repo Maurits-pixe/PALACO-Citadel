@@ -4,7 +4,7 @@ A standalone Dutch website presenting the twelve design seats from [GO-GOV-12-00
 
 ## Open the website
 
-Open `index.html` in a browser or serve this directory with an ordinary static web server. The website has no package installation, build step, external font, image, runtime API or network dependency for its own rendering. GitHub links require network access.
+Open `index.html` in a browser or serve this directory with an ordinary static web server. The public website has no build step, external font or image dependency. Its ordinary post directory remains readable offline. Personal login uses the separate Node service documented in `auth/README.md`. GitHub links require network access.
 
 This is a separate website entry point. The existing Citadel homepage and its publication configuration are not changed.
 
@@ -46,3 +46,7 @@ Before publishing, verify in a real browser:
 7. Follow each internal navigation anchor and check the three GitHub sources.
 
 Online publication remains pending. A branch, commit or pull request is not a live website. No live URL is claimed in this draft.
+
+## Personal login implementation
+
+`toegang.html` is now connected through `portal.js` to the OIDC Node service under `auth/`. Real sign-in remains unavailable without provider/client settings, HTTPS deployment and private subject-to-seat memberships. The static reservations do not create accounts. See [PERSONAL-ACCESS.md](PERSONAL-ACCESS.md) and [auth/README.md](auth/README.md).
