@@ -119,6 +119,7 @@ async function provider(req, res) {
     return json(res, 404, { error: 'not_found' });
   } catch (error) {
     // Fail the exchange explicitly rather than allowing a provider assertion to hang the test.
+    console.error('Synthetic provider assertion:', error.message);
     return json(res, 500, { error: 'integration_provider_assertion', detail: error.message });
   }
 }
@@ -210,7 +211,15 @@ before(async () => {
     PALACO_SESSION_SECRET: randomBytes(32).toString('hex'),
     PALACO_MEMBERS_FILE: membersFile,
   };
-  appServer.on('request', buildApp({ env }));
+  const app = buildApp({ env });
+  const errorLayer = app.router.stack.at(-1);
+  const originalErrorHandler = errorLayer.handle;
+  assert.equal(originalErrorHandler.length, 4);
+  errorLayer.handle = function observeSyntheticError(error, req, res, next) {
+    console.error('Synthetic OIDC error:', error.message, error.code || '', error.cause?.message || '', error.safeCode || '');
+    return originalErrorHandler(error, req, res, next);
+  };
+  appServer.on('request', app);
 });
 beforeEach(async () => {
   nextToken = {};

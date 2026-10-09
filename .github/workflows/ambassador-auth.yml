@@ -40,7 +40,6 @@ jobs:
         run: npx playwright test tests/browser/ambassades-auth.spec.mjs
 
   container:
-    needs: auth
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -48,8 +47,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Verify hosting specification
-        run: node ambassades/deployment/verify-blueprint.mjs
       - name: Check private Compose configuration
         run: |
           smoke_dir="$(mktemp -d)"

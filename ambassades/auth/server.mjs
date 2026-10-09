@@ -182,7 +182,7 @@ export function buildApp({ env = process.env, registryLoader, authMiddleware, se
       authorizationParams: {
         response_type: 'code',
         response_mode: 'query',
-        scope: 'openid profile email',
+        scope: 'openid',
       },
       routes: { login: false, logout: false, callback: '/callback', postLogoutRedirect: '/toegang.html' },
       transactionCookie: { name: 'palacoAuthVerification', sameSite: 'Lax' },
