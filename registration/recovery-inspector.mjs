@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { LocalRegistry } from './registry.mjs';
+import { lstat } from 'node:fs/promises';
 
 const sha256 = value => createHash('sha256').update(value).digest('hex');
 const sameList = (a, b) => a.length === b.length && a.every((value, index) => value === b[index]);
@@ -8,6 +9,14 @@ export async function inspectIncidentState(registry, citadelId, { clock = regist
   if (!(registry instanceof LocalRegistry)) {
     throw new TypeError('read-only recovery inspection requires LocalRegistry');
   }
+
+  // Normal storage initialization may create a missing data root. A forensic
+  // inspection must never do that, so prove the configured root already exists
+  // before invoking any ConfinedStore method.
+  let rootStat;
+  try { rootStat = await lstat(registry.store.root); }
+  catch { throw new Error('read-only inspection requires an existing storage root'); }
+  if (!rootStat.isDirectory() || rootStat.isSymbolicLink()) throw new Error('read-only inspection requires a real storage directory');
 
   const parts = registry.parts(citadelId);
   const before = (await registry.store.list(parts)).sort();
