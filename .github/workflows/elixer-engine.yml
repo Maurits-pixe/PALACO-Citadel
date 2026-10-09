@@ -1,0 +1,40 @@
+name: ELIXER ENGINE kernel
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'elixer-engine/**'
+      - '.github/workflows/elixer-engine.yml'
+permissions:
+  contents: read
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Run deterministic kernel and boundary tests
+        run: npm --prefix elixer-engine test
+      - name: Generate package-bound laboratory evidence
+        env:
+          ELIXER_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node elixer-engine/evidence.mjs > elixer-lab-evidence.json
+      - name: Install existing browser test dependencies
+        run: npm ci --ignore-scripts
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify canonical full and widget views
+        run: npx playwright test --config elixer-engine/playwright.config.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: elixer-kernel-evidence-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            elixer-lab-evidence.json
+            test-results/
+          if-no-files-found: warn

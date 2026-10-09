@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:palaco:schemas:elixer-runtime-request-v0.1",
+  "title": "elixer-runtime-request-v0.1",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "who": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "what": {
+      "type": "string",
+      "enum": [
+        "READ",
+        "EXPLAIN",
+        "PROPOSE",
+        "EXECUTE"
+      ]
+    },
+    "why": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "pattern": "\\S"
+    },
+    "elixerId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "packageDigest": {
+      "type": "string",
+      "format": "sha256"
+    },
+    "tenantId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "worldId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "citadelId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "surface": {
+      "type": "string",
+      "enum": [
+        "FULL_ELIXER",
+        "WIDGET"
+      ]
+    },
+    "provenanceRefs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1024,
+        "pattern": "\\S"
+      },
+      "minItems": 0,
+      "maxItems": 64,
+      "uniqueItems": true
+    },
+    "policyVersion": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "consentReference": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "scope": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "public.read",
+          "household.read",
+          "calendar.write"
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 3,
+      "uniqueItems": true
+    },
+    "authorization": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "\\S"
+    },
+    "expiration": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "revocationState": {
+      "type": "string",
+      "enum": [
+        "CURRENT",
+        "UNKNOWN"
+      ]
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "token64"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "who",
+    "what",
+    "why",
+    "elixerId",
+    "version",
+    "packageDigest",
+    "tenantId",
+    "worldId",
+    "citadelId",
+    "surface",
+    "provenanceRefs",
+    "policyVersion",
+    "consentReference",
+    "scope",
+    "authorization",
+    "expiration",
+    "revocationState",
+    "correlationId"
+  ],
+  "additionalProperties": false
+}
