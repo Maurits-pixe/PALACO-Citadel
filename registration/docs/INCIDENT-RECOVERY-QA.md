@@ -72,7 +72,8 @@ because file presence alone cannot prove that no writer still owns the operation
 10. exact-byte fingerprinting, including non-UTF8 residue;
 11. unsafe writer-lock artifact → fail closed;
 12. concurrent directory-view change → `IN_DOUBT`;
-13. repeated inspection → same snapshot digest, distinct observation ID, unchanged evidence.
+13. repeated inspection → same snapshot digest, distinct observation ID, unchanged evidence;
+14. missing configured data-root → refuse inspection without creating storage.
 
 Run locally:
 
@@ -106,5 +107,7 @@ The first candidate passed its scoped CI, then adversarial review identified two
 2. residue hashing passed through UTF-8 decoding and therefore did not prove the exact incident bytes for corrupted or non-text residue.
 
 I2 removes the raw-event surface, returns only a non-authoritative ledger summary, fingerprints exact bytes, validates the writer-lock artifact, and distinguishes a stable snapshot digest from a unique inspection observation ID.
+
+Adversarial follow-up also found that normal `ConfinedStore` initialization may create a missing data-root. The inspector now preflights the configured root with a non-creating filesystem observation and refuses inspection when it is absent. Application-level writes, unlinks, renames and directory creation are therefore excluded by the tested inspector path. Filesystem access-time metadata semantics remain an OS/filesystem property and are not claimed as forensic-grade immutability.
 
 These corrections are candidate hardening only. The new head requires its own CI evidence.
