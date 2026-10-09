@@ -324,7 +324,7 @@ test('login uses a fixed internal selected-seat return target and ignores caller
   assert.equal(response.status, 200);
   const body = await response.json();
   assert.equal(body.fixtureLogin.returnTo, '/toegang.html?seat=PALACO-AMB-01');
-  assert.equal(body.fixtureLogin.authorizationParams.prompt, 'select_account');
+  assert.equal(body.fixtureLogin.authorizationParams.prompt, 'login');
 });
 
 test('real OIDC middleware rejects unsigned and forged cookies for a populated server session',

@@ -70,7 +70,7 @@ async function provider(req, res) {
       assert.equal(params.get('response_mode'), 'query');
       assert.equal(params.get('client_id'), CLIENT_ID);
       assert.equal(params.get('redirect_uri'), origin + '/callback');
-      assert.equal(params.get('prompt'), 'select_account');
+      assert.equal(params.get('prompt'), 'login');
       assert.equal(params.get('code_challenge_method'), 'S256');
       assert.match(params.get('code_challenge') || '', /^[A-Za-z0-9_-]{43}$/);
       assert.ok((params.get('nonce') || '').length >= 16);

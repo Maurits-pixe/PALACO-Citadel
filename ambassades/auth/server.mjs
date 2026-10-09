@@ -224,7 +224,7 @@ export function buildApp({ env = process.env, registryLoader, authMiddleware, se
     await registry();
     return res.oidc.login({
       returnTo: '/toegang.html?seat=' + seat,
-      authorizationParams: { prompt: 'select_account' },
+      authorizationParams: { prompt: 'login' },
     });
   });
 
