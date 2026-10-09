@@ -44,9 +44,9 @@ These are inspection states only. They are not activation, readiness or resumpti
 
 ## Evidence model
 
-The inspector reads the committed chain through `LocalRegistry.inspectCommittedEvents()`. That path uses the same event/hash/signature validation as normal ledger reading, but it may ignore `.writer.lock` and `.pending-*` **for the sole purpose of verifying already committed sequential events**.
+The inspector reads the committed chain through `LocalRegistry.inspectCommittedLedger()`. That path uses the same event/hash/signature validation as normal ledger reading, but it may ignore `.writer.lock` and `.pending-*` **for the sole purpose of verifying already committed sequential events**. It returns only a frozen non-authoritative ledger summary, never the raw event records used by authorization logic.
 
-Pending residue is never appended, renamed or interpreted as a committed event. When safely readable, its current bytes are fingerprinted with SHA-256 and labelled `UNCOMMITTED_RESIDUE`.
+Pending residue is never appended, renamed or interpreted as a committed event. When safely readable, its **exact bytes** are fingerprinted with SHA-256 and labelled `UNCOMMITTED_RESIDUE`. Writer-lock artifacts are safety-checked as evidence too; a symlink or permissive lock fails closed.
 
 A writer lock is always reported with:
 
@@ -68,7 +68,11 @@ because file presence alone cannot prove that no writer still owns the operation
 6. tampered committed event → `LEDGER_UNVERIFIED`;
 7. pending symlink → fail closed;
 8. permissive pending file → fail closed;
-9. repeated inspection → stable result and unchanged evidence.
+9. normal authorization remains fail-closed while inspection returns no raw events;
+10. exact-byte fingerprinting, including non-UTF8 residue;
+11. unsafe writer-lock artifact → fail closed;
+12. concurrent directory-view change → `IN_DOUBT`;
+13. repeated inspection → same snapshot digest, distinct observation ID, unchanged evidence.
 
 Run locally:
 
@@ -92,3 +96,15 @@ CANDIDATE CODE != CI PASS
 CI PASS != INDEPENDENT REVIEW
 INDEPENDENT REVIEW != PRODUCTION SAFETY
 ```
+
+
+## GO-047-I2 adversarial hardening
+
+The first candidate passed its scoped CI, then adversarial review identified two design weaknesses before merge:
+
+1. a raw-event inspection method could have become a future internal bypass around the normal pending-residue fail-closed path;
+2. residue hashing passed through UTF-8 decoding and therefore did not prove the exact incident bytes for corrupted or non-text residue.
+
+I2 removes the raw-event surface, returns only a non-authoritative ledger summary, fingerprints exact bytes, validates the writer-lock artifact, and distinguishes a stable snapshot digest from a unique inspection observation ID.
+
+These corrections are candidate hardening only. The new head requires its own CI evidence.
