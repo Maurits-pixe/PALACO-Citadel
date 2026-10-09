@@ -57,6 +57,6 @@ jobs:
           PALACO_RUNTIME_ENV_FILE="$smoke_dir/runtime.env" PALACO_PRIVATE_DIR="$smoke_dir/private" docker compose -f ambassades/deployment/compose.yaml config --quiet
           rm -rf -- "$smoke_dir"
       - name: Build isolated authentication image
-        run: docker build --pull -f ambassades/deployment/Dockerfile -t palaco-ambassador-access:ci .
+        run: docker build --pull --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:24-bookworm-slim -f ambassades/deployment/Dockerfile -t palaco-ambassador-access:ci .
       - name: Verify image startup and closed access
         run: node ambassades/deployment/container-smoke.mjs palaco-ambassador-access:ci
