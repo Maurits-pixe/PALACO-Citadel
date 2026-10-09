@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { mkdtemp, rm, writeFile, readFile, readdir, symlink, chmod } from 'node:fs/promises';
+import { mkdtemp, rm, writeFile, readFile, readdir, symlink, chmod, lstat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -27,6 +27,15 @@ async function fixture(t) {
 async function names(dir) {
   return (await readdir(dir)).sort();
 }
+
+test('read-only inspection refuses to create a missing configured storage root', async t => {
+  const allowedRoot = await mkdtemp(join(tmpdir(), 'palaco-recovery-parent-'));
+  t.after(() => rm(allowedRoot, { recursive:true, force:true }));
+  const dataRoot = join(allowedRoot, 'missing-data-root');
+  const registry = new LocalRegistry(dataRoot, { allowedRoot, clock:() => now });
+  await assert.rejects(inspectIncidentState(registry, 'C1', { clock:() => now }), /existing storage root/);
+  await assert.rejects(lstat(dataRoot), error => error?.code === 'ENOENT');
+});
 
 test('clean committed ledger inspects as CLEAN without mutation', async t => {
   const f = await fixture(t);
