@@ -12,7 +12,7 @@ if (!/^\d{4,5}$/.test(configuredPort) || Number(configuredPort) < 1024 || Number
 const port = Number(configuredPort);
 const permittedHosts = new Set(['127.0.0.1:' + port, 'localhost:' + port]);
 const permittedOrigins = new Set([...permittedHosts].map((host) => 'http://' + host));
-const scenarios = new Set(['ready', 'no-consent', 'revoked', 'expired', 'offline', 'conflict', 'unauthorized', 'tampered', 'execution']);
+const scenarios = new Set(['ready', 'no-consent', 'revoked', 'expired', 'offline', 'conflict', 'unauthorized', 'tampered', 'execution', 'execution-authorized']);
 const staticFiles = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/index.html', ['index.html', 'text/html; charset=utf-8']],
@@ -33,12 +33,42 @@ function respond(response, status, body, contentType = 'application/json; charse
   response.end(head ? undefined : body);
 }
 
+const executionLab = createLab({ scenario: 'execution-authorized' });
+let lastExecutionResult = null;
+let sequence = 0;
+const encodeResult = (canonical, lab = null) => JSON.stringify({
+  canonical, ...projectSurfaces(canonical),
+  ...(lab ? { resources: lab.executionBoundary.resources(), executionReceipts: lab.executionBoundary.receipts() } : {}),
+});
+async function readConfirmation(request) {
+  if (!/^application\/json(?:\s*;\s*charset=utf-8)?$/i.test(request.headers['content-type'] ?? '')) throw Object.assign(new Error('JSON_REQUIRED'), { status: 415 });
+  let length = 0, chunks = [];
+  for await (const chunk of request) {
+    length += chunk.length;
+    if (length > 1024) throw Object.assign(new Error('BODY_TOO_LARGE'), { status: 413 });
+    chunks.push(chunk);
+  }
+  let body;
+  try { body = JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { throw Object.assign(new Error('INVALID_JSON'), { status: 400 }); }
+  if (!body || Array.isArray(body) || typeof body !== 'object' || Object.keys(body).length !== 1 ||
+      body.confirmation !== 'APPLY_SYNTHETIC_MAINTENANCE') throw Object.assign(new Error('EXPLICIT_CONFIRMATION_REQUIRED'), { status: 400 });
+}
 export const server = createServer(async (request, response) => {
   const head = request.method === 'HEAD';
   if (!permittedHosts.has(request.headers.host) ||
       (request.headers.origin && !permittedOrigins.has(request.headers.origin)) ||
       request.headers['sec-fetch-site'] === 'cross-site') {
     respond(response, 403, JSON.stringify({ error: 'LOCAL_ORIGIN_REQUIRED' }), undefined, head);
+    return;
+  }
+  if (request.method === 'POST' && request.url === '/api/execute') {
+    try {
+      await readConfirmation(request);
+      const maintenanceRequest = { ...executionLab.request, correlationId: 'lab-maintenance-post-' + (++sequence) };
+      const canonical = await executionLab.engine.run({ manifest: executionLab.manifest, package: executionLab.package, request: maintenanceRequest });
+      lastExecutionResult = canonical;
+      respond(response, 200, encodeResult(canonical, executionLab));
+    } catch (error) { respond(response, error.status ?? 500, JSON.stringify({ error: error.status ? error.message : 'EXECUTION_UNAVAILABLE' })); }
     return;
   }
   if (request.method !== 'GET' && !head) {
@@ -58,6 +88,15 @@ export const server = createServer(async (request, response) => {
       const scenario = target.searchParams.get('scenario') ?? 'ready';
       if (queryKeys.some((key) => key !== 'scenario') || target.searchParams.getAll('scenario').length > 1 || !scenarios.has(scenario)) {
         respond(response, 400, JSON.stringify({ error: 'UNKNOWN_SCENARIO' }), undefined, head);
+        return;
+      }
+      if (scenario === 'execution-authorized') {
+        let canonical = lastExecutionResult;
+        if (!canonical) canonical = await executionLab.engine.run({
+          manifest: executionLab.manifest, package: executionLab.package,
+          request: { ...executionLab.request, authorization: null, correlationId: 'lab-maintenance-get-' + (++sequence) },
+        });
+        respond(response, 200, encodeResult(canonical, executionLab), undefined, head);
         return;
       }
       const lab = createLab({ scenario });

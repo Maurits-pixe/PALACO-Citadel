@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "0.1",
+  "operator": "HARA",
+  "presentation": "VORM9EVIN9",
+  "worldTerm": {
+    "name": "MUNDO",
+    "meaning": "WORLD/PLANET",
+    "source": "EXPLICIT_USER_DEFINITION"
+  },
+  "products": [
+    "WEBSITE",
+    "APP",
+    "ELIXER"
+  ],
+  "boundaries": {
+    "name": "CITADEL",
+    "meaning": "Actor, tenant, WORLD and Citadel context boundaries",
+    "sourceRepository": "Maurits-pixe/PALACO-Citadel",
+    "sourcePath": "02-CORE-SYSTEMS/CITADEL.md"
+  },
+  "sourceTargets": [
+    {
+      "name": "CITADEL",
+      "repository": "Maurits-pixe/PALACO-Citadel",
+      "status": "SOURCE_VERIFIED"
+    }
+  ],
+  "runtimeConnections": [],
+  "executionProfile": {
+    "version": "0.2.0",
+    "environment": "SYNTHETIC_ONLY",
+    "action": "consumer.maintenance.apply",
+    "scope": "consumer.maintenance.write",
+    "targetId": "lab-consumer-website-001",
+    "storage": "PROCESS_MEMORY"
+  },
+  "householdModel": {
+    "name": "ELIXER HARA",
+    "ownership": "PER_TENANT_WORLD_CITADEL_CONTEXT",
+    "automaticAuthority": false,
+    "consumerTargets": "EXPLICIT_REGISTERED_TARGETS"
+  }
+}

@@ -2,6 +2,7 @@ import { canonicalJSON, packageDigest, deepFreeze } from './integrity.mjs';
 import { validateManifest, validateRequest, validatePolicy, validateConsent, validateRevocation, validateResult, validateWithSchema } from './contracts.mjs';
 import { createJournal } from './journal.mjs';
 import { PERSONA_IDS } from './personas.mjs';
+import { validateActionReceipt } from './execution.mjs';
 
 const clone = value => JSON.parse(canonicalJSON(value));
 const textOrNull = value => typeof value === 'string' && /\S/.test(value) && value.length <= 256 ? value : null;
@@ -53,8 +54,9 @@ export function createEngine(options) {
     let personaResults = [];
     let dissent = [];
     let proposal = null;
+    let executionReceipt = null;
     let correlationId = 'lab-invalid-' + count;
-    const identity = { elixerId: null, version: null, packageDigest: null, actorId: null, tenantId: null, worldId: null, citadelId: null };
+    const identity = { elixerId: null, version: null, packageDigest: null, actorId: null, tenantId: null, worldId: null, citadelId: null, householdId: null };
 
     function note(code) {
       if (!reasons.includes(code)) reasons.push(code);
@@ -70,37 +72,42 @@ export function createEngine(options) {
     }
     function finish(resultType, code, discard = false) {
       if (code) note(code);
-      if (discard) { scope = []; personaResults = []; dissent = []; proposal = null; }
-      if (['BLOCKED', 'REVOKED', 'EXPIRED', 'STALE', 'REVIEW_REQUIRED'].includes(resultType) && request?.what === 'EXECUTE') state.execution = 'DENIED';
+      if (discard && state.execution !== 'COMMITTED') { scope = []; personaResults = []; dissent = []; proposal = null; }
+      if (['BLOCKED', 'REVOKED', 'EXPIRED', 'STALE', 'REVIEW_REQUIRED'].includes(resultType) && request?.what === 'EXECUTE' && state.execution !== 'COMMITTED') state.execution = 'DENIED';
       const body = {
         schemaVersion: '0.1', resultId: 'elixer-result-' + String(count).padStart(8, '0'),
         correlationId, resultType, identity, state, scope, evidence, consent, authorization,
-        uncertainty: uncertainties, reasonCodes: reasons, personaResults, dissent, proposal,
+        uncertainty: uncertainties, reasonCodes: reasons, personaResults, dissent, proposal, executionReceipt,
       };
       let timestamp;
       try { timestamp = clock(); } catch {
         // An unavailable host clock is reported explicitly; no timestamp is invented.
         timestamp = null;
         note('CLOCK_UNKNOWN');
-        body.resultType = 'REVIEW_REQUIRED';
-        body.scope = [];
+        body.resultType = state.execution === 'COMMITTED' ? 'EXECUTED_WITH_RECEIPT' : 'REVIEW_REQUIRED';
+        if (state.execution !== 'COMMITTED') body.scope = [];
         body.personaResults = [];
         body.dissent = [];
         body.proposal = null;
         body.state.freshness = 'STALE';
       }
-      if (timestamp !== null && deadline !== null && Date.parse(timestamp) >= deadline) {
+      if (state.execution !== 'COMMITTED' && timestamp !== null && deadline !== null && Date.parse(timestamp) >= deadline) {
         note('EXPIRED_BEFORE_RESULT');
         body.resultType = 'EXPIRED';
         body.state.freshness = 'EXPIRED';
         if (request?.what === 'EXECUTE') body.state.execution = 'DENIED';
         body.scope = []; body.personaResults = []; body.dissent = []; body.proposal = null;
       }
-      else if (timestamp !== null && freshnessDeadline !== null && Date.parse(timestamp) > freshnessDeadline) {
+      else if (state.execution !== 'COMMITTED' && timestamp !== null && freshnessDeadline !== null && Date.parse(timestamp) > freshnessDeadline) {
         note('REVOCATION_STALE_BEFORE_RESULT');
         body.resultType = 'STALE'; body.state.freshness = 'STALE';
         if (request?.what === 'EXECUTE') body.state.execution = 'DENIED';
         body.scope = []; body.personaResults = []; body.dissent = []; body.proposal = null;
+      }
+      if (state.execution === 'COMMITTED' && timestamp !== null && deadline !== null && Date.parse(timestamp) >= deadline) {
+        note('EXPIRED_AFTER_COMMIT'); body.state.freshness = 'EXPIRED';
+      } else if (state.execution === 'COMMITTED' && timestamp !== null && freshnessDeadline !== null && Date.parse(timestamp) > freshnessDeadline) {
+        note('REVOCATION_STALE_AFTER_COMMIT'); body.state.freshness = 'STALE';
       }
       const resultIdentity = { ...body };
       delete resultIdentity.resultId;
@@ -126,7 +133,7 @@ export function createEngine(options) {
       return finish('BLOCKED', null, true);
     }
     correlationId = request.correlationId;
-    Object.assign(identity, { elixerId: request.elixerId, version: request.version, packageDigest: request.packageDigest, actorId: request.who, tenantId: request.tenantId, worldId: request.worldId, citadelId: request.citadelId });
+    Object.assign(identity, { elixerId: request.elixerId, version: request.version, packageDigest: request.packageDigest, actorId: request.who, tenantId: request.tenantId, worldId: request.worldId, citadelId: request.citadelId, householdId: textOrNull(request.householdReference) });
     authorization = { status: request.authorization === null ? 'NOT_PROVIDED' : 'UNKNOWN', reference: request.authorization };
     consent = { status: request.consentReference === null ? 'MISSING' : 'UNKNOWN', reference: request.consentReference };
     if (seen.has(correlationId)) return finish('BLOCKED', 'CORRELATION_ID_REUSED', true);
@@ -148,6 +155,7 @@ export function createEngine(options) {
           persona.permissions.some(permission => !manifest.permissions.includes(permission)))) return finish('BLOCKED', 'PERSONA_BINDING_INVALID', true);
     state.package = 'INTEGRITY_VERIFIED';
     evidence.verification = 'INTEGRITY_ONLY';
+    state.activation = manifest.activation;
     evidence.references = [...manifest.provenanceRefs];
     if (!manifest.provenanceRefs.length || canonicalJSON([...request.provenanceRefs].sort()) !== canonicalJSON([...manifest.provenanceRefs].sort())) return finish('REVIEW_REQUIRED', 'PROVENANCE_UNKNOWN', true);
     evidence.provenance = 'BOUND_RECORDS';
@@ -214,9 +222,25 @@ export function createEngine(options) {
           state.execution = 'AUTH_PENDING';
           return finish('EXECUTION_PENDING_AUTHORIZATION', 'EXPLICIT_AUTHORIZATION_REQUIRED', true);
         }
-        authorization.status = 'DENIED';
-        state.execution = 'DENIED';
-        return finish('BLOCKED', 'EXECUTION_NOT_IMPLEMENTED', true);
+        if (!options.executionBoundary || typeof options.executionBoundary.execute !== 'function') {
+          authorization.status = 'DENIED'; state.execution = 'DENIED';
+          return finish('BLOCKED', 'EXECUTION_NOT_IMPLEMENTED', true);
+        }
+        if (manifest.activation !== 'ACTIVE' || !manifest.capabilities.includes('EXECUTE') || manifest.forbiddenActions.includes('EXECUTE') || checked.action !== 'EXECUTE') {
+          authorization.status = 'DENIED'; state.execution = 'DENIED';
+          return finish('BLOCKED', 'EXECUTION_PROFILE_DENIED', true);
+        }
+        const execution = options.executionBoundary.execute({ manifest, request });
+        if (execution?.status !== 'COMMITTED') {
+          authorization.status = 'DENIED'; state.execution = 'DENIED';
+          return finish('BLOCKED', 'EXECUTION_DENIED', true);
+        }
+        if (!validateActionReceipt(execution.receipt).valid) throw new Error('TRUSTED_EXECUTION_RECEIPT_INVALID');
+        executionReceipt = execution.receipt;
+        state.execution = 'COMMITTED';
+        authorization.status = 'GRANTED';
+        scope = checked.scope;
+        return finish('EXECUTED_WITH_RECEIPT', 'EXPLICIT_MAINTENANCE_COMMITTED');
       }
       let action = checked.action;
       let context;

@@ -129,10 +129,31 @@ export const schemas = deepFreeze({
   receipt: load('elixer-trace-receipt-v0.1'),
   surfaceBinding: load('elixer-surface-binding-v0.1'),
 });
-export const validateManifest = (value) => validateWithSchema(schemas.manifest, value);
+export const validateManifest = (value) => {
+  const checked = validateWithSchema(schemas.manifest, value);
+  if (!checked.valid) return checked;
+  const same = (left, right) => canonicalJSON([...left].sort()) === canonicalJSON([...right].sort());
+  const legacy = value.version === '0.1.0' && value.activation === 'INACTIVE' &&
+    same(value.capabilities, ['READ', 'EXPLAIN', 'PROPOSE']) &&
+    same(value.forbiddenActions, ['EXECUTE', 'AUTHORIZE', 'ISSUE']) &&
+    value.permissions.every(scope => ['public.read', 'household.read'].includes(scope));
+  const maintenance = value.version === '0.2.0' && value.activation === 'ACTIVE' &&
+    same(value.capabilities, ['READ', 'EXPLAIN', 'PROPOSE', 'EXECUTE']) &&
+    same(value.forbiddenActions, ['AUTHORIZE', 'ISSUE']) &&
+    same(value.permissions, ['public.read', 'consumer.maintenance.write']) &&
+    same(value.consentPolicy.requiredFor, ['consumer.maintenance.write']) && typeof value.householdRef === 'string';
+  return legacy || maintenance ? checked : { valid: false, errors: [{ path: '/version', code: 'LAB_PROFILE_MISMATCH' }] };
+};
 export const validateRequest = (value) => validateWithSchema(schemas.request, value);
 export const validateResult = (value) => validateWithSchema(schemas.result, value);
-export const validatePolicy = (value) => validateWithSchema(schemas.policy, value);
+export const validatePolicy = (value) => {
+  const checked = validateWithSchema(schemas.policy, value);
+  if (!checked.valid) return checked;
+  if (!['AUTHORIZE', 'ISSUE'].every(action => value.forbiddenActions.includes(action)) ||
+      (value.allowedActions.includes('EXECUTE') && value.forbiddenActions.includes('EXECUTE')))
+    return { valid: false, errors: [{ path: '/forbiddenActions', code: 'POLICY_CONFLICT' }] };
+  return checked;
+};
 export const validateConsent = (value) => validateWithSchema(schemas.consent, value);
 export const validateRevocation = (value) => validateWithSchema(schemas.revocation, value);
 export const validateTraceReceipt = (value) => validateWithSchema(schemas.receipt, value);

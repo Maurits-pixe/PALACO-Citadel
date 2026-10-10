@@ -20,7 +20,10 @@
     },
     "version": {
       "type": "string",
-      "const": "0.1.0"
+      "enum": [
+        "0.1.0",
+        "0.2.0"
+      ]
     },
     "lifecycle": {
       "type": "string",
@@ -122,21 +125,17 @@
     },
     "capabilities": {
       "type": "array",
-      "const": [
-        "READ",
-        "EXPLAIN",
-        "PROPOSE"
-      ],
       "items": {
         "type": "string",
         "enum": [
           "READ",
           "EXPLAIN",
-          "PROPOSE"
+          "PROPOSE",
+          "EXECUTE"
         ]
       },
       "minItems": 3,
-      "maxItems": 3,
+      "maxItems": 4,
       "uniqueItems": true
     },
     "permissions": {
@@ -145,20 +144,16 @@
         "type": "string",
         "enum": [
           "public.read",
-          "household.read"
+          "household.read",
+          "consumer.maintenance.write"
         ]
       },
       "minItems": 1,
-      "maxItems": 2,
+      "maxItems": 3,
       "uniqueItems": true
     },
     "forbiddenActions": {
       "type": "array",
-      "const": [
-        "EXECUTE",
-        "AUTHORIZE",
-        "ISSUE"
-      ],
       "items": {
         "type": "string",
         "enum": [
@@ -167,7 +162,7 @@
           "ISSUE"
         ]
       },
-      "minItems": 3,
+      "minItems": 2,
       "maxItems": 3,
       "uniqueItems": true
     },
@@ -226,11 +221,12 @@
           "items": {
             "type": "string",
             "enum": [
-              "household.read"
+              "household.read",
+              "consumer.maintenance.write"
             ]
           },
           "minItems": 1,
-          "maxItems": 1,
+          "maxItems": 2,
           "uniqueItems": true
         }
       },
@@ -305,7 +301,10 @@
     },
     "activation": {
       "type": "string",
-      "const": "INACTIVE"
+      "enum": [
+        "INACTIVE",
+        "ACTIVE"
+      ]
     },
     "issuedAt": {
       "type": "string",
@@ -314,6 +313,12 @@
     "expiresAt": {
       "type": "string",
       "format": "date-time"
+    },
+    "householdRef": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
     }
   },
   "required": [
@@ -344,5 +349,6 @@
     "issuedAt",
     "expiresAt"
   ],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "description": "Two explicit lab profiles are semantically enforced by validateManifest: 0.1.0 read-only, 0.2.0 synthetic maintenance."
 }

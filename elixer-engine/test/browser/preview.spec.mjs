@@ -82,3 +82,54 @@ test('the local preview rejects mutation, arbitrary scenarios and foreign origin
   expect(data.widget.result).toEqual(data.canonical);
   expect(data.full.canonicalDigest).toBe(data.widget.canonicalDigest);
 });
+
+test.describe.serial('explicit HARA maintenance', () => {
+  test('GET prepares a fixed operation without committing', async ({ request }) => {
+    const response = await request.get('/api/state?scenario=execution-authorized');
+    expect(response.status()).toBe(200);
+    const data = await response.json();
+    expect(data.canonical.resultType).toBe('EXECUTION_PENDING_AUTHORIZATION');
+    expect(data.resources[0].version).toBe('0.1.0');
+    expect(data.executionReceipts).toHaveLength(0);
+    expect((await request.post('/api/execute', { data: { confirmation: 'anything' } })).status()).toBe(400);
+    expect((await request.post('/api/execute', { data: { confirmation: 'APPLY_SYNTHETIC_MAINTENANCE', authority: true } })).status()).toBe(400);
+    expect((await request.post('/api/execute', { headers: { Origin: 'https://example.invalid' }, data: { confirmation: 'APPLY_SYNTHETIC_MAINTENANCE' } })).status()).toBe(403);
+    const after = await (await request.get('/api/state?scenario=execution-authorized')).json();
+    expect(after.resources[0].version).toBe('0.1.0');
+    expect(after.executionReceipts).toHaveLength(0);
+  });
+  test('an explicit accessible action commits once and both surfaces retain its receipt', async ({ page, request }) => {
+    await page.goto('/');
+    await selectScenario(page, 'execution-authorized');
+    const button = page.getByRole('button', { name: 'Voer testonderhoud uit' });
+    await expect(button).toBeVisible();
+    expect((await button.boundingBox()).height).toBeGreaterThanOrEqual(44);
+    await button.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#full [data-field="resultType"]')).toHaveText('EXECUTED_WITH_RECEIPT');
+    await expect(page.locator('#widget [data-field="state-execution"]')).toHaveText('COMMITTED');
+    await expect(page.locator('#full [data-field="authorization"]')).toHaveText('GRANTED');
+    const receiptId = await page.locator('#full [data-field="actionReceiptId"]').textContent();
+    await expect(page.locator('#widget [data-field="actionReceiptId"]')).toHaveText(receiptId);
+    await expect(page.locator('#resource-status')).toContainText('Voorbeeldversie: 0.1.1');
+    await button.click();
+    await expect(button).toBeEnabled();
+    const after = await (await request.get('/api/state?scenario=execution-authorized')).json();
+    expect(after.resources[0].version).toBe('0.1.1');
+    expect(after.executionReceipts).toHaveLength(1);
+    expect(after.canonical.executionReceipt.receiptId).toBe(receiptId);
+    expect(after.full.canonicalDigest).toBe(after.widget.canonicalDigest);
+    await expect(page.locator('#full [data-field="state-authority"]')).toHaveText('NONE');
+    await expect(page.locator('#full [data-field="state-distribution"]')).toHaveText('NOT_ALLOWED');
+  });
+  test('a narrow VORM9EVIN9 surface retains the completed maintenance and no horizontal overflow', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    await selectScenario(page, 'execution-authorized');
+    await expect(page.locator('#widget [data-field="actionReceiptId"]')).toBeVisible();
+    await expect(page.locator('#widget [data-field="versions"]')).toHaveText('0.1.0 → 0.1.1');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await expect(page.getByRole('button', { name: 'Voer testonderhoud uit' })).toBeEnabled();
+  });
+});

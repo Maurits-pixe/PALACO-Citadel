@@ -1,20 +1,28 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:palaco:schemas:elixer-consent-v0.1",
-  "title": "elixer-consent-v0.1",
+  "$id": "urn:palaco:schemas:elixer-household-v0.1",
+  "title": "ELIXER HARA household",
   "type": "object",
   "properties": {
     "schemaVersion": {
       "type": "string",
       "const": "0.1"
     },
-    "id": {
+    "type": {
+      "type": "string",
+      "const": "ELIXER_HOUSEHOLD"
+    },
+    "householdId": {
       "type": "string",
       "minLength": 1,
       "maxLength": 256,
       "pattern": "\\S"
     },
-    "actorId": {
+    "name": {
+      "type": "string",
+      "const": "HARA"
+    },
+    "elixerId": {
       "type": "string",
       "minLength": 1,
       "maxLength": 256,
@@ -38,37 +46,50 @@
       "maxLength": 256,
       "pattern": "\\S"
     },
-    "scopes": {
+    "version": {
+      "type": "string",
+      "const": "0.1.0"
+    },
+    "classification": {
+      "type": "string",
+      "const": "SYNTHETIC_ONLY"
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "CURRENT",
+        "REVOKED"
+      ]
+    },
+    "registeredTargets": {
       "type": "array",
       "items": {
         "type": "string",
-        "enum": [
-          "household.read",
-          "consumer.maintenance.write"
-        ]
+        "format": "token64"
       },
       "minItems": 1,
-      "maxItems": 2,
+      "maxItems": 16,
       "uniqueItems": true
     },
     "expiresAt": {
       "type": "string",
       "format": "date-time"
-    },
-    "revoked": {
-      "type": "boolean"
     }
   },
   "required": [
     "schemaVersion",
-    "id",
-    "actorId",
+    "type",
+    "householdId",
+    "name",
+    "elixerId",
     "tenantId",
     "worldId",
     "citadelId",
-    "scopes",
-    "expiresAt",
-    "revoked"
+    "version",
+    "classification",
+    "state",
+    "registeredTargets",
+    "expiresAt"
   ],
   "additionalProperties": false
 }

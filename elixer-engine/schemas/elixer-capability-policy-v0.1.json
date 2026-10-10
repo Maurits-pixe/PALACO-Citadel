@@ -39,11 +39,12 @@
         "enum": [
           "READ",
           "EXPLAIN",
-          "PROPOSE"
+          "PROPOSE",
+          "EXECUTE"
         ]
       },
       "minItems": 1,
-      "maxItems": 3,
+      "maxItems": 4,
       "uniqueItems": true
     },
     "allowedScopes": {
@@ -52,20 +53,16 @@
         "type": "string",
         "enum": [
           "public.read",
-          "household.read"
+          "household.read",
+          "consumer.maintenance.write"
         ]
       },
       "minItems": 1,
-      "maxItems": 2,
+      "maxItems": 3,
       "uniqueItems": true
     },
     "forbiddenActions": {
       "type": "array",
-      "const": [
-        "EXECUTE",
-        "AUTHORIZE",
-        "ISSUE"
-      ],
       "items": {
         "type": "string",
         "enum": [
@@ -74,7 +71,7 @@
           "ISSUE"
         ]
       },
-      "minItems": 3,
+      "minItems": 2,
       "maxItems": 3,
       "uniqueItems": true
     },

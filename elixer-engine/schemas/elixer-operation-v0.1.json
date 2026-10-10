@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:palaco:schemas:elixer-operation-v0.1",
+  "title": "elixer-operation-v0.1",
+  "description": "A complete allowlisted synthetic maintenance replacement; no dynamic provider or code execution.",
+  "type": "object",
+  "properties": {
+    "action": {
+      "type": "string",
+      "const": "consumer.maintenance.apply"
+    },
+    "targetId": {
+      "type": "string",
+      "format": "token64"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "resourceType": {
+          "type": "string",
+          "enum": [
+            "WEBSITE",
+            "APP",
+            "ELIXER"
+          ]
+        },
+        "expectedBeforeDigest": {
+          "type": "string",
+          "format": "sha256"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 64,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "\\S"
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S"
+        },
+        "accessibilityLabel": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "\\S"
+        },
+        "classification": {
+          "type": "string",
+          "const": "SYNTHETIC_ONLY"
+        }
+      },
+      "required": [
+        "resourceType",
+        "expectedBeforeDigest",
+        "version",
+        "title",
+        "summary",
+        "accessibilityLabel",
+        "classification"
+      ],
+      "additionalProperties": false
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "format": "token64"
+    }
+  },
+  "required": [
+    "action",
+    "targetId",
+    "payload",
+    "idempotencyKey"
+  ],
+  "additionalProperties": false
+}

@@ -10,10 +10,10 @@
 </head>
 <body>
   <header class="shell">
-    <p class="eyebrow">PALACO · ELIXER ENGINE · v0.1</p>
-    <h1>Eén kern. Twee weergaven.</h1>
-    <p class="intro">Bekijk hoe een ELIXER en zijn widget dezelfde grenzen, onzekerheid en uitkomst tonen.</p>
-    <p class="lab-notice"><strong>Synthetisch laboratorium</strong> — authority NONE · distribution NOT_ALLOWED · activation INACTIVE · externe uitvoering geblokkeerd.</p>
+    <p class="eyebrow">PALACO · ELIXER ENGINE · v0.2</p>
+    <h1>HARA helpt met onderhoud.</h1>
+    <p class="intro">Kijk wat HARA wil veranderen. Voer daarna één duidelijke testopdracht uit. De grote weergave en de widget laten hetzelfde resultaat zien.</p>
+    <p class="lab-notice"><strong>Synthetisch laboratorium</strong> — We gebruiken alleen fictieve gegevens. Testonderhoud kan één voorbeeld bijwerken. Echte websites, apps en ELIXERS zijn hier niet aangesloten.</p>
   </header>
   <main class="shell">
     <section class="controls" aria-labelledby="scenario-title">
@@ -31,9 +31,20 @@
           <option value="conflict">Persona's spreken elkaar tegen</option>
           <option value="unauthorized">Context of scope niet toegestaan</option>
           <option value="tampered">Package gewijzigd</option>
-          <option value="execution">Externe uitvoering gevraagd</option>
+          <option value="execution">Uitvoering zonder gekoppelde autorisatie</option>
+          <option value="execution-authorized">HARA: toegestaan testonderhoud</option>
         </select>
       </label>
+    </section>
+    <section id="maintenance-controls" class="maintenance-controls" aria-labelledby="maintenance-title" hidden>
+      <h2 id="maintenance-title">Eén voorbeeld verbeteren</h2>
+      <p>HARA past de titel, uitleg en toegankelijke naam van een fictieve website aan. De versie verandert van 0.1.0 naar 0.1.1.</p>
+      <p>De toestemming geldt alleen voor dit voorbeeld en deze exacte wijziging.</p>
+      <button id="execute" type="button">Voer testonderhoud uit</button>
+      <p id="resource-status" role="status" aria-live="polite"></p>
+    </section>
+    <section class="roles" aria-label="Samenwerking">
+      <p><strong>ELIXER HARA</strong> is het huishouden en verzorgt onderhoud. <strong>MUNDO</strong> is de WORLD/PLANET. <strong>CITADEL</strong> begrenst toegang. <strong>VORM9EVIN9</strong> maakt de ervaring begrijpelijk.</p>
     </section>
     <p id="status" class="status" role="status" aria-live="polite">De gedeelde toestand wordt geladen.</p>
     <div id="views" class="views" hidden>
@@ -48,8 +59,8 @@
     </div>
     <section class="explanation" aria-labelledby="boundary-title">
       <h2 id="boundary-title">Wat deze proefversie laat zien</h2>
-      <p>Een packagecontrole, contextcontrole, afzonderlijke toestemming en autorisatie, drie deterministische persona's en een controleerbaar spoor. Een voorstel geeft geen bevoegdheid en voert geen actie uit.</p>
-      <p>Een hashcontrole bevestigt uitsluitend dat bytes overeenkomen. Zij is geen officiële PROOF, VISITCARD, handtekening of vrijgave. Het spoor blijft alleen in het geheugen van de betreffende proefaanvraag.</p>
+      <p>Een packagecontrole, contextcontrole, afzonderlijke toestemming en autorisatie, drie deterministische persona's en een controleerbaar spoor. Een voorstel voert niets uit. Testonderhoud gebruikt apart gecontroleerde toestemming en een exacte, geregistreerde opdracht.</p>
+      <p>Een hashcontrole bevestigt uitsluitend dat bytes overeenkomen. Zij is geen officiële PROOF, VISITCARD, handtekening of vrijgave. Onderhoud en ontvangstbewijzen blijven in het geheugen van deze lokale testserver. Bij herstart begint het voorbeeld opnieuw.</p>
     </section>
   </main>
   <footer class="shell">Engineering draft · onafhankelijke beoordeling en formele vrijgave blijven open.</footer>
