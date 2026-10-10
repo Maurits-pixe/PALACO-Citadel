@@ -97,3 +97,7 @@ A passing conformance run proves only that the checked artifacts satisfy this im
 ### Durable synthetic contact outbox
 
 [Reference outbox contract](./REFERENCE-OUTBOX.md) binds exact opaque message bytes to v0.2 signed contact evidence, stores one-time challenges and queue state in SQLite, and requires a fresh delivery checkpoint before a local synthetic inbox commit. It survives reopening and preserves revocation/idempotency. No live contact or network delivery is activated.
+
+### Two separated contact test windows
+
+The [local contact preview](./contact-preview/README.md) connects explicit sender/receiver NOVA and confirmation actions to the durable synthetic outbox. Both service commit and local delivery require separate current choices. This preview is not deployed, does not restore pending human decisions after restart, and creates no real accounts or network/E2EE service.
