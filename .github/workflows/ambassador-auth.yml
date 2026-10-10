@@ -18,6 +18,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -28,6 +30,7 @@ jobs:
         run: |
           node --check ambassades/portal.js
           node --check ambassades/i18n.js
+          node --check ambassades/rio/sw.js
       - name: Run access isolation and denial tests
         working-directory: ambassades/auth
         run: npm test
@@ -40,12 +43,16 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Verify access-page flows and responsive layout
         run: npx playwright test tests/browser/ambassades-auth.spec.mjs tests/browser/ambassades-languages.spec.mjs
+      - name: Verify downloadable RIO software, offline installation and local consent
+        run: npx playwright test --config ambassades/rio/playwright.config.mjs
 
   container:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: 24

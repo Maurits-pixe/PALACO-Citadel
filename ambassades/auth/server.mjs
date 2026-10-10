@@ -104,11 +104,18 @@ const publicFiles = new Map([
   ['/i18n.js', ['i18n.js', 'text/javascript']],
   ['/locales.json', ['locales.json', 'application/json']],
   ['/access-slots.json', ['access-slots.json', 'application/json']],
+  ['/rio/', ['rio/palaco-rio-start-v0.1.html', 'text/html']],
+  ['/rio/index.html', ['rio/palaco-rio-start-v0.1.html', 'text/html']],
+  ['/rio/download', ['rio/palaco-rio-start-v0.1.html', 'application/octet-stream', true]],
+  ['/rio/manifest.webmanifest', ['rio/manifest.webmanifest', 'application/manifest+json']],
+  ['/rio/sw.js', ['rio/sw.js', 'text/javascript']],
+  ['/rio/icon-192.png', ['rio/icon-192.png', 'image/png']],
+  ['/rio/icon-512.png', ['rio/icon-512.png', 'image/png']],
 ]);
 
 function contentSecurityPolicy() {
   const hashes = new Set();
-  for (const filename of ['index.html', 'toegang.html']) {
+  for (const filename of ['index.html', 'toegang.html', 'rio/palaco-rio-start-v0.1.html']) {
     try {
       const source = readFileSync(resolve(siteRoot, filename), 'utf8');
       for (const match of source.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
@@ -122,7 +129,7 @@ function contentSecurityPolicy() {
   }
   return "default-src 'self'; script-src 'self' " + [...hashes].join(' ')
     + "; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';"
-    + " connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'";
+    + " connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; worker-src 'self'; manifest-src 'self'";
 }
 
 export function buildApp({ env = process.env, registryLoader, authMiddleware, sessionStore } = {}) {
@@ -249,10 +256,13 @@ export function buildApp({ env = process.env, registryLoader, authMiddleware, se
   app.all('/callback', requireConfiguration, (req, res) => res.status(400).json({ error: 'INVALID_AUTHENTICATION_CALLBACK' }));
 
   // Serve an explicit public allowlist. Never serve the auth directory, private registry, or repository root.
-  for (const [route, [filename, type]] of publicFiles) {
+  app.get('/rio', (req,res,next) => req.path === '/rio' ? res.redirect(302,'/rio/') : next());
+  for (const [route, [filename, type, download]] of publicFiles) {
     app.get(route, async (req, res) => {
       try {
         const content = await readFile(resolve(siteRoot, filename));
+        if(download)res.set('Content-Disposition','attachment; filename="PALACO-RIO-v0.1.html"');
+        if(route==='/rio/sw.js')res.set('Service-Worker-Allowed','/rio/');
         return res.type(type).send(content);
       } catch {
         return res.status(404).json({ error: 'NOT_FOUND' });

@@ -41,7 +41,7 @@
    const href = element.getAttribute('href');
    if (!href || href.startsWith('#')) continue;
    const url = new URL(href, document.baseURI);
-   if (url.origin === location.origin && /\/(index|toegang)\.html$/.test(url.pathname)) linkEntries.push({element, href});
+   if (url.origin === location.origin && (/\/(index|toegang)\.html$/.test(url.pathname) || url.pathname === '/rio/')) linkEntries.push({element, href});
   }
  }
  function apply(language, updateURL = false) {

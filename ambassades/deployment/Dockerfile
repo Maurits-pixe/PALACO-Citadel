@@ -13,6 +13,8 @@ RUN npm ci --ignore-scripts --omit=dev && npm cache clean --force
 COPY ambassades/auth/server.mjs ambassades/auth/access-policy.mjs ambassades/auth/session-store.mjs ambassades/auth/token-verification.mjs ./
 COPY ambassades/index.html ambassades/toegang.html ambassades/portal.js ambassades/i18n.js ambassades/locales.json ambassades/access-slots.json ../
 
+COPY ambassades/rio/ ../rio/
+
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
