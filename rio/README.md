@@ -91,3 +91,5 @@ A passing conformance run proves only that the checked artifacts satisfy this im
 ## 6RI9ADE contact foundation
 
 [Source binding and the nine specialty roles](CONTACT-FOUNDATION.md) extend this reference profile with a read-only BRIGADE reference checker. The newly assigned 6RI9ADE roles remain DESIGN_DRAFT; matched source bytes never create safety evidence, human consent or contact permission. Run `npm run test:rio:contact` and `node rio/contact-readiness.mjs`.
+
+[The signed 6RI9ADE reference gate](BRIGADE-EVIDENCE.md) verifies eighteen bilateral attestation slots and separate initiation, NOVA-admission and final session receipts. Results remain REFERENCE_ONLY with no connection or authority effect. This is evidence aggregation in the existing profile, not a replacement messaging core.

@@ -26,6 +26,10 @@ jobs:
         env:
           RIO_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
         run: node rio/contact-readiness.mjs > rio-contact-readiness.json
+      - name: Generate synthetic signed 6RI9ADE scenarios
+        env:
+          RIO_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node rio/brigade-evidence-demo.mjs > rio-brigade-evidence.json
       - name: Run deterministic kernel and boundary tests
         run: npm --prefix elixer-engine test
       - name: Generate package-bound laboratory evidence
@@ -45,5 +49,6 @@ jobs:
           path: |
             elixer-lab-evidence.json
             rio-contact-readiness.json
+            rio-brigade-evidence.json
             test-results/
           if-no-files-found: warn

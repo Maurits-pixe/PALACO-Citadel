@@ -70,3 +70,7 @@ node rio/contact-readiness.mjs
 ~~~
 
 De tweede opdracht geeft een lokaal leesbaar JSON-rapport. Bij ongeldige bronbinding of een ongeldig specialiteitenontwerp eindigt zij met een foutstatus. Een succesvolle controle bewijst uitsluitend de gecontroleerde bron-/ontwerpconsistentie, geen operationele veilige aflevering.
+
+## Volgende gebouwde referencecontrole
+
+[Ondertekende 6RI9ADE-evidencecontrole](BRIGADE-EVIDENCE.md) beoordeelt achttien bilaterale uitslagen en twee afzonderlijke menselijke poorten met echte handtekeningverificatie op synthetische fixtures. Dit brengt het ontwerp samen zonder contact te openen of operationele identiteiten te claimen.
