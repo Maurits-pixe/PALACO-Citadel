@@ -1,0 +1,354 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:palaco:schemas:elixer-manifest-v0.1",
+  "title": "elixer-manifest-v0.1",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "elixerId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "canonicalName": {
+      "type": "string",
+      "const": "H∆R∆"
+    },
+    "version": {
+      "type": "string",
+      "enum": [
+        "0.1.0",
+        "0.2.0"
+      ]
+    },
+    "lifecycle": {
+      "type": "string",
+      "const": "LAB_CANDIDATE"
+    },
+    "purpose": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "pattern": "\\S"
+    },
+    "tenantId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "worldId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "citadelId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "personaRefs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "personaId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "\\S"
+          },
+          "characterVersion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "\\S"
+          },
+          "adapterId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "\\S"
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "READ",
+                "EXPLAIN",
+                "PROPOSE"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 3,
+            "uniqueItems": true
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "public.read",
+                "household.read"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 2,
+            "uniqueItems": true
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "personaId",
+          "characterVersion",
+          "adapterId",
+          "capabilities",
+          "permissions",
+          "timeoutMs"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 12,
+      "uniqueItems": true
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "READ",
+          "EXPLAIN",
+          "PROPOSE",
+          "EXECUTE"
+        ]
+      },
+      "minItems": 3,
+      "maxItems": 4,
+      "uniqueItems": true
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "public.read",
+          "household.read",
+          "consumer.maintenance.write"
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 3,
+      "uniqueItems": true
+    },
+    "forbiddenActions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "EXECUTE",
+          "AUTHORIZE",
+          "ISSUE"
+        ]
+      },
+      "minItems": 2,
+      "maxItems": 3,
+      "uniqueItems": true
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "\\S"
+          },
+          "required": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "required"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 64,
+      "uniqueItems": true
+    },
+    "dataClassification": {
+      "type": "string",
+      "const": "SYNTHETIC_ONLY"
+    },
+    "memoryPolicy": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "const": "EPHEMERAL"
+        },
+        "productionData": {
+          "type": "boolean",
+          "const": false
+        }
+      },
+      "required": [
+        "mode",
+        "productionData"
+      ],
+      "additionalProperties": false
+    },
+    "consentPolicy": {
+      "type": "object",
+      "properties": {
+        "requiredFor": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "household.read",
+              "consumer.maintenance.write"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 2,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "requiredFor"
+      ],
+      "additionalProperties": false
+    },
+    "surfaceBindings": {
+      "type": "object",
+      "properties": {
+        "full": {
+          "type": "string",
+          "const": "FULL_ELIXER"
+        },
+        "widget": {
+          "type": "string",
+          "const": "WIDGET"
+        }
+      },
+      "required": [
+        "full",
+        "widget"
+      ],
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "\\S"
+        },
+        "commit": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "commit-sha"
+        }
+      },
+      "required": [
+        "repository",
+        "commit"
+      ],
+      "additionalProperties": false
+    },
+    "packageDigest": {
+      "type": "string",
+      "format": "sha256"
+    },
+    "provenanceRefs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1024,
+        "pattern": "\\S"
+      },
+      "minItems": 0,
+      "maxItems": 64,
+      "uniqueItems": true
+    },
+    "issuerRef": {
+      "type": "null"
+    },
+    "distribution": {
+      "type": "string",
+      "const": "NOT_ALLOWED"
+    },
+    "activation": {
+      "type": "string",
+      "enum": [
+        "INACTIVE",
+        "ACTIVE"
+      ]
+    },
+    "issuedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "householdRef": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "elixerId",
+    "canonicalName",
+    "version",
+    "lifecycle",
+    "purpose",
+    "tenantId",
+    "worldId",
+    "citadelId",
+    "personaRefs",
+    "capabilities",
+    "permissions",
+    "forbiddenActions",
+    "dependencies",
+    "dataClassification",
+    "memoryPolicy",
+    "consentPolicy",
+    "surfaceBindings",
+    "source",
+    "packageDigest",
+    "provenanceRefs",
+    "issuerRef",
+    "distribution",
+    "activation",
+    "issuedAt",
+    "expiresAt"
+  ],
+  "additionalProperties": false,
+  "description": "Two explicit lab profiles are semantically enforced by validateManifest: 0.1.0 read-only, 0.2.0 synthetic maintenance."
+}

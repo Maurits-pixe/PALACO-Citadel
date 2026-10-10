@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:palaco:schemas:elixer-execution-authorization-v0.1",
+  "title": "elixer-execution-authorization-v0.1",
+  "description": "A host-owned, action-bound grant for synthetic consumer maintenance. It grants no institutional authority.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "actorId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "tenantId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "worldId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "citadelId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "elixerId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "version": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 64,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+    },
+    "packageDigest": {
+      "type": "string",
+      "format": "sha256"
+    },
+    "policyVersion": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "consentReference": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "actionDigest": {
+      "type": "string",
+      "format": "sha256"
+    },
+    "scope": {
+      "type": "array",
+      "const": [
+        "consumer.maintenance.write"
+      ],
+      "items": {
+        "type": "string",
+        "const": "consumer.maintenance.write"
+      },
+      "minItems": 1,
+      "maxItems": 1,
+      "uniqueItems": true
+    },
+    "issuedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "revoked": {
+      "type": "boolean"
+    },
+    "grantedBy": {
+      "type": "string",
+      "const": "lab-architect-001"
+    },
+    "householdReference": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "householdDigest": {
+      "type": "string",
+      "format": "sha256"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "actorId",
+    "tenantId",
+    "worldId",
+    "citadelId",
+    "elixerId",
+    "version",
+    "packageDigest",
+    "policyVersion",
+    "consentReference",
+    "actionDigest",
+    "scope",
+    "issuedAt",
+    "expiresAt",
+    "revoked",
+    "grantedBy",
+    "householdReference",
+    "householdDigest"
+  ],
+  "additionalProperties": false
+}

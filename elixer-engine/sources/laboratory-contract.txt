@@ -1,0 +1,275 @@
+Here is the result of "fetch" for the Page with URL https://app.notion.com/p/50f3dbccda0a4e03a26476cdc6f44cd7 as of 2026-10-09T22:51:02.935Z:
+<page url="https://app.notion.com/p/50f3dbccda0a4e03a26476cdc6f44cd7" icon="🧪">
+<ancestor-path>
+<parent-page url="https://app.notion.com/p/3e529e9a126a8056b55cdb694c0130e0" title="MA5TERPLAN ELIXER/APP"/>
+</ancestor-path>
+<properties>
+{"title":"ELIXER LABORATORIUM — Grondwet en Bouwplan v0.1"}
+</properties>
+<iconMetadata>{"type":"emoji","emoji":"🧪"}</iconMetadata>
+<content>
+<callout icon="🧪" color="yellow_bg">
+	**ELIXER LABORATORIUM**
+	Status: **ENGINEERING DRAFT — GO**
+	Dit laboratorium is de gecontroleerde bouw-, test-, bewijs- en verpakkingsomgeving voor PALACO-ELIXERS. Dit document creëert geen officiële ELIXER, issuer, PROOF, VISITCARD, distributierecht of runtime-activatie.
+</callout>
+## 1. Doel
+Het ELIXER LABORATORIUM maakt het mogelijk om ELIXERS:
+- te ontwerpen en samen te stellen;
+- als package en manifest te definiëren;
+- persona’s, capabilities en permissions te begrenzen;
+- in een geïsoleerde sandbox te testen;
+- provenance, hashes en testbewijs te verzamelen;
+- voor onafhankelijke review voor te bereiden;
+- voor officiële uitgifte en distributie aan te bieden.
+Het laboratorium is dus niet alleen een studio. Het is een gecontroleerde keten van **idee → ontwerp → package → test → bewijs → review → uitgiftevoorbereiding**.
+## 2. Harde grenzen
+- **ELIXER ≠ automatisch autoriteit.**
+- **Capability ≠ permission.**
+- **Access ≠ authorization.**
+- **Verification ≠ distribution.**
+- **Distribution ≠ activation.**
+- **Widget ≠ eigen waarheid.**
+- **AI-output ≠ bewijs.**
+- **Geen externe uitvoering zonder expliciete, herroepbare autorisatie.**
+- **Geen stille wijziging van karakter, rechten, geheugen, bewijs of historie.**
+- **Geen productie- of gevoelige persoonsgegevens in de v0.1-sandbox.**
+- **Geen secrets in Notion, packages, logs of evidence.**
+## 3. Architectuur
+```plain text
+ELIXER LABORATORIUM
+        │
+        ├── ELIXER REGISTRY
+        ├── DEVELOPMENT STUDIO
+        ├── PERSONA / CAPABILITY STUDIO
+        ├── CONTRACT & POLICY EDITOR
+        ├── ISOLATED SANDBOX
+        ├── TEST & CONFORMANCE RUNNER
+        ├── PROVENANCE / EVIDENCE VAULT
+        ├── REVIEW QUEUE
+        ├── PACKAGE BUILDER
+        ├── DISTRIBUTION REGISTRY
+        └── ACTIVATION GATE
+                │
+                ├── CITADEL
+                ├── WORLD
+                ├── RIO
+                └── WIDGET
+```
+De **ACTIVATION GATE** staat buiten het ontwerp- en testgedeelte. Een geslaagde test activeert niets vanzelf.
+## 4. Eén canoniek ELIXER-object
+Voorstel voor het eerste manifest. Dit is nog geen definitief schema.
+```plain text
+ELIXER MANIFEST
+├── elixer_id
+├── canonical_name
+├── aliases
+├── version
+├── lifecycle_status
+├── purpose
+├── owner / tenant / WORLD scope
+├── persona_refs
+├── capabilities
+├── permissions
+├── forbidden_actions
+├── dependencies
+├── data_classification
+├── memory_policy
+├── consent_policy
+├── widget_binding
+├── RIO_binding
+├── source_repository
+├── source_commit
+├── package_digest
+├── provenance_refs
+├── test_evidence_refs
+├── review_refs
+├── issuer_ref
+├── distribution_scope
+├── activation_policy
+├── revocation_ref
+└── supersession_ref
+```
+Geen enkel veld mag tegelijk identiteit, status, bevoegdheid en bewijs betekenen.
+## 5. Onafhankelijke statusassen
+Eén algemeen groen/rood-label is verboden. Het laboratorium houdt minstens deze assen uit elkaar:
+<table header-row="true">
+<tr>
+<td>As</td>
+<td>Voorbeelden</td>
+</tr>
+<tr>
+<td>Ontwikkeling</td>
+<td>CONCEPT · SPECIFIED · BUILT</td>
+</tr>
+<tr>
+<td>Integriteit</td>
+<td>UNKNOWN · HASHED · INTEGRITY_VERIFIED</td>
+</tr>
+<tr>
+<td>Conformance</td>
+<td>NOT_RUN · PASS · FAIL · PARTIAL</td>
+</tr>
+<tr>
+<td>Review</td>
+<td>OPEN · REVIEW_REQUIRED · ACCEPTED · REJECTED</td>
+</tr>
+<tr>
+<td>Uitgifte</td>
+<td>NOT_REQUESTED · APPROVED_FOR_ISSUANCE · ISSUED</td>
+</tr>
+<tr>
+<td>Distributie</td>
+<td>NOT_ALLOWED · ALLOWED · SUSPENDED · REVOKED</td>
+</tr>
+<tr>
+<td>Activatie</td>
+<td>INACTIVE · CONSENT_REQUIRED · ACTIVE · DISABLED</td>
+</tr>
+<tr>
+<td>Actualiteit</td>
+<td>CURRENT · STALE · EXPIRED · SUPERSEDED</td>
+</tr>
+</table>
+## 6. Laboratoriumstations
+### Station 01 — Registry
+ELIXER-ID, versies, aliases, ownership, tenant/WORLD-scope en lifecycle-events.
+### Station 02 — Development Studio
+Functie, doel, persona’s, karaktercontract, talen, presentatie en gebruikersroutes.
+### Station 03 — Capability & Permission Studio
+Per functie vastleggen: READ, EXPLAIN, PROPOSE, CLASSIFY, ENFORCE, AUTHORIZE, EXECUTE of FORBIDDEN.
+### Station 04 — Contract & Policy Lab
+Consent, memory, privacy, tenantisolatie, revocation, expiry, updates en dependencies.
+### Station 05 — Sandbox
+Geïsoleerde uitvoering met synthetische fixtures, fake tenants en gecontroleerde provider-adapters.
+### Station 06 — Evidence Lab
+Source refs, commits, hashes, testresultaten, provenance, audit-events en reproduceerbare reports.
+### Station 07 — Review Queue
+Onafhankelijke technische, security-, privacy-, UX- en constitutionele review.
+### Station 08 — Package Builder
+Manifest valideren, canonical bytes bepalen, package digest maken en immutable candidate vastleggen.
+### Station 09 — Distribution Gate
+Distributiescope, compatibiliteit, versie, doelgroep en distributietoelating afzonderlijk beoordelen.
+### Station 10 — Activation Gate
+Menselijke toestemming, actuele policy, scope, expiry en revocation controleren voordat een ELIXER actief wordt.
+## 7. Eerste laboratorium-MVP
+De eerste kandidaat wordt de H∆R∆-ELIXER als **synthetische, read-only testmodule**.
+De MVP levert:
+1. een voorlopig ELIXER-manifest;
+2. een stabiele candidate-ID binnen het laboratorium;
+3. H∆R∆M, Ching Ching en Hannie als deterministische persona-mocks;
+4. een gedeelde kern voor volledige ELIXER en widget-view;
+5. een consent-gate voor lezen van toegestane context;
+6. status-, scope-, provenance- en onzekerheidsweergave;
+7. package-hash en reproduceerbaar evidence-report;
+8. tests voor stale, expired, revoked, offline en unauthorized;
+9. read-only fallback bij ontbrekende afhankelijkheden;
+10. geen externe mutatie, betaling, agenda-sync of productieactivatie.
+## 8. Eerste verticale keten
+```plain text
+CREATE CANDIDATE
+  → VALIDATE MANIFEST
+  → BUILD PACKAGE
+  → HASH PACKAGE
+  → RUN SYNTHETIC TESTS
+  → COLLECT PROVENANCE
+  → REVIEW EVIDENCE
+  → MARK RELEASE-CANDIDATE
+  → REQUEST OFFICIAL ISSUANCE
+```
+De laatste stap is slechts een aanvraag. Alleen het bevoegde HOOFDKANTOOR kan officiële uitgifte uitvoeren.
+## 9. Minimale acceptatietests
+- Packagewijziging verandert de digest.
+- Versie- of manifestconflict blokkeert installatie.
+- Persona-naam geeft geen extra permission.
+- Widget en volledige ELIXER tonen dezelfde actuele status.
+- Stale cache creëert geen rechten.
+- Revoked authorization blokkeert nieuwe uitvoering.
+- Expiry tussen controle en commit wordt fail-closed behandeld.
+- Ontbrekende provenance blokkeert verification.
+- AI-output blijft ADVISORY.
+- Interne persona-meerderheid omzeilt geen externe authorization gate.
+- Tenant/WORLD-isolatie verhindert cross-context leakage.
+- Geen productieclaim na uitsluitend synthetische tests.
+- Historische evidence wordt niet stilzwijgend overschreven.
+## 10. Bouwvolgorde
+<table header-row="true">
+<tr>
+<td>Fase</td>
+<td>Oplevering</td>
+<td>Status</td>
+</tr>
+<tr>
+<td>0</td>
+<td>Lab charter en grenzen</td>
+<td>GO</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Manifest- en ID-contract</td>
+<td>NEXT</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Registry en lifecycle-events</td>
+<td>OPEN</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Sandbox met synthetische fixtures</td>
+<td>OPEN</td>
+</tr>
+<tr>
+<td>4</td>
+<td>H∆R∆-candidate en widget-binding</td>
+<td>OPEN</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Evidence- en conformance-runner</td>
+<td>OPEN</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Review queue en release-candidate</td>
+<td>OPEN</td>
+</tr>
+<tr>
+<td>7</td>
+<td>HOOFDKANTOOR-uitgifteinterface</td>
+<td>OPEN</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Distributie- en activatiegate</td>
+<td>OPEN</td>
+</tr>
+</table>
+## 11. Beslissingen die eerst nodig zijn
+- Wie beheert de definitieve ELIXER-ID-namespace?
+- Is een ELIXER technisch één package, of package plus manifest plus bewijsbundle?
+- Welke runtime- en sandboxgrens geldt voor v0.1?
+- Welke functies mogen uitsluitend READ/EXPLAIN/PROPOSE zijn?
+- Welke persona-data mag worden overgedragen tussen huishoudens?
+- Wat is de definitieve VORM9EVIN9-binding?
+- Welke issuer- en signercontracten zijn leidend?
+- Welke talen zijn daadwerkelijk onderdeel van de testmatrix?
+- Welke memory- en retention policy geldt voor de eerste release?
+## 12. Eerstvolgende bouwactie
+**ELIXER LABORATORIUM v0.1 — MANIFEST CONTRACT** maken met:
+- één H∆R∆ candidate;
+- één synthetische testtenant;
+- één read-only widget-view;
+- één volledige ELIXER-view;
+- één package digest;
+- één conformance-testset;
+- één review- en releasechecklist.
+Totdat deze keten reproduceerbaar PASS geeft, blijft iedere ELIXER **LAB-CANDIDATE / NOT OFFICIALLY ISSUED**.
+## Bronkoppeling
+- <mention-page url="https://app.notion.com/p/80eede383ba34fe2a1d0beb8529e37cf"/>
+- <mention-page url="https://app.notion.com/p/3ad8207920724cc59999c6bdf9ebcd73"/>
+- <mention-page url="https://app.notion.com/p/4b1068b924f243138d069ad3ca981456"/>
+- <mention-page url="https://app.notion.com/p/3e529e9a126a8056b55cdb694c0130e0">MA5TERPLAN ELIXER/APP</mention-page>
+<page url="https://app.notion.com/p/bf8b28ff413049c5985caab475827458">ELIXER ENGINE — Kernelcontract v0.1</page>
+</content>
+</page>

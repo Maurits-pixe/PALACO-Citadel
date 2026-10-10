@@ -1,0 +1,69 @@
+name: Ambassador personal login checks
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "ambassades/**"
+      - "tests/browser/ambassades-*.spec.mjs"
+      - ".github/workflows/ambassador-auth.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install isolated authentication dependencies
+        working-directory: ambassades/auth
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Check browser client syntax
+        run: |
+          node --check ambassades/portal.js
+          node --check ambassades/i18n.js
+          node --check ambassades/rio/sw.js
+      - name: Run access isolation and denial tests
+        working-directory: ambassades/auth
+        run: npm test
+      - name: Verify full OIDC flow over trusted test HTTPS
+        working-directory: ambassades/auth
+        run: npm run test:oidc
+      - name: Install browser test dependencies
+        run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify access-page flows and responsive layout
+        run: npx playwright test tests/browser/ambassades-auth.spec.mjs tests/browser/ambassades-languages.spec.mjs
+      - name: Verify downloadable RIO software, offline installation and local consent
+        run: npx playwright test --config ambassades/rio/playwright.config.mjs
+
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Check private Compose configuration
+        run: |
+          smoke_dir="$(mktemp -d)"
+          printf 'NODE_ENV=production\n' > "$smoke_dir/runtime.env"
+          mkdir "$smoke_dir/private"
+          PALACO_RUNTIME_ENV_FILE="$smoke_dir/runtime.env" PALACO_PRIVATE_DIR="$smoke_dir/private" docker compose -f ambassades/deployment/compose.yaml config --quiet
+          rm -rf -- "$smoke_dir"
+      - name: Build isolated authentication image
+        run: docker build --pull --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:24-bookworm-slim -f ambassades/deployment/Dockerfile -t palaco-ambassador-access:ci .
+      - name: Verify image startup and closed access
+        run: node ambassades/deployment/container-smoke.mjs palaco-ambassador-access:ci

@@ -1,0 +1,6 @@
+.env
+.env.*
+!.env.example
+node_modules/
+members.private.json
+*.secrets.json

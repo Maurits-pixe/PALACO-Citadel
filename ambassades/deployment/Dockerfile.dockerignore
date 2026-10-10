@@ -1,0 +1,20 @@
+# The authentication image builds from the repository root.
+# Exclude everything except its explicit public assets and runtime sources.
+**
+!ambassades/
+!ambassades/index.html
+!ambassades/toegang.html
+!ambassades/portal.js
+!ambassades/i18n.js
+!ambassades/locales.json
+!ambassades/access-slots.json
+!ambassades/auth/
+!ambassades/deployment/
+!ambassades/deployment/Dockerfile
+!ambassades/deployment/Dockerfile.dockerignore
+!ambassades/auth/package.json
+!ambassades/auth/package-lock.json
+!ambassades/auth/server.mjs
+!ambassades/auth/access-policy.mjs
+!ambassades/auth/session-store.mjs
+!ambassades/auth/token-verification.mjs

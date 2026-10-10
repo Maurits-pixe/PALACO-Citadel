@@ -1,0 +1,26 @@
+{
+  "id": "/rio/",
+  "name": "PALACO RIO",
+  "short_name": "RIO",
+  "description": "Eerste lokale PALACO RIO-contactproef voor mobiel en computer.",
+  "lang": "nl",
+  "start_url": "/rio/",
+  "scope": "/rio/",
+  "display": "standalone",
+  "background_color": "#fffdf4",
+  "theme_color": "#10243e",
+  "icons": [
+    {
+      "src": "/rio/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/rio/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

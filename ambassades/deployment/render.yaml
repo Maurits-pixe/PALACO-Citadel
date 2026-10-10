@@ -1,0 +1,56 @@
+{
+  "services": [
+    {
+      "type": "web",
+      "name": "palaco-ambassades",
+      "runtime": "node",
+      "plan": "free",
+      "region": "frankfurt",
+      "repo": "https://github.com/Maurits-pixe/PALACO-Citadel",
+      "branch": "codex/palaco-ambassade-website",
+      "autoDeployTrigger": "off",
+      "numInstances": 1,
+      "buildCommand": "npm ci --prefix ambassades/auth --omit=dev --ignore-scripts",
+      "startCommand": "node ambassades/auth/server.mjs",
+      "healthCheckPath": "/healthz",
+      "envVars": [
+        {
+          "key": "NODE_ENV",
+          "value": "production"
+        },
+        {
+          "key": "NODE_VERSION",
+          "value": "24"
+        },
+        {
+          "key": "HOST",
+          "value": "0.0.0.0"
+        },
+        {
+          "key": "PALACO_MEMBERS_FILE",
+          "value": "/etc/secrets/palaco-members.json"
+        },
+        {
+          "key": "OIDC_ISSUER_BASE_URL",
+          "sync": false
+        },
+        {
+          "key": "OIDC_CLIENT_ID",
+          "sync": false
+        },
+        {
+          "key": "OIDC_CLIENT_SECRET",
+          "sync": false
+        },
+        {
+          "key": "PALACO_BASE_URL",
+          "sync": false
+        },
+        {
+          "key": "PALACO_SESSION_SECRET",
+          "sync": false
+        }
+      ]
+    }
+  ]
+}

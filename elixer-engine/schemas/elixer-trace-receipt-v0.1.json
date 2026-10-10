@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:palaco:schemas:elixer-trace-receipt-v0.1",
+  "title": "elixer-trace-receipt-v0.1",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "type": {
+      "type": "string",
+      "const": "LAB_RUN_RECEIPT"
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "previousHash": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "sha256"
+    },
+    "hash": {
+      "type": "string",
+      "format": "sha256"
+    },
+    "receiptId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "event": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "correlationId": {
+          "type": "string",
+          "format": "token64"
+        },
+        "inputDigest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "sha256"
+        },
+        "resultType": {
+          "type": "string",
+          "enum": [
+            "READ_RESULT",
+            "EXPLANATION",
+            "PROPOSAL",
+            "REVIEW_REQUIRED",
+            "BLOCKED",
+            "STALE",
+            "EXPIRED",
+            "REVOKED",
+            "OFFLINE_READ_ONLY",
+            "EXECUTION_PENDING_AUTHORIZATION",
+            "EXECUTED_WITH_RECEIPT"
+          ]
+        },
+        "reasonCodes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "\\S"
+          },
+          "minItems": 0,
+          "maxItems": 256
+        },
+        "state": {
+          "type": "object",
+          "properties": {
+            "package": {
+              "type": "string",
+              "enum": [
+                "UNRESOLVED",
+                "RESOLVED",
+                "INTEGRITY_VERIFIED"
+              ]
+            },
+            "conformance": {
+              "type": "string",
+              "enum": [
+                "NOT_RUN",
+                "RUNNING",
+                "PASS",
+                "FAIL",
+                "PARTIAL"
+              ]
+            },
+            "authority": {
+              "type": "string",
+              "enum": [
+                "NONE",
+                "REVIEW_REQUIRED",
+                "ISSUED_REFERENCE"
+              ]
+            },
+            "distribution": {
+              "type": "string",
+              "enum": [
+                "NOT_ALLOWED",
+                "ALLOWED",
+                "SUSPENDED",
+                "REVOKED"
+              ]
+            },
+            "activation": {
+              "type": "string",
+              "enum": [
+                "INACTIVE",
+                "CONSENT_REQUIRED",
+                "ACTIVE",
+                "DISABLED"
+              ]
+            },
+            "freshness": {
+              "type": "string",
+              "enum": [
+                "CURRENT",
+                "STALE",
+                "EXPIRED",
+                "SUPERSEDED"
+              ]
+            },
+            "execution": {
+              "type": "string",
+              "enum": [
+                "NOT_REQUESTED",
+                "AUTH_PENDING",
+                "COMMITTED",
+                "DENIED"
+              ]
+            }
+          },
+          "required": [
+            "package",
+            "conformance",
+            "authority",
+            "distribution",
+            "activation",
+            "freshness",
+            "execution"
+          ],
+          "additionalProperties": false
+        },
+        "resultDigest": {
+          "type": "string",
+          "format": "sha256"
+        }
+      },
+      "required": [
+        "timestamp",
+        "correlationId",
+        "inputDigest",
+        "resultType",
+        "reasonCodes",
+        "state",
+        "resultDigest"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "type",
+    "sequence",
+    "previousHash",
+    "hash",
+    "receiptId",
+    "event"
+  ],
+  "additionalProperties": false
+}
