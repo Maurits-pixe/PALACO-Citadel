@@ -4,7 +4,7 @@ import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { createRioContactReference } from './reference.mjs';
 
 const SIDES=['SENDER','RECEIVER'];
-const MAX_BODY=4096;
+const TEXT_BODY_LIMIT=4096, OPAQUE_BODY_LIMIT=8192;
 const COOKIE={SENDER:'rio_sender',RECEIVER:'rio_receiver'};
 function secureEqual(a,b) {
   if(typeof a!=='string'||typeof b!=='string')return false;
@@ -16,13 +16,13 @@ function cookieValue(header,name) {
   const matches=header.split(';').map(s=>s.trim()).filter(s=>s.startsWith(name+'='));
   return matches.length===1?matches[0].slice(name.length+1):null;
 }
-function body(req) {
+function body(req,limit) {
   return new Promise((resolve,reject)=>{
     let length=0,parts=[],finished=false;
     req.on('data',chunk=>{
       if(finished)return;
       length+=chunk.length;
-      if(length>MAX_BODY){finished=true;parts=[];reject(Object.assign(new Error('TOO_LARGE'),{status:413}));return;}
+      if(length>limit){finished=true;parts=[];reject(Object.assign(new Error('TOO_LARGE'),{status:413}));return;}
       parts.push(chunk);
     });
     req.on('end',()=>{
@@ -41,20 +41,22 @@ function body(req) {
  * This server is a local reference harness, never a production login service.
  */
 export async function startRioContactPreview({
-  databasePath,classification,now,simulateGuards,port=0,host='127.0.0.1'
+  databasePath,classification,now,simulateGuards,port=0,host='127.0.0.1',payloadMode='TEXT'
 }={}) {
   if(classification!=='SYNTHETIC_ONLY'||host!=='127.0.0.1'||!Number.isInteger(port)||port<0||port>65535) {
     throw new TypeError('EXPLICIT_LOOPBACK_SYNTHETIC_HOST_REQUIRED');
   }
-  const controller=createRioContactReference({databasePath,classification,...(now?{now}:{}),...(simulateGuards?{simulateGuards}:{})});
+  const controller=createRioContactReference({databasePath,classification,payloadMode,...(now?{now}:{}),...(simulateGuards?{simulateGuards}:{})});
+  const maxBody=payloadMode==='OPAQUE_TRANSPORT'?OPAQUE_BODY_LIMIT:TEXT_BODY_LIMIT;
   const credentials=Object.fromEntries(SIDES.map(side=>[side,Object.freeze({
     sessionToken:randomBytes(32).toString('base64url'),csrfToken:randomBytes(32).toString('base64url')
   })]));
   const staticAssets=new Map([
+    ['/assets/encrypted-client.mjs',{type:'text/javascript; charset=utf-8',bytes:readFileSync(new URL('../encrypted-reference/client.mjs',import.meta.url))}],
     ['/assets/app.js',{type:'text/javascript; charset=utf-8',bytes:readFileSync(new URL('./app.js',import.meta.url))}],
     ['/assets/style.css',{type:'text/css; charset=utf-8',bytes:readFileSync(new URL('./style.css',import.meta.url))}]
   ]);
-  const html=readFileSync(new URL('./index.html',import.meta.url));
+  const html=payloadMode==='OPAQUE_TRANSPORT'?Buffer.from('<!doctype html><html lang="nl"><meta charset="utf-8"><title>RIO versleutelde referentieproef</title><body><h1>RIO versleutelde referentieproef</h1><p>Deze pagina dient uitsluitend voor twee geisoleerde browsertests. Geen echte accounts of netwerkberichtendienst.</p></body></html>'):readFileSync(new URL('./index.html',import.meta.url));
   let origin=null,stopping=false;
   const server=createServer(async(req,res)=>{
     res.setHeader('Cache-Control','no-store');
@@ -99,8 +101,8 @@ export async function startRioContactPreview({
       if(req.headers.origin!==origin||!secureEqual(req.headers['x-rio-csrf'],credentials[side].csrfToken))return error(403);
       if(req.headers['sec-fetch-site']&&req.headers['sec-fetch-site']!=='same-origin')return error(403);
       if(typeof req.headers['content-type']!=='string'||req.headers['content-type'].split(';')[0].trim().toLowerCase()!=='application/json')return error(415);
-      if(req.headers['content-length']&&(!/^\d+$/.test(req.headers['content-length'])||Number(req.headers['content-length'])>MAX_BODY))return error(413);
-      const input=await body(req);
+      if(req.headers['content-length']&&(!/^\d+$/.test(req.headers['content-length'])||Number(req.headers['content-length'])>maxBody))return error(413);
+      const input=await body(req,maxBody);
       if(stopping)return error(503);
       const outcome=controller.act(side,input);
       return send(outcome.status==='APPLIED'?200:outcome.status==='HOLD'?503:409,outcome);

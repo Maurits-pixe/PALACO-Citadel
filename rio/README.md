@@ -101,3 +101,7 @@ A passing conformance run proves only that the checked artifacts satisfy this im
 ### Two separated contact test windows
 
 The [local contact preview](./contact-preview/README.md) connects explicit sender/receiver NOVA and confirmation actions to the durable synthetic outbox. Both service commit and local delivery require separate current choices. This preview is not deployed, does not restore pending human decisions after restart, and creates no real accounts or network/E2EE service.
+
+## Encrypted transfer reference
+
+See [encrypted-reference/README.md](encrypted-reference/README.md) for browser-owned private keys, opaque contact transport and explicit local delivery tests. This is a test foundation, with no production encryption protocol, live identities or hosted relay.

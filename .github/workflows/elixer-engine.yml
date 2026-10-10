@@ -48,6 +48,8 @@ jobs:
         run: npx playwright test --config elixer-engine/playwright.config.mjs
       - name: Verify two separated RIO contact browser contexts
         run: npm run test:rio:contact:browser
+      - name: Verify browser-owned encrypted RIO transfer
+        run: npm run test:rio:encrypted:browser
       - name: Inspect synthetic RIO desktop and mobile screenshots
         run: node rio/contact-preview/report-screenshot.mjs
       - uses: actions/upload-artifact@v4

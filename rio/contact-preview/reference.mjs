@@ -39,9 +39,9 @@ function result(status='REJECTED', duplicate=false) {
 
 /** Two fixed local test roles, not authentication of real people. */
 export function createRioContactReference({
-  databasePath,classification,now=()=>new Date().toISOString(),simulateGuards=()=> 'PASS'
+  databasePath,classification,now=()=>new Date().toISOString(),simulateGuards=()=> 'PASS',payloadMode='TEXT'
 }={}) {
-  if (classification!=='SYNTHETIC_ONLY' || typeof now!=='function' || typeof simulateGuards!=='function') {
+  if (classification!=='SYNTHETIC_ONLY' || typeof now!=='function' || typeof simulateGuards!=='function' || !['TEXT','OPAQUE_TRANSPORT'].includes(payloadMode)) {
     throw new TypeError('EXPLICIT_SYNTHETIC_HOST_REQUIRED');
   }
   const design=JSON.parse(readFileSync(new URL('../brigade-specialties.json',import.meta.url),'utf8'));
@@ -172,7 +172,7 @@ export function createRioContactReference({
         : (showText?item.text:null);
       return {
         id:item.id,revision:round.revision,phase:expired?'CLOSED':item.phase,stage:round.checkpoint,
-        text:visibleText,byteLength:item.byteLength,payloadDigest:item.payloadDigest,
+        text:payloadMode==='TEXT'?visibleText:null,...(payloadMode==='OPAQUE_TRANSPORT'?{opaquePayload:showText?(inboxText||item.message.opaquePayload):null}:{}),byteLength:item.byteLength,payloadDigest:item.payloadDigest,
         contractDigest:round.contractDigest,evidenceSetDigest:round.evidenceSetDigest,
         confirmations:{...round.confirmations},
         guards:GUARD_ROLES.map(roleCode=>{
@@ -188,7 +188,7 @@ export function createRioContactReference({
     });
     return freeze({mode:'REFERENCE_ONLY',classification:'SYNTHETIC_ONLY',side,
       notifications:side==='RECEIVER'?requests.filter(r=>['WAITING_NOVA','WAITING_DELIVERY_NOVA'].includes(r.phase)).length:0,
-      controlsSimulated:true,canOpenContact:false,operativeAuthority:'NONE',runtimeConnected:false,
+      payloadMode,controlsSimulated:true,canOpenContact:false,operativeAuthority:'NONE',runtimeConnected:false,
       externalSideEffect:false,requests});
   }
   function act(side,input) {
@@ -196,7 +196,7 @@ export function createRioContactReference({
     let body,fingerprint,time;
     try {
       body=JSON.parse(canonical(input));
-      const keys=body.type==='INITIATE'?['type','actionId','text']
+      const keys=body.type==='INITIATE'?['type','actionId','text']:body.type==='INITIATE_OPAQUE'?['type','actionId','opaquePayload']
         :body.type==='FINAL_ACCEPT'?['type','id','revision','actionId','contractDigest','evidenceSetDigest']
         :['type','id','revision','actionId'];
       if (!exact(body,keys)||!token(body.actionId)||!token(body.type)) return result();
@@ -211,14 +211,22 @@ export function createRioContactReference({
     busy=true;
     let outcome='REJECTED';
     try {
-      if (body.type==='INITIATE') {
-        if (side!=='SENDER'||typeof body.text!=='string'||!body.text.trim()
-            ||Buffer.byteLength(body.text,'utf8')>1024||items.size>=64) return result();
-        // JSON surrogate round-trip must preserve the precise UTF-8 text.
-        if (Buffer.from(body.text,'utf8').toString('utf8')!==body.text) return result();
+      if (['INITIATE','INITIATE_OPAQUE'].includes(body.type)) {
+        if (side!=='SENDER'||items.size>=64) return result();
+        let bytes;
+        if (payloadMode==='TEXT') {
+          if (body.type!=='INITIATE'||typeof body.text!=='string'||!body.text.trim()
+              ||Buffer.byteLength(body.text,'utf8')>1024) return result();
+          bytes=Buffer.from(body.text,'utf8');
+          if (bytes.toString('utf8')!==body.text) return result();
+        } else {
+          if (body.type!=='INITIATE_OPAQUE'||typeof body.opaquePayload!=='string'
+              ||body.opaquePayload.length>5462||!/^[A-Za-z0-9_-]+$/.test(body.opaquePayload)) return result();
+          bytes=Buffer.from(body.opaquePayload,'base64url');
+          if (bytes.length<1||bytes.length>4096||bytes.toString('base64url')!==body.opaquePayload) return result();
+        }
         const id='request-'+nonce(),messageId='message-'+nonce();
-        const bytes=Buffer.from(body.text,'utf8');
-        const item={id,text:body.text,payloadDigest:hash(bytes),byteLength:bytes.length,
+        const item={id,text:payloadMode==='TEXT'?body.text:null,payloadDigest:hash(bytes),byteLength:bytes.length,
           created:time,expires:time+5*60_000,phase:'WAITING_NOVA',
           message:{schemaVersion:'rio-opaque-message-reference/0.1',classification:'SYNTHETIC_ONLY',
             requestId:id,messageId,idempotencyKey:'idempotency-'+nonce(),opaquePayload:bytes.toString('base64url')}};
