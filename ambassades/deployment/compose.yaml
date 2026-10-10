@@ -1,0 +1,36 @@
+# Docker Compose 2.30 or newer; run from the repository checkout.
+# Both host paths must point to private storage outside the checkout.
+services:
+  embassy:
+    build:
+      context: ../..
+      dockerfile: ambassades/deployment/Dockerfile
+    image: palaco-ambassador-access:local
+    init: true
+    restart: unless-stopped
+    user: "1000:1000"
+    env_file:
+      - path: ${PALACO_RUNTIME_ENV_FILE:?Set an absolute private environment-file path}
+        required: true
+        format: raw
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: "3000"
+      PALACO_MEMBERS_FILE: /private/members.json
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - type: bind
+        source: ${PALACO_PRIVATE_DIR:?Set an absolute private membership-directory path}
+        target: /private
+        read_only: true
+        bind:
+          create_host_path: false
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 64
+    stop_grace_period: 15s
