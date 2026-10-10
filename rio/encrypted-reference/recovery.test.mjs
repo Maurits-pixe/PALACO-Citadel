@@ -401,3 +401,41 @@ test('host transport verifies sender signature even if a fabricated envelope dig
   const payload=encodeEncryptedBytes(new TextEncoder().encode(canonicalEncrypted(envelope)));
   assert.throws(()=>f.registry.acceptTransport(payload),recoveryError);
 });
+
+for(const phase of ['AFTER_WRITE_BEFORE_COMMIT','AFTER_COMMIT']){
+  test('real registry process kill at '+phase+' preserves atomic replacement and replay',async t=>{
+    const {spawnSync}=await import('node:child_process');
+    const f=await fixture(t),context=f.context('hard-crash-spent');
+    const envelope=await f.sender.seal('Artificial process-crash replay marker',context);
+    const p=await f.ready(await f.propose('SENDER'));
+    const moduleURL=new URL('./recovery-registry.mjs',import.meta.url).href;
+    const program=[
+      'import {readFileSync} from "node:fs";',
+      'import {openRioTestRecoveryRegistry} from '+JSON.stringify(moduleURL)+';',
+      'const input=JSON.parse(readFileSync(0,"utf8"));',
+      'const registry=openRioTestRecoveryRegistry({databasePath:input.path,classification:"SYNTHETIC_ONLY",now:()=>input.now,',
+      'fault:stage=>{if(stage===input.phase)process.kill(process.pid,"SIGKILL");}});',
+      'registry.activate(input.challenge);',
+      'if(input.phase==="AFTER_COMMIT")process.kill(process.pid,"SIGKILL");',
+      'process.exit(99);'
+    ].join('\n');
+    const child=spawnSync(process.execPath,['--input-type=module','-e',program],{
+      input:JSON.stringify({path:f.databasePath,now:f.now(),challenge:p.challenge,phase}),encoding:'utf8',timeout:15000});
+    assert.equal(child.error,undefined);assert.equal(child.signal,'SIGKILL');
+    f.reopen();
+    const snapshot=f.registry.snapshot();
+    if(phase==='AFTER_WRITE_BEFORE_COMMIT'){
+      assert.equal(snapshot.revision,1);
+      assert.equal(snapshot.parties.SENDER.identity.pin,f.sender.publicIdentity.pin);
+      assert.equal((await f.receiver.preview(envelope,context)).text,'Artificial process-crash replay marker');
+      await f.activate(p);
+    }else{
+      assert.equal(snapshot.revision,2);assert.equal(snapshot.parties.SENDER.identity.pin,p.candidate.publicIdentity.pin);
+      assert.throws(()=>f.registry.activate(p.challenge),recoveryError);
+      await p.candidate.connect(f.receiver.publicIdentity,f.receiver.publicIdentity.pin,f.receiver.publicIdentity.id);
+      await f.receiver.rebindPeer(p.candidate.publicIdentity,p.candidate.publicIdentity.pin,p.candidate.publicIdentity.id);
+    }
+    await assert.rejects(p.candidate.seal('Spent message remains spent after a killed process',context),encryptedError);
+    assert.throws(()=>f.registry.checkPair('sender-device-1',{own:f.sender.publicIdentity,peer:f.receiver.publicIdentity}),recoveryError);
+  });
+}

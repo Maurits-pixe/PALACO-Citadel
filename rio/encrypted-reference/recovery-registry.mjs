@@ -165,6 +165,8 @@ export function openRioTestRecoveryRegistry({databasePath,classification,now=()=
       if(deadline!==undefined&&finalTime>=deadline)return fail();
       record.maxClock=finalTime;state(record);
       db.prepare('UPDATE rio_recovery SET state_json=? WHERE id=1').run(canonical(record));
+      const writtenFault=fault('AFTER_WRITE_BEFORE_COMMIT');
+      if(writtenFault==='ABORT'||(writtenFault&&typeof writtenFault.then==='function'))return fail();
       db.exec('COMMIT');
       return result;
     }catch{try{db.exec('ROLLBACK');}catch{}return fail();}
