@@ -34,3 +34,8 @@ IndexedDB key storage is origin-scoped native structured cloning, not a hardware
 The existing encryption envelope, test bodyguards and local approval route keep their reference status. No live accounts, external relay, production authority or deployment is added.
 
 Primary references: [Web Cryptography Recommendation](https://www.w3.org/TR/2017/REC-WebCryptoAPI-20170126/) for CryptoKey structured cloning and [IndexedDB](https://www.w3.org/TR/IndexedDB/) for transactions. No key material, browser profiles, cookies or database files are uploaded as CI artifacts.
+
+
+## Optional registry-authorized peer rotation
+
+Default enrollPeer remains immutable. An explicit peerRotationAuthority factory callback enables rotatePeer only after exact true approval of a copied, frozen own/new-peer pair. A strict transaction compares the old peer and revision before storing that snapshot. The encrypted endpoint exposes rebindPeer only with an explicit recoveryAuthority and checks the registry before and after rotation. checkCurrent verifies local ACTIVE epoch and optional peer after final asynchronous transfer authorization and around candidate possession proof. The unchanged peer retains its own keys and replay history. See [second-device recovery](./RECOVERY.md); these callbacks are trusted test-host adapters, not ordinary user-supplied permissions.

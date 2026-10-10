@@ -36,3 +36,8 @@ The encryption clients are exercised by the automated browser harness; the exist
 Run npm run test:rio:contact for controller, storage and cryptographic rejection tests, and npm run test:rio:encrypted:browser for actual separate Chromium contexts with private keys generated inside each page, vault reload/race/revocation cases and separate persistent browser-process relaunches. The browser tests move encrypted bytes over the existing role-owned loopback HTTP API through both explicit approval rounds, check NOVA isolation, verify receiver decryption, reject modified ciphertext and enforce revocation/replay.
 
 No trace, video, cookies, private keys, original text or database files are uploaded as evidence. Existing desktop/mobile screenshots are from the separate artificial-text contact preview.
+
+
+## Controlled second-device replacement
+
+[Recovery reference](./RECOVERY.md) adds an optional trusted SQLite registry, candidate key possession proof, two exact simulated host confirmations, global replay history and authority-gated peer rotation. Another profile generates new keys; old encrypted messages cannot be restored with them. The opt-in host transport gate rejects retired pins and checks the actual sender signature. This remains a local synthetic integration; no public recovery endpoint or hosted relay is connected.

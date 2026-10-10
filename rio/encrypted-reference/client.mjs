@@ -53,9 +53,10 @@ function validContext(context,time,senderId,receiverId) {
 function copy(value){return JSON.parse(canonicalEncrypted(value));}
 
 /** Private keys remain in this endpoint closure and are not exportable. */
-export async function createEncryptedTestEndpoint({classification,role,id,now=()=>new Date().toISOString(),keyVault}={}) {
+export async function createEncryptedTestEndpoint({classification,role,id,now=()=>new Date().toISOString(),keyVault,recoveryAuthority}={}) {
   if(classification!=='SYNTHETIC_ONLY' || !['SENDER','RECEIVER'].includes(role)
     || typeof id!=='string' || !ID.test(id) || typeof now!=='function'
+    || (recoveryAuthority && (!exact(recoveryAuthority,['checkPair','authorize']) || !['checkPair','authorize'].every(k=>typeof recoveryAuthority[k]==='function')))
     || (keyVault && !['initialize','enrollPeer','reserveSeal','finishSeal','checkReceive','revoke','close'].every(k=>typeof keyVault[k]==='function')))return fail();
   async function makeMaterial(){
     const keys=await crypto.subtle.generateKey(role==='SENDER'
@@ -112,12 +113,13 @@ export async function createEncryptedTestEndpoint({classification,role,id,now=()
     if(closed || !Number.isFinite(time) || time<lastClock)return fail();
     lastClock=time;return time;
   }
-  async function connect(input,expectedPin,expectedId) {
-    if(closed || busy || (peer&&!keyVault))return fail();busy=true;
+  async function connect(input,expectedPin,expectedId,rotation=false,restoring=false) {
+    if(closed || busy || (rotation&&!recoveryAuthority) || (peer&&!keyVault&&!rotation))return fail();busy=true;
     try {
       const candidate=copy(input);
-      if(peer){
+      if(peer&&!rotation){
         if(candidate.pin!==expectedPin||candidate.id!==expectedId||canonicalEncrypted(candidate)!==canonicalEncrypted(peer))return fail();
+        if(recoveryAuthority&&!restoring && await recoveryAuthority.checkPair(freeze(copy({own:publicIdentity,peer:candidate})))!==true)return fail();
         await keyVault.enrollPeer(keyEpoch,peer);return true;
       }
       if(!exact(candidate,['schemaVersion','classification','role','id','algorithm','spki','pin'])
@@ -134,10 +136,22 @@ export async function createEncryptedTestEndpoint({classification,role,id,now=()
         role==='SENDER'?['encrypt']:['verify']);
       if(role==='SENDER' && (key.algorithm.modulusLength!==3072
         || encodeEncryptedBytes(key.algorithm.publicExponent)!=='AQAB'))return fail();
-      if(closed)return fail();
-      if(keyVault)await keyVault.enrollPeer(keyEpoch,candidate);
+      if(closed || (rotation && (!peer || candidate.pin===peer.pin)))return fail();
+      if(recoveryAuthority&&!restoring && await recoveryAuthority.checkPair(freeze(copy({own:publicIdentity,peer:candidate})))!==true)return fail();
+      if(keyVault){
+        if(rotation){
+          if(typeof keyVault.rotatePeer!=='function')return fail();
+          await keyVault.rotatePeer(keyEpoch,peer,candidate);
+        }else await keyVault.enrollPeer(keyEpoch,candidate);
+      }
+      if(recoveryAuthority&&!restoring && await recoveryAuthority.checkPair(freeze(copy({own:publicIdentity,peer:candidate})))!==true)return fail();
       peer=freeze(candidate);peerKey=key;return true;
     }catch{return fail();}finally{busy=false;}
+  }
+  async function authorize(checkpoint,context,envelopeDigest=null){
+    if(!recoveryAuthority)return;
+    if(await recoveryAuthority.authorize(freeze(copy({checkpoint,own:publicIdentity,peer,context,envelopeDigest})))!==true)return fail();
+    if(closed)return fail();
   }
   function parties(){return role==='SENDER'?[id,peer.id]:[peer.id,id];}
   async function seal(text,inputContext) {
@@ -152,6 +166,7 @@ export async function createEncryptedTestEndpoint({classification,role,id,now=()
       const header={schemaVersion:VERSION,classification,suite:SUITE,context,
         senderPin:publicIdentity.pin,receiverPin:peer.pin};
       const aad=encoder.encode(canonicalEncrypted(header)),label=await crypto.subtle.digest('SHA-256',aad);
+      await authorize('SEAL_START',context);
       if(keyVault)reservation=await keyVault.reserveSeal(keyEpoch,peer,context.messageId,clock(),stamp(context.expiresAt));
       secret=crypto.getRandomValues(new Uint8Array(32));
       const contentKey=await crypto.subtle.importKey('raw',secret,'AES-GCM',false,['encrypt']);
@@ -169,6 +184,9 @@ export async function createEncryptedTestEndpoint({classification,role,id,now=()
         await keyVault.finishSeal(keyEpoch,peer,context.messageId,reservation,clock(),stamp(context.expiresAt));
         validContext(context,clock(),senderId,receiverId);
       }
+      await authorize('SEAL_FINISH',context,await encryptedEnvelopeDigest(envelope));
+      if(recoveryAuthority&&keyVault)await keyVault.checkCurrent(keyEpoch,peer);
+      validContext(context,clock(),senderId,receiverId);
       sent.add(context.messageId);
       return freeze(envelope);
     }catch{return fail();}finally{secret?.fill(0);busy=false;}
@@ -195,6 +213,7 @@ export async function createEncryptedTestEndpoint({classification,role,id,now=()
       const unsigned={header:envelope.header,iv:envelope.iv,wrappedKey:envelope.wrappedKey,ciphertext:envelope.ciphertext};
       if(!await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},peerKey,signature,
         encoder.encode(canonicalEncrypted(unsigned))))return fail();
+      await authorize('RECEIVE_START',expected,envelopeDigest);
       if(keyVault)await keyVault.checkReceive(keyEpoch,peer,expected.messageId,clock(),stamp(expected.expiresAt),false);
       const aad=encoder.encode(canonicalEncrypted(envelope.header)),label=await crypto.subtle.digest('SHA-256',aad);
       secret=new Uint8Array(await crypto.subtle.decrypt({name:'RSA-OAEP',label},keys.privateKey,wrapped));
@@ -208,19 +227,61 @@ export async function createEncryptedTestEndpoint({classification,role,id,now=()
         await keyVault.checkReceive(keyEpoch,peer,expected.messageId,clock(),stamp(expected.expiresAt),consume);
         validContext(expected,clock(),senderId,receiverId);
       }
+      await authorize(consume?'RECEIVE_CONSUME':'RECEIVE_PREVIEW',expected,envelopeDigest);
+      if(recoveryAuthority&&keyVault)await keyVault.checkCurrent(keyEpoch,peer);
+      validContext(expected,clock(),senderId,receiverId);
       if(consume)received.add(expected.messageId);
       return freeze({text,envelopeDigest,classification,mode:'ENCRYPTED_REFERENCE_ONLY'});
     }catch{return fail();}finally{secret?.fill(0);busy=false;}
   }
   function close(){if(busy)return false;closed=true;keys=null;peerKey=null;peer=null;sent.clear();received.clear();keyVault?.close();return true;}
-  if(restored?.peer){try{await connect(restored.peer,restored.peer.pin,restored.peer.id);}catch{keyVault.close();return fail();}}
+  if(restored?.peer){try{await connect(restored.peer,restored.peer.pin,restored.peer.id,false,true);}catch{keyVault.close();return fail();}}
   async function revoke(){
     if(!keyVault||closed||busy)return fail();busy=true;
     try{await keyVault.revoke(keyEpoch);keys=null;peerKey=null;peer=null;closed=true;keyVault.close();return true;}
     catch{return fail();}finally{busy=false;}
   }
-  return Object.freeze({publicIdentity,connect,seal,
+  async function proveRecovery(input){
+    if(!recoveryAuthority||closed||busy)return fail();busy=true;
+    let nonce=null;
+    try{
+      const challenge=copy(input),context=challenge.context;
+      const fields=['schemaVersion','classification','id','role','pairRevision','accountId','oldPin','newPin','newDeviceId','peerPin','issuedAt','expiresAt','oldDeviceId','peerDeviceId','peerAccountId'];
+      const time=clock(),pin=value=>typeof value==='string'&&/^[A-Za-z0-9_-]{43}$/.test(value);
+      if(!exact(challenge,['context','wrappedChallenge'])||!exact(context,fields)
+        ||context.schemaVersion!=='rio-device-recovery/0.1'||context.classification!==classification
+        ||context.role!==role||context.accountId!==id||context.newPin!==publicIdentity.pin
+        ||!Number.isSafeInteger(context.pairRevision)||context.pairRevision<1
+        ||!['id','accountId','newDeviceId','oldDeviceId','peerDeviceId','peerAccountId'].every(k=>typeof context[k]==='string'&&ID.test(context[k]))
+        ||!context.id.startsWith('recovery-')||context.newDeviceId===context.oldDeviceId
+        ||context.accountId===context.peerAccountId||![context.oldPin,context.newPin,context.peerPin].every(pin)
+        ||context.oldPin===context.newPin||context.newPin===context.peerPin
+        ||!Number.isFinite(stamp(context.issuedAt))||!Number.isFinite(stamp(context.expiresAt))
+        ||stamp(context.issuedAt)>time||stamp(context.expiresAt)<=time
+        ||stamp(context.expiresAt)-stamp(context.issuedAt)!==120_000)return fail();
+      const proofBytes=encoder.encode('RIO_DEVICE_RECOVERY_PROOF\n'+canonicalEncrypted(context));
+      if(keyVault){
+        if(typeof keyVault.checkCurrent!=='function')return fail();
+        await keyVault.checkCurrent(keyEpoch);
+      }
+      let proof;
+      if(role==='SENDER'){
+        if(challenge.wrappedChallenge!==null)return fail();
+        proof=encodeEncryptedBytes(await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},keys.privateKey,proofBytes));
+      }else{
+        const wrapped=decodeEncryptedBytes(challenge.wrappedChallenge,384);
+        if(wrapped.length!==384)return fail();
+        nonce=new Uint8Array(await crypto.subtle.decrypt({name:'RSA-OAEP',label:await crypto.subtle.digest('SHA-256',proofBytes)},keys.privateKey,wrapped));
+        if(nonce.length!==32)return fail();proof=encodeEncryptedBytes(nonce);
+      }
+      if(keyVault)await keyVault.checkCurrent(keyEpoch);
+      if(closed||clock()>=stamp(context.expiresAt))return fail();
+      return proof;
+    }catch{return fail();}finally{nonce?.fill(0);busy=false;}
+  }
+  return Object.freeze({publicIdentity,connect:(candidate,pin,id)=>connect(candidate,pin,id),seal,
     preview:(envelope,context)=>inspect(envelope,context,false),
     acceptDelivered:(envelope,context,hostDeliveredDigest)=>inspect(envelope,context,true,hostDeliveredDigest),close,
-    ...(keyVault?{keyEpoch,revoke}:{} )});
+    ...(keyVault?{keyEpoch,revoke}:{} ),
+    ...(recoveryAuthority?{proveRecovery,rebindPeer:(candidate,pin,id)=>connect(candidate,pin,id,true)}:{})});
 }

@@ -53,3 +53,6 @@ The browser suite provisions two separate HttpOnly cookie contexts through the t
 The workflow checks the source commit directly and uploads screenshots plus existing source/gate/outbox/kernel evidence. The UI is a local review harness; it is not deployed to the embassy website.
 
 See [durable outbox](../REFERENCE-OUTBOX.md) and [signed evidence gate](../BRIGADE-EVIDENCE.md) for the lower-layer contracts and production integration limits.
+
+
+Optional SYNTHETIC_ONLY OPAQUE_TRANSPORT hosts can supply a synchronous transportAuthority callback. It must return exactly true for the canonical payload at initiation and pending action/commit/delivery boundaries. Explicit invalid configuration rejects. The supplied [recovery registry](../encrypted-reference/RECOVERY.md) checks current public pins, exact send digest/context, expiry and sender signature. Stale payloads invalidate choices and durably close, or remain HOLD while closure is blocked. The existing TEXT preview does not use this gate.

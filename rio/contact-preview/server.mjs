@@ -41,12 +41,12 @@ function body(req,limit) {
  * This server is a local reference harness, never a production login service.
  */
 export async function startRioContactPreview({
-  databasePath,classification,now,simulateGuards,port=0,host='127.0.0.1',payloadMode='TEXT'
+  databasePath,classification,now,simulateGuards,port=0,host='127.0.0.1',payloadMode='TEXT',transportAuthority
 }={}) {
   if(classification!=='SYNTHETIC_ONLY'||host!=='127.0.0.1'||!Number.isInteger(port)||port<0||port>65535) {
     throw new TypeError('EXPLICIT_LOOPBACK_SYNTHETIC_HOST_REQUIRED');
   }
-  const controller=createRioContactReference({databasePath,classification,payloadMode,...(now?{now}:{}),...(simulateGuards?{simulateGuards}:{})});
+  const controller=createRioContactReference({databasePath,classification,payloadMode,...(transportAuthority!==undefined?{transportAuthority}:{}),...(now?{now}:{}),...(simulateGuards?{simulateGuards}:{})});
   const maxBody=payloadMode==='OPAQUE_TRANSPORT'?OPAQUE_BODY_LIMIT:TEXT_BODY_LIMIT;
   const credentials=Object.fromEntries(SIDES.map(side=>[side,Object.freeze({
     sessionToken:randomBytes(32).toString('base64url'),csrfToken:randomBytes(32).toString('base64url')

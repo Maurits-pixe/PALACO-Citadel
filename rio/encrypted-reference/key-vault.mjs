@@ -4,6 +4,7 @@ const ID=/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 const PIN=/^[A-Za-z0-9_-]{43}$/;
 const reject=()=>{throw new Error('KEY_VAULT_NOT_ACCEPTED');};
 const same=(a,b)=>canonicalEncrypted(a)===canonicalEncrypted(b);
+function freeze(value){if(value&&typeof value==='object'){Object.values(value).forEach(freeze);Object.freeze(value);}return value;}
 const token=value=>typeof value==='string'&&ID.test(value);
 function exact(value,keys){
   return value && typeof value==='object' && !Array.isArray(value)
@@ -26,11 +27,12 @@ function metadataValid(r,role,id){
 }
 /** Explicit origin-local test enrollment, never a server key resolver or backup. */
 export async function openRioTestKeyVault({
-  classification,role,id,namespace,mode,expectedOwnPin,fault=()=>undefined
+  classification,role,id,namespace,mode,expectedOwnPin,fault=()=>undefined,peerRotationAuthority
 }={}){
   if(classification!=='SYNTHETIC_ONLY'||!['SENDER','RECEIVER'].includes(role)||!token(id)||!token(namespace)
     ||!['ENROLL','RESUME','REPLACE'].includes(mode)||typeof fault!=='function'
     ||(mode==='ENROLL'?expectedOwnPin!==undefined:typeof expectedOwnPin!=='string'||!PIN.test(expectedOwnPin))
+    ||(peerRotationAuthority!==undefined&&typeof peerRotationAuthority!=='function')
     ||typeof indexedDB==='undefined')return reject();
   let closed=false,initialized=false,ownEpoch=null;
   const db=await new Promise((resolve,rejectPromise)=>{
@@ -127,6 +129,22 @@ export async function openRioTestKeyVault({
       r.peer=peer;r.revision++;return {value:true,put:r};
     });
   }
+  async function checkCurrent(epoch,peer){
+    return transaction(false,r=>{active(r,epoch,peer);return {value:true};});
+  }
+  async function rotatePeer(epoch,expectedOldPeer,candidate){
+    if(typeof peerRotationAuthority!=='function')return reject();
+    let oldPeer,newPeer;
+    try{oldPeer=freeze(JSON.parse(canonicalEncrypted(expectedOldPeer)));newPeer=freeze(JSON.parse(canonicalEncrypted(candidate)));}catch{return reject();}
+    const original=await transaction(false,r=>{active(r,epoch,oldPeer);return {value:r};});
+    const request=freeze(JSON.parse(canonicalEncrypted({own:original.publicIdentity,peer:newPeer})));
+    if(await peerRotationAuthority(request)!==true)return reject();
+    return transaction(true,r=>{
+      active(r,epoch,oldPeer);
+      if(r.revision!==original.revision||newPeer.pin===oldPeer.pin)return reject();
+      r.peer=newPeer;r.revision++;return {value:true,put:r};
+    });
+  }
   async function reserveSeal(epoch,peer,messageId,time,expiresAt){
     return transaction(true,r=>{
       current(r,epoch,peer,messageId,time,expiresAt);
@@ -161,5 +179,5 @@ export async function openRioTestKeyVault({
     });
   }
   function close(){closed=true;db.close();}
-  return Object.freeze({initialize,enrollPeer,reserveSeal,finishSeal,checkReceive,revoke,close});
+  return Object.freeze({initialize,enrollPeer,reserveSeal,finishSeal,checkReceive,revoke,close,checkCurrent,rotatePeer});
 }

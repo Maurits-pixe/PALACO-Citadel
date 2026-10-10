@@ -39,9 +39,10 @@ function result(status='REJECTED', duplicate=false) {
 
 /** Two fixed local test roles, not authentication of real people. */
 export function createRioContactReference({
-  databasePath,classification,now=()=>new Date().toISOString(),simulateGuards=()=> 'PASS',payloadMode='TEXT'
+  databasePath,classification,now=()=>new Date().toISOString(),simulateGuards=()=> 'PASS',payloadMode='TEXT',transportAuthority
 }={}) {
-  if (classification!=='SYNTHETIC_ONLY' || typeof now!=='function' || typeof simulateGuards!=='function' || !['TEXT','OPAQUE_TRANSPORT'].includes(payloadMode)) {
+  if (classification!=='SYNTHETIC_ONLY' || typeof now!=='function' || typeof simulateGuards!=='function' || !['TEXT','OPAQUE_TRANSPORT'].includes(payloadMode)
+    ||(transportAuthority!==undefined&&(typeof transportAuthority!=='function'||payloadMode!=='OPAQUE_TRANSPORT'))) {
     throw new TypeError('EXPLICIT_SYNTHETIC_HOST_REQUIRED');
   }
   const design=JSON.parse(readFileSync(new URL('../brigade-specialties.json',import.meta.url),'utf8'));
@@ -65,6 +66,17 @@ export function createRioContactReference({
       return {input:item.round.input,snapshot:item.round.snapshot};
     }
   });
+  function transportAccepted(opaquePayload){
+    if(!transportAuthority)return true;
+    try{return transportAuthority(opaquePayload)===true;}catch{return false;}
+  }
+  function closeStale(item){
+    item.revocationPending=true;item.phase='HOLD';item.round.revision=nonce();
+    item.round.input.finalReceipts=[];item.round.evidenceSetDigest=null;item.round.confirmations={sender:false,receiver:false};
+    const status=outbox.revoke(item.id);
+    if(status.status!=='CLOSED')return false;
+    item.revocationPending=false;item.phase='CLOSED';return true;
+  }
   function signBody(body) {
     const pair=pairs.get(body.issuerId.slice('synthetic:'.length));
     if (!pair) throw new Error('UNKNOWN_SYNTHETIC_ISSUER');
@@ -225,6 +237,7 @@ export function createRioContactReference({
           bytes=Buffer.from(body.opaquePayload,'base64url');
           if (bytes.length<1||bytes.length>4096||bytes.toString('base64url')!==body.opaquePayload) return result();
         }
+        if(payloadMode==='OPAQUE_TRANSPORT'&&!transportAccepted(bytes.toString('base64url')))return result();
         const id='request-'+nonce(),messageId='message-'+nonce();
         const item={id,text:payloadMode==='TEXT'?body.text:null,payloadDigest:hash(bytes),byteLength:bytes.length,
           created:time,expires:time+5*60_000,phase:'WAITING_NOVA',
@@ -238,6 +251,9 @@ export function createRioContactReference({
         const item=items.get(body.id);
         if (!item||body.revision!==item.round.revision||!allowed(item,side,time).includes(body.type)) return result();
         const round=item.round;
+        if(transportAuthority&&!['DECLINE','REVOKE'].includes(body.type)&&!transportAccepted(item.message.opaquePayload)){
+          closeStale(item);outcome='HOLD';return result(outcome);
+        }
         if (['DECLINE','REVOKE'].includes(body.type)) {
           item.revocationPending=true;item.phase='HOLD';round.revision=nonce();
           round.input.finalReceipts=[];round.evidenceSetDigest=null;round.confirmations={sender:false,receiver:false};
@@ -263,6 +279,9 @@ export function createRioContactReference({
           round.input.finalReceipts.push(humanReceipt(item,side,'FINAL_ACCEPTED',time));
           round.confirmations[side.toLowerCase()]=true;renewTrust(round,time);
           if (round.confirmations.sender&&round.confirmations.receiver) {
+            if(transportAuthority&&!transportAccepted(item.message.opaquePayload)){
+              closeStale(item);outcome='HOLD';return result(outcome);
+            }
             const operation=round.checkpoint==='SERVICE_COMMIT'?outbox.commit(item.message):outbox.deliver(item.message.messageId);
             if (!['QUEUED','DELIVERED'].includes(operation.status)) {
               item.phase=operation.status==='CLOSED'?'CLOSED':'HOLD';round.revision=nonce();
