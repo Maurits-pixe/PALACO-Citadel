@@ -48,3 +48,8 @@ button:disabled{opacity:.65;cursor:wait}button:focus-visible{outline:3px solid #
 .commit-receipt{margin-top:22px;padding:14px;border:1px solid var(--line);border-radius:10px;background:#f1f8f4}
 @media(max-width:760px){.shell{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}button{width:100%}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+select{width:100%;max-width:100%;min-width:0}
+.controls label{max-width:100%;min-width:0}
+.status,.roles p,.maintenance-controls p{overflow-wrap:anywhere}
+.shell,.maintenance-controls{min-width:0}
