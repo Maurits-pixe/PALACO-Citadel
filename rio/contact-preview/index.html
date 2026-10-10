@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="referrer" content="no-referrer">
+  <title>RIO — lokaal contactvenster</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <script src="/assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Naar het contactvenster</a>
+  <header class="shell page-header">
+    <div class="topline">
+      <div class="rio-mark" aria-label="RIO">
+        <span id="rio-counter" class="counter" aria-label="0 open meldingen">0</span>
+        <span class="wordmark">RIO</span>
+      </div>
+      <span class="test-tag">LOKALE PROEF</span>
+    </div>
+    <p class="eyebrow">NOVA · RECEPTIE · 6RI9ADE</p>
+    <h1 id="role-title">Contactvenster laden</h1>
+    <p id="role-intro" class="intro">Twee gescheiden testvensters volgen samen de stappen voor contact.</p>
+    <p id="notification-route" class="notification-route" hidden>MELDING RIO (BINNEN)</p>
+    <div class="lab-notice">
+      <strong>Dit venster werkt met kunstmatige testgegevens.</strong>
+      <span>De negen bodyguards zijn gesimuleerd. Er zijn geen echte accounts, geen versleutelde netwerkberichten en geen live veiligheidsdiensten aangesloten. Gebruik alleen verzonnen proeftekst.</span>
+    </div>
+  </header>
+  <main id="main" class="shell" tabindex="-1">
+    <div class="toolbar">
+      <div>
+        <p class="section-kicker">MENSELIJKE INSTEMMING BLIJFT ZICHTBAAR</p>
+        <p id="connection-status" class="connection-status">Verbinden met de lokale proef.</p>
+      </div>
+      <button id="refresh-button" class="secondary" type="button">Verversen</button>
+    </div>
+    <p id="status" class="status" role="status" aria-live="polite" aria-atomic="true"></p>
+    <p id="error" class="error" role="alert" hidden></p>
+    <section id="compose" class="surface compose" aria-labelledby="compose-title" hidden>
+      <div class="surface-heading">
+        <h2 id="compose-title">Een contactverzoek starten</h2>
+        <p>Je verstuurt eerst een verzoek. De ontvanger laat NOVA daarna bewust binnen.</p>
+      </div>
+      <form id="compose-form" class="surface-body">
+        <label for="message-text">Verzonnen proeftekst</label>
+        <textarea id="message-text" name="text" rows="4" maxlength="1024" required aria-describedby="text-help text-length" placeholder="Bijvoorbeeld: Hallo, dit is ons eerste RIO-proefbericht."></textarea>
+        <div class="text-meta">
+          <p id="text-help">Maximaal 1024 bytes. Gebruik geen persoonlijke of geheime informatie.</p>
+          <p id="text-length">0 / 1024 bytes</p>
+        </div>
+        <button id="send-button" type="submit" disabled>Verzoek versturen</button>
+      </form>
+    </section>
+    <section class="requests-section" aria-labelledby="requests-title">
+      <div class="section-heading">
+        <h2 id="requests-title">Contactverzoeken</h2>
+        <span id="request-count" class="muted">0 verzoeken</span>
+      </div>
+      <p id="empty-state" class="empty-state">De verzoeken verschijnen hier zodra het venster verbonden is.</p>
+      <div id="requests" class="request-list"></div>
+    </section>
+    <section class="route-explanation" aria-labelledby="route-title">
+      <h2 id="route-title">De route door RIO</h2>
+      <ol class="route">
+        <li><strong>Verzoek</strong><span>De afzender begint het contact.</span></li>
+        <li><strong>NOVA binnenlaten</strong><span>De ontvanger opent alleen de ontvangstzone.</span></li>
+        <li><strong>Controles en instemming</strong><span>Beide kanten bekijken de tekst en bevestigen bewust.</span></li>
+        <li><strong>Aflevering</strong><span>Nieuwe controles en instemming gaan vooraf aan lokale proefaflevering.</span></li>
+      </ol>
+      <p>Verversen leest alleen de stand. Geen enkele bevestiging gebeurt automatisch.</p>
+    </section>
+  </main>
+  <footer class="shell">
+    <p>RIO-referentieproef · Toegang tot dit venster bewijst geen identiteit. Een gesimuleerde controle bewijst geen veiligheid van een echte overdracht.</p>
+  </footer>
+</body>
+</html>

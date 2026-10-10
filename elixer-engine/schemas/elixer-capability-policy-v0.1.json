@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:palaco:schemas:elixer-capability-policy-v0.1",
+  "title": "elixer-capability-policy-v0.1",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "tenantId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "worldId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "citadelId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "allowedActions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "READ",
+          "EXPLAIN",
+          "PROPOSE",
+          "EXECUTE"
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 4,
+      "uniqueItems": true
+    },
+    "allowedScopes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "public.read",
+          "household.read",
+          "consumer.maintenance.write"
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 3,
+      "uniqueItems": true
+    },
+    "forbiddenActions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "EXECUTE",
+          "AUTHORIZE",
+          "ISSUE"
+        ]
+      },
+      "minItems": 2,
+      "maxItems": 3,
+      "uniqueItems": true
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "version",
+    "tenantId",
+    "worldId",
+    "citadelId",
+    "allowedActions",
+    "allowedScopes",
+    "forbiddenActions",
+    "expiresAt"
+  ],
+  "additionalProperties": false
+}

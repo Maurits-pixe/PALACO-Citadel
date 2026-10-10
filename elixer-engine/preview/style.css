@@ -1,0 +1,55 @@
+:root{color-scheme:light;--ink:#142c31;--muted:#526970;--paper:#f1f5f2;--panel:#fff;--line:#cadbd3;--accent:#076a58;--notice:#fff1c8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+.shell{max-width:1220px;margin:auto;padding:32px 24px}
+header.shell{padding-top:52px;padding-bottom:12px}
+.eyebrow{margin:0 0 8px;color:var(--accent);font-size:.78rem;font-weight:750;letter-spacing:.1em}
+h1{margin:0;font-size:clamp(2rem,4vw,3.5rem);line-height:1.12;letter-spacing:-.03em}
+h2{margin:0 0 8px;font-size:1.35rem;line-height:1.3}
+h3{margin:0 0 6px;font-size:.9rem}
+.intro{font-size:1.12rem;max-width:780px;color:var(--muted)}
+.lab-notice{padding:14px 18px;border:1px solid #dac273;border-radius:12px;background:var(--notice);font-size:.94rem}
+.controls{display:flex;justify-content:space-between;align-items:center;gap:24px}
+.controls p{margin:0;color:var(--muted)}
+.controls label{display:grid;gap:6px;font-size:.9rem;font-weight:650;min-width:290px}
+select{padding:11px 12px;border:1px solid #8ca89d;border-radius:8px;color:var(--ink);background:var(--panel);font:inherit}
+select:focus-visible{outline:3px solid #52b59b;outline-offset:3px}
+.status{min-height:1.6em;color:var(--muted);font-size:.92rem}
+.views{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px;align-items:start}
+[hidden]{display:none!important}
+.surface{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 8px 30px #16312808;min-width:0}
+.surface-heading{padding:22px 24px 14px;background:#eaf2ee;border-bottom:1px solid var(--line)}
+.surface-body{padding:20px 24px}
+.compact .surface-heading{background:#e3eeec}
+.compact .surface-body{padding:16px 20px;font-size:.86rem}
+.outcome{display:inline-block;max-width:100%;margin:0 0 18px;padding:7px 10px;border-radius:7px;background:#d7ede4;color:#084d3e;font-weight:750;overflow-wrap:anywhere}
+dl{margin:0}
+.state-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:22px}
+.state-grid .field{padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#f7faf8}
+dt{color:var(--muted);font-size:.75rem}
+dd{margin:3px 0 0;font-weight:650;overflow-wrap:anywhere}
+.details{display:grid;gap:12px}
+.details .field{border-bottom:1px solid #edf2ee;padding-bottom:8px}
+.details dd{font-weight:500}
+.detail-block{margin-top:18px}
+ul{margin:0;padding-left:18px}
+li{margin-top:4px;overflow-wrap:anywhere}
+.proposal{margin-top:18px;padding:12px;border:1px solid var(--line);border-radius:8px;background:#f2f7f4}
+.trace{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);font-size:.78rem}
+.explanation{max-width:870px;margin-top:32px;color:var(--muted)}
+.explanation h2{color:var(--ink)}
+footer.shell{padding-top:0;font-size:.83rem;color:var(--muted)}
+@media(max-width:760px){.shell{padding:24px 16px}.controls{display:block}.controls label{min-width:0;margin-top:18px}.views{grid-template-columns:1fr;gap:18px}.surface-body{padding:18px}.surface-heading{padding:18px}.state-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+button{min-width:44px;min-height:44px;padding:12px 18px;border:1px solid var(--accent);border-radius:9px;background:var(--accent);color:white;font:inherit;font-weight:700;cursor:pointer}
+button:disabled{opacity:.65;cursor:wait}button:focus-visible{outline:3px solid #52b59b;outline-offset:3px}
+.maintenance-controls{margin:24px 0;padding:22px;background:#e5f3ec;border:1px solid var(--line);border-radius:14px}
+.roles{margin-top:22px;color:var(--muted)}.human-outcome{font-size:1.15rem;font-weight:750;margin:0 0 10px}
+.commit-receipt{margin-top:22px;padding:14px;border:1px solid var(--line);border-radius:10px;background:#f1f8f4}
+@media(max-width:760px){.shell{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}button{width:100%}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+select{width:100%;max-width:100%;min-width:0}
+.controls label{max-width:100%;min-width:0}
+.status,.roles p,.maintenance-controls p{overflow-wrap:anywhere}
+.shell,.maintenance-controls{min-width:0}

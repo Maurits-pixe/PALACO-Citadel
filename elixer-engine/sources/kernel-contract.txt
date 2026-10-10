@@ -1,0 +1,314 @@
+Here is the result of "fetch" for the Page with URL https://app.notion.com/p/bf8b28ff413049c5985caab475827458 as of 2026-10-09T22:51:02.935Z:
+<page url="https://app.notion.com/p/bf8b28ff413049c5985caab475827458" icon="⚙️">
+<ancestor-path>
+<parent-page url="https://app.notion.com/p/50f3dbccda0a4e03a26476cdc6f44cd7" title="ELIXER LABORATORIUM — Grondwet en Bouwplan v0.1"/>
+<ancestor-2-page url="https://app.notion.com/p/3e529e9a126a8056b55cdb694c0130e0" title="MA5TERPLAN ELIXER/APP"/>
+</ancestor-path>
+<properties>
+{"title":"ELIXER ENGINE — Kernelcontract v0.1"}
+</properties>
+<iconMetadata>{"type":"emoji","emoji":"⚙️"}</iconMetadata>
+<content>
+<callout icon="⚙️" color="blue_bg">
+	**ELIXER ENGINE**
+	Status: **ENGINEERING DRAFT — CORE BUILD LINE**
+	De ELIXER ENGINE is de gecontroleerde runtime- en orkestratielaag die een PALACO-ELIXER van manifest en package naar een begrensde, inspecteerbare gebruikersinteractie brengt. De engine creëert geen officiële autoriteit, PROOF, VISITCARD of distributierecht.
+</callout>
+De ELIXER ENGINE:
+- leest en valideert een ELIXER-manifest;
+	## 1. Kernfunctie
+- bindt een exacte packageversie aan een digest;
+- resolveert persona’s, capabilities en dependencies;
+- controleert identity, tenant, WORLD en Citadel-context;
+- evalueert policy, consent, scope, expiry en revocation;
+- maakt alleen toegestane context beschikbaar;
+- orkestreert persona-adapters en specialistische functies;
+- levert uitleg, voorstel of read-only resultaat;
+- stuurt externe uitvoering uitsluitend door een aparte authorization gate;
+- bewaart provenance, status en audit-trace.
+## 2. Wat de engine niet is
+- Geen constitutionele beslisser.
+- Geen issuer van officiële ELIXERS.
+- Geen bron van waarheid buiten de gebonden records.
+- Geen vervanging voor het PALACO-HOOFDKANTOOR.
+- Geen automatische activator.
+- Geen rechtenscheppende consensusmachine.
+- Geen stille updater van persona, geheugen, package of bevoegdheid.
+## 3. Runtime-pijplijn
+```plain text
+ELIXER REQUEST
+      ↓
+IDENTITY / TENANT GATE
+      ↓
+CONTEXT RESOLUTION
+      ↓
+MANIFEST + VERSION RESOLUTION
+      ↓
+PACKAGE INTEGRITY CHECK
+      ↓
+PROVENANCE / PROOF AVAILABILITY CHECK
+      ↓
+POLICY + CONSENT + SCOPE CHECK
+      ↓
+CAPABILITY RESOLUTION
+      ↓
+MEMORY / DATA MINIMIZATION
+      ↓
+PERSONA ORCHESTRATION
+      ↓
+CONSTITUTIONAL SAFETY CHECK
+      ↓
+READ / EXPLAIN / PROPOSE
+      ↓
+AUTHORIZATION GATE, indien uitvoering wordt gevraagd
+      ↓
+EXECUTION COMMIT GATE
+      ↓
+TRACE + RECEIPT
+```
+Bij een ontbrekende of tegenstrijdige voorwaarde valt de engine terug naar **UNKNOWN**, **BLOCKED**, **READ_ONLY** of **REVIEW_REQUIRED**. Zij verzint geen ontbrekend bewijs.
+## 4. Engine-onderdelen
+<table header-row="true">
+<tr>
+<td>Component</td>
+<td>Verantwoordelijkheid</td>
+<td>Mag niet doen</td>
+</tr>
+<tr>
+<td>Manifest Resolver</td>
+<td>Manifest en exacte versie laden</td>
+<td>Stilzwijgend defaults verzinnen</td>
+</tr>
+<tr>
+<td>Package Verifier</td>
+<td>Digest, signature- en integriteitsbinding controleren</td>
+<td>Package wijzigen</td>
+</tr>
+<tr>
+<td>Context Resolver</td>
+<td>Tenant, WORLD, Citadel, actor en surface bepalen</td>
+<td>Context raden</td>
+</tr>
+<tr>
+<td>Policy Gate</td>
+<td>Scope, consent, expiry en revocation controleren</td>
+<td>Toestemming afleiden uit aanwezigheid</td>
+</tr>
+<tr>
+<td>Capability Resolver</td>
+<td>Functie aan actuele rechten koppelen</td>
+<td>Capability als autorisatie behandelen</td>
+</tr>
+<tr>
+<td>Memory Adapter</td>
+<td>Alleen toegestane context ophalen</td>
+<td>Geheugen stil promoten</td>
+</tr>
+<tr>
+<td>Persona Orchestrator</td>
+<td>Persona-adapters coördineren</td>
+<td>Persona’s extra gezag geven</td>
+</tr>
+<tr>
+<td>Evidence Layer</td>
+<td>Bronnen, hashes, status en provenance koppelen</td>
+<td>Modeloutput als bewijs opslaan</td>
+</tr>
+<tr>
+<td>Surface Adapter</td>
+<td>ELIXER, widget en RIO-weergave bedienen</td>
+<td>Eigen waarheid of rechten bijhouden</td>
+</tr>
+<tr>
+<td>Authorization Gate</td>
+<td>Expliciete uitvoeringsautorisatie afdwingen</td>
+<td>Zelf autoriseren</td>
+</tr>
+<tr>
+<td>Trace Writer</td>
+<td>Reconstructeerbare events en receipts schrijven</td>
+<td>Historie overschrijven</td>
+</tr>
+</table>
+## 5. Canonieke input
+Elke engine-aanvraag bevat minimaal:
+```plain text
+WHO
+WHAT
+WHY
+ELIXER_ID
+VERSION
+PACKAGE_DIGEST
+TENANT / WORLD / CITADEL
+SURFACE
+SOURCE / PROVENANCE
+POLICY_VERSION
+CONSENT_REFERENCE
+SCOPE
+AUTHORIZATION
+EXPIRATION
+REVOCATION_STATE
+CORRELATION_ID
+```
+Ontbrekende velden krijgen een expliciete status. Een ontbrekende `AUTHORIZATION` is niet hetzelfde als `false`, en een ontbrekende `PROVENANCE` is niet hetzelfde als een onbekende bron die later automatisch geldig wordt.
+## 6. Uitvoerklassen
+De engine retourneert geen ongedefinieerd “antwoord”, maar een getypeerde uitkomst:
+```plain text
+READ_RESULT
+EXPLANATION
+PROPOSAL
+REVIEW_REQUIRED
+BLOCKED
+STALE
+EXPIRED
+REVOKED
+OFFLINE_READ_ONLY
+EXECUTION_PENDING_AUTHORIZATION
+EXECUTED_WITH_RECEIPT
+```
+Elke uitkomst bevat:
+- ELIXER- en package-identiteit;
+- actuele statusassen;
+- toegestane scope;
+- provenance en evidence-status;
+- onzekerheid en beperkingen;
+- gebruikte persona-adapters;
+- consent- en authorization-status;
+- correlation- en trace-referentie.
+## 7. Persona-orkestratie
+Persona’s zijn adapters binnen één ELIXER-kern. Zij hebben afzonderlijke:
+- persona-ID;
+- karakterversie;
+- functiecontract;
+- capabilityprofiel;
+- permissionprofiel;
+- model- of providerbinding;
+- provenance;
+- timeout- en foutgedrag.
+Een persona-meerderheid kan een **intern voorstel** opleveren. Dat voorstel wordt nooit automatisch een PALACO-besluit of externe autorisatie.
+Voor H∆R∆ v0.1:
+```plain text
+H∆R∆M       → coördinatie, gesprek, presentatie
+CHING CHING → consent-first financieel/maatschappelijk advies
+HANNIE      → agenda- en huishoudcontext, zonder stille mutatie
+```
+## 8. Eén waarheid voor alle surfaces
+```plain text
+CANONICAL ELIXER STATE
+        ├── FULL ELIXER VIEW
+        ├── WIDGET VIEW
+        ├── RIO VIEW
+        └── CITADEL / WORLD VIEW
+```
+Iedere surface leest dezelfde:
+- versie;
+- status;
+- scope;
+- provenance;
+- consent;
+- revocation;
+- actualiteit;
+- beschikbare acties.
+Een widget mag compact zijn, maar mag geen onzekerheid, verval, intrekking of beperkte scope verbergen.
+## 9. Statusmachine
+De engine gebruikt onafhankelijke statusassen. Een enkel `active: true`-veld is verboden.
+```plain text
+PACKAGE:       UNRESOLVED → RESOLVED → INTEGRITY_VERIFIED
+CONFORMANCE:   NOT_RUN → RUNNING → PASS / FAIL / PARTIAL
+AUTHORITY:     NONE → REVIEW_REQUIRED → ISSUED_REFERENCE
+DISTRIBUTION:  NOT_ALLOWED → ALLOWED → SUSPENDED / REVOKED
+ACTIVATION:    INACTIVE → CONSENT_REQUIRED → ACTIVE → DISABLED
+FRESHNESS:     CURRENT → STALE → EXPIRED → SUPERSEDED
+EXECUTION:     NOT_REQUESTED → AUTH_PENDING → COMMITTED / DENIED
+```
+Een `PASS` op conformance zet activation niet automatisch op `ACTIVE`.
+## 10. Fout- en fallbackcontract
+<table header-row="true">
+<tr>
+<td>Situatie</td>
+<td>Enginegedrag</td>
+</tr>
+<tr>
+<td>Package-digest wijkt af</td>
+<td>Blokkeren; geen persona-call</td>
+</tr>
+<tr>
+<td>Provenance ontbreekt</td>
+<td>Uitleg als UNKNOWN; geen verification-claim</td>
+</tr>
+<tr>
+<td>Consent ontbreekt</td>
+<td>Alleen niet-gevoelige publieke/read-only context</td>
+</tr>
+<tr>
+<td>Authorization ontbreekt</td>
+<td>PROPOSE of EXECUTION_PENDING_AUTHORIZATION</td>
+</tr>
+<tr>
+<td>Revocation gevonden</td>
+<td>Nieuwe actie blokkeren; historische trace behouden</td>
+</tr>
+<tr>
+<td>Expiry bereikt</td>
+<td>Geen nieuwe uitvoering; status EXPIRED</td>
+</tr>
+<tr>
+<td>Dependency offline</td>
+<td>Read-only fallback of REVIEW_REQUIRED</td>
+</tr>
+<tr>
+<td>Widget stale</td>
+<td>Stale zichtbaar tonen; geen nieuwe rechten</td>
+</tr>
+<tr>
+<td>Persona-output conflicteert</td>
+<td>Dissent bewaren; geen schijnconsensus</td>
+</tr>
+<tr>
+<td>Tenant-context onduidelijk</td>
+<td>Geen data ophalen; context opnieuw vaststellen</td>
+</tr>
+</table>
+## 11. Eerste ELIXER ENGINE-MVP
+De eerste uitvoerbare kern wordt een synthetische H∆R∆-candidate:
+1. Manifest laden.
+2. Package-digest controleren.
+3. Synthetische tenant en WORLD-context vaststellen.
+4. Consent voor lezen controleren.
+5. H∆R∆M, Ching Ching en Hannie als deterministische adapters aanroepen.
+6. Adviezen en dissent zichtbaar scheiden.
+7. Widget en volledige ELIXER dezelfde state laten tonen.
+8. Agenda- of externe mutatie standaard blokkeren.
+9. Revocation en expiry simuleren.
+10. Trace en receipt schrijven.
+## 12. Definition of Done — kernel v0.1
+- [ ] Manifest wordt schema-valid geaccepteerd of geweigerd.
+- [ ] Package-digest is reproduceerbaar.
+- [ ] Tenant/WORLD/Citadel-context wordt niet gegokt.
+- [ ] Consent en authorization zijn afzonderlijke controles.
+- [ ] Persona’s kunnen geen extra rechten creëren.
+- [ ] Widget en ELIXER delen dezelfde state.
+- [ ] Stale, expired en revoked worden fail-closed behandeld.
+- [ ] Dissent blijft zichtbaar.
+- [ ] Geen gevoelige productiegegevens in de testketen.
+- [ ] Elke uitkomst is voorzien van provenance en trace.
+- [ ] Geen externe side effect zonder authorization.
+- [ ] Historische gebeurtenissen zijn reconstrueerbaar.
+- [ ] Onafhankelijke review is nog vereist vóór release.
+## 13. Eerstvolgende technische contracten
+1. `elixer-manifest-v0.1`
+2. `elixer-runtime-request-v0.1`
+3. `elixer-runtime-result-v0.1`
+4. `elixer-capability-policy-v0.1`
+5. `elixer-consent-v0.1`
+6. `elixer-revocation-v0.1`
+7. `elixer-trace-receipt-v0.1`
+8. `elixer-surface-binding-v0.1`
+## Werkregel
+> De ELIXER ENGINE mag maximaal behulpzaam zijn binnen de bewezen scope, maar nooit maximaal bevoegd.
+## Bronkoppeling
+- <mention-page url="https://app.notion.com/p/50f3dbccda0a4e03a26476cdc6f44cd7">ELIXER LABORATORIUM — Grondwet en Bouwplan v0.1</mention-page>
+- <mention-page url="https://app.notion.com/p/80eede383ba34fe2a1d0beb8529e37cf"/>
+- <mention-page url="https://app.notion.com/p/3ad8207920724cc59999c6bdf9ebcd73"/>
+</content>
+</page>

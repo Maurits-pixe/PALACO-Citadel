@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "rio-contact-source-binding/0.1",
+  "classification": "DESIGN_REFERENCE",
+  "resolvedName": "BRIGADE",
+  "aliases": {
+    "BRI9ADE": "UNKNOWN",
+    "6RI9ADE": "UNKNOWN"
+  },
+  "sources": [
+    {
+      "id": "big-bang",
+      "path": "CANON/00-big-bang/# ☄️ THE BIG BANG — PALACO",
+      "gitBlobSha": "701324fd30ca0c88af928a24e43c66274db51110",
+      "locator": "XL, lines 1231–1247",
+      "supportedClaims": [
+        "BRIGADE_CONCEPT_MENTION"
+      ],
+      "repository": "Maurits-pixe/PALACO-Citadel",
+      "commitSha": "117e3ba7023aafd040b0babc89b878beb1dc0cc8"
+    },
+    {
+      "id": "guardian-profile",
+      "path": "08-IMPLEMENTATION/profile.go",
+      "gitBlobSha": "1716ee6893558976cf6db18dc338e350c572bc8e",
+      "locator": "lines 12–36",
+      "supportedClaims": [
+        "GUARDIAN_PROFILE_FIELDS"
+      ],
+      "repository": "Maurits-pixe/PALACO-Citadel",
+      "commitSha": "117e3ba7023aafd040b0babc89b878beb1dc0cc8"
+    }
+  ],
+  "operationalBindings": {
+    "agentIdentities": "UNKNOWN",
+    "agentCapabilities": "UNKNOWN",
+    "bilateralSafetyEvidence": "UNKNOWN",
+    "ppRegistration": "UNKNOWN",
+    "scriptieIdContract": "UNKNOWN"
+  },
+  "contactFoundation": {
+    "pageId": "a69dd64d-8566-4c80-9b8b-723630785a52",
+    "url": "https://app.notion.com/p/a69dd64d85664c809b8b723630785a52",
+    "version": "v0.1",
+    "lastEditedAt": "2026-10-10T08:56:48.681Z",
+    "classification": "ENGINEERING_DRAFT",
+    "reportedTests": 20,
+    "testVerification": "REPORTED_ONLY",
+    "zipSha256": "c775b84fb6ba6cc3a2af94fa41c7ebb9d0eef3d782cfb6c7522429c4841a134d",
+    "zipVerification": "NOT_PERFORMED"
+  },
+  "productionTarget": {
+    "repository": "Maurits-pixe/PALACO",
+    "observedCommitSha": "db664274c3760cca3fef19d23945e3c79dbe7f8c",
+    "path": "crates/palaco-citadel/src/rio/",
+    "state": "PLANNED_LOCATION_NOT_PRESENT_AT_OBSERVED_COMMIT"
+  },
+  "operativeAuthority": "NONE"
+}

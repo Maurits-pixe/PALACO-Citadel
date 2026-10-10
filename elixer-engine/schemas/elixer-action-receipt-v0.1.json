@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:palaco:schemas:elixer-action-receipt-v0.1",
+  "title": "elixer-action-receipt-v0.1",
+  "description": "An immutable process-memory synthetic action receipt; no external side effect or durable audit claim.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "type": {
+      "type": "string",
+      "const": "SYNTHETIC_ACTION_RECEIPT"
+    },
+    "receiptId": {
+      "type": "string",
+      "format": "token64"
+    },
+    "actionDigest": {
+      "type": "string",
+      "format": "sha256"
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "format": "token64"
+    },
+    "actorId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "tenantId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "worldId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "citadelId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "elixerId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "version": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 64,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+    },
+    "packageDigest": {
+      "type": "string",
+      "format": "sha256"
+    },
+    "policyVersion": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "consentReference": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "authorizationReference": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "action": {
+      "type": "string",
+      "const": "consumer.maintenance.apply"
+    },
+    "targetId": {
+      "type": "string",
+      "format": "token64"
+    },
+    "resourceType": {
+      "type": "string",
+      "enum": [
+        "WEBSITE",
+        "APP",
+        "ELIXER"
+      ]
+    },
+    "previousVersion": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 64,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+    },
+    "appliedVersion": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 64,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+    },
+    "committedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "eventId": {
+      "type": "string",
+      "format": "token64"
+    },
+    "beforeDigest": {
+      "type": "string",
+      "format": "sha256"
+    },
+    "afterDigest": {
+      "type": "string",
+      "format": "sha256"
+    },
+    "commitStatus": {
+      "type": "string",
+      "const": "COMMITTED"
+    },
+    "storage": {
+      "type": "string",
+      "const": "PROCESS_MEMORY"
+    },
+    "externalSideEffect": {
+      "type": "boolean",
+      "const": false
+    },
+    "hash": {
+      "type": "string",
+      "format": "sha256"
+    },
+    "householdReference": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "householdDigest": {
+      "type": "string",
+      "format": "sha256"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "type",
+    "receiptId",
+    "actionDigest",
+    "idempotencyKey",
+    "actorId",
+    "tenantId",
+    "worldId",
+    "citadelId",
+    "elixerId",
+    "version",
+    "packageDigest",
+    "policyVersion",
+    "consentReference",
+    "authorizationReference",
+    "action",
+    "targetId",
+    "resourceType",
+    "previousVersion",
+    "appliedVersion",
+    "committedAt",
+    "eventId",
+    "beforeDigest",
+    "afterDigest",
+    "commitStatus",
+    "storage",
+    "externalSideEffect",
+    "hash",
+    "householdReference",
+    "householdDigest"
+  ],
+  "additionalProperties": false
+}

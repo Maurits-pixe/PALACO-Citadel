@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:palaco:schemas:elixer-runtime-request-v0.1",
+  "title": "elixer-runtime-request-v0.1",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "who": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "what": {
+      "type": "string",
+      "enum": [
+        "READ",
+        "EXPLAIN",
+        "PROPOSE",
+        "EXECUTE"
+      ]
+    },
+    "why": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "pattern": "\\S"
+    },
+    "elixerId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "packageDigest": {
+      "type": "string",
+      "format": "sha256"
+    },
+    "tenantId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "worldId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "citadelId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "surface": {
+      "type": "string",
+      "enum": [
+        "FULL_ELIXER",
+        "WIDGET"
+      ]
+    },
+    "provenanceRefs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1024,
+        "pattern": "\\S"
+      },
+      "minItems": 0,
+      "maxItems": 64,
+      "uniqueItems": true
+    },
+    "policyVersion": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "consentReference": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "scope": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "public.read",
+          "household.read",
+          "calendar.write",
+          "consumer.maintenance.write"
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 3,
+      "uniqueItems": true
+    },
+    "authorization": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "\\S"
+    },
+    "expiration": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "revocationState": {
+      "type": "string",
+      "enum": [
+        "CURRENT",
+        "UNKNOWN"
+      ]
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "token64"
+    },
+    "operation": {
+      "description": "A complete allowlisted synthetic maintenance replacement; no dynamic provider or code execution.",
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "const": "consumer.maintenance.apply"
+        },
+        "targetId": {
+          "type": "string",
+          "format": "token64"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "resourceType": {
+              "type": "string",
+              "enum": [
+                "WEBSITE",
+                "APP",
+                "ELIXER"
+              ]
+            },
+            "expectedBeforeDigest": {
+              "type": "string",
+              "format": "sha256"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 5,
+              "maxLength": 64,
+              "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256,
+              "pattern": "\\S"
+            },
+            "summary": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096,
+              "pattern": "\\S"
+            },
+            "accessibilityLabel": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "pattern": "\\S"
+            },
+            "classification": {
+              "type": "string",
+              "const": "SYNTHETIC_ONLY"
+            }
+          },
+          "required": [
+            "resourceType",
+            "expectedBeforeDigest",
+            "version",
+            "title",
+            "summary",
+            "accessibilityLabel",
+            "classification"
+          ],
+          "additionalProperties": false
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "format": "token64"
+        }
+      },
+      "required": [
+        "action",
+        "targetId",
+        "payload",
+        "idempotencyKey"
+      ],
+      "additionalProperties": false
+    },
+    "householdReference": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "who",
+    "what",
+    "why",
+    "elixerId",
+    "version",
+    "packageDigest",
+    "tenantId",
+    "worldId",
+    "citadelId",
+    "surface",
+    "provenanceRefs",
+    "policyVersion",
+    "consentReference",
+    "scope",
+    "authorization",
+    "expiration",
+    "revocationState",
+    "correlationId"
+  ],
+  "additionalProperties": false,
+  "description": "operation is optional for reads; EXECUTE with a grant requires an exact operation checked by the execution boundary."
+}

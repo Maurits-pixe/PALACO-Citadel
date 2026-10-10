@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ELIXER ENGINE — synthetisch laboratorium</title>
+  <meta name="description" content="Lokale proefversie van de ELIXER ENGINE. Eén gedeelde toestand voor ELIXER en widget, met uitsluitend synthetische gegevens.">
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="shell">
+    <p class="eyebrow">PALACO · ELIXER ENGINE · v0.2</p>
+    <h1>HARA helpt met onderhoud.</h1>
+    <p class="intro">Kijk wat HARA wil veranderen. Voer daarna één duidelijke testopdracht uit. De grote weergave en de widget laten hetzelfde resultaat zien.</p>
+    <p class="lab-notice"><strong>Synthetisch laboratorium</strong> — We gebruiken alleen fictieve gegevens. Testonderhoud kan één voorbeeld bijwerken. Echte websites, apps en ELIXERS zijn hier niet aangesloten.</p>
+  </header>
+  <main class="shell">
+    <section class="controls" aria-labelledby="scenario-title">
+      <div>
+        <h2 id="scenario-title">Probeer een situatie</h2>
+        <p>Alle scenario's gebruiken fictieve gegevens. Er zijn geen aangesloten accounts of diensten.</p>
+      </div>
+      <label for="scenario">Scenario
+        <select id="scenario">
+          <option value="ready">Geldige synthetische aanvraag</option>
+          <option value="no-consent">Toestemming ontbreekt</option>
+          <option value="revoked">Referentie ingetrokken</option>
+          <option value="expired">Aanvraag of package verlopen</option>
+          <option value="offline">Afhankelijkheid offline</option>
+          <option value="conflict">Persona's spreken elkaar tegen</option>
+          <option value="unauthorized">Context of scope niet toegestaan</option>
+          <option value="tampered">Package gewijzigd</option>
+          <option value="execution">Uitvoering zonder gekoppelde autorisatie</option>
+          <option value="execution-authorized">HARA: toegestaan testonderhoud</option>
+        </select>
+      </label>
+    </section>
+    <section id="maintenance-controls" class="maintenance-controls" aria-labelledby="maintenance-title" hidden>
+      <h2 id="maintenance-title">Eén voorbeeld verbeteren</h2>
+      <p>HARA past de titel, uitleg en toegankelijke naam van een fictieve website aan. De versie verandert van 0.1.0 naar 0.1.1.</p>
+      <p>De toestemming geldt alleen voor dit voorbeeld en deze exacte wijziging.</p>
+      <button id="execute" type="button">Voer testonderhoud uit</button>
+      <p id="resource-status" role="status" aria-live="polite"></p>
+    </section>
+    <section class="roles" aria-label="Samenwerking">
+      <p><strong>ELIXER HARA</strong> is het huishouden en verzorgt onderhoud. <strong>MUNDO</strong> is de WORLD/PLANET. <strong>CITADEL</strong> begrenst toegang. <strong>VORM9EVIN9</strong> maakt de ervaring begrijpelijk.</p>
+    </section>
+    <p id="status" class="status" role="status" aria-live="polite">De gedeelde toestand wordt geladen.</p>
+    <div id="views" class="views" hidden>
+      <section id="full" class="surface" aria-labelledby="full-title">
+        <div class="surface-heading"><p class="eyebrow">FULL_ELIXER</p><h2 id="full-title">Volledige ELIXER</h2></div>
+        <div class="surface-body"></div>
+      </section>
+      <aside id="widget" class="surface compact" aria-labelledby="widget-title">
+        <div class="surface-heading"><p class="eyebrow">WIDGET</p><h2 id="widget-title">Compacte widget</h2></div>
+        <div class="surface-body"></div>
+      </aside>
+    </div>
+    <section class="explanation" aria-labelledby="boundary-title">
+      <h2 id="boundary-title">Wat deze proefversie laat zien</h2>
+      <p>Een packagecontrole, contextcontrole, afzonderlijke toestemming en autorisatie, drie deterministische persona's en een controleerbaar spoor. Een voorstel voert niets uit. Testonderhoud gebruikt apart gecontroleerde toestemming en een exacte, geregistreerde opdracht.</p>
+      <p>Een hashcontrole bevestigt uitsluitend dat bytes overeenkomen. Zij is geen officiële PROOF, VISITCARD, handtekening of vrijgave. Onderhoud en ontvangstbewijzen blijven in het geheugen van deze lokale testserver. Bij herstart begint het voorbeeld opnieuw.</p>
+    </section>
+  </main>
+  <footer class="shell">Engineering draft · onafhankelijke beoordeling en formele vrijgave blijven open.</footer>
+</body>
+</html>

@@ -1,0 +1,205 @@
+{
+  "schemaVersion": "6ri9ade-specialty-design/0.1",
+  "designId": "6RI9ADE-BODYGUARDS-001",
+  "componentName": "6RI9ADE",
+  "status": "DESIGN_DRAFT",
+  "requestBasis": "Explicit architect request in this conversation on 2026-10-10; newly assigned design roles, not recovered historic agent identities.",
+  "sourceRelationship": "Uses BRIGADE references as background. The historical BRIGADE-to-6RI9ADE alias is not established by those sources.",
+  "policy": {
+    "requiredGuards": 9,
+    "allEvidenceRequired": true,
+    "onUnknown": "HOLD",
+    "onConflict": "HOLD",
+    "onFailure": "STOP",
+    "humanGates": [
+      "NOVA_ADMISSION",
+      "FINAL_EXACT_CONTACT_CONSENT"
+    ],
+    "protectBothParties": true,
+    "technicalPassCreatesConsent": false,
+    "canMintAuthority": false,
+    "canOpenContact": false,
+    "absoluteSafetyGuaranteed": false
+  },
+  "guards": [
+    {
+      "id": "6RI9ADE-BG-01",
+      "roleCode": "IDENTITY",
+      "specialty": "Identiteit en apparaat",
+      "purpose": "Controleert wie de afzender en ontvanger zijn en welk apparaat of welke sessie bij hen hoort.",
+      "checks": [
+        "Actuele account-, tenant-, apparaat- en sessiebinding aan dezelfde partij.",
+        "Vertrouwde attestation-uitgever, geldige handtekeningreferentie en actuele sleutelversie; een zelf opgegeven ID of sleutel is onvoldoende."
+      ],
+      "stopConditions": [
+        "Onbekende identiteit of uitgever.",
+        "Verval, intrekking of conflicterende apparaat-/accountbinding."
+      ],
+      "boundary": "Verifieert technische bindings; verklaart niet dat een klik zeker door een mens is gedaan.",
+      "evidencePlacement": "BOTH_ENDPOINTS",
+      "runtimeIdentity": "UNENROLLED",
+      "runtimeStatus": "NOT_CONNECTED",
+      "capabilities": "DESIGN_ONLY"
+    },
+    {
+      "id": "6RI9ADE-BG-02",
+      "roleCode": "ADDRESS",
+      "specialty": "Adres en bestemming",
+      "purpose": "Controleert dat P.P.-adres, eigenaar en bestemming bij het bedoelde CITADEL/MUNDO horen.",
+      "checks": [
+        "Versiegebonden P.P.-naar-eigenaarresolutie; geen automatische overdracht van oude rechten bij heruitgifte.",
+        "De afgesproken ontvanger, tenant, WORLD en CITADEL komen overeen met het exacte verzoek."
+      ],
+      "stopConditions": [
+        "Ontbrekend registratiecontract.",
+        "Heruitgifte, eigenaarwissel of afwijkende bestemming/context."
+      ],
+      "boundary": "Een adres verleent geen toegang of toestemming.",
+      "evidencePlacement": "BOTH_ENDPOINTS",
+      "runtimeIdentity": "UNENROLLED",
+      "runtimeStatus": "NOT_CONNECTED",
+      "capabilities": "DESIGN_ONLY"
+    },
+    {
+      "id": "6RI9ADE-BG-03",
+      "roleCode": "HUMAN_CONSENT",
+      "specialty": "Menselijke toestemming",
+      "purpose": "Bewaakt de twee afzonderlijke menselijke poorten en het exacte contactcontract.",
+      "checks": [
+        "NOVA-toelating geeft uitsluitend toegang tot de geïsoleerde ontvangstzone.",
+        "Finale geauthenticeerde menselijke consent-receipts van de partijen binden dezelfde request-ID, contractdigest, scope, voorwaarden en vervaltijd.",
+        "Nieuwe voorwaarden vereisen opnieuw bevestiging door de betrokken mens; gelezen of op wacht is geen instemming."
+      ],
+      "stopConditions": [
+        "Ontbrekende of niet overeenkomende receipts.",
+        "Alleen een AI-uitspraak, clientboolean of synthetische humanConfirmed=true."
+      ],
+      "boundary": "Beslist niet namens een mens en kan geen toestemming maken.",
+      "evidencePlacement": "BOTH_ENDPOINTS",
+      "runtimeIdentity": "UNENROLLED",
+      "runtimeStatus": "NOT_CONNECTED",
+      "capabilities": "DESIGN_ONLY"
+    },
+    {
+      "id": "6RI9ADE-BG-04",
+      "roleCode": "SCOPE_POLICY",
+      "specialty": "Toegang en beleid",
+      "purpose": "Beperkt iedere handeling tot de afgesproken contactruimte en actuele beleidsrechten.",
+      "checks": [
+        "Eerste scope is chat:text; geen privé-MUNDO, agenda, bestanden of besturing.",
+        "Actuele scope, beleid, capabilityketen, intrekking en lokale rate/quota-regels gelden voor elke handeling."
+      ],
+      "stopConditions": [
+        "Extra of transitief doorgegeven rechten.",
+        "Ontbrekend beleid, verlopen scope of ingetrokken recht."
+      ],
+      "boundary": "Kan geen nieuwe capabilities of bestuurlijke bevoegdheid uitgeven.",
+      "evidencePlacement": "BOTH_ENDPOINTS",
+      "runtimeIdentity": "UNENROLLED",
+      "runtimeStatus": "NOT_CONNECTED",
+      "capabilities": "DESIGN_ONLY"
+    },
+    {
+      "id": "6RI9ADE-BG-05",
+      "roleCode": "E2EE_KEYS",
+      "specialty": "Versleuteling en sleutels",
+      "purpose": "Bewaakt bewezen end-to-endversleuteling en de sleutelbinding van beide toestellen.",
+      "checks": [
+        "Gebruik een onafhankelijk beoordeelde E2EE-stack; geen eigen cryptografisch protocol.",
+        "Controleer geauthenticeerde peer-/devicekeys, protocolversie, sleutelwisseling en herstelbeleid aan de endpoints.",
+        "Bescherm sleutels op toestellen; geen privésleutels bij de relay."
+      ],
+      "stopConditions": [
+        "Onbekende, onverwacht gewijzigde of ingetrokken keybinding.",
+        "Ontbrekende E2EE-implementatie of protocolcontrole."
+      ],
+      "boundary": "De relay ontvangt geen berichtplaintext of privésleutels; E2EE beschermt niet ieder mogelijk gecompromitteerd toestel.",
+      "evidencePlacement": "CLIENT_ENDPOINTS_ONLY",
+      "runtimeIdentity": "UNENROLLED",
+      "runtimeStatus": "NOT_CONNECTED",
+      "capabilities": "DESIGN_ONLY"
+    },
+    {
+      "id": "6RI9ADE-BG-06",
+      "roleCode": "CONTENT_INTEGRITY",
+      "specialty": "Inhoud en integriteit",
+      "purpose": "Controleert de geauthenticeerde berichtcontext en veilige verwerking van inhoud.",
+      "checks": [
+        "Bind geauthenticeerde bytes aan afzender, ontvanger, verbinding, scope, contract- en sleutelversie.",
+        "Mascotte en tekst zijn data; scripts, injecties of modeloutput krijgen geen uitvoeringsrechten.",
+        "Sanitiseer en valideer op de geautoriseerde endpoints; de relay inspecteert geen E2EE-plaintext."
+      ],
+      "stopConditions": [
+        "Gewijzigde of verkeerd gebonden envelope.",
+        "Onverwacht uitvoerbaar materiaal, niet-toegestaan type of ontbrekende authenticatie."
+      ],
+      "boundary": "Een hash alleen bewijst geen identiteit, toestemming of veiligheidscontrole.",
+      "evidencePlacement": "CLIENT_ENDPOINTS_ONLY",
+      "runtimeIdentity": "UNENROLLED",
+      "runtimeStatus": "NOT_CONNECTED",
+      "capabilities": "DESIGN_ONLY"
+    },
+    {
+      "id": "6RI9ADE-BG-07",
+      "roleCode": "REPLAY_ORDER",
+      "specialty": "Herhaling en volgorde",
+      "purpose": "Voorkomt hergebruik van verzoeken en dubbele verwerking bij retries of offline herstel.",
+      "checks": [
+        "Bind request-/message-ID, idempotency-key, nonce en vervaltijd aan dezelfde context.",
+        "Begrens toegestane herordening; dedupliceer duurzame verwerking en meldingen.",
+        "Een retry kan geen eerder ingetrokken recht herstellen."
+      ],
+      "stopConditions": [
+        "Herbruikte identifier met andere inhoud/context.",
+        "Replay, onbekende sequence/keyepoch of overschreden herordeningsvenster."
+      ],
+      "boundary": "Normale herordening kan worden gebufferd; netwerkaflevering blijft at-least-once.",
+      "evidencePlacement": "BOTH_ENDPOINTS_AND_RELAY",
+      "runtimeIdentity": "UNENROLLED",
+      "runtimeStatus": "NOT_CONNECTED",
+      "capabilities": "DESIGN_ONLY"
+    },
+    {
+      "id": "6RI9ADE-BG-08",
+      "roleCode": "PRIVACY",
+      "specialty": "Privacy en metadata",
+      "purpose": "Beperkt wat profiel, relay, audit en meldingen over de partijen onthullen.",
+      "checks": [
+        "Deel alleen afgesproken velden; minimaliseer routingmetadata, retentie en auditdata.",
+        "Gebruik generieke gesloten-uitkomsten voor weigeren, blokkeren en intrekken.",
+        "Vergrendelschermmelding bevat standaard geen naam, P.P.-nummer of berichtinhoud; lezen geeft geen toestemming.",
+        "Geen AI-inzage in berichten zonder afzonderlijke geldige toestemming."
+      ],
+      "stopConditions": [
+        "Onbedoeld privéveld, plaintext in relay/audit of blokkadereden bij de afzender.",
+        "Ontbrekend retentie-/toegangsbeleid of ongeldige toestemming voor analyse."
+      ],
+      "boundary": "Claimt geen absolute anonimiteit of privacy; bewaakt de expliciete datagrenzen.",
+      "evidencePlacement": "BOTH_ENDPOINTS_AND_RELAY",
+      "runtimeIdentity": "UNENROLLED",
+      "runtimeStatus": "NOT_CONNECTED",
+      "capabilities": "DESIGN_ONLY"
+    },
+    {
+      "id": "6RI9ADE-BG-09",
+      "roleCode": "DELIVERY_REVOCATION",
+      "specialty": "Aflevering en intrekking",
+      "purpose": "Bewaakt actuele rechten bij commit, duurzame aflevering en herstel.",
+      "checks": [
+        "Controleer actuele consent, blokkering, expiry en intrekking atomair bij servicecommit.",
+        "Controleer rechten opnieuw vlak vóór aflevering; intrekking na enqueue stopt verdere aflevering en retries.",
+        "Gebruik duurzame outbox, deduplicatie, backpressure en herstel na herstart.",
+        "Beperk retries tot actuele rechten en toon waarheidsgetrouwe afleverreceipts."
+      ],
+      "stopConditions": [
+        "Intrekking, blokkering of verval vóór commit.",
+        "Opslag-/statusconflict, oncontroleerbare aflevering of ontbrekend herstelbewijs."
+      ],
+      "boundary": "Een intrekking stopt nieuw verkeer; al ontvangen inhoud kan niet gegarandeerd op afstand worden gewist.",
+      "evidencePlacement": "BOTH_ENDPOINTS_AND_RELAY",
+      "runtimeIdentity": "UNENROLLED",
+      "runtimeStatus": "NOT_CONNECTED",
+      "capabilities": "DESIGN_ONLY"
+    }
+  ]
+}
