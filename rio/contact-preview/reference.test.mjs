@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
+import { request as httpRequest } from 'node:http';
 import { DatabaseSync } from 'node:sqlite';
 import path from 'node:path';
 import { createRioContactReference } from './reference.mjs';
@@ -397,7 +398,19 @@ test('state cannot be read with credentials in a query string', async t => {
 });
 test('unknown Host headers are rejected to prevent DNS rebinding', async t => {
   const f = await httpFixture(t);
-  deniedHTTP(await f.request('/api/state', { headers: { Host: 'attacker.example' } }));
+  const statusCode = await new Promise((resolve, reject) => {
+    const request = httpRequest(new URL(f.app.origin + '/api/state'), {
+      headers: { Host: 'attacker.example', 'X-RIO-Side': 'SENDER', Cookie: f.cookie('SENDER') },
+      agent: false
+    }, response => {
+      response.resume();
+      response.on('end', () => resolve(response.statusCode));
+      response.on('error', reject);
+    });
+    request.on('error', reject);
+    request.end();
+  });
+  assert.equal(statusCode, 421);
 });
 for (const origin of [undefined, 'https://attacker.example', 'null']) {
   test('POST rejects ' + (origin ?? 'missing') + ' Origin', async t => {

@@ -11,7 +11,8 @@ const ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 const hash = value => createHash('sha256').update(value).digest('hex');
 const token = value => typeof value === 'string' && ID.test(value);
 const iso = time => new Date(time).toISOString();
-const nonce = () => randomBytes(18).toString('base64url');
+// Public action tokens must satisfy the same identifier grammar on every round.
+const nonce = () => 'r'+randomBytes(17).toString('base64url');
 function plain(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
     && [Object.prototype,null].includes(Object.getPrototypeOf(value));
