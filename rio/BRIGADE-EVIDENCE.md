@@ -60,3 +60,7 @@ node rio/brigade-evidence-demo.mjs
 ~~~
 
 De demo bevat uitsluitend synthetische scenario's. Hij serialiseert evaluatorresultaten; privésleutels of complete trustregistraties worden niet meegenomen. GitHub Actions bewaart het rapport naast het bronbindingsrapport en de bestaande kernevidence.
+
+## Message-bound request v0.2
+
+The durable reference outbox adds an exact `transferBinding` to the v0.2 request: message ID, SHA256 of decoded opaque bytes, byte length (1–4096), canonical base64url encoding and idempotency key. These fields enter the full signed contract digest and exact final receipts. The original v0.1 gate remains supported but cannot authorize outbox storage. See [durable outbox contract](./REFERENCE-OUTBOX.md).

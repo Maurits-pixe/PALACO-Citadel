@@ -93,3 +93,7 @@ A passing conformance run proves only that the checked artifacts satisfy this im
 [Source binding and the nine specialty roles](CONTACT-FOUNDATION.md) extend this reference profile with a read-only BRIGADE reference checker. The newly assigned 6RI9ADE roles remain DESIGN_DRAFT; matched source bytes never create safety evidence, human consent or contact permission. Run `npm run test:rio:contact` and `node rio/contact-readiness.mjs`.
 
 [The signed 6RI9ADE reference gate](BRIGADE-EVIDENCE.md) verifies eighteen bilateral attestation slots and separate initiation, NOVA-admission and final session receipts. Results remain REFERENCE_ONLY with no connection or authority effect. This is evidence aggregation in the existing profile, not a replacement messaging core.
+
+### Durable synthetic contact outbox
+
+[Reference outbox contract](./REFERENCE-OUTBOX.md) binds exact opaque message bytes to v0.2 signed contact evidence, stores one-time challenges and queue state in SQLite, and requires a fresh delivery checkpoint before a local synthetic inbox commit. It survives reopening and preserves revocation/idempotency. No live contact or network delivery is activated.

@@ -60,10 +60,18 @@ export function referenceEvidenceSetDigest(evidence) {
   return digest(sorted.map(referenceEnvelopeDigest));
 }
 function requestValid(request, time) {
+  const version = request?.schemaVersion;
+  const version2 = version === '6ri9ade-transfer-reference/0.2';
   const keys = ['schemaVersion','id','challengeId','sender','receiver','scope','policyVersion',
-    'ppBindingVersion','scriptieBindingVersion','issuedAt','expiresAt'];
+    'ppBindingVersion','scriptieBindingVersion','issuedAt','expiresAt', ...(version2 ? ['transferBinding'] : [])];
   const partyKeys = ['accountId','deviceId','tenantId','worldId','citadelId','keyVersion'];
-  return exact(request, keys) && request.schemaVersion === '6ri9ade-transfer-reference/0.1'
+  return exact(request, keys) && (version === '6ri9ade-transfer-reference/0.1' || version2)
+    && (!version2 || (exact(request.transferBinding, ['messageId','payloadDigest','payloadByteLength','payloadEncoding','idempotencyKey'])
+      && token(request.transferBinding.messageId) && token(request.transferBinding.idempotencyKey)
+      && typeof request.transferBinding.payloadDigest === 'string' && HASH.test(request.transferBinding.payloadDigest)
+      && Number.isSafeInteger(request.transferBinding.payloadByteLength)
+      && request.transferBinding.payloadByteLength >= 1 && request.transferBinding.payloadByteLength <= 4096
+      && request.transferBinding.payloadEncoding === 'base64url'))
     && ['id','challengeId','policyVersion','ppBindingVersion','scriptieBindingVersion'].every(key => token(request[key]))
     && SIDES.every(side => {
       const party = request[side.toLowerCase()];

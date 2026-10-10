@@ -30,6 +30,10 @@ jobs:
         env:
           RIO_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
         run: node rio/brigade-evidence-demo.mjs > rio-brigade-evidence.json
+      - name: Generate durable synthetic RIO outbox evidence
+        env:
+          RIO_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node rio/contact-outbox-demo.mjs > rio-contact-outbox.json
       - name: Run deterministic kernel and boundary tests
         run: npm --prefix elixer-engine test
       - name: Generate package-bound laboratory evidence
@@ -50,5 +54,6 @@ jobs:
             elixer-lab-evidence.json
             rio-contact-readiness.json
             rio-brigade-evidence.json
+            rio-contact-outbox.json
             test-results/
           if-no-files-found: warn
