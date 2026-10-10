@@ -187,6 +187,7 @@
       "purpose": "Bewaakt actuele rechten bij commit, duurzame aflevering en herstel.",
       "checks": [
         "Controleer actuele consent, blokkering, expiry en intrekking atomair bij servicecommit.",
+        "Controleer rechten opnieuw vlak vóór aflevering; intrekking na enqueue stopt verdere aflevering en retries.",
         "Gebruik duurzame outbox, deduplicatie, backpressure en herstel na herstart.",
         "Beperk retries tot actuele rechten en toon waarheidsgetrouwe afleverreceipts."
       ],

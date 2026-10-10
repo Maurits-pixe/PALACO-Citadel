@@ -16,7 +16,7 @@ Dit is een nieuw **DESIGN_DRAFT**, op expliciet verzoek van de architect op 2026
 | BG06 | Inhoud en integriteit | Geauthenticeerde berichtcontext en veilige weergave aan de endpoints; mascottes en tekst blijven data. |
 | BG07 | Herhaling en volgorde | Replay, verkeerde epochs en dubbele verwerking stoppen; begrensde herordening en retries blijven mogelijk. |
 | BG08 | Privacy en metadata | Minimale gegevens, veilige meldingen en audit; geen plaintext of privéredenen bij de relay/afzender. |
-| BG09 | Aflevering en intrekking | Actuele rechten bij servicecommit, duurzame outbox en herstel; blokkering/intrekking stopt nieuw verkeer. |
+| BG09 | Aflevering en intrekking | Actuele rechten bij servicecommit én vlak vóór aflevering, duurzame outbox en herstel; blokkering/intrekking stopt nieuw verkeer. |
 
 [brigade-specialties.json](brigade-specialties.json) beschrijft per rol concrete controles, stopvoorwaarden, plaats van uitvoering en grenzen. Alle negen rollen zijn **DESIGN_ONLY**, **UNENROLLED** en **NOT_CONNECTED**.
 
@@ -58,7 +58,7 @@ Er is geen nieuwe berichtkern of openbare muterende endpoint toegevoegd. Deze co
 
 Operationele agentidentiteiten/capabilities, bilaterale runtime-evidence, P.P.-registratie en het 5CRIPTIE-ID-contract blijven **UNKNOWN**. Daarna volgen geauthenticeerde menselijke receipts, duurzame contactservice en E2EE-tekstrelay.
 
-Het [RIO CONTACT-fundament v0.1](https://app.notion.com/p/a69dd64d85664c809b8b723630785a52) rapporteert twintig synthetische tests. De ZIP-digest en die tests zijn in deze bronbindingsstap niet onafhankelijk geverifieerd; zij blijven REPORTED_ONLY. De nieuwe GitHub-tests controleren de bronbinding en ontwerpgrenzen afzonderlijk.
+Het [RIO CONTACT-fundament v0.1](https://app.notion.com/p/a69dd64d85664c809b8b723630785a52) rapporteert twintig synthetische tests. De ZIP-digest en die tests zijn in deze bronbindingsstap niet onafhankelijk geverifieerd; zij blijven REPORTED_ONLY. De nieuwe GitHub-tests controleren de bronbinding, schemastructuur en expliciete ontwerpgrenzen afzonderlijk. Zij bewijzen niet de inhoudelijke betekenis van vrije ontwerptekst of de uitvoering van de negen veiligheidscontroles.
 
 Het masterplan noemt de toekomstige productieaansluiting onder `crates/palaco-citadel/src/rio/` in Maurits-pixe/PALACO. Deze locatie bestond niet op de onderzochte commit db664274c3760cca3fef19d23945e3c79dbe7f8c. Deze stap maakt daarvan geen implementatieclaim. Toekomstige muterende contactservice volgt een afzonderlijk contract; bestaande read-only RIO-bewijsroutes mogen geen schrijfrechten krijgen.
 
