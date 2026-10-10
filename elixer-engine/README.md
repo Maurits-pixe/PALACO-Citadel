@@ -55,3 +55,7 @@ De broncontracten zijn gesnapshot in sources/ en behouden hun oorspronkelijke on
 ## Huishouden per CITADEL/MUNDO
 
 Iedere CITADEL/MUNDO-context heeft een eigen huishouden: **ELIXER HARA**. De uitvoerbare testinstantie heeft een host-owned household-record, een eigen household-reference en expliciet geregistreerde consumentenobjecten. De autorisatie bindt ook de volledige huishouden-digest. Een andere WORLD, Citadel, household of niet-geregistreerd doel kan die toestemming niet overnemen. Het model maakt geen globale HARA-bevoegdheid aan.
+
+## RIO-contact en 6RI9ADE
+
+[Het RIO-contactfundament](../rio/CONTACT-FOUNDATION.md) bindt de gevonden BRIGADE-ontwerpbronnen en beschrijft negen nieuwe 6RI9ADE-bodyguardspecialiteiten. De broncontrole geeft geen contacttoestemming. HARA kan onderhoud binnen het eigen huishouden uitvoeren volgens zijn afzonderlijke testprofiel; menselijke NOVA-toelating en finale contactinstemming blijven aparte poorten. De bodyguards zijn ontwerprollen, nog geen aangesloten runtime-identiteiten.

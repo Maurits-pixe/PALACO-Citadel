@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - 'elixer-engine/**'
+      - 'rio/**'
+      - 'package.json'
       - '.github/workflows/elixer-engine.yml'
 permissions:
   contents: read
@@ -18,6 +20,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Verify RIO source bindings and nine guardian specialties
+        run: npm run test:rio:contact
+      - name: Report source-bound RIO contact readiness
+        env:
+          RIO_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node rio/contact-readiness.mjs > rio-contact-readiness.json
       - name: Run deterministic kernel and boundary tests
         run: npm --prefix elixer-engine test
       - name: Generate package-bound laboratory evidence
@@ -36,5 +44,6 @@ jobs:
           name: elixer-kernel-evidence-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             elixer-lab-evidence.json
+            rio-contact-readiness.json
             test-results/
           if-no-files-found: warn
