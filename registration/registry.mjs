@@ -29,12 +29,15 @@ export class LocalRegistry {
     this.trustedKeys = { ...trustedKeys };
   }
   parts(citadelId) { if (!validId(citadelId)) fail('invalid citadel ID'); return ['citadels',citadelId,'events']; }
-  async events(citadelId) {
+  async #readEvents(citadelId, { allowRecoveryResidue = false } = {}) {
     const parts = this.parts(citadelId);
     const all = await this.store.list(parts);
-    // Pending files after abrupt process termination need operator recovery.
-    if (all.some(x => x.startsWith('.pending-'))) fail('pending event requires recovery');
-    const files = all.filter(x => x !== '.writer.lock').sort();
+    // Normal operation fails closed on uncommitted residue. Incident inspection may
+    // read the committed chain while preserving .pending-* and .writer.lock artifacts.
+    if (!allowRecoveryResidue && all.some(x => x.startsWith('.pending-'))) fail('pending event requires recovery');
+    const files = all
+      .filter(x => x !== '.writer.lock' && (!allowRecoveryResidue || !x.startsWith('.pending-')))
+      .sort();
     const out=[]; let previous='0'.repeat(64);
     for(const file of files) {
       const seq=out.length+1;
@@ -51,6 +54,18 @@ export class LocalRegistry {
       previous=recordHash;out.push(record);
     }
     return out;
+  }
+  async events(citadelId) {
+    return this.#readEvents(citadelId);
+  }
+  async inspectCommittedLedger(citadelId) {
+    const records = await this.#readEvents(citadelId, { allowRecoveryResidue:true });
+    return Object.freeze({
+      event_count:records.length,
+      head_sequence:records.at(-1)?.sequence ?? 0,
+      head_hash:records.at(-1)?.recordHash ?? null,
+      last_event_type:records.at(-1)?.event?.type ?? null
+    });
   }
   async transaction(citadelId, fn) {
     return this.store.locked(this.parts(citadelId), async () => {

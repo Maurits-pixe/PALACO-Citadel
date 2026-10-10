@@ -52,17 +52,25 @@ export class ConfinedStore {
     try { path = await this.directory(parts); } catch (e) { if (e.code === 'ENOENT') return []; throw e; }
     return readdir(path);
   }
-  async read(parts, name) {
+  async readBytes(parts, name) {
     if (!/^[A-Za-z0-9_.-]+$/.test(name) || name === '.' || name === '..') throw Error('invalid filename');
     const path = join(await this.directory(parts), name);
     const stat = await lstat(path);
     if (!stat.isFile() || stat.isSymbolicLink() || stat.nlink !== 1 || (stat.mode & 0o077) !== 0) throw Error('unsafe file');
     const fd = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
     try {
-      const actual = await fd.stat();
-      if (actual.ino !== stat.ino || actual.dev !== stat.dev || actual.size > 8 * 1024 * 1024) throw Error('file changed or oversized');
-      return await fd.readFile('utf8');
+      const before = await fd.stat();
+      if (before.ino !== stat.ino || before.dev !== stat.dev || before.size > 8 * 1024 * 1024) throw Error('file changed or oversized');
+      const bytes = await fd.readFile();
+      const after = await fd.stat();
+      if (after.ino !== before.ino || after.dev !== before.dev || after.size !== before.size || after.mtimeMs !== before.mtimeMs || after.ctimeMs !== before.ctimeMs) {
+        throw Error('file changed during read');
+      }
+      return bytes;
     } finally { await fd.close(); }
+  }
+  async read(parts, name) {
+    return (await this.readBytes(parts, name)).toString('utf8');
   }
   async atomicCreate(parts, name, text) {
     if (!/^[A-Za-z0-9_-]+\.json$/.test(name)) throw Error('invalid filename');
