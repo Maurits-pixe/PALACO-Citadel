@@ -23,8 +23,8 @@ The digest passed to acceptDelivered is a caller assertion of local delivery, no
 - Artificial UTF-8 text only; maximum 512 plaintext bytes and 4096 complete encrypted-envelope bytes.
 - Original expiry is at most five minutes; endpoints reject backwards clocks and check expiry again after asynchronous cryptographic work.
 - Maximum 128 seals or consumed receptions per endpoint lifetime; a sender cannot seal the same message identifier twice.
-- Endpoint replay memory and private keys are ephemeral. Closing or restarting loses them. There is no durable key/replay recovery, multi-device synchronization or production enrollment.
-- Static recipient RSA keys provide no forward secrecy. Rotation, recovery, revocation and a reviewed maintained messaging protocol remain future work.
+- The default endpoint keeps keys/replay in memory. An explicitly enrolled [origin-local key vault](KEY-VAULT.md) can persist native non-extractable keys, pinned peer and replay records across reload/process restart in an intact browser profile. No off-device backup, multi-device synchronization or production enrollment is provided.
+- Static recipient RSA keys provide no forward secrecy. The optional test vault supports explicit revocation/replacement; off-device recovery and a reviewed maintained messaging protocol remain future work.
 - The test host, browser code, explicit expected context and public-key enrollment are trusted. A compromised page/script/browser/host can observe plaintext or substitute the expected enrollment. Non-extractability does not protect against a hostile same-origin script, and memory zeroization is not guaranteed.
 - Metadata and ciphertext lengths remain visible. This does not provide anonymity.
 - Cryptography does not establish actual identity, live bodyguard behavior or absolute safety.
@@ -33,6 +33,6 @@ The encryption clients are exercised by the automated browser harness; the exist
 
 ## Validation
 
-Run npm run test:rio:contact for controller, storage and cryptographic rejection tests, and npm run test:rio:encrypted:browser for actual separate Chromium contexts with private keys generated inside each page. The browser tests move encrypted bytes over the existing role-owned loopback HTTP API through both explicit approval rounds, check NOVA isolation, verify receiver decryption, reject modified ciphertext and enforce revocation/replay.
+Run npm run test:rio:contact for controller, storage and cryptographic rejection tests, and npm run test:rio:encrypted:browser for actual separate Chromium contexts with private keys generated inside each page, vault reload/race/revocation cases and separate persistent browser-process relaunches. The browser tests move encrypted bytes over the existing role-owned loopback HTTP API through both explicit approval rounds, check NOVA isolation, verify receiver decryption, reject modified ciphertext and enforce revocation/replay.
 
 No trace, video, cookies, private keys, original text or database files are uploaded as evidence. Existing desktop/mobile screenshots are from the separate artificial-text contact preview.

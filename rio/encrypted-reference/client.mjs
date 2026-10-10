@@ -53,28 +53,73 @@ function validContext(context,time,senderId,receiverId) {
 function copy(value){return JSON.parse(canonicalEncrypted(value));}
 
 /** Private keys remain in this endpoint closure and are not exportable. */
-export async function createEncryptedTestEndpoint({classification,role,id,now=()=>new Date().toISOString()}={}) {
+export async function createEncryptedTestEndpoint({classification,role,id,now=()=>new Date().toISOString(),keyVault}={}) {
   if(classification!=='SYNTHETIC_ONLY' || !['SENDER','RECEIVER'].includes(role)
-    || typeof id!=='string' || !ID.test(id) || typeof now!=='function')return fail();
-  let keys=await crypto.subtle.generateKey(role==='SENDER'
-    ? {name:'ECDSA',namedCurve:'P-256'}
-    : {name:'RSA-OAEP',modulusLength:3072,publicExponent:new Uint8Array([1,0,1]),hash:'SHA-256'},
-    false,role==='SENDER'?['sign','verify']:['encrypt','decrypt']);
-  const spki=new Uint8Array(await crypto.subtle.exportKey('spki',keys.publicKey));
-  const publicIdentity=freeze({schemaVersion:VERSION,classification,role,id,
-    algorithm:role==='SENDER'?'ECDSA-P256-SHA256':'RSA-OAEP-3072-SHA256',
-    spki:encodeEncryptedBytes(spki),pin:await digest(spki)});
-  let peer=null,peerKey=null,closed=false,busy=false,lastClock=-Infinity;
-  const sent=new Set(), received=new Set();
+    || typeof id!=='string' || !ID.test(id) || typeof now!=='function'
+    || (keyVault && !['initialize','enrollPeer','reserveSeal','finishSeal','checkReceive','revoke','close'].every(k=>typeof keyVault[k]==='function')))return fail();
+  async function makeMaterial(){
+    const keys=await crypto.subtle.generateKey(role==='SENDER'
+      ? {name:'ECDSA',namedCurve:'P-256'}
+      : {name:'RSA-OAEP',modulusLength:3072,publicExponent:new Uint8Array([1,0,1]),hash:'SHA-256'},
+      false,role==='SENDER'?['sign','verify']:['encrypt','decrypt']);
+    const spki=new Uint8Array(await crypto.subtle.exportKey('spki',keys.publicKey));
+    const publicIdentity={schemaVersion:VERSION,classification,role,id,
+      algorithm:role==='SENDER'?'ECDSA-P256-SHA256':'RSA-OAEP-3072-SHA256',
+      spki:encodeEncryptedBytes(spki),pin:await digest(spki)};
+    return {keys,publicIdentity};
+  }
+  let restored=null,material;
+  try{restored=keyVault?await keyVault.initialize(makeMaterial):null;material=restored||await makeMaterial();}
+  catch{keyVault?.close();return fail();}
+  let keys=material.keys;
+  let publicIdentity;
+  try{publicIdentity=freeze(copy(material.publicIdentity));}catch{keys=null;keyVault?.close();return fail();}
+  // Restored handles must be native, non-extractable private keys with matching public material.
+  if(keyVault){
+    try{
+      for(const [name,type,usage] of [['publicKey','public',role==='SENDER'?'verify':'encrypt'],['privateKey','private',role==='SENDER'?'sign':'decrypt']]){
+        const key=keys?.[name];
+        if(typeof CryptoKey==='undefined'||!(key instanceof CryptoKey)||key.type!==type
+          ||canonicalEncrypted([...key.usages])!==canonicalEncrypted([usage])
+          ||(type==='private'&&key.extractable!==false))return fail();
+        const algorithm=key.algorithm;
+        if(role==='SENDER'?(algorithm.name!=='ECDSA'||algorithm.namedCurve!=='P-256')
+          :(algorithm.name!=='RSA-OAEP'||algorithm.modulusLength!==3072||algorithm.hash?.name!=='SHA-256'
+            ||encodeEncryptedBytes(algorithm.publicExponent)!=='AQAB'))return fail();
+      }
+      const spki=new Uint8Array(await crypto.subtle.exportKey('spki',keys.publicKey));
+      const expected={schemaVersion:VERSION,classification,role,id,
+        algorithm:role==='SENDER'?'ECDSA-P256-SHA256':'RSA-OAEP-3072-SHA256',
+        spki:encodeEncryptedBytes(spki),pin:await digest(spki)};
+      if(canonicalEncrypted(publicIdentity)!==canonicalEncrypted(expected))return fail();
+      const challenge=crypto.getRandomValues(new Uint8Array(32));
+      if(role==='SENDER'){
+        const proof=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},keys.privateKey,challenge);
+        if(!await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},keys.publicKey,proof,challenge))return fail();
+      }else{
+        const proof=await crypto.subtle.encrypt({name:'RSA-OAEP'},keys.publicKey,challenge);
+        const recovered=await crypto.subtle.decrypt({name:'RSA-OAEP'},keys.privateKey,proof);
+        if(encodeEncryptedBytes(recovered)!==encodeEncryptedBytes(challenge))return fail();
+      }
+      challenge.fill(0);
+    }catch{keys=null;keyVault.close();return fail();}
+  }
+  const keyEpoch=restored?.epoch;
+  let peer=null,peerKey=null,closed=false,busy=false,lastClock=restored?.maxClock??-Infinity;
+  const sent=new Set(restored?.sent.map(x=>x.id)||[]),received=new Set(restored?.received||[]);
   function clock(){
     const time=stamp(now());
     if(closed || !Number.isFinite(time) || time<lastClock)return fail();
     lastClock=time;return time;
   }
   async function connect(input,expectedPin,expectedId) {
-    if(closed || busy || peer)return fail();busy=true;
+    if(closed || busy || (peer&&!keyVault))return fail();busy=true;
     try {
       const candidate=copy(input);
+      if(peer){
+        if(candidate.pin!==expectedPin||candidate.id!==expectedId||canonicalEncrypted(candidate)!==canonicalEncrypted(peer))return fail();
+        await keyVault.enrollPeer(keyEpoch,peer);return true;
+      }
       if(!exact(candidate,['schemaVersion','classification','role','id','algorithm','spki','pin'])
         || candidate.schemaVersion!==VERSION || candidate.classification!==classification
         || candidate.role===(role) || !['SENDER','RECEIVER'].includes(candidate.role)
@@ -90,13 +135,14 @@ export async function createEncryptedTestEndpoint({classification,role,id,now=()
       if(role==='SENDER' && (key.algorithm.modulusLength!==3072
         || encodeEncryptedBytes(key.algorithm.publicExponent)!=='AQAB'))return fail();
       if(closed)return fail();
+      if(keyVault)await keyVault.enrollPeer(keyEpoch,candidate);
       peer=freeze(candidate);peerKey=key;return true;
     }catch{return fail();}finally{busy=false;}
   }
   function parties(){return role==='SENDER'?[id,peer.id]:[peer.id,id];}
   async function seal(text,inputContext) {
     if(closed || busy || role!=='SENDER' || !peer)return fail();busy=true;
-    let secret=null;
+    let secret=null,reservation=null;
     try {
       const context=copy(inputContext),time=clock(),[senderId,receiverId]=parties();
       validContext(context,time,senderId,receiverId);
@@ -106,6 +152,7 @@ export async function createEncryptedTestEndpoint({classification,role,id,now=()
       const header={schemaVersion:VERSION,classification,suite:SUITE,context,
         senderPin:publicIdentity.pin,receiverPin:peer.pin};
       const aad=encoder.encode(canonicalEncrypted(header)),label=await crypto.subtle.digest('SHA-256',aad);
+      if(keyVault)reservation=await keyVault.reserveSeal(keyEpoch,peer,context.messageId,clock(),stamp(context.expiresAt));
       secret=crypto.getRandomValues(new Uint8Array(32));
       const contentKey=await crypto.subtle.importKey('raw',secret,'AES-GCM',false,['encrypt']);
       const iv=crypto.getRandomValues(new Uint8Array(12));
@@ -118,6 +165,10 @@ export async function createEncryptedTestEndpoint({classification,role,id,now=()
       const envelope={...unsigned,signature:encodeEncryptedBytes(signature)};
       if(encoder.encode(canonicalEncrypted(envelope)).length>MAX_ENVELOPE || closed)return fail();
       validContext(context,clock(),senderId,receiverId);
+      if(keyVault){
+        await keyVault.finishSeal(keyEpoch,peer,context.messageId,reservation,clock(),stamp(context.expiresAt));
+        validContext(context,clock(),senderId,receiverId);
+      }
       sent.add(context.messageId);
       return freeze(envelope);
     }catch{return fail();}finally{secret?.fill(0);busy=false;}
@@ -144,6 +195,7 @@ export async function createEncryptedTestEndpoint({classification,role,id,now=()
       const unsigned={header:envelope.header,iv:envelope.iv,wrappedKey:envelope.wrappedKey,ciphertext:envelope.ciphertext};
       if(!await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},peerKey,signature,
         encoder.encode(canonicalEncrypted(unsigned))))return fail();
+      if(keyVault)await keyVault.checkReceive(keyEpoch,peer,expected.messageId,clock(),stamp(expected.expiresAt),false);
       const aad=encoder.encode(canonicalEncrypted(envelope.header)),label=await crypto.subtle.digest('SHA-256',aad);
       secret=new Uint8Array(await crypto.subtle.decrypt({name:'RSA-OAEP',label},keys.privateKey,wrapped));
       if(secret.length!==32)return fail();
@@ -152,12 +204,23 @@ export async function createEncryptedTestEndpoint({classification,role,id,now=()
       const text=decoder.decode(bytes);
       if(!text.trim() || bytes.length>MAX_BYTES || closed)return fail();
       validContext(expected,clock(),senderId,receiverId);
+      if(keyVault){
+        await keyVault.checkReceive(keyEpoch,peer,expected.messageId,clock(),stamp(expected.expiresAt),consume);
+        validContext(expected,clock(),senderId,receiverId);
+      }
       if(consume)received.add(expected.messageId);
       return freeze({text,envelopeDigest,classification,mode:'ENCRYPTED_REFERENCE_ONLY'});
     }catch{return fail();}finally{secret?.fill(0);busy=false;}
   }
-  function close(){if(busy)return false;closed=true;keys=null;peerKey=null;peer=null;sent.clear();received.clear();return true;}
+  function close(){if(busy)return false;closed=true;keys=null;peerKey=null;peer=null;sent.clear();received.clear();keyVault?.close();return true;}
+  if(restored?.peer){try{await connect(restored.peer,restored.peer.pin,restored.peer.id);}catch{keyVault.close();return fail();}}
+  async function revoke(){
+    if(!keyVault||closed||busy)return fail();busy=true;
+    try{await keyVault.revoke(keyEpoch);keys=null;peerKey=null;peer=null;closed=true;keyVault.close();return true;}
+    catch{return fail();}finally{busy=false;}
+  }
   return Object.freeze({publicIdentity,connect,seal,
     preview:(envelope,context)=>inspect(envelope,context,false),
-    acceptDelivered:(envelope,context,hostDeliveredDigest)=>inspect(envelope,context,true,hostDeliveredDigest),close});
+    acceptDelivered:(envelope,context,hostDeliveredDigest)=>inspect(envelope,context,true,hostDeliveredDigest),close,
+    ...(keyVault?{keyEpoch,revoke}:{} )});
 }

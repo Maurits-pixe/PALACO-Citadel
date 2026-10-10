@@ -52,6 +52,8 @@ export async function startRioContactPreview({
     sessionToken:randomBytes(32).toString('base64url'),csrfToken:randomBytes(32).toString('base64url')
   })]));
   const staticAssets=new Map([
+    ['/assets/client.mjs',{type:'text/javascript; charset=utf-8',bytes:readFileSync(new URL('../encrypted-reference/client.mjs',import.meta.url))}],
+    ['/assets/key-vault.mjs',{type:'text/javascript; charset=utf-8',bytes:readFileSync(new URL('../encrypted-reference/key-vault.mjs',import.meta.url))}],
     ['/assets/encrypted-client.mjs',{type:'text/javascript; charset=utf-8',bytes:readFileSync(new URL('../encrypted-reference/client.mjs',import.meta.url))}],
     ['/assets/app.js',{type:'text/javascript; charset=utf-8',bytes:readFileSync(new URL('./app.js',import.meta.url))}],
     ['/assets/style.css',{type:'text/css; charset=utf-8',bytes:readFileSync(new URL('./style.css',import.meta.url))}]
