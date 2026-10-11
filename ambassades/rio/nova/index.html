@@ -35,14 +35,22 @@ const own=(object,key)=>Object.prototype.hasOwnProperty.call(object,key);
 let language=own(TEXT,new URLSearchParams(location.search).get('lang'))?new URLSearchParams(location.search).get('lang'):'nl';
 const t=key=>TEXT[language][KEYS.indexOf(key)]||TEXT.nl[KEYS.indexOf(key)]||key;
 const online=location.protocol==='https:'||location.protocol==='http:';
-let csrf='',sessionExpires='',receipts=[],busy=false,pending=null,noticeKey='',runtimeState='runtimeChecking',serverTime='';
+let csrf='',sessionExpires='',sessionDeadline=0,receipts=[],busy=false,pending=null,noticeKey='',runtimeState='runtimeChecking',serverTime='';
 const statusKeys={RECEIVED:'received',ON_HOLD:'onHold',WITHDRAWN:'withdrawn',EXPIRED:'expired'};
 const validDate=value=>typeof value==='string'&&Number.isFinite(Date.parse(value));
 function stamp(value){if(!validDate(value))return '';return new Intl.DateTimeFormat(language==='zh'?'zh-Hans':language,{dateStyle:'short',timeStyle:'medium'}).format(new Date(value));}
 function announce(key){noticeKey=key;$('nova-notice').textContent=key?t(key):'';}
 function setBusy(value){busy=value;renderControls();}
-function active(){return !!csrf&&validDate(sessionExpires)&&Date.parse(sessionExpires)>Date.now();}
-function clearSession(){csrf='';sessionExpires='';receipts=[];pending=null;$('nova-text').value='';render();}
+function active(){return !!csrf&&validDate(sessionExpires)&&performance.now()<sessionDeadline;}
+function setSessionClock(expiresAt,time,reset=false){
+ if(!validDate(expiresAt)||!validDate(time))throw requestError(0);
+ const remaining=Date.parse(expiresAt)-Date.parse(time);
+ if(remaining<=0||remaining>900000)throw requestError(0);
+ const deadline=performance.now()+remaining;
+ sessionDeadline=reset||!sessionDeadline?deadline:Math.min(sessionDeadline,deadline);
+ sessionExpires=expiresAt;
+}
+function clearSession(){csrf='';sessionExpires='';sessionDeadline=0;receipts=[];pending=null;$('nova-text').value='';render();}
 function renderControls(){
  const connected=active();
  $('nova-connect').hidden=connected;
@@ -122,7 +130,7 @@ function useRuntime(value){if(!validRuntime(value))throw requestError(0);runtime
 async function readReceipts(){
  const data=await api('requests');const next=validateRequests(data.requests);
  if(!data.session||!validDate(data.session.expiresAt)||!validDate(data.serverTime))throw requestError(0);
- receipts=next;sessionExpires=data.session.expiresAt;serverTime=data.serverTime;render();
+ setSessionClock(data.session.expiresAt,data.serverTime);receipts=next;serverTime=data.serverTime;render();
 }
 async function handleError(error){
  const status=error.status;
@@ -140,7 +148,7 @@ $('nova-connect').addEventListener('click',async()=>{
   const data=await api('session','POST',{});
   if(!data.session||typeof data.session.csrfToken!=='string'||data.session.csrfToken.length<24||data.session.csrfToken.length>256||!validDate(data.session.expiresAt))throw requestError(0);
   const next=validateRequests(data.requests);useRuntime(data.runtime);
-  csrf=data.session.csrfToken;sessionExpires=data.session.expiresAt;receipts=next;pending=null;render();announce('connected');
+  setSessionClock(data.session.expiresAt,data.runtime.serverTime,true);csrf=data.session.csrfToken;receipts=next;pending=null;render();announce('connected');
  }catch(error){await handleError(error);}finally{setBusy(false);}
 });
 $('nova-refresh').addEventListener('click',async()=>{
@@ -180,7 +188,7 @@ $('language').addEventListener('change',()=>applyLanguage($('language').value));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&csrf&&!active()){clearSession();announce('endedLocal');}});
 setInterval(()=>{if(!document.hidden&&csrf&&!active()){clearSession();announce('endedLocal');}},1000);
 applyLanguage(language);
-if(online)api('runtime').then(value=>{useRuntime(value);render();}).catch(()=>{runtimeState='runtimeOffline';render();});
+if(online)api('runtime').then(value=>{if(csrf)return;useRuntime(value);render();}).catch(()=>{if(csrf)return;runtimeState='runtimeOffline';render();});
 else{runtimeState='runtimeOffline';render();}
 })();</script>
 </body>

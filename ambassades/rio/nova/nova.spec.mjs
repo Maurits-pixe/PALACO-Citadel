@@ -269,3 +269,38 @@ test('NOVA UI cannot bypass origin, CSRF or revision checks and cannot open a ch
   const runtime = await context.request.get(fixture.origin + API + '/runtime');
   expect((await runtime.json()).chatEnabled).toBe(false);
 });
+
+test('device clocks one hour ahead or behind do not control a real NOVA session', async ({ browser }, testInfo) => {
+  for (const offset of [3600000, -3600000]) {
+    const context = await browser.newContext({ viewport: testInfo.project.use.viewport });
+    const page = await context.newPage();
+    const collected = [];
+    page.on('pageerror', error => collected.push(error.message));
+    await page.addInitScript(milliseconds => {
+      const originalNow = Date.now;
+      Date.now = () => originalNow() + milliseconds;
+    }, offset);
+    try {
+      await open(page);
+      const browserNow = await page.evaluate(() => Date.now());
+      expect(Math.abs(browserNow - Date.now() - offset)).toBeLessThan(5000);
+      await connect(page);
+      const card = await createReceipt(page, 'Fictieve ontvangst met afwijkende apparaatklok.');
+      const id = await card.getAttribute('data-receipt-id');
+      const [serverReceipt] = await receipts(context);
+      expect(serverReceipt).toMatchObject({ id, status: 'RECEIVED', revision: 1 });
+      expect(Date.parse(serverReceipt.expiresAt) - Date.parse(serverReceipt.createdAt)).toBe(300000);
+      await page.locator('#nova-refresh').click();
+      await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'RECEIVED');
+      await card.locator('[data-action="hold"]').click();
+      await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'ON_HOLD');
+      expect((await receipts(context))[0]).toMatchObject({ id, status: 'ON_HOLD', revision: 2 });
+      await page.reload();
+      await connect(page);
+      await expect(page.locator('[data-receipt-id="' + id + '"] .nova-status')).toHaveAttribute('data-status', 'ON_HOLD');
+      await page.locator('#nova-end').click();
+      expect((await context.request.get(fixture.origin + API + '/requests')).status()).toBe(401);
+      expect(collected).toEqual([]);
+    } finally { await context.close(); }
+  }
+});
