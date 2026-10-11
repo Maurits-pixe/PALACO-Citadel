@@ -108,7 +108,7 @@ test('service worker installs only public RIO assets and genuinely reloads offli
   await open(page);
   await installed(page);
   const paths = ['/rio/', '/rio/manifest.webmanifest', '/rio/icon-192.png', '/rio/icon-512.png'].sort();
-  expect(await cachedPaths(page)).toEqual([{ name: 'palaco-rio-start-v0.1-1', paths }]);
+  expect(await cachedPaths(page)).toEqual([{ name: 'palaco-rio-start-v0.1-2', paths }]);
   const privateResults = await page.evaluate(async () => {
     const values = [];
     for (const path of ['/api/me', '/api/seats/PALACO-AMB-01', '/auth/server.mjs', '/rio/download', '/rio/manifest.webmanifest?probe=1']) {
@@ -121,7 +121,7 @@ test('service worker installs only public RIO assets and genuinely reloads offli
     ['/api/me', 503], ['/api/seats/PALACO-AMB-01', 503], ['/auth/server.mjs', 404],
     ['/rio/download', 200], ['/rio/manifest.webmanifest?probe=1', 200],
   ]);
-  expect(await cachedPaths(page)).toEqual([{ name: 'palaco-rio-start-v0.1-1', paths }]);
+  expect(await cachedPaths(page)).toEqual([{ name: 'palaco-rio-start-v0.1-2', paths }]);
   await addContact(page, 'Fictieve offline bezoeker');
   await context.setOffline(true);
   const response = await page.reload();

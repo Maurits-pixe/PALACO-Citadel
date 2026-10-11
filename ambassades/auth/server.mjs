@@ -1,4 +1,5 @@
 import express from 'express';
+import { mountNovaReception } from './nova-reception.mjs';
 import { auth } from 'express-openid-connect';
 import { createIdTokenVerifier } from './token-verification.mjs';
 import { createHash } from 'node:crypto';
@@ -106,6 +107,8 @@ const publicFiles = new Map([
   ['/access-slots.json', ['access-slots.json', 'application/json']],
   ['/rio/', ['rio/palaco-rio-start-v0.1.html', 'text/html']],
   ['/rio/index.html', ['rio/palaco-rio-start-v0.1.html', 'text/html']],
+  ['/rio/nova/', ['rio/nova/index.html', 'text/html']],
+  ['/rio/nova/index.html', ['rio/nova/index.html', 'text/html']],
   ['/rio/download', ['rio/palaco-rio-start-v0.1.html', 'application/octet-stream', true]],
   ['/rio/manifest.webmanifest', ['rio/manifest.webmanifest', 'application/manifest+json']],
   ['/rio/sw.js', ['rio/sw.js', 'text/javascript']],
@@ -115,7 +118,7 @@ const publicFiles = new Map([
 
 function contentSecurityPolicy() {
   const hashes = new Set();
-  for (const filename of ['index.html', 'toegang.html', 'rio/palaco-rio-start-v0.1.html']) {
+  for (const filename of ['index.html', 'toegang.html', 'rio/palaco-rio-start-v0.1.html', 'rio/nova/index.html']) {
     try {
       const source = readFileSync(resolve(siteRoot, filename), 'utf8');
       for (const match of source.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
@@ -132,7 +135,7 @@ function contentSecurityPolicy() {
     + " connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; worker-src 'self'; manifest-src 'self'";
 }
 
-export function buildApp({ env = process.env, registryLoader, authMiddleware, sessionStore } = {}) {
+export function buildApp({ env = process.env, registryLoader, authMiddleware, sessionStore, novaOptions } = {}) {
   const config = readConfiguration(env);
   const app = express();
   app.disable('x-powered-by');
@@ -211,6 +214,11 @@ export function buildApp({ env = process.env, registryLoader, authMiddleware, se
   }
 
   app.get('/healthz', (req, res) => res.json({ ok: true }));
+  app.locals.novaReception = mountNovaReception(app, {
+    baseURL: env.RIO_NOVA_BASE_URL || 'https://palaco-ambassades.onrender.com',
+    development: env.NODE_ENV === 'development',
+    ...novaOptions,
+  });
   app.get('/api/auth/status', async (req, res) => {
     if (!config.configured) return res.json({ configured: false, available: false, authenticated: false });
     let members;
@@ -257,6 +265,7 @@ export function buildApp({ env = process.env, registryLoader, authMiddleware, se
 
   // Serve an explicit public allowlist. Never serve the auth directory, private registry, or repository root.
   app.get('/rio', (req,res,next) => req.path === '/rio' ? res.redirect(302,'/rio/') : next());
+  app.get('/rio/nova', (req,res,next) => req.path === '/rio/nova' ? res.redirect(302,'/rio/nova/') : next());
   for (const [route, [filename, type, download]] of publicFiles) {
     app.get(route, async (req, res) => {
       try {
@@ -283,5 +292,6 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid PORT');
   const app = buildApp();
   const host = process.env.HOST || '127.0.0.1';
-  app.listen(port, host, () => console.log('PALACO ambassador portal listening on port ' + port));
+  const listener = app.listen(port, host, () => console.log('PALACO ambassador portal listening on port ' + port));
+  listener.on('close', () => app.locals.novaReception.close());
 }

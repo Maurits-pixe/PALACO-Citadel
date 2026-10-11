@@ -5,6 +5,7 @@ on:
     branches: ["main"]
     paths:
       - "scripts/verify-rio-published.mjs"
+      - "scripts/verify-nova-published.mjs"
       - ".github/workflows/rio-published.yml"
   workflow_dispatch:
 
@@ -24,3 +25,5 @@ jobs:
           node-version: 24
       - name: Verify actual HTTPS RIO app, software download and closed private routes
         run: node scripts/verify-rio-published.mjs
+      - name: Verify actual NOVA receipt lifecycle and browser session isolation over HTTPS
+        run: node scripts/verify-nova-published.mjs

@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 const origin = 'https://palaco-ambassades.onrender.com';
 const assets = [
   ['/rio/', 'ambassades/rio/palaco-rio-start-v0.1.html', 'text/html'],
+  ['/rio/nova/', 'ambassades/rio/nova/index.html', 'text/html'],
   ['/rio/download', 'ambassades/rio/palaco-rio-start-v0.1.html', 'application/octet-stream'],
   ['/rio/manifest.webmanifest', 'ambassades/rio/manifest.webmanifest', 'application/manifest+json'],
   ['/rio/sw.js', 'ambassades/rio/sw.js', 'text/javascript'],
@@ -38,7 +39,7 @@ async function verifyAsset([path, filename, type]) {
   if (path === '/rio/download') {
     requireResult(response.headers.get('content-disposition') === 'attachment; filename="PALACO-RIO-v0.1.html"', 'DOWNLOAD_ATTACHMENT_MISMATCH', path);
   }
-  if (path === '/rio/') {
+  if (path === '/rio/' || path === '/rio/nova/') {
     const csp = response.headers.get('content-security-policy') || '';
     const scriptDirective = csp.split(';').map(value => value.trim()).find(value => value.startsWith('script-src ')) || '';
     const sources = new Set(scriptDirective.split(/\s+/).slice(1));
@@ -91,4 +92,4 @@ for (const result of checks) {
   }
 }
 if (failed) process.exitCode = 1;
-else console.log('PALACO_RIO_PUBLISHED_OK real_https=true assets=6 health=1 closed_endpoints=5');
+else console.log('PALACO_RIO_PUBLISHED_OK real_https=true assets=7 health=1 closed_endpoints=5');
