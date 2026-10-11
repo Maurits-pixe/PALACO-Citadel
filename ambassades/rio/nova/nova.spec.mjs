@@ -58,7 +58,7 @@ test('NOVA page calls a real running HTTP component and protected sources remain
   await expect(page.locator('#nova-runtime-status')).toBeVisible();
   const runtime = await request.get(fixture.origin + API + '/runtime');
   expect(runtime.status()).toBe(200);
-  expect(await runtime.json()).toMatchObject({ running: true, component: 'NOVA_RECEPTION', storage: 'volatile-memory', chatEnabled: false });
+  expect(await runtime.json()).toMatchObject({ running: true, component: 'NOVA_RECEPTION', storage: 'volatile-memory', version: '0.2', receptionEnabled: true, firstAcceptanceEnabled: true, chatEnabled: false });
   expect((await request.get(fixture.origin + API + '/requests')).status()).toBe(401);
   for (const path of ['/rio/nova/nova.spec.mjs', '/rio/nova/playwright.config.mjs', '/auth/nova-reception.mjs', '/nova-reception.mjs']) {
     expect((await request.get(fixture.origin + path)).status(), path).toBe(404);
@@ -217,12 +217,18 @@ test('server expiry reaches the browser as a scrubbed closed receipt', async ({ 
     await open(page, timed.origin);
     await connect(page);
     const card = await createReceipt(page, 'FICTITIOUS_BROWSER_EXPIRE_384');
+    await card.locator('[data-action="to_reception"]').click();
+    await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'AT_RECEPTION');
+    await card.locator('[data-action="accept"]').click();
+    await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'FIRST_ACCEPTED');
+    await expect(card.locator('.nova-acceptance')).toHaveAttribute('data-scope', 'reception-only');
     clock += 1001;
     await page.locator('#nova-refresh').click();
     await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'EXPIRED');
     await expect(card).not.toContainText('FICTITIOUS_BROWSER_EXPIRE_384');
     await expect(card.locator('button[data-action]')).toHaveCount(0);
-    expect((await receipts(context, timed.origin))[0].text).toBe('');
+    await expect(card.locator('.nova-acceptance')).toHaveCount(0);
+    expect((await receipts(context, timed.origin))[0]).toMatchObject({ text: '', resumeTo: null, firstAcceptance: null });
     expect(collected).toEqual([]);
   } finally { await context.close(); await timed.close(); }
 });
@@ -230,7 +236,11 @@ test('server expiry reaches the browser as a scrubbed closed receipt', async ({ 
 test('all eleven languages render a real receipt with Arabic RTL and fitting mobile layouts', async ({ page }, testInfo) => {
   await open(page);
   await connect(page);
-  await createReceipt(page, 'Fictieve bezoeker: een kleine eerste online ontvangst.');
+  const card = await createReceipt(page, 'Fictieve bezoeker: een kleine eerste online ontvangst.');
+  await card.locator('[data-action="to_reception"]').click();
+  await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'AT_RECEPTION');
+  await card.locator('[data-action="accept"]').click();
+  await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'FIRST_ACCEPTED');
   const languages = ['nl', 'en', 'de', 'fr', 'es', 'it', 'pt', 'ru', 'zh', 'ar', 'eo'];
   expect(await page.locator('#language option').evaluateAll(options => options.map(option => option.value))).toEqual(languages);
   const headings = new Set();
@@ -239,7 +249,9 @@ test('all eleven languages render a real receipt with Arabic RTL and fitting mob
     await expect(page.locator('html')).toHaveAttribute('lang', language === 'zh' ? 'zh-Hans' : language);
     await expect(page.locator('html')).toHaveAttribute('dir', language === 'ar' ? 'rtl' : 'ltr');
     headings.add(await page.locator('h1').textContent());
-    await expect(page.locator('.nova-status')).toHaveAttribute('data-status', 'RECEIVED');
+    await expect(page.locator('.nova-status')).toHaveAttribute('data-status', 'FIRST_ACCEPTED');
+    await expect(card.locator('.nova-acceptance')).toHaveAttribute('data-scope', 'reception-only');
+    expect((await card.locator('.nova-acceptance').textContent()).trim().length).toBeGreaterThan(10);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), language + '/' + testInfo.project.name).toBe(true);
     expect(await page.locator('[data-i18n]').evaluateAll(elements => elements.every(element => element.textContent.trim().length > 0))).toBe(true);
   }
@@ -302,5 +314,133 @@ test('device clocks one hour ahead or behind do not control a real NOVA session'
       expect((await context.request.get(fixture.origin + API + '/requests')).status()).toBe(401);
       expect(collected).toEqual([]);
     } finally { await context.close(); }
+  }
+});
+
+test('reception UI records a narrow acceptance, preserves it on explicit reconnect and revokes it on hold', async ({ page, context }) => {
+  await open(page);
+  await connect(page);
+  const card = await createReceipt(page, 'FICTITIOUS_BROWSER_FIRST_ACCEPTANCE_426');
+  const id = await card.getAttribute('data-receipt-id');
+  await expect(card.locator('[data-action="accept"]')).toHaveCount(0);
+  await card.locator('[data-action="to_reception"]').click();
+  await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'AT_RECEPTION');
+  await card.locator('[data-action="accept"]').click();
+  await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'FIRST_ACCEPTED');
+  await expect(card.locator('.nova-acceptance')).toHaveAttribute('data-scope', 'reception-only');
+  const [accepted] = await receipts(context);
+  expect(accepted).toMatchObject({
+    id, status: 'FIRST_ACCEPTED', revision: 3, resumeTo: null,
+    firstAcceptance: { scope: 'reception-only', actor: 'browser-test-session' },
+  });
+  expect(Date.parse(accepted.firstAcceptance.acceptedAt)).toBeGreaterThanOrEqual(Date.parse(accepted.createdAt));
+  await page.reload();
+  await expect(page.locator('[data-receipt-id]')).toHaveCount(0);
+  await connect(page);
+  const restored = page.locator('[data-receipt-id="' + id + '"]');
+  await expect(restored.locator('.nova-status')).toHaveAttribute('data-status', 'FIRST_ACCEPTED');
+  await expect(restored.locator('.nova-acceptance')).toHaveAttribute('data-scope', 'reception-only');
+  expect((await receipts(context))[0].firstAcceptance).toEqual(accepted.firstAcceptance);
+  await restored.locator('[data-action="hold"]').click();
+  await expect(restored.locator('.nova-status')).toHaveAttribute('data-status', 'ON_HOLD');
+  await expect(restored.locator('.nova-acceptance')).toHaveCount(0);
+  expect((await receipts(context))[0]).toMatchObject({ status: 'ON_HOLD', revision: 4, resumeTo: 'AT_RECEPTION', firstAcceptance: null });
+  await restored.locator('[data-action="resume"]').click();
+  await expect(restored.locator('.nova-status')).toHaveAttribute('data-status', 'AT_RECEPTION');
+  await expect(restored.locator('.nova-acceptance')).toHaveCount(0);
+  await restored.locator('[data-action="accept"]').click();
+  await expect(restored.locator('.nova-status')).toHaveAttribute('data-status', 'FIRST_ACCEPTED');
+  expect((await receipts(context))[0]).toMatchObject({
+    status: 'FIRST_ACCEPTED', revision: 6, expiresAt: accepted.expiresAt,
+    firstAcceptance: { scope: 'reception-only', actor: 'browser-test-session' },
+  });
+  await restored.locator('[data-action="withdraw"]').click();
+  await expect(restored.locator('.nova-status')).toHaveAttribute('data-status', 'WITHDRAWN');
+  await expect(restored.locator('.nova-acceptance')).toHaveCount(0);
+  await expect(restored).not.toContainText('FICTITIOUS_BROWSER_FIRST_ACCEPTANCE_426');
+  await expect(restored.locator('button[data-action]')).toHaveCount(0);
+  expect((await receipts(context))[0]).toMatchObject({ text: '', firstAcceptance: null, resumeTo: null });
+});
+
+test('the real reception refuse button erases text and cannot be undone or replayed', async ({ page, context }) => {
+  await open(page);
+  await connect(page);
+  const marker = 'FICTITIOUS_BROWSER_REFUSE_572';
+  const card = await createReceipt(page, marker);
+  await card.locator('[data-action="to_reception"]').click();
+  await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'AT_RECEPTION');
+  await card.locator('[data-action="refuse"]').click();
+  await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'REFUSED');
+  await expect(card).not.toContainText(marker);
+  await expect(card.locator('.nova-acceptance, button[data-action]')).toHaveCount(0);
+  const [refused] = await receipts(context);
+  expect(refused).toMatchObject({ status: 'REFUSED', revision: 3, text: '', firstAcceptance: null, resumeTo: null });
+  const session = await ownSession(context);
+  const replay = await context.request.post(fixture.origin + API + '/requests/' + refused.id + '/actions', {
+    headers: { Origin: fixture.origin, 'X-NOVA-CSRF': session.csrfToken },
+    data: { action: 'accept', revision: refused.revision },
+  });
+  expect(replay.status()).toBe(410);
+  await page.reload();
+  await connect(page);
+  const restored = page.locator('[data-receipt-id="' + refused.id + '"]');
+  await expect(restored.locator('.nova-status')).toHaveAttribute('data-status', 'REFUSED');
+  await expect(restored).not.toContainText(marker);
+  await expect(restored.locator('button[data-action]')).toHaveCount(0);
+});
+
+test('offline first acceptance does not display a consent record or advance the server state', async ({ page, context }) => {
+  await open(page);
+  await connect(page);
+  const card = await createReceipt(page, 'FICTITIOUS_OFFLINE_CONSENT_711');
+  await card.locator('[data-action="to_reception"]').click();
+  await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'AT_RECEPTION');
+  await context.setOffline(true);
+  try {
+    await card.locator('[data-action="accept"]').click();
+    await expect(page.locator('#nova-notice')).not.toHaveText('');
+    await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'AT_RECEPTION');
+    await expect(card.locator('.nova-acceptance')).toHaveCount(0);
+  } finally { await context.setOffline(false); }
+  await page.locator('#nova-refresh').click();
+  await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'AT_RECEPTION');
+  expect((await receipts(context))[0]).toMatchObject({ status: 'AT_RECEPTION', revision: 2, firstAcceptance: null });
+  await card.locator('[data-action="accept"]').click();
+  await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'FIRST_ACCEPTED');
+  await expect(card.locator('.nova-acceptance')).toHaveAttribute('data-scope', 'reception-only');
+  expect((await receipts(context))[0].firstAcceptance.scope).toBe('reception-only');
+});
+
+test('real server deadline hides accepted consent and text while offline until expiry is confirmed by refresh', async ({ page, context }) => {
+  const timed = await startServer({ requestTtlMs: 3000, sessionTtlMs: 10000 });
+  const marker = 'FICTITIOUS_OFFLINE_EXPIRED_CONSENT_925';
+  try {
+    await open(page, timed.origin);
+    await connect(page);
+    const card = await createReceipt(page, marker);
+    await card.locator('[data-action="to_reception"]').click();
+    await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'AT_RECEPTION');
+    await card.locator('[data-action="accept"]').click();
+    await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'FIRST_ACCEPTED');
+    await expect(card.locator('.nova-acceptance')).toHaveAttribute('data-scope', 'reception-only');
+    const [accepted] = await receipts(context, timed.origin);
+    expect(accepted.status).toBe('FIRST_ACCEPTED');
+    expect(Date.parse(accepted.expiresAt) - Date.parse(accepted.createdAt)).toBe(3000);
+    await context.setOffline(true);
+    await expect(card).toHaveAttribute('data-expiry-pending', 'true', { timeout: 7000 });
+    await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'EXPIRY_PENDING');
+    await expect(card.locator('.nova-acceptance, button[data-action]')).toHaveCount(0);
+    await expect(card).not.toContainText(marker);
+    await context.setOffline(false);
+    await page.locator('#nova-refresh').click();
+    await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'EXPIRED');
+    await expect(card.locator('.nova-acceptance, button[data-action]')).toHaveCount(0);
+    await expect(card).not.toContainText(marker);
+    expect((await receipts(context, timed.origin))[0]).toMatchObject({
+      status: 'EXPIRED', text: '', firstAcceptance: null, resumeTo: null,
+    });
+  } finally {
+    await context.setOffline(false);
+    await timed.close();
   }
 });

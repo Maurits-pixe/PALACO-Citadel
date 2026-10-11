@@ -60,6 +60,9 @@ test('runtime is actual public HTTP and explicitly declares temporary reception 
   assert.equal(result.data.running, true);
   assert.equal(result.data.component, 'NOVA_RECEPTION');
   assert.equal(result.data.storage, 'volatile-memory');
+  assert.equal(result.data.version, '0.2');
+  assert.equal(result.data.receptionEnabled, true);
+  assert.equal(result.data.firstAcceptanceEnabled, true);
   assert.equal(result.data.chatEnabled, false);
   assert.match(result.headers.get('cache-control'), /no-store/);
   assert.equal(result.headers.get('access-control-allow-origin'), null);
@@ -225,7 +228,7 @@ test('withdrawal removes text and is terminal including replay and illegal actio
   const a = await f.session();
   const created = (await f.create(a, 1, 'FICTITIOUS_DELETE_TEXT_701')).data.request;
   const act = body => f.call('/requests/' + created.id + '/actions', { method: 'POST', cookie: a.cookie, token: a.token, body });
-  for (const body of [{ action: 'accept', revision: 1 }, { action: 'hold', revision: 0 }, { action: 'hold', revision: '1' }, { action: 'hold', revision: 1, extra: true }]) {
+  for (const body of [{ action: 'open', revision: 1 }, { action: 'hold', revision: 0 }, { action: 'hold', revision: '1' }, { action: 'hold', revision: 1, extra: true }]) {
     assert.equal((await act(body)).status, 400);
   }
   const withdrawn = await act({ action: 'withdraw', revision: 1 });
@@ -402,4 +405,194 @@ test('ambiguous, malformed or duplicated own cookies never authorize a session',
     assert.equal(result.status, 400);
     assert.ok(!result.text.includes('FICTITIOUS_COOKIE_CONFUSION_294'));
   }
+});
+
+async function act(f, session, receipt, action, extra = {}) {
+  return f.call('/requests/' + receipt.id + '/actions', {
+    method: 'POST', cookie: session.cookie, token: session.token,
+    body: { action, revision: receipt.revision, ...extra },
+  });
+}
+
+function noConsent(receipt) {
+  assert.equal(receipt.firstAcceptance, null);
+  assert.equal(receipt.resumeTo, null);
+}
+
+test('a real reception step precedes first acceptance and server-recorded consent has a fixed narrow scope', async t => {
+  const f = await fixture(t);
+  const a = await f.session();
+  const created = (await f.create(a, 1, 'Fictieve eerste ontvangstacceptatie.')).data.request;
+  noConsent(created);
+  assert.equal((await act(f, a, created, 'accept')).status, 409);
+  const reception = await act(f, a, created, 'to_reception');
+  assert.equal(reception.status, 200);
+  assert.equal(reception.data.request.status, 'AT_RECEPTION');
+  assert.equal(reception.data.request.revision, 2);
+  noConsent(reception.data.request);
+  f.advance(250);
+  const accepted = await act(f, a, reception.data.request, 'accept');
+  assert.equal(accepted.status, 200);
+  assert.equal(accepted.data.request.status, 'FIRST_ACCEPTED');
+  assert.equal(accepted.data.request.revision, 3);
+  assert.equal(accepted.data.request.resumeTo, null);
+  assert.deepEqual(accepted.data.request.firstAcceptance, {
+    acceptedAt: new Date(f.now()).toISOString(),
+    scope: 'reception-only',
+    actor: 'browser-test-session',
+  });
+  assert.equal(accepted.data.request.expiresAt, created.expiresAt, 'Acceptance never extends the receipt lifetime');
+  const reread = await f.call('/requests', { cookie: a.cookie });
+  assert.deepEqual(reread.data.requests[0], accepted.data.request);
+  const reconnected = await f.call('/session', { method: 'POST', cookie: a.cookie, body: {} });
+  assert.deepEqual(reconnected.data.requests[0], accepted.data.request);
+  const runtime = await f.call('/runtime');
+  assert.equal(runtime.data.chatEnabled, false);
+  assert.equal((await f.call('/requests/' + created.id + '/open', { method: 'POST', cookie: a.cookie, token: a.token, body: {} })).status, 404);
+});
+
+test('strict reception transitions reject skipped steps, stale acceptance and client-supplied consent scope', async t => {
+  const f = await fixture(t);
+  const a = await f.session();
+  const created = (await f.create(a)).data.request;
+  for (const action of ['accept', 'refuse', 'resume']) assert.equal((await act(f, a, created, action)).status, 409);
+  for (const extra of [{ scope: 'chat' }, { actor: 'human' }, { acceptedAt: new Date(f.now()).toISOString() }, { firstAcceptance: { scope: 'execution' } }]) {
+    assert.equal((await act(f, a, created, 'to_reception', extra)).status, 400);
+  }
+  const atReception = (await act(f, a, created, 'to_reception')).data.request;
+  assert.equal((await act(f, a, created, 'accept')).status, 409);
+  assert.equal((await act(f, a, atReception, 'to_reception')).status, 409);
+  assert.equal((await act(f, a, atReception, 'accept', { scope: 'chat' })).status, 400);
+  assert.equal((await act(f, a, atReception, 'accept', { firstAcceptance: { actor: 'human' } })).status, 400);
+  const accepted = (await act(f, a, atReception, 'accept')).data.request;
+  assert.equal(accepted.status, 'FIRST_ACCEPTED');
+  for (const action of ['accept', 'refuse', 'to_reception', 'resume']) assert.equal((await act(f, a, accepted, action)).status, 409);
+  assert.deepEqual((await f.call('/requests', { cookie: a.cookie })).data.requests[0], accepted);
+});
+
+test('putting first acceptance on hold revokes consent; resuming requires a fresh explicit acceptance', async t => {
+  const f = await fixture(t);
+  const a = await f.session();
+  const created = (await f.create(a)).data.request;
+  const atReception = (await act(f, a, created, 'to_reception')).data.request;
+  const heldReception = (await act(f, a, atReception, 'hold')).data.request;
+  assert.equal(heldReception.status, 'ON_HOLD');
+  assert.equal(heldReception.resumeTo, 'AT_RECEPTION');
+  assert.equal(heldReception.firstAcceptance, null);
+  assert.equal((await act(f, a, heldReception, 'accept')).status, 409);
+  const resumedReception = (await act(f, a, heldReception, 'resume')).data.request;
+  assert.equal(resumedReception.status, 'AT_RECEPTION');
+  noConsent(resumedReception);
+  const accepted = (await act(f, a, resumedReception, 'accept')).data.request;
+  const originalAcceptance = accepted.firstAcceptance.acceptedAt;
+  f.advance(1000);
+  const heldAccepted = (await act(f, a, accepted, 'hold')).data.request;
+  assert.equal(heldAccepted.status, 'ON_HOLD');
+  assert.equal(heldAccepted.resumeTo, 'AT_RECEPTION');
+  assert.equal(heldAccepted.firstAcceptance, null);
+  const resumedAccepted = (await act(f, a, heldAccepted, 'resume')).data.request;
+  assert.equal(resumedAccepted.status, 'AT_RECEPTION');
+  noConsent(resumedAccepted);
+  const reaccepted = (await act(f, a, resumedAccepted, 'accept')).data.request;
+  assert.equal(reaccepted.status, 'FIRST_ACCEPTED');
+  assert.notEqual(reaccepted.firstAcceptance.acceptedAt, originalAcceptance);
+  assert.equal(reaccepted.expiresAt, created.expiresAt);
+});
+
+test('refusal is terminal, erases server text and prevents every transition or idempotent replay', async t => {
+  const f = await fixture(t);
+  const a = await f.session();
+  const text = 'FICTITIOUS_REFUSED_TEXT_572';
+  const created = (await f.create(a, 1, text)).data.request;
+  const atReception = (await act(f, a, created, 'to_reception')).data.request;
+  const refused = await act(f, a, atReception, 'refuse');
+  assert.equal(refused.status, 200);
+  assert.equal(refused.data.request.status, 'REFUSED');
+  assert.equal(refused.data.request.text, '');
+  assert.equal(refused.data.request.revision, 3);
+  noConsent(refused.data.request);
+  assert.ok(!refused.text.includes(text));
+  const reread = await f.call('/requests', { cookie: a.cookie });
+  assert.deepEqual(reread.data.requests[0], refused.data.request);
+  assert.ok(!reread.text.includes(text));
+  for (const action of ['to_reception', 'accept', 'refuse', 'hold', 'resume', 'withdraw']) {
+    assert.equal((await act(f, a, refused.data.request, action)).status, 410);
+  }
+  assert.equal((await f.create(a, 1, text)).status, 410);
+  assert.equal((await f.create(a, 1, 'Different replacement')).status, 410);
+  assert.equal((await f.call('/requests', { cookie: a.cookie })).data.requests.length, 1);
+});
+
+test('withdrawal or server expiry removes first acceptance and never revives permission', async t => {
+  for (const closure of ['withdraw', 'expire']) {
+    const f = await fixture(t, { requestTtlMs: 1000 });
+    const a = await f.session();
+    const text = 'FICTITIOUS_CONSENT_ERASE_' + closure;
+    const created = (await f.create(a, 1, text)).data.request;
+    const reception = (await act(f, a, created, 'to_reception')).data.request;
+    f.advance(100);
+    const accepted = (await act(f, a, reception, 'accept')).data.request;
+    assert.equal(accepted.status, 'FIRST_ACCEPTED');
+    assert.ok(accepted.firstAcceptance);
+    let closed;
+    if (closure === 'withdraw') closed = (await act(f, a, accepted, 'withdraw')).data.request;
+    else {
+      f.advance(901);
+      closed = (await f.call('/requests', { cookie: a.cookie })).data.requests[0];
+    }
+    assert.equal(closed.status, closure === 'withdraw' ? 'WITHDRAWN' : 'EXPIRED');
+    assert.equal(closed.text, '');
+    noConsent(closed);
+    assert.equal(closed.expiresAt, created.expiresAt);
+    for (const action of ['accept', 'resume', 'to_reception']) assert.equal((await act(f, a, closed, action)).status, 410);
+    assert.equal((await f.create(a, 1, text)).status, 410);
+  }
+});
+
+test('foreign sessions cannot move, accept or refuse a known reception receipt', async t => {
+  const f = await fixture(t);
+  const a = await f.session();
+  const b = await f.session();
+  const created = (await f.create(a)).data.request;
+  const reception = (await act(f, a, created, 'to_reception')).data.request;
+  for (const action of ['to_reception', 'accept', 'refuse', 'hold', 'withdraw']) {
+    const foreign = await act(f, b, reception, action);
+    const unknown = await act(f, b, { id: key(999), revision: reception.revision }, action);
+    assert.equal(foreign.status, 404);
+    assert.equal(unknown.status, 404);
+    assert.deepEqual(foreign.data, unknown.data);
+  }
+  assert.deepEqual((await f.call('/requests', { cookie: b.cookie })).data.requests, []);
+  assert.deepEqual((await f.call('/requests', { cookie: a.cookie })).data.requests[0], reception);
+});
+
+test('all new reception writes still require own CSRF and exact origin before recording consent', async t => {
+  const f = await fixture(t);
+  const a = await f.session();
+  const b = await f.session();
+  let receipt = (await f.create(a)).data.request;
+  for (const action of ['to_reception', 'accept', 'refuse']) {
+    if (action === 'accept') receipt = (await act(f, a, receipt, 'to_reception')).data.request;
+    const path = '/requests/' + receipt.id + '/actions';
+    const options = { method: 'POST', cookie: a.cookie, body: { action, revision: receipt.revision } };
+    for (const extra of [{}, { token: b.token }, { token: a.token, sendOrigin: false }, { token: a.token, headers: { Origin: 'https://attacker.example' } }, { token: a.token, headers: { 'Sec-Fetch-Site': 'cross-site' } }]) {
+      assert.equal((await f.call(path, { ...options, ...extra })).status, 403);
+    }
+    assert.deepEqual((await f.call('/requests', { cookie: a.cookie })).data.requests[0], receipt);
+  }
+});
+
+test('simultaneous acceptance and refusal cannot both succeed at the same receipt revision', async t => {
+  const f = await fixture(t);
+  const a = await f.session();
+  const created = (await f.create(a)).data.request;
+  const reception = (await act(f, a, created, 'to_reception')).data.request;
+  const results = await Promise.all([act(f, a, reception, 'accept'), act(f, a, reception, 'refuse')]);
+  assert.equal(results.filter(result => result.status === 200).length, 1);
+  assert.ok([409, 410].includes(results.find(result => result.status !== 200).status));
+  const winner = results.find(result => result.status === 200).data.request;
+  assert.equal(winner.revision, reception.revision + 1);
+  if (winner.status === 'FIRST_ACCEPTED') assert.equal(winner.firstAcceptance.scope, 'reception-only');
+  else { assert.equal(winner.status, 'REFUSED'); assert.equal(winner.text, ''); noConsent(winner); }
+  assert.deepEqual((await f.call('/requests', { cookie: a.cookie })).data.requests[0], winner);
 });

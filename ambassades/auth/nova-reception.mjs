@@ -5,7 +5,7 @@ import { performance } from 'node:perf_hooks';
 const mountedApps = new WeakSet();
 const TOKEN = /^[a-f0-9]{64}$/;
 const REQUEST_ID = /^[a-f0-9]{32}$/;
-const LIVE = new Set(['RECEIVED', 'ON_HOLD']);
+const LIVE = new Set(['RECEIVED', 'AT_RECEPTION', 'FIRST_ACCEPTED', 'ON_HOLD']);
 const PREFIX = '/api/rio/nova';
 
 function fail(status, code, retryAfter) {
@@ -70,11 +70,22 @@ function cookieValue(req, name) {
   return value;
 }
 
+function clearReceiptContent(receipt) {
+  receipt.text = '';
+  receipt.resumeTo = null;
+  receipt.firstAcceptance = null;
+}
+
 function copyReceipt(receipt) {
   return {
     id: receipt.id, status: receipt.status, text: receipt.text,
     createdAt: new Date(receipt.createdAt).toISOString(),
     expiresAt: new Date(receipt.expiresAt).toISOString(), revision: receipt.revision,
+    resumeTo: receipt.resumeTo,
+    firstAcceptance: receipt.firstAcceptance ? {
+      acceptedAt: new Date(receipt.firstAcceptance.acceptedAt).toISOString(),
+      scope: receipt.firstAcceptance.scope, actor: receipt.firstAcceptance.actor,
+    } : null,
   };
 }
 
@@ -113,7 +124,7 @@ export function mountNovaReception(app, options = {}) {
   mountedApps.add(app);
 
   function destroySession(id, session) {
-    for (const receipt of session.requests.values()) receipt.text = '';
+    for (const receipt of session.requests.values()) clearReceiptContent(receipt);
     session.requests.clear();
     session.keys.clear();
     session.actions.length = 0;
@@ -129,7 +140,7 @@ export function mountNovaReception(app, options = {}) {
       for (const receipt of session.requests.values()) {
         if (LIVE.has(receipt.status) && time >= receipt.expiresAt) {
           receipt.status = 'EXPIRED';
-          receipt.text = '';
+          clearReceiptContent(receipt);
           receipt.revision += 1;
         }
       }
@@ -139,11 +150,12 @@ export function mountNovaReception(app, options = {}) {
   }
   function runtime(time) {
     return {
-      component: 'NOVA_RECEPTION', version: '0.1', running: true,
+      component: 'NOVA_RECEPTION', version: '0.2', running: true,
       serverTime: new Date(time).toISOString(), storage: 'volatile-memory',
       sessionTtlSeconds: config.sessionTtlMs / 1000,
       requestTtlSeconds: config.requestTtlMs / 1000,
-      maxRequests: config.maxRequests, chatEnabled: false,
+      maxRequests: config.maxRequests, receptionEnabled: true,
+      firstAcceptanceEnabled: true, chatEnabled: false,
     };
   }
   function readSession(req) {
@@ -281,7 +293,7 @@ export function mountNovaReception(app, options = {}) {
     const receipt = {
       id: randomBytes(16).toString('hex'), status: 'RECEIVED', text: req.body.text,
       createdAt: time, expiresAt: Math.min(time + config.requestTtlMs, session.expiresAt),
-      revision: 1,
+      revision: 1, resumeTo: null, firstAcceptance: null,
     };
     session.requests.set(receipt.id, receipt);
     session.keys.set(req.body.idempotencyKey, receipt.id);
@@ -290,7 +302,7 @@ export function mountNovaReception(app, options = {}) {
 
   router.post('/requests/:id/actions', ...parseWrite, (req, res) => {
     if (!exactObject(req.body, ['action', 'revision'])
-        || !['hold', 'resume', 'withdraw'].includes(req.body.action)
+        || !['to_reception', 'accept', 'refuse', 'hold', 'resume', 'withdraw'].includes(req.body.action)
         || !Number.isSafeInteger(req.body.revision) || req.body.revision < 1) {
       throw fail(400, 'NOVA_INVALID_BODY');
     }
@@ -301,13 +313,48 @@ export function mountNovaReception(app, options = {}) {
     if (!receipt) throw fail(404, 'NOVA_REQUEST_NOT_FOUND');
     if (!LIVE.has(receipt.status)) throw fail(410, 'NOVA_REQUEST_CLOSED');
     if (receipt.revision !== req.body.revision) throw fail(409, 'NOVA_REVISION_CONFLICT');
-    const nextStatus = req.body.action === 'withdraw' ? 'WITHDRAWN'
-      : req.body.action === 'hold' && receipt.status === 'RECEIVED' ? 'ON_HOLD'
-      : req.body.action === 'resume' && receipt.status === 'ON_HOLD' ? 'RECEIVED' : null;
+    let nextStatus = null;
+    let resumeTo = null;
+    let firstAcceptance = null;
+    switch (req.body.action) {
+      case 'to_reception':
+        if (receipt.status === 'RECEIVED') nextStatus = 'AT_RECEPTION';
+        break;
+      case 'accept':
+        if (receipt.status === 'AT_RECEPTION') {
+          nextStatus = 'FIRST_ACCEPTED';
+          firstAcceptance = {
+            acceptedAt: res.locals.novaTime,
+            scope: 'reception-only', actor: 'browser-test-session',
+          };
+        }
+        break;
+      case 'refuse':
+        if (receipt.status === 'AT_RECEPTION') nextStatus = 'REFUSED';
+        break;
+      case 'hold':
+        if (receipt.status !== 'ON_HOLD') {
+          nextStatus = 'ON_HOLD';
+          // Pausing acceptance always returns to reception and needs a fresh choice.
+          resumeTo = receipt.status === 'RECEIVED' ? 'RECEIVED' : 'AT_RECEPTION';
+        }
+        break;
+      case 'resume':
+        if (receipt.status === 'ON_HOLD'
+            && ['RECEIVED', 'AT_RECEPTION'].includes(receipt.resumeTo)) {
+          nextStatus = receipt.resumeTo;
+        }
+        break;
+      case 'withdraw':
+        nextStatus = 'WITHDRAWN';
+        break;
+    }
     if (!nextStatus) throw fail(409, 'NOVA_INVALID_TRANSITION');
     receipt.status = nextStatus;
+    receipt.resumeTo = resumeTo;
+    receipt.firstAcceptance = firstAcceptance;
     receipt.revision += 1;
-    if (nextStatus === 'WITHDRAWN') receipt.text = '';
+    if (nextStatus === 'WITHDRAWN' || nextStatus === 'REFUSED') clearReceiptContent(receipt);
     return res.json({ request: copyReceipt(receipt) });
   });
 

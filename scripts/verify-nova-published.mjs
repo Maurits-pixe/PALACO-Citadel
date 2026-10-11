@@ -11,6 +11,21 @@ function check(condition) {
   if (!condition) throw new Error('NOVA published check failed');
 }
 
+function consent(receipt) {
+  check(receipt.status === 'FIRST_ACCEPTED' && receipt.resumeTo === null);
+  check(receipt.firstAcceptance !== null && typeof receipt.firstAcceptance === 'object');
+  check(JSON.stringify(Object.keys(receipt.firstAcceptance).sort()) === JSON.stringify(['acceptedAt', 'actor', 'scope']));
+  check(receipt.firstAcceptance.scope === 'reception-only');
+  check(receipt.firstAcceptance.actor === 'browser-test-session');
+  check(Number.isFinite(Date.parse(receipt.firstAcceptance.acceptedAt)));
+  check(Date.parse(receipt.firstAcceptance.acceptedAt) >= Date.parse(receipt.createdAt));
+  check(Date.parse(receipt.firstAcceptance.acceptedAt) <= Date.parse(receipt.expiresAt));
+}
+
+function noConsent(receipt) {
+  check(receipt.firstAcceptance === null && receipt.resumeTo === null);
+}
+
 async function call(path, { method = 'GET', session, body, expected = 200 } = {}) {
   const headers = {
     ...(method !== 'GET' ? { Origin: ORIGIN, 'Content-Type': 'application/json' } : {}),
@@ -52,23 +67,38 @@ async function finish(session) {
   session.ended = true;
 }
 
+async function action(session, receipt, actionName, expected = 200) {
+  const { data } = await call('/requests/' + receipt.id + '/actions', {
+    method: 'POST', session, expected, body: { action: actionName, revision: receipt.revision },
+  });
+  if (expected === 200) {
+    check(data.request.id === receipt.id);
+    check(data.request.revision === receipt.revision + 1);
+    check(data.request.expiresAt === receipt.expiresAt);
+  }
+  return data;
+}
+
 let failed = false;
 try {
   await step('running-component', async () => {
     const { data } = await call('/runtime');
-    check(data.running === true && data.component === 'NOVA_RECEPTION');
+    check(data.running === true && data.component === 'NOVA_RECEPTION' && data.version === '0.2');
     check(data.storage === 'volatile-memory' && data.chatEnabled === false);
+    check(data.receptionEnabled === true && data.firstAcceptanceEnabled === true);
     check(data.sessionTtlSeconds === 900 && data.requestTtlSeconds === 300);
   });
   const a = await step('session-a', bootstrap);
   const b = await step('session-b', bootstrap);
   check(a.cookie !== b.cookie && a.token !== b.token);
-  const receipt = await step('receive', async () => {
+  let receipt = await step('receive', async () => {
     const { data } = await call('/requests', {
       method: 'POST', session: a, expected: 201, body: { text: payload, idempotencyKey },
     });
     check(data.replayed === false && /^[a-f0-9]{32}$/.test(data.request.id));
     check(data.request.status === 'RECEIVED' && data.request.revision === 1);
+    check(Date.parse(data.request.expiresAt) - Date.parse(data.request.createdAt) === 300000);
+    noConsent(data.request);
     return data.request;
   });
   await step('server-reread', async () => {
@@ -79,34 +109,93 @@ try {
   await step('isolation', async () => {
     const { data } = await call('/requests', { session: b });
     check(data.requests.length === 0);
-    const attempted = await call('/requests/' + receipt.id + '/actions', {
-      method: 'POST', session: b, expected: 404, body: { action: 'withdraw', revision: 1 },
-    });
-    check(attempted.data.error === 'NOVA_REQUEST_NOT_FOUND');
+    for (const actionName of ['withdraw', 'to_reception', 'accept', 'refuse']) {
+      const attempted = await action(b, receipt, actionName, 404);
+      check(attempted.error === 'NOVA_REQUEST_NOT_FOUND');
+    }
   });
-  await step('hold', async () => {
-    const { data } = await call('/requests/' + receipt.id + '/actions', {
-      method: 'POST', session: a, body: { action: 'hold', revision: 1 },
-    });
-    check(data.request.status === 'ON_HOLD' && data.request.revision === 2);
+  receipt = await step('hold', async () => {
+    const data = await action(a, receipt, 'hold');
+    check(data.request.status === 'ON_HOLD' && data.request.resumeTo === 'RECEIVED' && data.request.firstAcceptance === null);
+    return data.request;
   });
-  await step('resume', async () => {
-    const { data } = await call('/requests/' + receipt.id + '/actions', {
-      method: 'POST', session: a, body: { action: 'resume', revision: 2 },
-    });
-    check(data.request.status === 'RECEIVED' && data.request.revision === 3);
+  receipt = await step('resume', async () => {
+    const data = await action(a, receipt, 'resume');
+    check(data.request.status === 'RECEIVED');
+    noConsent(data.request);
+    return data.request;
   });
-  await step('withdraw-and-scrub', async () => {
-    const { data } = await call('/requests/' + receipt.id + '/actions', {
-      method: 'POST', session: a, body: { action: 'withdraw', revision: 3 },
-    });
-    check(data.request.status === 'WITHDRAWN' && data.request.text === '' && data.request.revision === 4);
+  await step('no-skipped-acceptance', async () => {
+    const denied = await action(a, receipt, 'accept', 409);
+    check(denied.error === 'NOVA_INVALID_TRANSITION');
+  });
+  receipt = await step('to-reception', async () => {
+    const data = await action(a, receipt, 'to_reception');
+    check(data.request.status === 'AT_RECEPTION');
+    noConsent(data.request);
+    return data.request;
+  });
+  receipt = await step('first-acceptance', async () => {
+    const data = await action(a, receipt, 'accept');
+    consent(data.request);
+    const reread = await call('/requests', { session: a });
+    check(JSON.stringify(reread.data.requests[0].firstAcceptance) === JSON.stringify(data.request.firstAcceptance));
+    return data.request;
+  });
+  await step('no-chat-authority', async () => {
+    const denied = await action(a, receipt, 'open', 400);
+    check(denied.error === 'NOVA_INVALID_BODY');
+    await call('/requests/' + receipt.id + '/open', { method: 'POST', session: a, body: {}, expected: 404 });
+    const { data } = await call('/runtime');
+    check(data.chatEnabled === false);
+  });
+  receipt = await step('hold-revokes-acceptance', async () => {
+    const data = await action(a, receipt, 'hold');
+    check(data.request.status === 'ON_HOLD' && data.request.resumeTo === 'AT_RECEPTION' && data.request.firstAcceptance === null);
+    return data.request;
+  });
+  receipt = await step('resume-needs-new-acceptance', async () => {
+    const data = await action(a, receipt, 'resume');
+    check(data.request.status === 'AT_RECEPTION');
+    noConsent(data.request);
+    return data.request;
+  });
+  receipt = await step('fresh-acceptance', async () => {
+    const data = await action(a, receipt, 'accept');
+    consent(data.request);
+    return data.request;
+  });
+  receipt = await step('withdraw-and-scrub', async () => {
+    const data = await action(a, receipt, 'withdraw');
+    check(data.request.status === 'WITHDRAWN' && data.request.text === '');
+    noConsent(data.request);
     const reread = await call('/requests', { session: a });
     check(reread.data.requests.length === 1 && reread.data.requests[0].text === '');
+    noConsent(reread.data.requests[0]);
     const replay = await call('/requests', {
       method: 'POST', session: a, expected: 410, body: { text: payload, idempotencyKey },
     });
     check(replay.data.error === 'NOVA_REQUEST_CLOSED');
+    return data.request;
+  });
+  await step('refuse-and-scrub', async () => {
+    const refusedKey = randomBytes(16).toString('hex');
+    const refusedText = 'Fictieve gepubliceerde NOVA-weigeringsproef.';
+    const created = await call('/requests', {
+      method: 'POST', session: a, expected: 201, body: { text: refusedText, idempotencyKey: refusedKey },
+    });
+    const reception = (await action(a, created.data.request, 'to_reception')).request;
+    const refused = (await action(a, reception, 'refuse')).request;
+    check(refused.status === 'REFUSED' && refused.text === '');
+    noConsent(refused);
+    const replay = await call('/requests', {
+      method: 'POST', session: a, expected: 410, body: { text: refusedText, idempotencyKey: refusedKey },
+    });
+    check(replay.data.error === 'NOVA_REQUEST_CLOSED');
+    await action(a, refused, 'accept', 410);
+    const { data } = await call('/requests', { session: a });
+    check(data.requests.length === 2);
+    check(data.requests.every(item => item.text === '' && item.firstAcceptance === null && item.resumeTo === null));
   });
   await step('end-and-invalidate', async () => {
     await finish(a);
@@ -120,13 +209,14 @@ try {
   console.error('NOVA_PUBLISHED ' + currentStep + ' FAIL');
 } finally {
   for (const session of sessions) {
-    if (session.ended) continue;
-    try {
-      await finish(session);
-      console.log('NOVA_PUBLISHED cleanup PASS');
-    } catch {
-      failed = true;
-      console.error('NOVA_PUBLISHED cleanup FAIL');
+    if (!session.ended) {
+      try {
+        await finish(session);
+        console.log('NOVA_PUBLISHED cleanup PASS');
+      } catch {
+        failed = true;
+        console.error('NOVA_PUBLISHED cleanup FAIL');
+      }
     }
     session.cookie = '';
     session.token = '';
