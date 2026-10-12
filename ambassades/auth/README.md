@@ -2,7 +2,7 @@
 
 ## Implemented
 
-A separate Node authentication service now sits behind the embassy access page. Login and account creation additionally require server-side safety approval. The public process has no trusted approval service connected, so those operations and private APIs remain on HOLD even if OIDC settings are present. See [SAFETY-APPROVAL.md](SAFETY-APPROVAL.md). It uses `express-openid-connect` for the OIDC authorization-code login, token validation and a signed, secure session-ID cookie. The callback additionally verifies the incoming RS256 ID-token signature with JOSE against the configured issuer's HTTPS discovery/JWKS metadata. Session contents remain on the server. The server checks a private issuer/subject-to-seat membership on each protected request. Login does not create or ratify ambassador appointments.
+A separate Node authentication service now sits behind the embassy access page. Login and account creation additionally require server-side safety approval. The public process has no trusted approval service connected, so those operations and private APIs remain on HOLD even if OIDC settings are present. See [SAFETY-APPROVAL.md](SAFETY-APPROVAL.md) and the implemented [signed HTTPS provider adapter](SAFETY-PROVIDER.md). It uses `express-openid-connect` for the OIDC authorization-code login, token validation and a signed, secure session-ID cookie. The callback additionally verifies the incoming RS256 ID-token signature with JOSE against the configured issuer's HTTPS discovery/JWKS metadata. Session contents remain on the server. The server checks a private issuer/subject-to-seat membership on each protected request. Login does not create or ratify ambassador appointments.
 
 The public page is available as ordinary static presentation, but a functioning personal login requires this server, real provider configuration and a separately connected trusted safety verifier. GitHub Pages alone cannot run the authentication service.
 
@@ -18,6 +18,7 @@ Required:
 - `PALACO_BASE_URL`: the application's exact HTTPS origin.
 - `PALACO_SESSION_SECRET`: 32 random bytes encoded as 64 hex characters.
 - `PALACO_MEMBERS_FILE`: an absolute private file path outside the repository and web root.
+- `PALACO_AUTH_SAFETY_FILE`: an optional absolute private enrollment/configuration file for an independently connected safety provider. Empty, missing, incomplete or fixture configuration keeps authentication on HOLD. The path is configuration, not an approval flag.
 
 Register `<PALACO_BASE_URL>/callback` as the OIDC callback at the provider. Configure its allowed logout destination to the exact application origin/access page supported by the middleware configuration. The provider must support authorization-code flow with PKCE for confidential clients, RS256 ID tokens, HTTPS discovery and JWKS. Copy its exact discovery issuer, including any trailing slash, into the issuer setting. Account security, verification, MFA and recovery are handled by the provider.
 

@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { authorizeSeat, isSeat, parseRegistry } from './access-policy.mjs';
 import { MemorySessionStore } from './session-store.mjs';
 import { createAuthSecurityApproval, closedSecurityApproval } from './auth-security-approval.mjs';
+import { createAuthSafetyProvider } from './auth-safety-provider.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const siteRoot = resolve(here, '..');
@@ -155,7 +156,7 @@ function contentSecurityPolicy() {
 
 export function buildApp({
   env = process.env, registryLoader, authMiddleware, sessionStore, novaOptions,
-  authSafetyEvaluator, authSafetyNow = Date.now,
+  authSafetyEvaluator, authSafetyAssertCurrent, authSafetyNow = Date.now,
 } = {}) {
   const config = readConfiguration(env);
   const app = express();
@@ -198,8 +199,30 @@ export function buildApp({
     next();
   }
 
+  let safetyProvider = null;
+  let safetyEvaluator = authSafetyEvaluator;
+  let safetyAssertCurrent = authSafetyAssertCurrent;
+  const providerFile = env.PALACO_AUTH_SAFETY_FILE;
+  if (safetyEvaluator === undefined && typeof providerFile === 'string' && providerFile.trim()) {
+    try {
+      safetyProvider = createAuthSafetyProvider({
+        configurationFile: providerFile, repositoryRoot,
+        applicationOrigin: config.configured ? config.baseURL : 'https://palaco-ambassades.onrender.com',
+        now: authSafetyNow,
+      });
+      safetyEvaluator = safetyProvider.evaluate;
+      safetyAssertCurrent = safetyProvider.assertCurrent;
+    } catch {
+      // A missing or incomplete private enrollment never turns configuration into approval.
+      // The public site and NOVA stay available; authentication remains on HOLD.
+      safetyProvider = null;
+      safetyEvaluator = undefined;
+      safetyAssertCurrent = undefined;
+    }
+  }
   const authSafety = createAuthSecurityApproval({
-    evaluate: authSafetyEvaluator,
+    evaluate: safetyEvaluator,
+    assertCurrent: safetyAssertCurrent,
     baseURL: config.configured ? config.baseURL : 'https://palaco-ambassades.onrender.com',
     secure: config.configured ? config.secure : true,
     now: authSafetyNow,
@@ -207,6 +230,7 @@ export function buildApp({
     allowSyntheticSessions: Boolean(authMiddleware),
   });
   app.locals.authSafetyApproval = authSafety;
+  app.locals.authSafetyProvider = safetyProvider;
   // This precedes the SDK callback router, including case/trailing-slash variants.
   app.use(authSafety.middleware);
 
@@ -307,6 +331,7 @@ export function buildApp({
     if (!isSeat(seat)) return res.status(400).json({ error: 'INVALID_SEAT' });
     await registry();
     await authSafety.begin(req, res, action, seat);
+    authSafety.protectLoginDispatch(req, res);
     return res.oidc.login({
       returnTo: '/toegang.html?seat=' + seat,
       authorizationParams: {
@@ -378,5 +403,6 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   listener.on('close', () => {
     app.locals.novaReception.close();
     app.locals.authSafetyApproval.close();
+    app.locals.authSafetyProvider?.close();
   });
 }

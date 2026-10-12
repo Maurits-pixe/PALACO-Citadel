@@ -81,7 +81,7 @@ try {
       const translations = await request(base, '/locales.json');
       assert.equal(translations.status, 200);
       assert.deepEqual(Object.keys(await translations.json()).sort(), ['ar', 'de', 'en', 'eo', 'es', 'fr', 'it', 'nl', 'pt', 'ru', 'zh']);
-      for (const path of ['/auth/server.mjs', '/auth/.env', '/auth/package-lock.json', '/auth/auth-security-approval.mjs', '/auth/nova-check-gate.mjs', '/auth/brigade-specialties.json', '/private/members.json']) {
+      for (const path of ['/auth/server.mjs', '/auth/.env', '/auth/package-lock.json', '/auth/auth-safety-provider.mjs', '/auth/auth-security-approval.mjs', '/auth/nova-check-gate.mjs', '/auth/brigade-specialties.json', '/private/members.json']) {
         assert.equal((await request(base, path)).status, 404, 'Private/runtime path must not be published: ' + path);
       }
       const status = await request(base, '/api/auth/status');

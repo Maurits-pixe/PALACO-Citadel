@@ -56,6 +56,14 @@ De beslissing mag maximaal zestig seconden geldig zijn, moet actueel zijn en mag
 
 Deze interne proeven hebben synthetische principals en een expliciete testverifier. Een geslaagde proef bewijst de werking van de poort en haar bindings; zij bewijst geen operationele 6RI9ADE, fysieke menselijke identiteit of absolute veiligheid. Een toekomstige echte adapter moet onafhankelijk zijn ingeschreven, actuele veiligheidsuitslagen en intrekking controleren en de vereiste echte evidence verifiëren. Een zelf meegestuurde sleutel of clientassertion is geen vertrouwde adapter.
 
+## Verifieerbare HTTPS-aansluiting
+
+De aparte [veiligheidsprovideradapter](SAFETY-PROVIDER.md) kan via `PALACO_AUTH_SAFETY_FILE` een reeds ingeschreven onafhankelijke HTTPS-dienst gebruiken. Het private pad configureert geen goedkeuring op zichzelf. De normale start gebruikt uitsluitend PRODUCTION-inschrijvingen met volledige fasegebonden controledekking, zeven toegewezen verschillende publieke keys en een afzonderlijke actuele revocationwitness.
+
+Er is nog geen dergelijke dienst of echte inschrijving aangesloten. De publieke site houdt dezelfde zes securityApprovalvelden op HOLD. De nieuwe adapter kent geen operationele 6RI9ADE, STEWARD of personen toe en gebruikt geen synthetische RIO-referenceuitslag voor accounttoegang.
+
+Een geverifieerde providerbeslissing krijgt een private synchrone validator. De host bewaart die naast de exacte beslissing en controleert bij ieder finaal lokaal toelatingspunt opnieuw enrollment/policy/intrekking, private bestandbytes en witnesslease, na de laatste asynchrone registerlezing. De validator kan nooit uit browser-JSON komen.
+
 ## Afzonderlijke login- en signupflows
 
 Na geldige begincontrole krijgt iedere flow:
@@ -65,6 +73,8 @@ Na geldige begincontrole krijgt iedere flow:
 - Een vaste actie `login` of `signup`, één exacte zetel en maximaal vijf minuten geldigheid.
 
 De private capability komt nooit in de URL, SDK-state of publieke status. HTTP-development gebruikt uitsluitend loopback en het cookie `palacoAuthSafety`. Lax is nodig voor de normale cross-site top-level GET van de identiteitprovider; de SDK bewaakt daarnaast zijn eigen getekende transactioncookie, state, nonce, PKCE en tokencontrole.
+
+Vlak vóór de daadwerkelijke providerredirect controleert een requestgebonden guard de oorspronkelijke BEGIN-goedkeuring, actuele private trust/intrekking, verval en dezelfde pending flow opnieuw. Een afwijzing wist de flow en zijn private cookie en maakt ook een latere callback met die capability onbruikbaar.
 
 De server bewaart maximaal 128 gelijktijdige flows in tijdelijk procesgeheugen. Een herstart wist ze. Opnieuw beginnen met dezelfde browsercapability vervangt de oude flow. Verlopen en gesloten flows kunnen niet worden hervat met oude cookies.
 
@@ -88,4 +98,4 @@ HOLD, intrekking, onbereikbaarheid of verlopen goedkeuring sluit persoonlijke to
 
 De Auth0-/OIDC-provider blijft verantwoordelijk voor zijn eigen accountbeveiliging, wachtwoordbeleid, MFA en herstel. De veiligheidsgoedkeuringspoort vervangt die controles, tokenverificatie of private zetelautorisatie niet. Accountaanmaak en inloggen verlenen geen governance-, stem-, acceptance-, merge-, release- of uitvoeringsbevoegdheden.
 
-De helper en zijn private state vallen buiten de publieke bestandsallowlist. Tests moeten zowel de standaard gesloten productieconfiguratie als expliciete gecontroleerde goedkeuring, verkeerde bindings, verval, intrekking, callbacks, replay, sessies en logout controleren. Een gecontroleerde positieve OIDC-proef is geen bewijs dat een echte veiligheidsdienst of individueel account live is aangesloten.
+De helper en zijn private state vallen buiten de publieke bestandsallowlist. Tests moeten zowel de standaard gesloten productieconfiguratie als expliciete gecontroleerde goedkeuring, verkeerde bindings, verval, intrekking, callbacks, replay, sessies en logout controleren. Een gecontroleerde positieve OIDC-proef is geen bewijs dat een echte veiligheidsdienst of individueel account live is aangesloten. De serverpoort begrenst de PALACO-entrypaden; accountregistratie rechtstreeks bij de externe identiteitprovider blijft onder het afzonderlijke beleid van die provider vallen.

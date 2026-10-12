@@ -34,13 +34,14 @@ jobs:
           node --check ambassades/auth/nova-reception.mjs
           node --check ambassades/auth/nova-check-gate.mjs
           node --check ambassades/auth/auth-security-approval.mjs
+          node --check ambassades/auth/auth-safety-provider.mjs
       - name: Run access isolation and denial tests
         working-directory: ambassades/auth
         run: npm test
       - name: Verify NOVA reception, scoped acceptance and fail-closed control gate
         working-directory: ambassades/auth
         run: node --test nova-reception.test.mjs
-      - name: Verify full OIDC flow over trusted test HTTPS
+      - name: Verify real OIDC and signed safety provider flows over trusted test HTTPS
         working-directory: ambassades/auth
         run: npm run test:oidc
       - name: Install browser test dependencies

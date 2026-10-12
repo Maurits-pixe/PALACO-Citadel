@@ -59,11 +59,13 @@ export function closedSecurityApproval() {
  * No environment switch, client assertion, checkbox, key or PASS is consulted.
  */
 export function createAuthSecurityApproval({
-  evaluate, baseURL, secure = true, now = Date.now,
+  evaluate, assertCurrent: assertProviderCurrent, baseURL, secure = true, now = Date.now,
   sessionCookieName = secure ? '__Host-palacoSession' : 'palacoSession',
   allowSyntheticSessions = false,
 } = {}) {
   if ((evaluate !== undefined && typeof evaluate !== 'function')
+      || (assertProviderCurrent !== undefined && typeof assertProviderCurrent !== 'function')
+      || (assertProviderCurrent !== undefined && evaluate === undefined)
       || typeof now !== 'function' || typeof secure !== 'boolean'
       || typeof allowSyntheticSessions !== 'boolean'
       || typeof sessionCookieName !== 'string' || !sessionCookieName) {
@@ -139,7 +141,16 @@ export function createAuthSecurityApproval({
     if (!Number.isFinite(issuedAt) || !Number.isFinite(expiresAt)
         || issuedAt > time || time >= expiresAt || issuedAt >= expiresAt
         || expiresAt - issuedAt > APPROVAL_TTL) throw error();
-    return { time, expiresAt };
+    function ensureProviderCurrent() {
+      try {
+        if (assertProviderCurrent !== undefined && assertProviderCurrent(decision) !== true) throw error();
+      } catch { throw error(); }
+      return true;
+    }
+    ensureProviderCurrent();
+    const verifiedTime = clock();
+    if (verifiedTime >= expiresAt) throw error();
+    return { time: verifiedTime, expiresAt, assertCurrent: ensureProviderCurrent };
   }
   function currentFlow(capability, flow, state, time) {
     return flows.get(capability) === flow && flow.state === state
@@ -150,20 +161,28 @@ export function createAuthSecurityApproval({
     try {
       const login = await approve(context({ action: 'login', phase: 'READINESS' }));
       const signup = await approve(context({ action: 'signup', phase: 'READINESS' }));
+      login.assertCurrent();
+      signup.assertCurrent();
       const current = clock();
       if (current >= login.expiresAt || current >= signup.expiresAt) throw error();
       const result = Object.freeze({
         required: true, available: true, outcome: 'APPROVED',
         reason: null, loginAllowed: true, signupAllowed: true,
       });
-      readinessTickets.set(result, { loginExpiresAt: login.expiresAt, signupExpiresAt: signup.expiresAt });
+      readinessTickets.set(result, {
+        loginExpiresAt: login.expiresAt, signupExpiresAt: signup.expiresAt,
+        loginCurrent: login.assertCurrent, signupCurrent: signup.assertCurrent,
+      });
       return result;
     } catch { return closedSecurityApproval(); }
   }
   function assertReadiness(result) {
     const ticket = readinessTickets.get(result);
+    if (!ticket) throw error();
+    ticket.loginCurrent();
+    ticket.signupCurrent();
     const current = clock();
-    if (!ticket || current >= ticket.loginExpiresAt || current >= ticket.signupExpiresAt) throw error();
+    if (current >= ticket.loginExpiresAt || current >= ticket.signupExpiresAt) throw error();
     return true;
   }
   async function begin(req, res, action, seat) {
@@ -186,11 +205,13 @@ export function createAuthSecurityApproval({
       const approval = await approve(context({
         action, phase: 'BEGIN', seat, flowId: flow.flowId, sessionBinding: flow.sessionBinding,
       }));
+      approval.assertCurrent();
       const current = clock();
       cleanup(current);
       if (!currentFlow(capability, flow, 'PREPARING', current) || current >= approval.expiresAt) throw error();
       flow.state = 'PENDING';
       flow.beginApprovalExpiresAt = approval.expiresAt;
+      flow.beginApprovalCurrent = approval.assertCurrent;
       beginnings.set(req, { capability, flow });
       res.append('Set-Cookie', flowCookie + '=' + capability
         + '; Max-Age=' + Math.max(1, Math.ceil((flow.expiresAt - current) / 1000)) + attributes);
@@ -202,6 +223,8 @@ export function createAuthSecurityApproval({
   }
   function loginState(req, options) {
     const beginning = beginnings.get(req);
+    if (!beginning) throw error();
+    beginning.flow.beginApprovalCurrent();
     const time = clock();
     cleanup(time);
     if (!beginning || !currentFlow(beginning.capability, beginning.flow, 'PENDING', time)
@@ -211,6 +234,38 @@ export function createAuthSecurityApproval({
       returnTo: '/toegang.html?seat=' + beginning.flow.seat,
       authSafetyFlowId: beginning.flow.flowId,
     };
+  }
+  function protectLoginDispatch(req, res) {
+    const beginning = beginnings.get(req);
+    if (!beginning || typeof res.redirect !== 'function') throw error();
+    const originalRedirect = res.redirect;
+    let dispatched = false;
+    function restore() {
+      if (res.redirect === guardedRedirect) res.redirect = originalRedirect;
+      if (!dispatched) flows.delete(beginning.capability);
+      beginnings.delete(req);
+    }
+    function guardedRedirect(...args) {
+      try {
+        if (dispatched || beginnings.get(req) !== beginning) throw error();
+        beginning.flow.beginApprovalCurrent();
+        const current = clock();
+        cleanup(current);
+        if (!currentFlow(beginning.capability, beginning.flow, 'PENDING', current)
+            || current >= beginning.flow.beginApprovalExpiresAt) throw error();
+        // No asynchronous SDK or application work remains before this actual dispatch.
+        dispatched = true;
+        return originalRedirect.apply(res, args);
+      } catch {
+        flows.delete(beginning.capability);
+        beginnings.delete(req);
+        if (!res.headersSent) clearCookie(res);
+        throw error();
+      }
+    }
+    res.redirect = guardedRedirect;
+    res.once('finish', restore);
+    res.once('close', restore);
   }
   async function beforeCallback(req, res) {
     if (req.method !== 'GET') throw error();
@@ -230,10 +285,12 @@ export function createAuthSecurityApproval({
         action: flow.action, phase: 'CALLBACK', seat: flow.seat,
         flowId: flow.flowId, sessionBinding: flow.sessionBinding,
       }));
+      approval.assertCurrent();
       const current = clock();
       cleanup(current);
       if (!currentFlow(capability, flow, 'PROCESSING', current) || current >= approval.expiresAt) throw error();
       callbacks.set(req, { capability, flow });
+      return approval;
     } catch {
       discard();
       throw error();
@@ -256,6 +313,7 @@ export function createAuthSecurityApproval({
     // The caller redeems this private ticket only after its final asynchronous
     // membership read. Consumption and admission then share a synchronous check.
     return function commitAuthentication() {
+      approval.assertCurrent();
       const current = clock();
       cleanup(current);
       if (consumed || !currentFlow(entry.capability, entry.flow, 'PROCESSING', current)
@@ -279,6 +337,7 @@ export function createAuthSecurityApproval({
     }));
     let consumed = false;
     return function commitSessionAccess() {
+      approval.assertCurrent();
       const current = clock();
       if (consumed || current >= approval.expiresAt || !req.oidc?.isAuthenticated()
           || principalBinding(req.oidc.idTokenClaims) !== principal
@@ -293,16 +352,21 @@ export function createAuthSecurityApproval({
     if (!route && !privateRoute) return next();
     try {
       if (!evaluate) throw error();
-      if (route?.[1].toLowerCase() === 'callback') await beforeCallback(req, res);
+      if (route?.[1].toLowerCase() === 'callback') {
+        const approval = await beforeCallback(req, res);
+        approval.assertCurrent();
+        if (clock() >= approval.expiresAt) throw error();
+      }
       else if (route) {
         const approval = await approve(context({ action: route[1].toLowerCase(), phase: 'READINESS' }));
+        approval.assertCurrent();
         if (clock() >= approval.expiresAt) throw error();
       }
       next();
     } catch (failure) { next(error()); }
   }
   return Object.freeze({
-    readiness, assertReadiness, begin, loginState, complete, approveSession, middleware,
+    readiness, assertReadiness, begin, loginState, protectLoginDispatch, complete, approveSession, middleware,
     close() { closed = true; flows.clear(); },
   });
 }
