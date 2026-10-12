@@ -56,15 +56,15 @@ async function installed(page) {
 }
 
 test('public software endpoints keep authentication and source files closed', async ({ request }) => {
-  for (const path of ['/auth/server.mjs', '/rio/auth/server.mjs', '/rio/%2e%2e/auth/server.mjs', '/rio/%2e%2e%2fauth/server.mjs', '/rio/README.md', '/rio/start.spec.mjs', '/.env', '/package.json']) {
+  for (const path of ['/auth/server.mjs', '/auth/auth-security-approval.mjs', '/rio/auth/server.mjs', '/rio/%2e%2e/auth/server.mjs', '/rio/%2e%2e%2fauth/server.mjs', '/rio/README.md', '/rio/start.spec.mjs', '/.env', '/package.json']) {
     const response = await request.get(origin + path);
     expect(response.status(), path).toBe(404);
     expect((await response.text())).not.toContain('clientSecret');
   }
-  for (const path of ['/api/me', '/api/seats/PALACO-AMB-01', '/login?seat=PALACO-AMB-01']) {
+  for (const path of ['/api/me', '/api/seats/PALACO-AMB-01', '/login?seat=PALACO-AMB-01', '/signup?seat=PALACO-AMB-01', '/callback?code=forged&state=PASS']) {
     const response = await request.get(origin + path);
     expect(response.status(), path).toBe(503);
-    expect(await response.json()).toEqual({ error: 'AUTH_NOT_CONFIGURED' });
+    expect(await response.json()).toEqual({ error: 'SAFETY_APPROVAL_REQUIRED' });
   }
   const response = await request.get(origin + '/rio/download');
   expect(response.status()).toBe(200);
