@@ -196,14 +196,20 @@ document.getElementById('reset').addEventListener('click', () => {
  search.value = ''; category.value = 'all'; filter(); search.focus();
 });
 document.getElementById('functies').addEventListener('click', event => {
-      const link = event.target.closest('.fx-row a[href^="#post-"]');
-      if (!link || !/^#post-(?:0[1-9]|1[0-2])$/.test(link.getAttribute('href'))) return;
-      const target = document.getElementById(link.getAttribute('href').slice(1));
-      if (!target || !target.classList.contains('post')) return;
-      if (target.hidden) { search.value = ''; category.value = 'all'; filter(); }
-      const details = target.querySelector('details');
-      if (details) { details.open = true; details.querySelector('summary').focus({preventScroll:true}); }
-    });
+ if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+ const link = event.target.closest('.fx-row a[href^="#post-"]');
+ if (!link || !/^#post-(?:0[1-9]|1[0-2])$/.test(link.getAttribute('href'))) return;
+ const hash = link.getAttribute('href');
+ const target = document.getElementById(hash.slice(1));
+ if (!target || !target.classList.contains('post')) return;
+ event.preventDefault();
+ if (target.hidden) { search.value = ''; category.value = 'all'; filter(); }
+ const details = target.querySelector('details');
+ if (details) details.open = true;
+ if (location.hash !== hash) history.pushState(null, '', hash);
+ target.scrollIntoView({block:'start'});
+ if (details) details.querySelector('summary').focus({preventScroll:true});
+});
     document.getElementById('filters').hidden = false;
 filter();
 })();</script>
