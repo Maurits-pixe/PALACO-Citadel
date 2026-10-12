@@ -69,7 +69,128 @@
   if (seen.size !== 36) throw new Error('Incomplete proposal');
   return value;
  }
+
+ const noteLabels = {"fn_title":"Schrijf een bespreeknotitie.","fn_intro":"Kies één bijdragevoorstel en noteer je inschatting, bronnen en open bezwaren. Download de notitie met de exacte voorstelversie erbij.","fn_status":"Lokaal bespreekconcept · Geen formele beoordeling","fn_memory":"Je kunt per bijdrage een concept bijhouden. De concepten blijven alleen zolang deze pagina open is. Download elke notitie om haar te bewaren.","fn_relation":"Bijdragevoorstel","fn_choose":"Kies een bijdragevoorstel","fn_assessment":"Bespreekinschatting","fn_in_doubt":"Nog te onderzoeken","fn_usable":"Bruikbaar voor bespreking","fn_change":"Aanpassing voorgesteld","fn_insufficient":"Onvoldoende onderbouwd","fn_disputed":"Betwist","fn_argument":"Argument","fn_sources":"Bronnen of verwijzingen","fn_concerns":"Open vragen en zorgen","fn_dissent":"Bezwaren en verschilpunten","fn_reopen":"Wanneer opnieuw bespreken?","fn_optional":"Optioneel","fn_limits":"Maximaal 2.000 tekens per tekstveld; 1.000 bij opnieuw bespreken.","fn_download":"Download bespreeknotitie","fn_clear":"Wis deze notitie","fn_context":"Gekozen bijdrage","fn_ready":"Kies een bijdrage om een notitie te maken.","fn_invalid":"Kies een geldig bijdragevoorstel en vul een argument in binnen de aangegeven lengte.","fn_unavailable":"Het notitieformulier is beschikbaar zodra het bijdrageoverzicht is geladen.","fn_downloaded":"De download is gestart. Je notitie is niet verzonden.","fn_download_error":"De download kan nu niet starten. Je concept blijft op deze pagina staan.","fn_cleared":"Deze notitie is gewist. Andere concepten blijven op deze pagina staan.","fn_start":"Schrijf een notitie","fn_no_authority":"De notitie is niet verzonden of onafhankelijk beoordeeld. Zij verleent geen goedkeuring, benoeming, stem, mandaat of toegang."};
+ const noteForm = document.getElementById('discussion-form');
+ const noteSelect = document.getElementById('note-relation');
+ const noteAssessment = document.getElementById('note-assessment');
+ const noteContext = document.getElementById('note-context');
+ const noteStatus = document.getElementById('note-status');
+ const noteFields = {
+  argument:document.getElementById('note-argument'),sources:document.getElementById('note-sources'),
+  concerns:document.getElementById('note-concerns'),dissent:document.getElementById('note-dissent'),
+  reopenWhen:document.getElementById('note-reopen')
+ };
+ const noteOutcomes = new Set(['IN_DOUBT','USABLE_FOR_DISCUSSION','CHANGE_SUGGESTED','INSUFFICIENT_SUPPORT','DISPUTED']);
+ const noteDrafts = new Map();
+ let noteRelation = '';
+ let noteMessage = 'fn_ready';
+ const noteLabel = key => text(noteLabels[key]);
+ function findNoteRelation(id) {
+  if (!data) return null;
+  for (const row of data.rows) {
+   const relation = row.relations.find(r=>r.id===id);
+   if (relation) return {row,relation,func:data.functions.find(f=>f.id===relation.functionId)};
+  }
+  return null;
+ }
+ function noteValues() {
+  return {outcome:noteAssessment.value,...Object.fromEntries(Object.entries(noteFields).map(([key,field])=>[key,field.value]))};
+ }
+ function saveNote() {if (noteRelation) noteDrafts.set(noteRelation,noteValues());}
+ function switchNote(id) {
+  if (id && !findNoteRelation(id)) {
+   noteSelect.value=noteRelation;noteMessage='fn_invalid';noteStatus.textContent=noteLabel(noteMessage);return;
+  }
+  saveNote();noteRelation=id;
+  const draft=noteDrafts.get(id)||{outcome:'IN_DOUBT'};
+  noteSelect.value=id;noteAssessment.value=draft.outcome;
+  for (const [key,field] of Object.entries(noteFields)) field.value=draft[key]||'';
+  noteMessage=id?'fn_status':'fn_ready';renderNote();
+ }
+ function renderNote() {
+  noteForm.hidden=!data;
+  document.getElementById('discussion-unavailable').hidden=Boolean(data);
+  if (!data) return;
+  const options=document.createDocumentFragment();
+  const placeholder=node('option','',noteLabel('fn_choose'));placeholder.value='';options.append(placeholder);
+  for (const row of data.rows) for (const relation of row.relations) {
+   const func=data.functions.find(f=>f.id===relation.functionId);
+   const option=node('option','','\u2068'+relation.id+' · '+func.name+'\u2069 · '+text(row.title));
+   option.value=relation.id;options.append(option);
+  }
+  noteSelect.replaceChildren(options);noteSelect.value=noteRelation;
+  const binding=findNoteRelation(noteRelation);
+  noteContext.hidden=!binding;
+  if (binding) {
+   const {row,relation,func}=binding,fragment=document.createDocumentFragment(),heading=node('h4');
+   heading.append(fixed(relation.id),' · ',fixed(func.name),' · ',text(row.title));fragment.append(heading);
+   const dl=node('dl');
+   for (const [key,value] of [['fx_reason',relation.reason],['fx_row_artifact',row.artifact],['fx_row_boundary',row.boundary],['fx_row_question',row.question]]) {
+    dl.append(node('dt','',label(key)),node('dd','',text(value)));
+   }
+   fragment.append(dl);noteContext.replaceChildren(fragment);
+  } else noteContext.replaceChildren();
+  noteStatus.textContent=noteLabel(noteMessage);
+  for (const button of results.querySelectorAll('[data-note-relation]')) button.textContent=noteLabel('fn_start');
+ }
+ noteSelect.addEventListener('change',()=>switchNote(noteSelect.value));
+ noteForm.addEventListener('input',event=>{
+  if (event.target===noteSelect) return;
+  saveNote();noteMessage=noteRelation?'fn_status':'fn_ready';noteStatus.textContent=noteLabel(noteMessage);
+ });
+ document.getElementById('note-clear').addEventListener('click',()=>{
+  noteDrafts.delete(noteRelation);
+  noteAssessment.value='IN_DOUBT';
+  for (const field of Object.values(noteFields)) field.value='';
+  noteMessage='fn_cleared';noteStatus.textContent=noteLabel(noteMessage);noteFields.argument.focus();
+ });
+ results.addEventListener('click',event=>{
+  const button=event.target.closest('button[data-note-relation]');
+  if (!button||!results.contains(button)||!data||loading) return;
+  switchNote(button.dataset.noteRelation);
+  noteForm.scrollIntoView({block:'start'});noteFields.argument.focus({preventScroll:true});
+ });
+ noteForm.addEventListener('submit',event=>{
+  event.preventDefault();
+  const binding=findNoteRelation(noteRelation),values=noteValues();
+  const validFields=Object.entries(noteFields).every(([key,field])=>typeof values[key]==='string'
+   && values[key].length<=(key==='reopenWhen'?1000:2000));
+  if (!binding||loading||noteSelect.value!==noteRelation||!noteOutcomes.has(values.outcome)
+      || !values.argument.trim()||!validFields||!noteForm.checkValidity()) {
+   noteMessage='fn_invalid';noteStatus.textContent=noteLabel(noteMessage);noteForm.reportValidity();return;
+  }
+  saveNote();
+  const {row,relation,func}=binding;
+  const record={
+   schemaVersion:'palaco-contribution-discussion-note/0.1',recordType:'LOCAL_DISCUSSION_DRAFT',
+   createdAt:new Date().toISOString(),uiLanguage:document.documentElement.lang||'nl',
+   proposal:{issueUrl:'https://github.com/Maurits-pixe/PALACO-Citadel/issues/38',
+    version:data.proposalVersion,blob:data.sources.proposalBlob,snapshotDate:data.snapshotDate,
+    status:data.status,reviewStatus:data.reviewStatus},
+   sourceBindings:{historicalCommit:data.sources.historicalCommit,historicalBlob:data.sources.historicalBlob,
+    bindingIssueUrl:'https://github.com/Maurits-pixe/PALACO-Citadel/issues/37',
+    seatIssueUrl:'https://github.com/Maurits-pixe/PALACO-Citadel/issues/33'},
+   relation:{id:relation.id,seat:row.seat,functionId:func.id,functionName:func.name,portfolio:row.portfolio,
+    titleDutch:row.title,reasonDutch:relation.reason,
+    sharedRow:{artifactDutch:row.artifact,boundaryDutch:row.boundary,reviewQuestionDutch:row.question}},
+   assessment:values,reviewer:{identityStatus:'UNVERIFIED',eligibility:'NOT_ESTABLISHED',conflictStatus:'UNKNOWN'},
+   authority:{independentAcceptance:false,ratification:false,appointment:false,safetyApproval:false,
+    accountAccess:false,merge:false,release:false,execution:false}
+  };
+  let url=null;
+  try {
+   url=URL.createObjectURL(new Blob([JSON.stringify(record,null,2)+'\n'],{type:'application/json;charset=utf-8'}));
+   const download=node('a');download.href=url;download.download='PALACO-bespreeknotitie-'+relation.id.replace('@','-')+'.json';
+   download.hidden=true;document.body.append(download);
+   try {download.click();} finally {download.remove();}
+   noteMessage='fn_downloaded';
+  } catch {noteMessage='fn_download_error';}
+  finally {if(url)setTimeout(()=>URL.revokeObjectURL(url),1000);noteStatus.textContent=noteLabel(noteMessage);}
+ });
+
  function render() {
+  renderNote();
   if (!data) {
    if (unavailable) status.textContent=label('fx_unavailable');
    retry.textContent=label('fx_retry');
@@ -106,7 +227,8 @@
     reference.dataset.relation=relation.id;reference.append(fixed(relation.id));
     const heading=node('h4');heading.append(fixed(data.functions.find(f=>f.id===relation.functionId).name));
     const reason=node('p','',text(relation.reason));reason.setAttribute('data-reason','');
-    item.append(reference,heading,reason);list.append(item);
+    const noteButton=node('button','fn-start',noteLabel('fn_start'));noteButton.type='button';noteButton.dataset.noteRelation=relation.id;
+    item.append(reference,heading,reason,noteButton);list.append(item);
    }
    details.append(list,node('p','note',label('fx_shared')));
    const dl=node('dl');
@@ -117,6 +239,7 @@
    details.append(dl);article.append(details);fragment.append(article);
   }
   results.replaceChildren(fragment);
+  renderNote();
   status.textContent=count ? label('fx_count',{count}) : label('fx_none');
   for (const button of picker.querySelectorAll('[data-function]')) {
    button.setAttribute('aria-pressed',String(button.dataset.function===selected));
@@ -127,18 +250,21 @@
  async function load() {
   if (loading) return;
   loading=true;unavailable=false;
-  picker.hidden=true;retry.hidden=true;
+  picker.hidden=true;retry.hidden=true;noteForm.hidden=true;
   status.textContent=label('fx_loading');
   try {
    const response=await fetch(new URL('function-contributions.json',document.baseURI),{
     credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(10000)
    });
    if (!response.ok || !/^application\/json(?:\s*;|$)/i.test(response.headers.get('content-type')||'')) throw new Error('No data');
-   const body=await response.text();
-   if (body.length>65536) throw new Error('Data exceeds limit');
+   const bytes=await response.arrayBuffer();
+   if (bytes.byteLength>65536 || !globalThis.crypto?.subtle) throw new Error('Data unavailable');
+   const digest=[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(value=>value.toString(16).padStart(2,'0')).join('');
+   if (digest!=='a0bec5d1eca6a0f73b855d833d691ad4dfaac1d581c831fd33fd8d06be53af2a') throw new Error('Snapshot content changed');
+   const body=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
    data=validate(JSON.parse(body));selected='ALL';render();picker.hidden=false;
   } catch {
-   data=null;unavailable=true;status.textContent=label('fx_unavailable');retry.hidden=false;
+   data=null;renderNote();unavailable=true;status.textContent=label('fx_unavailable');retry.hidden=false;
   } finally {loading=false;retry.textContent=label('fx_retry');}
  }
  picker.addEventListener('click',event=>{
