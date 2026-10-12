@@ -8,6 +8,8 @@
 !ambassades/i18n.js
 !ambassades/locales.json
 !ambassades/access-slots.json
+!ambassades/functions.js
+!ambassades/function-contributions.json
 !ambassades/auth/
 !ambassades/deployment/
 !ambassades/deployment/Dockerfile

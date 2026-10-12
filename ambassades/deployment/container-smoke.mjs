@@ -78,6 +78,17 @@ try {
       const access = await request(base, '/toegang.html');
       assert.equal(access.status, 200);
       assert.equal((await request(base, '/i18n.js')).status, 200);
+      const functionScript = await request(base, '/functions.js');
+      assert.equal(functionScript.status, 200);
+      assert.match(functionScript.headers.get('content-type'), /^text\/javascript/);
+      const functionSnapshot = await request(base, '/function-contributions.json');
+      assert.equal(functionSnapshot.status, 200);
+      const proposal = await functionSnapshot.json();
+      assert.equal(proposal.proposalVersion, 'v0.2');
+      assert.equal(proposal.status, 'PROPOSED_NONBINDING');
+      assert.equal(proposal.authorityGranted, false);
+      assert.equal(proposal.rows.length, 12);
+      assert.equal(proposal.rows.flatMap(row => row.relations).length, 36);
       const translations = await request(base, '/locales.json');
       assert.equal(translations.status, 200);
       assert.deepEqual(Object.keys(await translations.json()).sort(), ['ar', 'de', 'en', 'eo', 'es', 'fr', 'it', 'nl', 'pt', 'ru', 'zh']);

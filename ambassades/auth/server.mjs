@@ -123,6 +123,8 @@ const publicFiles = new Map([
   ['/portal.js', ['portal.js', 'text/javascript']],
   ['/i18n.js', ['i18n.js', 'text/javascript']],
   ['/locales.json', ['locales.json', 'application/json']],
+  ['/functions.js', ['functions.js', 'text/javascript']],
+  ['/function-contributions.json', ['function-contributions.json', 'application/json']],
   ['/access-slots.json', ['access-slots.json', 'application/json']],
   ['/rio/', ['rio/palaco-rio-start-v0.1.html', 'text/html']],
   ['/rio/index.html', ['rio/palaco-rio-start-v0.1.html', 'text/html']],

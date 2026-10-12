@@ -1,0 +1,436 @@
+{
+  "schemaVersion": "palaco-function-contributions/0.1",
+  "proposalVersion": "v0.2",
+  "status": "PROPOSED_NONBINDING",
+  "reviewStatus": "DRAFT_REVIEW_OPEN",
+  "authorityGranted": false,
+  "snapshotDate": "2026-10-12",
+  "sources": {
+    "proposalIssue": 38,
+    "proposalBlob": "2293d1f957b4b69c99676824fe64fd9b62ad2333",
+    "historicalCommit": "bcf2684d2d9c3ee5bf68a06ccf09bb856bb195bd",
+    "historicalBlob": "879c79b9558eef39563d55b4815c0924617148d1",
+    "bindingIssue": 37,
+    "seatIssue": 33
+  },
+  "labels": {
+    "fx_nav": "Functies & bijdragevoorstellen",
+    "fx_eyebrow": "Historische functies · Nieuwe ontwerpvoorstellen",
+    "fx_title": "Zeven functies, twaalf zetels.",
+    "fx_intro": "Bekijk hoe de zeven historische functies in v0.2 als mogelijke bijdragen aan de twaalf ontwerpzetels zijn voorgesteld.",
+    "fx_status": "Niet-bindend · Review open · Niet geratificeerd · Niet operatief",
+    "fx_notice": "Alle 36 relaties zijn nieuwe ontwerpkeuzes. De historische bron definieert functies, geen actuele koppelingen, personen of mandaten.",
+    "fx_function_label": "Historische functie",
+    "fx_all_functions": "Alle zeven functies",
+    "fx_view_seats": "Bijdragevoorstellen per zetel",
+    "fx_function_boundary": "Functiegrens",
+    "fx_source": "Historische definitie ↗",
+    "fx_reason": "Voorgestelde reden",
+    "fx_row_artifact": "Gedeeld rijartefact",
+    "fx_row_boundary": "Gedeelde bevoegdheidsgrens",
+    "fx_row_question": "Gedeelde open reviewvraag",
+    "fx_show": "Lees de voorgestelde bijdragen",
+    "fx_count": "{count} van 36 bijdragevoorstellen",
+    "fx_none": "Geen bijdragevoorstellen gevonden. Kies een andere functie.",
+    "fx_shared": "De drie relaties per zetel delen het rijartefact, de grens en de reviewvraag.",
+    "fx_source_version": "Bron & voorstelversie",
+    "fx_read_proposal": "Lees het volledige voorstel v0.2 ↗",
+    "fx_source_dates": "Momentopname van 12 oktober 2026; latere bronwijzigingen worden niet automatisch weergegeven.",
+    "fx_no_authority": "Dit overzicht verleent geen benoeming, stem, mandaat, reviewerstatus of operationele bevoegdheid.",
+    "fx_separate": "NOVA, RIO, 6RI9ADE/BRI9ADE en STEWARD blijven een afzonderlijk engineeringontwerp. Deze voorstellen veranderen geen accounttoegang, veiligheidsuitslag of HOLD.",
+    "fx_translation_notice": "Vertalingen helpen bij het lezen. De gebonden Nederlandse voorsteltekst en exacte historische bron blijven de referentie.",
+    "fx_fallback": "Alle 36 bijdragevoorstellen staan hieronder. Filteren is beschikbaar met JavaScript.",
+    "fx_loading": "Het overzicht wordt geladen…",
+    "fx_unavailable": "Het filter kan nu niet laden. Het opgeslagen voorstel blijft hieronder leesbaar.",
+    "fx_retry": "Opnieuw proberen"
+  },
+  "functions": [
+    {
+      "id": "F01",
+      "name": "Listener",
+      "line": 46148,
+      "description": "Aangeboden perspectieven horen en beschrijven.",
+      "boundary": "Geen toezicht, heimelijk meelezen of veronderstelde toegang tot privégegevens."
+    },
+    {
+      "id": "F02",
+      "name": "Representative",
+      "line": 46149,
+      "description": "Een aangeduid belang of perspectief herkenbaar weergeven; de herkomst met toegestane bronverwijzing aanduiden als zelfomschrijving, aangeleverde bron of interpretatie, en de weergave betwistbaar houden. Onbekende herkomst blijft onbekend.",
+      "boundary": "Geen stemdelegatie, benoeming of bevoegdheid namens betrokkenen."
+    },
+    {
+      "id": "F03",
+      "name": "Translator",
+      "line": 46150,
+      "description": "Betekenis tussen talen, domeinen en perspectieven begrijpelijk maken.",
+      "boundary": "Origineel, onzekerheid en verschillen behouden; geen canonwijziging of vervanging van bewijs."
+    },
+    {
+      "id": "F04",
+      "name": "Connector",
+      "line": 46151,
+      "description": "Partijen, contexten en historische verwijzingen samenbrengen.",
+      "boundary": "Een verwijzing vormt geen geverifieerde identiteit, consent, contactverbinding of toegangsrecht."
+    },
+    {
+      "id": "F05",
+      "name": "Reconciler",
+      "line": 46152,
+      "description": "Mogelijke verenigbaarheid en blijvende verschillen tussen perspectieven onderzoeken.",
+      "boundary": "Consensus maakt een claim niet waar; tegenstrijdigheid en dissent blijven zichtbaar."
+    },
+    {
+      "id": "F06",
+      "name": "Mediator",
+      "line": 46153,
+      "description": "Een vrijwillige bespreking van conflict en diplomatieke posities helpen structureren.",
+      "boundary": "Geen adjudicatie, beroepsuitspraak, sanctie, persoonlijke veto of automatisch bemiddelingsmandaat."
+    },
+    {
+      "id": "F07",
+      "name": "Memory Keeper",
+      "line": 46154,
+      "description": "Context en diplomatieke of historische continuïteit reconstrueren uit toegestane bronnen.",
+      "boundary": "Geen zelfstandig auditbewijs, witness-identiteit, onbeperkte opslag of privacytoegang."
+    }
+  ],
+  "rows": [
+    {
+      "seat": "PALACO-AMB-01",
+      "portfolio": "Constitutional integrity",
+      "title": "Constitutionele integriteit",
+      "artifact": "Begrippenlijst met overeenkomsten en onopgeloste constitutionele vragen.",
+      "boundary": "Geen constitutionele geldigheidsverklaring, ratificatie of veto.",
+      "question": "Wie toetst of de uitleg de gebonden constitutionele bron correct weergeeft?",
+      "relations": [
+        {
+          "id": "AMB01-F03@v0.2",
+          "functionId": "F03",
+          "status": "PROPOSED",
+          "reason": "Constitutionele begrippen over domeinen verduidelijken."
+        },
+        {
+          "id": "AMB01-F05@v0.2",
+          "functionId": "F05",
+          "status": "PROPOSED",
+          "reason": "Verenigbaarheidsvragen tussen ingebrachte perspectieven zichtbaar maken."
+        },
+        {
+          "id": "AMB01-F07@v0.2",
+          "functionId": "F07",
+          "status": "PROPOSED",
+          "reason": "Eerdere interpretaties en bezwaren met bronverwijzing behouden."
+        }
+      ]
+    },
+    {
+      "seat": "PALACO-AMB-02",
+      "portfolio": "Governance and institutional separation",
+      "title": "Governance & rolscheiding",
+      "artifact": "Conceptuele rollenkaart met onbekenden en mogelijke rolconflicten.",
+      "boundary": "Geen benoeming, mandaatverlening, conflictvrijverklaring of competentiewijziging.",
+      "question": "Welke kruisrollen zijn te bespreken en welke vereisen een afzonderlijke eligibility-review?",
+      "relations": [
+        {
+          "id": "AMB02-F04@v0.2",
+          "functionId": "F04",
+          "status": "PROPOSED",
+          "reason": "Institutionele contexten en rolverwijzingen verbinden."
+        },
+        {
+          "id": "AMB02-F03@v0.2",
+          "functionId": "F03",
+          "status": "PROPOSED",
+          "reason": "Verschillen tussen rollen en bevoegdheden begrijpelijk maken."
+        },
+        {
+          "id": "AMB02-F07@v0.2",
+          "functionId": "F07",
+          "status": "PROPOSED",
+          "reason": "Eerdere redenen voor institutionele scheiding behouden."
+        }
+      ]
+    },
+    {
+      "seat": "PALACO-AMB-03",
+      "portfolio": "Scientific method and evidence",
+      "title": "Wetenschappelijke methode & bewijs",
+      "artifact": "Vragenlijst die claims, bronverwijzingen en onbeantwoorde verificatievragen onderscheidt.",
+      "boundary": "Geen wetenschappelijke verificatie, bewijsvalidatie of waarheidsvaststelling.",
+      "question": "Welke bewijsclaims zijn nog niet zelfstandig gecontroleerd, ook als perspectieven overeenstemmen?",
+      "relations": [
+        {
+          "id": "AMB03-F01@v0.2",
+          "functionId": "F01",
+          "status": "PROPOSED",
+          "reason": "Aangeboden vragen over bewijs en onzekerheid verzamelen."
+        },
+        {
+          "id": "AMB03-F03@v0.2",
+          "functionId": "F03",
+          "status": "PROPOSED",
+          "reason": "Onderzoeksbegrippen uitleggen met behoud van origineel en onzekerheid."
+        },
+        {
+          "id": "AMB03-F02@v0.2",
+          "functionId": "F02",
+          "status": "PROPOSED",
+          "reason": "Een onderzoeks- of gebruikersperspectief herkenbaar weergeven, met toegestane bronverwijzing en expliciete aanduiding van zelfomschrijving, aangeleverde bron of interpretatie; de weergave blijft betwistbaar."
+        }
+      ]
+    },
+    {
+      "seat": "PALACO-AMB-04",
+      "portfolio": "Review and acceptance oversight",
+      "title": "Review & acceptance-toezicht",
+      "artifact": "Bespreeknotitie over criteria, mogelijke belangenconflicten en ontbrekende processtappen.",
+      "boundary": "Geen reviewer eligibility, onafhankelijke reviewstatus, acceptancebesluit of envelopewijziging.",
+      "question": "Welke beoordeling moet door een afzonderlijk eligible en onafhankelijk reviewer gebeuren?",
+      "relations": [
+        {
+          "id": "AMB04-F01@v0.2",
+          "functionId": "F01",
+          "status": "PROPOSED",
+          "reason": "Ervaren knelpunten en bezwaren in review beluisteren."
+        },
+        {
+          "id": "AMB04-F03@v0.2",
+          "functionId": "F03",
+          "status": "PROPOSED",
+          "reason": "Reviewcriteria en procesgrenzen begrijpelijk weergeven."
+        },
+        {
+          "id": "AMB04-F07@v0.2",
+          "functionId": "F07",
+          "status": "PROPOSED",
+          "reason": "Eerdere procedurele bevindingen en dissent met verwijzingen bewaren."
+        }
+      ]
+    },
+    {
+      "seat": "PALACO-AMB-05",
+      "portfolio": "Safety and refusal",
+      "title": "Veiligheid & weigering",
+      "artifact": "Risico- en weigeringsperspectieven met afzonderlijke onopgeloste bezwaren.",
+      "boundary": "Geen veiligheidsverklaring, veiligheidscontrole, uitvoeringsopdracht of opheffing van een weigering.",
+      "question": "Hoe blijft een weigering zichtbaar wanneer andere deelnemers toch verder willen?",
+      "relations": [
+        {
+          "id": "AMB05-F01@v0.2",
+          "functionId": "F01",
+          "status": "PROPOSED",
+          "reason": "Vrijwillig ingebrachte risico- en weigeringsperspectieven beluisteren."
+        },
+        {
+          "id": "AMB05-F02@v0.2",
+          "functionId": "F02",
+          "status": "PROPOSED",
+          "reason": "Een betrokken belang herkenbaar weergeven, met toegestane bronverwijzing en expliciete aanduiding van zelfomschrijving, aangeleverde bron of interpretatie; de weergave blijft betwistbaar en verleent geen mandaat."
+        },
+        {
+          "id": "AMB05-F06@v0.2",
+          "functionId": "F06",
+          "status": "PROPOSED",
+          "reason": "Een vrijwillige bespreking van uiteenlopende risicoposities structureren."
+        }
+      ]
+    },
+    {
+      "seat": "PALACO-AMB-06",
+      "portfolio": "Identity and provenance",
+      "title": "Identiteit & provenance",
+      "artifact": "Bron- en versieclaims met ontbrekende of betwiste bindingen expliciet gemarkeerd.",
+      "boundary": "Geen identiteitsverificatie, accountkoppeling, registratietoegang of provenancecertificering.",
+      "question": "Welke koppelingen zijn alleen aangeleverd, en wie mag ze afzonderlijk verifiëren?",
+      "relations": [
+        {
+          "id": "AMB06-F03@v0.2",
+          "functionId": "F03",
+          "status": "PROPOSED",
+          "reason": "Identiteits-, versie- en provenancebegrippen verduidelijken."
+        },
+        {
+          "id": "AMB06-F04@v0.2",
+          "functionId": "F04",
+          "status": "PROPOSED",
+          "reason": "Aangeleverde verwijzingen en hun context verbinden met gemarkeerde onzekerheid."
+        },
+        {
+          "id": "AMB06-F07@v0.2",
+          "functionId": "F07",
+          "status": "PROPOSED",
+          "reason": "Historische versieclaims en correcties reconstructeerbaar bijhouden."
+        }
+      ]
+    },
+    {
+      "seat": "PALACO-AMB-07",
+      "portfolio": "Audit and accountability",
+      "title": "Audit & verantwoording",
+      "artifact": "Reconstructievragen en verwijzingen voor een eventuele afzonderlijke onafhankelijke audit.",
+      "boundary": "Memory Keeper wordt geen auditor; geen auditverdict, onafhankelijkheidsclaim of recht op beschermde gegevens.",
+      "question": "Welke informatie mag voor bespreking worden gebruikt en welke blijft beschermd?",
+      "relations": [
+        {
+          "id": "AMB07-F01@v0.2",
+          "functionId": "F01",
+          "status": "PROPOSED",
+          "reason": "Vragen van betrokkenen over reconstrueerbaarheid verzamelen."
+        },
+        {
+          "id": "AMB07-F03@v0.2",
+          "functionId": "F03",
+          "status": "PROPOSED",
+          "reason": "Auditvereisten uitleggen zonder een auditverdict te suggereren."
+        },
+        {
+          "id": "AMB07-F07@v0.2",
+          "functionId": "F07",
+          "status": "PROPOSED",
+          "reason": "Beschikbare historische verwijzingen en hiaten in de reconstructie tonen."
+        }
+      ]
+    },
+    {
+      "seat": "PALACO-AMB-08",
+      "portfolio": "Citadel coordination",
+      "title": "Citadel-coördinatie",
+      "artifact": "Conceptuele afhankelijkheidskaart met open grensvragen en verschilpunten.",
+      "boundary": "Geen operationele routering, dienstkoppeling, bevelvoering, federatief mandaat of uitvoering.",
+      "question": "Welke afhankelijkheid is slechts conceptueel beschreven en welke heeft een eigen geldig contract?",
+      "relations": [
+        {
+          "id": "AMB08-F04@v0.2",
+          "functionId": "F04",
+          "status": "PROPOSED",
+          "reason": "Contexten en afhankelijkheidsvragen tussen Citadels verbinden."
+        },
+        {
+          "id": "AMB08-F03@v0.2",
+          "functionId": "F03",
+          "status": "PROPOSED",
+          "reason": "Verschillen in domeintermen en verwachtingen uitleggen."
+        },
+        {
+          "id": "AMB08-F06@v0.2",
+          "functionId": "F06",
+          "status": "PROPOSED",
+          "reason": "Vrijwillige bespreking van grens- en afhankelijkheidsconflicten structureren."
+        }
+      ]
+    },
+    {
+      "seat": "PALACO-AMB-09",
+      "portfolio": "Human participation and representation",
+      "title": "Menselijke participatie & vertegenwoordiging",
+      "artifact": "Perspectievenoverzicht met participatievragen en betwiste representatieclaims.",
+      "boundary": "Geen vertegenwoordigingsmandaat, proxy, gedelegeerde stem, surveillance of toestemming namens anderen.",
+      "question": "Wie bepaalt of een perspectief getrouw is weergegeven, en hoe kan het worden betwist?",
+      "relations": [
+        {
+          "id": "AMB09-F01@v0.2",
+          "functionId": "F01",
+          "status": "PROPOSED",
+          "reason": "Vrijwillig gedeelde perspectieven en participatiedrempels beluisteren."
+        },
+        {
+          "id": "AMB09-F02@v0.2",
+          "functionId": "F02",
+          "status": "PROPOSED",
+          "reason": "Een aangeduid perspectief weergeven met betwistbare representatieclaim."
+        },
+        {
+          "id": "AMB09-F03@v0.2",
+          "functionId": "F03",
+          "status": "PROPOSED",
+          "reason": "Taal- en domeinbarrières in bespreekmateriaal verminderen."
+        }
+      ]
+    },
+    {
+      "seat": "PALACO-AMB-10",
+      "portfolio": "Rights, privacy and information stewardship",
+      "title": "Rechten, privacy & informatiebeheer",
+      "artifact": "Optienotitie over informatiegebruik met bezwaren en ontbrekende toestemmingsvragen.",
+      "boundary": "Geen toegangsrecht, privacyvrijstelling, juridische beslissing of vervanging van afzonderlijke toestemming.",
+      "question": "Hoe worden noodzakelijke verwijzingen geminimaliseerd zonder relevante dissent te verliezen?",
+      "relations": [
+        {
+          "id": "AMB10-F01@v0.2",
+          "functionId": "F01",
+          "status": "PROPOSED",
+          "reason": "Aangeboden vragen en belangen rond rechten en informatiegebruik beluisteren."
+        },
+        {
+          "id": "AMB10-F02@v0.2",
+          "functionId": "F02",
+          "status": "PROPOSED",
+          "reason": "Een betrokken perspectief op gegevensgebruik expliciet aanduiden."
+        },
+        {
+          "id": "AMB10-F05@v0.2",
+          "functionId": "F05",
+          "status": "PROPOSED",
+          "reason": "Mogelijke verenigbare opties onderzoeken terwijl resterende verschillen zichtbaar blijven."
+        }
+      ]
+    },
+    {
+      "seat": "PALACO-AMB-11",
+      "portfolio": "Continuity and resilience",
+      "title": "Continuïteit & veerkracht",
+      "artifact": "Scenario-overzicht voor vacatures, overdracht en uitval met open voorwaarden.",
+      "boundary": "Geen opvolgingsrecht, automatische vervanging, termijnverlenging, noodgevolmacht of drempelverlaging.",
+      "question": "Welke scenario’s vereisen een nieuwe benoeming of afzonderlijke expliciete activering?",
+      "relations": [
+        {
+          "id": "AMB11-F04@v0.2",
+          "functionId": "F04",
+          "status": "PROPOSED",
+          "reason": "Historische context verbinden met continuïteitsvragen en afhankelijkheden."
+        },
+        {
+          "id": "AMB11-F05@v0.2",
+          "functionId": "F05",
+          "status": "PROPOSED",
+          "reason": "Mogelijke verenigbaarheid van voorgestelde continuïteitsscenario’s onderzoeken."
+        },
+        {
+          "id": "AMB11-F07@v0.2",
+          "functionId": "F07",
+          "status": "PROPOSED",
+          "reason": "Eerdere overdrachtsargumenten en open voorwaarden behoudend reconstrueren."
+        }
+      ]
+    },
+    {
+      "seat": "PALACO-AMB-12",
+      "portfolio": "Dissent, appeal and reconsideration",
+      "title": "Dissent, beroep & heroverweging",
+      "artifact": "Dissentnotitie met verschilpunten, bemiddelingsopties en heropeningsvragen.",
+      "boundary": "Geen adjudicatie, beroepsbesluit, finale geschilbeslechting of gedwongen consensus.",
+      "question": "Hoe blijven onopgeloste materiële bezwaren staan als bemiddeling geen overeenstemming oplevert?",
+      "relations": [
+        {
+          "id": "AMB12-F01@v0.2",
+          "functionId": "F01",
+          "status": "PROPOSED",
+          "reason": "Minderheidsposities en heroverwegingsvragen verstaanbaar maken."
+        },
+        {
+          "id": "AMB12-F06@v0.2",
+          "functionId": "F06",
+          "status": "PROPOSED",
+          "reason": "Vrijwillige bespreekopties aanbieden zonder een beroep te beslissen."
+        },
+        {
+          "id": "AMB12-F07@v0.2",
+          "functionId": "F07",
+          "status": "PROPOSED",
+          "reason": "Eerdere bezwaren en hun disposition zichtbaar houden."
+        }
+      ]
+    }
+  ]
+}
