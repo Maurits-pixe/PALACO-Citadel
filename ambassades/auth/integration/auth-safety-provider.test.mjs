@@ -473,7 +473,13 @@ async function sdkFixture(t, options = {}) {
     }
     if (url.pathname === '/token') {
       assert.equal(req.method, 'POST');
-      assert.equal(Buffer.from((req.headers.authorization || '').slice(6), 'base64').toString(), client + ':' + secret);
+      assert.match(req.headers.authorization || '', /^Basic [A-Za-z0-9+/]+=*$/);
+      const [encodedClient, encodedSecret, ...extraCredentials] =
+        Buffer.from(req.headers.authorization.slice(6), 'base64').toString('utf8').split(':');
+      assert.equal(extraCredentials.length, 0);
+      // OAuth Basic credentials are form-encoded before base64 (RFC 6749 section 2.3.1).
+      assert.equal(new URLSearchParams('v=' + encodedClient).get('v'), client);
+      assert.equal(new URLSearchParams('v=' + encodedSecret).get('v'), secret);
       let raw = ''; for await (const chunk of req) raw += chunk;
       const body = new URLSearchParams(raw), request = codes.get(body.get('code'));
       assert.ok(request); codes.delete(body.get('code'));
