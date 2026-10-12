@@ -66,7 +66,7 @@ test('NOVA page calls a real running HTTP component and protected sources remain
   for (const path of ['/api/me', '/api/seats/PALACO-AMB-01']) {
     const response = await request.get(fixture.origin + path);
     expect(response.status()).toBe(503);
-    expect(await response.json()).toEqual({ error: 'AUTH_NOT_CONFIGURED' });
+    expect(await response.json()).toEqual({ error: 'SAFETY_APPROVAL_REQUIRED' });
   }
 });
 
