@@ -188,7 +188,15 @@
     "t186": "Het afsluiten van de sessie kon niet worden bevestigd. Probeer het opnieuw.",
     "t187": "Governance",
     "t188": "Quorum",
-    "t999": "RIO downloaden"
+    "t999": "RIO downloaden",
+    "t189": "Veiligheidsgoedkeuring vereist",
+    "t190": "Inloggen en een account aanmaken blijven gesloten totdat de veiligheidscontrole goedkeuring heeft gegeven.",
+    "t191": "Veiligheidsgoedkeuring nog niet beschikbaar",
+    "t192": "De veiligheidsgoedkeuring ontbreekt. Inloggen, een account aanmaken en persoonlijke toegang blijven gesloten.",
+    "t193": "De veiligheidscontrole is niet bereikbaar. Inloggen, een account aanmaken en persoonlijke toegang blijven gesloten.",
+    "t194": "Eerst wordt veiligheidsgoedkeuring verkregen voor inloggen of een account aanmaken.",
+    "t195": "Toegang na veiligheidsgoedkeuring en accountcontrole",
+    "t196": "Veiligheidsgoedkeuring controleren…"
   },
   "en": {
     "t001": "PALACO Embassies — Twelve posts, one Government",
@@ -379,7 +387,15 @@
     "t186": "The end of the session could not be confirmed. Please try again.",
     "t187": "Governance",
     "t188": "Quorum",
-    "t999": "Download RIO"
+    "t999": "Download RIO",
+    "t189": "Security approval required",
+    "t190": "Login and account creation stay closed until the security check gives approval.",
+    "t191": "Security approval not available yet",
+    "t192": "Security approval is missing. Login, account creation and personal access stay closed.",
+    "t193": "The security check is unreachable. Login, account creation and personal access stay closed.",
+    "t194": "Security approval is obtained first, before login or account creation.",
+    "t195": "Access after security approval and account verification",
+    "t196": "Checking security approval…"
   },
   "de": {
     "t001": "PALACO Botschaften — Zwölf Posten, eine Regierung",
@@ -570,7 +586,15 @@
     "t186": "Das Beenden der Sitzung konnte nicht bestätigt werden. Versuche es erneut.",
     "t187": "Governance",
     "t188": "Quorum",
-    "t999": "RIO herunterladen"
+    "t999": "RIO herunterladen",
+    "t189": "Sicherheitsfreigabe erforderlich",
+    "t190": "Anmeldung und Kontoerstellung bleiben gesperrt, bis die Sicherheitsprüfung ihre Freigabe erteilt.",
+    "t191": "Sicherheitsfreigabe noch nicht verfügbar",
+    "t192": "Die Sicherheitsfreigabe fehlt. Anmeldung, Kontoerstellung und persönlicher Zugang bleiben gesperrt.",
+    "t193": "Die Sicherheitsprüfung ist nicht erreichbar. Anmeldung, Kontoerstellung und persönlicher Zugang bleiben gesperrt.",
+    "t194": "Vor Anmeldung oder Kontoerstellung wird zuerst die Sicherheitsfreigabe eingeholt.",
+    "t195": "Zugang nach Sicherheitsfreigabe und Kontoprüfung",
+    "t196": "Sicherheitsfreigabe wird geprüft…"
   },
   "fr": {
     "t001": "Ambassades PALACO — Douze postes, un Gouvernement",
@@ -761,7 +785,15 @@
     "t186": "La fermeture de la session n’a pas pu être confirmée. Réessayez.",
     "t187": "Gouvernance",
     "t188": "Quorum",
-    "t999": "Télécharger RIO"
+    "t999": "Télécharger RIO",
+    "t189": "Approbation de sécurité requise",
+    "t190": "La connexion et la création de compte restent fermées jusqu’à l’approbation du contrôle de sécurité.",
+    "t191": "Approbation de sécurité pas encore disponible",
+    "t192": "L’approbation de sécurité manque. La connexion, la création de compte et l’accès personnel restent fermés.",
+    "t193": "Le contrôle de sécurité est inaccessible. La connexion, la création de compte et l’accès personnel restent fermés.",
+    "t194": "L’approbation de sécurité est obtenue avant la connexion ou la création de compte.",
+    "t195": "Accès après approbation de sécurité et vérification du compte",
+    "t196": "Vérification de l’approbation de sécurité…"
   },
   "es": {
     "t001": "Embajadas PALACO — Doce puestos, un Gobierno",
@@ -952,7 +984,15 @@
     "t186": "No se pudo confirmar el cierre de la sesión. Inténtalo de nuevo.",
     "t187": "Gobernanza",
     "t188": "Quórum",
-    "t999": "Descargar RIO"
+    "t999": "Descargar RIO",
+    "t189": "Se requiere aprobación de seguridad",
+    "t190": "El inicio de sesión y la creación de cuentas siguen cerrados hasta que el control de seguridad dé su aprobación.",
+    "t191": "Aprobación de seguridad aún no disponible",
+    "t192": "Falta la aprobación de seguridad. El inicio de sesión, la creación de cuentas y el acceso personal siguen cerrados.",
+    "t193": "El control de seguridad no está disponible. El inicio de sesión, la creación de cuentas y el acceso personal siguen cerrados.",
+    "t194": "Primero se obtiene la aprobación de seguridad, antes de iniciar sesión o crear una cuenta.",
+    "t195": "Acceso tras aprobación de seguridad y verificación de la cuenta",
+    "t196": "Comprobando aprobación de seguridad…"
   },
   "it": {
     "t001": "Ambasciate PALACO — Dodici posti, un solo Governo",
@@ -1143,7 +1183,15 @@
     "t186": "Non è stato possibile confermare la chiusura della sessione. Riprova.",
     "t187": "Governance",
     "t188": "Quorum",
-    "t999": "Scarica RIO"
+    "t999": "Scarica RIO",
+    "t189": "Approvazione di sicurezza richiesta",
+    "t190": "L’accesso e la creazione di account restano chiusi finché il controllo di sicurezza non dà l’approvazione.",
+    "t191": "Approvazione di sicurezza non ancora disponibile",
+    "t192": "Manca l’approvazione di sicurezza. L’accesso, la creazione di account e l’area personale restano chiusi.",
+    "t193": "Il controllo di sicurezza non è raggiungibile. L’accesso, la creazione di account e l’area personale restano chiusi.",
+    "t194": "L’approvazione di sicurezza si ottiene prima di accedere o creare un account.",
+    "t195": "Accesso dopo approvazione di sicurezza e verifica dell’account",
+    "t196": "Verifica dell’approvazione di sicurezza…"
   },
   "pt": {
     "t001": "Embaixadas PALACO — Doze postos, um Governo",
@@ -1334,7 +1382,15 @@
     "t186": "Não foi possível confirmar o fim da sessão. Tente novamente.",
     "t187": "Governação",
     "t188": "Quórum",
-    "t999": "Baixar RIO"
+    "t999": "Baixar RIO",
+    "t189": "É necessária aprovação de segurança",
+    "t190": "O início de sessão e a criação de contas mantêm-se fechados até à aprovação da verificação de segurança.",
+    "t191": "Aprovação de segurança ainda indisponível",
+    "t192": "Falta a aprovação de segurança. O início de sessão, a criação de contas e o acesso pessoal mantêm-se fechados.",
+    "t193": "A verificação de segurança não está acessível. O início de sessão, a criação de contas e o acesso pessoal mantêm-se fechados.",
+    "t194": "A aprovação de segurança é obtida primeiro, antes de iniciar sessão ou criar uma conta.",
+    "t195": "Acesso após aprovação de segurança e verificação da conta",
+    "t196": "A verificar a aprovação de segurança…"
   },
   "ru": {
     "t001": "Посольства PALACO — Двенадцать постов, одно правительство",
@@ -1525,7 +1581,15 @@
     "t186": "Не удалось подтвердить завершение сеанса. Попробуйте ещё раз.",
     "t187": "Управление",
     "t188": "Кворум",
-    "t999": "Скачать RIO"
+    "t999": "Скачать RIO",
+    "t189": "Требуется разрешение безопасности",
+    "t190": "Вход и создание аккаунта остаются закрытыми до разрешения проверки безопасности.",
+    "t191": "Разрешение безопасности пока недоступно",
+    "t192": "Разрешение безопасности отсутствует. Вход, создание аккаунта и личный доступ остаются закрытыми.",
+    "t193": "Проверка безопасности недоступна. Вход, создание аккаунта и личный доступ остаются закрытыми.",
+    "t194": "Перед входом или созданием аккаунта сначала получают разрешение безопасности.",
+    "t195": "Доступ после разрешения безопасности и проверки аккаунта",
+    "t196": "Проверка разрешения безопасности…"
   },
   "zh": {
     "t001": "PALACO 使馆 — 十二个岗位，一个政府",
@@ -1716,7 +1780,15 @@
     "t186": "无法确认会话已结束。请重试。",
     "t187": "治理",
     "t188": "法定人数",
-    "t999": "下载 RIO"
+    "t999": "下载 RIO",
+    "t189": "需要安全批准",
+    "t190": "安全检查批准之前，登录和创建账户保持关闭。",
+    "t191": "安全批准暂不可用",
+    "t192": "缺少安全批准。登录、创建账户和个人访问保持关闭。",
+    "t193": "安全检查无法访问。登录、创建账户和个人访问保持关闭。",
+    "t194": "登录或创建账户之前，先取得安全批准。",
+    "t195": "安全批准并验证账户后方可访问",
+    "t196": "正在检查安全批准…"
   },
   "ar": {
     "t001": "سفارات PALACO — اثنا عشر منصبًا، وحكومة واحدة",
@@ -1907,7 +1979,15 @@
     "t186": "تعذّر تأكيد إغلاق الجلسة. حاول مرة أخرى.",
     "t187": "الحوكمة",
     "t188": "النصاب",
-    "t999": "تنزيل RIO"
+    "t999": "تنزيل RIO",
+    "t189": "موافقة أمنية مطلوبة",
+    "t190": "يبقى تسجيل الدخول وإنشاء الحساب مغلقين حتى يمنح الفحص الأمني الموافقة.",
+    "t191": "الموافقة الأمنية غير متاحة بعد",
+    "t192": "الموافقة الأمنية مفقودة. يبقى تسجيل الدخول وإنشاء الحساب والوصول الشخصي مغلقًا.",
+    "t193": "الفحص الأمني غير متاح. يبقى تسجيل الدخول وإنشاء الحساب والوصول الشخصي مغلقًا.",
+    "t194": "تُحصل الموافقة الأمنية أولًا، قبل تسجيل الدخول أو إنشاء الحساب.",
+    "t195": "الوصول بعد الموافقة الأمنية والتحقق من الحساب",
+    "t196": "جارٍ التحقق من الموافقة الأمنية…"
   },
   "eo": {
     "t001": "Ambasadejoj de PALACO — Dek du postenoj, unu registaro",
@@ -2098,6 +2178,14 @@
     "t186": "La fino de la seanco ne povis esti konfirmita. Provu denove.",
     "t187": "Regado",
     "t188": "Kvorumo",
-    "t999": "Elŝuti RIO"
+    "t999": "Elŝuti RIO",
+    "t189": "Sekureca aprobo necesas",
+    "t190": "Ensaluto kaj kreado de konto restas fermitaj ĝis la sekureca kontrolo donas aprobon.",
+    "t191": "Sekureca aprobo ankoraŭ ne disponeblas",
+    "t192": "Sekureca aprobo mankas. Ensaluto, kreado de konto kaj persona aliro restas fermitaj.",
+    "t193": "La sekureca kontrolo ne estas atingebla. Ensaluto, kreado de konto kaj persona aliro restas fermitaj.",
+    "t194": "Sekureca aprobo estas unue akirata, antaŭ ensaluto aŭ kreado de konto.",
+    "t195": "Aliro post sekureca aprobo kaj kontokontrolo",
+    "t196": "Kontrolante sekurecan aprobon…"
   }
 }

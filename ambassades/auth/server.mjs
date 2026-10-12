@@ -9,6 +9,7 @@ import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { authorizeSeat, isSeat, parseRegistry } from './access-policy.mjs';
 import { MemorySessionStore } from './session-store.mjs';
+import { createAuthSecurityApproval, closedSecurityApproval } from './auth-security-approval.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const siteRoot = resolve(here, '..');
@@ -75,9 +76,10 @@ function httpError(status, code) {
   return Object.assign(new Error(code), { status, safeCode: code });
 }
 
-export function makeAfterCallback(loadMembers, verifyIdToken) {
-  if (typeof loadMembers !== 'function' || typeof verifyIdToken !== 'function') {
-    throw new TypeError('Callback requires membership and token verifiers.');
+export function makeAfterCallback(loadMembers, verifyIdToken, approveAuthentication = async () => false) {
+  if (typeof loadMembers !== 'function' || typeof verifyIdToken !== 'function'
+      || typeof approveAuthentication !== 'function') {
+    throw new TypeError('Callback requires membership, token and safety verifiers.');
   }
   return async function afterCallback(req, res, session, decodedState) {
     const target = typeof decodedState?.returnTo === 'string'
@@ -92,6 +94,22 @@ export function makeAfterCallback(loadMembers, verifyIdToken) {
     }
     if (!authorizeSeat(claims, await loadMembers(), target[1])) {
       throw httpError(403, 'SEAT_ACCESS_DENIED');
+    }
+    let approved = false;
+    try {
+      approved = await approveAuthentication(req, res, {
+        session, decodedState, claims, seat: target[1],
+      });
+    } catch {}
+    if (approved !== true && typeof approved !== 'function') throw httpError(503, 'SAFETY_APPROVAL_REQUIRED');
+    // Admission must still match the current private registry after the asynchronous check.
+    if (!authorizeSeat(claims, await loadMembers(), target[1])) {
+      throw httpError(403, 'SEAT_ACCESS_DENIED');
+    }
+    if (typeof approved === 'function') {
+      try {
+        if (approved() !== true) throw httpError(503, 'SAFETY_APPROVAL_REQUIRED');
+      } catch { throw httpError(503, 'SAFETY_APPROVAL_REQUIRED'); }
     }
     return session;
   };
@@ -135,7 +153,10 @@ function contentSecurityPolicy() {
     + " connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; worker-src 'self'; manifest-src 'self'";
 }
 
-export function buildApp({ env = process.env, registryLoader, authMiddleware, sessionStore, novaOptions } = {}) {
+export function buildApp({
+  env = process.env, registryLoader, authMiddleware, sessionStore, novaOptions,
+  authSafetyEvaluator, authSafetyNow = Date.now,
+} = {}) {
   const config = readConfiguration(env);
   const app = express();
   app.disable('x-powered-by');
@@ -177,6 +198,18 @@ export function buildApp({ env = process.env, registryLoader, authMiddleware, se
     next();
   }
 
+  const authSafety = createAuthSecurityApproval({
+    evaluate: authSafetyEvaluator,
+    baseURL: config.configured ? config.baseURL : 'https://palaco-ambassades.onrender.com',
+    secure: config.configured ? config.secure : true,
+    now: authSafetyNow,
+    // An explicit upstream identity fixture is a trusted code dependency, never a public setting.
+    allowSyntheticSessions: Boolean(authMiddleware),
+  });
+  app.locals.authSafetyApproval = authSafety;
+  // This precedes the SDK callback router, including case/trailing-slash variants.
+  app.use(authSafety.middleware);
+
   if (config.configured) {
     const oidcConfig = {
       issuerBaseURL: config.issuerBaseURL,
@@ -208,7 +241,9 @@ export function buildApp({ env = process.env, registryLoader, authMiddleware, se
         absoluteDuration: 28800,
         cookie: { secure: config.secure, httpOnly: true, sameSite: 'Lax', path: '/' },
       },
-      afterCallback: makeAfterCallback(registry, createIdTokenVerifier(config)),
+      getLoginState: (req, options) => authSafety.loginState(req, options),
+      afterCallback: makeAfterCallback(registry, createIdTokenVerifier(config),
+        (req, res, details) => authSafety.complete(req, res, details)),
     };
     app.use(authMiddleware || auth(oidcConfig));
   }
@@ -220,35 +255,82 @@ export function buildApp({ env = process.env, registryLoader, authMiddleware, se
     ...novaOptions,
   });
   app.get('/api/auth/status', async (req, res) => {
-    if (!config.configured) return res.json({ configured: false, available: false, authenticated: false });
-    let members;
-    try { members = await registry(); } catch {
-      return res.json({ configured: true, available: false, authenticated: false });
+    let securityApproval = await authSafety.readiness();
+    const unavailable = () => {
+      if (securityApproval.outcome === 'APPROVED') {
+        try { authSafety.assertReadiness(securityApproval); }
+        catch { securityApproval = closedSecurityApproval(); }
+      }
+      return { configured: config.configured, available: false, authenticated: false, securityApproval };
+    };
+    if (securityApproval.outcome !== 'APPROVED' || !config.configured) {
+      return res.json(unavailable());
     }
-    const member = req.oidc?.isAuthenticated()
+    let members;
+    try { members = await registry(); } catch { return res.json(unavailable()); }
+    let member = req.oidc?.isAuthenticated()
       ? authorizeSeat(req.oidc.idTokenClaims, members) : null;
+    let commitSessionAccess = null;
+    if (member) {
+      const approvedSeat = member.seat;
+      const claims = { iss: req.oidc.idTokenClaims.iss, sub: req.oidc.idTokenClaims.sub };
+      try {
+        commitSessionAccess = await authSafety.approveSession(req, approvedSeat, claims);
+        members = await registry();
+        const current = req.oidc?.isAuthenticated() ? req.oidc.idTokenClaims : null;
+        member = current?.iss === claims.iss && current?.sub === claims.sub
+          ? authorizeSeat(current, members, approvedSeat) : null;
+        if (!member) {
+          securityApproval = closedSecurityApproval();
+          return res.json(unavailable());
+        }
+      } catch {
+        securityApproval = closedSecurityApproval();
+        return res.json(unavailable());
+      }
+    }
+    try {
+      authSafety.assertReadiness(securityApproval);
+      if (commitSessionAccess && commitSessionAccess() !== true) throw httpError(503, 'SAFETY_APPROVAL_REQUIRED');
+    } catch {
+      securityApproval = closedSecurityApproval();
+      return res.json(unavailable());
+    }
     return res.json({
-      configured: true,
-      available: true,
-      authenticated: Boolean(member),
+      configured: true, available: true, authenticated: Boolean(member), securityApproval,
       ...(member ? { seat: member.seat } : {}),
     });
   });
 
-  app.get('/login', requireConfiguration, async (req, res) => {
+  async function startAuthentication(req, res, action) {
     const seat = req.query.seat;
     if (!isSeat(seat)) return res.status(400).json({ error: 'INVALID_SEAT' });
     await registry();
+    await authSafety.begin(req, res, action, seat);
     return res.oidc.login({
       returnTo: '/toegang.html?seat=' + seat,
-      authorizationParams: { prompt: 'login' },
+      authorizationParams: {
+        prompt: 'login',
+        ...(action === 'signup' ? { screen_hint: 'signup' } : {}),
+      },
     });
-  });
+  }
+  app.get('/login', requireConfiguration, (req, res) => startAuthentication(req, res, 'login'));
+  app.get('/signup', requireConfiguration, (req, res) => startAuthentication(req, res, 'signup'));
 
   async function privateAccess(req, res, next) {
     if (!req.oidc?.isAuthenticated()) return res.status(401).json({ error: 'AUTHENTICATION_REQUIRED' });
-    const member = authorizeSeat(req.oidc.idTokenClaims, await registry(), req.params.seat);
+    const claims = { iss: req.oidc.idTokenClaims.iss, sub: req.oidc.idTokenClaims.sub };
+    let member = authorizeSeat(claims, await registry(), req.params.seat);
     if (!member) return res.status(403).json({ error: 'SEAT_ACCESS_DENIED' });
+    const approvedSeat = member.seat;
+    const commitSessionAccess = await authSafety.approveSession(req, approvedSeat, claims);
+    const members = await registry();
+    const current = req.oidc?.isAuthenticated() ? req.oidc.idTokenClaims : null;
+    member = current?.iss === claims.iss && current?.sub === claims.sub
+      ? authorizeSeat(current, members, approvedSeat) : null;
+    if (!member) return res.status(403).json({ error: 'SEAT_ACCESS_DENIED' });
+    if (commitSessionAccess() !== true) throw httpError(503, 'SAFETY_APPROVAL_REQUIRED');
     res.locals.member = member;
     next();
   }
@@ -293,5 +375,8 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const app = buildApp();
   const host = process.env.HOST || '127.0.0.1';
   const listener = app.listen(port, host, () => console.log('PALACO ambassador portal listening on port ' + port));
-  listener.on('close', () => app.locals.novaReception.close());
+  listener.on('close', () => {
+    app.locals.novaReception.close();
+    app.locals.authSafetyApproval.close();
+  });
 }

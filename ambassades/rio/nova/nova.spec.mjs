@@ -58,7 +58,7 @@ test('NOVA page calls a real running HTTP component and protected sources remain
   await expect(page.locator('#nova-runtime-status')).toBeVisible();
   const runtime = await request.get(fixture.origin + API + '/runtime');
   expect(runtime.status()).toBe(200);
-  expect(await runtime.json()).toMatchObject({ running: true, component: 'NOVA_RECEPTION', storage: 'volatile-memory', version: '0.2', receptionEnabled: true, firstAcceptanceEnabled: true, chatEnabled: false });
+  expect(await runtime.json()).toMatchObject({ running: true, component: 'NOVA_RECEPTION', storage: 'volatile-memory', version: '0.3', receptionEnabled: true, firstAcceptanceEnabled: true, checkGateEnabled: true, guardianRuntimeConnected: false, stewardRuntimeConnected: false, finalConsentEnabled: false, chatEnabled: false });
   expect((await request.get(fixture.origin + API + '/requests')).status()).toBe(401);
   for (const path of ['/rio/nova/nova.spec.mjs', '/rio/nova/playwright.config.mjs', '/auth/nova-reception.mjs', '/nova-reception.mjs']) {
     expect((await request.get(fixture.origin + path)).status(), path).toBe(404);
@@ -241,6 +241,8 @@ test('all eleven languages render a real receipt with Arabic RTL and fitting mob
   await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'AT_RECEPTION');
   await card.locator('[data-action="accept"]').click();
   await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'FIRST_ACCEPTED');
+  await card.locator('[data-action="request_checks"]').click();
+  await expectGatePanel(card);
   const languages = ['nl', 'en', 'de', 'fr', 'es', 'it', 'pt', 'ru', 'zh', 'ar', 'eo'];
   expect(await page.locator('#language option').evaluateAll(options => options.map(option => option.value))).toEqual(languages);
   const headings = new Set();
@@ -252,6 +254,8 @@ test('all eleven languages render a real receipt with Arabic RTL and fitting mob
     await expect(page.locator('.nova-status')).toHaveAttribute('data-status', 'FIRST_ACCEPTED');
     await expect(card.locator('.nova-acceptance')).toHaveAttribute('data-scope', 'reception-only');
     expect((await card.locator('.nova-acceptance').textContent()).trim().length).toBeGreaterThan(10);
+    await expectGatePanel(card);
+    expect((await card.locator('.nova-check-gate').textContent()).trim().length).toBeGreaterThan(40);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), language + '/' + testInfo.project.name).toBe(true);
     expect(await page.locator('[data-i18n]').evaluateAll(elements => elements.every(element => element.textContent.trim().length > 0))).toBe(true);
   }
@@ -372,7 +376,7 @@ test('the real reception refuse button erases text and cannot be undone or repla
   await card.locator('[data-action="refuse"]').click();
   await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'REFUSED');
   await expect(card).not.toContainText(marker);
-  await expect(card.locator('.nova-acceptance, button[data-action]')).toHaveCount(0);
+  await expect(card.locator('.nova-acceptance, .nova-check-gate, button[data-action]')).toHaveCount(0);
   const [refused] = await receipts(context);
   expect(refused).toMatchObject({ status: 'REFUSED', revision: 3, text: '', firstAcceptance: null, resumeTo: null });
   const session = await ownSession(context);
@@ -423,24 +427,213 @@ test('real server deadline hides accepted consent and text while offline until e
     await card.locator('[data-action="accept"]').click();
     await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'FIRST_ACCEPTED');
     await expect(card.locator('.nova-acceptance')).toHaveAttribute('data-scope', 'reception-only');
+    await card.locator('[data-action="request_checks"]').click();
+    await expectGatePanel(card);
     const [accepted] = await receipts(context, timed.origin);
     expect(accepted.status).toBe('FIRST_ACCEPTED');
+    expect(accepted.checkGate.outcome).toBe('HOLD');
     expect(Date.parse(accepted.expiresAt) - Date.parse(accepted.createdAt)).toBe(3000);
     await context.setOffline(true);
     await expect(card).toHaveAttribute('data-expiry-pending', 'true', { timeout: 7000 });
     await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'EXPIRY_PENDING');
-    await expect(card.locator('.nova-acceptance, button[data-action]')).toHaveCount(0);
+    await expect(card.locator('.nova-acceptance, .nova-check-gate, button[data-action]')).toHaveCount(0);
     await expect(card).not.toContainText(marker);
     await context.setOffline(false);
     await page.locator('#nova-refresh').click();
     await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'EXPIRED');
-    await expect(card.locator('.nova-acceptance, button[data-action]')).toHaveCount(0);
+    await expect(card.locator('.nova-acceptance, .nova-check-gate, button[data-action]')).toHaveCount(0);
     await expect(card).not.toContainText(marker);
     expect((await receipts(context, timed.origin))[0]).toMatchObject({
-      status: 'EXPIRED', text: '', firstAcceptance: null, resumeTo: null,
+      status: 'EXPIRED', text: '', firstAcceptance: null, resumeTo: null, checkGate: null,
     });
   } finally {
     await context.setOffline(false);
+    await timed.close();
+  }
+});
+
+const EXPECTED_GUARD_ROLES = ['IDENTITY', 'ADDRESS', 'HUMAN_CONSENT', 'SCOPE_POLICY', 'E2EE_KEYS', 'CONTENT_INTEGRITY', 'REPLAY_ORDER', 'PRIVACY', 'DELIVERY_REVOCATION'];
+async function expectGatePanel(card) {
+  const panel = card.locator('.nova-check-gate');
+  await expect(panel).toHaveAttribute('data-outcome', 'HOLD');
+  await expect(panel.locator('.nova-guard')).toHaveCount(9);
+  expect(await panel.locator('.nova-guard').evaluateAll(rows => rows.map(row => row.dataset.roleCode))).toEqual(EXPECTED_GUARD_ROLES);
+  await expect(panel.locator('.nova-guard-side[data-status="UNKNOWN"]')).toHaveCount(18);
+  for (const role of EXPECTED_GUARD_ROLES) {
+    const guard = panel.locator('.nova-guard[data-role-code="' + role + '"]');
+    await expect(guard.locator('.nova-guard-side[data-side="SENDER"]')).toHaveAttribute('data-status', 'UNKNOWN');
+    await expect(guard.locator('.nova-guard-side[data-side="RECEIVER"]')).toHaveAttribute('data-status', 'UNKNOWN');
+  }
+  await expect(panel.locator('.nova-steward')).toHaveAttribute('data-status', 'UNKNOWN');
+  await expect(panel.locator('.nova-local-check[data-status="CONFIRMED"]')).toHaveCount(4);
+  for (const check of ['session', 'receptionChoice', 'scope', 'expiry']) {
+    await expect(panel.locator('.nova-local-check[data-check="' + check + '"]')).toHaveAttribute('data-status', 'CONFIRMED');
+  }
+}
+async function createAccepted(page) {
+  const card = await createReceipt(page, 'Fictieve controlepoortproef voor de NOVA-receptie.');
+  await card.locator('[data-action="to_reception"]').click();
+  await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'AT_RECEPTION');
+  await card.locator('[data-action="accept"]').click();
+  await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'FIRST_ACCEPTED');
+  return card;
+}
+
+test('real server assessment shows missing integrations, survives explicit reconnect and is revoked by hold', async ({ page, context }) => {
+  await open(page);
+  await connect(page);
+  const card = await createAccepted(page);
+  const id = await card.getAttribute('data-receipt-id');
+  const [accepted] = await receipts(context);
+  expect(accepted.checkGate).toBeNull();
+  await card.locator('[data-action="request_checks"]').click();
+  await expectGatePanel(card);
+  const [checked] = await receipts(context);
+  expect(checked).toMatchObject({ id, status: 'FIRST_ACCEPTED', revision: 4, expiresAt: accepted.expiresAt, firstAcceptance: accepted.firstAcceptance });
+  expect(checked.checkGate).toMatchObject({
+    receiptId: id, currentRevision: 4, receptionAcceptedAt: accepted.firstAcceptance.acceptedAt,
+    scope: 'reception-only', outcome: 'HOLD', reason: 'CONNECTIONS_MISSING', steward: 'UNKNOWN',
+    canOpenContact: false, finalConsentEnabled: false,
+  });
+  expect(checked.checkGate.guards.every(guard => guard.sender === 'UNKNOWN' && guard.receiver === 'UNKNOWN')).toBe(true);
+  await card.locator('[data-action="request_checks"]').click();
+  await expect.poll(async () => (await receipts(context))[0].revision).toBe(5);
+  expect((await receipts(context))[0].checkGate.currentRevision).toBe(5);
+  await page.reload();
+  await expect(page.locator('.nova-check-gate')).toHaveCount(0);
+  await connect(page);
+  const restored = page.locator('[data-receipt-id="' + id + '"]');
+  await expectGatePanel(restored);
+  expect((await receipts(context))[0].firstAcceptance).toEqual(accepted.firstAcceptance);
+  await restored.locator('[data-action="hold"]').click();
+  await expect(restored.locator('.nova-status')).toHaveAttribute('data-status', 'ON_HOLD');
+  await expect(restored.locator('.nova-check-gate, .nova-acceptance')).toHaveCount(0);
+  expect((await receipts(context))[0]).toMatchObject({ status: 'ON_HOLD', checkGate: null, firstAcceptance: null });
+  await restored.locator('[data-action="resume"]').click();
+  await expect(restored.locator('.nova-status')).toHaveAttribute('data-status', 'AT_RECEPTION');
+  await restored.locator('[data-action="accept"]').click();
+  await expect(restored.locator('.nova-status')).toHaveAttribute('data-status', 'FIRST_ACCEPTED');
+  await expect(restored.locator('.nova-check-gate')).toHaveCount(0);
+  expect((await receipts(context))[0].checkGate).toBeNull();
+});
+
+test('a second independent browser session cannot see or evaluate the first session’s assessment', async ({ page, context, browser }, testInfo) => {
+  await open(page);
+  await connect(page);
+  const card = await createAccepted(page);
+  await card.locator('[data-action="request_checks"]').click();
+  await expectGatePanel(card);
+  const [checked] = await receipts(context);
+  const second = await browser.newContext({ viewport: testInfo.project.use.viewport });
+  const b = await second.newPage();
+  const secondErrors = [];
+  b.on('pageerror', error => secondErrors.push(error.message));
+  try {
+    await open(b);
+    await connect(b);
+    await expect(b.locator('.nova-check-gate, [data-receipt-id]')).toHaveCount(0);
+    const sessionB = await ownSession(second);
+    const denied = await second.request.post(fixture.origin + API + '/requests/' + checked.id + '/actions', {
+      headers: { Origin: fixture.origin, 'X-NOVA-CSRF': sessionB.csrfToken },
+      data: { action: 'request_checks', revision: checked.revision },
+    });
+    expect(denied.status()).toBe(404);
+    expect(await denied.json()).toEqual({ error: 'NOVA_REQUEST_NOT_FOUND' });
+    expect(await receipts(second)).toEqual([]);
+    expect((await receipts(context))[0]).toEqual(checked);
+    await b.locator('#nova-refresh').click();
+    await expect(b.locator('.nova-check-gate')).toHaveCount(0);
+    expect(secondErrors).toEqual([]);
+  } finally { await second.close(); }
+});
+
+test('offline check request never displays a fabricated assessment and a deliberate retry records a real HOLD', async ({ page, context }) => {
+  await open(page);
+  await connect(page);
+  const card = await createAccepted(page);
+  await context.setOffline(true);
+  try {
+    await card.locator('[data-action="request_checks"]').click();
+    await expect(page.locator('#nova-notice')).not.toHaveText('');
+    await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'FIRST_ACCEPTED');
+    await expect(card.locator('.nova-check-gate')).toHaveCount(0);
+  } finally { await context.setOffline(false); }
+  await page.locator('#nova-refresh').click();
+  expect((await receipts(context))[0]).toMatchObject({ status: 'FIRST_ACCEPTED', revision: 3, checkGate: null });
+  await card.locator('[data-action="request_checks"]').click();
+  await expectGatePanel(card);
+  expect((await receipts(context))[0]).toMatchObject({
+    revision: 4, checkGate: { currentRevision: 4, outcome: 'HOLD', canOpenContact: false },
+  });
+});
+
+test('browser cannot forge guardian results or unlock contact through the HOLD assessment', async ({ page, context }) => {
+  await open(page);
+  await connect(page);
+  const card = await createAccepted(page);
+  await card.locator('[data-action="request_checks"]').click();
+  await expectGatePanel(card);
+  const [checked] = await receipts(context);
+  const session = await ownSession(context);
+  const headers = { Origin: fixture.origin, 'X-NOVA-CSRF': session.csrfToken };
+  const url = fixture.origin + API + '/requests/' + checked.id + '/actions';
+  for (const extra of [{ outcome: 'PASS' }, { canOpenContact: true }, { finalConsentEnabled: true }, { guards: [{ id: '6RI9ADE-BG-01', sender: 'PASS', receiver: 'PASS' }] }]) {
+    const spoof = await context.request.post(url, { headers, data: { action: 'request_checks', revision: checked.revision, ...extra } });
+    expect(spoof.status()).toBe(400);
+  }
+  for (const action of ['open', 'final_accept', 'execute']) {
+    expect((await context.request.post(url, { headers, data: { action, revision: checked.revision } })).status()).toBe(400);
+  }
+  await expect(card.locator('[data-action="open"], [data-action="final_accept"], [data-action="execute"]')).toHaveCount(0);
+  expect((await receipts(context))[0]).toEqual(checked);
+  await expectGatePanel(card);
+  const runtime = await context.request.get(fixture.origin + API + '/runtime');
+  expect(await runtime.json()).toMatchObject({
+    checkGateEnabled: true, guardianRuntimeConnected: false, stewardRuntimeConnected: false,
+    finalConsentEnabled: false, chatEnabled: false,
+  });
+});
+
+test('a delayed session reply cannot redisplay expired text, acceptance or a guard assessment', async ({ page, context }) => {
+  const timed = await startServer({ requestTtlMs: 3000, sessionTtlMs: 10000 });
+  const marker = 'FICTITIOUS_DELAYED_SESSION_GATE_619';
+  const routePattern = '**/api/rio/nova/session';
+  try {
+    await open(page, timed.origin);
+    await connect(page);
+    const card = await createReceipt(page, marker);
+    await card.locator('[data-action="to_reception"]').click();
+    await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'AT_RECEPTION');
+    await card.locator('[data-action="accept"]').click();
+    await expect(card.locator('.nova-status')).toHaveAttribute('data-status', 'FIRST_ACCEPTED');
+    await card.locator('[data-action="request_checks"]').click();
+    await expectGatePanel(card);
+    const [checked] = await receipts(context, timed.origin);
+    await page.reload();
+    let capturedStatus;
+    await page.route(routePattern, async route => {
+      const response = await route.fetch();
+      const snapshot = await response.json();
+      capturedStatus = snapshot.requests[0]?.status;
+      // Delay an actually live server snapshot until its receipt lifetime has passed.
+      await new Promise(resolve => setTimeout(resolve, 3500));
+      await route.fulfill({ response });
+    });
+    await connect(page);
+    expect(capturedStatus).toBe('FIRST_ACCEPTED');
+    const restored = page.locator('[data-receipt-id="' + checked.id + '"]');
+    await expect(restored).toHaveAttribute('data-expiry-pending', 'true');
+    await expect(restored.locator('.nova-status')).toHaveAttribute('data-status', 'EXPIRY_PENDING');
+    await expect(restored).not.toContainText(marker);
+    await expect(restored.locator('.nova-acceptance, .nova-check-gate, button[data-action]')).toHaveCount(0);
+    await page.unroute(routePattern);
+    await page.locator('#nova-refresh').click();
+    await expect(restored.locator('.nova-status')).toHaveAttribute('data-status', 'EXPIRED');
+    expect((await receipts(context, timed.origin))[0]).toMatchObject({
+      status: 'EXPIRED', text: '', firstAcceptance: null, checkGate: null,
+    });
+  } finally {
+    await page.unroute(routePattern);
     await timed.close();
   }
 });

@@ -3,6 +3,9 @@ import { createHash } from 'node:crypto';
 
 const origin = 'https://palaco-ambassades.onrender.com';
 const assets = [
+  ['/toegang.html', 'ambassades/toegang.html', 'text/html'],
+  ['/portal.js', 'ambassades/portal.js', 'text/javascript'],
+  ['/locales.json', 'ambassades/locales.json', 'application/json'],
   ['/rio/', 'ambassades/rio/palaco-rio-start-v0.1.html', 'text/html'],
   ['/rio/nova/', 'ambassades/rio/nova/index.html', 'text/html'],
   ['/rio/download', 'ambassades/rio/palaco-rio-start-v0.1.html', 'application/octet-stream'],
@@ -11,7 +14,7 @@ const assets = [
   ['/rio/icon-192.png', 'ambassades/rio/icon-192.png', 'image/png'],
   ['/rio/icon-512.png', 'ambassades/rio/icon-512.png', 'image/png'],
 ];
-const protectedPaths = ['/auth/server.mjs', '/.env', '/package.json', '/rio/start.spec.mjs'];
+const protectedPaths = ['/auth/server.mjs', '/auth/auth-security-approval.mjs', '/.env', '/package.json', '/rio/start.spec.mjs'];
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 function requireResult(value, code, path) {
   if (!value) throw new Error(code + ' ' + path);
@@ -39,7 +42,7 @@ async function verifyAsset([path, filename, type]) {
   if (path === '/rio/download') {
     requireResult(response.headers.get('content-disposition') === 'attachment; filename="PALACO-RIO-v0.1.html"', 'DOWNLOAD_ATTACHMENT_MISMATCH', path);
   }
-  if (path === '/rio/' || path === '/rio/nova/') {
+  if (path === '/rio/' || path === '/rio/nova/' || path === '/toegang.html') {
     const csp = response.headers.get('content-security-policy') || '';
     const scriptDirective = csp.split(';').map(value => value.trim()).find(value => value.startsWith('script-src ')) || '';
     const sources = new Set(scriptDirective.split(/\s+/).slice(1));
@@ -51,7 +54,8 @@ async function verifyAsset([path, filename, type]) {
       const hash = "'sha256-" + createHash('sha256').update(match[2]).digest('base64') + "'";
       requireResult(sources.has(hash), 'APP_SCRIPT_HASH_MISSING', path);
     }
-    requireResult(count > 0, 'APP_SCRIPT_NOT_FOUND', path);
+    if (path !== '/toegang.html') requireResult(count > 0, 'APP_SCRIPT_NOT_FOUND', path);
+    else requireResult(/<script\b[^>]*\bsrc=["']portal\.js["']/i.test(expected.toString('utf8')), 'APP_SCRIPT_NOT_FOUND', path);
   }
   if (path === '/rio/manifest.webmanifest') {
     const manifest = JSON.parse(bytes.toString('utf8'));
@@ -78,7 +82,7 @@ async function verifyClosed(path, status, error) {
 const checks = await Promise.allSettled([
   ...assets.map(verifyAsset),
   verifyHealth(),
-  verifyClosed('/api/me', 503, 'AUTH_NOT_CONFIGURED'),
+  verifyClosed('/api/me', 503, 'SAFETY_APPROVAL_REQUIRED'),
   ...protectedPaths.map(path => verifyClosed(path, 404, 'NOT_FOUND')),
 ]);
 let failed = false;
@@ -92,4 +96,4 @@ for (const result of checks) {
   }
 }
 if (failed) process.exitCode = 1;
-else console.log('PALACO_RIO_PUBLISHED_OK real_https=true assets=7 health=1 closed_endpoints=5');
+else console.log('PALACO_RIO_PUBLISHED_OK real_https=true assets=10 health=1 closed_endpoints=6');

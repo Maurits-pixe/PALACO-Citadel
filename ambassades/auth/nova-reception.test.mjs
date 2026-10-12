@@ -60,7 +60,11 @@ test('runtime is actual public HTTP and explicitly declares temporary reception 
   assert.equal(result.data.running, true);
   assert.equal(result.data.component, 'NOVA_RECEPTION');
   assert.equal(result.data.storage, 'volatile-memory');
-  assert.equal(result.data.version, '0.2');
+  assert.equal(result.data.version, '0.3');
+  assert.equal(result.data.checkGateEnabled, true);
+  assert.equal(result.data.guardianRuntimeConnected, false);
+  assert.equal(result.data.stewardRuntimeConnected, false);
+  assert.equal(result.data.finalConsentEnabled, false);
   assert.equal(result.data.receptionEnabled, true);
   assert.equal(result.data.firstAcceptanceEnabled, true);
   assert.equal(result.data.chatEnabled, false);
@@ -415,6 +419,7 @@ async function act(f, session, receipt, action, extra = {}) {
 }
 
 function noConsent(receipt) {
+  assert.equal(receipt.checkGate, null);
   assert.equal(receipt.firstAcceptance, null);
   assert.equal(receipt.resumeTo, null);
 }
@@ -595,4 +600,227 @@ test('simultaneous acceptance and refusal cannot both succeed at the same receip
   if (winner.status === 'FIRST_ACCEPTED') assert.equal(winner.firstAcceptance.scope, 'reception-only');
   else { assert.equal(winner.status, 'REFUSED'); assert.equal(winner.text, ''); noConsent(winner); }
   assert.deepEqual((await f.call('/requests', { cookie: a.cookie })).data.requests[0], winner);
+});
+
+const GUARD_ROLES = ['IDENTITY', 'ADDRESS', 'HUMAN_CONSENT', 'SCOPE_POLICY', 'E2EE_KEYS', 'CONTENT_INTEGRITY', 'REPLAY_ORDER', 'PRIVACY', 'DELIVERY_REVOCATION'];
+const GATE_SOURCE = {
+  repository: 'Maurits-pixe/PALACO-Citadel',
+  commit: '74dcf9535733af2f37a729b3a11f2269d5d594db',
+  path: 'rio/brigade-specialties.json',
+  blobSha: 'd938ba81c91b48704d566a448af87f0f0c2465bd',
+};
+async function firstAccepted(f, session) {
+  const created = (await f.create(session)).data.request;
+  const reception = (await act(f, session, created, 'to_reception')).data.request;
+  return (await act(f, session, reception, 'accept')).data.request;
+}
+function gateMatches(receipt, now) {
+  const gate = receipt.checkGate;
+  assert.equal(receipt.status, 'FIRST_ACCEPTED');
+  assert.deepEqual(Object.keys(gate).sort(), [
+    'schemaVersion', 'policyVersion', 'receiptId', 'currentRevision', 'receptionAcceptedAt', 'scope',
+    'evaluatedAt', 'expiresAt', 'outcome', 'reason', 'localChecks', 'guards', 'steward',
+    'canOpenContact', 'finalConsentEnabled', 'sourceBinding',
+  ].sort());
+  assert.equal(gate.schemaVersion, 'nova-check-gate/0.1');
+  assert.equal(gate.policyVersion, 'NOVA-CHECK-GATE-0.1');
+  assert.equal(gate.receiptId, receipt.id);
+  assert.equal(gate.currentRevision, receipt.revision);
+  assert.equal(gate.receptionAcceptedAt, receipt.firstAcceptance.acceptedAt);
+  assert.equal(gate.scope, 'reception-only');
+  assert.equal(gate.evaluatedAt, new Date(now).toISOString());
+  assert.equal(gate.expiresAt, receipt.expiresAt);
+  assert.equal(gate.outcome, 'HOLD');
+  assert.equal(gate.reason, 'CONNECTIONS_MISSING');
+  assert.deepEqual(gate.localChecks, { session: 'CONFIRMED', receptionChoice: 'CONFIRMED', scope: 'CONFIRMED', expiry: 'CONFIRMED' });
+  assert.deepEqual(gate.guards, GUARD_ROLES.map((roleCode, index) => ({
+    id: '6RI9ADE-BG-' + String(index + 1).padStart(2, '0'), roleCode, sender: 'UNKNOWN', receiver: 'UNKNOWN',
+  })));
+  assert.equal(gate.steward, 'UNKNOWN');
+  assert.equal(gate.canOpenContact, false);
+  assert.equal(gate.finalConsentEnabled, false);
+  assert.deepEqual(gate.sourceBinding, GATE_SOURCE);
+}
+
+test('check gate requires current first reception acceptance and cannot skip any earlier or closed state', async t => {
+  const f = await fixture(t);
+  const a = await f.session();
+  let receipt = (await f.create(a)).data.request;
+  assert.equal(receipt.checkGate, null);
+  assert.equal((await act(f, a, receipt, 'request_checks')).status, 409);
+  receipt = (await act(f, a, receipt, 'to_reception')).data.request;
+  assert.equal(receipt.checkGate, null);
+  assert.equal((await act(f, a, receipt, 'request_checks')).status, 409);
+  receipt = (await act(f, a, receipt, 'hold')).data.request;
+  assert.equal((await act(f, a, receipt, 'request_checks')).status, 409);
+  receipt = (await act(f, a, receipt, 'resume')).data.request;
+  receipt = (await act(f, a, receipt, 'refuse')).data.request;
+  assert.equal((await act(f, a, receipt, 'request_checks')).status, 410);
+  assert.equal(receipt.checkGate, null);
+  assert.deepEqual((await f.call('/requests', { cookie: a.cookie })).data.requests[0], receipt);
+});
+
+test('server check gate binds the actual accepted receipt and reports eighteen unknown remote guard outcomes', async t => {
+  const f = await fixture(t);
+  const a = await f.session();
+  const accepted = await firstAccepted(f, a);
+  assert.equal(accepted.checkGate, null);
+  f.advance(100);
+  const checked = await act(f, a, accepted, 'request_checks');
+  assert.equal(checked.status, 200);
+  assert.equal(checked.data.request.revision, accepted.revision + 1);
+  assert.equal(checked.data.request.expiresAt, accepted.expiresAt);
+  assert.deepEqual(checked.data.request.firstAcceptance, accepted.firstAcceptance);
+  gateMatches(checked.data.request, f.now());
+  assert.ok(!checked.text.includes(a.cookie.split('=')[1]));
+  assert.ok(!checked.text.includes(a.token));
+  assert.ok(!checked.text.includes('checkGateBinding'));
+  assert.ok(!Object.hasOwn(checked.data.request, 'sessionId'));
+  assert.deepEqual((await f.call('/requests', { cookie: a.cookie })).data.requests[0], checked.data.request);
+});
+
+test('repeat server evaluation replaces revision binding without renewing acceptance or extending expiry', async t => {
+  const f = await fixture(t);
+  const a = await f.session();
+  const accepted = await firstAccepted(f, a);
+  const first = (await act(f, a, accepted, 'request_checks')).data.request;
+  f.advance(1000);
+  const second = (await act(f, a, first, 'request_checks')).data.request;
+  gateMatches(second, f.now());
+  assert.equal(second.revision, first.revision + 1);
+  assert.notEqual(second.checkGate.evaluatedAt, first.checkGate.evaluatedAt);
+  assert.equal(second.expiresAt, accepted.expiresAt);
+  assert.deepEqual(second.firstAcceptance, accepted.firstAcceptance);
+  assert.equal((await act(f, a, first, 'request_checks')).status, 409);
+  const reconnect = await f.call('/session', { method: 'POST', cookie: a.cookie, body: {} });
+  assert.deepEqual(reconnect.data.requests[0], second);
+});
+
+test('client-supplied PASS, identity, guard and scope data cannot become a server check assessment', async t => {
+  const f = await fixture(t);
+  const a = await f.session();
+  const accepted = await firstAccepted(f, a);
+  const extras = [
+    { outcome: 'PASS' }, { canOpenContact: true }, { finalConsentEnabled: true }, { scope: 'chat' },
+    { sessionId: 'invented-session' }, { guards: GUARD_ROLES.map(roleCode => ({ roleCode, sender: 'PASS', receiver: 'PASS' })) },
+    { checkGate: { outcome: 'PASS', steward: 'PASS' } }, { snapshot: { recipientConsent: true } },
+  ];
+  for (const extra of extras) assert.equal((await act(f, a, accepted, 'request_checks', extra)).status, 400);
+  assert.deepEqual((await f.call('/requests', { cookie: a.cookie })).data.requests[0], accepted);
+  const checked = (await act(f, a, accepted, 'request_checks')).data.request;
+  for (const extra of extras) assert.equal((await act(f, a, checked, 'request_checks', extra)).status, 400);
+  assert.deepEqual((await f.call('/requests', { cookie: a.cookie })).data.requests[0], checked);
+});
+
+test('request_checks requires both own session and CSRF with exact origin and hides foreign receipt existence', async t => {
+  const f = await fixture(t);
+  const a = await f.session();
+  const b = await f.session();
+  const accepted = await firstAccepted(f, a);
+  const path = '/requests/' + accepted.id + '/actions';
+  const base = { method: 'POST', cookie: a.cookie, body: { action: 'request_checks', revision: accepted.revision } };
+  for (const extra of [{}, { token: b.token }, { token: a.token, sendOrigin: false }, { token: a.token, headers: { Origin: 'https://attacker.example' } }, { token: a.token, headers: { 'Sec-Fetch-Site': 'cross-site' } }]) {
+    assert.equal((await f.call(path, { ...base, ...extra })).status, 403);
+  }
+  const foreign = await act(f, b, accepted, 'request_checks');
+  const missing = await act(f, b, { id: key(999), revision: accepted.revision }, 'request_checks');
+  assert.equal(foreign.status, 404);
+  assert.equal(missing.status, 404);
+  assert.deepEqual(foreign.data, missing.data);
+  assert.deepEqual((await f.call('/requests', { cookie: a.cookie })).data.requests[0], accepted);
+  assert.deepEqual((await f.call('/requests', { cookie: b.cookie })).data.requests, []);
+});
+
+test('hold, withdrawal and expiry clear assessments and resuming never restores a previous check gate', async t => {
+  for (const closure of ['hold', 'withdraw', 'expire']) {
+    const f = await fixture(t, { requestTtlMs: 1000 });
+    const a = await f.session();
+    const accepted = await firstAccepted(f, a);
+    const checked = (await act(f, a, accepted, 'request_checks')).data.request;
+    gateMatches(checked, f.now());
+    let revoked;
+    if (closure === 'expire') {
+      f.advance(1000);
+      revoked = (await f.call('/requests', { cookie: a.cookie })).data.requests[0];
+      assert.equal(revoked.status, 'EXPIRED');
+    } else revoked = (await act(f, a, checked, closure)).data.request;
+    assert.equal(revoked.checkGate, null);
+    assert.equal(revoked.firstAcceptance, null);
+    if (closure === 'hold') {
+      assert.equal(revoked.status, 'ON_HOLD');
+      const resumed = (await act(f, a, revoked, 'resume')).data.request;
+      assert.equal(resumed.status, 'AT_RECEPTION');
+      assert.equal(resumed.checkGate, null);
+      const reaccepted = (await act(f, a, resumed, 'accept')).data.request;
+      assert.equal(reaccepted.status, 'FIRST_ACCEPTED');
+      assert.equal(reaccepted.checkGate, null);
+    } else {
+      assert.equal(revoked.text, '');
+      assert.equal((await act(f, a, revoked, 'request_checks')).status, 410);
+    }
+  }
+});
+
+test('a check at the exact receipt deadline closes the assessment instead of renewing or approving it', async t => {
+  const f = await fixture(t, { requestTtlMs: 1000 });
+  const a = await f.session();
+  const accepted = await firstAccepted(f, a);
+  f.advance(999);
+  const checked = (await act(f, a, accepted, 'request_checks')).data.request;
+  gateMatches(checked, f.now());
+  assert.equal(checked.expiresAt, accepted.expiresAt);
+  f.advance(1);
+  const deadlineCheck = await act(f, a, checked, 'request_checks');
+  assert.equal(deadlineCheck.status, 410);
+  const expired = (await f.call('/requests', { cookie: a.cookie })).data.requests[0];
+  assert.equal(expired.status, 'EXPIRED');
+  assert.equal(expired.text, '');
+  assert.equal(expired.checkGate, null);
+  assert.equal(expired.firstAcceptance, null);
+  assert.equal(expired.expiresAt, accepted.expiresAt);
+
+  const anchor = 1_900_000_000_000;
+  let crossDeadline = false;
+  let reads = 0;
+  const late = await fixture(t, {
+    requestTtlMs: 1000,
+    now: () => {
+      if (!crossDeadline) return anchor;
+      reads += 1;
+      // Both HTTP middleware checks see live consent; only the final commit sees expiry.
+      return anchor + (reads < 3 ? 999 : 1000);
+    },
+  });
+  const lateSession = await late.session();
+  const lateAccepted = await firstAccepted(late, lateSession);
+  const lateChecked = (await act(late, lateSession, lateAccepted, 'request_checks')).data.request;
+  assert.equal(lateChecked.checkGate.outcome, 'HOLD');
+  crossDeadline = true;
+  const deniedAtCommit = await act(late, lateSession, lateChecked, 'request_checks');
+  assert.equal(deniedAtCommit.status, 410, 'Deadline crossed after assessment preparation must block the commit');
+  assert.ok(reads >= 3);
+  const lateExpired = (await late.call('/requests', { cookie: lateSession.cookie })).data.requests[0];
+  assert.equal(lateExpired.status, 'EXPIRED');
+  assert.equal(lateExpired.checkGate, null);
+  assert.equal(lateExpired.firstAcceptance, null);
+  assert.equal(lateExpired.text, '');
+});
+
+test('a HOLD check gate cannot authorize final consent, chat, private-room access or execution', async t => {
+  const f = await fixture(t);
+  const a = await f.session();
+  const accepted = await firstAccepted(f, a);
+  const checked = (await act(f, a, accepted, 'request_checks')).data.request;
+  for (const action of ['open', 'final_accept', 'execute', 'release', 'merge']) assert.equal((await act(f, a, checked, action)).status, 400);
+  for (const route of ['/open', '/chat', '/final-consent']) {
+    assert.equal((await f.call('/requests/' + checked.id + route, { method: 'POST', cookie: a.cookie, token: a.token, body: {} })).status, 404);
+  }
+  const runtime = (await f.call('/runtime')).data;
+  assert.deepEqual({
+    checkGateEnabled: runtime.checkGateEnabled,
+    guardianRuntimeConnected: runtime.guardianRuntimeConnected,
+    stewardRuntimeConnected: runtime.stewardRuntimeConnected,
+    finalConsentEnabled: runtime.finalConsentEnabled, chatEnabled: runtime.chatEnabled,
+  }, { checkGateEnabled: true, guardianRuntimeConnected: false, stewardRuntimeConnected: false, finalConsentEnabled: false, chatEnabled: false });
+  assert.deepEqual((await f.call('/requests', { cookie: a.cookie })).data.requests[0], checked);
 });

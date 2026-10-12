@@ -21,6 +21,31 @@ let issuer, origin, tls, signingKey, wrongSigningKey, jwk, membersFile;
 let providerServer, appServer, nextToken = {}, tokenExchanges = 0;
 const codes = new Map();
 
+const APPROVED_SECURITY = Object.freeze({
+  required: true, available: true, outcome: 'APPROVED', reason: null,
+  loginAllowed: true, signupAllowed: true,
+});
+const HOLD_SECURITY = Object.freeze({
+  required: true, available: false, outcome: 'HOLD', reason: 'TRUSTED_SAFETY_APPROVAL_MISSING',
+  loginAllowed: false, signupAllowed: false,
+});
+const SAFETY_COOKIE = '__Host-palacoAuthSafety';
+let safetyMode = 'APPROVED';
+let authSafetyOffset = 0;
+let expireFinalCallbackRegistry = false;
+let callbackRegistryReads = 0;
+async function controlledSafetyEvaluator(context) {
+  const now = Date.now() + authSafetyOffset;
+  if (safetyMode === 'UNAVAILABLE') throw new Error('Synthetic safety service unavailable');
+  return {
+    schemaVersion: 'palaco-auth-safety-decision/0.1', outcome: safetyMode,
+    context: { ...context },
+    issuedAt: new Date(now - 1000).toISOString(),
+    expiresAt: new Date(now + 30000).toISOString(),
+  };
+}
+
+
 async function listen(server) {
   await new Promise((resolve, reject) => {
     server.once('error', reject);
@@ -177,7 +202,7 @@ async function expectDenied(response, status) {
 async function expectAnonymous(browser) {
   await expectDenied(await browser.request('/api/me'), 401);
   assert.deepEqual(await (await browser.request('/api/auth/status')).json(), {
-    configured: true, available: true, authenticated: false,
+    configured: true, available: true, authenticated: false, securityApproval: APPROVED_SECURITY,
   });
 }
 function metadata(seat) {
@@ -215,10 +240,18 @@ before(async () => {
     PALACO_SESSION_SECRET: randomBytes(32).toString('hex'),
     PALACO_MEMBERS_FILE: membersFile,
   };
-  const app = buildApp({ env });
+  // Explicit controlled safety evaluator; production has no approval provider by default.
+  const app = buildApp({ env, authSafetyEvaluator: controlledSafetyEvaluator, authSafetyNow: () => Date.now() + authSafetyOffset, registryLoader: async () => {
+    const records = JSON.parse(await readFile(membersFile, 'utf8'));
+    if (expireFinalCallbackRegistry && ++callbackRegistryReads === 2) authSafetyOffset += 31000;
+    return records;
+  } });
   appServer.on('request', app);
 });
 beforeEach(async () => {
+  safetyMode = 'APPROVED';
+  expireFinalCallbackRegistry = false;
+  callbackRegistryReads = 0;
   nextToken = {};
   await members();
 });
@@ -277,6 +310,8 @@ test('callback without the signed transaction cookie fails before code exchange'
   const owner = new Browser();
   const callback = await owner.authorize();
   const attacker = new Browser();
+  // Preserve only the independent safety flow capability to isolate the SDK transaction-cookie check.
+  attacker.cookies.set(SAFETY_COOKIE, owner.cookies.get(SAFETY_COOKIE));
   const exchangesBefore = tokenExchanges;
   await expectDenied(await attacker.request(callback.href), 400);
   assert.equal(tokenExchanges, exchangesBefore);
@@ -324,7 +359,7 @@ test('private registry revocation denies the very next request from a real logge
   await expectDenied(await browser.request('/api/me'), 403);
   await expectDenied(await browser.request('/api/seats/' + SEAT_ONE), 403);
   assert.deepEqual(await (await browser.request('/api/auth/status')).json(), {
-    configured: true, available: true, authenticated: false,
+    configured: true, available: true, authenticated: false, securityApproval: APPROVED_SECURITY,
   });
 });
 
@@ -345,4 +380,97 @@ test('same-origin POST logout clears the real session and rejects replay of its 
   const replay = new Browser();
   replay.cookies.set(SESSION_COOKIE, previousCookie);
   await expectAnonymous(replay);
+});
+
+async function expectSafetyBlocked(browser) {
+  await expectDenied(await browser.request('/api/me'), 503);
+  const status = await (await browser.request('/api/auth/status')).json();
+  assert.equal(status.available, false);
+  assert.equal(status.authenticated, false);
+  assert.equal(Object.hasOwn(status, 'seat'), false);
+  assert.deepEqual(status.securityApproval, HOLD_SECURITY);
+}
+
+test('revoked safety approval blocks the real callback before token exchange or session creation', async () => {
+  const browser = new Browser();
+  const callback = await browser.authorize();
+  const exchangesBefore = tokenExchanges;
+  safetyMode = 'HOLD';
+  await expectDenied(await browser.request(callback.href), 503);
+  assert.equal(tokenExchanges, exchangesBefore);
+  assert.equal(browser.cookies.has(SESSION_COOKIE), false);
+  await expectSafetyBlocked(browser);
+});
+
+test('HOLD or unavailable safety approval masks an existing real signed OIDC session', async () => {
+  const browser = new Browser();
+  assert.equal((await browser.login()).status, 302);
+  const signedCookie = browser.cookies.get(SESSION_COOKIE);
+  assert.ok(signedCookie);
+  assert.deepEqual(await (await browser.request('/api/me')).json(), metadata(SEAT_ONE));
+  for (const mode of ['HOLD', 'UNAVAILABLE']) {
+    safetyMode = mode;
+    await expectSafetyBlocked(browser);
+    await expectDenied(await browser.request('/api/seats/' + SEAT_ONE), 503);
+    await expectDenied(await browser.request('/login?seat=' + SEAT_ONE), 503);
+    await expectDenied(await browser.request('/signup?seat=' + SEAT_ONE), 503);
+  }
+  const logout = await browser.request('/logout', { method: 'POST', headers: { Origin: origin } });
+  assert.equal(logout.status, 302);
+  assert.equal(browser.cookies.has(SESSION_COOKIE), false);
+  safetyMode = 'APPROVED';
+  const replay = new Browser();
+  replay.cookies.set(SESSION_COOKIE, signedCookie);
+  await expectAnonymous(replay);
+});
+
+test('missing or substituted private safety capability blocks callback before the real provider exchange', async () => {
+  const owner = new Browser();
+  const callback = await owner.authorize();
+  const exchangesBefore = tokenExchanges;
+  const anonymous = new Browser();
+  await expectDenied(await anonymous.request(callback.href), 503);
+  const forged = new Browser();
+  for (const [name, value] of owner.cookies) forged.cookies.set(name, value);
+  forged.cookies.set(SAFETY_COOKIE, 'a'.repeat(64));
+  await expectDenied(await forged.request(callback.href), 503);
+  assert.equal(tokenExchanges, exchangesBefore);
+  assert.equal(forged.cookies.has(SESSION_COOKIE), false);
+});
+
+test('a completed safety flow cannot be replayed to exchange its authorization code twice', async () => {
+  const browser = new Browser();
+  const callback = await browser.authorize();
+  const capability = browser.cookies.get(SAFETY_COOKIE);
+  const exchangesBefore = tokenExchanges;
+  assert.equal((await browser.request(callback.href)).status, 302);
+  assert.equal(tokenExchanges, exchangesBefore + 1);
+  const replay = new Browser();
+  replay.cookies.set(SAFETY_COOKIE, capability);
+  await expectDenied(await replay.request(callback.href), 503);
+  assert.equal(tokenExchanges, exchangesBefore + 1);
+  assert.equal(replay.cookies.has(SESSION_COOKIE), false);
+});
+
+
+test('approval expiring during the final real callback registry await cannot admit an OIDC session', async () => {
+  const browser = new Browser();
+  const callback = await browser.authorize();
+  const exchangesBefore = tokenExchanges;
+  expireFinalCallbackRegistry = true;
+  callbackRegistryReads = 0;
+  await expectDenied(await browser.request(callback.href), 503);
+  assert.equal(tokenExchanges, exchangesBefore + 1, 'The incoming token was genuinely exchanged and verified before final approval expired');
+  assert.equal(browser.cookies.has(SESSION_COOKIE), false);
+});
+
+test('an expired private safety flow cannot exchange a pending code or create an OIDC session', async () => {
+  const browser = new Browser();
+  const callback = await browser.authorize();
+  const exchangesBefore = tokenExchanges;
+  // Trusted internal test clock only; this last test advances past the fixed five-minute flow lifetime.
+  authSafetyOffset += 300001;
+  await expectDenied(await browser.request(callback.href), 503);
+  assert.equal(tokenExchanges, exchangesBefore);
+  assert.equal(browser.cookies.has(SESSION_COOKIE), false);
 });

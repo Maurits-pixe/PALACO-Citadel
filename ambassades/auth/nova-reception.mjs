@@ -1,6 +1,7 @@
 import express from 'express';
 import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { performance } from 'node:perf_hooks';
+import { createNovaCheckGate, copyCurrentNovaCheckGate } from './nova-check-gate.mjs';
 
 const mountedApps = new WeakSet();
 const TOKEN = /^[a-f0-9]{64}$/;
@@ -70,13 +71,19 @@ function cookieValue(req, name) {
   return value;
 }
 
+function clearReceiptCheckGate(receipt) {
+  receipt.checkGate = null;
+  receipt.checkGateBinding = null;
+}
+
 function clearReceiptContent(receipt) {
+  clearReceiptCheckGate(receipt);
   receipt.text = '';
   receipt.resumeTo = null;
   receipt.firstAcceptance = null;
 }
 
-function copyReceipt(receipt) {
+function copyReceipt(receipt, sessionId, time, sessionExpiresAt) {
   return {
     id: receipt.id, status: receipt.status, text: receipt.text,
     createdAt: new Date(receipt.createdAt).toISOString(),
@@ -86,6 +93,7 @@ function copyReceipt(receipt) {
       acceptedAt: new Date(receipt.firstAcceptance.acceptedAt).toISOString(),
       scope: receipt.firstAcceptance.scope, actor: receipt.firstAcceptance.actor,
     } : null,
+    checkGate: copyCurrentNovaCheckGate(receipt, { sessionId, time, sessionExpiresAt }),
   };
 }
 
@@ -150,12 +158,14 @@ export function mountNovaReception(app, options = {}) {
   }
   function runtime(time) {
     return {
-      component: 'NOVA_RECEPTION', version: '0.2', running: true,
+      component: 'NOVA_RECEPTION', version: '0.3', running: true,
       serverTime: new Date(time).toISOString(), storage: 'volatile-memory',
       sessionTtlSeconds: config.sessionTtlMs / 1000,
       requestTtlSeconds: config.requestTtlMs / 1000,
       maxRequests: config.maxRequests, receptionEnabled: true,
-      firstAcceptanceEnabled: true, chatEnabled: false,
+      firstAcceptanceEnabled: true, checkGateEnabled: true,
+      guardianRuntimeConnected: false, stewardRuntimeConnected: false,
+      finalConsentEnabled: false, chatEnabled: false,
     };
   }
   function readSession(req) {
@@ -259,14 +269,16 @@ export function mountNovaReception(app, options = {}) {
     setCookie(res, id, session.expiresAt, time);
     res.json({
       session: { expiresAt: new Date(session.expiresAt).toISOString(), csrfToken: session.csrf },
-      runtime: runtime(time), requests: [...session.requests.values()].map(copyReceipt),
+      runtime: runtime(time),
+      requests: [...session.requests.values()].map(receipt => copyReceipt(receipt, id, time, session.expiresAt)),
     });
   });
 
   router.get('/requests', ...protectRead, (req, res) => {
-    const { session } = readSession(req);
+    const { id, session } = readSession(req);
     res.json({
-      requests: [...session.requests.values()].map(copyReceipt),
+      requests: [...session.requests.values()].map(receipt =>
+        copyReceipt(receipt, id, res.locals.novaTime, session.expiresAt)),
       session: { expiresAt: new Date(session.expiresAt).toISOString() },
       serverTime: new Date(res.locals.novaTime).toISOString(),
     });
@@ -278,7 +290,7 @@ export function mountNovaReception(app, options = {}) {
         || [...req.body.text].length > 512
         || typeof req.body.idempotencyKey !== 'string'
         || !REQUEST_ID.test(req.body.idempotencyKey)) throw fail(400, 'NOVA_INVALID_BODY');
-    const { session } = readSession(req);
+    const { id, session } = readSession(req);
     requireCsrf(req, session);
     const time = res.locals.novaTime;
     useActionRate(session, time);
@@ -287,26 +299,27 @@ export function mountNovaReception(app, options = {}) {
       const existing = session.requests.get(existingId);
       if (!existing || !LIVE.has(existing.status)) throw fail(410, 'NOVA_REQUEST_CLOSED');
       if (existing.text !== req.body.text) throw fail(409, 'NOVA_IDEMPOTENCY_CONFLICT');
-      return res.json({ request: copyReceipt(existing), replayed: true });
+      return res.json({ request: copyReceipt(existing, id, time, session.expiresAt), replayed: true });
     }
     if (session.requests.size >= config.maxRequests) throw fail(503, 'NOVA_CAPACITY_REACHED', 60);
     const receipt = {
       id: randomBytes(16).toString('hex'), status: 'RECEIVED', text: req.body.text,
       createdAt: time, expiresAt: Math.min(time + config.requestTtlMs, session.expiresAt),
       revision: 1, resumeTo: null, firstAcceptance: null,
+      checkGate: null, checkGateBinding: null,
     };
     session.requests.set(receipt.id, receipt);
     session.keys.set(req.body.idempotencyKey, receipt.id);
-    return res.status(201).json({ request: copyReceipt(receipt), replayed: false });
+    return res.status(201).json({ request: copyReceipt(receipt, id, time, session.expiresAt), replayed: false });
   });
 
   router.post('/requests/:id/actions', ...parseWrite, (req, res) => {
     if (!exactObject(req.body, ['action', 'revision'])
-        || !['to_reception', 'accept', 'refuse', 'hold', 'resume', 'withdraw'].includes(req.body.action)
+        || !['to_reception', 'accept', 'refuse', 'hold', 'resume', 'withdraw', 'request_checks'].includes(req.body.action)
         || !Number.isSafeInteger(req.body.revision) || req.body.revision < 1) {
       throw fail(400, 'NOVA_INVALID_BODY');
     }
-    const { session } = readSession(req);
+    const { id, session } = readSession(req);
     requireCsrf(req, session);
     useActionRate(session, res.locals.novaTime);
     const receipt = REQUEST_ID.test(req.params.id) ? session.requests.get(req.params.id) : null;
@@ -327,6 +340,12 @@ export function mountNovaReception(app, options = {}) {
             acceptedAt: res.locals.novaTime,
             scope: 'reception-only', actor: 'browser-test-session',
           };
+        }
+        break;
+      case 'request_checks':
+        if (receipt.status === 'FIRST_ACCEPTED') {
+          nextStatus = 'FIRST_ACCEPTED';
+          firstAcceptance = receipt.firstAcceptance;
         }
         break;
       case 'refuse':
@@ -350,12 +369,43 @@ export function mountNovaReception(app, options = {}) {
         break;
     }
     if (!nextStatus) throw fail(409, 'NOVA_INVALID_TRANSITION');
+    let assessment = null;
+    if (req.body.action === 'request_checks') {
+      try {
+        assessment = createNovaCheckGate({
+          ...receipt, status: nextStatus, revision: receipt.revision + 1, firstAcceptance,
+        }, { sessionId: id, time: res.locals.novaTime, sessionExpiresAt: session.expiresAt });
+      } catch {
+        throw fail(503, 'NOVA_CHECK_GATE_UNAVAILABLE');
+      }
+    }
+    // Re-read time and erase expired state after preparing the assessment, immediately
+    // before the synchronous commit. No loader or callback runs between this check and commit.
+    const commitTime = clock();
+    cleanup(commitTime);
+    if (sessions.get(id) !== session || commitTime >= session.expiresAt) {
+      throw fail(401, 'NOVA_SESSION_REQUIRED');
+    }
+    if (!LIVE.has(receipt.status) || commitTime >= receipt.expiresAt) {
+      throw fail(410, 'NOVA_REQUEST_CLOSED');
+    }
+    if (receipt.revision !== req.body.revision) throw fail(409, 'NOVA_REVISION_CONFLICT');
+    if (req.body.action === 'accept') {
+      firstAcceptance = {
+        acceptedAt: commitTime, scope: 'reception-only', actor: 'browser-test-session',
+      };
+    }
     receipt.status = nextStatus;
     receipt.resumeTo = resumeTo;
     receipt.firstAcceptance = firstAcceptance;
     receipt.revision += 1;
+    clearReceiptCheckGate(receipt);
+    if (assessment) {
+      receipt.checkGate = assessment.checkGate;
+      receipt.checkGateBinding = assessment.binding;
+    }
     if (nextStatus === 'WITHDRAWN' || nextStatus === 'REFUSED') clearReceiptContent(receipt);
-    return res.json({ request: copyReceipt(receipt) });
+    return res.json({ request: copyReceipt(receipt, id, commitTime, session.expiresAt) });
   });
 
   router.delete('/session', ...parseWrite, (req, res) => {
