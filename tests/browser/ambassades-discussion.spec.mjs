@@ -329,7 +329,7 @@ test('missing data, altered source bytes and missing WebCrypto keep the discussi
   async function expectClosed(body) {
     currentBody = body;
     const previous = responses;
-    await page.goto('/ambassades/index.html?lang=en#functies');
+    await page.reload();
     await expect.poll(() => page.evaluate(async () => Boolean(await window.PalacoI18n?.ready))).toBe(true);
     await expect.poll(() => responses).toBe(previous + 1);
     await expect(page.locator('#function-status')).toHaveText(catalog.en.fx_unavailable);
