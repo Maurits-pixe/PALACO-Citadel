@@ -399,7 +399,13 @@ test('revoked safety approval blocks the real callback before token exchange or 
   await expectDenied(await browser.request(callback.href), 503);
   assert.equal(tokenExchanges, exchangesBefore);
   assert.equal(browser.cookies.has(SESSION_COOKIE), false);
-  await expectSafetyBlocked(browser);
+  // No session was created: protected data remains anonymous, while safety readiness remains HOLD.
+  await expectDenied(await browser.request('/api/me'), 401);
+  const status = await (await browser.request('/api/auth/status')).json();
+  assert.equal(status.available, false);
+  assert.equal(status.authenticated, false);
+  assert.equal(Object.hasOwn(status, 'seat'), false);
+  assert.deepEqual(status.securityApproval, HOLD_SECURITY);
 });
 
 test('HOLD or unavailable safety approval masks an existing real signed OIDC session', async () => {
