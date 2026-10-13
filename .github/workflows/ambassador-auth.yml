@@ -1,6 +1,12 @@
 name: Ambassador personal login checks
 
 on:
+  push:
+    branches: ["codex/palaco-ambassade-website"]
+    paths:
+      - "ambassades/**"
+      - "tests/browser/ambassades-*.spec.mjs"
+      - ".github/workflows/ambassador-auth.yml"
   pull_request:
     branches: ["main"]
     paths:
@@ -15,11 +21,12 @@ permissions:
 jobs:
   auth:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -32,6 +39,8 @@ jobs:
           node --check ambassades/i18n.js
           node --check ambassades/functions.js
           node --check ambassades/rio/sw.js
+          node --check ambassades/auth/device-test.mjs
+          node --check ambassades/rio/device-test/app.js
           node --check ambassades/auth/nova-reception.mjs
           node --check ambassades/auth/nova-check-gate.mjs
           node --check ambassades/auth/auth-security-approval.mjs
@@ -42,6 +51,9 @@ jobs:
       - name: Verify NOVA reception, scoped acceptance and fail-closed control gate
         working-directory: ambassades/auth
         run: node --test nova-reception.test.mjs
+      - name: Verify isolated two-device diagnostic relay
+        working-directory: ambassades/auth
+        run: node --test device-test.test.mjs
       - name: Verify real OIDC and signed safety provider flows over trusted test HTTPS
         working-directory: ambassades/auth
         run: npm run test:oidc
@@ -55,14 +67,17 @@ jobs:
         run: npx playwright test --config ambassades/rio/playwright.config.mjs
       - name: Verify NOVA reception and control-gate display on mobile and desktop
         run: npx playwright test --config ambassades/rio/nova/playwright.config.mjs
+      - name: Verify paired mobile browsers exchange diagnostic challenges
+        run: npx playwright test --config ambassades/rio/device-test/playwright.config.mjs
 
   container:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 24

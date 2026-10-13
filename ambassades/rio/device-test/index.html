@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="nl">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PALACO RIO · twee telefoons</title><script src="/rio/device-test/app.js" defer></script>
+<style>
+:root{color-scheme:light;--ink:#10263d;--yellow:#fff455;--coral:#ff7163;--blue:#185add}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);background:#fffbed;font:17px/1.5 system-ui,sans-serif}
+header{padding:18px 5%;display:flex;gap:16px;align-items:center;background:white;border-bottom:2px solid var(--ink)}
+.badge{background:var(--yellow);border:3px solid var(--ink);border-radius:9px;padding:4px 10px;font:bold 26px Georgia,serif}
+header a{margin-left:auto;color:var(--ink)}main{max-width:960px;margin:auto;padding:28px 20px 60px}
+.hero{background:var(--yellow);padding:28px;border:2px solid var(--ink);border-radius:18px;box-shadow:7px 7px 0 #50cfdf}
+h1{font:700 clamp(32px,6vw,56px)/1.1 Georgia,serif;margin:10px 0 16px}h2{margin-top:0;font-size:24px}
+.tag{font-weight:800;color:var(--blue);letter-spacing:.08em;font-size:13px}p{margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:20px;margin-top:26px}
+.card{background:white;border:2px solid var(--ink);padding:22px;border-radius:14px;min-width:0}
+button{font:700 17px system-ui,sans-serif;background:var(--ink);color:white;border:2px solid var(--ink);border-radius:8px;padding:13px 16px;cursor:pointer;margin:6px 0}
+button:disabled{opacity:.5;cursor:default}.secondary{background:white;color:var(--ink)}
+input,textarea{width:100%;padding:12px;border:2px solid var(--ink);border-radius:6px;font:16px system-ui,sans-serif}
+label{display:block;font-weight:700;margin-top:14px}[hidden]{display:none!important}a,button,input,textarea{outline-offset:4px}
+#feedback{min-height:50px;background:#e7f8f7;border-left:5px solid #36b5c4;padding:14px;margin-top:26px}
+#messages{list-style:none;padding:0}#messages li{border-top:1px solid #b5c3ce;padding:16px 0}
+code{display:block;overflow-wrap:anywhere;font:700 18px/1.5 ui-monospace,monospace;padding:12px;background:#f1f5f9;letter-spacing:.03em}
+small{display:block;color:#36516b}.danger{background:var(--coral);color:var(--ink)}
+footer{margin-top:24px}#state{font-weight:800}#proof{background:#dff9e5;padding:14px;font-weight:700}
+</style></head>
+<body>
+<header><span class="badge" aria-hidden="true">RIO<span style="color:#ff7163">.</span></span><strong>PALACO RIO</strong><a href="/rio/nova/">Naar NOVA</a></header>
+<main>
+<section class="hero"><div class="tag">APPARAATPROEF · ALLEEN TESTCODES</div>
+<h1>Twee telefoons.<br>Eén eerste overdracht.</h1>
+<p>Open deze pagina op je twee telefoons. Telefoon A maakt een uitnodiging; telefoon B opent die. Bevestig op beide toestellen dat je meedoet, stuur een testcode en laat de andere telefoon antwoorden.</p>
+<p><strong>Er wordt geen account aangemaakt.</strong> Deze korte proef opent geen gewone chat of NOVA-contact. De testcodes gaan via de PALACO-server op Render. HTTPS beschermt het vervoer; de server kan de codes lezen. End-to-endversleuteling is nog niet aangesloten.</p>
+<small id="build">Versie wordt geladen…</small></section>
+<p id="feedback" role="status" aria-live="polite">De testomgeving wordt geopend…</p>
+<button id="retry" hidden>Dezelfde stap opnieuw proberen</button>
+<div class="grid" id="setup">
+<section class="card"><h2>1 · Telefoon A</h2><p>Maak één tijdelijke uitnodiging voor je tweede telefoon.</p><button id="create">Maak uitnodiging</button></section>
+<section class="card" id="join-panel"><h2>2 · Telefoon B</h2><p>Open de uitnodigingslink van telefoon A, of plak hem hieronder.</p><label for="invitation">Uitnodigingslink</label><textarea id="invitation" rows="3" autocomplete="off" spellcheck="false"></textarea><button id="join">Gebruik uitnodiging</button></section>
+</div>
+<section class="card" id="invitation-panel" hidden>
+<h2>Open dit op telefoon B</h2><p>De uitnodiging is één keer bruikbaar. Deel hem alleen met je eigen tweede testtelefoon.</p>
+<label for="share-link">Tijdelijke uitnodigingslink</label><textarea id="share-link" rows="3" readonly spellcheck="false"></textarea>
+<button id="copy">Kopieer link</button><button id="share" class="secondary" hidden>Deel link</button>
+</section>
+<section class="card" id="pair-panel" hidden>
+<h2 id="pair-title">Gekoppelde apparaatproef</h2><p id="state"></p><p id="expiry"></p>
+<p>Controleer dat op beide telefoons hetzelfde proefnummer staat. De uitnodiging bewijst geen identiteit.</p>
+<p id="consent"></p><button id="accept">Ik doe mee aan deze testcodeproef</button>
+<p>3 · Bevestig ontvangen codes op de andere telefoon.<br>4 · Antwoord op de ontvangen testcode.</p>
+<button id="challenge" hidden>Stuur testcode naar de andere telefoon</button>
+<ul id="messages" aria-label="Testcodes"></ul>
+<p id="proof" hidden>Heen-en-terug ontvangen: de twee browsers hebben de code en het passende antwoord bevestigd. Controleer de schermen van beide fysieke telefoons.</p>
+<button id="close" class="danger">Sluit proef op beide telefoons</button>
+</section>
+<footer><small>Testcodes en tijdelijke koppelingen worden op de server uiterlijk na vijf minuten gewist, en ook bij afsluiten of een serverherstart. Een tijdelijk netwerkprobleem is geen bewijs van aflevering. Persoonlijke aanmelding en operationeel RIO-contact blijven gesloten.</small></footer>
+</main></body></html>

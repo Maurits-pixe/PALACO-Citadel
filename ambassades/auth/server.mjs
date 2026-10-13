@@ -1,5 +1,6 @@
 import express from 'express';
 import { mountNovaReception } from './nova-reception.mjs';
+import { mountDeviceTest } from './device-test.mjs';
 import { auth } from 'express-openid-connect';
 import { createIdTokenVerifier } from './token-verification.mjs';
 import { createHash } from 'node:crypto';
@@ -130,6 +131,9 @@ const publicFiles = new Map([
   ['/rio/index.html', ['rio/palaco-rio-start-v0.1.html', 'text/html']],
   ['/rio/nova/', ['rio/nova/index.html', 'text/html']],
   ['/rio/nova/index.html', ['rio/nova/index.html', 'text/html']],
+  ['/rio/device-test/', ['rio/device-test/index.html', 'text/html']],
+  ['/rio/device-test/index.html', ['rio/device-test/index.html', 'text/html']],
+  ['/rio/device-test/app.js', ['rio/device-test/app.js', 'text/javascript']],
   ['/rio/download', ['rio/palaco-rio-start-v0.1.html', 'application/octet-stream', true]],
   ['/rio/manifest.webmanifest', ['rio/manifest.webmanifest', 'application/manifest+json']],
   ['/rio/sw.js', ['rio/sw.js', 'text/javascript']],
@@ -157,7 +161,7 @@ function contentSecurityPolicy() {
 }
 
 export function buildApp({
-  env = process.env, registryLoader, authMiddleware, sessionStore, novaOptions,
+  env = process.env, registryLoader, authMiddleware, sessionStore, novaOptions, deviceTestOptions,
   authSafetyEvaluator, authSafetyAssertCurrent, authSafetyNow = Date.now,
 } = {}) {
   const config = readConfiguration(env);
@@ -280,6 +284,12 @@ export function buildApp({
     development: env.NODE_ENV === 'development',
     ...novaOptions,
   });
+  app.locals.deviceTest = mountDeviceTest(app, {
+    baseURL: env.RIO_DEVICE_TEST_BASE_URL || 'https://palaco-ambassades.onrender.com',
+    development: env.NODE_ENV === 'development',
+    buildCommit: /^[a-f0-9]{40}$/.test(env.RENDER_GIT_COMMIT || '') ? env.RENDER_GIT_COMMIT : null,
+    ...deviceTestOptions,
+  });
   app.get('/api/auth/status', async (req, res) => {
     let securityApproval = await authSafety.readiness();
     const unavailable = () => {
@@ -375,6 +385,7 @@ export function buildApp({
   // Serve an explicit public allowlist. Never serve the auth directory, private registry, or repository root.
   app.get('/rio', (req,res,next) => req.path === '/rio' ? res.redirect(302,'/rio/') : next());
   app.get('/rio/nova', (req,res,next) => req.path === '/rio/nova' ? res.redirect(302,'/rio/nova/') : next());
+  app.get('/rio/device-test', (req,res,next) => req.path === '/rio/device-test' ? res.redirect(302,'/rio/device-test/') : next());
   for (const [route, [filename, type, download]] of publicFiles) {
     app.get(route, async (req, res) => {
       try {
@@ -404,6 +415,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const listener = app.listen(port, host, () => console.log('PALACO ambassador portal listening on port ' + port));
   listener.on('close', () => {
     app.locals.novaReception.close();
+    app.locals.deviceTest.close();
     app.locals.authSafetyApproval.close();
     app.locals.authSafetyProvider?.close();
   });
