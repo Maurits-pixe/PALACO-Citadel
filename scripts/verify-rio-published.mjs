@@ -63,7 +63,9 @@ async function verifyAsset([path, filename, type]) {
       const hash = "'sha256-" + createHash('sha256').update(match[2]).digest('base64') + "'";
       requireResult(sources.has(hash), 'APP_SCRIPT_HASH_MISSING', path);
     }
-    if (path !== '/toegang.html') requireResult(count > 0, 'APP_SCRIPT_NOT_FOUND', path);
+    if (path === '/rio/device-test/' || path === '/rio/device-test/index.html') {
+      requireResult(count === 0 && /<script\b[^>]*\bsrc=["']\/rio\/device-test\/app\.js["']/i.test(expected.toString('utf8')), 'APP_SCRIPT_NOT_FOUND', path);
+    } else if (path !== '/toegang.html') requireResult(count > 0, 'APP_SCRIPT_NOT_FOUND', path);
     else requireResult(/<script\b[^>]*\bsrc=["']portal\.js["']/i.test(expected.toString('utf8')), 'APP_SCRIPT_NOT_FOUND', path);
   }
   if (path === '/function-contributions.json') {
