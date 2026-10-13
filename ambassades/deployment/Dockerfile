@@ -10,8 +10,8 @@ WORKDIR /app/ambassades/auth
 COPY ambassades/auth/package.json ambassades/auth/package-lock.json ./
 RUN npm ci --ignore-scripts --omit=dev && npm cache clean --force
 
-COPY ambassades/auth/server.mjs ambassades/auth/access-policy.mjs ambassades/auth/session-store.mjs ambassades/auth/token-verification.mjs ./
-COPY ambassades/index.html ambassades/toegang.html ambassades/portal.js ambassades/i18n.js ambassades/locales.json ambassades/access-slots.json ../
+COPY ambassades/auth/auth-safety-provider.mjs ambassades/auth/auth-security-approval.mjs ambassades/auth/server.mjs ambassades/auth/device-test.mjs ambassades/auth/nova-reception.mjs ambassades/auth/nova-check-gate.mjs ambassades/auth/brigade-specialties.json ambassades/auth/access-policy.mjs ambassades/auth/session-store.mjs ambassades/auth/token-verification.mjs ./
+COPY ambassades/index.html ambassades/toegang.html ambassades/portal.js ambassades/i18n.js ambassades/locales.json ambassades/access-slots.json ambassades/functions.js ambassades/function-contributions.json ../
 
 COPY ambassades/rio/ ../rio/
 

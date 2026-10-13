@@ -1,4 +1,6 @@
 import express from 'express';
+import { mountNovaReception } from './nova-reception.mjs';
+import { mountDeviceTest } from './device-test.mjs';
 import { auth } from 'express-openid-connect';
 import { createIdTokenVerifier } from './token-verification.mjs';
 import { createHash } from 'node:crypto';
@@ -8,6 +10,8 @@ import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { authorizeSeat, isSeat, parseRegistry } from './access-policy.mjs';
 import { MemorySessionStore } from './session-store.mjs';
+import { createAuthSecurityApproval, closedSecurityApproval } from './auth-security-approval.mjs';
+import { createAuthSafetyProvider } from './auth-safety-provider.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const siteRoot = resolve(here, '..');
@@ -74,9 +78,10 @@ function httpError(status, code) {
   return Object.assign(new Error(code), { status, safeCode: code });
 }
 
-export function makeAfterCallback(loadMembers, verifyIdToken) {
-  if (typeof loadMembers !== 'function' || typeof verifyIdToken !== 'function') {
-    throw new TypeError('Callback requires membership and token verifiers.');
+export function makeAfterCallback(loadMembers, verifyIdToken, approveAuthentication = async () => false) {
+  if (typeof loadMembers !== 'function' || typeof verifyIdToken !== 'function'
+      || typeof approveAuthentication !== 'function') {
+    throw new TypeError('Callback requires membership, token and safety verifiers.');
   }
   return async function afterCallback(req, res, session, decodedState) {
     const target = typeof decodedState?.returnTo === 'string'
@@ -92,6 +97,22 @@ export function makeAfterCallback(loadMembers, verifyIdToken) {
     if (!authorizeSeat(claims, await loadMembers(), target[1])) {
       throw httpError(403, 'SEAT_ACCESS_DENIED');
     }
+    let approved = false;
+    try {
+      approved = await approveAuthentication(req, res, {
+        session, decodedState, claims, seat: target[1],
+      });
+    } catch {}
+    if (approved !== true && typeof approved !== 'function') throw httpError(503, 'SAFETY_APPROVAL_REQUIRED');
+    // Admission must still match the current private registry after the asynchronous check.
+    if (!authorizeSeat(claims, await loadMembers(), target[1])) {
+      throw httpError(403, 'SEAT_ACCESS_DENIED');
+    }
+    if (typeof approved === 'function') {
+      try {
+        if (approved() !== true) throw httpError(503, 'SAFETY_APPROVAL_REQUIRED');
+      } catch { throw httpError(503, 'SAFETY_APPROVAL_REQUIRED'); }
+    }
     return session;
   };
 }
@@ -103,9 +124,16 @@ const publicFiles = new Map([
   ['/portal.js', ['portal.js', 'text/javascript']],
   ['/i18n.js', ['i18n.js', 'text/javascript']],
   ['/locales.json', ['locales.json', 'application/json']],
+  ['/functions.js', ['functions.js', 'text/javascript']],
+  ['/function-contributions.json', ['function-contributions.json', 'application/json']],
   ['/access-slots.json', ['access-slots.json', 'application/json']],
   ['/rio/', ['rio/palaco-rio-start-v0.1.html', 'text/html']],
   ['/rio/index.html', ['rio/palaco-rio-start-v0.1.html', 'text/html']],
+  ['/rio/nova/', ['rio/nova/index.html', 'text/html']],
+  ['/rio/nova/index.html', ['rio/nova/index.html', 'text/html']],
+  ['/rio/device-test/', ['rio/device-test/index.html', 'text/html']],
+  ['/rio/device-test/index.html', ['rio/device-test/index.html', 'text/html']],
+  ['/rio/device-test/app.js', ['rio/device-test/app.js', 'text/javascript']],
   ['/rio/download', ['rio/palaco-rio-start-v0.1.html', 'application/octet-stream', true]],
   ['/rio/manifest.webmanifest', ['rio/manifest.webmanifest', 'application/manifest+json']],
   ['/rio/sw.js', ['rio/sw.js', 'text/javascript']],
@@ -115,7 +143,7 @@ const publicFiles = new Map([
 
 function contentSecurityPolicy() {
   const hashes = new Set();
-  for (const filename of ['index.html', 'toegang.html', 'rio/palaco-rio-start-v0.1.html']) {
+  for (const filename of ['index.html', 'toegang.html', 'rio/palaco-rio-start-v0.1.html', 'rio/nova/index.html']) {
     try {
       const source = readFileSync(resolve(siteRoot, filename), 'utf8');
       for (const match of source.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
@@ -132,7 +160,10 @@ function contentSecurityPolicy() {
     + " connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; worker-src 'self'; manifest-src 'self'";
 }
 
-export function buildApp({ env = process.env, registryLoader, authMiddleware, sessionStore } = {}) {
+export function buildApp({
+  env = process.env, registryLoader, authMiddleware, sessionStore, novaOptions, deviceTestOptions,
+  authSafetyEvaluator, authSafetyAssertCurrent, authSafetyNow = Date.now,
+} = {}) {
   const config = readConfiguration(env);
   const app = express();
   app.disable('x-powered-by');
@@ -174,6 +205,41 @@ export function buildApp({ env = process.env, registryLoader, authMiddleware, se
     next();
   }
 
+  let safetyProvider = null;
+  let safetyEvaluator = authSafetyEvaluator;
+  let safetyAssertCurrent = authSafetyAssertCurrent;
+  const providerFile = env.PALACO_AUTH_SAFETY_FILE;
+  if (safetyEvaluator === undefined && typeof providerFile === 'string' && providerFile.trim()) {
+    try {
+      safetyProvider = createAuthSafetyProvider({
+        configurationFile: providerFile, repositoryRoot,
+        applicationOrigin: config.configured ? config.baseURL : 'https://palaco-ambassades.onrender.com',
+        now: authSafetyNow,
+      });
+      safetyEvaluator = safetyProvider.evaluate;
+      safetyAssertCurrent = safetyProvider.assertCurrent;
+    } catch {
+      // A missing or incomplete private enrollment never turns configuration into approval.
+      // The public site and NOVA stay available; authentication remains on HOLD.
+      safetyProvider = null;
+      safetyEvaluator = undefined;
+      safetyAssertCurrent = undefined;
+    }
+  }
+  const authSafety = createAuthSecurityApproval({
+    evaluate: safetyEvaluator,
+    assertCurrent: safetyAssertCurrent,
+    baseURL: config.configured ? config.baseURL : 'https://palaco-ambassades.onrender.com',
+    secure: config.configured ? config.secure : true,
+    now: authSafetyNow,
+    // An explicit upstream identity fixture is a trusted code dependency, never a public setting.
+    allowSyntheticSessions: Boolean(authMiddleware),
+  });
+  app.locals.authSafetyApproval = authSafety;
+  app.locals.authSafetyProvider = safetyProvider;
+  // This precedes the SDK callback router, including case/trailing-slash variants.
+  app.use(authSafety.middleware);
+
   if (config.configured) {
     const oidcConfig = {
       issuerBaseURL: config.issuerBaseURL,
@@ -205,42 +271,103 @@ export function buildApp({ env = process.env, registryLoader, authMiddleware, se
         absoluteDuration: 28800,
         cookie: { secure: config.secure, httpOnly: true, sameSite: 'Lax', path: '/' },
       },
-      afterCallback: makeAfterCallback(registry, createIdTokenVerifier(config)),
+      getLoginState: (req, options) => authSafety.loginState(req, options),
+      afterCallback: makeAfterCallback(registry, createIdTokenVerifier(config),
+        (req, res, details) => authSafety.complete(req, res, details)),
     };
     app.use(authMiddleware || auth(oidcConfig));
   }
 
   app.get('/healthz', (req, res) => res.json({ ok: true }));
+  app.locals.novaReception = mountNovaReception(app, {
+    baseURL: env.RIO_NOVA_BASE_URL || 'https://palaco-ambassades.onrender.com',
+    development: env.NODE_ENV === 'development',
+    ...novaOptions,
+  });
+  app.locals.deviceTest = mountDeviceTest(app, {
+    baseURL: env.RIO_DEVICE_TEST_BASE_URL || 'https://palaco-ambassades.onrender.com',
+    development: env.NODE_ENV === 'development',
+    buildCommit: /^[a-f0-9]{40}$/.test(env.RENDER_GIT_COMMIT || '') ? env.RENDER_GIT_COMMIT : null,
+    ...deviceTestOptions,
+  });
   app.get('/api/auth/status', async (req, res) => {
-    if (!config.configured) return res.json({ configured: false, available: false, authenticated: false });
-    let members;
-    try { members = await registry(); } catch {
-      return res.json({ configured: true, available: false, authenticated: false });
+    let securityApproval = await authSafety.readiness();
+    const unavailable = () => {
+      if (securityApproval.outcome === 'APPROVED') {
+        try { authSafety.assertReadiness(securityApproval); }
+        catch { securityApproval = closedSecurityApproval(); }
+      }
+      return { configured: config.configured, available: false, authenticated: false, securityApproval };
+    };
+    if (securityApproval.outcome !== 'APPROVED' || !config.configured) {
+      return res.json(unavailable());
     }
-    const member = req.oidc?.isAuthenticated()
+    let members;
+    try { members = await registry(); } catch { return res.json(unavailable()); }
+    let member = req.oidc?.isAuthenticated()
       ? authorizeSeat(req.oidc.idTokenClaims, members) : null;
+    let commitSessionAccess = null;
+    if (member) {
+      const approvedSeat = member.seat;
+      const claims = { iss: req.oidc.idTokenClaims.iss, sub: req.oidc.idTokenClaims.sub };
+      try {
+        commitSessionAccess = await authSafety.approveSession(req, approvedSeat, claims);
+        members = await registry();
+        const current = req.oidc?.isAuthenticated() ? req.oidc.idTokenClaims : null;
+        member = current?.iss === claims.iss && current?.sub === claims.sub
+          ? authorizeSeat(current, members, approvedSeat) : null;
+        if (!member) {
+          securityApproval = closedSecurityApproval();
+          return res.json(unavailable());
+        }
+      } catch {
+        securityApproval = closedSecurityApproval();
+        return res.json(unavailable());
+      }
+    }
+    try {
+      authSafety.assertReadiness(securityApproval);
+      if (commitSessionAccess && commitSessionAccess() !== true) throw httpError(503, 'SAFETY_APPROVAL_REQUIRED');
+    } catch {
+      securityApproval = closedSecurityApproval();
+      return res.json(unavailable());
+    }
     return res.json({
-      configured: true,
-      available: true,
-      authenticated: Boolean(member),
+      configured: true, available: true, authenticated: Boolean(member), securityApproval,
       ...(member ? { seat: member.seat } : {}),
     });
   });
 
-  app.get('/login', requireConfiguration, async (req, res) => {
+  async function startAuthentication(req, res, action) {
     const seat = req.query.seat;
     if (!isSeat(seat)) return res.status(400).json({ error: 'INVALID_SEAT' });
     await registry();
+    await authSafety.begin(req, res, action, seat);
+    authSafety.protectLoginDispatch(req, res);
     return res.oidc.login({
       returnTo: '/toegang.html?seat=' + seat,
-      authorizationParams: { prompt: 'login' },
+      authorizationParams: {
+        prompt: 'login',
+        ...(action === 'signup' ? { screen_hint: 'signup' } : {}),
+      },
     });
-  });
+  }
+  app.get('/login', requireConfiguration, (req, res) => startAuthentication(req, res, 'login'));
+  app.get('/signup', requireConfiguration, (req, res) => startAuthentication(req, res, 'signup'));
 
   async function privateAccess(req, res, next) {
     if (!req.oidc?.isAuthenticated()) return res.status(401).json({ error: 'AUTHENTICATION_REQUIRED' });
-    const member = authorizeSeat(req.oidc.idTokenClaims, await registry(), req.params.seat);
+    const claims = { iss: req.oidc.idTokenClaims.iss, sub: req.oidc.idTokenClaims.sub };
+    let member = authorizeSeat(claims, await registry(), req.params.seat);
     if (!member) return res.status(403).json({ error: 'SEAT_ACCESS_DENIED' });
+    const approvedSeat = member.seat;
+    const commitSessionAccess = await authSafety.approveSession(req, approvedSeat, claims);
+    const members = await registry();
+    const current = req.oidc?.isAuthenticated() ? req.oidc.idTokenClaims : null;
+    member = current?.iss === claims.iss && current?.sub === claims.sub
+      ? authorizeSeat(current, members, approvedSeat) : null;
+    if (!member) return res.status(403).json({ error: 'SEAT_ACCESS_DENIED' });
+    if (commitSessionAccess() !== true) throw httpError(503, 'SAFETY_APPROVAL_REQUIRED');
     res.locals.member = member;
     next();
   }
@@ -257,6 +384,8 @@ export function buildApp({ env = process.env, registryLoader, authMiddleware, se
 
   // Serve an explicit public allowlist. Never serve the auth directory, private registry, or repository root.
   app.get('/rio', (req,res,next) => req.path === '/rio' ? res.redirect(302,'/rio/') : next());
+  app.get('/rio/nova', (req,res,next) => req.path === '/rio/nova' ? res.redirect(302,'/rio/nova/') : next());
+  app.get('/rio/device-test', (req,res,next) => req.path === '/rio/device-test' ? res.redirect(302,'/rio/device-test/') : next());
   for (const [route, [filename, type, download]] of publicFiles) {
     app.get(route, async (req, res) => {
       try {
@@ -283,5 +412,11 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid PORT');
   const app = buildApp();
   const host = process.env.HOST || '127.0.0.1';
-  app.listen(port, host, () => console.log('PALACO ambassador portal listening on port ' + port));
+  const listener = app.listen(port, host, () => console.log('PALACO ambassador portal listening on port ' + port));
+  listener.on('close', () => {
+    app.locals.novaReception.close();
+    app.locals.deviceTest.close();
+    app.locals.authSafetyApproval.close();
+    app.locals.authSafetyProvider?.close();
+  });
 }

@@ -31,6 +31,21 @@ const environment = (overrides = {}) => ({
   ...overrides,
 });
 
+
+const APPROVED_SECURITY = Object.freeze({
+  required: true, available: true, outcome: 'APPROVED', reason: null,
+  loginAllowed: true, signupAllowed: true,
+});
+async function fixtureSafetyEvaluator(context) {
+  const now = Date.now();
+  return {
+    schemaVersion: 'palaco-auth-safety-decision/0.1', outcome: 'APPROVED',
+    context: { ...context },
+    issuedAt: new Date(now - 1000).toISOString(),
+    expiresAt: new Date(now + 30000).toISOString(),
+  };
+}
+
 function identityMiddleware(identity) {
   return (req, res, next) => {
     req.oidc = {
@@ -46,12 +61,13 @@ function identityMiddleware(identity) {
 }
 
 async function serve(t, options) {
-  const app = buildApp(options);
+  const app = buildApp({ authSafetyEvaluator: fixtureSafetyEvaluator, ...options });
   const server = await new Promise((resolve, reject) => {
     const listener = app.listen(0, '127.0.0.1', () => resolve(listener));
     listener.once('error', reject);
   });
   t.after(() => new Promise((resolve, reject) => {
+    app.locals.novaReception.close();
     server.closeIdleConnections();
     server.close(error => error ? reject(error) : resolve());
   }));
@@ -129,7 +145,7 @@ test('missing provider configuration keeps public pages readable and protected A
   const status = await request('/api/auth/status');
   assert.equal(status.status, 200);
   assert.deepEqual(await status.json(), {
-    configured: false, available: false, authenticated: false,
+    configured: false, available: false, authenticated: false, securityApproval: APPROVED_SECURITY,
   });
   for (const path of ['/login?seat=PALACO-AMB-01', '/api/me', '/api/seats/PALACO-AMB-01']) {
     await assertDenied(await request(path), 503);
@@ -256,7 +272,7 @@ test('malformed or unavailable private registry fails closed without leaking dia
     const response = await request('/api/auth/status');
     assert.equal(response.status, 200);
     assert.deepEqual(await response.json(), {
-      configured: true, available: false, authenticated: false,
+      configured: true, available: false, authenticated: false, securityApproval: APPROVED_SECURITY,
     });
   }
 });
@@ -357,7 +373,7 @@ test('real OIDC middleware rejects unsigned and forged cookies for a populated s
     const status = await request('/api/auth/status', options());
     assert.equal(status.status, 200);
     assert.deepEqual(await status.json(), {
-      configured: true, available: true, authenticated: false,
+      configured: true, available: true, authenticated: false, securityApproval: APPROVED_SECURITY,
     });
     await assertDenied(await request('/api/me', options()), 401);
     for (const cookieValue of [knownSessionID, knownSessionID + '.invalid-signature']) {

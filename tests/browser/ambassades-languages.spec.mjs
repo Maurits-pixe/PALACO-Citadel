@@ -1,11 +1,15 @@
 import { test, expect } from '@playwright/test';
 
+const APPROVED_SECURITY = Object.freeze({required:true,available:true,outcome:'APPROVED',reason:null,loginAllowed:true,signupAllowed:true});
+const HOLD_SECURITY = Object.freeze({required:true,available:false,outcome:'HOLD',reason:'TRUSTED_SAFETY_APPROVAL_MISSING',loginAllowed:false,signupAllowed:false});
+// Explicit browser fixtures isolate portal rendering; they do not approve the deployed server.
+
 const languages = ['nl', 'en', 'de', 'fr', 'es', 'it', 'pt', 'ru', 'zh', 'ar', 'eo'];
 async function ready(page) {
  await expect.poll(() => page.evaluate(async () => Boolean(await window.PalacoI18n?.ready))).toBe(true);
 }
 async function unavailable(route) {
- await route.fulfill({contentType:'application/json', body:JSON.stringify({configured:false,available:false,authenticated:false})});
+ await route.fulfill({contentType:'application/json', body:JSON.stringify({configured:false,available:false,authenticated:false,securityApproval:APPROVED_SECURITY})});
 }
 for (const language of languages) {
  test('translated reading, search, category and access continuity: ' + language, async ({page,request}) => {
@@ -94,5 +98,24 @@ test('language data preserves all translation and replacement keys', async ({req
    expect(catalog[language][key].trim()).not.toBe('');
    expect(tokens(catalog[language][key])).toEqual(tokens(catalog.nl[key]));
   }
+ }
+});
+
+test('mandatory safety HOLD remains translated and closes personal access in all eleven languages', async ({page,request}) => {
+ const catalog = await (await request.get('/ambassades/locales.json')).json();
+ const holdKey = Object.keys(catalog.nl).find(key => catalog.nl[key] === 'Veiligheidsgoedkeuring nog niet beschikbaar');
+ expect(holdKey).toBeDefined();
+ await page.route('**/api/auth/status',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({
+  configured:true,available:false,authenticated:false,securityApproval:HOLD_SECURITY,
+ })}));
+ for (const language of languages) {
+  await page.goto('/ambassades/toegang.html?lang='+language+'#PALACO-AMB-01');
+  await ready(page);
+  await expect(page.locator('#access-state')).toHaveText(catalog[language][holdKey]);
+  await expect(page.locator('#sign-in')).toBeHidden();
+  await expect(page.locator('#workspace')).toBeHidden();
+  await expect(page.locator('a[href*="signup"]')).toHaveCount(0);
+  await expect(page.locator('html')).toHaveAttribute('dir',language==='ar'?'rtl':'ltr');
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  }
 });

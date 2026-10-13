@@ -2,9 +2,9 @@
 
 ## Implemented
 
-A separate Node authentication service now sits behind the embassy access page. It uses `express-openid-connect` for the OIDC authorization-code login, token validation and a signed, secure session-ID cookie. The callback additionally verifies the incoming RS256 ID-token signature with JOSE against the configured issuer's HTTPS discovery/JWKS metadata. Session contents remain on the server. The server checks a private issuer/subject-to-seat membership on each protected request. Login does not create or ratify ambassador appointments.
+A separate Node authentication service now sits behind the embassy access page. Login and account creation additionally require server-side safety approval. The public process has no trusted approval service connected, so those operations and private APIs remain on HOLD even if OIDC settings are present. See [SAFETY-APPROVAL.md](SAFETY-APPROVAL.md) and the implemented [signed HTTPS provider adapter](SAFETY-PROVIDER.md). It uses `express-openid-connect` for the OIDC authorization-code login, token validation and a signed, secure session-ID cookie. The callback additionally verifies the incoming RS256 ID-token signature with JOSE against the configured issuer's HTTPS discovery/JWKS metadata. Session contents remain on the server. The server checks a private issuer/subject-to-seat membership on each protected request. Login does not create or ratify ambassador appointments.
 
-The public page is available as ordinary static presentation, but a functioning personal login requires this server plus real provider configuration. GitHub Pages alone cannot run the authentication service.
+The public page is available as ordinary static presentation, but a functioning personal login requires this server, real provider configuration and a separately connected trusted safety verifier. GitHub Pages alone cannot run the authentication service.
 
 ## Runtime setup
 
@@ -18,6 +18,7 @@ Required:
 - `PALACO_BASE_URL`: the application's exact HTTPS origin.
 - `PALACO_SESSION_SECRET`: 32 random bytes encoded as 64 hex characters.
 - `PALACO_MEMBERS_FILE`: an absolute private file path outside the repository and web root.
+- `PALACO_AUTH_SAFETY_FILE`: an optional absolute private enrollment/configuration file for an independently connected safety provider. Empty, missing, incomplete or fixture configuration keeps authentication on HOLD. The path is configuration, not an approval flag.
 
 Register `<PALACO_BASE_URL>/callback` as the OIDC callback at the provider. Configure its allowed logout destination to the exact application origin/access page supported by the middleware configuration. The provider must support authorization-code flow with PKCE for confidential clients, RS256 ID tokens, HTTPS discovery and JWKS. Copy its exact discovery issuer, including any trailing slash, into the issuer setting. Account security, verification, MFA and recovery are handled by the provider.
 
@@ -36,9 +37,10 @@ Do not reuse credentials when a successor takes a seat. Disable/revoke the old m
 ## Public and protected routes
 
 - `GET /healthz`: service liveness.
-- `GET /api/auth/status`: minimal availability/session status; no email, subject or membership dump.
-- `GET /login?seat=PALACO-AMB-01`: validated seat-specific provider sign-in.
-- `GET /callback`: middleware OIDC callback and membership admission.
+- `GET /api/auth/status`: minimal availability/session status and mandatory `securityApproval`; HOLD masks authenticated status and seat data.
+- `GET /login?seat=PALACO-AMB-01`: separately approved, validated seat-specific provider sign-in.
+- `GET /signup?seat=PALACO-AMB-01`: separately approved Auth0 signup hint; no automatic seat assignment.
+- `GET /callback`: pre-SDK safety check, OIDC callback, fresh safety recheck and membership admission.
 - `GET /api/me`: the admitted person's seat and read-only application scope.
 - `GET /api/seats/:seat`: same information only for the person's own seat.
 - `POST /logout`: local application session logout with an origin check. A caller must not treat the browser-selected seat as permission.
@@ -54,10 +56,10 @@ The middleware owns state, nonce, PKCE, signed session IDs and cookie handling. 
 
 ## Tests and limitations
 
-`npm test` runs 41 application-level access, callback, HTTP and session-store checks. Most identity fixtures stand in for a principal already verified upstream; the suite also uses the actual middleware to reject unsigned/forged session-ID cookies.
+`npm test` runs application-level safety approval, access, callback, HTTP and session-store checks. Most identity fixtures stand in for a principal already verified upstream; the suite also uses the actual middleware to reject unsigned/forged session-ID cookies.
 
-`npm run test:oidc` exercises the real middleware against a controlled HTTPS OIDC provider with synthetic principals. The runner creates an ephemeral test certificate, trusts it through the child process's extra CA setting and leaves production TLS validation intact. Discovery, code exchange, PKCE, nonce, audience, expiry, signatures, own-seat admission and logout are checked without enrolling a real person. A passing controlled-provider test does not establish that an external provider account works.
+`npm run test:oidc` exercises the real middleware against a controlled HTTPS OIDC provider with synthetic principals and an explicit internal test approval evaluator. The runner creates an ephemeral test certificate, trusts it through the child process's extra CA setting and leaves production TLS validation intact. Discovery, code exchange, PKCE, nonce, audience, expiry, signatures, own-seat admission and logout are checked without enrolling a real person. A passing controlled-provider test does not establish that an external provider account works.
 
-The pull-request workflow also runs ten browser checks for mobile/desktop access-page flows using controlled API responses, then builds and starts the actual nonroot image with read-only runtime restrictions. Container checks use an empty private fixture registry and verify that missing configuration or invalid membership data leaves personal access closed.
+The pull-request workflow also runs browser checks for mobile/desktop access-page flows using controlled API responses, then builds and starts the actual nonroot image with read-only runtime restrictions. Container checks use an empty private fixture registry and verify that missing configuration or invalid membership data leaves personal access closed.
 
-Real provider setup, private enrollment, HTTPS hosting and a live login/callback/logout test remain necessary before reporting a working individual account. Local command and Node startup currently fail on the desktop, so validation runs in GitHub CI. This code creates no provider client, accounts or invitations and claims no deployed URL.
+The public website is hosted at https://palaco-ambassades.onrender.com with personal access on HOLD. Real provider setup, trusted safety approval integration, private enrollment and a live login/callback/logout test remain necessary before reporting a working individual account. Validation runs in GitHub Actions. This code creates no provider client, accounts or invitations.

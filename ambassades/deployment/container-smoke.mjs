@@ -61,6 +61,15 @@ try {
       assert.equal(user.trim(), '1000', 'Runtime must use the unprivileged Node user.');
       const health = await request(base, '/healthz');
       assert.equal(health.status, 200);
+      const novaRuntime = await request(base, '/api/rio/nova/runtime');
+      assert.equal(novaRuntime.status, 200);
+      const nova = await novaRuntime.json();
+      assert.equal(nova.version, '0.3');
+      assert.equal(nova.checkGateEnabled, true);
+      assert.equal(nova.guardianRuntimeConnected, false);
+      assert.equal(nova.stewardRuntimeConnected, false);
+      assert.equal(nova.finalConsentEnabled, false);
+      assert.equal(nova.chatEnabled, false);
       const home = await request(base, '/');
       assert.equal(home.status, 200);
       assert.ok((await home.text()).includes('PALACO'));
@@ -69,10 +78,21 @@ try {
       const access = await request(base, '/toegang.html');
       assert.equal(access.status, 200);
       assert.equal((await request(base, '/i18n.js')).status, 200);
+      const functionScript = await request(base, '/functions.js');
+      assert.equal(functionScript.status, 200);
+      assert.match(functionScript.headers.get('content-type'), /^text\/javascript/);
+      const functionSnapshot = await request(base, '/function-contributions.json');
+      assert.equal(functionSnapshot.status, 200);
+      const proposal = await functionSnapshot.json();
+      assert.equal(proposal.proposalVersion, 'v0.2');
+      assert.equal(proposal.status, 'PROPOSED_NONBINDING');
+      assert.equal(proposal.authorityGranted, false);
+      assert.equal(proposal.rows.length, 12);
+      assert.equal(proposal.rows.flatMap(row => row.relations).length, 36);
       const translations = await request(base, '/locales.json');
       assert.equal(translations.status, 200);
       assert.deepEqual(Object.keys(await translations.json()).sort(), ['ar', 'de', 'en', 'eo', 'es', 'fr', 'it', 'nl', 'pt', 'ru', 'zh']);
-      for (const path of ['/auth/server.mjs', '/auth/.env', '/auth/package-lock.json', '/private/members.json']) {
+      for (const path of ['/auth/server.mjs', '/auth/.env', '/auth/package-lock.json', '/auth/auth-safety-provider.mjs', '/auth/auth-security-approval.mjs', '/auth/nova-check-gate.mjs', '/auth/brigade-specialties.json', '/private/members.json']) {
         assert.equal((await request(base, path)).status, 404, 'Private/runtime path must not be published: ' + path);
       }
       const status = await request(base, '/api/auth/status');
@@ -80,21 +100,28 @@ try {
       assert.equal(state.configured, configured);
       assert.equal(state.authenticated, false);
       assert.equal(state.seat, undefined);
+      assert.equal(status.status, 200);
+      assert.equal(state.available, false);
+      const approval = {
+        required: true, available: false, outcome: 'HOLD',
+        reason: 'TRUSTED_SAFETY_APPROVAL_MISSING', loginAllowed: false, signupAllowed: false,
+      };
+      assert.deepEqual(state.securityApproval, approval);
+      for (const path of ['/login?seat=PALACO-AMB-01', '/signup?seat=PALACO-AMB-01',
+        '/callback?code=forged&state=PASS', '/api/me', '/api/seats/PALACO-AMB-01']) {
+        const denied = await request(base, path);
+        assert.equal(denied.status, 503);
+        assert.equal(denied.headers.get('location'), null);
+        assert.deepEqual(await denied.json(), { error: 'SAFETY_APPROVAL_REQUIRED' });
+      }
       if (configured) {
-        assert.equal(status.status, 200);
-        assert.equal(state.available, true);
-        assert.equal((await request(base, '/api/me')).status, 401);
-        assert.equal((await request(base, '/api/seats/PALACO-AMB-01')).status, 401);
         await writeFile(join(privateDir, 'members.next'), 'invalid-fixture-registry\n', { mode: 0o444 });
         await rename(join(privateDir, 'members.next'), join(privateDir, 'members.json'));
         const unavailable = await request(base, '/api/auth/status');
         assert.equal(unavailable.status, 200);
-        assert.deepEqual(await unavailable.json(), { configured: true, available: false, authenticated: false });
-      } else {
-        assert.equal(status.status, 200);
-        assert.equal(state.available, false);
-        assert.equal((await request(base, '/api/me')).status, 503);
-        assert.equal((await request(base, '/login?seat=PALACO-AMB-01')).status, 503);
+        assert.deepEqual(await unavailable.json(), {
+          configured: true, available: false, authenticated: false, securityApproval: approval,
+        });
       }
       console.log('Container smoke passed: ' + (configured ? 'configured empty private registry' : 'unconfigured access closed'));
     } finally {

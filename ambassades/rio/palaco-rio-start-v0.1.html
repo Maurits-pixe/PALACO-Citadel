@@ -34,6 +34,7 @@ header{background:var(--white);border-bottom:2px solid var(--ink)}.mark{border:0
 <main class="wrap" id="main">
 <div class="hero"><div><div class="hero-rio" aria-hidden="true">RIO<span>.</span></div><span class="eyebrow" data-i18n="localTag">Op dit apparaat</span><h1 data-i18n="heroTitle">Het visitekaartje van PALACO.</h1><p data-i18n="heroCopy">Bewaar contacten en oefen de contactroute, stap voor stap.</p><div class="actions"><button class="btn" id="hero-trial" type="button" data-i18n="newTrial">Nieuwe contactproef</button><button class="btn outline" id="hero-install" type="button" data-i18n="install">Installeren</button></div></div><div class="stamp" aria-hidden="true"><b>RIO</b><span>PALACO · v0.1</span></div></div>
 <p class="boundary" data-i18n="boundary">Alles in deze proef blijft op dit apparaat. Berichten naar andere apparaten zijn nog niet beschikbaar.</p>
+<div class="actions" style="margin:0 0 21px"><a class="btn outline" id="nova-online-link" href="/rio/nova/?lang=nl">Open NOVA online · serverproef</a></div>
 <noscript><p class="noscript">PALACO RIO heeft JavaScript nodig voor deze lokale proef. Schakel JavaScript in en open de app opnieuw. / This local trial needs JavaScript. Enable it and reopen the app. / 这一本地试用需要 JavaScript。请启用后重新打开。</p></noscript>
 <div class="tabs" role="tablist" aria-label="RIO">
 <button type="button" role="tab" id="tab-contacts" aria-controls="panel-contacts" aria-selected="true" tabindex="0" data-i18n="contacts">Contacten</button>
@@ -205,11 +206,13 @@ $('install-app').addEventListener('click',async()=>{
  try{await prompt.prompt();await prompt.userChoice;installState='installUnavailable';}catch{installState='installUnavailable';}
  renderInstall();
 });
+const novaOnlineLabels={"nl":"Open NOVA online · serverproef","en":"Open NOVA online · server test","de":"NOVA online öffnen · Servertest","fr":"Ouvrir NOVA en ligne · test serveur","es":"Abrir NOVA en línea · prueba del servidor","it":"Apri NOVA online · prova del server","pt":"Abrir NOVA online · teste do servidor","ru":"Открыть NOVA онлайн · тест сервера","zh":"打开 NOVA 在线 · 服务器测试","ar":"فتح NOVA عبر الإنترنت · اختبار الخادم","eo":"Malfermi NOVA rete · servila provo"};
 function applyLanguage(next){
  const previous=language;language=own(translations,next)?next:'nl';
  document.documentElement.lang=language==='zh'?'zh-Hans':language;
  document.documentElement.dir=language==='ar'?'rtl':'ltr';
  $('language').value=language;
+ const novaLink=$('nova-online-link');novaLink.textContent=novaOnlineLabels[language];novaLink.href=(isFile?'https://palaco-ambassades.onrender.com':'')+'/rio/nova/?lang='+encodeURIComponent(language);if(isFile){novaLink.target='_blank';novaLink.rel='noopener';}
  document.querySelectorAll('[data-i18n]').forEach(element=>{element.textContent=t(element.dataset.i18n);});
  if(state.phase==='IDLE'&&$('trial-message').value===translations[previous][keys.indexOf('defaultMessage')])$('trial-message').value=t('defaultMessage');
  document.title='PALACO RIO — '+t('subtitle');

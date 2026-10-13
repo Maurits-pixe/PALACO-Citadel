@@ -28,6 +28,7 @@ try {
   delete env.NODE_TLS_REJECT_UNAUTHORIZED;
   const child = spawnSync(process.execPath, [
     '--test', fileURLToPath(new URL('./oidc-flow.test.mjs', import.meta.url)),
+    fileURLToPath(new URL('./auth-safety-provider.test.mjs', import.meta.url)),
   ], { env, stdio: 'inherit', timeout: 90000 });
   if (child.error) throw child.error;
   process.exitCode = child.status === 0 ? 0 : 1;

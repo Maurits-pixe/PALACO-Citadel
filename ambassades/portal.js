@@ -13,6 +13,7 @@
  const workspace = document.getElementById('workspace');
  let revision = 0;
  let pollTimer;
+ let logoutAvailable = false;
  const endpoint = path => new URL(path, document.baseURI);
  function chosenSeat() {
   const fragment = location.hash.slice(1);
@@ -21,7 +22,7 @@
  }
  function resetAccess() {
   login.hidden = true; login.removeAttribute('href');
-  unavailable.hidden = false; logout.hidden = true; workspace.hidden = true;
+  unavailable.hidden = false; logout.hidden = !logoutAvailable; workspace.hidden = true;
  }
  function selectSeat(seat) {
   selected.textContent = seat ? t('Toegang voor {seat}', {seat}) : t('Kies je ambassadepost');
@@ -36,16 +37,34 @@
   if (!response.ok || !response.headers.get('content-type')?.includes('application/json')) throw new Error('Unavailable');
   return response.json();
  }
+ function securityApproved(value) {
+  const keys = ['required', 'available', 'outcome', 'reason', 'loginAllowed', 'signupAllowed'];
+  return !!value && typeof value === 'object' && !Array.isArray(value)
+   && Object.keys(value).length === keys.length
+   && keys.every(key => Object.hasOwn(value, key))
+   && value.required === true && value.available === true
+   && value.outcome === 'APPROVED' && value.reason === null
+   && value.loginAllowed === true && value.signupAllowed === true;
+ }
  async function refresh() {
   const version = ++revision;
   clearTimeout(pollTimer);
   resetAccess();
   const requested = chosenSeat();
   selectSeat(requested);
-  statusElement.textContent = t('Inlogstatus controleren…');
+  statusElement.textContent = t('Veiligheidsgoedkeuring controleren…');
+  let approvalConfirmed = false;
   try {
    const status = await readJSON('api/auth/status');
    if (version !== revision) return;
+   logoutAvailable = status.configured === true;
+   logout.hidden = !logoutAvailable;
+   if (!securityApproved(status.securityApproval)) {
+    statusElement.textContent = t('Veiligheidsgoedkeuring nog niet beschikbaar');
+    message.textContent = t('De veiligheidsgoedkeuring ontbreekt. Inloggen, een account aanmaken en persoonlijke toegang blijven gesloten.');
+    return;
+   }
+   approvalConfirmed = true;
    if (status.configured !== true || status.available !== true) throw new Error('Unavailable');
    const assigned = seatPattern.test(status.seat || '') ? status.seat : null;
    const activeSeat = requested || assigned;
@@ -77,8 +96,8 @@
   } catch {
    if (version !== revision) return;
    resetAccess();
-   statusElement.textContent = t('Persoonlijke toegang momenteel niet beschikbaar');
-   message.textContent = t('De inlogdienst of accountcontrole is niet bereikbaar. Probeer het later opnieuw.');
+   statusElement.textContent = t(approvalConfirmed ? 'Persoonlijke toegang momenteel niet beschikbaar' : 'Veiligheidsgoedkeuring nog niet beschikbaar');
+   message.textContent = t(approvalConfirmed ? 'De inlogdienst of accountcontrole is niet bereikbaar. Probeer het later opnieuw.' : 'De veiligheidscontrole is niet bereikbaar. Inloggen, een account aanmaken en persoonlijke toegang blijven gesloten.');
   } finally {
    if (version === revision) pollTimer = setTimeout(refresh, 30000);
   }
