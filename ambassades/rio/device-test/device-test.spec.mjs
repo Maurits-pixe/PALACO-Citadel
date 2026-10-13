@@ -333,7 +333,7 @@ test('[RIO-DEVICE-04] A lost invitation is not recovered or published on replay'
     });
     await page.unroute('**/api/rio/device-test/pair');
     await page.locator('#close').click();
-    expect((await readPair(context)).status).toBe(404);
+    await expect.poll(async () => (await readPair(context)).status).toBe(404);
   } finally {
     await context.close();
   }
