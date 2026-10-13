@@ -6,6 +6,7 @@ on:
     paths:
       - "scripts/verify-rio-published.mjs"
       - "scripts/verify-nova-published.mjs"
+      - "scripts/verify-device-test-published.mjs"
       - ".github/workflows/rio-published.yml"
   workflow_dispatch:
 
@@ -27,3 +28,5 @@ jobs:
         run: node scripts/verify-rio-published.mjs
       - name: Verify actual NOVA receipt lifecycle and browser session isolation over HTTPS
         run: node scripts/verify-nova-published.mjs
+      - name: Verify actual diagnostic transfer and closed account gates over HTTPS
+        run: node scripts/verify-device-test-published.mjs

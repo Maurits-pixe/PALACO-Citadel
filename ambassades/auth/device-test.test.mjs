@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import express from 'express';
-import { createServer } from 'node:http';
+import { createServer, request as httpRequest } from 'node:http';
 import { once } from 'node:events';
 import { mountDeviceTest } from './device-test.mjs';
 
@@ -234,7 +234,18 @@ test('Origin, private-read context, CSRF ownership and exact host protect the gu
   assert.equal((await f.call('/pair', { method: 'POST', guest: b, body: { idempotencyKey: f.key() }, sendCsrf: false })).status, 403);
   assert.equal((await f.call('/pair', { method: 'POST', guest: b, body: { idempotencyKey: f.key() },
     headers: { 'X-Device-Test-CSRF': a.csrf } })).status, 403);
-  assert.equal((await f.call('/runtime', { headers: { Host: 'attacker.example' } })).status, 400);
+  // Node's fetch may discard a Host override; send the forged wire header with node:http.
+  const forgedHostStatus = await new Promise((resolve, reject) => {
+    const request = httpRequest(f.origin + API + '/runtime', {
+      method: 'GET', headers: { Host: 'attacker.example' },
+    }, response => {
+      response.resume();
+      response.once('end', () => resolve(response.statusCode));
+    });
+    request.once('error', reject);
+    request.end();
+  });
+  assert.equal(forgedHostStatus, 400, 'actual forged Host is rejected at the HTTP boundary');
   assert.equal((await f.call('/pair', { guest: a, headers: { Cookie: a.cookie + '; ' + a.cookie } })).status, 400);
 });
 
