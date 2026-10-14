@@ -5,6 +5,7 @@ Identity, ERA, WATERMERK, HOLOGRAM and proof registration remain bounded to **SI
 - [Integration, storage, ERA and recovery](docs/PREVIEW-INTEGRATION.md)
 - [Authorization inventory and remaining gaps](docs/AUTHORIZATION-MAP.md)
 - [Verification dossier](docs/VERIFICATION-RECORDS.md)
+- [GO-047-I1 incident-state inspection and recovery QA](docs/INCIDENT-RECOVERY-QA.md)
 
 `LocalRegistry` now requires an operator-configured `allowedRoot` in addition to its data root. Both must be absolute. This is an intentional fail-closed API change. `ConfinedStore` enforces canonical paths, private permissions and atomic complete event publication; Windows ACL storage remains unsupported pending verification.
 
