@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { createServer } from 'node:http';
 import { once } from 'node:events';
+import { readFile } from 'node:fs/promises';
 import { buildApp } from '../../auth/server.mjs';
 
 const API = '/api/rio/device-test';
@@ -32,12 +33,12 @@ async function startServer(deviceTestOptions = {}) {
 test.beforeAll(async () => { fixture = await startServer(); });
 test.afterAll(async () => { if (fixture) await fixture.close(); });
 
-async function newContext(browser, testInfo) {
+async function newContext(browser, testInfo, opts = {}) {
   return browser.newContext({
     viewport: testInfo.project.use.viewport,
     isMobile: testInfo.project.name === 'mobile',
     hasTouch: testInfo.project.name === 'mobile',
-    acceptDownloads: false,
+    acceptDownloads: opts.acceptDownloads === true,
   });
 }
 
@@ -91,9 +92,9 @@ async function acceptBoth(a, b) {
   });
 }
 
-async function connectPair(browser, testInfo, origin = fixture.origin) {
-  const aContext = await newContext(browser, testInfo);
-  const bContext = await newContext(browser, testInfo);
+async function connectPair(browser, testInfo, origin = fixture.origin, opts = {}) {
+  const aContext = await newContext(browser, testInfo, opts);
+  const bContext = await newContext(browser, testInfo, opts);
   try {
     const a = await open(aContext, origin);
     const invite = await createInvite(a);
@@ -363,4 +364,141 @@ test('[RIO-DEVICE-05] Expired codes disappear even while the browser is offline'
     if (setup) await Promise.all([setup.aContext.close(), setup.bContext.close()]);
     await timed.close();
   }
+});
+
+async function carrierDeclarations(a,b) {
+  await test.step('carrier-checklist', async () => {
+    for(const page of [a,b]) {
+      await expect(page.locator('#carrier-panel')).toBeVisible();
+      await expect(page.locator('#carrier-confirm')).toBeDisabled();
+      for (const id of ['wifi-off','data-on','providers-different','hotspot-off']) {
+        await page.locator('#'+id).check();
+      }
+      await expect(page.locator('#carrier-confirm')).toBeEnabled();
+      await page.locator('#carrier-confirm').click();
+      await expect(page.locator('#carrier-confirm')).toBeHidden();
+    }
+    await expect(a.locator('#carrier-status')).toContainText('B / Lebara: bevestigd');
+    await expect(b.locator('#carrier-status')).toContainText('A / Youfone: bevestigd');
+    await expect(a.locator('#challenge')).toBeEnabled();
+  });
+}
+
+test('[RIO-DEVICE-06] Both carriers attest their own network settings before transfer', async ({browser},testInfo) => {
+  const {aContext,bContext,a,b}=await connectPair(browser,testInfo);
+  try {
+    await expect(a.locator('#carrier-title')).toContainText('Youfone');
+    await expect(b.locator('#carrier-title')).toContainText('Lebara');
+    await expect(a.locator('#carrier-confirm')).toBeDisabled();
+    for(const id of ['wifi-off','data-on','providers-different','hotspot-off']) await a.locator('#'+id).check();
+    await a.locator('#carrier-confirm').click();
+    await expect(a.locator('#carrier-status')).toContainText('A / Youfone: bevestigd');
+    await expect(a.locator('#challenge')).toBeDisabled();
+    const blocked = await readPair(aContext);
+    expect(blocked.data.pair.carrier).toEqual({mode:true,A:true,B:false});
+    for(const id of ['wifi-off','data-on','providers-different','hotspot-off']) await b.locator('#'+id).check();
+    await b.locator('#carrier-confirm').click();
+    await expect(a.locator('#challenge')).toBeEnabled();
+    expect((await readPair(bContext)).data.pair.carrier).toEqual({mode:true,A:true,B:true});
+    await a.locator('#close').click();
+    await expect(a.locator('#messages li')).toHaveCount(0);
+  } finally { await Promise.all([aContext.close(),bContext.close()]); }
+});
+
+test('[RIO-DEVICE-07] Download belongs to exact closed carrier pair and excludes codes',async ({browser},testInfo) => {
+  const {aContext,bContext,a,b}=await connectPair(browser,testInfo,fixture.origin,{acceptDownloads:true});
+  try {
+    await carrierDeclarations(a,b);
+    const before=(await readPair(aContext)).data.pair;
+    await a.locator('#challenge').click();
+    const challenge=(await readPair(bContext)).data.pair.messages[0];
+    await b.locator('[data-ack="'+challenge.id+'"]').click();
+    await b.locator('[data-reply="'+challenge.id+'"]').click();
+    const reply=(await readPair(aContext)).data.pair.messages[1];
+    await a.locator('[data-ack="'+reply.id+'"]').click();
+    await expect(a.locator('#proof')).toBeVisible();
+    await test.step('carrier-export',async ()=>{
+      await a.locator('#close').click();
+      await expect(a.locator('#download-result')).toBeVisible();
+      await expect(a.locator('#messages li')).toHaveCount(0);
+      await expect(a.locator('#proof')).toBeHidden();
+      const downloadEvent=a.waitForEvent('download');
+      await a.locator('#download-result').click();
+      const file=await downloadEvent;
+      const data=JSON.parse(await readFile(await file.path(),'utf8'));
+      expect(data.schema).toBe('rio-carrier-result/v1');
+      expect(data.testId).toBe(before.id);
+      expect(data.closedRevision).toBeGreaterThan(before.revision);
+      expect(data.providers).toEqual({A:'Youfone',B:'Lebara'});
+      expect(data.declarations).toEqual({A:true,B:true});
+      expect(data.roundTripConfirmed).toBe(true);
+      expect(data.challengeReceived && data.replyReceived).toBe(true);
+      expect(data.physicalCarrierVerified).toBe(false);
+      expect(data.canOpenContact).toBe(false);
+      expect(data.account1).toBe('HOLD');
+      expect(JSON.stringify(data)).not.toContain(challenge.code);
+      expect(JSON.stringify(data)).not.toContain(reply.code);
+      expect((await readPair(aContext)).status).toBe(404);
+    });
+  } finally {await Promise.all([aContext.close(),bContext.close()]);}
+});
+
+test('[RIO-DEVICE-08] Wrong pair on close reply blocks export; replay recovers exact receipt',async ({browser},testInfo) => {
+  const {aContext,bContext,a,b}=await connectPair(browser,testInfo);
+  let tampered=false;
+  try {
+    await carrierDeclarations(a,b);
+    await a.route('**/api/rio/device-test/pair/actions',async route=>{
+      if(!tampered && route.request().postDataJSON()?.action==='close'){
+        tampered=true;
+        const actual=await route.fetch();
+        const value=await actual.json();
+        value.carrierResult.pairId='f'.repeat(32);
+        await route.fulfill({response:actual,body:JSON.stringify(value)});
+      } else await route.continue();
+    });
+    await test.step('invalid-close-receipt',async ()=>{
+      await a.locator('#close').click();
+      await expect(a.locator('#retry')).toBeVisible();
+      await expect(a.locator('#download-result')).toBeHidden();
+      await expect(a.locator('#messages li')).toHaveCount(0);
+      await a.locator('#retry').click();
+      await expect(a.locator('#retry')).toBeHidden();
+      await expect(a.locator('#download-result')).toBeVisible();
+    });
+  }finally{await Promise.all([aContext.close(),bContext.close()]);}
+});
+
+test('[RIO-DEVICE-09] Late old pair response cannot resurrect codes after close',async ({browser},testInfo) => {
+  const {aContext,bContext,a,b}=await connectPair(browser,testInfo);
+  let release,markStarted;
+  const started=new Promise(resolve=>{markStarted=resolve;});
+  const gate=new Promise(resolve=>{release=resolve;});
+  let held=false;
+  try {
+    await carrierDeclarations(a,b);
+    await a.locator('#challenge').click();
+    await expect(a.locator('#messages li')).toHaveCount(1);
+    await a.route('**/api/rio/device-test/pair',async route=>{
+      if(!held && route.request().method()==='GET'){
+        held=true;
+        const old=await route.fetch();
+        markStarted();
+        await gate;
+        await route.fulfill({response:old});
+      }else await route.continue();
+    });
+    await test.step('stale-readback',async ()=>{
+      await a.evaluate(()=>window.dispatchEvent(new Event('online')));
+      await started;
+      await a.locator('#close').click();
+      await expect(a.locator('#download-result')).toBeVisible();
+      release();
+      await expect(a.locator('#messages li')).toHaveCount(0);
+      await expect(a.locator('#proof')).toBeHidden();
+      await expect(a.locator('#share-link')).toHaveValue('');
+      await a.waitForTimeout(100);
+      await expect(a.locator('#messages code')).toHaveCount(0);
+    });
+  }finally{if(release)release();await Promise.all([aContext.close(),bContext.close()]);}
 });
