@@ -8,16 +8,17 @@
     if (match) incoming = match[1];
     if (location.hash) history.replaceState(null, '', location.pathname + location.search);
   } catch {}
-  let resultReceipt = null;
+  let resultReceipt = null, requestEpoch=0;
   let csrf = '', pair = null, link = '', pending = null, busy = false, ready = false, hasPair = false, deadline = 0, looked = false;
   function bindPair(data) {
     const changed=!pair || pair.id!==data.pair.id || pair.revision!==data.pair.revision;
-    if (!pair || pair.id!==data.pair.id) { resetNetwork();resultReceipt=null; }
+    if (!pair || pair.id!==data.pair.id) { requestEpoch+=1;resetNetwork();resultReceipt=null; }
     pair=data.pair;
     deadline=performance.now()+Math.max(0,Date.parse(pair.expiresAt)-Date.parse(data.serverTime)-1000);
     return changed;
   }
   function forgetPair(clearInvitation=true) {
+    requestEpoch+=1;
     pair=null;link='';if(clearInvitation)incoming='';pending=null;deadline=0;
     resetNetwork();$('messages').replaceChildren();$('proof').hidden=true;$('share-link').value='';if(clearInvitation)$('invitation').value='';
   }
@@ -122,13 +123,17 @@
   }
   async function refresh() {
     if (!ready || busy || pending || (looked && !pair && !hasPair)) return;
+    const epoch=requestEpoch;
     try {
-      const data=await request('/pair');looked=true;const changed=bindPair(data);hasPair=true;
+      const data=await request('/pair');
+      if(epoch!==requestEpoch || busy || pending || pair && pair.id===data.pair.id && data.pair.revision<pair.revision) return;
+      looked=true;const changed=bindPair(data);hasPair=true;
       if (pair.state!=='WAITING_PEER') link='';
       if (pair.state==='CLOSED') feedback('De proef is gesloten. De testcodes zijn gewist. Vernieuw de pagina om een nieuwe proef te starten.');
       else if(pair.state==='WAITING_PEER'&&!link)feedback('De uitnodiging wordt niet opnieuw getoond. Gebruik je eerder gekopieerde link, of sluit deze proef en begin opnieuw.');
       if(changed)render();else countdown();
     } catch(error) {
+      if(epoch!==requestEpoch || busy || pending) return;
       if (error.status===404) {
         looked=true;forgetPair(hasPair);render();
         if (hasPair) {feedback('De proef is verlopen of beëindigd. De testcodes zijn gewist.');hasPair=false;}
@@ -139,22 +144,31 @@
   }
   async function submit(path,body) {
     if (busy) return;
-    pending={path,body};await retry();
+    pending={path,body,scenario:pair?.scenario??null};await retry();
   }
   async function retry() {
     if (!pending || busy) return;
+    const command=pending, epoch=++requestEpoch;
     busy=true;render();
     try {
-      const data=await request(pending.path,pending.body);
+      const data=await request(command.path,command.body);
+      if(epoch!==requestEpoch)return;
       pending=null;
       if (data.pair) {
         bindPair(data);hasPair=true;
-        if(data.receipt) resultReceipt=receiptOnly(data.receipt);
+        if(data.receipt) {
+          const safe=receiptOnly(data.receipt);
+          resultReceipt=command.path==='/pair/actions' && command.body.action==='close'
+            && data.pair.state==='CLOSED' && data.pair.id===command.body.pairId
+            && safe?.pairId===command.body.pairId && safe.scenario===command.scenario
+            && safe.scenario===data.pair.scenario?safe:null;
+        }
         if (data.inviteToken) {link=location.origin+location.pathname+'#invite='+data.inviteToken;}
         if (pair.state!=='WAITING_PEER') {link='';incoming='';$('invitation').value='';}
         feedback(pair.state==='CLOSED'?'De proef is gesloten. De testcodes zijn op de server gewist.':pair.state==='WAITING_PEER'&&!link?'De eerste reactie is niet ontvangen; de uitnodiging kan niet opnieuw worden opgehaald. Sluit deze proef en start een nieuwe.':labels[pair.state]);
       }
     } catch(error) {
+      if(epoch!==requestEpoch)return;
       if (error.status) {
         pending=null;
         if (error.status===409) feedback('De proefstand is gewijzigd. Kies je stap opnieuw; er is geen dubbele verzending uitgevoerd.');
@@ -167,10 +181,12 @@
   }
   async function action(name,extra={}) {
     if (busy || pending || !pair) return;
-    const intendedPair=pair.id;
+    const intendedPair=pair.id, epoch=++requestEpoch;
     busy=true;render();
     try {
-      const latest=await request('/pair');bindPair(latest);busy=false;render();
+      const latest=await request('/pair');
+      if(epoch!==requestEpoch) {busy=false;render();return;}
+      bindPair(latest);busy=false;render();
       if(pair.id!==intendedPair) {
         feedback('Deze proef is gewijzigd. Controleer het proefnummer en kies je stap opnieuw.');return;
       }

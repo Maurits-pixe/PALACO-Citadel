@@ -567,34 +567,144 @@ test('[RIO-DEVICE-07] Declared mobile pair exchanges codes and exports only a bo
   }
 });
 
-test('[RIO-DEVICE-08] A malformed receipt cannot be displayed or downloaded as account authority', async ({ browser }, testInfo) => {
-  const context = await newContext(browser, testInfo);
-  let invalidReceiptInjected = false;
+test('[RIO-DEVICE-08] Malformed or unbound closure receipts cannot be displayed or downloaded', async ({ browser }, testInfo) => {
+  const variants = [
+    body => { body.receipt.accounts = 'OPEN'; },
+    body => { body.receipt.pairId = (body.receipt.pairId[0] === 'a' ? 'b' : 'a') + body.receipt.pairId.slice(1); },
+    body => { body.receipt.scenario = body.receipt.scenario === 'GENERAL_INTERNET' ? 'MOBILE_CROSS_PROVIDER' : 'GENERAL_INTERNET'; },
+    body => { body.pair.state = 'ACTIVE_TEST'; },
+    body => { body.pair.id = (body.pair.id[0] === 'a' ? 'b' : 'a') + body.pair.id.slice(1); },
+  ];
+  for (const mutate of variants) {
+    const context = await newContext(browser, testInfo);
+    let invalidReceiptInjected = false;
+    try {
+      const page = await open(context);
+      await createInvite(page);
+      await page.route('**/api/rio/device-test/pair/actions', async route => {
+        if (route.request().postDataJSON()?.action === 'close') {
+          const response = await route.fetch();
+          const body = await response.json();
+          if (body.receipt && body.pair) {
+            mutate(body);
+            invalidReceiptInjected = true;
+          }
+          await route.fulfill({ response, json: body });
+        } else await route.continue();
+      });
+      await test.step('invalid-receipt', async () => {
+        await page.locator('#close').click();
+        await expect.poll(async () => (await readPair(context)).status).toBe(404);
+        // The panel was visible before closure. Its disappearance waits for the
+        // close response and refresh, preventing a check of the initial hidden result.
+        await expect(page.locator('#pair-panel')).toBeHidden();
+        await expect(page.locator('#result-panel')).toBeHidden();
+        await expect(page.locator('#result-download')).toBeDisabled();
+        await expect(page.locator('#proof')).toBeHidden();
+        expect(invalidReceiptInjected).toBe(true);
+        expect((await context.request.get(fixture.origin + '/api/me')).status()).toBe(503);
+        await assertPageBoundary(page);
+      });
+    } finally {
+      await context.close();
+    }
+  }
+});
+
+
+test('[RIO-DEVICE-09] An older pair read cannot restore closed codes or erase its receipt', async ({ browser }, testInfo) => {
+  const { aContext, bContext, a, b } = await connectPair(browser, testInfo);
+  let releaseRead, reportRead;
+  const releaseGate = new Promise(resolve => { releaseRead = resolve; });
+  const readHeld = new Promise(resolve => { reportRead = resolve; });
+  let intercepted = false;
   try {
-    const page = await open(context);
-    await createInvite(page);
-    await page.route('**/api/rio/device-test/pair/actions', async route => {
-      if (route.request().postDataJSON()?.action === 'close') {
+    await a.locator('#challenge').click();
+    await expect(b.locator('#messages li')).toHaveCount(1);
+    const challenge = (await readPair(bContext)).data.pair.messages[0];
+    await b.locator('[data-ack="' + challenge.id + '"]').click();
+    await expect(b.locator('[data-reply="' + challenge.id + '"]')).toBeVisible();
+    await b.locator('[data-reply="' + challenge.id + '"]').click();
+    await expect(a.locator('#messages li')).toHaveCount(2);
+    const reply = (await readPair(aContext)).data.pair.messages[1];
+    await a.locator('[data-ack="' + reply.id + '"]').click();
+    await expect(a.locator('#proof')).toBeVisible();
+    await expect(b.locator('#proof')).toBeVisible();
+
+    await a.route('**/api/rio/device-test/pair', async route => {
+      if (route.request().method() === 'GET' && !intercepted) {
+        intercepted = true;
+        // Capture a real active-pair response before closure, then hold only this
+        // periodic read. The close action's separate fresh read must pass through.
         const response = await route.fetch();
-        const body = await response.json();
-        if (body.receipt) {
-          invalidReceiptInjected = true;
-          body.receipt.accounts = 'OPEN';
-        }
-        await route.fulfill({ response, json: body });
+        const snapshot = await response.json();
+        reportRead({
+          status: response.status(),
+          state: snapshot.pair?.state,
+          messageCount: snapshot.pair?.messages?.length,
+          acknowledged: snapshot.pair?.messages?.every(message => message.acknowledged),
+        });
+        await releaseGate;
+        await route.fulfill({
+          response, json: snapshot,
+          headers: { ...response.headers(), 'X-RIO-Test-Stale-Read': 'held' },
+        });
       } else await route.continue();
     });
-    await test.step('invalid-receipt', async () => {
-      await page.locator('#close').click();
-      await expect.poll(async () => (await readPair(context)).status).toBe(404);
-      await expect(page.locator('#result-panel')).toBeHidden();
-      await expect(page.locator('#result-download')).toBeDisabled();
-      await expect(page.locator('#proof')).toBeHidden();
-      expect(invalidReceiptInjected).toBe(true);
-      expect((await context.request.get(fixture.origin + '/api/me')).status()).toBe(503);
-      await assertPageBoundary(page);
+    await test.step('stale-read', async () => {
+      expect(await readHeld).toEqual({
+        status: 200, state: 'ACTIVE_TEST', messageCount: 2, acknowledged: true,
+      });
+      await a.locator('#close').click();
+      await expect(a.locator('#pair-panel')).toBeHidden();
+      await expect(a.locator('#messages li')).toHaveCount(0);
+      await expect(a.locator('#proof')).toBeHidden();
+      await expect(a.locator('#result-panel')).toBeVisible();
+      await expect(a.locator('#result-download')).toBeEnabled();
+      await expect(a.locator('#result-summary')).toContainText('Heen-en-terug bevestigd');
+      expect((await readPair(aContext)).status).toBe(404);
+      await a.evaluate(() => {
+        window.__rioStaleReadEvidence = { codesReturned: false, receiptHidden: false };
+        window.__rioStaleReadObserver = new MutationObserver(() => {
+          if (document.querySelectorAll('#messages li').length > 0) {
+            window.__rioStaleReadEvidence.codesReturned = true;
+          }
+          if (document.getElementById('result-panel').hidden) {
+            window.__rioStaleReadEvidence.receiptHidden = true;
+          }
+        });
+        window.__rioStaleReadObserver.observe(document.body, { subtree: true, childList: true, attributes: true });
+      });
+      const delayedResponse = a.waitForResponse(response =>
+        response.request().method() === 'GET' &&
+        response.headers()['x-rio-test-stale-read'] === 'held');
+      releaseRead();
+      const response = await delayedResponse;
+      await response.finished();
+      // Yield two rendering turns so fetch/JSON continuations and the mutation
+      // observer run. No timer delay or polling interval determines the test.
+      await a.evaluate(() => new Promise(resolve =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+      const evidence = await a.evaluate(() => {
+        window.__rioStaleReadObserver.disconnect();
+        const result = window.__rioStaleReadEvidence;
+        delete window.__rioStaleReadObserver;
+        delete window.__rioStaleReadEvidence;
+        return result;
+      });
+      expect(evidence).toEqual({ codesReturned: false, receiptHidden: false });
+      await expect(a.locator('#messages li')).toHaveCount(0);
+      await expect(a.locator('#proof')).toBeHidden();
+      await expect(a.locator('#pair-panel')).toBeHidden();
+      await expect(a.locator('#result-panel')).toBeVisible();
+      await expect(a.locator('#result-download')).toBeEnabled();
+      await expect(a.locator('#result-summary')).toContainText('Heen-en-terug bevestigd');
+      await assertPageBoundary(a);
+      await assertPageBoundary(b);
     });
   } finally {
-    await context.close();
+    // Release an outstanding route even if an earlier assertion fails.
+    releaseRead();
+    await Promise.all([aContext.close(), bContext.close()]);
   }
 });

@@ -8,14 +8,15 @@ const CASES = {
   'RIO-DEVICE-05': 'Expired codes disappear even while the browser is offline',
   'RIO-DEVICE-06': 'Mobile setup declarations gate acceptance and reset for a new pair',
   'RIO-DEVICE-07': 'Declared mobile pair exchanges codes and exports only a bounded receipt',
-  'RIO-DEVICE-08': 'A malformed receipt cannot be displayed or downloaded as account authority',
+  'RIO-DEVICE-08': 'Malformed or unbound closure receipts cannot be displayed or downloaded',
+  'RIO-DEVICE-09': 'An older pair read cannot restore closed codes or erase its receipt',
 };
 const PHASES = new Set([
   'setup', 'invitation', 'fragment-and-storage', 'bilateral-acceptance',
   'challenge', 'recipient-ack', 'reply', 'return-ack', 'third-session-denied',
   'close', 'closed-account-gates', 'mobile-layout', 'lost-response',
   'idempotent-retry', 'invitation-not-recoverable', 'offline-expiry',
-  'network-declaration', 'carrier-evidence', 'receipt-download', 'new-pair-reset', 'invalid-receipt',
+  'network-declaration', 'carrier-evidence', 'receipt-download', 'new-pair-reset', 'invalid-receipt', 'stale-read',
 ]);
 
 // URLs, invitation capabilities, cookies, CSRF values and codes never enter evidence.
@@ -27,7 +28,7 @@ export default class DeviceTestReporter {
   onStdErr() {}
   onError() { this.suiteErrors += 1; }
   onTestEnd(test, result) {
-    const id = /^\[(RIO-DEVICE-0[1-8])\]/.exec(test.title)?.[1] ?? 'UNKNOWN';
+    const id = /^\[(RIO-DEVICE-0[1-9])\]/.exec(test.title)?.[1] ?? 'UNKNOWN';
     const projectName = test.parent.project()?.name;
     const project = ['mobile', 'desktop'].includes(projectName) ? projectName : 'unknown';
     const lines = new Set(), phases = [];
