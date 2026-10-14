@@ -1,0 +1,22 @@
+name: GO-030 review gate
+on:
+  pull_request:
+    paths:
+      - '08-IMPLEMENTATION/src/go030/**'
+      - '08-IMPLEMENTATION/tests/go030.test.mjs'
+      - '.github/workflows/go-030.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run fail-closed gate tests
+        run: node 08-IMPLEMENTATION/tests/go030.test.mjs
