@@ -22,13 +22,15 @@ label{display:block;font-weight:700;margin-top:14px}[hidden]{display:none!import
 code{display:block;overflow-wrap:anywhere;font:700 18px/1.5 ui-monospace,monospace;padding:12px;background:#f1f5f9;letter-spacing:.03em}
 small{display:block;color:#36516b}.danger{background:var(--coral);color:var(--ink)}
 footer{margin-top:24px}#state{font-weight:800}#proof{background:#dff9e5;padding:14px;font-weight:700}
+.carrier{background:#edf4ff;padding:18px;border-radius:10px;margin:18px 0}.carrier-check{display:flex;align-items:flex-start;gap:12px;font-weight:500}
+.carrier-check input{width:24px;min-width:24px;height:24px;margin:2px 0}.carrier h3{margin:0}
 </style></head>
 <body>
 <header><span class="badge" aria-hidden="true">RIO<span style="color:#ff7163">.</span></span><strong>PALACO RIO</strong><a href="/rio/nova/">Naar NOVA</a></header>
 <main>
 <section class="hero"><div class="tag">APPARAATPROEF · ALLEEN TESTCODES</div>
 <h1>Twee telefoons.<br>Eén eerste overdracht.</h1>
-<p>Open deze pagina op je twee telefoons. Telefoon A maakt een uitnodiging; telefoon B opent die. Bevestig op beide toestellen dat je meedoet, stuur een testcode en laat de andere telefoon antwoorden.</p>
+<p>Telefoon A gebruikt Youfone en telefoon B Lebara, beide op het KPN-netwerk. Schakel op beide toestellen wifi en hotspot uit en mobiele data in. De afzonderlijke providerverklaringen zijn geen technische netwerkmeting. Telefoon A maakt een uitnodiging; telefoon B opent die. Bevestig je deelname, wissel een testcode uit en sluit de proef af voor een codevrij resultaat.</p>
 <p><strong>Er wordt geen account aangemaakt.</strong> Deze korte proef opent geen gewone chat of NOVA-contact. De testcodes gaan via de PALACO-server op Render. HTTPS beschermt het vervoer; de server kan de codes lezen. End-to-endversleuteling is nog niet aangesloten.</p>
 <small id="build">Versie wordt geladen…</small></section>
 <p id="feedback" role="status" aria-live="polite">De testomgeving wordt geopend…</p>
@@ -46,11 +48,23 @@ footer{margin-top:24px}#state{font-weight:800}#proof{background:#dff9e5;padding:
 <h2 id="pair-title">Gekoppelde apparaatproef</h2><p id="state"></p><p id="expiry"></p>
 <p>Controleer dat op beide telefoons hetzelfde proefnummer staat. De uitnodiging bewijst geen identiteit.</p>
 <p id="consent"></p><button id="accept">Ik doe mee aan deze testcodeproef</button>
+<section id="carrier-panel" class="carrier" hidden aria-labelledby="carrier-title">
+<h3 id="carrier-title">Mobiele-data-proef</h3>
+<p><strong>Youfone → Lebara → Youfone</strong>. Twee aanbieders, maar hetzelfde onderliggende KPN-netwerk. Beide telefoons bevestigen uitsluitend hun eigen instellingen; RIO kan de provider of wifi-stand niet uitlezen.</p>
+<p>Bevestig deze vier punten <strong>op beide telefoons apart</strong> voordat je de carrierproef uitvoert:</p>
+<label class="carrier-check"><input id="wifi-off" type="checkbox"> Wifi is uit op dit toestel</label>
+<label class="carrier-check"><input id="data-on" type="checkbox"> Mobiele data is aan op dit toestel</label>
+<label class="carrier-check"><input id="providers-different" type="checkbox"> Mijn provider verschilt van die van de andere telefoon</label>
+<label class="carrier-check"><input id="hotspot-off" type="checkbox"> Hotspot/tethering is uit op dit toestel</label>
+<p id="carrier-status" role="status" aria-live="polite"></p>
+<button id="carrier-confirm">Bevestig mijn toestelverklaring</button>
+</section>
 <p>3 · Bevestig ontvangen codes op de andere telefoon.<br>4 · Antwoord op de ontvangen testcode.</p>
 <button id="challenge" hidden>Stuur testcode naar de andere telefoon</button>
 <ul id="messages" aria-label="Testcodes"></ul>
 <p id="proof" hidden>Heen-en-terug ontvangen: de twee browsers hebben de code en het passende antwoord bevestigd. Controleer de schermen van beide fysieke telefoons.</p>
 <button id="close" class="danger">Sluit proef op beide telefoons</button>
 </section>
+<button id="download-result" class="secondary" hidden>Download resultaat van afgesloten carrierproef (zonder testcodes)</button>
 <footer><small>Testcodes en tijdelijke koppelingen worden op de server uiterlijk na vijf minuten gewist, en ook bij afsluiten of een serverherstart. Een tijdelijk netwerkprobleem is geen bewijs van aflevering. Persoonlijke aanmelding en operationeel RIO-contact blijven gesloten.</small></footer>
 </main></body></html>
