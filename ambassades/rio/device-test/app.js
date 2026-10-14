@@ -189,7 +189,9 @@
     busy=true;render();
     try {
       const latest=await request('/pair');
-      if(started!==epoch || !pair || pair.id!==intendedPair) return;
+      if(started!==epoch || !pair || pair.id!==intendedPair) {
+        closing=false;busy=false;render();return;
+      }
       bindPair(latest);busy=false;render();
       if(pair.id!==intendedPair) {
         feedback('Deze proef is gewijzigd. Controleer het proefnummer en kies je stap opnieuw.');return;
