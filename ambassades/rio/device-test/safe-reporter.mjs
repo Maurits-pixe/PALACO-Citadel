@@ -49,7 +49,9 @@ export default class DeviceTestReporter {
       failedSourceLines: [...lines].sort((a, b) => a - b), phases,
     };
     this.tests.push(row);
+    const failedPhaseNames=row.phases.filter(item=>item.status==='failed').map(item=>item.name);
     process.stdout.write(id + '/' + project + ': ' + row.status +
+      (failedPhaseNames.length ? ' (phase ' + failedPhaseNames.join(',') + ')' : '') +
       (row.failedSourceLines.length ? ' (source lines ' + row.failedSourceLines.join(',') + ')' : '') + '\n');
   }
   async onEnd(result) {
