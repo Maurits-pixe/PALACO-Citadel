@@ -1,0 +1,32 @@
+{
+  "pacht_id": "PACHT-00000001",
+  "subject": {
+    "id": "PALACO-ATLANTIS-PACHT-V1-MECHANISM",
+    "version": "1aecb6f6b58cb809d03ec6afa9766793a290563a"
+  },
+  "class": "PACHT-P",
+  "scope": "Conformance quality of the PACHT-V1 verification mechanism as merged in PALACO-Citadel; no claim about any external product, World, Citadel, person, organization, sovereignty, ownership, or constitutional authority.",
+  "jurisdiction": "PALACO internal / Treaty of ATLANTIS",
+  "treaty_version": "1.0.0",
+  "codex_version": "1.0.0",
+  "evidence": [
+    "merge:1aecb6f6b58cb809d03ec6afa9766793a290563a",
+    "reviewed-head:89793fc60cabc8247e71af9f54e09593b82203a9",
+    "workflow-run:37629213746",
+    "job:112818777287",
+    "harness:PASS-1-valid-14-negative"
+  ],
+  "council_positions": [],
+  "decision": {
+    "state": "PROPOSED",
+    "authorization_basis": "",
+    "dissent": []
+  },
+  "aseg": "NOT_APPLICABLE",
+  "cefcg": "PROVEN",
+  "validity": null,
+  "integrity": null,
+  "lineage": "candidate:PACHT-00000001",
+  "challenge": "NONE",
+  "revocation": "NOT_REVOKED"
+}
