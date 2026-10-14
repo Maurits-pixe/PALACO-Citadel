@@ -6,6 +6,10 @@ const PREFIX = '/api/rio/device-test';
 const TOKEN = /^[a-f0-9]{64}$/;
 const ID = /^[a-f0-9]{32}$/;
 const SCOPE = 'RIO_DEVICE_CHALLENGE_V1';
+const CARRIER = 'YF_LEBARA_KPN_V1';
+const CARRIER_CHECKS = ['wifiOff','mobileDataOn','differentProviders','noHotspot'];
+const validCarrier = value => exact(value, CARRIER_CHECKS)
+  && CARRIER_CHECKS.every(key => value[key] === true);
 const isId = value => typeof value === 'string' && ID.test(value);
 const isToken = value => typeof value === 'string' && TOKEN.test(value);
 const mounted = new WeakSet();
@@ -100,10 +104,24 @@ export function mountDeviceTest(app, options = {}) {
     if (typeof value !== 'string' || !TOKEN.test(value)
         || !timingSafeEqual(Buffer.from(value,'hex'),Buffer.from(session.csrf,'hex'))) throw failure(403,'DEVICE_CSRF_REQUIRED');
   }
+  function carrierResult(pair, time) {
+    const challenge = pair.messages.find(m => m.kind === 'CHALLENGE' && m.from === 'A' && m.acknowledged);
+    const reply = challenge && pair.messages.find(m => m.kind === 'REPLY' &&
+      m.from === 'B' && m.replyTo === challenge.id && m.acknowledged && m.code === challenge.code);
+    return { schema:'rio-carrier-result/v1', pairId:pair.id,
+      closedAt:new Date(time).toISOString(), network:'KPN',
+      providers:{A:'Youfone',B:'Lebara'}, physicalCarrierVerified:false,
+      declarations:{A:pair.carrier.A,B:pair.carrier.B},
+      consent:{A:pair.accepted.A,B:pair.accepted.B},
+      challengeReceived:Boolean(challenge), replyReceived:Boolean(reply),
+      roundTripConfirmed:Boolean(challenge && reply),
+      account1:'HOLD', canOpenContact:false, operativeAuthority:'NONE' };
+  }
   function view(pair, key) {
     return { id:pair.id, role:pair.a===key?'A':'B', state:pair.state, revision:pair.revision,
       expiresAt:new Date(pair.expiresAt).toISOString(), scope:SCOPE,
       consent:{ A:pair.accepted.A, B:pair.accepted.B },
+      carrier:{ mode:pair.carrier.mode, A:pair.carrier.A, B:pair.carrier.B },
       messages:pair.messages.map(message=>({ ...message })) };
   }
   function response(pair, key, time, extra={}) {
@@ -180,7 +198,8 @@ export function mountDeviceTest(app, options = {}) {
     if (pairs.size>=maxPairs) throw failure(503,'DEVICE_CAPACITY_REACHED');
     const invite=opaque(), pair={id:identifier(),a:key,b:null,state:'WAITING_PEER',accepted:{A:false,B:false},
       revision:1,expiresAt:Math.min(res.locals.deviceTime+pairTtlMs,session.expiresAt),
-      inviteHash:digest(invite),messages:[],commands:new Map()};
+      inviteHash:digest(invite),messages:[],commands:new Map(),
+      carrier:{mode:false,A:false,B:false}};
     remember(session,req.body.idempotencyKey,fingerprint);
     pairs.set(pair.id,pair);invites.set(pair.inviteHash,pair.id);session.pairId=pair.id;
     res.status(201).json(response(pair,key,res.locals.deviceTime,{inviteToken:invite,replayed:false}));
@@ -204,10 +223,12 @@ export function mountDeviceTest(app, options = {}) {
     const {action,revision,idempotencyKey}=req.body||{};
     const keys=['action','revision','idempotencyKey','pairId'];
     if (action==='accept') keys.push('scope');
+    if (action==='carrier') keys.push('checks');
     if (action==='reply' || action==='ack') keys.push('messageId');
-    if (!['accept','challenge','reply','ack','close'].includes(action) || !exact(req.body,keys)
+    if (!['accept','carrier','challenge','reply','ack','close'].includes(action) || !exact(req.body,keys)
         || !Number.isSafeInteger(revision) || revision<1 || !isId(idempotencyKey) || !isId(req.body.pairId)
         || (action==='accept' && req.body.scope!==SCOPE)
+        || (action==='carrier' && !validCarrier(req.body.checks))
         || ((action==='reply'||action==='ack')&&!isId(req.body.messageId))) throw failure(400,'DEVICE_INVALID_BODY');
     const {key,session}=readSession(req);csrf(req,session);
     const canonical=JSON.stringify(keys.map(name=>[name,req.body[name]]));
@@ -228,10 +249,16 @@ export function mountDeviceTest(app, options = {}) {
     if (pair.commands.size>=128 && action!=='close') throw failure(429,'DEVICE_COMMAND_LIMIT');
     let result={};
     if (action==='close') {
+      const evidence = carrierResult(pair,res.locals.deviceTime);
       removePair(pair);
-      const receipt=response(pair,key,res.locals.deviceTime,{replayed:false});
+      const receipt=response(pair,key,res.locals.deviceTime,{replayed:false,carrierResult:evidence});
       session.lastClose={key:idempotencyKey,fingerprint:canonical,expiresAt:res.locals.deviceTime+pairTtlMs,receipt};
       return res.json(receipt);
+    }
+    else if (action==='carrier') {
+      if (pair.state!=='ACTIVE_TEST' || pair.messages.length || pair.carrier[role])
+        throw failure(409,'DEVICE_CARRIER_DECLARATION_REJECTED');
+      pair.carrier.mode=true;pair.carrier[role]=true;pair.revision+=1;
     }
     else if (action==='accept') {
       if (pair.state!=='WAITING_ACCEPT' || pair.accepted[role]) throw failure(409,'DEVICE_INVALID_TRANSITION');
@@ -240,6 +267,8 @@ export function mountDeviceTest(app, options = {}) {
       pair.revision+=1;
     } else {
       if (pair.state!=='ACTIVE_TEST') throw failure(409,'DEVICE_BILATERAL_ACCEPTANCE_REQUIRED');
+      if (action==='challenge' && pair.carrier.mode && !(pair.carrier.A && pair.carrier.B))
+        throw failure(409,'DEVICE_CARRIER_BOTH_REQUIRED');
       const message=pair.messages.find(item=>item.id===req.body.messageId);
       if (action==='ack') {
         if (!message || message.from===role) throw failure(404,'DEVICE_MESSAGE_NOT_FOUND');
