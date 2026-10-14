@@ -18,7 +18,7 @@
     return changed;
   }
   function forgetPair(clearInvitation=true) {
-    epoch+=1;pair=null;link='';if(clearInvitation)incoming='';pending=null;deadline=0;
+    epoch+=1;pair=null;link='';if(clearInvitation)incoming='';pending=null;deadline=0;closing=false;
     $('messages').replaceChildren();$('proof').hidden=true;$('share-link').value='';if(clearInvitation)$('invitation').value='';
   }
   const $ = id => document.getElementById(id);
@@ -184,7 +184,11 @@
   async function action(name,extra={}) {
     if (busy || pending || !pair) return;
     const intendedPair=pair.id;
-    if(name==='close'){closing=true;epoch+=1;closedReport=null;}
+    if(name==='close'){
+      closing=true;epoch+=1;closedReport=null;
+      pair.messages=[]; // Remove server-generated code values from memory immediately.
+      $('messages').replaceChildren();$('proof').hidden=true;
+    }
     const started=epoch;
     busy=true;render();
     try {
