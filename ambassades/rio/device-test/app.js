@@ -188,7 +188,10 @@
         feedback('Deze proef is gewijzigd. Controleer het proefnummer en kies je stap opnieuw.');return;
       }
       await submit('/pair/actions',{action:name,pairId:intendedPair,revision:pair.revision,idempotencyKey:key(),...extra});
-    } catch {busy=false;render();feedback('De proefstand kon niet worden opgehaald. Probeer dezelfde stap zodra de verbinding terug is.');}
+    } catch {
+      if(closing){forgetPair();closing=false;hasPair=false;looked=true;}
+      busy=false;render();feedback('De proefstand kon niet worden opgehaald. De zichtbare testcodes zijn gewist; controleer de serverstatus vóór een nieuwe proef.');
+    }
   }
   $('create').addEventListener('click',()=>{closedReport=null;epoch+=1;submit('/pair',{idempotencyKey:key()});});
   $('join').addEventListener('click',()=>{
