@@ -1,0 +1,57 @@
+name: RIO carrier candidate checks
+
+on:
+  push:
+    branches: ["candidate/rio-carrier-youfone-lebara-roundtrip"]
+    paths:
+      - "ambassades/auth/device-test.mjs"
+      - "ambassades/auth/device-test.test.mjs"
+      - "ambassades/rio/device-test/**"
+      - ".github/workflows/rio-carrier-candidate.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "ambassades/auth/device-test.mjs"
+      - "ambassades/auth/device-test.test.mjs"
+      - "ambassades/rio/device-test/**"
+      - ".github/workflows/rio-carrier-candidate.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rio-carrier-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  carrier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Install Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install server dependencies
+        working-directory: ambassades/auth
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Validate carrier source syntax
+        run: |
+          node --check ambassades/auth/device-test.mjs
+          node --check ambassades/rio/device-test/app.js
+          node --check ambassades/rio/device-test/device-test.spec.mjs
+          node --check ambassades/rio/device-test/safe-reporter.mjs
+      - name: Test real HTTP carrier server contracts
+        working-directory: ambassades/auth
+        run: node --test device-test.test.mjs
+      - name: Install exact Playwright dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Test carrier mobile and desktop browser flows
+        run: npx playwright test --config ambassades/rio/device-test/playwright.config.mjs
