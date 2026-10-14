@@ -8,18 +8,51 @@
     if (match) incoming = match[1];
     if (location.hash) history.replaceState(null, '', location.pathname + location.search);
   } catch {}
+  let resultReceipt = null;
   let csrf = '', pair = null, link = '', pending = null, busy = false, ready = false, hasPair = false, deadline = 0, looked = false;
   function bindPair(data) {
     const changed=!pair || pair.id!==data.pair.id || pair.revision!==data.pair.revision;
+    if (!pair || pair.id!==data.pair.id) { resetNetwork();resultReceipt=null; }
     pair=data.pair;
     deadline=performance.now()+Math.max(0,Date.parse(pair.expiresAt)-Date.parse(data.serverTime)-1000);
     return changed;
   }
   function forgetPair(clearInvitation=true) {
     pair=null;link='';if(clearInvitation)incoming='';pending=null;deadline=0;
-    $('messages').replaceChildren();$('proof').hidden=true;$('share-link').value='';if(clearInvitation)$('invitation').value='';
+    resetNetwork();$('messages').replaceChildren();$('proof').hidden=true;$('share-link').value='';if(clearInvitation)$('invitation').value='';
   }
   const $ = id => document.getElementById(id);
+  const networkIds = ['wifi-off','mobile-data','different-providers','no-hotspot'];
+  function resetNetwork() { for(const id of networkIds) $(id).checked=false; }
+  function mobileReady() { return networkIds.every(id=>$(id).checked); }
+  function receiptOnly(raw) {
+    const e=raw?.evidence,d=e?.delivery,n=e?.network;
+    if(raw?.version!=='RIO_DEVICE_RECEIPT_V1' || raw.mode!=='TEST_ONLY'
+      || !(raw.buildCommit===null || typeof raw.buildCommit==='string' && /^[a-f0-9]{40}$/.test(raw.buildCommit))
+      || typeof raw.pairId!=='string' || !/^[a-f0-9]{32}$/.test(raw.pairId)
+      || !['GENERAL_INTERNET','MOBILE_CROSS_PROVIDER'].includes(raw.scenario)
+      || typeof raw.closedAt!=='string' || !Number.isFinite(Date.parse(raw.closedAt))
+      || new Date(raw.closedAt).toISOString()!==raw.closedAt
+      || raw.accounts!=='CLOSED' || raw.endToEndEncrypted!==false
+      || !Number.isSafeInteger(d?.completedRoundTrips) || d.completedRoundTrips<0 || d.completedRoundTrips>10
+      || d.status!==(d.completedRoundTrips>0?'ACKNOWLEDGED':'PENDING')
+      || n?.source!=='PARTICIPANT_DECLARATION' || typeof n.A!=='boolean' || typeof n.B!=='boolean'
+      || n.providersVerified!==false || e.physicalDevicesVerified!==false
+      || raw.scenario==='MOBILE_CROSS_PROVIDER' && d.completedRoundTrips>0 && (!n.A || !n.B)) return null;
+    return {version:raw.version,mode:raw.mode,buildCommit:raw.buildCommit,pairId:raw.pairId,scenario:raw.scenario,
+      closedAt:raw.closedAt,evidence:{delivery:{completedRoundTrips:d.completedRoundTrips,status:d.status},
+        network:{source:n.source,A:n.A,B:n.B,providersVerified:false},physicalDevicesVerified:false},
+      accounts:'CLOSED',endToEndEncrypted:false};
+  }
+  function renderResult() {
+    $('result-panel').hidden=!resultReceipt;$('result-download').disabled=!resultReceipt;
+    if(!resultReceipt) {$('result-summary').textContent='';return;}
+    const e=resultReceipt.evidence;
+    $('result-summary').textContent=(e.delivery.completedRoundTrips>0?'Heen-en-terug bevestigd: '+e.delivery.completedRoundTrips+' afgeronde ronde(n).':'Nog geen afgeronde heen-en-terug-ronde bevestigd.')+
+      (resultReceipt.scenario==='MOBILE_CROSS_PROVIDER'?' Mobiele opstelling door A '+(e.network.A?'opgegeven':'niet opgegeven')+' en B '+(e.network.B?'opgegeven':'niet opgegeven')+'.':' Algemene internetproef.')+
+      ' Proef gesloten; persoonlijke accounts blijven gesloten.';
+  }
+  try { if(new URLSearchParams(location.search).get('scenario')==='mobile') $('scenario').value='MOBILE_CROSS_PROVIDER'; } catch {}
   const feedback = text => { $('feedback').textContent = text; };
   const key = () => [...crypto.getRandomValues(new Uint8Array(16))].map(n=>n.toString(16).padStart(2,'0')).join('');
   const labels = {WAITING_PEER:'Wachten op telefoon B',WAITING_ACCEPT:'Bevestig deelname op beide telefoons',ACTIVE_TEST:'De testcodeproef is actief',CLOSED:'Deze proef is gesloten'};
@@ -40,6 +73,11 @@
     $('expiry').textContent = 'Verloopt uiterlijk om '+new Date(pair.expiresAt).toLocaleTimeString('nl-NL')+' ('+left+' seconden).';
   }
   function render() {
+    renderResult();
+    $('scenario').disabled=busy || Boolean(pending);
+    $('mobile-guide').hidden=$('scenario').value!=='MOBILE_CROSS_PROVIDER';
+    $('network-panel').hidden=!pair || pair.scenario!=='MOBILE_CROSS_PROVIDER' || pair.state!=='WAITING_ACCEPT' || pair.consent[pair.role];
+    for(const id of networkIds) $(id).disabled=busy || Boolean(pending);
     $('setup').hidden = Boolean(pair) || !ready;
     $('create').disabled = busy || Boolean(pending);
     $('join').disabled = busy || Boolean(pending);
@@ -55,7 +93,11 @@
     $('consent').textContent = 'Telefoon A: '+(pair.consent.A?'deelname bevestigd':'nog niet bevestigd')+' · Telefoon B: '+(pair.consent.B?'deelname bevestigd':'nog niet bevestigd');
     const mine = pair.consent[pair.role];
     $('accept').hidden = pair.state!=='WAITING_ACCEPT' || mine;
-    $('accept').disabled = busy || Boolean(pending);
+    $('accept').disabled = busy || Boolean(pending) || pair.scenario==='MOBILE_CROSS_PROVIDER' && !mobileReady();
+    const network=pair.evidence?.network;
+    $('network-status').textContent=pair.scenario==='MOBILE_CROSS_PROVIDER'?
+      'Mobiele opstelling: A '+(network?.A?'opgegeven':'nog niet opgegeven')+' · B '+(network?.B?'opgegeven':'nog niet opgegeven')+'. Providers en fysieke telefoons zijn niet technisch geverifieerd.':
+      'Algemene internetproef; de gebruikte netwerken zijn niet vastgesteld.';
     $('challenge').hidden = pair.state!=='ACTIVE_TEST';
     $('challenge').disabled = busy || Boolean(pending);
     $('close').disabled = busy || Boolean(pending) || pair.state==='CLOSED';
@@ -75,8 +117,7 @@
       }
       $('messages').append(li);
     }
-    const proven = pair.messages.some(m=>m.kind==='CHALLENGE' && m.acknowledged &&
-      pair.messages.some(reply=>reply.replyTo===m.id && reply.code===m.code && reply.acknowledged));
+    const proven = pair.evidence?.delivery?.status==='ACKNOWLEDGED';
     $('proof').hidden=!proven;
   }
   async function refresh() {
@@ -108,6 +149,7 @@
       pending=null;
       if (data.pair) {
         bindPair(data);hasPair=true;
+        if(data.receipt) resultReceipt=receiptOnly(data.receipt);
         if (data.inviteToken) {link=location.origin+location.pathname+'#invite='+data.inviteToken;}
         if (pair.state!=='WAITING_PEER') {link='';incoming='';$('invitation').value='';}
         feedback(pair.state==='CLOSED'?'De proef is gesloten. De testcodes zijn op de server gewist.':pair.state==='WAITING_PEER'&&!link?'De eerste reactie is niet ontvangen; de uitnodiging kan niet opnieuw worden opgehaald. Sluit deze proef en start een nieuwe.':labels[pair.state]);
@@ -135,7 +177,9 @@
       await submit('/pair/actions',{action:name,pairId:intendedPair,revision:pair.revision,idempotencyKey:key(),...extra});
     } catch {busy=false;render();feedback('De proefstand kon niet worden opgehaald. Probeer dezelfde stap zodra de verbinding terug is.');}
   }
-  $('create').addEventListener('click',()=>submit('/pair',{idempotencyKey:key()}));
+  $('scenario').addEventListener('change',render);
+  for(const id of networkIds) $(id).addEventListener('change',render);
+  $('create').addEventListener('click',()=>submit('/pair',{idempotencyKey:key(),scenario:$('scenario').value}));
   $('join').addEventListener('click',()=>{
     let token=incoming;
     if (!token) {
@@ -145,10 +189,22 @@
     incoming=token;$('invitation').value='';
     submit('/join',{inviteToken:token,idempotencyKey:key()});
   });
-  $('accept').addEventListener('click',()=>action('accept',{scope:SCOPE}));
+  $('accept').addEventListener('click',()=>{
+    if(pair?.scenario==='MOBILE_CROSS_PROVIDER') {
+      if(!mobileReady()) return feedback('Controleer en bevestig eerst de vier mobiele instellingen.');
+      return action('accept',{scope:SCOPE,networkDeclaration:{wifiOff:true,mobileDataOn:true,differentProviders:true,noHotspot:true}});
+    }
+    action('accept',{scope:SCOPE});
+  });
   $('challenge').addEventListener('click',()=>action('challenge'));
   $('close').addEventListener('click',()=>action('close'));
   $('retry').addEventListener('click',retry);
+  $('result-download').addEventListener('click',()=>{
+    const safe=receiptOnly(resultReceipt);if(!safe)return;
+    const url=URL.createObjectURL(new Blob([JSON.stringify(safe,null,2)+'\n'],{type:'application/json'}));
+    const anchor=document.createElement('a');anchor.href=url;anchor.download='PALACO-RIO-mobiele-proef.json';
+    document.body.append(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  });
   $('copy').addEventListener('click',async()=>{
     try {await navigator.clipboard.writeText(link);feedback('Link gekopieerd. Open hem op je eigen tweede telefoon.');}
     catch { $('share-link').focus();$('share-link').select();feedback('Kopieer de geselecteerde link en open hem op telefoon B.'); }
@@ -159,7 +215,7 @@
   if (incoming) {$('invitation').placeholder='Uitnodiging ontvangen; kies “Gebruik uitnodiging”.';feedback('Uitnodiging ontvangen.');}
   window.addEventListener('online',refresh);
   window.addEventListener('pageshow',event=>{if(event.persisted)location.reload();});
-  window.addEventListener('pagehide',()=>{incoming='';link='';csrf='';pending=null;});
+  window.addEventListener('pagehide',()=>{incoming='';link='';csrf='';pending=null;resultReceipt=null;});
   (async()=>{
     try {
       const data=await request('/session',{});csrf=data.session.csrfToken;ready=true;
