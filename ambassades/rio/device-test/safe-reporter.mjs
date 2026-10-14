@@ -6,12 +6,17 @@ const CASES = {
   'RIO-DEVICE-03': 'Retry after a lost real response does not duplicate a challenge',
   'RIO-DEVICE-04': 'A lost invitation is not recovered or published on replay',
   'RIO-DEVICE-05': 'Expired codes disappear even while the browser is offline',
+  'RIO-DEVICE-06': 'Both carrier devices self-declare the required network settings',
+  'RIO-DEVICE-07': 'Closed-carrier result is pair-bound and has no challenge codes',
+  'RIO-DEVICE-08': 'Forged close receipt blocks export until exact replay',
+  'RIO-DEVICE-09': 'Stale network reply cannot resurrect wiped challenge codes',
 };
 const PHASES = new Set([
   'setup', 'invitation', 'fragment-and-storage', 'bilateral-acceptance',
   'challenge', 'recipient-ack', 'reply', 'return-ack', 'third-session-denied',
   'close', 'closed-account-gates', 'mobile-layout', 'lost-response',
   'idempotent-retry', 'invitation-not-recoverable', 'offline-expiry',
+  'carrier-checklist', 'carrier-export', 'invalid-close-receipt', 'stale-readback',
 ]);
 
 // URLs, invitation capabilities, cookies, CSRF values and codes never enter evidence.
@@ -23,7 +28,7 @@ export default class DeviceTestReporter {
   onStdErr() {}
   onError() { this.suiteErrors += 1; }
   onTestEnd(test, result) {
-    const id = /^\[(RIO-DEVICE-0[1-5])\]/.exec(test.title)?.[1] ?? 'UNKNOWN';
+    const id = /^\[(RIO-DEVICE-0[1-9])\]/.exec(test.title)?.[1] ?? 'UNKNOWN';
     const projectName = test.parent.project()?.name;
     const project = ['mobile', 'desktop'].includes(projectName) ? projectName : 'unknown';
     const lines = new Set(), phases = [];
