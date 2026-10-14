@@ -11,6 +11,7 @@
   let csrf = '', pair = null, link = '', pending = null, busy = false, ready = false, hasPair = false, deadline = 0, looked = false;
   let epoch = 0, closing = false, closedReport = null;
   function bindPair(data) {
+    if(pair && pair.id===data.pair.id && data.pair.revision<pair.revision) return false;
     const changed=!pair || pair.id!==data.pair.id || pair.revision!==data.pair.revision;
     pair=data.pair;
     deadline=performance.now()+Math.max(0,Date.parse(pair.expiresAt)-Date.parse(data.serverTime)-1000);
@@ -144,10 +145,12 @@
   }
   async function retry() {
     if (!pending || busy) return;
+    const started=epoch;
     busy=true;render();
     try {
       const attempt=pending;
       const data=await request(attempt.path,attempt.body);
+      if(started!==epoch) return; // Ignore effects after local expiry or erasure.
       if(attempt.body?.action==='close') {
         // Accept no old, foreign or nonclosed response as export authority.
         const candidate=safeCarrierReport(data,attempt.body.pairId);
@@ -166,6 +169,7 @@
         feedback(pair.state==='CLOSED'?'De proef is gesloten. De testcodes zijn op de server gewist.':pair.state==='WAITING_PEER'&&!link?'De eerste reactie is niet ontvangen; de uitnodiging kan niet opnieuw worden opgehaald. Sluit deze proef en start een nieuwe.':labels[pair.state]);
       }
     } catch(error) {
+      if(started!==epoch) return;
       if (error.status) {
         pending=null;
         if (closing) {forgetPair();closing=false;hasPair=false;looked=true;}
@@ -181,14 +185,18 @@
     if (busy || pending || !pair) return;
     const intendedPair=pair.id;
     if(name==='close'){closing=true;epoch+=1;closedReport=null;}
+    const started=epoch;
     busy=true;render();
     try {
-      const latest=await request('/pair');bindPair(latest);busy=false;render();
+      const latest=await request('/pair');
+      if(started!==epoch || !pair || pair.id!==intendedPair) return;
+      bindPair(latest);busy=false;render();
       if(pair.id!==intendedPair) {
         feedback('Deze proef is gewijzigd. Controleer het proefnummer en kies je stap opnieuw.');return;
       }
       await submit('/pair/actions',{action:name,pairId:intendedPair,revision:pair.revision,idempotencyKey:key(),...extra});
     } catch {
+      if(started!==epoch) return;
       if(closing){forgetPair();closing=false;hasPair=false;looked=true;}
       busy=false;render();feedback('De proefstand kon niet worden opgehaald. De zichtbare testcodes zijn gewist; controleer de serverstatus vóór een nieuwe proef.');
     }
