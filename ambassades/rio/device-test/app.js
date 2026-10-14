@@ -20,6 +20,9 @@
   function forgetPair(clearInvitation=true) {
     epoch+=1;pair=null;link='';if(clearInvitation)incoming='';pending=null;deadline=0;closing=false;
     $('messages').replaceChildren();$('proof').hidden=true;$('share-link').value='';if(clearInvitation)$('invitation').value='';
+    for(const id of ['wifi-off','data-on','providers-different','hotspot-off']) {
+      $(id).checked=false;$(id).disabled=false;
+    }
   }
   const $ = id => document.getElementById(id);
   const feedback = text => { $('feedback').textContent = text; };
@@ -90,6 +93,8 @@
     $('carrier-status').textContent='Netwerkverklaring A / Youfone: '+(carrier.A?'bevestigd':'ontbreekt')+
       ' · B / Lebara: '+(carrier.B?'bevestigd':'ontbreekt')+
       '. Dit is een eigen verklaring, geen automatische netwerkcontrole.';
+    for(const id of ['wifi-off','data-on','providers-different','hotspot-off'])
+      $(id).disabled=Boolean(carrier[pair.role]) || pair.state!=='ACTIVE_TEST' || closing;
     $('carrier-confirm').disabled=busy || Boolean(pending) || Boolean(carrier[pair.role]) ||
       !['wifi-off','data-on','providers-different','hotspot-off'].every(id=>$(id).checked);
     $('carrier-confirm').hidden=Boolean(carrier[pair.role]);
