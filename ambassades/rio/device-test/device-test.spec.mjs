@@ -410,13 +410,20 @@ test('[RIO-DEVICE-07] Download belongs to exact closed carrier pair and excludes
   try {
     await carrierDeclarations(a,b);
     const before=(await readPair(aContext)).data.pair;
-    await a.locator('#challenge').click();
-    const challenge=(await readPair(bContext)).data.pair.messages[0];
-    await b.locator('[data-ack="'+challenge.id+'"]').click();
-    await b.locator('[data-reply="'+challenge.id+'"]').click();
-    const reply=(await readPair(aContext)).data.pair.messages[1];
-    await a.locator('[data-ack="'+reply.id+'"]').click();
-    await expect(a.locator('#proof')).toBeVisible();
+    let challenge,reply;
+    await test.step('carrier-roundtrip',async ()=>{
+      await a.locator('#challenge').click();
+      await expect(b.locator('[data-ack]')).toHaveCount(1);
+      challenge=(await readPair(bContext)).data.pair.messages[0];
+      await b.locator('[data-ack="'+challenge.id+'"]').click();
+      await expect(b.locator('[data-reply="'+challenge.id+'"]')).toBeVisible();
+      await b.locator('[data-reply="'+challenge.id+'"]').click();
+      await expect(a.locator('#messages li')).toHaveCount(2);
+      reply=(await readPair(aContext)).data.pair.messages[1];
+      await expect(a.locator('[data-ack="'+reply.id+'"]')).toBeVisible();
+      await a.locator('[data-ack="'+reply.id+'"]').click();
+      await expect(a.locator('#proof')).toBeVisible();
+    });
     await test.step('carrier-export-close',async ()=>{
       await a.locator('#close').click();
       await expect(a.locator('#download-result')).toBeVisible();
