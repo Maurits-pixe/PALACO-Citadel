@@ -4,6 +4,8 @@ on:
     paths:
       - '08-IMPLEMENTATION/src/pvb/**'
       - '08-IMPLEMENTATION/tests/pvb015.test.mjs'
+      - '08-IMPLEMENTATION/tests/pvb-authorization.test.mjs'
+      - '08-IMPLEMENTATION/docs/PVB-AUTHORIZATION-BOUNDARY.md'
       - '08-IMPLEMENTATION/vectors/pvb-v1/**'
       - '.github/workflows/pvb-015.yml'
   workflow_dispatch:
@@ -16,9 +18,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Verify closed mandate authorization boundary
+        run: node --test 08-IMPLEMENTATION/tests/pvb-authorization.test.mjs
       - name: Execute golden vector 0001 and negative gates
         run: node 08-IMPLEMENTATION/tests/pvb015.test.mjs
