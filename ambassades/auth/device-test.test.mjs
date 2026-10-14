@@ -514,5 +514,8 @@ test('carrier: expiry removes declarations and outsider has no pair access', asy
   f.advance(300001);
   assert.equal((await f.read(a)).status, 404);
   assert.equal((await f.read(b)).status, 404);
-  assert.equal((await f.action(a, 'carrier', { checks:CARRIER_CHECKS })).status, 404);
+  const expired = await f.call('/pair/actions', { method:'POST', guest:a, body:{
+    action:'carrier',pairId:'0'.repeat(32),revision:1,idempotencyKey:f.key(),checks:CARRIER_CHECKS,
+  }});
+  assert.equal(expired.status, 404);
 });
