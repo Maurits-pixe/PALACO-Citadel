@@ -16,7 +16,7 @@ const PHASES = new Set([
   'challenge', 'recipient-ack', 'reply', 'return-ack', 'third-session-denied',
   'close', 'closed-account-gates', 'mobile-layout', 'lost-response',
   'idempotent-retry', 'invitation-not-recoverable', 'offline-expiry',
-  'carrier-checklist', 'carrier-export-close', 'carrier-export-file', 'carrier-export-schema',
+  'carrier-checklist', 'carrier-roundtrip', 'carrier-export-close', 'carrier-export-file', 'carrier-export-schema',
   'invalid-close-receipt', 'stale-readback',
 ]);
 
