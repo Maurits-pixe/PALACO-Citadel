@@ -417,15 +417,20 @@ test('[RIO-DEVICE-07] Download belongs to exact closed carrier pair and excludes
     const reply=(await readPair(aContext)).data.pair.messages[1];
     await a.locator('[data-ack="'+reply.id+'"]').click();
     await expect(a.locator('#proof')).toBeVisible();
-    await test.step('carrier-export',async ()=>{
+    await test.step('carrier-export-close',async ()=>{
       await a.locator('#close').click();
       await expect(a.locator('#download-result')).toBeVisible();
       await expect(a.locator('#messages li')).toHaveCount(0);
       await expect(a.locator('#proof')).toBeHidden();
+    });
+    let data;
+    await test.step('carrier-export-file',async ()=>{
       const downloadEvent=a.waitForEvent('download');
       await a.locator('#download-result').click();
       const file=await downloadEvent;
-      const data=JSON.parse(await readFile(await file.path(),'utf8'));
+      data=JSON.parse(await readFile(await file.path(),'utf8'));
+    });
+    await test.step('carrier-export-schema',async ()=>{
       expect(data.schema).toBe('rio-carrier-result/v1');
       expect(data.testId).toBe(before.id);
       expect(data.closedRevision).toBeGreaterThan(before.revision);
