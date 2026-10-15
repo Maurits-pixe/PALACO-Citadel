@@ -11,7 +11,8 @@
     "test:preview:browser": "node --test registration/preview.browser.test.mjs",
     "test:rio:contact": "node --test rio/contact-readiness.test.mjs rio/brigade-evidence.test.mjs rio/reference-outbox.test.mjs rio/contact-preview/reference.test.mjs rio/encrypted-reference/client.test.mjs rio/encrypted-reference/opaque.test.mjs rio/encrypted-reference/recovery.test.mjs",
     "test:rio:contact:browser": "playwright test --config rio/contact-preview/playwright.config.mjs",
-    "test:rio:encrypted:browser": "playwright test --config rio/encrypted-reference/playwright.config.mjs"
+    "test:rio:encrypted:browser": "playwright test --config rio/encrypted-reference/playwright.config.mjs",
+    "build:render": "node build-render-site.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0"

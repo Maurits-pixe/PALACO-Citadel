@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: palaco-rio-preview-temporary
+    runtime: static
+    buildCommand: npm run build:render
+    staticPublishPath: render-dist
+    autoDeployTrigger: off
+    envVars:
+      - key: SKIP_INSTALL_DEPS
+        value: "true"
