@@ -476,6 +476,13 @@ footer small { grid-column: 1 / -1; }
 .contact-route-reading a { padding: 8px; font-weight: 800; }
 .contact-route-controls button, .contact-route-reading button { min-height: 44px; max-width: 100%; border: 2px solid var(--ink); border-radius: 6px; padding: 12px 16px; background: var(--yellow); color: var(--ink); font-weight: 800; cursor: pointer; overflow-wrap: anywhere; }
 .contact-route-controls button:last-child { background: white; }
+.contact-route-overview { margin-block: 24px; padding: 16px; border: 1px solid var(--line); border-radius: 8px; background: white; }
+.contact-route-overview[hidden] { display: none; }
+.contact-route-overview:not([hidden]) { display: block; }
+.contact-route-overview h3 { margin: 0 0 12px; }
+.contact-route-overview ol { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 8px 32px; margin: 0; padding-inline-start: 28px; }
+.contact-route-overview li { min-width: 0; }
+.contact-route-overview a { width: 100%; padding: 8px; line-height: 1.5; }
 
 .chat-preview-toggle,
 .chat-preview-panel button {

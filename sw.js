@@ -1,4 +1,4 @@
-const CACHE_NAME = 'palaco-rio-shell-v32-route-link-focus';
+const CACHE_NAME = 'palaco-rio-shell-v33-route-overview';
 const SHELL_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/rio-engine-web.mjs', '/engine.mjs', '/chat-preview.mjs', '/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg'];
 
 self.addEventListener('install', (event) => {

@@ -1,6 +1,7 @@
 const contactRouteTranslations = {
   nl: {
     entry: 'Bekijk de contactroute',
+    overviewTitle: 'Spring naar een uitlegstap',
     explanationLink: 'Link naar deze uitleg',
     startReading: 'Lees de route stap voor stap',
     previousExplanation: 'Vorige uitleg',
@@ -16,6 +17,7 @@ const contactRouteTranslations = {
   },
   en: {
     entry: 'View the contact route',
+    overviewTitle: 'Jump to an explanation',
     explanationLink: 'Link to this explanation',
     startReading: 'Read the route step by step',
     previousExplanation: 'Previous explanation',
@@ -31,6 +33,7 @@ const contactRouteTranslations = {
   },
   de: {
     entry: 'Kontaktweg ansehen',
+    overviewTitle: 'Zu einer Erklärung springen',
     explanationLink: 'Link zu dieser Erklärung',
     startReading: 'Route Schritt für Schritt lesen',
     previousExplanation: 'Vorherige Erklärung',
@@ -46,6 +49,7 @@ const contactRouteTranslations = {
   },
   fr: {
     entry: 'Voir le parcours de contact',
+    overviewTitle: 'Aller à une explication',
     explanationLink: 'Lien vers cette explication',
     startReading: 'Lire le parcours étape par étape',
     previousExplanation: 'Explication précédente',
@@ -61,6 +65,7 @@ const contactRouteTranslations = {
   },
   es: {
     entry: 'Ver la ruta de contacto',
+    overviewTitle: 'Ir a una explicación',
     explanationLink: 'Enlace a esta explicación',
     startReading: 'Leer la ruta paso a paso',
     previousExplanation: 'Explicación anterior',
@@ -76,6 +81,7 @@ const contactRouteTranslations = {
   },
   ar: {
     entry: 'عرض مسار التواصل',
+    overviewTitle: 'الانتقال إلى شرح',
     explanationLink: 'رابط لهذا الشرح',
     startReading: 'قراءة المسار خطوة بخطوة',
     previousExplanation: 'الشرح السابق',
@@ -91,6 +97,7 @@ const contactRouteTranslations = {
   },
   zh: {
     entry: '查看联系路径',
+    overviewTitle: '跳转到步骤说明',
     explanationLink: '此步骤说明的链接',
     startReading: '逐步阅读路径',
     previousExplanation: '上一步说明',
@@ -116,7 +123,23 @@ const showRouteExplanation = (target) => {
 routeSteps.forEach((step, index) => {
   step.id = `contact-route-step-${index + 1}`;
 });
+const createRouteLink = (step) => {
+  const link = document.createElement('a');
+  link.href = `#${step.id}`;
+  link.addEventListener('click', (event) => {
+    if (window.location.hash !== link.hash) return;
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    showRouteExplanation(step);
+  });
+  return link;
+};
 routeSteps.forEach((step, index) => {
+  const item = document.createElement('li');
+  const overviewLink = createRouteLink(step);
+  overviewLink.textContent = step.querySelector('summary').textContent;
+  item.append(overviewLink);
+  document.querySelector('#contact-route-links').append(item);
   const controls = document.createElement('div');
   controls.className = 'contact-route-reading';
   const addReadingButton = (key, target) => {
@@ -136,15 +159,8 @@ routeSteps.forEach((step, index) => {
   } else {
     addReadingButton('readSources', document.querySelector('#contact-route-sources'));
   }
-  const permalink = document.createElement('a');
-  permalink.href = `#${step.id}`;
+  const permalink = createRouteLink(step);
   permalink.dataset.routeI18n = 'explanationLink';
-  permalink.addEventListener('click', (event) => {
-    if (window.location.hash !== permalink.hash) return;
-    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    showRouteExplanation(step);
-  });
   controls.append(permalink);
   step.append(controls);
 });
@@ -167,6 +183,7 @@ document.querySelector('#contact-route-close').addEventListener('click', () => {
   routeSteps.forEach((step) => { step.open = false; });
 });
 document.querySelector('#contact-route-controls').hidden = false;
+document.querySelector('#contact-route-overview').hidden = false;
 
 const translations = {
   nl: {
