@@ -2,6 +2,7 @@ const contactRouteTranslations = {
   nl: {
     entry: 'Bekijk de contactroute',
     overviewTitle: 'Spring naar een uitlegstap',
+    backToOverview: 'Terug naar route-overzicht',
     explanationLink: 'Link naar deze uitleg',
     startReading: 'Lees de route stap voor stap',
     previousExplanation: 'Vorige uitleg',
@@ -18,6 +19,7 @@ const contactRouteTranslations = {
   en: {
     entry: 'View the contact route',
     overviewTitle: 'Jump to an explanation',
+    backToOverview: 'Back to route overview',
     explanationLink: 'Link to this explanation',
     startReading: 'Read the route step by step',
     previousExplanation: 'Previous explanation',
@@ -34,6 +36,7 @@ const contactRouteTranslations = {
   de: {
     entry: 'Kontaktweg ansehen',
     overviewTitle: 'Zu einer Erklärung springen',
+    backToOverview: 'Zurück zur Routenübersicht',
     explanationLink: 'Link zu dieser Erklärung',
     startReading: 'Route Schritt für Schritt lesen',
     previousExplanation: 'Vorherige Erklärung',
@@ -50,6 +53,7 @@ const contactRouteTranslations = {
   fr: {
     entry: 'Voir le parcours de contact',
     overviewTitle: 'Aller à une explication',
+    backToOverview: 'Retour au parcours',
     explanationLink: 'Lien vers cette explication',
     startReading: 'Lire le parcours étape par étape',
     previousExplanation: 'Explication précédente',
@@ -66,6 +70,7 @@ const contactRouteTranslations = {
   es: {
     entry: 'Ver la ruta de contacto',
     overviewTitle: 'Ir a una explicación',
+    backToOverview: 'Volver al resumen de la ruta',
     explanationLink: 'Enlace a esta explicación',
     startReading: 'Leer la ruta paso a paso',
     previousExplanation: 'Explicación anterior',
@@ -82,6 +87,7 @@ const contactRouteTranslations = {
   ar: {
     entry: 'عرض مسار التواصل',
     overviewTitle: 'الانتقال إلى شرح',
+    backToOverview: 'العودة إلى نظرة عامة على المسار',
     explanationLink: 'رابط لهذا الشرح',
     startReading: 'قراءة المسار خطوة بخطوة',
     previousExplanation: 'الشرح السابق',
@@ -98,6 +104,7 @@ const contactRouteTranslations = {
   zh: {
     entry: '查看联系路径',
     overviewTitle: '跳转到步骤说明',
+    backToOverview: '返回路径概览',
     explanationLink: '此步骤说明的链接',
     startReading: '逐步阅读路径',
     previousExplanation: '上一步说明',
@@ -115,10 +122,10 @@ const contactRouteTranslations = {
 
 const routeSteps = document.querySelectorAll('#contact-route-steps > li > details');
 const showRouteExplanation = (target) => {
-  target.open = true;
-  const summary = target.querySelector('summary');
-  summary.focus({ preventScroll: true });
-  summary.scrollIntoView({ block: 'start', behavior: 'instant' });
+  if (target.matches('details')) target.open = true;
+  const heading = target.matches('details') ? target.querySelector('summary') : target;
+  heading.focus({ preventScroll: true });
+  heading.scrollIntoView({ block: 'start', behavior: 'instant' });
 };
 routeSteps.forEach((step, index) => {
   step.id = `contact-route-step-${index + 1}`;
@@ -164,8 +171,21 @@ routeSteps.forEach((step, index) => {
   controls.append(permalink);
   step.append(controls);
 });
+const routeOverviewTitle = document.querySelector('#contact-route-overview-title');
+const routeSources = document.querySelector('#contact-route-sources');
+[...routeSteps, routeSources].forEach((step) => {
+  let controls = step.querySelector('.contact-route-reading');
+  if (!controls) {
+    controls = document.createElement('div');
+    controls.className = 'contact-route-reading';
+    step.append(controls);
+  }
+  const overviewLink = createRouteLink(routeOverviewTitle);
+  overviewLink.dataset.routeI18n = 'backToOverview';
+  controls.append(overviewLink);
+});
 const revealLinkedRouteExplanation = () => {
-  const target = [...routeSteps, document.querySelector('#contact-route-sources')]
+  const target = [...routeSteps, routeSources, routeOverviewTitle]
     .find((step) => `#${step.id}` === window.location.hash);
   if (target) showRouteExplanation(target);
 };

@@ -471,6 +471,8 @@ footer small { grid-column: 1 / -1; }
 .contact-route-entry { display: inline-flex; align-items: center; min-height: 44px; margin-bottom: 16px; color: var(--blue); font-weight: 800; }
 #contact-route-title { scroll-margin-top: 24px; }
 #contact-route-title:focus-visible { outline: 3px solid var(--blue); outline-offset: 6px; }
+#contact-route-overview-title { scroll-margin-top: 24px; }
+#contact-route-overview-title:focus-visible { outline: 3px solid var(--blue); outline-offset: 6px; }
 .contact-route-controls:not([hidden]), .contact-route-reading { display: flex; flex-wrap: wrap; gap: 12px; }
 .contact-route-reading { margin: 16px; }
 .contact-route-reading a { padding: 8px; font-weight: 800; }
