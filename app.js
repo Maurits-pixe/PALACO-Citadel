@@ -154,6 +154,9 @@ const revealLinkedRouteExplanation = () => {
   if (target) showRouteExplanation(target);
 };
 window.addEventListener('hashchange', revealLinkedRouteExplanation);
+window.addEventListener('load', () => {
+  requestAnimationFrame(revealLinkedRouteExplanation);
+}, { once: true });
 document.querySelector('#contact-route-start').addEventListener('click', () => {
   showRouteExplanation(routeSteps[0]);
 });
