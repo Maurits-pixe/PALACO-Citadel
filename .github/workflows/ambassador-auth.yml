@@ -5,12 +5,14 @@ on:
     branches: ["codex/palaco-ambassade-website"]
     paths:
       - "ambassades/**"
+      - "rio/identity-design/**"
       - "tests/browser/ambassades-*.spec.mjs"
       - ".github/workflows/ambassador-auth.yml"
   pull_request:
-    branches: ["main", "codex/palaco-ambassade-website"]
+    branches: ["main", "codex/palaco-ambassade-website", "codex/rio-reception-connectable"]
     paths:
       - "ambassades/**"
+      - "rio/identity-design/**"
       - "tests/browser/ambassades-*.spec.mjs"
       - ".github/workflows/ambassador-auth.yml"
   workflow_dispatch:
@@ -46,6 +48,10 @@ jobs:
           node --check ambassades/auth/nova-check-gate.mjs
           node --check ambassades/auth/auth-security-approval.mjs
           node --check ambassades/auth/auth-safety-provider.mjs
+      - name: Verify separate persons and shared collaboration in the non-authoritative design model
+        run: |
+          node --check rio/identity-design/reference.mjs
+          node --test rio/identity-design/reference.test.mjs
       - name: Run access isolation and denial tests
         working-directory: ambassades/auth
         run: npm test
