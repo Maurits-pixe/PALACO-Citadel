@@ -46,7 +46,7 @@ async function open(page) { await page.goto(fixture.origin + '/rio/reception/');
 async function settled(page) { await expect(page.locator('#refresh-availability')).toBeEnabled(); }
 async function noConnectionClaim(page) {
   await expect(page.locator('#connection-boundary')).toHaveText('↔ Een verbinding is hier nog niet getest.');
-  await expect(page.locator('.design-label')).toContainText('nog niet aangesloten');
+  await expect(page.locator('#brigade .design-label')).toContainText('nog niet aangesloten');
 }
 
 test('real HTTP availability reads create no session, storage or connection claim', async ({ page, context }) => {
@@ -222,4 +222,57 @@ test('both chosen routes open the existing local applications through same-origi
   await page.locator('#start-device-test').click();
   await expect(page).toHaveURL(fixture.origin + '/rio/device-test/');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+});
+
+test('the PP guide explains PHONE or EMAIL over any transport without creating registration or traffic', async ({ page, context }) => {
+  const api = [];
+  page.on('request', request => {
+    if (new URL(request.url()).pathname.startsWith('/api/')) api.push([request.method(), new URL(request.url()).pathname]);
+  });
+  await open(page);
+  await expect(page.locator('#runtime-device')).toHaveText('Bereikbaar');
+  await expect(page.locator('#pp-identity-steps > *')).toHaveCount(3);
+  await expect(page.locator('#pp-example-boundary')).toContainText(/voorbeeld/i);
+  await expect(page.locator('#pp-identity input[type="tel"], #pp-identity input[type="email"], #pp-identity input[type="text"], #pp-identity textarea')).toHaveCount(0);
+  for (const contact of ['UNCONFIRMED', 'PHONE', 'EMAIL']) {
+    let first;
+    for (const transport of ['WIFI', 'MOBILE', 'OTHER']) {
+      await page.locator('#pp-example-contact').selectOption(contact);
+      await page.locator('#pp-example-transport').selectOption(transport);
+      await page.locator('#pp-example-show').click();
+      const result = page.locator('#pp-example-result');
+      await expect(result).toHaveAttribute('data-state', contact === 'UNCONFIRMED' ? 'not-confirmed' : 'eligible');
+      await expect(result).toBeFocused();
+      const text = await result.textContent();
+      if (first === undefined) first = text;
+      else expect(text).toBe(first);
+      await expect(page.locator('#pp-example-boundary')).toBeVisible();
+    }
+  }
+  expect(api.sort()).toEqual([['GET', DEVICE], ['GET', NOVA]].sort());
+  expect(await context.cookies()).toEqual([]);
+  expect(await page.evaluate(() => [localStorage.length, sessionStorage.length])).toEqual([0, 0]);
+  await noConnectionClaim(page);
+});
+
+test('changing an example neutralizes its old result and PP controls remain accessible on narrow screens', async ({ page }) => {
+  await open(page);
+  await page.locator('#pp-example-contact').selectOption('PHONE');
+  await page.locator('#pp-example-show').click();
+  await expect(page.locator('#pp-example-result')).toHaveAttribute('data-state', 'eligible');
+  await page.locator('#pp-example-contact').focus();
+  await page.locator('#pp-example-contact').selectOption('UNCONFIRMED');
+  await expect(page.locator('#pp-example-result')).toHaveAttribute('data-state', 'not-confirmed');
+  await expect(page.locator('#pp-example-contact')).toBeFocused();
+  await expect(page.locator('[aria-live="polite"]')).toHaveCount(1);
+  for (const width of [320, 390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+    for (const id of ['pp-example-contact', 'pp-example-transport', 'pp-example-show']) {
+      const box = await page.locator('#' + id).boundingBox();
+      expect(box.width).toBeGreaterThanOrEqual(44);
+      expect(box.height).toBeGreaterThanOrEqual(44);
+      expect(await page.locator('#' + id).getAttribute('aria-label') || await page.locator('label[for="' + id + '"]').count() || id === 'pp-example-show').toBeTruthy();
+    }
+  }
 });

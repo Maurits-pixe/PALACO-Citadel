@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "palaco-contact-eligibility-design/0.1",
+  "policyVersion": "TST-CONTACT-ELIGIBILITY-0.1",
+  "mode": "DESIGN_ONLY",
+  "decisionStatus": "ADVISORY_HUMAN_DECISION_REQUIRED",
+  "oauthEnabled": false,
+  "accountActive": false,
+  "canOpenContact": false,
+  "operativeAuthority": "NONE",
+  "ppBindings": [
+    { "pp_ref": "TST-PP-ALPHA", "person_id": "TST-PERSON-ALPHA", "revision": 1, "status": "ACTIVE" },
+    { "pp_ref": "TST-PP-BETA", "person_id": "TST-PERSON-BETA", "revision": 1, "status": "ACTIVE" }
+  ],
+  "contactBindings": [
+    { "binding_ref": "TST-CONTACT-BINDING-ALPHA-PHONE", "pp_ref": "TST-PP-ALPHA", "kind": "PHONE", "contact_ref": "TST-PHONE-ALPHA", "revision": 1, "challenge_ref": "TST-CHALLENGE-ALPHA-PHONE", "status": "CONFIRMED" },
+    { "binding_ref": "TST-CONTACT-BINDING-ALPHA-EMAIL", "pp_ref": "TST-PP-ALPHA", "kind": "EMAIL", "contact_ref": "TST-EMAIL-ALPHA", "revision": 1, "challenge_ref": "TST-CHALLENGE-ALPHA-EMAIL", "status": "CONFIRMED" },
+    { "binding_ref": "TST-CONTACT-BINDING-BETA-PHONE", "pp_ref": "TST-PP-BETA", "kind": "PHONE", "contact_ref": "TST-PHONE-BETA", "revision": 1, "challenge_ref": "TST-CHALLENGE-BETA-PHONE", "status": "CONFIRMED" },
+    { "binding_ref": "TST-CONTACT-BINDING-BETA-EMAIL", "pp_ref": "TST-PP-BETA", "kind": "EMAIL", "contact_ref": "TST-EMAIL-BETA", "revision": 1, "challenge_ref": "TST-CHALLENGE-BETA-EMAIL", "status": "CONFIRMED" }
+  ]
+}

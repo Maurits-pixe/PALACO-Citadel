@@ -9,7 +9,7 @@ on:
       - "tests/browser/ambassades-*.spec.mjs"
       - ".github/workflows/ambassador-auth.yml"
   pull_request:
-    branches: ["main", "codex/palaco-ambassade-website", "codex/rio-reception-connectable"]
+    branches: ["main", "codex/palaco-ambassade-website", "codex/rio-reception-connectable", "codex/rio-collaboration-identity-draft"]
     paths:
       - "ambassades/**"
       - "rio/identity-design/**"
@@ -48,6 +48,7 @@ jobs:
           node --check ambassades/auth/nova-check-gate.mjs
           node --check ambassades/auth/auth-security-approval.mjs
           node --check ambassades/auth/auth-safety-provider.mjs
+          node --check ambassades/auth/contact-eligibility-design.mjs
       - name: Verify separate persons and shared collaboration in the non-authoritative design model
         run: |
           node --check rio/identity-design/reference.mjs

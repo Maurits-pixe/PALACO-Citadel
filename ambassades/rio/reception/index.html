@@ -18,6 +18,7 @@
         <span class="brand-name">PALACO<span>Een plek om te beginnen</span></span>
       </a>
       <nav class="header-nav" aria-label="Op deze pagina">
+        <a href="#pp-identity">Je eigen ID</a>
         <a href="#beginnen">Kies je eerste stap</a>
         <a href="#brigade">De negen controles</a>
       </nav>
@@ -31,7 +32,7 @@
         <h1 id="welcome-title">Ik ben NOVA.<br><span>Waar wil je beginnen?</span></h1>
         <p class="hero-lead">Ik wijs je de weg. Probeer een verbinding met je tweede apparaat. Of ontdek hoe een verzoek bij de receptie aankomt.</p>
         <a class="hero-link" href="#beginnen">Bekijk de twee routes <span aria-hidden="true">↓</span></a>
-        <p class="hero-note">Je hoeft hier niets in te vullen. Jij kiest de volgende stap.</p>
+        <p class="hero-note">Je hoeft hier geen persoonlijke gegevens in te vullen. Jij kiest de volgende stap.</p>
       </div>
       <figure class="nova-figure">
         <div class="nova-portrait"><img src="/rio/reception/nova.png" width="240" height="240" alt="NOVA, de vriendelijke wegwijzer van deze proef" fetchpriority="high"></div>
@@ -40,6 +41,28 @@
     </section>
 
     <div class="page-width main-content">
+      <section id="pp-identity" class="pp-identity" aria-labelledby="pp-identity-title">
+        <div class="section-heading">
+          <div><p class="eyebrow">Jouw ID blijft van jou</p><h2 id="pp-identity-title">Je eigen ID. Ook onderweg.</h2></div>
+          <span class="design-label">Uitlegvoorbeeld · geen registratie</span>
+        </div>
+        <ol id="pp-identity-steps" class="pp-steps" role="list">
+          <li><span class="step-number" aria-hidden="true">01</span><h3>Je P.P. wijst naar jouw ID</h3><p>Je P.P.-verwijzing hoort bij je eigen persoons-ID. Ook als je samenwerkt, blijven jullie afzonderlijke personen.</p></li>
+          <li><span class="step-number" aria-hidden="true">02</span><h3>Telefoon of e-mail bevestigd</h3><p>Een bevestigd telefoonnummer <strong>of</strong> een bevestigd e-mailadres geeft chattoelating in het ontwerp. Die koppeling hoort via je P.P. bij jouw ID.</p></li>
+          <li><span class="step-number" aria-hidden="true">03</span><h3>Een andere verbinding? Zelfde ID.</h3><p>Wifi, mobiele data of een andere internetverbinding vervoert de gegevens. De verbinding bepaalt niet wie je bent.</p></li>
+        </ol>
+        <section class="pp-example" aria-labelledby="pp-example-title">
+          <div class="pp-example-heading"><span class="example-label">Alleen een uitlegvoorbeeld</span><h3 id="pp-example-title">Bekijk hoe de regel werkt</h3><p>Je kiest alleen een voorbeeld. Je vult geen nummer of e-mailadres in.</p></div>
+          <div class="pp-example-fields">
+            <div class="pp-example-field"><label for="pp-example-contact">Wat is in het voorbeeld bevestigd?</label><select id="pp-example-contact" aria-describedby="pp-example-boundary"><option value="UNCONFIRMED" selected>Nog niets</option><option value="PHONE">Telefoon</option><option value="EMAIL">E-mail</option></select></div>
+            <div class="pp-example-field"><label for="pp-example-transport">Internetverbinding in het voorbeeld</label><select id="pp-example-transport" aria-describedby="pp-example-boundary"><option value="WIFI" selected>Wifi</option><option value="MOBILE">Mobiel</option><option value="OTHER">Anders</option></select></div>
+            <button id="pp-example-show" class="button button-primary" type="button" aria-describedby="pp-example-boundary">Toon voorbeeld</button>
+          </div>
+          <p id="pp-example-result" class="pp-example-result" data-state="not-confirmed" tabindex="-1">Voorbeeld: er is nog geen telefoonnummer of e-mailadres bevestigd. Daarmee is er nog geen chattoelating in het ontwerp.</p>
+          <p id="pp-example-boundary" class="pp-example-boundary">Voorbeeld, geen registratie. Deze pagina bevestigt geen nummer of e-mail en maakt geen P.P.-nummer aan. Echte chat blijft hier nog gesloten. De keuze van je gesprekspartner blijft apart nodig.</p>
+        </section>
+      </section>
+
       <section id="beginnen" class="first-steps" aria-labelledby="steps-title">
         <div class="section-heading">
           <div><p class="eyebrow">Eén keuze tegelijk</p><h2 id="steps-title">Klein beginnen. Zelf ervaren.</h2></div>
