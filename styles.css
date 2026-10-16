@@ -473,6 +473,7 @@ footer small { grid-column: 1 / -1; }
 #contact-route-title:focus-visible { outline: 3px solid var(--blue); outline-offset: 6px; }
 .contact-route-controls:not([hidden]), .contact-route-reading { display: flex; flex-wrap: wrap; gap: 12px; }
 .contact-route-reading { margin: 16px; }
+.contact-route-reading a { padding: 8px; font-weight: 800; }
 .contact-route-controls button, .contact-route-reading button { min-height: 44px; max-width: 100%; border: 2px solid var(--ink); border-radius: 6px; padding: 12px 16px; background: var(--yellow); color: var(--ink); font-weight: 800; cursor: pointer; overflow-wrap: anywhere; }
 .contact-route-controls button:last-child { background: white; }
 

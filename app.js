@@ -1,6 +1,7 @@
 const contactRouteTranslations = {
   nl: {
     entry: 'Bekijk de contactroute',
+    explanationLink: 'Link naar deze uitleg',
     startReading: 'Lees de route stap voor stap',
     previousExplanation: 'Vorige uitleg',
     nextExplanation: 'Volgende uitleg',
@@ -15,6 +16,7 @@ const contactRouteTranslations = {
   },
   en: {
     entry: 'View the contact route',
+    explanationLink: 'Link to this explanation',
     startReading: 'Read the route step by step',
     previousExplanation: 'Previous explanation',
     nextExplanation: 'Next explanation',
@@ -29,6 +31,7 @@ const contactRouteTranslations = {
   },
   de: {
     entry: 'Kontaktweg ansehen',
+    explanationLink: 'Link zu dieser Erklärung',
     startReading: 'Route Schritt für Schritt lesen',
     previousExplanation: 'Vorherige Erklärung',
     nextExplanation: 'Nächste Erklärung',
@@ -43,6 +46,7 @@ const contactRouteTranslations = {
   },
   fr: {
     entry: 'Voir le parcours de contact',
+    explanationLink: 'Lien vers cette explication',
     startReading: 'Lire le parcours étape par étape',
     previousExplanation: 'Explication précédente',
     nextExplanation: 'Explication suivante',
@@ -57,6 +61,7 @@ const contactRouteTranslations = {
   },
   es: {
     entry: 'Ver la ruta de contacto',
+    explanationLink: 'Enlace a esta explicación',
     startReading: 'Leer la ruta paso a paso',
     previousExplanation: 'Explicación anterior',
     nextExplanation: 'Explicación siguiente',
@@ -71,6 +76,7 @@ const contactRouteTranslations = {
   },
   ar: {
     entry: 'عرض مسار التواصل',
+    explanationLink: 'رابط لهذا الشرح',
     startReading: 'قراءة المسار خطوة بخطوة',
     previousExplanation: 'الشرح السابق',
     nextExplanation: 'الشرح التالي',
@@ -85,6 +91,7 @@ const contactRouteTranslations = {
   },
   zh: {
     entry: '查看联系路径',
+    explanationLink: '此步骤说明的链接',
     startReading: '逐步阅读路径',
     previousExplanation: '上一步说明',
     nextExplanation: '下一步说明',
@@ -129,8 +136,24 @@ routeSteps.forEach((step, index) => {
   } else {
     addReadingButton('readSources', document.querySelector('#contact-route-sources'));
   }
+  const permalink = document.createElement('a');
+  permalink.href = `#${step.id}`;
+  permalink.dataset.routeI18n = 'explanationLink';
+  permalink.addEventListener('click', (event) => {
+    if (window.location.hash !== permalink.hash) return;
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    showRouteExplanation(step);
+  });
+  controls.append(permalink);
   step.append(controls);
 });
+const revealLinkedRouteExplanation = () => {
+  const target = [...routeSteps, document.querySelector('#contact-route-sources')]
+    .find((step) => `#${step.id}` === window.location.hash);
+  if (target) showRouteExplanation(target);
+};
+window.addEventListener('hashchange', revealLinkedRouteExplanation);
 document.querySelector('#contact-route-start').addEventListener('click', () => {
   showRouteExplanation(routeSteps[0]);
 });
@@ -1032,3 +1055,4 @@ installButton?.addEventListener('click', async () => {
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
 
 setLanguage(currentLanguage);
+revealLinkedRouteExplanation();
