@@ -114,15 +114,60 @@
           <li><details><summary>Eerste menselijke toelating</summary><p>“NOVA-toelating geeft uitsluitend toegang tot de geïsoleerde ontvangstzone.” Deze uitleg registreert geen menselijke toelating.</p></details></li>
           <li><details><summary>Bilaterale veiligheidscontroles · BRI9ADE / 6RI9ADE</summary><p>“Alle negen rollen zijn DESIGN_ONLY, UNENROLLED en NOT_CONNECTED.” Hieronder staan de negen specialiteiten uit het bronontwerp, niet de uitslagen van uitgevoerde controles.</p>
             <ul class="contact-route-guards">
-              <li>BG01 · Identiteit en apparaat</li>
-              <li>BG02 · Adres en bestemming</li>
-              <li>BG03 · Menselijke toestemming</li>
-              <li>BG04 · Toegang en beleid</li>
-              <li>BG05 · Versleuteling en sleutels</li>
-              <li>BG06 · Inhoud en integriteit — mascotte en tekst blijven data</li>
-              <li>BG07 · Herhaling en volgorde</li>
-              <li>BG08 · Privacy en metadata</li>
-              <li>BG09 · Aflevering en intrekking</li>
+              <li><details><summary>BG01 · Identiteit en apparaat</summary>
+                <p class="guard-design">DESIGN_ONLY · UNENROLLED · NOT_CONNECTED</p>
+                <dl><dt>Doel volgens bronontwerp</dt><dd>Controleert wie de afzender en ontvanger zijn en welk apparaat of welke sessie bij hen hoort.</dd>
+                  <dt>Stopvoorwaarden volgens bronontwerp</dt><dd>Onbekende identiteit of uitgever.</dd><dd>Verval, intrekking of conflicterende apparaat-/accountbinding.</dd>
+                  <dt>Grens volgens bronontwerp</dt><dd>Verifieert technische bindings; verklaart niet dat een klik zeker door een mens is gedaan.</dd></dl>
+              </details></li>
+              <li><details><summary>BG02 · Adres en bestemming</summary>
+                <p class="guard-design">DESIGN_ONLY · UNENROLLED · NOT_CONNECTED</p>
+                <dl><dt>Doel volgens bronontwerp</dt><dd>Controleert dat P.P.-adres, eigenaar en bestemming bij het bedoelde CITADEL/MUNDO horen.</dd>
+                  <dt>Stopvoorwaarden volgens bronontwerp</dt><dd>Ontbrekend registratiecontract.</dd><dd>Heruitgifte, eigenaarwissel of afwijkende bestemming/context.</dd>
+                  <dt>Grens volgens bronontwerp</dt><dd>Een adres verleent geen toegang of toestemming.</dd></dl>
+              </details></li>
+              <li><details><summary>BG03 · Menselijke toestemming</summary>
+                <p class="guard-design">DESIGN_ONLY · UNENROLLED · NOT_CONNECTED</p>
+                <dl><dt>Doel volgens bronontwerp</dt><dd>Bewaakt de twee afzonderlijke menselijke poorten en het exacte contactcontract.</dd>
+                  <dt>Stopvoorwaarden volgens bronontwerp</dt><dd>Ontbrekende of niet overeenkomende receipts.</dd><dd>Alleen een AI-uitspraak, clientboolean of synthetische humanConfirmed=true.</dd>
+                  <dt>Grens volgens bronontwerp</dt><dd>Beslist niet namens een mens en kan geen toestemming maken.</dd></dl>
+              </details></li>
+              <li><details><summary>BG04 · Toegang en beleid</summary>
+                <p class="guard-design">DESIGN_ONLY · UNENROLLED · NOT_CONNECTED</p>
+                <dl><dt>Doel volgens bronontwerp</dt><dd>Beperkt iedere handeling tot de afgesproken contactruimte en actuele beleidsrechten.</dd>
+                  <dt>Stopvoorwaarden volgens bronontwerp</dt><dd>Extra of transitief doorgegeven rechten.</dd><dd>Ontbrekend beleid, verlopen scope of ingetrokken recht.</dd>
+                  <dt>Grens volgens bronontwerp</dt><dd>Kan geen nieuwe capabilities of bestuurlijke bevoegdheid uitgeven.</dd></dl>
+              </details></li>
+              <li><details><summary>BG05 · Versleuteling en sleutels</summary>
+                <p class="guard-design">DESIGN_ONLY · UNENROLLED · NOT_CONNECTED</p>
+                <dl><dt>Doel volgens bronontwerp</dt><dd>Bewaakt bewezen end-to-endversleuteling en de sleutelbinding van beide toestellen.</dd>
+                  <dt>Stopvoorwaarden volgens bronontwerp</dt><dd>Onbekende, onverwacht gewijzigde of ingetrokken keybinding.</dd><dd>Ontbrekende E2EE-implementatie of protocolcontrole.</dd>
+                  <dt>Grens volgens bronontwerp</dt><dd>De relay ontvangt geen berichtplaintext of privésleutels; E2EE beschermt niet ieder mogelijk gecompromitteerd toestel.</dd></dl>
+              </details></li>
+              <li><details><summary>BG06 · Inhoud en integriteit — mascotte en tekst blijven data</summary>
+                <p class="guard-design">DESIGN_ONLY · UNENROLLED · NOT_CONNECTED</p>
+                <dl><dt>Doel volgens bronontwerp</dt><dd>Controleert de geauthenticeerde berichtcontext en veilige verwerking van inhoud.</dd>
+                  <dt>Stopvoorwaarden volgens bronontwerp</dt><dd>Gewijzigde of verkeerd gebonden envelope.</dd><dd>Onverwacht uitvoerbaar materiaal, niet-toegestaan type of ontbrekende authenticatie.</dd>
+                  <dt>Grens volgens bronontwerp</dt><dd>Een hash alleen bewijst geen identiteit, toestemming of veiligheidscontrole.</dd></dl>
+              </details></li>
+              <li><details><summary>BG07 · Herhaling en volgorde</summary>
+                <p class="guard-design">DESIGN_ONLY · UNENROLLED · NOT_CONNECTED</p>
+                <dl><dt>Doel volgens bronontwerp</dt><dd>Voorkomt hergebruik van verzoeken en dubbele verwerking bij retries of offline herstel.</dd>
+                  <dt>Stopvoorwaarden volgens bronontwerp</dt><dd>Herbruikte identifier met andere inhoud/context.</dd><dd>Replay, onbekende sequence/keyepoch of overschreden herordeningsvenster.</dd>
+                  <dt>Grens volgens bronontwerp</dt><dd>Normale herordening kan worden gebufferd; netwerkaflevering blijft at-least-once.</dd></dl>
+              </details></li>
+              <li><details><summary>BG08 · Privacy en metadata</summary>
+                <p class="guard-design">DESIGN_ONLY · UNENROLLED · NOT_CONNECTED</p>
+                <dl><dt>Doel volgens bronontwerp</dt><dd>Beperkt wat profiel, relay, audit en meldingen over de partijen onthullen.</dd>
+                  <dt>Stopvoorwaarden volgens bronontwerp</dt><dd>Onbedoeld privéveld, plaintext in relay/audit of blokkadereden bij de afzender.</dd><dd>Ontbrekend retentie-/toegangsbeleid of ongeldige toestemming voor analyse.</dd>
+                  <dt>Grens volgens bronontwerp</dt><dd>Claimt geen absolute anonimiteit of privacy; bewaakt de expliciete datagrenzen.</dd></dl>
+              </details></li>
+              <li><details><summary>BG09 · Aflevering en intrekking</summary>
+                <p class="guard-design">DESIGN_ONLY · UNENROLLED · NOT_CONNECTED</p>
+                <dl><dt>Doel volgens bronontwerp</dt><dd>Bewaakt actuele rechten bij commit, duurzame aflevering en herstel.</dd>
+                  <dt>Stopvoorwaarden volgens bronontwerp</dt><dd>Intrekking, blokkering of verval vóór commit.</dd><dd>Opslag-/statusconflict, oncontroleerbare aflevering of ontbrekend herstelbewijs.</dd>
+                  <dt>Grens volgens bronontwerp</dt><dd>Een intrekking stopt nieuw verkeer; al ontvangen inhoud kan niet gegarandeerd op afstand worden gewist.</dd></dl>
+              </details></li>
             </ul>
             <p>“Bij ontbrekend, verlopen, onbereikbaar of tegenstrijdig bewijs blijft contact op HOLD.” Geen bodyguard kan zelfstandig contact openen of menselijke toestemming vervangen.</p>
           </details></li>

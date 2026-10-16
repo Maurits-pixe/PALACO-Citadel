@@ -465,6 +465,10 @@ footer small { grid-column: 1 / -1; }
 .contact-route details[open] > summary { border-bottom: 1px solid var(--line); }
 .contact-route details > p, .contact-route details > ul { margin: 16px; }
 .contact-route-guards { display: grid; gap: 10px; padding-inline-start: 24px; }
+.contact-route-guards dl { margin: 16px; line-height: 1.6; }
+.contact-route-guards dt { margin-top: 16px; font-weight: 800; }
+.contact-route-guards dd { margin: 6px 0; }
+.guard-design { font-size: 0.85rem; font-weight: 800; }
 .contact-route a { display: inline-flex; align-items: center; min-height: 44px; color: var(--blue); overflow-wrap: anywhere; }
 .contact-route summary:focus-visible, .contact-route a:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
 .contact-route-sources { margin-top: 24px; }
