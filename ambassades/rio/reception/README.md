@@ -115,6 +115,14 @@ Een buildreferentie wordt alleen als twaalf hextekens getoond wanneer de
 telefoonproef een geldige veertigtekens commitreferentie geeft; anders staat
 er **Onbekend**. Willekeurige antwoordtekst wordt niet weergegeven.
 
+Bij offline gaan of het verlaten van de pagina worden beide oordelen en de
+buildreferentie direct gewist. Een laat antwoord uit een eerdere controle
+mag geen nieuwe controle overschrijven of haar knop vrijgeven. Terugkeren
+naar de pagina of opnieuw online gaan start geen aanvraag. De pagina blijft
+**Niet bevestigd** totdat iemand zelf **Opnieuw controleren** kiest. Ook een
+klik terwijl de pagina offline of inactief is start geen aanvraag. De eerste
+gewone paginalading behoudt de hierboven beschreven twee openbare GET's.
+
 **Bereikbaar** betekent uitsluitend dat de gecontroleerde component op deze
 aanvraag antwoordde met de verwachte gesloten proefgrens. Het bewijst geen
 heen-en-terugoverdracht, aflevering, identiteit, menselijke toestemming,
@@ -207,3 +215,46 @@ blijft een reviewbaar voorstel. Publicatie, menselijke acceptatie en een
 daadwerkelijke proef met twee fysieke apparaten zijn niet uitgevoerd.
 Historische PALACO-blokkades #50 (menselijke acceptatie) en de onbekende
 oorzaken van #51/#60/#64 worden door deze presentatie niet gesloten.
+
+## Vervolg: bereikbaarheid na offline gaan en paginaherstel
+
+Deze correctie bouwt op draft #44, broncommit
+`34614a3b0397122f8e4ae90721d3efe39511aace`. De lokale receptiesuite slaagt
+met 28 browserproeven (14 mobiel en 14 desktop). De zes nieuwe gevallen
+controleren een echte browser-offlineovergang, een deels beantwoorde ronde
+bij gesimuleerde `pagehide`/`pageshow`, en doelbewust vertraagde oude
+HTTP-antwoorden terwijl een nieuwe controle loopt. De laatste test vertraagt
+alleen de aflevering van al lokaal ontvangen bytes; dit is een gecontroleerde
+raceproef, geen waarneming van een spontaan netwerkprobleem.
+
+De proeven bewaken lege cookies/opslag, uitsluitend expliciete GET-paren,
+de gesloten verbindingsclaim en het niet vrijgeven van een nieuwe knop door
+een oude ronde. De offline weergave is afzonderlijk gecontroleerd op 320,
+390 en 1440 pixels en op 390 pixels met verdubbelde basistekst: geen
+horizontale overloop of browserfouten. De zes gerichte regressies slagen
+ook na toevoeging van de controle op klikken vanuit een inactieve pagina.
+
+### VORM9EVIN9 RECORD
+
+- **Publiek en surface:** Nederlandstalige receptie, mobiel en desktop.
+- **Onderwerp:** procesbereikbaarheid; offline of hersteld betekent niet bevestigd.
+- **Touchflow:** één expliciete knop start een nieuwe controle zodra de pagina online en actief is.
+- **Begrijpelijkheid:** vaste korte offline melding en een concrete vervolgstap.
+- **Toegankelijkheid:** bestaande focus en tikvlakken behouden; smalle reflow en dubbele basistekst gecontroleerd.
+- **RIO-context:** geen wijziging in identiteit, toestemming of bevoegdheden.
+- **Provenance en grens:** lokale HTTP-app en gecontroleerde browserfixtures; geen fysieke telefoon of operationele aansluiting.
+- **Validatie:** 28 lokale browserproeven en afzonderlijke schermcontrole.
+- **Status:** `VORM9EVIN9_READY_WITH_CONDITIONS`.
+- **Volgende stap:** volledige CI en menselijke beoordeling; deze draft voert geen publicatie uit.
+
+### PALACO PROOF
+
+**PALACO PROOF: ON**
+
+- **Proposition:** offline gaan of paginaherstel kan een oude positieve bereikbaarheid niet bewaren of terugzetten.
+- **Scope and criterion:** receptie-browsercode; een oude ronde mag ook een nieuwe ronde of knopstatus niet overschrijven.
+- **Evidence:** 28 lokale proeven; daadwerkelijke offlineovergang, gesimuleerde herstel-events en gecontroleerd vertraagde HTTP-aflevering.
+- **Provenance:** bovenstaande vaste basiscommit, lokale `buildApp`, Chromium 1243 en deze wijziging; exacte nieuwe head en CI staan in de draft-PR.
+- **Falsification:** een positief oud label, extra automatische aanvraag of oude ronde die een nieuwe knop vrijgeeft, faalt de betreffende regressie.
+- **Status:** `PROVEN_WITHIN_SCOPE`.
+- **Limits:** gesimuleerde herstel-events bewijzen geen daadwerkelijke BFCache-opname; browserproeven bewijzen geen fysieke telefoon, voortdurende bereikbaarheid, contact, identiteit of menselijke acceptatie. Geen merge of deploy.

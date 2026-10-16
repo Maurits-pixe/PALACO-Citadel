@@ -9,7 +9,7 @@ on:
       - "tests/browser/ambassades-*.spec.mjs"
       - ".github/workflows/ambassador-auth.yml"
   pull_request:
-    branches: ["main", "codex/palaco-ambassade-website", "codex/rio-reception-connectable", "codex/rio-collaboration-identity-draft"]
+    branches: ["main", "codex/palaco-ambassade-website", "codex/rio-reception-connectable", "codex/rio-collaboration-identity-draft", "codex/rio-pp-contact-chat-eligibility"]
     paths:
       - "ambassades/**"
       - "rio/identity-design/**"
