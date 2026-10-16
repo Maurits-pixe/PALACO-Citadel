@@ -27,6 +27,7 @@
         <p class="intro-copy" data-i18n="intro">RIO zegt hallo. RIO helpt je mensen en ideeën te vinden. Jij kiest altijd wat je deelt.</p>
         <div class="hero-actions"><button id="meet-btn" type="button" class="primary-action" data-i18n="meetButton">Maak kennis</button><button id="share-btn" type="button" class="secondary-action" data-i18n="shareButton">Deel RIO</button></div>
         <p id="share-output" class="action-output" aria-live="polite"></p>
+        <a class="contact-route-entry" href="#contact-route-title" data-route-i18n="entry">Bekijk de contactroute</a>
 
         <article class="visitcard" aria-label="RIO VisitCard">
           <div class="card-topline"><div class="card-brand"><img src="/icon-192.svg" alt="PALACO" width="52" height="52" /><span>PALACO</span></div><span class="live-mark"><span aria-hidden="true"></span><span data-i18n="live">Klaar om te verbinden</span></span></div>
@@ -86,6 +87,54 @@
           <p data-release-i18n="boundary">Alleen synthetische testdata. Geen echte accounts, hosted relay, E2EE-bezorging, productieactivering of aanmelding.</p>
           <a class="latest-source" href="https://github.com/Maurits-pixe/PALACO-Citadel/blob/bcf2684d2d9c3ee5bf68a06ccf09bb856bb195bd/rio/contact-preview/README.md" target="_blank" rel="noopener noreferrer" data-release-i18n="source">Bekijk de publieke bron (main · bcf2684)</a>
         </aside>
+      </section>
+
+      <section id="contact-route" class="contact-route" aria-labelledby="contact-route-title">
+        <p class="section-label">RIO · MASCOTTE · BRI9ADE · RECEPTIE</p>
+        <h2 id="contact-route-title" tabindex="-1" data-route-i18n="title">De weg naar begrensd contact.</h2>
+        <p data-route-i18n="intro">Overgenomen bronroute, geen aangesloten contactdienst. Open een stap om de grens te lezen. De broncitaten blijven in hun oorspronkelijke Nederlandse taal.</p>
+        <p class="contact-route-boundary" data-route-i18n="boundary">HOLD · Deze pagina verleent geen toelating, voert geen veiligheidscontroles uit en opent geen contact. Een klik op een stap is alleen uitleg.</p>
+        <aside class="contact-route-mascot">
+          <h3>Mascotte</h3>
+          <p data-route-i18n="mascot">Mascotte en tekst zijn inhoud, geen toelatingspoort. In de gevonden bron staat geen afzonderlijke mascotte-route. BRI9ADE/6RI9ADE blijft hier een ontwerpverwijzing; de historische alias naar BRIGADE is niet vastgesteld.</p>
+        </aside>
+        <div id="contact-route-controls" class="contact-route-controls" hidden>
+          <button id="contact-route-start" type="button" aria-controls="contact-route-steps" data-route-i18n="startReading">Lees de route stap voor stap</button>
+          <button id="contact-route-open" type="button" aria-controls="contact-route-steps" data-route-i18n="openSteps">Open alle zeven uitlegstappen</button>
+          <button id="contact-route-close" type="button" aria-controls="contact-route-steps" data-route-i18n="closeSteps">Sluit alle zeven uitlegstappen</button>
+        </div>
+        <ol id="contact-route-steps" class="contact-route-steps" lang="nl" dir="ltr">
+          <li><details><summary>Menselijk verzoek</summary><p>Een verzoek begint de route; het is nog geen toestemming voor contact.</p></details></li>
+          <li><details><summary>NOVA</summary><p>NOVA is in de bron de ontvangstlaag. De NOVA-service uit de repository is niet aangesloten op deze pagina.</p></details></li>
+          <li><details><summary>Geïsoleerde receptie</summary><p>De ontvangstzone is gescheiden van het uiteindelijke contact. Receptie is geen geopende chatverbinding.</p></details></li>
+          <li><details><summary>Eerste menselijke toelating</summary><p>“NOVA-toelating geeft uitsluitend toegang tot de geïsoleerde ontvangstzone.” Deze uitleg registreert geen menselijke toelating.</p></details></li>
+          <li><details><summary>Bilaterale veiligheidscontroles · BRI9ADE / 6RI9ADE</summary><p>“Alle negen rollen zijn DESIGN_ONLY, UNENROLLED en NOT_CONNECTED.” Hieronder staan de negen specialiteiten uit het bronontwerp, niet de uitslagen van uitgevoerde controles.</p>
+            <ul class="contact-route-guards">
+              <li>BG01 · Identiteit en apparaat</li>
+              <li>BG02 · Adres en bestemming</li>
+              <li>BG03 · Menselijke toestemming</li>
+              <li>BG04 · Toegang en beleid</li>
+              <li>BG05 · Versleuteling en sleutels</li>
+              <li>BG06 · Inhoud en integriteit — mascotte en tekst blijven data</li>
+              <li>BG07 · Herhaling en volgorde</li>
+              <li>BG08 · Privacy en metadata</li>
+              <li>BG09 · Aflevering en intrekking</li>
+            </ul>
+            <p>“Bij ontbrekend, verlopen, onbereikbaar of tegenstrijdig bewijs blijft contact op HOLD.” Geen bodyguard kan zelfstandig contact openen of menselijke toestemming vervangen.</p>
+          </details></li>
+          <li><details><summary>Definitieve menselijke instemming</summary><p>“Beide partijen bevestigen hetzelfde exacte contactcontract.” Een technische PASS of AI-uitspraak vervangt deze afzonderlijke instemming niet.</p></details></li>
+          <li><details><summary>Begrensd contact</summary><p>Dit is de eindbestemming van de bronroute, niet een beschikbare actie op deze pagina. Identiteit, runtime-evidence, registratie, menselijke receipts en E2EE-contact vereisen afzonderlijke koppelingen en bewijs.</p></details></li>
+        </ol>
+        <details id="contact-route-sources" class="contact-route-sources">
+          <summary data-route-i18n="sources">Bronnen en ontbrekende koppelingen</summary>
+          <p lang="nl" dir="ltr">Bronroute: CONTACT-FOUNDATION.md. Ontvangstimplementatie: NOVA-ONLINE.md. Mascotte is volgens BG06 data. De bronbinding markeert BRI9ADE- en 6RI9ADE-aliases als UNKNOWN, operationele bindings als UNKNOWN en operativeAuthority als NONE. Deze pagina kopieert de uitleg; niet de server, accounts of veiligheidsdiensten.</p>
+          <ul>
+            <li><a href="https://github.com/Maurits-pixe/PALACO-Citadel/blob/6774682f0c34c3bc45e02768980347b7117b3d3d/rio/CONTACT-FOUNDATION.md" target="_blank" rel="noopener noreferrer">CONTACT-FOUNDATION · 6774682</a></li>
+            <li><a href="https://github.com/Maurits-pixe/PALACO-Citadel/blob/6774682f0c34c3bc45e02768980347b7117b3d3d/rio/brigade-specialties.json" target="_blank" rel="noopener noreferrer">6RI9ADE · DESIGN_DRAFT · 6774682</a></li>
+            <li><a href="https://github.com/Maurits-pixe/PALACO-Citadel/blob/6774682f0c34c3bc45e02768980347b7117b3d3d/rio/contact-source-binding.json" target="_blank" rel="noopener noreferrer">BRIGADE · DESIGN_REFERENCE · 6774682</a></li>
+            <li><a href="https://github.com/Maurits-pixe/PALACO-Citadel/blob/6774682f0c34c3bc45e02768980347b7117b3d3d/ambassades/rio/NOVA-ONLINE.md" target="_blank" rel="noopener noreferrer">NOVA · receptie · 6774682</a></li>
+          </ul>
+        </details>
       </section>
 
       <section id="engine" class="engine-panel" aria-labelledby="engine-title">
@@ -153,44 +202,72 @@
           <p class="chat-preview-eyebrow" data-chat-i18n="badge">RIO · preview</p>
           <h2 id="chat-preview-title" tabindex="-1" data-chat-i18n="title">Say hello to RIO</h2>
         </div>
-        <button
-          id="chat-preview-close"
-          class="chat-preview-icon-button"
-          type="button"
-          data-chat-i18n="close"
-          data-chat-i18n-aria-label="close"
-        >Close</button>
+        <div class="chat-preview-header-actions">
+          <button id="chat-preview-size" class="chat-preview-icon-button" type="button" aria-pressed="false" aria-controls="chat-preview-panel">Larger chat</button>
+          <button
+            id="chat-preview-close"
+            class="chat-preview-icon-button"
+            type="button"
+            data-chat-i18n="close"
+            data-chat-i18n-aria-label="close"
+          >Close</button>
+        </div>
       </header>
       <p class="chat-preview-boundary" data-chat-i18n="boundary">
         Preview only. Messages stay in this page and are cleared when you reload. No live person or service is connected.
       </p>
       <p id="chat-preview-status" class="chat-preview-status" role="status" aria-live="polite"></p>
+      <details id="chat-preview-subject" class="chat-preview-subject" hidden>
+        <summary><span data-chat-i18n="subjectLabel">Subject</span>: <strong id="chat-preview-subject-title"></strong></summary>
+        <p id="chat-preview-subject-description"></p>
+        <dl>
+          <div><dt data-chat-i18n="subjectSource">Source</dt><dd id="chat-preview-subject-source"></dd></div>
+          <div><dt data-chat-i18n="subjectStatus">Status</dt><dd id="chat-preview-subject-state"></dd></div>
+        </dl>
+        <p id="chat-preview-subject-boundary"></p>
+        <button id="chat-preview-subject-clear" type="button" data-chat-i18n="leaveSubject">Leave this subject</button>
+      </details>
       <ol
         id="chat-preview-messages"
         class="chat-preview-messages"
         role="log"
+        tabindex="0"
+        aria-describedby="chat-preview-reading-hint"
         aria-live="polite"
         aria-relevant="additions"
         data-chat-i18n-aria-label="transcript"
       ></ol>
+      <div id="chat-preview-reading" class="chat-preview-reading" hidden>
+        <p id="chat-preview-reading-hint" data-chat-i18n="readingHint">Focus the conversation and use the arrow keys to read earlier messages.</p>
+        <button id="chat-preview-latest" type="button" aria-controls="chat-preview-messages" data-chat-i18n="latest">Latest answer</button>
+      </div>
       <div
         class="chat-preview-suggestions"
         data-chat-i18n-aria-label="suggestions"
       >
+        <button type="button" data-chat-prompt="subject" data-chat-i18n="subjectPrompt" hidden>What is this subject about?</button>
         <button type="button" data-chat-prompt="about" data-chat-i18n="aboutPrompt">What is RIO?</button>
         <button type="button" data-chat-prompt="privacy" data-chat-i18n="privacyPrompt">Where do my messages go?</button>
       </div>
-      <form id="chat-preview-form" class="chat-preview-form">
+      <details id="chat-preview-followups" class="chat-preview-followups" hidden>
+        <summary id="chat-preview-followups-title"></summary>
+        <div id="chat-preview-followup-buttons" class="chat-preview-suggestions"></div>
+      </details>
+      <form id="chat-preview-form" class="chat-preview-form" novalidate>
         <label for="chat-preview-input" data-chat-i18n="inputLabel">Your message</label>
         <textarea
           id="chat-preview-input"
           name="message"
+          dir="auto"
           rows="2"
           maxlength="500"
           required
+          aria-describedby="chat-preview-count chat-preview-input-error"
           data-chat-i18n-placeholder="inputPlaceholder"
           placeholder="Type a message"
         ></textarea>
+        <span id="chat-preview-count" class="chat-preview-count"></span>
+        <p id="chat-preview-input-error" class="chat-preview-input-error" role="alert" hidden></p>
         <div class="chat-preview-form-footer">
           <span data-chat-i18n="localOnly">Local demo · nothing is sent</span>
           <button id="chat-preview-send" type="submit" data-chat-i18n="send">Send</button>
@@ -200,6 +277,17 @@
         Clear this conversation
       </button>
     </section>
+
+    <dialog id="chat-preview-clear-dialog" class="chat-preview-clear-dialog" aria-labelledby="chat-preview-clear-title" aria-describedby="chat-preview-clear-warning">
+      <form method="dialog">
+        <h2 id="chat-preview-clear-title" data-chat-i18n="clearTitle">Clear this conversation?</h2>
+        <p id="chat-preview-clear-warning" data-chat-i18n="clearWarning">This removes your messages, selected subject, and draft from this chat. This cannot be undone. Your personal dossier is separate and is not cleared.</p>
+        <div class="chat-preview-clear-actions">
+          <button id="chat-preview-clear-cancel" type="submit" value="cancel" autofocus data-chat-i18n="clearCancel">Keep conversation</button>
+          <button id="chat-preview-clear-confirm" type="submit" value="confirm" data-chat-i18n="clearConfirm">Yes, clear this conversation</button>
+        </div>
+      </form>
+    </dialog>
 
     <dialog id="subject-dialog" class="subject-dialog" aria-labelledby="subject-dialog-title" aria-describedby="subject-dialog-description">
       <div id="subject-sheet" class="subject-sheet">

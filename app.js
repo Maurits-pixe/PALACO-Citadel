@@ -1,3 +1,147 @@
+const contactRouteTranslations = {
+  nl: {
+    entry: 'Bekijk de contactroute',
+    startReading: 'Lees de route stap voor stap',
+    previousExplanation: 'Vorige uitleg',
+    nextExplanation: 'Volgende uitleg',
+    readSources: 'Lees bronnen en ontbrekende koppelingen',
+    openSteps: 'Open alle zeven uitlegstappen',
+    closeSteps: 'Sluit alle zeven uitlegstappen',
+    title: 'De weg naar begrensd contact.',
+    intro: 'Overgenomen bronroute, geen aangesloten contactdienst. Open een stap om de grens te lezen. De broncitaten blijven in hun oorspronkelijke Nederlandse taal.',
+    boundary: 'HOLD · Deze pagina verleent geen toelating, voert geen veiligheidscontroles uit en opent geen contact. Een klik op een stap is alleen uitleg.',
+    mascot: 'Mascotte en tekst zijn inhoud, geen toelatingspoort. In de gevonden bron staat geen afzonderlijke mascotte-route. BRI9ADE/6RI9ADE blijft hier een ontwerpverwijzing; de historische alias naar BRIGADE is niet vastgesteld.',
+    sources: 'Bronnen en ontbrekende koppelingen'
+  },
+  en: {
+    entry: 'View the contact route',
+    startReading: 'Read the route step by step',
+    previousExplanation: 'Previous explanation',
+    nextExplanation: 'Next explanation',
+    readSources: 'Read sources and missing connections',
+    openSteps: 'Open all seven explanations',
+    closeSteps: 'Close all seven explanations',
+    title: 'The path to bounded contact.',
+    intro: 'Copied reference route, not a connected contact service. Open a step to read its boundary. Source quotations remain in their original Dutch.',
+    boundary: 'HOLD · This page grants no admission, runs no safety checks, and opens no contact. Clicking a step only reveals an explanation.',
+    mascot: 'Mascot and text are content, not an admission gate. No separate mascot route was found in the source. BRI9ADE/6RI9ADE remains a design reference here; the historical alias to BRIGADE is not established.',
+    sources: 'Sources and missing connections'
+  },
+  de: {
+    entry: 'Kontaktweg ansehen',
+    startReading: 'Route Schritt für Schritt lesen',
+    previousExplanation: 'Vorherige Erklärung',
+    nextExplanation: 'Nächste Erklärung',
+    readSources: 'Quellen und fehlende Verbindungen lesen',
+    openSteps: 'Alle sieben Erklärungen öffnen',
+    closeSteps: 'Alle sieben Erklärungen schließen',
+    title: 'Der Weg zum begrenzten Kontakt.',
+    intro: 'Übernommene Referenzroute, kein verbundener Kontaktdienst. Öffne einen Schritt, um seine Grenze zu lesen. Quellzitate bleiben im niederländischen Original.',
+    boundary: 'HOLD · Diese Seite erteilt keine Zulassung, führt keine Sicherheitsprüfungen aus und öffnet keinen Kontakt. Ein Klick zeigt nur die Erklärung.',
+    mascot: 'Maskottchen und Text sind Inhalte, kein Zulassungstor. Die Quelle enthält keine eigene Maskottchenroute. BRI9ADE/6RI9ADE bleibt hier eine Designreferenz; der historische Alias zu BRIGADE ist nicht belegt.',
+    sources: 'Quellen und fehlende Verbindungen'
+  },
+  fr: {
+    entry: 'Voir le parcours de contact',
+    startReading: 'Lire le parcours étape par étape',
+    previousExplanation: 'Explication précédente',
+    nextExplanation: 'Explication suivante',
+    readSources: 'Lire les sources et connexions manquantes',
+    openSteps: 'Ouvrir les sept explications',
+    closeSteps: 'Fermer les sept explications',
+    title: 'Le chemin vers un contact délimité.',
+    intro: 'Parcours de référence repris, sans service de contact connecté. Ouvrez une étape pour lire sa limite. Les citations restent en néerlandais original.',
+    boundary: 'HOLD · Cette page ne donne aucune admission, ne réalise aucun contrôle de sécurité et n’ouvre aucun contact. Un clic affiche seulement une explication.',
+    mascot: 'La mascotte et le texte sont du contenu, pas une porte d’admission. Aucun parcours distinct de mascotte n’a été trouvé. BRI9ADE/6RI9ADE reste une référence de conception ; son alias historique avec BRIGADE n’est pas établi.',
+    sources: 'Sources et connexions manquantes'
+  },
+  es: {
+    entry: 'Ver la ruta de contacto',
+    startReading: 'Leer la ruta paso a paso',
+    previousExplanation: 'Explicación anterior',
+    nextExplanation: 'Explicación siguiente',
+    readSources: 'Leer fuentes y conexiones pendientes',
+    openSteps: 'Abrir las siete explicaciones',
+    closeSteps: 'Cerrar las siete explicaciones',
+    title: 'El camino hacia un contacto delimitado.',
+    intro: 'Ruta de referencia copiada, sin servicio de contacto conectado. Abre un paso para leer su límite. Las citas permanecen en neerlandés original.',
+    boundary: 'HOLD · Esta página no concede admisión, no ejecuta controles de seguridad ni abre contacto. Pulsar un paso solo muestra una explicación.',
+    mascot: 'La mascota y el texto son contenido, no una puerta de admisión. No se encontró una ruta independiente de mascota. BRI9ADE/6RI9ADE sigue siendo una referencia de diseño; el alias histórico con BRIGADE no está establecido.',
+    sources: 'Fuentes y conexiones pendientes'
+  },
+  ar: {
+    entry: 'عرض مسار التواصل',
+    startReading: 'قراءة المسار خطوة بخطوة',
+    previousExplanation: 'الشرح السابق',
+    nextExplanation: 'الشرح التالي',
+    readSources: 'قراءة المصادر والروابط غير المتصلة',
+    openSteps: 'فتح الشروحات السبعة',
+    closeSteps: 'إغلاق الشروحات السبعة',
+    title: 'المسار نحو تواصل محدود.',
+    intro: 'مسار مرجعي منقول، وليس خدمة تواصل متصلة. افتح خطوة لقراءة حدودها. تبقى الاقتباسات بلغتها الهولندية الأصلية.',
+    boundary: 'HOLD · لا تمنح هذه الصفحة قبولاً ولا تُجري فحوص سلامة ولا تفتح تواصلاً. النقر على خطوة يعرض شرحاً فقط.',
+    mascot: 'التميمة والنص محتوى وليسا بوابة قبول. لم يُعثر على مسار منفصل للتميمة. يظل BRI9ADE/6RI9ADE مرجعاً تصميمياً هنا؛ ولم يثبت ارتباط الاسم التاريخي بـ BRIGADE.',
+    sources: 'المصادر والروابط غير المتصلة'
+  },
+  zh: {
+    entry: '查看联系路径',
+    startReading: '逐步阅读路径',
+    previousExplanation: '上一步说明',
+    nextExplanation: '下一步说明',
+    readSources: '阅读来源与缺失的连接',
+    openSteps: '展开全部七个步骤说明',
+    closeSteps: '收起全部七个步骤说明',
+    title: '通往有限沟通的路径。',
+    intro: '复制的参考路径，并非已连接的联系服务。展开步骤可阅读边界。来源引文保留荷兰语原文。',
+    boundary: 'HOLD · 此页面不授予准入、不执行安全检查，也不建立联系。点击步骤仅展示说明。',
+    mascot: '吉祥物和文字属于内容，并非准入关卡。来源中未找到独立的吉祥物路径。BRI9ADE/6RI9ADE 在此仍是设计参考；与 BRIGADE 的历史别名关系尚未证实。',
+    sources: '来源与缺失的连接'
+  }
+};
+
+const routeSteps = document.querySelectorAll('#contact-route-steps > li > details');
+const showRouteExplanation = (target) => {
+  target.open = true;
+  const summary = target.querySelector('summary');
+  summary.focus({ preventScroll: true });
+  summary.scrollIntoView({ block: 'start', behavior: 'instant' });
+};
+routeSteps.forEach((step, index) => {
+  step.id = `contact-route-step-${index + 1}`;
+});
+routeSteps.forEach((step, index) => {
+  const controls = document.createElement('div');
+  controls.className = 'contact-route-reading';
+  const addReadingButton = (key, target) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.routeI18n = key;
+    button.setAttribute('aria-controls', target.id);
+    button.addEventListener('click', () => {
+      step.open = false;
+      showRouteExplanation(target);
+    });
+    controls.append(button);
+  };
+  if (index > 0) addReadingButton('previousExplanation', routeSteps[index - 1]);
+  if (index < routeSteps.length - 1) {
+    addReadingButton('nextExplanation', routeSteps[index + 1]);
+  } else {
+    addReadingButton('readSources', document.querySelector('#contact-route-sources'));
+  }
+  step.append(controls);
+});
+document.querySelector('#contact-route-start').addEventListener('click', () => {
+  showRouteExplanation(routeSteps[0]);
+});
+document.querySelector('#contact-route-open').addEventListener('click', () => {
+  routeSteps.forEach((step) => { step.open = true; });
+});
+document.querySelector('#contact-route-close').addEventListener('click', () => {
+  routeSteps.forEach((step) => { step.open = false; });
+});
+document.querySelector('#contact-route-controls').hidden = false;
+
 const translations = {
   nl: {
     navMeet: 'Ontmoet RIO', navEverywhere: 'Overal', navTrust: 'Vertrouwen', eyebrow: 'PALACO stelt voor', tagline: 'Het visitekaartje van PALACO.', intro: 'RIO zegt hallo. RIO helpt je mensen en ideeën te vinden. Jij kiest altijd wat je deelt.', meetButton: 'Maak kennis', shareButton: 'Deel RIO', shareReady: 'De link naar RIO is klaar om te delen.', shareUnavailable: 'Delen lukt nu niet.', live: 'Klaar om te verbinden', cardIntro: 'Hallo, ik ben RIO.', cardBody: 'Ik breng je veilig naar de juiste plek in PALACO.', identityLabel: 'Identiteit', verified: 'Nog niet geverifieerd', consentLabel: 'Jouw keuze', consentValue: 'Altijd eerst', authorityLabel: 'Macht', authorityValue: 'Geen', addressLabel: 'RIO-adres', openCard: 'Open kaart', closeCard: 'Sluit kaart', cardReveal: 'Eerst ontmoeten. Dan kiezen. Pas daarna verbinden.', everywhereTitle: 'Eén begroeting. Overal.', everywhereBody: 'Je gesprek reist met je mee. De betekenis blijft hetzelfde.', flowLabel: 'Zo werkt RIO', flowTitle: 'Van hallo naar een echt gesprek.', stepOneTitle: 'Kijk', stepOneBody: 'RIO laat zien wie of wat je ontmoet.', stepTwoTitle: 'Kies', stepTwoBody: 'Jij beslist of je verder wilt gaan.', stepThreeTitle: 'Praat', stepThreeBody: 'RIO bewaart de weg en het gesprek.', helloTitle: 'Zeg hallo tegen RIO.', helloBody: 'Begin klein. Alleen je naam is genoeg.', nameLabel: 'Hoe mogen we je noemen?', namePlaceholder: 'Jouw naam', startButton: 'Start', helloPrefix: 'Hallo', helloSuffix: 'RIO is er. Jij kiest wat je deelt.', trustTitle: 'Helder over vertrouwen.', trustBody: 'RIO verbindt. Jij houdt de regie. PALACO bewaakt de grenzen.', trustIdentity: 'Wie is dit?', trustIdentityBody: 'De identiteit is zichtbaar; verificatie vereist apart bewijs.', trustConsent: 'Mag dit?', trustConsentBody: 'Niets gaat verder zonder jouw keuze.', trustHistory: 'Wat gebeurde er?', trustHistoryBody: 'Belangrijke stappen blijven terug te vinden.', installButton: 'Installeer RIO', footer: 'PALACO · Een plek voor mensen en ideeën.'
@@ -631,6 +775,8 @@ localStorage.removeItem('rio-visitor-name');
 let currentLanguage = sessionStorage.getItem('palaco-language') || (supportedLanguages.includes(browserLanguage) ? browserLanguage : 'nl');
 let deferredPrompt;
 let activeSubject;
+let selectedSubject;
+let continuingSubject = false;
 let lastSubjectTrigger;
 let touchStart;
 
@@ -648,6 +794,51 @@ const subjects = {
   photo: { subject_id: 'rio:subject:meeting-place-photo', type: 'PHOTO', name: 'photoTitle', preview_reference: 'asset:rio-meeting-place-photo', meaning: 'photoDescription', provenance_reference: 'rio-web-subject-catalog-v1', state: 'CURRENT', boundary: 'subjectBoundary', next_action: 'subjectContinue', presentation_effect: 'NONE', kind: 'photoType', preview: 'photo' },
   elixer: { subject_id: 'rio:subject:example-elixer', object_reference: 'elixer:example-world', type: 'ELIXER', name: 'elixerTitle', preview_reference: 'elixer:example-world:preview', meaning: 'elixerDescription', provenance_reference: 'rio-web-subject-catalog-v1', state: 'CURRENT', boundary: 'subjectBoundary', next_action: 'subjectContinue', presentation_effect: 'NONE', kind: 'ELIXER', preview: 'elixer' }
 };
+
+const publishSelectedSubject = (openChat = false) => {
+  if (!selectedSubject) return;
+  const subject = subjects[selectedSubject];
+  helloOutput.textContent = `${text(subject.name)}. ${text('subjectChosen')}`;
+  window.dispatchEvent(new CustomEvent('rio:subjectchange', {
+    detail: {
+      id: subject.subject_id,
+      title: text(subject.name),
+      description: text(subject.meaning),
+      source: text(selectedSubject === 'elixer' ? 'elixerSource' : 'subjectSource'),
+      status: text(selectedSubject === 'elixer' ? 'elixerStatus' : 'subjectVerified'),
+      boundary: text('subjectBoundary'),
+      followupTitle: selectedSubject === 'elixer' ? text('elixerDossierSummary') : '',
+      questions: selectedSubject === 'elixer' ? [
+        {
+          id: 'candidate',
+          label: text('elixerDossierCandidateTitle'),
+          answer: `${text('elixerCandidatePlain')}\n\n${text('elixerDossierCandidateBody')}\n\n${text('elixerCandidateMeaningNote')}`
+        },
+        {
+          id: 'personas',
+          label: text('elixerDossierPersonasTitle'),
+          answer: `${text('elixerPersonaHaram')}\n${text('elixerPersonaChing')}\n${text('elixerPersonaHannie')}\n\n${text('elixerDossierPersonasNote')}`
+        },
+        {
+          id: 'evidence',
+          label: text('elixerDossierEvidenceTitle'),
+          answer: [
+            text('elixerDossierEvidenceNote'),
+            ...['elixerEvidenceVersion', 'elixerEvidenceDigest', 'elixerEvidenceRegistry', 'elixerEvidenceTest']
+              .map((key) => `${text(key)}: ${text('elixerEvidenceUnavailable')}`),
+            text('elixerDossierNextGate')
+          ].join('\n\n')
+        }
+      ] : [],
+      openChat
+    }
+  }));
+};
+
+window.addEventListener('rio:subjectclear', () => {
+  if (selectedSubject) helloOutput.textContent = '';
+  selectedSubject = undefined;
+});
 
 subjectTiles.forEach((tile) => {
   const subject = subjects[tile.dataset.subject];
@@ -703,6 +894,13 @@ const setLanguage = (language) => {
   sessionStorage.setItem('palaco-language', language);
   document.documentElement.lang = language;
   document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+  document.querySelectorAll('.contact-route-reading').forEach((controls) => {
+    controls.lang = language;
+    controls.dir = language === 'ar' ? 'rtl' : 'ltr';
+  });
+  document.querySelectorAll('[data-route-i18n]').forEach((element) => {
+    element.textContent = contactRouteTranslations[language][element.dataset.routeI18n];
+  });
   document.querySelectorAll('[data-i18n]').forEach((element) => {
     const value = text(element.dataset.i18n);
     if (value) element.textContent = value;
@@ -730,6 +928,7 @@ const setLanguage = (language) => {
   if (activeSubject) renderSubject(activeSubject);
   document.title = `RIO · ${text('tagline')}`;
   window.dispatchEvent(new CustomEvent('rio:languagechange', { detail: { language } }));
+  publishSelectedSubject();
 };
 
 languageButtons.forEach((button) => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
@@ -753,7 +952,10 @@ subjectClose?.addEventListener('click', closeSubjectDialog);
 subjectDialog?.addEventListener('click', (event) => {
   if (event.target === subjectDialog) closeSubjectDialog();
 });
-subjectDialog?.addEventListener('close', () => lastSubjectTrigger?.focus());
+subjectDialog?.addEventListener('close', () => {
+  if (!continuingSubject) lastSubjectTrigger?.focus();
+  continuingSubject = false;
+});
 
 subjectSheet?.addEventListener('pointerdown', (event) => {
   if (event.pointerType === 'touch' || event.pointerType === 'pen') touchStart = { x: event.clientX, y: event.clientY };
@@ -768,9 +970,10 @@ subjectSheet?.addEventListener('pointerup', (event) => {
 
 subjectContinue?.addEventListener('click', () => {
   if (!activeSubject) return;
-  helloOutput.textContent = `${text(subjects[activeSubject].name)}. ${text('subjectChosen')}`;
+  selectedSubject = activeSubject;
+  continuingSubject = true;
   closeSubjectDialog();
-  document.querySelector('.hello-panel')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  publishSelectedSubject(true);
 });
 
 mobileNavLinks.forEach((link) => link.addEventListener('click', () => {
