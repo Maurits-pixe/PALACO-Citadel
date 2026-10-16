@@ -8,7 +8,7 @@ on:
       - "tests/browser/ambassades-*.spec.mjs"
       - ".github/workflows/ambassador-auth.yml"
   pull_request:
-    branches: ["main"]
+    branches: ["main", "codex/palaco-ambassade-website"]
     paths:
       - "ambassades/**"
       - "tests/browser/ambassades-*.spec.mjs"
@@ -41,6 +41,7 @@ jobs:
           node --check ambassades/rio/sw.js
           node --check ambassades/auth/device-test.mjs
           node --check ambassades/rio/device-test/app.js
+          node --check ambassades/rio/reception/app.js
           node --check ambassades/auth/nova-reception.mjs
           node --check ambassades/auth/nova-check-gate.mjs
           node --check ambassades/auth/auth-security-approval.mjs
@@ -69,6 +70,8 @@ jobs:
         run: npx playwright test --config ambassades/rio/nova/playwright.config.mjs
       - name: Verify paired mobile browsers exchange diagnostic challenges
         run: npx playwright test --config ambassades/rio/device-test/playwright.config.mjs
+      - name: Verify NOVA front door availability, closed boundaries and accessible phone layout
+        run: npx playwright test --config ambassades/rio/reception/playwright.config.mjs
 
   container:
     runs-on: ubuntu-latest
