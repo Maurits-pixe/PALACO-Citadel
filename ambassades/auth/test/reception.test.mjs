@@ -127,6 +127,10 @@ test('reception paths cannot publish backend sources, private files or traversal
     '/rio/reception/..%5c..%5cauth%5cserver.mjs',
     '/auth/server.mjs', '/auth/.env', '/members.private.json',
     '/node_modules/express/package.json',
+    '/rio/identity-design/reference.mjs', '/rio/identity-design/draft.json',
+    '/rio/identity-design/reference.test.mjs', '/rio/identity-design/README.md',
+    '/rio/identity-design/PP-CONTACT-CHAT-DRAFT.md',
+    '/auth/contact-eligibility-design.mjs', '/auth/test/fixtures/contact-eligibility-design.json',
   ]) {
     const response = await f.request(path);
     assert.equal(response.status, 404, path);
