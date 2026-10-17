@@ -62,8 +62,36 @@ export function signWithTestSeed(record, seedHex, domain = DOMAIN) {
 export function verifyWithPublicKey(record, signature, publicKeyHex, domain = DOMAIN) {
   return verify(null, signingInput(record, domain), publicKeyFromRaw(Buffer.from(publicKeyHex,"hex")), signature);
 }
-export function authorize({ verifiedVisitCard, mandate }) {
-  return Object.freeze({ authorized: Boolean(verifiedVisitCard && mandate), reason: mandate ? "MANDATE_PRESENT" : "MANDATE_REQUIRED" });
+/**
+ * Closed legacy boundary. VisitCard verification is not action authority.
+ * No trusted mandate verifier is wired into this reference slice; callers cannot
+ * supply authority through a boolean, a mandate-shaped object or extra callbacks.
+ */
+export function authorize(request) {
+  const deny = reason => Object.freeze({ authorized:false, reason });
+  try {
+    if (!request || typeof request !== "object" || Array.isArray(request)) {
+      return deny("INVALID_AUTHORIZATION_REQUEST");
+    }
+    const prototype = Object.getPrototypeOf(request);
+    if (prototype !== Object.prototype && prototype !== null) {
+      return deny("INVALID_AUTHORIZATION_REQUEST");
+    }
+    const verification = Object.getOwnPropertyDescriptor(request, "verifiedVisitCard");
+    if (!verification || !Object.hasOwn(verification, "value") || verification.value !== true) {
+      return deny("VISITCARD_VERIFICATION_REQUIRED");
+    }
+    const mandate = Object.getOwnPropertyDescriptor(request, "mandate");
+    if (mandate && !Object.hasOwn(mandate, "value")) {
+      return deny("INVALID_AUTHORIZATION_REQUEST");
+    }
+    if (!mandate || mandate.value === null || mandate.value === undefined) {
+      return deny("MANDATE_REQUIRED");
+    }
+    return deny("MANDATE_VERIFICATION_UNAVAILABLE");
+  } catch {
+    return deny("INVALID_AUTHORIZATION_REQUEST");
+  }
 }
 
 
