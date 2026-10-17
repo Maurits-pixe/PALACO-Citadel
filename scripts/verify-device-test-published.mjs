@@ -5,6 +5,8 @@ import { execFileSync } from 'node:child_process';
 const ORIGIN='https://palaco-ambassades.onrender.com';
 const API='/api/rio/device-test';
 const SCOPE='RIO_DEVICE_CHALLENGE_V1';
+const SCENARIO='MOBILE_CROSS_PROVIDER';
+const DECLARATION={wifiOff:true,mobileDataOn:true,differentProviders:true,noHotspot:true};
 const guests=[];
 const steps=[];
 let current='start';
@@ -69,10 +71,10 @@ try {
   check(a.cookie!==b.cookie && b.cookie!==c.cookie && a.cookie!==c.cookie);passed();
   step('single-use-invitation-and-outside-session');
   const createKey=key();
-  const created=await call(API+'/pair',{guest:a,body:{idempotencyKey:createKey}});
+  const created=await call(API+'/pair',{guest:a,body:{idempotencyKey:createKey,scenario:SCENARIO}});
   check(created.status===201 && /^[a-f0-9]{64}$/.test(created.data.inviteToken));
   const invite=created.data.inviteToken,pairId=created.data.pair.id;
-  const replay=await call(API+'/pair',{guest:a,body:{idempotencyKey:createKey}});
+  const replay=await call(API+'/pair',{guest:a,body:{idempotencyKey:createKey,scenario:SCENARIO}});
   check(replay.status===200 && replay.data.replayed===true && !Object.hasOwn(replay.data,'inviteToken'));
   check((await call(API+'/pair',{guest:c})).status===404);
   const joined=await call(API+'/join',{guest:b,body:{inviteToken:invite,idempotencyKey:key()}});
@@ -81,10 +83,15 @@ try {
   passed();
   step('bilateral-test-consent-required');
   check((await action(a,'challenge')).result.status===409);
-  check((await action(a,'accept',{scope:SCOPE})).result.status===200);
+  check((await action(a,'accept',{scope:SCOPE})).result.status===400);
+  check((await action(a,'accept',{scope:SCOPE,networkDeclaration:DECLARATION})).result.status===200);
   check((await action(a,'challenge')).result.status===409);
-  check((await action(b,'accept',{scope:SCOPE})).result.status===200);
-  check((await own(a)).state==='ACTIVE_TEST' && (await own(b)).consent.A===true && (await own(b)).consent.B===true);passed();
+  check((await action(b,'accept',{scope:SCOPE,networkDeclaration:DECLARATION})).result.status===200);
+  const declared=await own(a);
+  check(declared.state==='ACTIVE_TEST' && declared.scenario===SCENARIO && declared.consent.A===true && declared.consent.B===true);
+  check(declared.evidence.network.A===true && declared.evidence.network.B===true
+    && declared.evidence.network.source==='PARTICIPANT_DECLARATION' && declared.evidence.network.providersVerified===false
+    && declared.evidence.physicalDevicesVerified===false && declared.evidence.delivery.status==='PENDING');passed();
   step('actual-code-transfer-with-safe-retry');
   const sent=await action(a,'challenge');check(sent.result.status===200);
   const duplicate=await call(API+'/pair/actions',{guest:a,body:sent.body});
@@ -99,7 +106,10 @@ try {
   const returned=(await own(a)).messages[1];
   check(returned.kind==='REPLY' && returned.from==='B' && returned.replyTo===received.id && returned.code===received.code);
   check((await action(a,'ack',{messageId:returned.id})).result.status===200);
-  check((await own(b)).messages.length===2 && (await own(b)).messages.every(message=>message.acknowledged));passed();
+  const completed=await own(b);
+  check(completed.messages.length===2 && completed.messages.every(message=>message.acknowledged));
+  check(completed.evidence.delivery.completedRoundTrips===1 && completed.evidence.delivery.status==='ACKNOWLEDGED'
+    && completed.evidence.network.providersVerified===false && completed.evidence.physicalDevicesVerified===false);passed();
   step('csrf-denial-and-close-revocation');
   const currentPair=await own(a);
   check((await call(API+'/pair/actions',{guest:a,origin:'https://invalid.example',body:{
@@ -108,10 +118,21 @@ try {
     action:'challenge',pairId,revision:currentPair.revision,idempotencyKey:key()}})).status===403);
   const closed=await action(a,'close',{revision:1});
   check(closed.result.status===200 && closed.result.data.pair.state==='CLOSED' && closed.result.data.pair.messages.length===0);
+  const receipt=closed.result.data.receipt;
+  check(JSON.stringify(Object.keys(receipt).sort())===JSON.stringify(['version','mode','buildCommit','pairId','scenario','closedAt','evidence','accounts','endToEndEncrypted'].sort()));
+  check(receipt.version==='RIO_DEVICE_RECEIPT_V1' && receipt.mode==='TEST_ONLY' && receipt.buildCommit===head
+    && receipt.pairId===pairId && receipt.scenario===SCENARIO && receipt.accounts==='CLOSED' && receipt.endToEndEncrypted===false
+    && receipt.evidence.delivery.completedRoundTrips===1 && receipt.evidence.delivery.status==='ACKNOWLEDGED'
+    && receipt.evidence.network.A===true && receipt.evidence.network.B===true
+    && receipt.evidence.network.providersVerified===false && receipt.evidence.physicalDevicesVerified===false);
+  const safe=JSON.stringify(receipt);
+  for(const secret of [invite,a.csrf,b.csrf,received.code])check(!safe.includes(secret));
+  const closeReplay=await call(API+'/pair/actions',{guest:a,body:closed.body});
+  check(closeReplay.status===200 && closeReplay.data.replayed===true && JSON.stringify(closeReplay.data.receipt)===safe);
   check((await call(API+'/pair',{guest:a})).status===404 && (await call(API+'/pair',{guest:b})).status===404);
   check((await call(API+'/join',{guest:c,body:{inviteToken:invite,idempotencyKey:key()}})).status===404);passed();
   console.log('RIO_DEVICE_HTTPS_SUMMARY '+JSON.stringify({status:'PASS',steps:steps.length,buildCommit:head,
-    generatedCodesOnly:true,physicalPhonesVerified:false,accounts:'CLOSED',novaContact:'HOLD',endToEndEncrypted:false}));
+    generatedCodesOnly:true,scenario:SCENARIO,physicalPhonesVerified:false,mobileProvidersVerified:false,accounts:'CLOSED',novaContact:'HOLD',endToEndEncrypted:false}));
 } catch {
   console.error('RIO_DEVICE_HTTPS_FAILED '+current);process.exitCode=1;
 } finally {

@@ -1,0 +1,8 @@
+# NOVA verifies the Git blob hash of these canonical manifest bytes at startup.
+ambassades/auth/brigade-specialties.json text eol=lf
+rio/brigade-specialties.json text eol=lf
+# Inline script CSP hashes must match the HTML parser's LF-normalized bytes.
+ambassades/index.html text eol=lf
+ambassades/toegang.html text eol=lf
+ambassades/rio/palaco-rio-start-v0.1.html text eol=lf
+ambassades/rio/nova/index.html text eol=lf

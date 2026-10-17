@@ -32,12 +32,12 @@ async function startServer(deviceTestOptions = {}) {
 test.beforeAll(async () => { fixture = await startServer(); });
 test.afterAll(async () => { if (fixture) await fixture.close(); });
 
-async function newContext(browser, testInfo) {
+async function newContext(browser, testInfo, acceptDownloads = false) {
   return browser.newContext({
     viewport: testInfo.project.use.viewport,
     isMobile: testInfo.project.name === 'mobile',
     hasTouch: testInfo.project.name === 'mobile',
-    acceptDownloads: false,
+    acceptDownloads,
   });
 }
 
@@ -362,5 +362,349 @@ test('[RIO-DEVICE-05] Expired codes disappear even while the browser is offline'
   } finally {
     if (setup) await Promise.all([setup.aContext.close(), setup.bContext.close()]);
     await timed.close();
+  }
+});
+
+
+const networkChecks = ['#wifi-off', '#mobile-data', '#different-providers', '#no-hotspot'];
+const receiptKeys = [
+  'version', 'mode', 'buildCommit', 'pairId', 'scenario', 'closedAt', 'evidence', 'accounts', 'endToEndEncrypted',
+];
+
+async function declareMobileSetup(page) {
+  for (const selector of networkChecks) await page.locator(selector).check();
+  await expect(page.locator('#accept')).toBeEnabled();
+}
+
+async function mobilePair(browser, testInfo, acceptDownloads = false) {
+  const aContext = await newContext(browser, testInfo, acceptDownloads);
+  const bContext = await newContext(browser, testInfo);
+  try {
+    const a = await open(aContext, fixture.origin, fixture.origin + PATH + '?scenario=mobile');
+    await expect(a.locator('#scenario')).toHaveValue('MOBILE_CROSS_PROVIDER');
+    const invite = await createInvite(a);
+    const b = await open(bContext, fixture.origin, invite);
+    await join(b);
+    await expect(a.locator('#network-panel')).toBeVisible();
+    await expect(b.locator('#network-panel')).toBeVisible();
+    return { aContext, bContext, a, b };
+  } catch (error) {
+    await Promise.all([aContext.close(), bContext.close()]);
+    throw error;
+  }
+}
+
+test('[RIO-DEVICE-06] Mobile setup declarations gate acceptance and reset for a new pair', async ({ browser }, testInfo) => {
+  const { aContext, bContext, a, b } = await mobilePair(browser, testInfo);
+  try {
+    await test.step('network-declaration', async () => {
+      for (const page of [a, b]) {
+        await expect(page.locator('#accept')).toBeDisabled();
+        for (const selector of networkChecks) await expect(page.locator(selector)).not.toBeChecked();
+      }
+      for (let index = 0; index < networkChecks.length; index += 1) {
+        await a.locator(networkChecks[index]).check();
+        if (index < networkChecks.length - 1) await expect(a.locator('#accept')).toBeDisabled();
+      }
+      await expect(a.locator('#accept')).toBeEnabled();
+      for (const selector of networkChecks) {
+        await a.locator(selector).uncheck();
+        await expect(a.locator('#accept')).toBeDisabled();
+        await a.locator(selector).check();
+        await expect(a.locator('#accept')).toBeEnabled();
+      }
+      const before = (await readPair(aContext)).data.pair;
+      expect(before.scenario).toBe('MOBILE_CROSS_PROVIDER');
+      expect(before.evidence.network).toEqual({
+        source: 'PARTICIPANT_DECLARATION', A: false, B: false, providersVerified: false,
+      });
+      await a.locator('#accept').click();
+      await expect(a.locator('#accept')).toBeHidden();
+      await expect(b.locator('#accept')).toBeDisabled();
+      await expect(a.locator('#challenge')).toBeHidden();
+      await expect(b.locator('#challenge')).toBeHidden();
+      await expect(a.locator('#network-status')).toContainText('A opgegeven');
+      await expect(a.locator('#network-status')).toContainText('B nog niet opgegeven');
+      const afterA = (await readPair(aContext)).data.pair;
+      expect(afterA.evidence.network.A).toBe(true);
+      expect(afterA.evidence.network.B).toBe(false);
+      expect(afterA.evidence.physicalDevicesVerified).toBe(false);
+      await declareMobileSetup(b);
+      await b.locator('#accept').click();
+      await expect(a.locator('#state')).toContainText('actief');
+      await expect(b.locator('#state')).toContainText('actief');
+      await expect(a.locator('#network-status')).toContainText('B opgegeven');
+      await expect(a.locator('#network-status')).toContainText('niet technisch geverifieerd');
+      await expect(a.locator('#proof')).toBeHidden();
+    });
+    await assertPageBoundary(a);
+    await assertPageBoundary(b);
+    await a.locator('#close').click();
+    await expect(a.locator('#result-panel')).toBeVisible();
+    await expect(a.locator('#result-summary')).not.toContainText('Heen-en-terug bevestigd');
+    await expect(b.locator('#messages li')).toHaveCount(0);
+    await expect.poll(async () => (await readPair(bContext)).status).toBe(404);
+    await test.step('new-pair-reset', async () => {
+      await a.locator('#scenario').selectOption('MOBILE_CROSS_PROVIDER');
+      const nextInvite = await createInvite(a);
+      await expect(a.locator('#result-panel')).toBeHidden();
+      await b.locator('#invitation').fill(nextInvite);
+      await join(b);
+      for (const page of [a, b]) {
+        await expect(page.locator('#network-panel')).toBeVisible();
+        for (const selector of networkChecks) await expect(page.locator(selector)).not.toBeChecked();
+        await expect(page.locator('#accept')).toBeDisabled();
+        await expect(page.locator('#proof')).toBeHidden();
+      }
+      const reset = (await readPair(aContext)).data.pair;
+      expect(reset.evidence.network.A).toBe(false);
+      expect(reset.evidence.network.B).toBe(false);
+      expect(reset.evidence.delivery).toEqual({ completedRoundTrips: 0, status: 'PENDING' });
+      await a.locator('#close').click();
+      await expect.poll(async () => (await readPair(aContext)).status).toBe(404);
+    });
+  } finally {
+    await Promise.all([aContext.close(), bContext.close()]);
+  }
+});
+
+test('[RIO-DEVICE-07] Declared mobile pair exchanges codes and exports only a bounded receipt', async ({ browser }, testInfo) => {
+  const { aContext, bContext, a, b } = await mobilePair(browser, testInfo, true);
+  let extraFieldsInjected = false;
+  try {
+    await declareMobileSetup(a);
+    await declareMobileSetup(b);
+    await acceptBoth(a, b);
+    let pairId;
+    await test.step('carrier-evidence', async () => {
+      const started = (await readPair(aContext)).data.pair;
+      pairId = started.id;
+      expect(started.scenario).toBe('MOBILE_CROSS_PROVIDER');
+      expect(started.evidence.delivery).toEqual({ completedRoundTrips: 0, status: 'PENDING' });
+      await a.locator('#challenge').click();
+      await expect(b.locator('#messages li')).toHaveCount(1);
+      const challenge = (await readPair(bContext)).data.pair.messages[0];
+      expect(challenge.kind).toBe('CHALLENGE');
+      expect(challenge.from).toBe('A');
+      await b.locator('[data-ack="' + challenge.id + '"]').click();
+      await expect(b.locator('[data-reply="' + challenge.id + '"]')).toBeVisible();
+      await b.locator('[data-reply="' + challenge.id + '"]').click();
+      await expect(a.locator('#messages li')).toHaveCount(2);
+      const reply = (await readPair(aContext)).data.pair.messages[1];
+      expect(reply.kind).toBe('REPLY');
+      expect(reply.from).toBe('B');
+      expect(reply.replyTo === challenge.id && reply.code === challenge.code).toBe(true);
+      expect((await readPair(aContext)).data.pair.evidence.delivery.status).toBe('PENDING');
+      await a.locator('[data-ack="' + reply.id + '"]').click();
+      await expect(a.locator('#proof')).toBeVisible();
+      await expect(b.locator('#proof')).toBeVisible();
+      const completed = (await readPair(aContext)).data.pair;
+      expect(completed.evidence.delivery).toEqual({ completedRoundTrips: 1, status: 'ACKNOWLEDGED' });
+      expect(completed.evidence.network).toEqual({
+        source: 'PARTICIPANT_DECLARATION', A: true, B: true, providersVerified: false,
+      });
+      expect(completed.evidence.physicalDevicesVerified).toBe(false);
+      await assertPageBoundary(a);
+      await assertPageBoundary(b);
+    });
+    await a.route('**/api/rio/device-test/pair/actions', async route => {
+      if (route.request().postDataJSON()?.action === 'close') {
+        const response = await route.fetch();
+        const body = await response.json();
+        if (body.receipt) {
+          extraFieldsInjected = true;
+          body.receipt.invitationToken = 'must-not-be-exported-invitation';
+          body.receipt.code = 'must-not-be-exported-test-code';
+          body.receipt.messages = [{ code: 'must-not-be-exported-test-code' }];
+          body.receipt.evidence.network.providerAccount = 'must-not-be-exported-account';
+        }
+        await route.fulfill({ response, json: body });
+      } else await route.continue();
+    });
+    await test.step('receipt-download', async () => {
+      await a.locator('#close').click();
+      await expect(a.locator('#messages li')).toHaveCount(0);
+      await expect(b.locator('#messages li')).toHaveCount(0);
+      await expect(a.locator('#proof')).toBeHidden();
+      await expect(b.locator('#proof')).toBeHidden();
+      await expect(a.locator('#result-panel')).toBeVisible();
+      await expect(a.locator('#result-summary')).toContainText('Heen-en-terug bevestigd');
+      await expect(a.locator('#result-summary')).toContainText('1');
+      await expect(a.locator('#result-download')).toBeEnabled();
+      expect(extraFieldsInjected).toBe(true);
+      expect((await readPair(aContext)).status).toBe(404);
+      expect((await readPair(bContext)).status).toBe(404);
+      const downloadEvent = a.waitForEvent('download');
+      await a.locator('#result-download').click();
+      const download = await downloadEvent;
+      expect(download.suggestedFilename()).toBe('PALACO-RIO-mobiele-proef.json');
+      const stream = await download.createReadStream();
+      expect(Boolean(stream)).toBe(true);
+      const chunks = [];
+      for await (const chunk of stream) chunks.push(chunk);
+      const text = Buffer.concat(chunks).toString('utf8');
+      const receipt = JSON.parse(text);
+      expect(Object.keys(receipt).sort()).toEqual([...receiptKeys].sort());
+      expect(receipt.version).toBe('RIO_DEVICE_RECEIPT_V1');
+      expect(receipt.mode).toBe('TEST_ONLY');
+      expect(receipt.accounts).toBe('CLOSED');
+      expect(receipt.endToEndEncrypted).toBe(false);
+      expect(receipt.pairId === pairId).toBe(true);
+      expect(receipt.scenario).toBe('MOBILE_CROSS_PROVIDER');
+      expect(receipt.buildCommit === null || /^[a-f0-9]{40}$/.test(receipt.buildCommit)).toBe(true);
+      expect(Number.isFinite(Date.parse(receipt.closedAt))).toBe(true);
+      expect(receipt.evidence).toEqual({
+        delivery: { completedRoundTrips: 1, status: 'ACKNOWLEDGED' },
+        network: { source: 'PARTICIPANT_DECLARATION', A: true, B: true, providersVerified: false },
+        physicalDevicesVerified: false,
+      });
+      expect(/must-not-be-exported|invitationToken|csrf|cookie|session|providerAccount|"code"|"messages"/i.test(text)).toBe(false);
+      expect((await aContext.request.get(fixture.origin + '/api/me')).status()).toBe(503);
+      await download.delete();
+    });
+  } finally {
+    await Promise.all([aContext.close(), bContext.close()]);
+  }
+});
+
+test('[RIO-DEVICE-08] Malformed or unbound closure receipts cannot be displayed or downloaded', async ({ browser }, testInfo) => {
+  const variants = [
+    body => { body.receipt.accounts = 'OPEN'; },
+    body => { body.receipt.pairId = (body.receipt.pairId[0] === 'a' ? 'b' : 'a') + body.receipt.pairId.slice(1); },
+    body => { body.receipt.scenario = body.receipt.scenario === 'GENERAL_INTERNET' ? 'MOBILE_CROSS_PROVIDER' : 'GENERAL_INTERNET'; },
+    body => { body.pair.state = 'ACTIVE_TEST'; },
+    body => { body.pair.id = (body.pair.id[0] === 'a' ? 'b' : 'a') + body.pair.id.slice(1); },
+  ];
+  for (const mutate of variants) {
+    const context = await newContext(browser, testInfo);
+    let invalidReceiptInjected = false;
+    try {
+      const page = await open(context);
+      await createInvite(page);
+      await page.route('**/api/rio/device-test/pair/actions', async route => {
+        if (route.request().postDataJSON()?.action === 'close') {
+          const response = await route.fetch();
+          const body = await response.json();
+          if (body.receipt && body.pair) {
+            mutate(body);
+            invalidReceiptInjected = true;
+          }
+          await route.fulfill({ response, json: body });
+        } else await route.continue();
+      });
+      await test.step('invalid-receipt', async () => {
+        await page.locator('#close').click();
+        await expect.poll(async () => (await readPair(context)).status).toBe(404);
+        // The panel was visible before closure. Its disappearance waits for the
+        // close response and refresh, preventing a check of the initial hidden result.
+        await expect(page.locator('#pair-panel')).toBeHidden();
+        await expect(page.locator('#result-panel')).toBeHidden();
+        await expect(page.locator('#result-download')).toBeDisabled();
+        await expect(page.locator('#proof')).toBeHidden();
+        expect(invalidReceiptInjected).toBe(true);
+        expect((await context.request.get(fixture.origin + '/api/me')).status()).toBe(503);
+        await assertPageBoundary(page);
+      });
+    } finally {
+      await context.close();
+    }
+  }
+});
+
+
+test('[RIO-DEVICE-09] An older pair read cannot restore closed codes or erase its receipt', async ({ browser }, testInfo) => {
+  const { aContext, bContext, a, b } = await connectPair(browser, testInfo);
+  let releaseRead, reportRead;
+  const releaseGate = new Promise(resolve => { releaseRead = resolve; });
+  const readHeld = new Promise(resolve => { reportRead = resolve; });
+  let intercepted = false;
+  try {
+    await a.locator('#challenge').click();
+    await expect(b.locator('#messages li')).toHaveCount(1);
+    const challenge = (await readPair(bContext)).data.pair.messages[0];
+    await b.locator('[data-ack="' + challenge.id + '"]').click();
+    await expect(b.locator('[data-reply="' + challenge.id + '"]')).toBeVisible();
+    await b.locator('[data-reply="' + challenge.id + '"]').click();
+    await expect(a.locator('#messages li')).toHaveCount(2);
+    const reply = (await readPair(aContext)).data.pair.messages[1];
+    await a.locator('[data-ack="' + reply.id + '"]').click();
+    await expect(a.locator('#proof')).toBeVisible();
+    await expect(b.locator('#proof')).toBeVisible();
+
+    await a.route('**/api/rio/device-test/pair', async route => {
+      if (route.request().method() === 'GET' && !intercepted) {
+        intercepted = true;
+        // Capture a real active-pair response before closure, then hold only this
+        // periodic read. The close action's separate fresh read must pass through.
+        const response = await route.fetch();
+        const snapshot = await response.json();
+        reportRead({
+          status: response.status(),
+          state: snapshot.pair?.state,
+          messageCount: snapshot.pair?.messages?.length,
+          acknowledged: snapshot.pair?.messages?.every(message => message.acknowledged),
+        });
+        await releaseGate;
+        await route.fulfill({
+          response, json: snapshot,
+          headers: { ...response.headers(), 'X-RIO-Test-Stale-Read': 'held' },
+        });
+      } else await route.continue();
+    });
+    await test.step('stale-read', async () => {
+      expect(await readHeld).toEqual({
+        status: 200, state: 'ACTIVE_TEST', messageCount: 2, acknowledged: true,
+      });
+      await a.locator('#close').click();
+      await expect(a.locator('#pair-panel')).toBeHidden();
+      await expect(a.locator('#messages li')).toHaveCount(0);
+      await expect(a.locator('#proof')).toBeHidden();
+      await expect(a.locator('#result-panel')).toBeVisible();
+      await expect(a.locator('#result-download')).toBeEnabled();
+      await expect(a.locator('#result-summary')).toContainText('Heen-en-terug bevestigd');
+      expect((await readPair(aContext)).status).toBe(404);
+      await a.evaluate(() => {
+        window.__rioStaleReadEvidence = { codesReturned: false, receiptHidden: false };
+        window.__rioStaleReadObserver = new MutationObserver(() => {
+          if (document.querySelectorAll('#messages li').length > 0) {
+            window.__rioStaleReadEvidence.codesReturned = true;
+          }
+          if (document.getElementById('result-panel').hidden) {
+            window.__rioStaleReadEvidence.receiptHidden = true;
+          }
+        });
+        window.__rioStaleReadObserver.observe(document.body, { subtree: true, childList: true, attributes: true });
+      });
+      const delayedResponse = a.waitForResponse(response =>
+        response.request().method() === 'GET' &&
+        response.headers()['x-rio-test-stale-read'] === 'held');
+      releaseRead();
+      const response = await delayedResponse;
+      await response.finished();
+      // Yield two rendering turns so fetch/JSON continuations and the mutation
+      // observer run. No timer delay or polling interval determines the test.
+      await a.evaluate(() => new Promise(resolve =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+      const evidence = await a.evaluate(() => {
+        window.__rioStaleReadObserver.disconnect();
+        const result = window.__rioStaleReadEvidence;
+        delete window.__rioStaleReadObserver;
+        delete window.__rioStaleReadEvidence;
+        return result;
+      });
+      expect(evidence).toEqual({ codesReturned: false, receiptHidden: false });
+      await expect(a.locator('#messages li')).toHaveCount(0);
+      await expect(a.locator('#proof')).toBeHidden();
+      await expect(a.locator('#pair-panel')).toBeHidden();
+      await expect(a.locator('#result-panel')).toBeVisible();
+      await expect(a.locator('#result-download')).toBeEnabled();
+      await expect(a.locator('#result-summary')).toContainText('Heen-en-terug bevestigd');
+      await assertPageBoundary(a);
+      await assertPageBoundary(b);
+    });
+  } finally {
+    // Release an outstanding route even if an earlier assertion fails.
+    releaseRead();
+    await Promise.all([aContext.close(), bContext.close()]);
   }
 });

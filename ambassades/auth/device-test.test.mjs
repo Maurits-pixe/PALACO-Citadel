@@ -7,6 +7,8 @@ import { mountDeviceTest } from './device-test.mjs';
 
 const API = '/api/rio/device-test';
 const SCOPE = 'RIO_DEVICE_CHALLENGE_V1';
+const MOBILE_SCENARIO = 'MOBILE_CROSS_PROVIDER';
+const NETWORK_DECLARATION = { wifiOff:true, mobileDataOn:true, differentProviders:true, noHotspot:true };
 const hex32 = /^[a-f0-9]{32}$/;
 const hex64 = /^[a-f0-9]{64}$/;
 
@@ -61,8 +63,8 @@ async function fixture(t, overrides = {}) {
     return { cookie: cookie.split(';')[0], csrf: result.data.session.csrfToken, result };
   }
   const read = guest => call('/pair', { guest });
-  const create = (guest, idempotencyKey = key()) => call('/pair', {
-    method: 'POST', guest, body: { idempotencyKey },
+  const create = (guest, idempotencyKey = key(), scenario) => call('/pair', {
+    method: 'POST', guest, body: { idempotencyKey, ...(scenario === undefined ? {} : { scenario }) },
   });
   const join = (guest, inviteToken, idempotencyKey = key()) => call('/join', {
     method: 'POST', guest, body: { inviteToken, idempotencyKey },
@@ -74,16 +76,17 @@ async function fixture(t, overrides = {}) {
       action: name, pairId: current.data.pair.id, revision: current.data.pair.revision, idempotencyKey, ...extra,
     } });
   }
-  async function active() {
+  async function active(scenario) {
     const a = await session();
     const b = await session();
-    const created = await create(a);
+    const created = await create(a, key(), scenario);
     assert.equal(created.status, 201, 'A creates a diagnostic pair');
     assert.ok(hex64.test(created.data.inviteToken), 'invitation has 256-bit shape');
     const joined = await join(b, created.data.inviteToken);
     assert.equal(joined.status, 200, 'distinct B joins');
-    assert.equal((await action(a, 'accept', { scope: SCOPE })).status, 200);
-    const accepted = await action(b, 'accept', { scope: SCOPE });
+    const acceptance = { scope:SCOPE, ...(scenario === MOBILE_SCENARIO ? { networkDeclaration:NETWORK_DECLARATION } : {}) };
+    assert.equal((await action(a, 'accept', acceptance)).status, 200);
+    const accepted = await action(b, 'accept', acceptance);
     assert.equal(accepted.status, 200);
     assert.equal(accepted.data.pair.state, 'ACTIVE_TEST');
     return { a, b, pair: accepted.data.pair, invite: created.data.inviteToken };
@@ -419,4 +422,199 @@ test('requests from a previous pair cannot consent or close a newer pair after t
   assert.equal(current.status, 200);
   assert.ok(current.data.pair.id === second.data.pair.id, 'new pair survives requests for the old pair');
   assert.equal(current.data.pair.state, 'WAITING_ACCEPT');
+});
+
+test('scenario is strict, immutable and part of pair-create idempotency', async t => {
+  const f = await fixture(t);
+  const a = await f.session();
+  const general = await f.create(a);
+  assert.equal(general.status, 201);
+  assert.equal(general.data.pair.scenario, 'GENERAL_INTERNET');
+  assert.deepEqual(general.data.pair.evidence, {
+    delivery:{ completedRoundTrips:0, status:'PENDING' },
+    network:{ source:'PARTICIPANT_DECLARATION', A:false, B:false, providersVerified:false },
+    physicalDevicesVerified:false,
+  });
+  assert.equal((await f.action(a, 'close')).status, 200);
+  for (const scenario of ['UNKNOWN', '', null, false, [MOBILE_SCENARIO]]) {
+    assert.equal((await f.create(a, f.key(), scenario)).status, 400);
+  }
+  assert.equal((await f.call('/pair', { method:'POST', guest:a, body:{
+    idempotencyKey:f.key(), scenario:MOBILE_SCENARIO, provider:'FREE_PROVIDER_NAME',
+  } })).status, 400, 'free provider labels are outside the bounded contract');
+  const createKey = f.key();
+  const mobile = await f.create(a, createKey, MOBILE_SCENARIO);
+  assert.equal(mobile.status, 201);
+  const replay = await f.create(a, createKey, MOBILE_SCENARIO);
+  assert.equal(replay.status, 200);
+  assert.equal(replay.data.replayed, true);
+  assert.ok(!Object.hasOwn(replay.data, 'inviteToken'));
+  assert.equal((await f.create(a, createKey, 'GENERAL_INTERNET')).status, 409,
+    'a replay key cannot change the intended scenario');
+  assert.equal((await f.create(a, createKey)).status, 409);
+  assert.equal((await f.read(a)).data.pair.scenario, MOBILE_SCENARIO);
+});
+
+test('mobile acceptance needs both exact four-flag declarations bound to the current pair', async t => {
+  const f = await fixture(t);
+  const a = await f.session(), b = await f.session();
+  const created = await f.create(a, f.key(), MOBILE_SCENARIO);
+  const joined = await f.join(b, created.data.inviteToken);
+  assert.equal(joined.data.pair.scenario, MOBILE_SCENARIO);
+  assert.equal((await f.action(a, 'accept', { scope:SCOPE })).status, 400);
+  for (const field of Object.keys(NETWORK_DECLARATION)) {
+    const missing = { ...NETWORK_DECLARATION };
+    delete missing[field];
+    assert.equal((await f.action(a, 'accept', { scope:SCOPE, networkDeclaration:missing })).status, 400);
+    for (const value of [false, 'true', 1, null]) {
+      assert.equal((await f.action(a, 'accept', {
+        scope:SCOPE, networkDeclaration:{ ...NETWORK_DECLARATION, [field]:value },
+      })).status, 400);
+    }
+  }
+  for (const extra of [{ provider:'FREE_PROVIDER_NAME' }, { phoneNumber:'PERSONAL_NUMBER' }, { verified:true }]) {
+    assert.equal((await f.action(a, 'accept', {
+      scope:SCOPE, networkDeclaration:{ ...NETWORK_DECLARATION, ...extra },
+    })).status, 400);
+  }
+  assert.equal((await f.action(a, 'accept', {
+    scope:'ACCOUNT_ACCESS', networkDeclaration:NETWORK_DECLARATION,
+  })).status, 400);
+  const untouched = (await f.read(a)).data.pair;
+  assert.equal(untouched.state, 'WAITING_ACCEPT');
+  assert.deepEqual(untouched.consent, { A:false, B:false });
+  assert.deepEqual(untouched.evidence.network, {
+    source:'PARTICIPANT_DECLARATION', A:false, B:false, providersVerified:false,
+  });
+  const before = (await f.read(a)).data.pair;
+  const body = { action:'accept', pairId:before.id, revision:before.revision, idempotencyKey:f.key(),
+    scope:SCOPE, networkDeclaration:NETWORK_DECLARATION };
+  const accepted = await f.call('/pair/actions', { method:'POST', guest:a, body });
+  assert.equal(accepted.status, 200);
+  assert.equal(accepted.data.pair.state, 'WAITING_ACCEPT');
+  assert.equal(accepted.data.pair.evidence.network.A, true);
+  assert.equal(accepted.data.pair.evidence.network.B, false);
+  assert.equal((await f.action(a, 'challenge')).status, 409);
+  const replay = await f.call('/pair/actions', { method:'POST', guest:a, body:{
+    ...body, networkDeclaration:{ noHotspot:true, differentProviders:true, mobileDataOn:true, wifiOff:true },
+  } });
+  assert.equal(replay.status, 200, 'declaration key order does not alter canonical replay');
+  assert.equal(replay.data.replayed, true);
+  assert.equal(replay.data.pair.revision, accepted.data.pair.revision);
+  assert.equal((await f.action(b, 'accept', { scope:SCOPE })).status, 400);
+  const stale = await f.call('/pair/actions', { method:'POST', guest:b, body:{
+    action:'accept', pairId:before.id, revision:before.revision, idempotencyKey:f.key(),
+    scope:SCOPE, networkDeclaration:NETWORK_DECLARATION,
+  } });
+  assert.equal(stale.status, 409);
+  const bilateral = await f.action(b, 'accept', { scope:SCOPE, networkDeclaration:NETWORK_DECLARATION });
+  assert.equal(bilateral.status, 200);
+  assert.equal(bilateral.data.pair.state, 'ACTIVE_TEST');
+  assert.equal(bilateral.data.pair.evidence.network.A, true);
+  assert.equal(bilateral.data.pair.evidence.network.B, true);
+  assert.equal(bilateral.data.pair.evidence.delivery.status, 'PENDING');
+});
+
+test('general diagnostic preserves old acceptance and rejects mobile or scenario claims on actions', async t => {
+  const f = await fixture(t);
+  const a = await f.session(), b = await f.session();
+  const created = await f.create(a);
+  await f.join(b, created.data.inviteToken);
+  assert.equal((await f.action(a, 'accept', {
+    scope:SCOPE, networkDeclaration:NETWORK_DECLARATION,
+  })).status, 400);
+  assert.equal((await f.action(a, 'accept', { scope:SCOPE, scenario:MOBILE_SCENARIO })).status, 400);
+  assert.equal((await f.action(a, 'accept', { scope:SCOPE })).status, 200);
+  const accepted = await f.action(b, 'accept', { scope:SCOPE });
+  assert.equal(accepted.status, 200);
+  assert.equal(accepted.data.pair.state, 'ACTIVE_TEST');
+  assert.equal(accepted.data.pair.scenario, 'GENERAL_INTERNET');
+  assert.equal(accepted.data.pair.evidence.network.A, false);
+  assert.equal(accepted.data.pair.evidence.network.B, false);
+});
+
+test('mobile declarations cannot manufacture delivery, provider or physical-device evidence', async t => {
+  const f = await fixture(t);
+  const { a, b } = await f.active(MOBILE_SCENARIO);
+  assert.equal((await f.read(a)).data.pair.evidence.delivery.completedRoundTrips, 0);
+  for (const [sender, recipient] of [[a,b], [b,a]]) {
+    const before = (await f.read(sender)).data.pair.evidence.delivery.completedRoundTrips;
+    assert.equal((await f.action(sender, 'challenge')).status, 200);
+    const challenge = (await f.read(recipient)).data.pair.messages.at(-1);
+    assert.equal((await f.read(recipient)).data.pair.evidence.delivery.completedRoundTrips, before);
+    assert.equal((await f.action(sender, 'ack', { messageId:challenge.id })).status, 404);
+    assert.equal((await f.action(recipient, 'reply', { messageId:challenge.id })).status, 409);
+    assert.equal((await f.action(recipient, 'ack', { messageId:challenge.id })).status, 200);
+    assert.equal((await f.action(recipient, 'reply', { messageId:challenge.id })).status, 200);
+    const reply = (await f.read(sender)).data.pair.messages.at(-1);
+    assert.equal(reply.replyTo, challenge.id);
+    assert.equal(reply.code, challenge.code);
+    assert.equal((await f.read(sender)).data.pair.evidence.delivery.completedRoundTrips, before);
+    assert.equal((await f.action(sender, 'ack', { messageId:reply.id })).status, 200);
+    const proof = (await f.read(recipient)).data.pair.evidence;
+    assert.deepEqual(proof.delivery, { completedRoundTrips:before + 1, status:'ACKNOWLEDGED' });
+    assert.equal(proof.network.providersVerified, false);
+    assert.equal(proof.physicalDevicesVerified, false);
+    assert.equal(proof.network.source, 'PARTICIPANT_DECLARATION');
+  }
+});
+
+test('close snapshots a bounded safe receipt before wiping codes and replay cannot affect a newer pair', async t => {
+  const commit = 'b'.repeat(40);
+  const f = await fixture(t, { buildCommit:commit });
+  const { a, b, invite } = await f.active(MOBILE_SCENARIO);
+  await f.action(a, 'challenge');
+  const challenge = (await f.read(b)).data.pair.messages[0];
+  await f.action(b, 'ack', { messageId:challenge.id });
+  await f.action(b, 'reply', { messageId:challenge.id });
+  const reply = (await f.read(a)).data.pair.messages[1];
+  await f.action(a, 'ack', { messageId:reply.id });
+  const current = (await f.read(a)).data.pair;
+  const body = { action:'close', pairId:current.id, revision:1, idempotencyKey:f.key() };
+  const closed = await f.call('/pair/actions', { method:'POST', guest:a, body });
+  assert.equal(closed.status, 200);
+  assert.deepEqual(Object.keys(closed.data.receipt).sort(), [
+    'version','mode','buildCommit','pairId','scenario','closedAt','evidence','accounts','endToEndEncrypted',
+  ].sort());
+  assert.deepEqual(closed.data.receipt, {
+    version:'RIO_DEVICE_RECEIPT_V1', mode:'TEST_ONLY', buildCommit:commit,
+    pairId:current.id, scenario:MOBILE_SCENARIO, closedAt:new Date(f.now()).toISOString(),
+    evidence:{
+      delivery:{ completedRoundTrips:1, status:'ACKNOWLEDGED' },
+      network:{ source:'PARTICIPANT_DECLARATION', A:true, B:true, providersVerified:false },
+      physicalDevicesVerified:false,
+    },
+    accounts:'CLOSED', endToEndEncrypted:false,
+  });
+  const safe = JSON.stringify(closed.data.receipt);
+  for (const credential of [invite, a.csrf, b.csrf, a.cookie.split('=')[1], b.cookie.split('=')[1], challenge.code]) {
+    assert.ok(!safe.includes(credential), 'receipt does not contain codes or bearer credentials');
+  }
+  assert.equal(closed.data.pair.state, 'CLOSED');
+  assert.deepEqual(closed.data.pair.messages, []);
+  assert.deepEqual(closed.data.pair.evidence.delivery, { completedRoundTrips:0, status:'PENDING' });
+  assert.equal((await f.read(a)).status, 404);
+  assert.equal((await f.read(b)).status, 404);
+  const fresh = await f.create(a);
+  assert.equal(fresh.status, 201);
+  const replay = await f.call('/pair/actions', { method:'POST', guest:a, body });
+  assert.equal(replay.status, 200);
+  assert.equal(replay.data.replayed, true);
+  assert.deepEqual(replay.data.receipt, closed.data.receipt);
+  assert.equal((await f.read(a)).data.pair.id, fresh.data.pair.id);
+  assert.equal((await f.read(a)).data.pair.scenario, 'GENERAL_INTERNET');
+});
+
+test('closing a mobile trial without a recipient-confirmed return never reports delivery success', async t => {
+  const f = await fixture(t);
+  const { a, b } = await f.active(MOBILE_SCENARIO);
+  await f.action(a, 'challenge');
+  const challenge = (await f.read(b)).data.pair.messages[0];
+  await f.action(b, 'ack', { messageId:challenge.id });
+  await f.action(b, 'reply', { messageId:challenge.id });
+  const closed = await f.action(b, 'close');
+  assert.equal(closed.status, 200);
+  assert.deepEqual(closed.data.receipt.evidence.delivery, { completedRoundTrips:0, status:'PENDING' });
+  assert.equal(closed.data.receipt.evidence.network.providersVerified, false);
+  assert.equal(closed.data.receipt.evidence.physicalDevicesVerified, false);
 });

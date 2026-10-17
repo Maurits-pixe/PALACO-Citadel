@@ -15,26 +15,33 @@ h1{font:700 clamp(32px,6vw,56px)/1.1 Georgia,serif;margin:10px 0 16px}h2{margin-
 .card{background:white;border:2px solid var(--ink);padding:22px;border-radius:14px;min-width:0}
 button{font:700 17px system-ui,sans-serif;background:var(--ink);color:white;border:2px solid var(--ink);border-radius:8px;padding:13px 16px;cursor:pointer;margin:6px 0}
 button:disabled{opacity:.5;cursor:default}.secondary{background:white;color:var(--ink)}
-input,textarea{width:100%;padding:12px;border:2px solid var(--ink);border-radius:6px;font:16px system-ui,sans-serif}
-label{display:block;font-weight:700;margin-top:14px}[hidden]{display:none!important}a,button,input,textarea{outline-offset:4px}
+input,textarea,select{width:100%;padding:12px;border:2px solid var(--ink);border-radius:6px;font:16px system-ui,sans-serif}
+input[type=checkbox]{width:auto;margin-right:10px;transform:scale(1.15)}.check{display:flex;gap:8px;align-items:flex-start}.check input{margin-top:6px;flex:none}select{background:white}#network-panel{border-left:5px solid #185add;padding:12px 16px;background:#eef4ff}#result-panel{margin-top:24px}label{display:block;font-weight:700;margin-top:14px}[hidden]{display:none!important}a,button,input,textarea{outline-offset:4px}
 #feedback{min-height:50px;background:#e7f8f7;border-left:5px solid #36b5c4;padding:14px;margin-top:26px}
 #messages{list-style:none;padding:0}#messages li{border-top:1px solid #b5c3ce;padding:16px 0}
 code{display:block;overflow-wrap:anywhere;font:700 18px/1.5 ui-monospace,monospace;padding:12px;background:#f1f5f9;letter-spacing:.03em}
 small{display:block;color:#36516b}.danger{background:var(--coral);color:var(--ink)}
 footer{margin-top:24px}#state{font-weight:800}#proof{background:#dff9e5;padding:14px;font-weight:700}
+.reception-entry{margin:0 0 12px}.reception-entry a{display:inline-flex;align-items:center;min-height:44px;font-weight:700;text-underline-offset:.2em}
 </style></head>
 <body>
 <header><span class="badge" aria-hidden="true">RIO<span style="color:#ff7163">.</span></span><strong>PALACO RIO</strong><a href="/rio/nova/">Naar NOVA</a></header>
 <main>
+<p class="reception-entry"><a id="device-reception-link" href="/rio/reception/">Receptie</a></p>
 <section class="hero"><div class="tag">APPARAATPROEF · ALLEEN TESTCODES</div>
 <h1>Twee telefoons.<br>Eén eerste overdracht.</h1>
 <p>Open deze pagina op je twee telefoons. Telefoon A maakt een uitnodiging; telefoon B opent die. Bevestig op beide toestellen dat je meedoet, stuur een testcode en laat de andere telefoon antwoorden.</p>
 <p><strong>Er wordt geen account aangemaakt.</strong> Deze korte proef opent geen gewone chat of NOVA-contact. De testcodes gaan via de PALACO-server op Render. HTTPS beschermt het vervoer; de server kan de codes lezen. End-to-endversleuteling is nog niet aangesloten.</p>
+<p>Mobiele route: <strong>telefoon A → mobiele data → RIO-server → mobiele data → telefoon B</strong>, met hetzelfde antwoord terug. Houd beide browsers open en rond de proef binnen vijf minuten af.</p>
+<small>Youfone en Lebara gebruiken in Nederland beide KPN. Deze opstelling test twee providers op mobiele data; een verschil in onderliggend mobiel netwerk is hiermee niet vastgesteld. <a href="https://www.youfone.nl/pers/groen-licht-voor-overname-youfone" target="_blank" rel="noopener noreferrer">Youfone-bron</a> · <a href="https://www.lebara.nl/nl/beste-netwerk.html" target="_blank" rel="noopener noreferrer">Lebara-bron</a></small>
 <small id="build">Versie wordt geladen…</small></section>
 <p id="feedback" role="status" aria-live="polite">De testomgeving wordt geopend…</p>
 <button id="retry" hidden>Dezelfde stap opnieuw proberen</button>
 <div class="grid" id="setup">
-<section class="card"><h2>1 · Telefoon A</h2><p>Maak één tijdelijke uitnodiging voor je tweede telefoon.</p><button id="create">Maak uitnodiging</button></section>
+<section class="card"><h2>1 · Telefoon A</h2><p>Maak één tijdelijke uitnodiging voor je tweede telefoon.</p>
+<label for="scenario">Welke proef doe je?</label><select id="scenario"><option value="GENERAL_INTERNET">Algemene internetproef</option><option value="MOBILE_CROSS_PROVIDER">Mobiele data · twee providers</option></select>
+<p id="mobile-guide" hidden>Voor jouw eerste mobiele proef: <strong>A op Youfone, B op Lebara.</strong> Zet wifi op beide telefoons uit en mobiele data aan. Gebruik op elk toestel de eigen simkaart; verbind ze niet via een hotspot. Bij een dubbele sim: kies de bedoelde sim voor mobiele data.</p>
+<button id="create">Maak uitnodiging</button></section>
 <section class="card" id="join-panel"><h2>2 · Telefoon B</h2><p>Open de uitnodigingslink van telefoon A, of plak hem hieronder.</p><label for="invitation">Uitnodigingslink</label><textarea id="invitation" rows="3" autocomplete="off" spellcheck="false"></textarea><button id="join">Gebruik uitnodiging</button></section>
 </div>
 <section class="card" id="invitation-panel" hidden>
@@ -45,12 +52,21 @@ footer{margin-top:24px}#state{font-weight:800}#proof{background:#dff9e5;padding:
 <section class="card" id="pair-panel" hidden>
 <h2 id="pair-title">Gekoppelde apparaatproef</h2><p id="state"></p><p id="expiry"></p>
 <p>Controleer dat op beide telefoons hetzelfde proefnummer staat. De uitnodiging bewijst geen identiteit.</p>
-<p id="consent"></p><button id="accept">Ik doe mee aan deze testcodeproef</button>
+<p id="consent"></p><p id="network-status"></p>
+<div id="network-panel" hidden><h2>Controleer dit op jouw telefoon</h2>
+<p>Bevestig de instellingen zelf. RIO kan je simkaart, provider en wifi-instelling niet technisch controleren.</p>
+<label class="check"><input type="checkbox" id="wifi-off">Wifi staat uit op deze telefoon.</label>
+<label class="check"><input type="checkbox" id="mobile-data">Mobiele data staat aan via de eigen simkaart.</label>
+<label class="check"><input type="checkbox" id="different-providers">De twee telefoons gebruiken verschillende providers.</label>
+<label class="check"><input type="checkbox" id="no-hotspot">Deze telefoon gebruikt geen wifi-hotspot van het andere toestel.</label>
+<p>Verandert de verbinding tijdens de proef? Sluit de proef en begin opnieuw.</p></div>
+<button id="accept">Ik doe mee aan deze testcodeproef</button>
 <p>3 · Bevestig ontvangen codes op de andere telefoon.<br>4 · Antwoord op de ontvangen testcode.</p>
 <button id="challenge" hidden>Stuur testcode naar de andere telefoon</button>
 <ul id="messages" aria-label="Testcodes"></ul>
 <p id="proof" hidden>Heen-en-terug ontvangen: de twee browsers hebben de code en het passende antwoord bevestigd. Controleer de schermen van beide fysieke telefoons.</p>
 <button id="close" class="danger">Sluit proef op beide telefoons</button>
 </section>
+<section class="card" id="result-panel" hidden><h2>Resultaat van de afgesloten proef</h2><p id="result-summary" role="status" aria-live="polite"></p><p>Het bestand bevat alleen proefgegevens en ontvangststatussen. De mobiele instellingen zijn verklaringen van de deelnemers; fysieke toestellen en providers zijn niet door RIO geverifieerd. Bewaar het resultaat voordat je deze pagina verlaat.</p><button id="result-download">Download proefresultaat</button></section>
 <footer><small>Testcodes en tijdelijke koppelingen worden op de server uiterlijk na vijf minuten gewist, en ook bij afsluiten of een serverherstart. Een tijdelijk netwerkprobleem is geen bewijs van aflevering. Persoonlijke aanmelding en operationeel RIO-contact blijven gesloten.</small></footer>
 </main></body></html>

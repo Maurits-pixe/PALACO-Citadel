@@ -131,6 +131,11 @@ const publicFiles = new Map([
   ['/rio/index.html', ['rio/palaco-rio-start-v0.1.html', 'text/html']],
   ['/rio/nova/', ['rio/nova/index.html', 'text/html']],
   ['/rio/nova/index.html', ['rio/nova/index.html', 'text/html']],
+  ['/rio/reception/', ['rio/reception/index.html', 'text/html', false, true]],
+  ['/rio/reception/index.html', ['rio/reception/index.html', 'text/html', false, true]],
+  ['/rio/reception/app.css', ['rio/reception/app.css', 'text/css', false, true]],
+  ['/rio/reception/app.js', ['rio/reception/app.js', 'text/javascript', false, true]],
+  ['/rio/reception/nova.png', ['rio/reception/nova.png', 'image/png', false, true]],
   ['/rio/device-test/', ['rio/device-test/index.html', 'text/html']],
   ['/rio/device-test/index.html', ['rio/device-test/index.html', 'text/html']],
   ['/rio/device-test/app.js', ['rio/device-test/app.js', 'text/javascript']],
@@ -385,9 +390,12 @@ export function buildApp({
   // Serve an explicit public allowlist. Never serve the auth directory, private registry, or repository root.
   app.get('/rio', (req,res,next) => req.path === '/rio' ? res.redirect(302,'/rio/') : next());
   app.get('/rio/nova', (req,res,next) => req.path === '/rio/nova' ? res.redirect(302,'/rio/nova/') : next());
+  app.get('/rio/reception', (req,res,next) => req.path === '/rio/reception' ? res.redirect(302,'/rio/reception/') : next());
   app.get('/rio/device-test', (req,res,next) => req.path === '/rio/device-test' ? res.redirect(302,'/rio/device-test/') : next());
-  for (const [route, [filename, type, download]] of publicFiles) {
-    app.get(route, async (req, res) => {
+  for (const [route, [filename, type, download, exact]] of publicFiles) {
+    app.get(route, async (req, res, next) => {
+      // Only these explicitly exact assets opt out of Express path variants.
+      if (exact && req.path !== route) return next();
       try {
         const content = await readFile(resolve(siteRoot, filename));
         if(download)res.set('Content-Disposition','attachment; filename="PALACO-RIO-v0.1.html"');
