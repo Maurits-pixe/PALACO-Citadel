@@ -83,7 +83,7 @@ export function buildUnifiedPreview() {
   const files = OUTPUT_FILES.map(path => {const bytes=readFileSync(resolve(output,path));return {path,bytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')};});
   const record={schemaVersion:'palaco-rio-unified-preview-build/0.1',mode:'STATIC_PREVIEW',previewOrigin:PREVIEW_ORIGIN,trialOrigin:TRIAL_ORIGIN,
     sources:{visitcard:'efda74f0b8f2e91bd694c770564d29ca669ab846',rio:'3a1c67551ef4925728e1c136fcdef001e653df27'},
-    inlineScripts:false,backendPublished:false,accountActive:false,canOpenContact:false,operativeAuthority:'NONE',csp:CSP,files};
+    onlineInlineScripts:false,downloadInlineScripts:true,backendPublished:false,accountActive:false,canOpenContact:false,operativeAuthority:'NONE',csp:CSP,files};
   const recordPath=resolve(root,'artifacts/rio-unified-preview-build.json');mkdirSync(dirname(recordPath),{recursive:true});writeFileSync(recordPath,JSON.stringify(record,null,2)+'\n');
   return record;
 }

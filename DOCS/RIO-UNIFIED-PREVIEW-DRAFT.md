@@ -53,6 +53,10 @@ maakt geen gedeelde account- of browsersessie aan.
 De bestaande tijdelijke dienst blijft een **statische site**. De bouwstap
 kopieert een expliciete lijst van 22 publieke bestanden naar `render-dist`;
 geen backendcode, testfixtures, persoonsregister, sleutels of accountcontracten.
+Het bouwmanifest onderscheidt `onlineInlineScripts: false` voor de drie online
+HTML-pagina's en `downloadInlineScripts: true` voor de zelfstandige download.
+De download bevat bewust zijn eigen script; de HTTP-CSP staat dat script niet
+toe als webpagina en de downloadroute wordt als bijlage geleverd.
 De bestaande Citadel-dashboardbestanden aan de repositoryroot worden niet
 overschreven. De nieuwe VisitCard-bron staat onder `ambassades/rio/visitcard/`.
 
@@ -93,6 +97,7 @@ onderdeel van de verificatiegeschiedenis.
 
 ```sh
 node --test scripts/build-rio-unified-preview.test.mjs
+node --test tests/rio-unified-preview/static-fixture.test.mjs
 npx playwright test --config tests/rio-unified-preview/playwright.config.mjs
 npx playwright test --config ambassades/rio/reception/playwright.config.mjs
 ```
@@ -130,6 +135,42 @@ er is geen Blueprint toegepast en geen deploy gestart. Exacte nieuwe head,
 CI-runs, aantallen en schermmetingen worden in de draft-PR vastgelegd.
 
 ## Klaargezette latere uitrol en terugweg
+
+### Aanvulling 17 oktober: overdraagbare lokale beoordeling
+
+`scripts/serve-rio-unified-preview.mjs` draait met Node 24, zonder extra pakketten.
+In de repository bouw je eerst met `node scripts/build-rio-unified-preview.mjs`
+en start je daarna `node scripts/serve-rio-unified-preview.mjs`.
+Dezelfde launcher werkt als `review-server.mjs` naast een geleverde map `public`
+en `build-manifest.json`, zonder een persoonlijk of absoluut bronpad.
+
+De launcher controleert alle 22 bestandsnamen, lengtes, SHA-256-hashes en
+gesloten bouwvlaggen voordat hij luistert. Hij weigert bestandslinks en serveert
+de gecontroleerde bytes uit geheugen. Hashes bevestigen pakketconsistentie;
+zij zijn geen ondertekende authenticiteit of bevoegdheid. Alleen GET/HEAD,
+de eigen Host en Origin en de expliciete publieke routes zijn toegelaten.
+Backend, register, manifest, broncode en reviewlauncher worden niet aangeboden.
+Een verkeerd gevormde URL stopt het proces niet.
+
+Het adres is standaard `http://127.0.0.1:4173`, alleen op deze computer.
+Stoppen gebeurt met Ctrl+C. Een bezette poort geeft een fout, geen stilzwijgend
+ander adres. `--port=4174` kiest bewust een andere poort; die browseroorsprong
+heeft eigen lokale contacten en caches. Dezelfde vaste poort hergebruikt lokale
+browseropslag, maar geeft geen toegang op een telefoon of ander apparaat.
+Daarvoor blijft afzonderlijk toegelaten hosting en een echte apparaattest nodig.
+Lokale opslag kan door de gebruiker of browser worden gewist; dit is geen backup.
+
+Gerichte controle, bewust zonder parallelle bouwstappen:
+
+```sh
+node --test --test-concurrency=1 scripts/build-rio-unified-preview.test.mjs scripts/serve-rio-unified-preview.test.mjs tests/rio-unified-preview/static-fixture.test.mjs
+```
+
+De regressies testen het daadwerkelijke HTTP-gedrag, ongeldige URLs, geweigerde
+Host/Origin/methoden/private paden, gewijzigde bestandsbytes, ongewenste
+manifestregels, bezette poort en onveranderlijke bytes na de start. De Windows-run
+kan de bestandslinkproef overslaan als dat OS-privilege ontbreekt; die proef is
+vereist in Linux CI. Nieuwe CI op de exacte vervolgcommit moet worden vastgelegd.
 
 Deze stappen zijn een voorbereide procedure, geen verleende publicatietoestemming:
 

@@ -28,7 +28,11 @@ test('build transforms only preview artifacts; web app uses a self-only external
  assert.equal(hash('ambassades/rio/palaco-rio-start-v0.1.html'),before.app);
  assert.equal(hash('ambassades/rio/sw.js'),before.worker);
  const online=source('render-dist/rio/index.html'),download=source('render-dist/rio/download');
- assert.ok(!/<script(?![^>]*\bsrc=)[^>]*>/i.test(online));
+ assert.equal(record.onlineInlineScripts,false);assert.equal(record.downloadInlineScripts,true);
+ assert.equal(Object.hasOwn(record,'inlineScripts'),false);
+ for(const path of ['index.html','rio/index.html','rio/reception/index.html']) {
+   assert.ok(!/<script(?![^>]*\bsrc=)[^>]*>/i.test(source('render-dist/'+path)),path);
+ }
  assert.ok(online.includes('<script src="/rio/start.js" defer>'));
  assert.ok(download.includes('<script>'));assert.ok(!/<script[^>]*\bsrc=/i.test(download));
  assert.ok(Buffer.byteLength(download)<100*1024);

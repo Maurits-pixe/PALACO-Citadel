@@ -13,17 +13,19 @@ export async function startStaticFixture(directory, { rootWorker, csp = CSP, all
   const root = await realpath(directory);
   const requests = [];
   const server = createServer(async (request, response) => {
-    const url = new URL(request.url, 'http://fixture.invalid');
-    requests.push({ method: request.method, path: url.pathname, search: url.search });
     const headers = {
       'Content-Security-Policy': csp, 'Cache-Control': 'no-store',
       'X-Content-Type-Options': 'nosniff',
     };
     if (allowCrossOrigin) headers['Access-Control-Allow-Origin'] = '*';
-    if (request.method !== 'GET' && request.method !== 'HEAD') {
-      response.writeHead(405, headers); response.end(); return;
-    }
     try {
+      // Malformed absolute request targets must produce a closed response rather
+      // than an unhandled async rejection that terminates the local review server.
+      const url = new URL(request.url, 'http://fixture.invalid');
+      requests.push({ method: request.method, path: url.pathname, search: url.search });
+      if (request.method !== 'GET' && request.method !== 'HEAD') {
+        response.writeHead(405, headers); response.end(); return;
+      }
       // The optional fixed legacy worker is the only fixture override. Every page/asset
       // is read from the generated public directory, never from repository sources.
       if (url.pathname === '/sw.js' && rootWorker) {

@@ -5,6 +5,7 @@ on:
       - 'ambassades/rio/**'
       - 'ambassades/deployment/render-unified-preview.yaml'
       - 'scripts/build-rio-unified-preview*'
+      - 'scripts/serve-rio-unified-preview*'
       - 'tests/rio-unified-preview/**'
       - '.github/workflows/rio-unified-preview.yml'
       - '.gitattributes'
@@ -24,7 +25,7 @@ jobs:
         with:
           node-version: 24
       - name: Verify explicit public build and closed static deployment profile
-        run: node --test scripts/build-rio-unified-preview.test.mjs
+        run: node --test --test-concurrency=1 scripts/build-rio-unified-preview.test.mjs scripts/serve-rio-unified-preview.test.mjs tests/rio-unified-preview/static-fixture.test.mjs
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - name: Verify integrated navigation, offline cache isolation and waiting update
