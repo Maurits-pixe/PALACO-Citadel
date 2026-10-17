@@ -1,0 +1,70 @@
+{
+  "source": "efda74f0b8f2e91bd694c770564d29ca669ab846",
+  "records": [
+    {
+      "path": "index.html",
+      "bytes": 43546,
+      "sha256": "732378d9adf97e88b7038a020cf4884aa9830329fd8faf94040aae044b9d4826"
+    },
+    {
+      "path": "styles.css",
+      "bytes": 44125,
+      "sha256": "c976a666488bff990c790befb6e3ca0fdb596e54235f1b99acb9d2b5e8156e85"
+    },
+    {
+      "path": "app.js",
+      "bytes": 105839,
+      "sha256": "e450dd70d841b1ca412ca479b25444b07b61b42a3ae4217aa1d70f6822ca2f5c"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 844,
+      "sha256": "0102b469c0d47f43db12a00ea13e21790e574f39da4b68080c16ec2010d57493"
+    },
+    {
+      "path": "manifest.webmanifest",
+      "bytes": 528,
+      "sha256": "aac5422685550552c86a0e5cbbf09d1eafecd90fdee74ad0b2ddfb4ac26fb807"
+    },
+    {
+      "path": "icon-192.svg",
+      "bytes": 520,
+      "sha256": "d532209281947ffa2331041efc79b5e5f4d3390e1d2ae23f052266b3eaf14b57"
+    },
+    {
+      "path": "icon-512.svg",
+      "bytes": 526,
+      "sha256": "c662e3533525b5a91579a9c85bc0977b79c4887284f7aa31c3366a869b784f85"
+    },
+    {
+      "path": "rio-engine-web.mjs",
+      "bytes": 12986,
+      "sha256": "1ebec4fb8e29f92a61fd864162b0555ec8e8375762d328aa62c37bd2137cba90"
+    },
+    {
+      "path": "engine.mjs",
+      "bytes": 26080,
+      "sha256": "0775d8e9ae043e46a000ed567a30e18818f0f7bd02ecaf01dba3ad18b7e93204"
+    },
+    {
+      "path": "chat-preview.mjs",
+      "bytes": 26805,
+      "sha256": "6a47f91cf90fd7ad4baad219fe1b96839a98bf30db11a7a6959d56f5b39fbe60"
+    },
+    {
+      "path": "package.json",
+      "bytes": 1243,
+      "sha256": "9470f3f390a982edb4a07dd93e295cc03e956b6f99a2962020d3cc38643c8da7"
+    },
+    {
+      "path": "tests/browser/rio-surface.spec.mjs",
+      "bytes": 3282,
+      "sha256": "5fec10dc1ab4320aae41ba1cc3b38b818ef1c50490a8e61bc6b26d8e170e65d8"
+    },
+    {
+      "path": "playwright.config.mjs",
+      "bytes": 701,
+      "sha256": "d4e86084a0c86a9d9536028bdafa4dfac87e73fe9c6504321d99c36446b5bc88"
+    }
+  ]
+}
