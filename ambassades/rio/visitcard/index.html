@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#fff45c" />
+    <meta name="description" content="RIO is het visitekaartje van PALACO. Zeg hallo en neem je gesprek overal mee naartoe." />
+    <title>RIO · Het visitekaartje van PALACO</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icon-192.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="PALACO RIO"><img src="/icon-192.svg" alt="" width="38" height="38" /><span>PALACO <strong>RIO</strong></span></a>
+      <nav aria-label="Hoofdnavigatie"><a href="#meet" data-i18n="navMeet">Ontmoet RIO</a><a href="#engine">Engine</a><a href="#everywhere" data-i18n="navEverywhere">Overal</a><a href="#trust" data-i18n="navTrust">Vertrouwen</a></nav>
+      <div class="language-switch" role="group" aria-label="Taal">
+        <button type="button" class="lang-btn" data-lang="nl">NL</button><button type="button" class="lang-btn" data-lang="en">EN</button><button type="button" class="lang-btn" data-lang="de">DE</button><button type="button" class="lang-btn" data-lang="fr">FR</button><button type="button" class="lang-btn" data-lang="es">ES</button><button type="button" class="lang-btn" data-lang="ar">AR</button><button type="button" class="lang-btn" data-lang="zh">中文</button>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="rio-intro" aria-labelledby="rio-title">
+        <div class="spark-field" aria-hidden="true"></div>
+        <p class="eyebrow" data-i18n="eyebrow">PALACO stelt voor</p>
+        <h1 id="rio-title">RIO<span class="title-dot">.</span></h1>
+        <p class="tagline" data-i18n="tagline">Het visitekaartje van PALACO.</p>
+        <p class="intro-copy" data-i18n="intro">RIO zegt hallo. RIO helpt je mensen en ideeën te vinden. Jij kiest altijd wat je deelt.</p>
+        <div class="hero-actions"><button id="meet-btn" type="button" class="primary-action" data-i18n="meetButton">Maak kennis</button><button id="share-btn" type="button" class="secondary-action" data-i18n="shareButton">Deel RIO</button></div>
+        <p id="share-output" class="action-output" aria-live="polite"></p>
+        <a class="contact-route-entry" href="#contact-route-title" data-route-i18n="entry">Bekijk de contactroute</a>
+
+        <article class="visitcard" aria-label="RIO VisitCard">
+          <div class="card-topline"><div class="card-brand"><img src="/icon-192.svg" alt="PALACO" width="52" height="52" /><span>PALACO</span></div><span class="live-mark"><span aria-hidden="true"></span><span data-i18n="live">Klaar om te verbinden</span></span></div>
+          <div class="card-center"><p class="card-kicker">VISITCARD 03</p><h2 data-i18n="cardIntro">Hallo, ik ben RIO.</h2><p data-i18n="cardBody">Ik breng je veilig naar de juiste plek in PALACO.</p></div>
+          <div class="card-details"><p><span data-i18n="identityLabel">Identiteit</span><strong data-i18n="verified">Nog niet geverifieerd</strong></p><p><span data-i18n="consentLabel">Jouw keuze</span><strong data-i18n="consentValue">Altijd eerst</strong></p><p><span data-i18n="authorityLabel">Macht</span><strong data-i18n="authorityValue">Geen</strong></p></div>
+          <div class="card-footer"><p><span data-i18n="addressLabel">RIO-adres</span><strong>rio:palaco</strong></p><button id="card-toggle" type="button" aria-expanded="false" data-i18n="openCard">Open kaart</button></div>
+          <div id="card-reveal" class="card-reveal" hidden><p data-i18n="cardReveal">Eerst ontmoeten. Dan kiezen. Pas daarna verbinden.</p><div class="signal" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div>
+        </article>
+      </section>
+
+      <section id="rio-unified" class="rio-unified" aria-labelledby="rio-unified-title">
+        <div class="rio-unified-portrait"><img src="/rio/reception/nova.png" width="150" height="150" alt="NOVA, de wegwijzer van deze proef" data-rio-integration-alt="mascotAlt" loading="lazy" /><span>NOVA</span></div>
+        <div class="rio-unified-copy">
+          <p class="section-label" data-rio-integration="label">RIO · NOVA · JOUW EIGEN ID</p>
+          <h2 id="rio-unified-title" data-rio-integration="title">Samen op één plek. Jij kiest de volgende stap.</h2>
+          <p data-rio-integration="policy">In het ontwerp geeft een bevestigd telefoonnummer óf bevestigd e-mailadres chattoelating, via P.P. gekoppeld aan je eigen persoons-ID. Wifi, mobiel of een andere verbinding verandert je ID niet.</p>
+          <div class="rio-unified-actions">
+            <a id="rio-unified-reception" href="/rio/reception/" aria-describedby="rio-unified-boundary" data-rio-integration="reception">Naar NOVA · uitleg en proefroutes</a>
+            <a id="rio-unified-offline" href="/rio/" aria-describedby="rio-unified-boundary" data-rio-integration="offline">Open de offline RIO-app</a>
+          </div>
+          <p id="rio-unified-boundary" class="rio-unified-boundary" data-rio-integration="boundary">Je tijdelijke chat en Engine-oefening blijven afzonderlijk op deze pagina en gaan niet mee naar de andere routes. Deze uitleg registreert of bevestigt niets. Echte chat en accounts blijven gesloten.</p>
+        </div>
+      </section>
+
+      <section id="everywhere" class="everywhere" aria-labelledby="everywhere-title">
+        <div><p class="section-label">ONE RIO · MANY SURFACES</p><h2 id="everywhere-title" data-i18n="everywhereTitle">Eén begroeting. Overal.</h2><p data-i18n="everywhereBody">Je gesprek reist met je mee. De betekenis blijft hetzelfde.</p></div>
+        <div class="surface-line" aria-label="Ondersteunde omgevingen"><span>Mobile</span><span>Web</span><span>Citadel</span><span>ELIXER</span><span>Desktop</span></div>
+      </section>
+
+      <section id="subjects" class="subjects" aria-labelledby="subjects-title">
+        <div class="subjects-heading">
+          <p class="section-label" data-i18n="subjectsLabel">Raak aan en ontdek</p>
+          <h2 id="subjects-title" data-i18n="subjectsTitle">Elk onderwerp kan leven in RIO.</h2>
+          <p data-i18n="subjectsBody">Een teken, plaatje, getekend beeld of hele ELIXER. Tik om te kijken. Jij kiest of je verdergaat.</p>
+        </div>
+        <div id="subject-track" class="subject-track" aria-label="RIO-onderwerpen" data-i18n-aria-label="subjectsAria">
+          <button class="subject-tile subject-symbol" type="button" data-subject="symbol" aria-haspopup="dialog">
+            <span class="subject-visual" aria-hidden="true">∆</span><span class="subject-type" data-i18n="symbolType">Symbool</span><strong data-i18n="symbolTitle">Een teken met betekenis</strong><small data-i18n="tapHint">Tik om te openen</small>
+          </button>
+          <button class="subject-tile subject-image" type="button" data-subject="image" aria-haspopup="dialog">
+            <span class="subject-visual"><img src="/icon-192.svg" alt="" width="128" height="128" /></span><span class="subject-type" data-i18n="imageType">Plaatje</span><strong data-i18n="imageTitle">Het gezicht van RIO</strong><small data-i18n="tapHint">Tik om te openen</small>
+          </button>
+          <button class="subject-tile subject-photo" type="button" data-subject="photo" aria-haspopup="dialog">
+            <span class="subject-visual photo-visual" role="img" aria-label="Fictief landschap met heuvels en zon, lokaal getekend met kleurvlakken" data-i18n-aria-label="photoAlt"></span><span class="subject-type" data-i18n="photoType">Getekend beeld</span><strong data-i18n="photoTitle">Een plek, lokaal getekend</strong><small data-i18n="tapHint">Tik om te openen</small>
+          </button>
+          <button class="subject-tile subject-elixer" type="button" data-subject="elixer" aria-haspopup="dialog">
+            <span class="subject-visual elixer-visual" aria-hidden="true"><i></i><i></i><i></i><b>E</b></span><span class="subject-type">ELIXER</span><strong data-i18n="elixerTitle">Mogelijkheden per context</strong><small data-i18n="tapHint">Tik om te openen</small>
+          </button>
+        </div>
+        <div class="swipe-cue" aria-hidden="true"><span></span><span></span><span></span></div>
+      </section>
+
+      <section id="meet" class="meet" aria-labelledby="meet-title">
+        <p class="section-label" data-i18n="flowLabel">Zo werkt RIO</p><h2 id="meet-title" data-i18n="flowTitle">Van hallo naar een echt gesprek.</h2>
+        <div class="steps"><article><span>01</span><h3 data-i18n="stepOneTitle">Kijk</h3><p data-i18n="stepOneBody">RIO laat zien wie of wat je ontmoet.</p></article><article><span>02</span><h3 data-i18n="stepTwoTitle">Kies</h3><p data-i18n="stepTwoBody">Jij beslist of je verder wilt gaan.</p></article><article><span>03</span><h3 data-i18n="stepThreeTitle">Praat</h3><p data-i18n="stepThreeBody">RIO bewaart de weg en het gesprek.</p></article></div>
+      </section>
+
+      <section class="hello-panel" aria-labelledby="hello-title">
+        <div><p class="section-label">RIO CONNECTS</p><h2 id="hello-title" data-i18n="helloTitle">Zeg hallo tegen RIO.</h2><p data-i18n="helloBody">Begin klein. Alleen je naam is genoeg.</p></div>
+        <form id="hello-form"><label for="visitor-name" data-i18n="nameLabel">Hoe mogen we je noemen?</label><div class="input-row"><input id="visitor-name" name="visitor-name" maxlength="60" autocomplete="name" required data-i18n-placeholder="namePlaceholder" placeholder="Jouw naam" /><button type="submit" data-i18n="startButton">Start</button></div><p id="hello-output" class="hello-output" aria-live="polite"></p></form>
+      </section>
+
+      <section id="latest-rio-reference" class="latest-panel" aria-labelledby="latest-rio-title">
+        <div>
+          <p class="section-label" data-release-i18n="label">RIO CONTACTVENSTERS · OPENBARE BRON · MAIN BCF2684</p>
+          <h2 id="latest-rio-title" data-release-i18n="title">Een nieuwe contactproef, met duidelijke grenzen.</h2>
+          <p data-release-i18n="summary">De openbare RIO-referentie oefent het contactverloop in twee gescheiden testbrowsers en gebruikt een duurzame SQLite-voorbeeldoutbox en synthetische inbox.</p>
+        </div>
+        <aside class="latest-note" data-release-aria="boundaryTitle" aria-label="Beperkingen van de RIO-contactproef">
+          <strong data-release-i18n="boundaryTitle">Referentie, niet aangesloten op deze pagina</strong>
+          <p data-release-i18n="boundary">Alleen synthetische testdata. Geen echte accounts, hosted relay, E2EE-bezorging, productieactivering of aanmelding.</p>
+          <a class="latest-source" href="https://github.com/Maurits-pixe/PALACO-Citadel/blob/bcf2684d2d9c3ee5bf68a06ccf09bb856bb195bd/rio/contact-preview/README.md" target="_blank" rel="noopener noreferrer" data-release-i18n="source">Bekijk de publieke bron (main · bcf2684)</a>
+        </aside>
+      </section>
+
+      <section id="contact-route" class="contact-route" aria-labelledby="contact-route-title">
+        <p class="section-label">RIO · MASCOTTE · BRI9ADE · RECEPTIE</p>
+        <h2 id="contact-route-title" tabindex="-1" data-route-i18n="title">De weg naar begrensd contact.</h2>
+        <p data-route-i18n="intro">Overgenomen bronroute, geen aangesloten contactdienst. Open een stap om de grens te lezen. De broncitaten blijven in hun oorspronkelijke Nederlandse taal.</p>
+        <p class="contact-route-boundary" data-route-i18n="boundary">HOLD · Deze pagina verleent geen toelating, voert geen veiligheidscontroles uit en opent geen contact. Een klik op een stap is alleen uitleg.</p>
+        <aside class="contact-route-mascot">
+          <h3>Mascotte</h3>
+          <p data-route-i18n="mascot">Mascotte en tekst zijn inhoud, geen toelatingspoort. In de gevonden bron staat geen afzonderlijke mascotte-route. BRI9ADE/6RI9ADE blijft hier een ontwerpverwijzing; de historische alias naar BRIGADE is niet vastgesteld.</p>
+        </aside>
+        <div id="contact-route-controls" class="contact-route-controls" hidden>
+          <button id="contact-route-start" type="button" aria-controls="contact-route-steps" data-route-i18n="startReading">Lees de route stap voor stap</button>
+          <button id="contact-route-open" type="button" aria-controls="contact-route-steps" data-route-i18n="openSteps">Open alle zeven uitlegstappen</button>
+          <button id="contact-route-close" type="button" aria-controls="contact-route-steps" data-route-i18n="closeSteps">Sluit alle zeven uitlegstappen</button>
+        </div>
+        <nav id="contact-route-overview" class="contact-route-overview" aria-labelledby="contact-route-overview-title" hidden>
+          <h3 id="contact-route-overview-title" tabindex="-1" data-route-i18n="overviewTitle">Spring naar een uitlegstap</h3>
+          <ol id="contact-route-links" lang="nl" dir="ltr"></ol>
+        </nav>
+        <ol id="contact-route-steps" class="contact-route-steps" lang="nl" dir="ltr">
+          <li><details><summary>Menselijk verzoek</summary><p>Een verzoek begint de route; het is nog geen toestemming voor contact.</p></details></li>
+          <li><details><summary>NOVA</summary><p>NOVA is in de bron de ontvangstlaag. De NOVA-service uit de repository is niet aangesloten op deze pagina.</p></details></li>
+          <li><details><summary>Geïsoleerde receptie</summary><p>De ontvangstzone is gescheiden van het uiteindelijke contact. Receptie is geen geopende chatverbinding.</p></details></li>
+          <li><details><summary>Eerste menselijke toelating</summary><p>“NOVA-toelating geeft uitsluitend toegang tot de geïsoleerde ontvangstzone.” Deze uitleg registreert geen menselijke toelating.</p></details></li>
+          <li><details><summary>Bilaterale veiligheidscontroles · BRI9ADE / 6RI9ADE</summary><p>“Alle negen rollen zijn DESIGN_ONLY, UNENROLLED en NOT_CONNECTED.” Hieronder staan de negen specialiteiten uit het bronontwerp, niet de uitslagen van uitgevoerde controles.</p>
+            <ul class="contact-route-guards">
+              <li><details><summary>BG01 · Identiteit en apparaat</summary>
+                <p class="guard-design">DESIGN_ONLY · UNENROLLED · NOT_CONNECTED</p>
+                <dl><dt>Doel volgens bronontwerp</dt><dd>Controleert wie de afzender en ontvanger zijn en welk apparaat of welke sessie bij hen hoort.</dd>
+                  <dt>Stopvoorwaarden volgens bronontwerp</dt><dd>Onbekende identiteit of uitgever.</dd><dd>Verval, intrekking of conflicterende apparaat-/accountbinding.</dd>
+                  <dt>Grens volgens bronontwerp</dt><dd>Verifieert technische bindings; verklaart niet dat een klik zeker door een mens is gedaan.</dd></dl>
+              </details></li>
+              <li><details><summary>BG02 · Adres en bestemming</summary>
+                <p class="guard-design">DESIGN_ONLY · UNENROLLED · NOT_CONNECTED</p>
+                <dl><dt>Doel volgens bronontwerp</dt><dd>Controleert dat P.P.-adres, eigenaar en bestemming bij het bedoelde CITADEL/MUNDO horen.</dd>
+                  <dt>Stopvoorwaarden volgens bronontwerp</dt><dd>Ontbrekend registratiecontract.</dd><dd>Heruitgifte, eigenaarwissel of afwijkende bestemming/context.</dd>
+                  <dt>Grens volgens bronontwerp</dt><dd>Een adres verleent geen toegang of toestemming.</dd></dl>
+              </details></li>
+              <li><details><summary>BG03 · Menselijke toestemming</summary>
+                <p class="guard-design">DESIGN_ONLY · UNENROLLED · NOT_CONNECTED</p>
+                <dl><dt>Doel volgens bronontwerp</dt><dd>Bewaakt de twee afzonderlijke menselijke poorten en het exacte contactcontract.</dd>
+                  <dt>Stopvoorwaarden volgens bronontwerp</dt><dd>Ontbrekende of niet overeenkomende receipts.</dd><dd>Alleen een AI-uitspraak, clientboolean of synthetische humanConfirmed=true.</dd>
+                  <dt>Grens volgens bronontwerp</dt><dd>Beslist niet namens een mens en kan geen toestemming maken.</dd></dl>
+              </details></li>
+              <li><details><summary>BG04 · Toegang en beleid</summary>
+                <p class="guard-design">DESIGN_ONLY · UNENROLLED · NOT_CONNECTED</p>
+                <dl><dt>Doel volgens bronontwerp</dt><dd>Beperkt iedere handeling tot de afgesproken contactruimte en actuele beleidsrechten.</dd>
+                  <dt>Stopvoorwaarden volgens bronontwerp</dt><dd>Extra of transitief doorgegeven rechten.</dd><dd>Ontbrekend beleid, verlopen scope of ingetrokken recht.</dd>
+                  <dt>Grens volgens bronontwerp</dt><dd>Kan geen nieuwe capabilities of bestuurlijke bevoegdheid uitgeven.</dd></dl>
+              </details></li>
+              <li><details><summary>BG05 · Versleuteling en sleutels</summary>
+                <p class="guard-design">DESIGN_ONLY · UNENROLLED · NOT_CONNECTED</p>
+                <dl><dt>Doel volgens bronontwerp</dt><dd>Bewaakt bewezen end-to-endversleuteling en de sleutelbinding van beide toestellen.</dd>
+                  <dt>Stopvoorwaarden volgens bronontwerp</dt><dd>Onbekende, onverwacht gewijzigde of ingetrokken keybinding.</dd><dd>Ontbrekende E2EE-implementatie of protocolcontrole.</dd>
+                  <dt>Grens volgens bronontwerp</dt><dd>De relay ontvangt geen berichtplaintext of privésleutels; E2EE beschermt niet ieder mogelijk gecompromitteerd toestel.</dd></dl>
+              </details></li>
+              <li><details><summary>BG06 · Inhoud en integriteit — mascotte en tekst blijven data</summary>
+                <p class="guard-design">DESIGN_ONLY · UNENROLLED · NOT_CONNECTED</p>
+                <dl><dt>Doel volgens bronontwerp</dt><dd>Controleert de geauthenticeerde berichtcontext en veilige verwerking van inhoud.</dd>
+                  <dt>Stopvoorwaarden volgens bronontwerp</dt><dd>Gewijzigde of verkeerd gebonden envelope.</dd><dd>Onverwacht uitvoerbaar materiaal, niet-toegestaan type of ontbrekende authenticatie.</dd>
+                  <dt>Grens volgens bronontwerp</dt><dd>Een hash alleen bewijst geen identiteit, toestemming of veiligheidscontrole.</dd></dl>
+              </details></li>
+              <li><details><summary>BG07 · Herhaling en volgorde</summary>
+                <p class="guard-design">DESIGN_ONLY · UNENROLLED · NOT_CONNECTED</p>
+                <dl><dt>Doel volgens bronontwerp</dt><dd>Voorkomt hergebruik van verzoeken en dubbele verwerking bij retries of offline herstel.</dd>
+                  <dt>Stopvoorwaarden volgens bronontwerp</dt><dd>Herbruikte identifier met andere inhoud/context.</dd><dd>Replay, onbekende sequence/keyepoch of overschreden herordeningsvenster.</dd>
+                  <dt>Grens volgens bronontwerp</dt><dd>Normale herordening kan worden gebufferd; netwerkaflevering blijft at-least-once.</dd></dl>
+              </details></li>
+              <li><details><summary>BG08 · Privacy en metadata</summary>
+                <p class="guard-design">DESIGN_ONLY · UNENROLLED · NOT_CONNECTED</p>
+                <dl><dt>Doel volgens bronontwerp</dt><dd>Beperkt wat profiel, relay, audit en meldingen over de partijen onthullen.</dd>
+                  <dt>Stopvoorwaarden volgens bronontwerp</dt><dd>Onbedoeld privéveld, plaintext in relay/audit of blokkadereden bij de afzender.</dd><dd>Ontbrekend retentie-/toegangsbeleid of ongeldige toestemming voor analyse.</dd>
+                  <dt>Grens volgens bronontwerp</dt><dd>Claimt geen absolute anonimiteit of privacy; bewaakt de expliciete datagrenzen.</dd></dl>
+              </details></li>
+              <li><details><summary>BG09 · Aflevering en intrekking</summary>
+                <p class="guard-design">DESIGN_ONLY · UNENROLLED · NOT_CONNECTED</p>
+                <dl><dt>Doel volgens bronontwerp</dt><dd>Bewaakt actuele rechten bij commit, duurzame aflevering en herstel.</dd>
+                  <dt>Stopvoorwaarden volgens bronontwerp</dt><dd>Intrekking, blokkering of verval vóór commit.</dd><dd>Opslag-/statusconflict, oncontroleerbare aflevering of ontbrekend herstelbewijs.</dd>
+                  <dt>Grens volgens bronontwerp</dt><dd>Een intrekking stopt nieuw verkeer; al ontvangen inhoud kan niet gegarandeerd op afstand worden gewist.</dd></dl>
+              </details></li>
+            </ul>
+            <p>“Bij ontbrekend, verlopen, onbereikbaar of tegenstrijdig bewijs blijft contact op HOLD.” Geen bodyguard kan zelfstandig contact openen of menselijke toestemming vervangen.</p>
+          </details></li>
+          <li><details><summary>Definitieve menselijke instemming</summary><p>“Beide partijen bevestigen hetzelfde exacte contactcontract.” Een technische PASS of AI-uitspraak vervangt deze afzonderlijke instemming niet.</p></details></li>
+          <li><details><summary>Begrensd contact</summary><p>Dit is de eindbestemming van de bronroute, niet een beschikbare actie op deze pagina. Identiteit, runtime-evidence, registratie, menselijke receipts en E2EE-contact vereisen afzonderlijke koppelingen en bewijs.</p></details></li>
+        </ol>
+        <details id="contact-route-sources" class="contact-route-sources">
+          <summary data-route-i18n="sources">Bronnen en ontbrekende koppelingen</summary>
+          <p lang="nl" dir="ltr">Bronroute: CONTACT-FOUNDATION.md. Ontvangstimplementatie: NOVA-ONLINE.md. Mascotte is volgens BG06 data. De bronbinding markeert BRI9ADE- en 6RI9ADE-aliases als UNKNOWN, operationele bindings als UNKNOWN en operativeAuthority als NONE. Deze pagina kopieert de uitleg; niet de server, accounts of veiligheidsdiensten.</p>
+          <ul>
+            <li><a href="https://github.com/Maurits-pixe/PALACO-Citadel/blob/6774682f0c34c3bc45e02768980347b7117b3d3d/rio/CONTACT-FOUNDATION.md" target="_blank" rel="noopener noreferrer">CONTACT-FOUNDATION · 6774682</a></li>
+            <li><a href="https://github.com/Maurits-pixe/PALACO-Citadel/blob/6774682f0c34c3bc45e02768980347b7117b3d3d/rio/brigade-specialties.json" target="_blank" rel="noopener noreferrer">6RI9ADE · DESIGN_DRAFT · 6774682</a></li>
+            <li><a href="https://github.com/Maurits-pixe/PALACO-Citadel/blob/6774682f0c34c3bc45e02768980347b7117b3d3d/rio/contact-source-binding.json" target="_blank" rel="noopener noreferrer">BRIGADE · DESIGN_REFERENCE · 6774682</a></li>
+            <li><a href="https://github.com/Maurits-pixe/PALACO-Citadel/blob/6774682f0c34c3bc45e02768980347b7117b3d3d/ambassades/rio/NOVA-ONLINE.md" target="_blank" rel="noopener noreferrer">NOVA · receptie · 6774682</a></li>
+          </ul>
+        </details>
+      </section>
+
+      <section id="engine" class="engine-panel" aria-labelledby="engine-title">
+        <div class="engine-heading">
+          <p class="section-label">RIO ENGINE · VORM9EVIN9</p>
+          <h2 id="engine-title" data-engine-i18n="title">Vraag. Bewijs. Antwoord.</h2>
+          <p data-engine-i18n="intro">Geef RIO één herinnering. Stel daarna een vraag. RIO citeert jouw bron of zegt eerlijk dat bewijs ontbreekt.</p>
+          <div class="engine-boundary">
+            <strong data-engine-i18n="sessionOnly">Alleen deze sessie</strong>
+            <span data-engine-i18n="sessionDetail">Niets wordt online gezet. Herladen wist dit dossier.</span>
+          </div>
+        </div>
+        <div class="engine-workspace">
+          <form id="memory-form" class="engine-form">
+            <label for="memory-input" data-engine-i18n="memoryLabel">Wat mag RIO tijdelijk onthouden?</label>
+            <textarea id="memory-input" maxlength="500" required data-engine-i18n-placeholder="memoryPlaceholder" placeholder="Bijvoorbeeld: Mijn afspraak is dinsdag om 10 uur."></textarea>
+            <label class="consent-check">
+              <input id="memory-consent" type="checkbox" required />
+              <span data-engine-i18n="consent">Ik geef toestemming om dit alleen in deze geopende pagina te gebruiken voor mijn vragen.</span>
+            </label>
+            <button type="submit" data-engine-i18n="remember">Onthoud tijdelijk</button>
+          </form>
+          <p id="dossier-output" class="engine-status" aria-live="polite" data-state="CONSENT_REQUIRED" data-engine-i18n="consentRequired">Toestemming en een herinnering zijn nodig.</p>
+          <form id="question-form" class="engine-form">
+            <label for="question-input" data-engine-i18n="questionLabel">Wat wil je vragen?</label>
+            <div class="input-row">
+              <input id="question-input" maxlength="240" required disabled data-engine-i18n-placeholder="questionPlaceholder" placeholder="Wanneer is mijn afspraak?" />
+              <button type="submit" disabled data-engine-i18n="ask">Vraag RIO</button>
+            </div>
+          </form>
+          <article id="engine-answer" class="engine-answer" aria-live="polite" hidden>
+            <p id="engine-answer-state" class="section-label"></p>
+            <p id="engine-answer-text"></p>
+            <p><strong data-engine-i18n="sources">Bronnen</strong>: <span id="engine-answer-sources"></span></p>
+          </article>
+          <details class="engine-details">
+            <summary data-engine-i18n="detailsTitle">Wat deze proef wel en niet doet</summary>
+            <p data-engine-i18n="detailsBody">Geheugen is geen waarheid. Een antwoord is geen besluit. Permanente opslag, ID-koppeling, modeltraining en uitvoering blijven uit en vereisen aparte controle.</p>
+          </details>
+        </div>
+      </section>
+
+      <section id="trust" class="trust" aria-labelledby="trust-title">
+        <div class="trust-heading"><p class="section-label">COMMUNICATION ≠ AUTHORITY</p><h2 id="trust-title" data-i18n="trustTitle">Helder over vertrouwen.</h2><p data-i18n="trustBody">RIO verbindt. Jij houdt de regie. PALACO bewaakt de grenzen.</p></div>
+        <dl><div><dt data-i18n="trustIdentity">Wie is dit?</dt><dd data-i18n="trustIdentityBody">De identiteit is zichtbaar en controleerbaar.</dd></div><div><dt data-i18n="trustConsent">Mag dit?</dt><dd data-i18n="trustConsentBody">Niets gaat verder zonder jouw keuze.</dd></div><div><dt data-i18n="trustHistory">Wat gebeurde er?</dt><dd data-i18n="trustHistoryBody">Belangrijke stappen blijven terug te vinden.</dd></div></dl>
+      </section>
+    </main>
+
+    <button
+      id="chat-preview-toggle"
+      class="chat-preview-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="chat-preview-panel"
+      data-chat-i18n="open"
+    >Open chat</button>
+    <section
+      id="chat-preview-panel"
+      class="chat-preview-panel"
+      aria-labelledby="chat-preview-title"
+      hidden
+    >
+      <header class="chat-preview-header">
+        <div>
+          <p class="chat-preview-eyebrow" data-chat-i18n="badge">RIO · preview</p>
+          <h2 id="chat-preview-title" tabindex="-1" data-chat-i18n="title">Say hello to RIO</h2>
+        </div>
+        <div class="chat-preview-header-actions">
+          <button id="chat-preview-size" class="chat-preview-icon-button" type="button" aria-pressed="false" aria-controls="chat-preview-panel">Larger chat</button>
+          <button
+            id="chat-preview-close"
+            class="chat-preview-icon-button"
+            type="button"
+            data-chat-i18n="close"
+            data-chat-i18n-aria-label="close"
+          >Close</button>
+        </div>
+      </header>
+      <p class="chat-preview-boundary" data-chat-i18n="boundary">
+        Preview only. Messages stay in this page and are cleared when you reload. No live person or service is connected.
+      </p>
+      <p id="chat-preview-status" class="chat-preview-status" role="status" aria-live="polite"></p>
+      <details id="chat-preview-subject" class="chat-preview-subject" hidden>
+        <summary><span data-chat-i18n="subjectLabel">Subject</span>: <strong id="chat-preview-subject-title"></strong></summary>
+        <p id="chat-preview-subject-description"></p>
+        <dl>
+          <div><dt data-chat-i18n="subjectSource">Source</dt><dd id="chat-preview-subject-source"></dd></div>
+          <div><dt data-chat-i18n="subjectStatus">Status</dt><dd id="chat-preview-subject-state"></dd></div>
+        </dl>
+        <p id="chat-preview-subject-boundary"></p>
+        <button id="chat-preview-subject-clear" type="button" data-chat-i18n="leaveSubject">Leave this subject</button>
+      </details>
+      <ol
+        id="chat-preview-messages"
+        class="chat-preview-messages"
+        role="log"
+        tabindex="0"
+        aria-describedby="chat-preview-reading-hint"
+        aria-live="polite"
+        aria-relevant="additions"
+        data-chat-i18n-aria-label="transcript"
+      ></ol>
+      <div id="chat-preview-reading" class="chat-preview-reading" hidden>
+        <p id="chat-preview-reading-hint" data-chat-i18n="readingHint">Focus the conversation and use the arrow keys to read earlier messages.</p>
+        <button id="chat-preview-latest" type="button" aria-controls="chat-preview-messages" data-chat-i18n="latest">Latest answer</button>
+      </div>
+      <div
+        class="chat-preview-suggestions"
+        data-chat-i18n-aria-label="suggestions"
+      >
+        <button type="button" data-chat-prompt="subject" data-chat-i18n="subjectPrompt" hidden>What is this subject about?</button>
+        <button type="button" data-chat-prompt="about" data-chat-i18n="aboutPrompt">What is RIO?</button>
+        <button type="button" data-chat-prompt="privacy" data-chat-i18n="privacyPrompt">Where do my messages go?</button>
+      </div>
+      <details id="chat-preview-followups" class="chat-preview-followups" hidden>
+        <summary id="chat-preview-followups-title"></summary>
+        <div id="chat-preview-followup-buttons" class="chat-preview-suggestions"></div>
+      </details>
+      <form id="chat-preview-form" class="chat-preview-form" novalidate>
+        <label for="chat-preview-input" data-chat-i18n="inputLabel">Your message</label>
+        <textarea
+          id="chat-preview-input"
+          name="message"
+          dir="auto"
+          rows="2"
+          maxlength="500"
+          required
+          aria-describedby="chat-preview-count chat-preview-input-error"
+          data-chat-i18n-placeholder="inputPlaceholder"
+          placeholder="Type a message"
+        ></textarea>
+        <span id="chat-preview-count" class="chat-preview-count"></span>
+        <p id="chat-preview-input-error" class="chat-preview-input-error" role="alert" hidden></p>
+        <div class="chat-preview-form-footer">
+          <span data-chat-i18n="localOnly">Local demo · nothing is sent</span>
+          <button id="chat-preview-send" type="submit" data-chat-i18n="send">Send</button>
+        </div>
+      </form>
+      <button id="chat-preview-clear" class="chat-preview-clear" type="button" data-chat-i18n="clear">
+        Clear this conversation
+      </button>
+    </section>
+
+    <dialog id="chat-preview-clear-dialog" class="chat-preview-clear-dialog" aria-labelledby="chat-preview-clear-title" aria-describedby="chat-preview-clear-warning">
+      <form method="dialog">
+        <h2 id="chat-preview-clear-title" data-chat-i18n="clearTitle">Clear this conversation?</h2>
+        <p id="chat-preview-clear-warning" data-chat-i18n="clearWarning">This removes your messages, selected subject, and draft from this chat. This cannot be undone. Your personal dossier is separate and is not cleared.</p>
+        <div class="chat-preview-clear-actions">
+          <button id="chat-preview-clear-cancel" type="submit" value="cancel" autofocus data-chat-i18n="clearCancel">Keep conversation</button>
+          <button id="chat-preview-clear-confirm" type="submit" value="confirm" data-chat-i18n="clearConfirm">Yes, clear this conversation</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="subject-dialog" class="subject-dialog" aria-labelledby="subject-dialog-title" aria-describedby="subject-dialog-description">
+      <div id="subject-sheet" class="subject-sheet">
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <button id="subject-close" class="subject-close" type="button" aria-label="Sluiten" data-i18n-aria-label="closeSubject">×</button>
+        <div id="subject-preview" class="subject-preview" aria-hidden="true"></div>
+        <p id="subject-kind" class="subject-kind"></p>
+        <h2 id="subject-dialog-title"></h2>
+        <p id="subject-dialog-description"></p>
+        <dl class="subject-meta"><div><dt data-i18n="subjectSource">Herkomst</dt><dd id="subject-dialog-source">PALACO · RIO</dd></div><div><dt data-i18n="subjectState">Status</dt><dd id="subject-dialog-status" data-i18n="subjectVerified">Zichtbaar en controleerbaar</dd></div></dl>
+        <p class="subject-boundary" data-i18n="subjectBoundary">Kijken geeft geen toegang. Jij kiest altijd de volgende stap.</p>
+        <button id="subject-continue" class="subject-continue" type="button" data-i18n="subjectContinue">Verder met dit onderwerp</button>
+        <details id="elixer-dossier" class="elixer-dossier" hidden>
+          <summary data-i18n="elixerDossierSummary">Kort uitgelegd: ELIXER</summary>
+          <div class="elixer-dossier-content">
+            <p data-i18n="elixerDossierDefinition">Een ELIXER is een begrensd, versiegebonden pakket met intelligentie, persona’s, mogelijkheden en regels.</p>
+            <section class="elixer-roles" aria-labelledby="elixer-roles-title">
+              <h3 id="elixer-roles-title" data-i18n="elixerDossierRolesTitle">Drie rollen, kort uitgelegd</h3>
+              <dl class="elixer-role-grid">
+                <div><dt>ELIXER</dt><dd data-i18n="elixerRolePackage">Het versiegebonden pakket</dd></div>
+                <div><dt data-i18n="elixerRoleLabTerm">Lab</dt><dd data-i18n="elixerRoleLab">Bouwt en test pakketten</dd></div>
+                <div><dt data-i18n="elixerRoleEngineTerm">Engine</dt><dd data-i18n="elixerRoleEngine">Voert ze gecontroleerd uit</dd></div>
+              </dl>
+            </section>
+            <section class="elixer-context-examples" aria-labelledby="elixer-context-title">
+              <h3 id="elixer-context-title" data-i18n="elixerContextExamplesTitle">Voorbeeldcontexten</h3>
+              <p data-i18n="elixerContextExamplesNote">Dit zijn alleen contextnamen uit een technisch voorbeeld; deze preview toont hier geen aanbod, mogelijkheden of rechten.</p>
+              <ul>
+                <li><strong>Holder</strong><span data-i18n="elixerContextExampleLabel">Referentievoorbeeld</span></li>
+                <li><strong>Steward</strong><span data-i18n="elixerContextExampleLabel">Referentievoorbeeld</span></li>
+                <li><strong>Operations</strong><span data-i18n="elixerContextExampleLabel">Referentievoorbeeld</span></li>
+              </ul>
+            </section>
+            <aside class="elixer-candidate">
+              <h3 data-i18n="elixerDossierCandidateTitle">H∆R∆-ELIXER · kandidaat</h3>
+              <p class="elixer-candidate-plain"><strong data-i18n="elixerCandidatePlainLabel">In gewone taal</strong><span data-i18n="elixerCandidatePlain">Een testkandidaat, niet officieel uitgegeven of geactiveerd.</span></p>
+              <ul class="elixer-candidate-tags" aria-label="Kandidaatkenmerken" data-i18n-aria-label="elixerCandidateTagsLabel">
+                <li>LAB-CANDIDATE</li>
+                <li data-i18n="elixerCandidateSynthetic">Synthetisch</li>
+                <li data-i18n="elixerCandidateReadOnly">Alleen-lezen</li>
+              </ul>
+              <dl class="elixer-candidate-meaning">
+                <div><dt data-i18n="elixerCandidateSynthetic">Synthetisch</dt><dd data-i18n="elixerCandidateSyntheticMeaning">Bedoeld als testcontext, niet als echte productiegegevens.</dd></div>
+                <div><dt data-i18n="elixerCandidateReadOnly">Alleen-lezen</dt><dd data-i18n="elixerCandidateReadOnlyMeaning">Bedoeld om informatie te bekijken zonder wijzigingen.</dd></div>
+              </dl>
+              <p class="elixer-candidate-meaning-note" data-i18n="elixerCandidateMeaningNote">Deze uitleg volgt de aangeleverde samenvatting; het gedrag is hier niet getest.</p>
+              <dl class="elixer-candidate-provenance">
+                <div><dt data-i18n="elixerCandidateSourceLabel">Bron van deze kenmerken</dt><dd data-i18n="elixerCandidateSource">Aangeleverde samenvatting</dd></div>
+                <div><dt data-i18n="elixerCandidateVerificationLabel">Live geverifieerd?</dt><dd data-i18n="elixerCandidateVerification">Nee, niet in deze preview</dd></div>
+              </dl>
+              <p data-i18n="elixerDossierCandidateBody">Volgens jouw samenvatting: LAB-CANDIDATE, synthetisch en read-only. Niet officieel uitgegeven of geactiveerd; de live status is hier niet bevestigd.</p>
+            </aside>
+            <h3 data-i18n="elixerDossierPersonasTitle">Drie persona’s binnen H∆R∆</h3>
+            <ul class="elixer-persona-list">
+              <li data-i18n="elixerPersonaHaram">H∆R∆M · coördinatie en gesprek</li>
+              <li data-i18n="elixerPersonaChing">Ching Ching · financieel en maatschappelijk advies, consent-first</li>
+              <li data-i18n="elixerPersonaHannie">Hannie · agenda en huishouden, zonder stille wijzigingen</li>
+            </ul>
+            <p data-i18n="elixerDossierPersonasNote">Dit zijn persona’s binnen H∆R∆, geen aparte ELIXERS.</p>
+            <details class="elixer-technical-details">
+              <summary data-i18n="elixerTechnicalSummary">Technische details en grenzen</summary>
+              <div class="elixer-technical-content">
+                <section class="elixer-evidence" aria-labelledby="elixer-evidence-title">
+                  <h3 id="elixer-evidence-title" data-i18n="elixerDossierEvidenceTitle">Wat is in deze preview onderbouwd?</h3>
+                  <p data-i18n="elixerDossierEvidenceNote">Deze preview is niet gekoppeld aan een live registry. Ontbrekende gegevens blijven onbekend; ze worden niet ingevuld of afgeleid.</p>
+                  <dl class="elixer-evidence-list">
+                    <div><dt data-i18n="elixerEvidenceVersion">Pakketversie</dt><dd data-i18n="elixerEvidenceUnavailable">Niet beschikbaar in deze preview</dd></div>
+                    <div><dt data-i18n="elixerEvidenceDigest">Package-digest</dt><dd data-i18n="elixerEvidenceUnavailable">Niet beschikbaar in deze preview</dd></div>
+                    <div><dt data-i18n="elixerEvidenceRegistry">Registry-record</dt><dd data-i18n="elixerEvidenceUnavailable">Niet beschikbaar in deze preview</dd></div>
+                    <div><dt data-i18n="elixerEvidenceTest">Testbewijs</dt><dd data-i18n="elixerEvidenceUnavailable">Niet beschikbaar in deze preview</dd></div>
+                  </dl>
+                </section>
+                <h3 data-i18n="elixerDossierManifestTitle">Wat hoort in een pakketrecord?</h3>
+                <p data-i18n="elixerDossierManifest">Identiteit en versie; doel en scope; persona’s, capabilities en verboden acties; consent-, memory-, privacy- en revocationbeleid; digest, provenance en testbewijs; distributie- en activatiestatus.</p>
+                <h3 data-i18n="elixerDossierInfrastructureTitle">Lab ≠ Engine ≠ ELIXER</h3>
+                <p data-i18n="elixerDossierInfrastructureBody">Het Laboratorium bouwt en test pakketten. De Engine voert ze gecontroleerd uit. Geen van beide verleent autoriteit.</p>
+                <ul class="elixer-dossier-boundaries">
+                  <li><span data-i18n="elixerBoundaryCapability">Capability</span> ≠ <span data-i18n="elixerBoundaryPermission">permission</span></li>
+                  <li><span data-i18n="elixerBoundaryAccess">Access</span> ≠ <span data-i18n="elixerBoundaryAuthorization">authorization</span></li>
+                  <li><span data-i18n="elixerBoundaryDistribution">Distribution</span> ≠ <span data-i18n="elixerBoundaryActivation">activation</span></li>
+                  <li><span data-i18n="elixerBoundaryOutput">AI-output</span> ≠ <span data-i18n="elixerBoundaryEvidence">bewijs</span></li>
+                </ul>
+                <section class="elixer-gates" aria-labelledby="elixer-gates-title">
+                  <h3 id="elixer-gates-title" data-i18n="elixerDossierGatesTitle">Afzonderlijke vervolgstappen</h3>
+                  <p data-i18n="elixerDossierGatesNote">Dit zijn aparte poorten. Deze preview bevestigt niet dat een ervan is afgerond.</p>
+                  <ul>
+                    <li><strong data-i18n="elixerGateRegistry">ELIXER-registryrecord</strong><span data-i18n="elixerGateStatus">Niet bevestigd in deze preview</span></li>
+                    <li><strong data-i18n="elixerGateReview">Onafhankelijke review</strong><span data-i18n="elixerGateStatus">Niet bevestigd in deze preview</span></li>
+                    <li><strong data-i18n="elixerGateIssuance">Officiële uitgifte</strong><span data-i18n="elixerGateStatus">Niet bevestigd in deze preview</span></li>
+                    <li><strong data-i18n="elixerGateActivation">Productieactivatie</strong><span data-i18n="elixerGateStatus">Niet bevestigd in deze preview</span></li>
+                  </ul>
+                  <p data-i18n="elixerDossierNextGate">Een geslaagde test of preview bewijst geen officiële uitgifte en vervangt deze poorten niet.</p>
+                </section>
+              </div>
+            </details>
+          </div>
+        </details>
+      </div>
+    </dialog>
+
+    <nav class="mobile-nav" aria-label="Mobiele hoofdnavigatie" data-i18n-aria-label="mobileNavLabel">
+      <a href="#subjects"><span aria-hidden="true">◇</span><span data-i18n="navExplore">Ontdek</span></a>
+      <a href="#meet"><span aria-hidden="true">●</span><span data-i18n="navMeet">Ontmoet RIO</span></a>
+      <a href="#trust"><span aria-hidden="true">✓</span><span data-i18n="navTrust">Vertrouwen</span></a>
+    </nav>
+
+    <footer><p>RIO CONNECTS. <span>VORM9EVIN9 EXPLAINS.</span> CONSTITUTION GOVERNS.</p><button id="install-btn" type="button" hidden data-i18n="installButton">Installeer RIO</button><small data-i18n="footer">PALACO · Een plek voor mensen en ideeën.</small><small id="navigation-boundary" data-i18n="navigationBoundary">Kies een plek. HARA en MUNDO zijn nog niet beschikbaar. Externe links verlaten deze pagina en wissen je tijdelijke gesprek. De accountlink meldt je niet aan en bevestigt niet wie je bent.</small></footer>
+    <nav class="taskbar" aria-label="PALACO hoofdnavigatie" data-i18n-aria-label="taskbarLabel" aria-describedby="navigation-boundary">
+      <a class="taskbar-item" href="https://palaco.mauritsvang1.chatgpt.site/"><span class="taskbar-label"><span class="taskbar-full-label">PALACO Hoofdkantoor</span><span class="taskbar-compact-label" aria-hidden="true">PALACO HQ</span></span></a>
+      <button class="taskbar-item" type="button" disabled><span class="taskbar-label"><span class="taskbar-full-label">HARA ELIXER HARAM</span><span class="taskbar-compact-label" aria-hidden="true">HARA</span></span><span class="taskbar-detail" data-i18n="unavailable">Niet beschikbaar</span></button>
+      <a class="taskbar-item" href="#top" aria-current="page"><span class="taskbar-label rio-taskbar-label"><span class="taskbar-full-label rio-taskbar-name">RIO</span><span class="taskbar-compact-label rio-taskbar-name" aria-hidden="true">RIO</span><img class="rio-taskbar-icon" src="/icon-192.svg" alt="" width="36" height="36" /></span><span class="taskbar-detail" data-i18n="here">Hier</span></a>
+      <a class="taskbar-item" href="https://citadel.mauritsvang1.chatgpt.site/"><span class="taskbar-label"><span class="taskbar-full-label">Citadel</span><span class="taskbar-compact-label" aria-hidden="true">Citadel</span></span><span class="taskbar-detail" data-i18n="consumer">Consument</span></a>
+      <button class="taskbar-item" type="button" disabled><span class="taskbar-label"><span class="taskbar-full-label">MUNDO</span><span class="taskbar-compact-label" aria-hidden="true">MUNDO</span></span><span class="taskbar-detail"><span data-i18n="consumer">Consument</span> · <span data-i18n="unavailable">Niet beschikbaar</span></span></button>
+      <a class="taskbar-item" href="https://palaco.mauritsvang1.chatgpt.site/account.html">
+        <svg class="taskbar-account-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="7" r="4"></circle><path d="M4 21v-2a8 8 0 0 1 16 0v2"></path></svg>
+        <span class="taskbar-label"><span class="taskbar-full-label">5CRIPTIE ID</span><span class="taskbar-compact-label" aria-hidden="true">ID</span></span><span class="taskbar-detail" data-i18n="personalAccount">Persoonlijk account</span>
+      </a>
+    </nav>
+    <script src="/app.js" defer></script>
+    <script src="/rio-engine-web.mjs" type="module"></script>
+    <script src="/chat-preview.mjs" type="module"></script>
+    <script src="/integration.mjs" type="module"></script>
+  </body>
+</html>

@@ -13,6 +13,8 @@
   const exampleShow = byId('pp-example-show');
   const exampleResult = byId('pp-example-result');
   const pending = new Set();
+  const staticPreview = document.documentElement.dataset.runtimeMode === 'static-preview';
+  const previewCopy = 'Deze preview meet de bereikbaarheid niet. Open een proef op de beveiligde proefserver om zelf verder te gaan.';
   let checking = false;
   let generation = 0;
   let pageActive = true;
@@ -99,12 +101,16 @@
     state(nova, false);
     state(device, false);
     version.textContent = 'Onbekend';
-    feedback.textContent = navigator.onLine === false ? offlineCopy : unconfirmedCopy;
+    feedback.textContent = staticPreview ? previewCopy : navigator.onLine === false ? offlineCopy : unconfirmedCopy;
     checking = false;
-    refresh.disabled = false;
+    refresh.disabled = staticPreview;
   }
 
   async function checkAvailability() {
+    if (staticPreview) {
+      invalidateAvailability();
+      return;
+    }
     if (checking) return;
     if (!pageActive || navigator.onLine === false) {
       invalidateAvailability();
