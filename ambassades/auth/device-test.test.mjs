@@ -420,3 +420,102 @@ test('requests from a previous pair cannot consent or close a newer pair after t
   assert.ok(current.data.pair.id === second.data.pair.id, 'new pair survives requests for the old pair');
   assert.equal(current.data.pair.state, 'WAITING_ACCEPT');
 });
+
+const CARRIER_CHECKS = { wifiOff:true, mobileDataOn:true, differentProviders:true, noHotspot:true };
+
+test('carrier: each guest can affirm only its own four device settings', async t => {
+  const f = await fixture(t);
+  const { a, b } = await f.active();
+  const first = await f.action(a, 'carrier', { checks:CARRIER_CHECKS });
+  assert.equal(first.status, 200);
+  assert.deepEqual(first.data.pair.carrier, { mode:true, A:true, B:false });
+  const second = await f.action(b, 'carrier', { checks:CARRIER_CHECKS });
+  assert.equal(second.status, 200);
+  assert.deepEqual(second.data.pair.carrier, { mode:true, A:true, B:true });
+  assert.equal((await f.action(a, 'carrier', { checks:CARRIER_CHECKS })).status, 409);
+  assert.equal((await f.read(a)).data.pair.scope, SCOPE);
+});
+
+test('carrier: missing, invented or false checks never become a participant declaration', async t => {
+  const f = await fixture(t);
+  const { a } = await f.active();
+  for (const checks of [
+    null, {}, { ...CARRIER_CHECKS, wifiOff:false },
+    { ...CARRIER_CHECKS, imei:'secret' },
+    { ...CARRIER_CHECKS, noHotspot:'yes' },
+  ]) {
+    const denied = await f.action(a, 'carrier', { checks });
+    assert.equal(denied.status, 400);
+  }
+  assert.deepEqual((await f.read(a)).data.pair.carrier, { mode:false, A:false, B:false });
+});
+
+test('carrier: a challenge is denied once carrier mode is active until both participants attest', async t => {
+  const f = await fixture(t);
+  const { a, b } = await f.active();
+  assert.equal((await f.action(a, 'carrier', { checks:CARRIER_CHECKS })).status, 200);
+  assert.equal((await f.action(a, 'challenge')).status, 409);
+  assert.equal((await f.read(a)).data.pair.messages.length, 0);
+  assert.equal((await f.action(b, 'carrier', { checks:CARRIER_CHECKS })).status, 200);
+  assert.equal((await f.action(a, 'challenge')).status, 200);
+});
+
+test('carrier: a closed roundtrip receipt binds the exact pair and contains no test codes', async t => {
+  const f = await fixture(t);
+  const { a, b } = await f.active();
+  await f.action(a, 'carrier', { checks:CARRIER_CHECKS });
+  await f.action(b, 'carrier', { checks:CARRIER_CHECKS });
+  await f.action(a, 'challenge');
+  const challenge = (await f.read(b)).data.pair.messages[0];
+  await f.action(b, 'ack', { messageId:challenge.id });
+  await f.action(b, 'reply', { messageId:challenge.id });
+  const reply = (await f.read(a)).data.pair.messages[1];
+  await f.action(a, 'ack', { messageId:reply.id });
+  const before = (await f.read(a)).data.pair;
+  const closed = await f.action(a, 'close');
+  assert.equal(closed.status, 200);
+  assert.equal(closed.data.pair.state, 'CLOSED');
+  assert.equal(closed.data.carrierResult.pairId, before.id);
+  assert.equal(closed.data.pair.revision, before.revision + 1);
+  assert.equal(closed.data.carrierResult.roundTripConfirmed, true);
+  assert.deepEqual(closed.data.carrierResult.declarations, { A:true, B:true });
+  assert.equal(closed.data.carrierResult.physicalCarrierVerified, false);
+  assert.deepEqual(closed.data.pair.messages, []);
+  assert.equal(JSON.stringify(closed.data).includes(challenge.code), false);
+  assert.equal(JSON.stringify(closed.data).includes(reply.code), false);
+  assert.equal((await f.read(b)).status, 404);
+});
+
+test('carrier: close replay is idempotent and old receipt cannot become a later pair', async t => {
+  const f = await fixture(t);
+  const { a } = await f.active();
+  await f.action(a, 'carrier', { checks:CARRIER_CHECKS });
+  const before = (await f.read(a)).data.pair, idempotencyKey=f.key();
+  const closed = await f.action(a, 'close', {}, idempotencyKey);
+  assert.equal(closed.status, 200);
+  assert.equal(closed.data.carrierResult.roundTripConfirmed, false);
+  const replay = await f.call('/pair/actions', { method:'POST', guest:a, body:{
+    action:'close',pairId:before.id,revision:before.revision,idempotencyKey,
+  }});
+  assert.equal(replay.status, 200);
+  assert.equal(replay.data.replayed, true);
+  assert.deepEqual(replay.data.carrierResult, closed.data.carrierResult);
+  const next = await f.create(a);
+  assert.equal(next.status, 201);
+  assert.notEqual(next.data.pair.id, closed.data.carrierResult.pairId);
+  assert.equal(next.data.pair.carrier.mode, false);
+});
+
+test('carrier: expiry removes declarations and outsider has no pair access', async t => {
+  const f = await fixture(t);
+  const { a, b } = await f.active(), outsider = await f.session();
+  await f.action(a, 'carrier', { checks:CARRIER_CHECKS });
+  assert.equal((await f.read(outsider)).status, 404);
+  f.advance(300001);
+  assert.equal((await f.read(a)).status, 404);
+  assert.equal((await f.read(b)).status, 404);
+  const expired = await f.call('/pair/actions', { method:'POST', guest:a, body:{
+    action:'carrier',pairId:'0'.repeat(32),revision:1,idempotencyKey:f.key(),checks:CARRIER_CHECKS,
+  }});
+  assert.equal(expired.status, 404);
+});

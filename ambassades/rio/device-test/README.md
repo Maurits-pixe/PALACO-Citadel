@@ -1,5 +1,26 @@
 # RIO verbindingstest met twee telefoons
 
+## Nieuwe carrier-kandidaat: Youfone → Lebara → Youfone
+
+De bestaande algemene apparaatproef blijft bruikbaar als generieke wifi-test. De
+**nieuwe carrierstand (DRAFT, nog niet gepubliceerd)** gebruikt twee eigen
+mobiele-dataverbindingen: toestel A bij Youfone, toestel B bij Lebara, beide op
+KPN. Zet op **beide** wifi uit, mobiele data aan en hotspot uit; bevestig ieder
+op zijn eigen telefoon ook dat de andere deelnemer een andere aanbieder heeft.
+Vink daarvoor de vier afzonderlijke controles aan nadat beide gasten deelnemen.
+Daarna werkt de gewone code/ACK/antwoord/ACK-keten.
+
+Als de carrierstand is gestart, kan de volgende challenge niet worden verstuurd
+voordat beide telefoons hun eigen vier controles hebben bevestigd. De website
+leest simproviders, wifi of hotspot **niet** technisch uit. Het resultaat van de
+proef is een toepassingstest met deelnemerverklaringen, geen onafhankelijke
+netwerkmeting. Sluit de proef af: alleen het toestel met de juiste afgesloten
+serverreactie kan een JSON-bestand downloaden, **zonder testcodes of sleutels**.
+De server verwijdert de codes; vertraagde oudere browserreacties mogen ze niet
+opnieuw tonen. De exacte contractgrenzen staan in
+[CARRIER-TEST-CONTRACT.md](CARRIER-TEST-CONTRACT.md).
+
+
 Deze pagina test één tijdelijke verbinding tussen twee gasttestsessies via de
 bestaande HTTPS-testserver. De server geeft uitsluitend gegenereerde
 challenge/reply-berichten door. De pagina bevat geen invoer voor persoonlijke

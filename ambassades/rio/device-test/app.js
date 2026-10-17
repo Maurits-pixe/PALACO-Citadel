@@ -9,15 +9,20 @@
     if (location.hash) history.replaceState(null, '', location.pathname + location.search);
   } catch {}
   let csrf = '', pair = null, link = '', pending = null, busy = false, ready = false, hasPair = false, deadline = 0, looked = false;
+  let epoch = 0, closing = false, closedReport = null;
   function bindPair(data) {
+    if(pair && pair.id===data.pair.id && data.pair.revision<pair.revision) return false;
     const changed=!pair || pair.id!==data.pair.id || pair.revision!==data.pair.revision;
     pair=data.pair;
     deadline=performance.now()+Math.max(0,Date.parse(pair.expiresAt)-Date.parse(data.serverTime)-1000);
     return changed;
   }
   function forgetPair(clearInvitation=true) {
-    pair=null;link='';if(clearInvitation)incoming='';pending=null;deadline=0;
+    epoch+=1;pair=null;link='';if(clearInvitation)incoming='';pending=null;deadline=0;closing=false;
     $('messages').replaceChildren();$('proof').hidden=true;$('share-link').value='';if(clearInvitation)$('invitation').value='';
+    for(const id of ['wifi-off','data-on','providers-different','hotspot-off']) {
+      $(id).checked=false;$(id).disabled=false;
+    }
   }
   const $ = id => document.getElementById(id);
   const feedback = text => { $('feedback').textContent = text; };
@@ -34,6 +39,31 @@
       return data;
     } finally {clearTimeout(timer);}
   }
+  // Downloaded results contain deliberately enumerated fields, not server messages.
+  // The exact closed pair must be confirmed before this can return any result.
+  function safeCarrierReport(data, expectedId) {
+    const p=data?.pair, raw=data?.carrierResult;
+    if (!p || p.id!==expectedId || p.state!=='CLOSED' || !raw ||
+        raw.schema!=='rio-carrier-result/v1' || raw.pairId!==expectedId ||
+        raw.network!=='KPN' || raw.providers?.A!=='Youfone' || raw.providers?.B!=='Lebara' ||
+        raw.physicalCarrierVerified!==false ||
+        !Number.isSafeInteger(p.revision) || !Number.isFinite(Date.parse(raw.closedAt)) ||
+        !['A','B'].includes(p.role) ||
+        !['A','B'].every(role=>typeof raw.declarations?.[role]==='boolean' && typeof raw.consent?.[role]==='boolean') ||
+        !['challengeReceived','replyReceived','roundTripConfirmed'].every(k=>typeof raw[k]==='boolean') ||
+        (raw.replyReceived && !raw.challengeReceived) ||
+        (raw.roundTripConfirmed!==Boolean(raw.challengeReceived && raw.replyReceived))) return null;
+    return {
+      schema:'rio-carrier-result/v1', testId:expectedId,
+      closedRevision:p.revision, closedAt:raw.closedAt, network:'KPN',
+      providers:{A:'Youfone',B:'Lebara'}, physicalCarrierVerified:false,
+      declarations:{A:raw.declarations.A,B:raw.declarations.B},
+      consent:{A:raw.consent.A,B:raw.consent.B},
+      challengeReceived:raw.challengeReceived,replyReceived:raw.replyReceived,
+      roundTripConfirmed:raw.roundTripConfirmed, account1:'HOLD', canOpenContact:false,
+      operativeAuthority:'NONE', evidence:'server-ack-and-self-declarations-not-carrier-detection'
+    };
+  }
   function countdown() {
     if (!pair) return;
     const left = Math.max(0, Math.ceil((deadline-performance.now())/1000));
@@ -48,6 +78,7 @@
     $('invitation-panel').hidden = !link || !pair || pair.state!=='WAITING_PEER';
     $('share-link').value = link;
     $('messages').replaceChildren();$('proof').hidden=true;
+    $('download-result').hidden=!closedReport;
     if (!pair) return;
     $('pair-title').textContent = 'Telefoon '+pair.role+' · proef '+pair.id.slice(0,8);
     $('state').textContent = labels[pair.state] || 'Onbekende proefstatus';
@@ -56,10 +87,23 @@
     const mine = pair.consent[pair.role];
     $('accept').hidden = pair.state!=='WAITING_ACCEPT' || mine;
     $('accept').disabled = busy || Boolean(pending);
+    $('carrier-panel').hidden=pair.state!=='ACTIVE_TEST';
+    const carrier=pair.carrier || {mode:false,A:false,B:false};
+    $('carrier-title').textContent='Telefoon '+pair.role+' · '+(pair.role==='A'?'Youfone':'Lebara')+' (KPN)';
+    $('carrier-status').textContent='Netwerkverklaring A / Youfone: '+(carrier.A?'bevestigd':'ontbreekt')+
+      ' · B / Lebara: '+(carrier.B?'bevestigd':'ontbreekt')+
+      '. Dit is een eigen verklaring, geen automatische netwerkcontrole.';
+    for(const id of ['wifi-off','data-on','providers-different','hotspot-off'])
+      $(id).disabled=Boolean(carrier[pair.role]) || pair.state!=='ACTIVE_TEST' || closing;
+    $('carrier-confirm').disabled=busy || Boolean(pending) || Boolean(carrier[pair.role]) ||
+      !['wifi-off','data-on','providers-different','hotspot-off'].every(id=>$(id).checked);
+    $('carrier-confirm').hidden=Boolean(carrier[pair.role]);
     $('challenge').hidden = pair.state!=='ACTIVE_TEST';
-    $('challenge').disabled = busy || Boolean(pending);
+    $('challenge').disabled = busy || Boolean(pending) || closing ||
+      Boolean(carrier.mode && !(carrier.A && carrier.B));
     $('close').disabled = busy || Boolean(pending) || pair.state==='CLOSED';
     $('messages').replaceChildren();
+    if (closing) return; // A delayed response may never redraw wiped codes.
     for (const message of pair.messages) {
       const li=document.createElement('li'),title=document.createElement('strong'),code=document.createElement('code'),status=document.createElement('small');
       title.textContent='#'+message.sequence+' · '+(message.from===pair.role?'Verstuurd':'Ontvangen')+' · '+(message.kind==='CHALLENGE'?'testcode':'antwoord');
@@ -80,14 +124,18 @@
     $('proof').hidden=!proven;
   }
   async function refresh() {
-    if (!ready || busy || pending || (looked && !pair && !hasPair)) return;
+    if (!ready || busy || closing || pending || (looked && !pair && !hasPair)) return;
+    const started=epoch;
     try {
-      const data=await request('/pair');looked=true;const changed=bindPair(data);hasPair=true;
+      const data=await request('/pair');
+      if(started!==epoch || closing || busy) return;
+      looked=true;const changed=bindPair(data);hasPair=true;
       if (pair.state!=='WAITING_PEER') link='';
       if (pair.state==='CLOSED') feedback('De proef is gesloten. De testcodes zijn gewist. Vernieuw de pagina om een nieuwe proef te starten.');
       else if(pair.state==='WAITING_PEER'&&!link)feedback('De uitnodiging wordt niet opnieuw getoond. Gebruik je eerder gekopieerde link, of sluit deze proef en begin opnieuw.');
       if(changed)render();else countdown();
     } catch(error) {
+      if(started!==epoch || closing || busy) return;
       if (error.status===404) {
         looked=true;forgetPair(hasPair);render();
         if (hasPair) {feedback('De proef is verlopen of beëindigd. De testcodes zijn gewist.');hasPair=false;}
@@ -102,9 +150,22 @@
   }
   async function retry() {
     if (!pending || busy) return;
+    const started=epoch;
     busy=true;render();
     try {
-      const data=await request(pending.path,pending.body);
+      const attempt=pending;
+      const data=await request(attempt.path,attempt.body);
+      if(started!==epoch) return; // Ignore effects after local expiry or erasure.
+      if(attempt.body?.action==='close') {
+        // Accept no old, foreign or nonclosed response as export authority.
+        const candidate=safeCarrierReport(data,attempt.body.pairId);
+        if(!candidate || !pair || pair.id!==attempt.body.pairId) throw new Error('Invalid closure');
+        const carrierWasUsed=Boolean(pair.carrier?.mode);
+        forgetPair();closedReport=carrierWasUsed?candidate:null;
+        closing=false;hasPair=false;looked=true;
+        feedback('De proef is afgesloten. Testcodes en sleutels zijn gewist. Het resultaat bevat geen codes.');
+        return;
+      }
       pending=null;
       if (data.pair) {
         bindPair(data);hasPair=true;
@@ -113,39 +174,70 @@
         feedback(pair.state==='CLOSED'?'De proef is gesloten. De testcodes zijn op de server gewist.':pair.state==='WAITING_PEER'&&!link?'De eerste reactie is niet ontvangen; de uitnodiging kan niet opnieuw worden opgehaald. Sluit deze proef en start een nieuwe.':labels[pair.state]);
       }
     } catch(error) {
+      if(started!==epoch) return;
       if (error.status) {
         pending=null;
+        if (closing) {forgetPair();closing=false;hasPair=false;looked=true;}
         if (error.status===409) feedback('De proefstand is gewijzigd. Kies je stap opnieuw; er is geen dubbele verzending uitgevoerd.');
         else if (error.status===401) {ready=false;forgetPair();csrf='';feedback('Je tijdelijke testsessie is verlopen. Vernieuw de pagina.');}
         else if (error.status===404 || error.status===410) feedback('De uitnodiging of proef is niet meer bruikbaar. Start op telefoon A een nieuwe proef.');
         else if (error.status===429 || error.status===503) feedback('De proefomgeving is tijdelijk vol. Wacht even en probeer opnieuw.');
         else feedback('Deze stap is geweigerd. Er is geen gewone account- of contacttoegang geopend.');
       } else feedback('Geen antwoord ontvangen. Gebruik “Dezelfde stap opnieuw proberen”; die herhaalt dezelfde verzending.');
-    } finally {busy=false;render();if(!pending)await refresh();}
+    } finally {busy=false;render();if(!pending && !closing)await refresh();}
   }
   async function action(name,extra={}) {
     if (busy || pending || !pair) return;
     const intendedPair=pair.id;
+    if(name==='close'){
+      closing=true;epoch+=1;closedReport=null;
+      pair.messages=[]; // Remove server-generated code values from memory immediately.
+      $('messages').replaceChildren();$('proof').hidden=true;
+    }
+    const started=epoch;
     busy=true;render();
     try {
-      const latest=await request('/pair');bindPair(latest);busy=false;render();
+      const latest=await request('/pair');
+      if(started!==epoch || !pair || pair.id!==intendedPair) {
+        closing=false;busy=false;render();return;
+      }
+      bindPair(latest);busy=false;render();
       if(pair.id!==intendedPair) {
         feedback('Deze proef is gewijzigd. Controleer het proefnummer en kies je stap opnieuw.');return;
       }
       await submit('/pair/actions',{action:name,pairId:intendedPair,revision:pair.revision,idempotencyKey:key(),...extra});
-    } catch {busy=false;render();feedback('De proefstand kon niet worden opgehaald. Probeer dezelfde stap zodra de verbinding terug is.');}
+    } catch {
+      if(started!==epoch) return;
+      if(closing){forgetPair();closing=false;hasPair=false;looked=true;}
+      busy=false;render();feedback('De proefstand kon niet worden opgehaald. De zichtbare testcodes zijn gewist; controleer de serverstatus vóór een nieuwe proef.');
+    }
   }
-  $('create').addEventListener('click',()=>submit('/pair',{idempotencyKey:key()}));
+  $('create').addEventListener('click',()=>{closedReport=null;epoch+=1;submit('/pair',{idempotencyKey:key()});});
   $('join').addEventListener('click',()=>{
     let token=incoming;
     if (!token) {
       try { const value=$('invitation').value.trim();const url=new URL(value);if(url.origin===location.origin && url.pathname===location.pathname)token=/^#invite=([a-f0-9]{64})$/.exec(url.hash)?.[1]||'';} catch {}
     }
     if (!/^[a-f0-9]{64}$/.test(token)) return feedback('Open of plak de volledige uitnodigingslink van telefoon A.');
-    incoming=token;$('invitation').value='';
+    incoming=token;$('invitation').value='';closedReport=null;epoch+=1;
     submit('/join',{inviteToken:token,idempotencyKey:key()});
   });
   $('accept').addEventListener('click',()=>action('accept',{scope:SCOPE}));
+  for(const id of ['wifi-off','data-on','providers-different','hotspot-off']) {
+    $(id).addEventListener('change',()=>{if(pair)render();});
+  }
+  $('carrier-confirm').addEventListener('click',()=>{
+    if(!pair || !['wifi-off','data-on','providers-different','hotspot-off'].every(id=>$(id).checked)) return;
+    action('carrier',{checks:{wifiOff:true,mobileDataOn:true,differentProviders:true,noHotspot:true}});
+  });
+  $('download-result').addEventListener('click',()=>{
+    if(!closedReport) return;
+    const text=JSON.stringify(closedReport,null,2)+'\n';
+    const blob=new Blob([text],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='RIO-carrier-'+closedReport.testId.slice(0,8)+'.json';
+    document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  });
   $('challenge').addEventListener('click',()=>action('challenge'));
   $('close').addEventListener('click',()=>action('close'));
   $('retry').addEventListener('click',retry);
@@ -159,7 +251,7 @@
   if (incoming) {$('invitation').placeholder='Uitnodiging ontvangen; kies “Gebruik uitnodiging”.';feedback('Uitnodiging ontvangen.');}
   window.addEventListener('online',refresh);
   window.addEventListener('pageshow',event=>{if(event.persisted)location.reload();});
-  window.addEventListener('pagehide',()=>{incoming='';link='';csrf='';pending=null;});
+  window.addEventListener('pagehide',()=>{incoming='';link='';csrf='';pending=null;closedReport=null;epoch+=1;});
   (async()=>{
     try {
       const data=await request('/session',{});csrf=data.session.csrfToken;ready=true;
