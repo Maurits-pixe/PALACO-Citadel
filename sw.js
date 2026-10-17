@@ -5,6 +5,34 @@ const SHELL_ASSETS = [
   '/atelier/wizard.html', '/atelier/wizard.css', '/atelier/wizard.js',
   '/DOCS/levensader-readonly/', '/DOCS/levensader-readonly/index.html'
 ];
+const SHELL_PATHS = new Set(SHELL_ASSETS);
+
+const isSameOrigin = (request) => new URL(request.url).origin === self.location.origin;
+
+const networkFirst = async (request) => {
+  const cache = await caches.open(CACHE_NAME);
+  const requestUrl = new URL(request.url);
+  const cacheKey = requestUrl.pathname;
+  const cacheable = SHELL_PATHS.has(cacheKey);
+
+  try {
+    const response = await fetch(new Request(request, { cache: 'no-cache' }));
+    if (response.ok && cacheable) {
+      await cache.put(cacheKey, response.clone()).catch(() => {});
+    }
+    return response;
+  } catch {
+    const cached = await cache.match(cacheKey);
+    if (cached) return cached;
+
+    if (request.mode === 'navigate' && (cacheKey === '/' || cacheKey === '/index.html')) {
+      const fallback = await cache.match('/index.html');
+      if (fallback) return fallback;
+    }
+
+    throw new Error(`Request failed for ${request.url}`);
+  }
+};
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_ASSETS)));
@@ -20,20 +48,20 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  const url = new URL(event.request.url);
-  if (url.origin !== self.location.origin || !SHELL_ASSETS.includes(url.pathname)) return;
-  event.respondWith((async () => {
-    const cache = await caches.open(CACHE_NAME);
-    try {
-      const response = await fetch(new Request(event.request, { cache: 'no-cache' }));
-      if (response.ok) {
-        await cache.put(url.pathname, response.clone()).catch(() => {});
-      }
-      return response;
-    } catch (error) {
-      const cached = await cache.match(url.pathname);
-      if (cached) return cached;
-      throw error;
-    }
-  })());
+  if (!isSameOrigin(event.request)) {
+    return;
+  }
+
+  const requestPath = new URL(event.request.url).pathname;
+  if (!SHELL_PATHS.has(requestPath)) {
+    return;
+  }
+
+  event.respondWith(networkFirst(event.request));
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });

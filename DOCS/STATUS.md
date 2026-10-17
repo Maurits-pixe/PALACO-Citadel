@@ -20,3 +20,7 @@ npm test
 ```
 
 This snapshot reports implementation evidence only. It does not establish canon, identity, consent, permission, authority, external delivery, or constitutional validity.
+
+## Emerald documentation snapshot
+
+The Emerald documentation is consolidated through [emerald/README.md](../emerald/README.md), which groups the core Emerald canon, workspace assets, and the normalized standalone GO-EMERALD source series.

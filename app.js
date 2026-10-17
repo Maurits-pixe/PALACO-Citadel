@@ -9,6 +9,7 @@ const citadelStatus = document.querySelector('#citadel-status');
 const syncBtn = document.querySelector('#sync-btn');
 const syncOutput = document.querySelector('#sync-output');
 const compassBackTopBtn = document.querySelector('#compass-back-top');
+const AUTO_REFRESH_INTERVAL = 5 * 60 * 1000;
 
 const translations = {
   en: {
@@ -1198,10 +1199,12 @@ controlButtons.forEach((button) => {
   });
 });
 
-syncBtn?.addEventListener('click', () => {
+const refreshSiteState = () => {
   localStorage.setItem('palaco-last-sync', new Date().toISOString());
   updateSyncOutput();
-});
+};
+
+syncBtn?.addEventListener('click', refreshSiteState);
 
 compassBackTopBtn?.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1223,7 +1226,58 @@ installBtn?.addEventListener('click', async () => {
 });
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }));
+  window.addEventListener('load', async () => {
+    const hadController = Boolean(navigator.serviceWorker.controller);
+    let refreshing = false;
+    let registration = null;
+
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController) return;
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    });
+
+    try {
+      registration = await navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' });
+
+      if (registration.waiting) {
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+
+      registration.addEventListener('updatefound', () => {
+        const installing = registration.installing;
+        if (!installing) return;
+
+        installing.addEventListener('statechange', () => {
+          if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+            installing.postMessage({ type: 'SKIP_WAITING' });
+          }
+        });
+      });
+
+      registration.update();
+    } catch {
+      registration = null;
+    }
+
+    const runRefreshCycle = () => {
+      if (registration) {
+        registration.update();
+      }
+      refreshSiteState();
+    };
+
+    window.setInterval(runRefreshCycle, AUTO_REFRESH_INTERVAL);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        runRefreshCycle();
+      }
+    });
+
+    window.addEventListener('focus', runRefreshCycle);
+  });
 }
 
 validateTranslations();
