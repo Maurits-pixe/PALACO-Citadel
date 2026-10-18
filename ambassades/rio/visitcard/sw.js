@@ -1,5 +1,5 @@
 'use strict';
-const CACHE_NAME = 'palaco-rio-shell-v38-nova-language-handoff';
+const CACHE_NAME = 'palaco-rio-shell-v39-nova-language-handoff';
 const CACHE_PREFIX = 'palaco-rio-shell-';
 const SHELL_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/rio-engine-web.mjs', '/engine.mjs', '/chat-preview.mjs', '/integration.mjs', '/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg', '/rio/reception/nova.png'];
 

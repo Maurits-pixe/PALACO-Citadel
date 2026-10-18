@@ -41,8 +41,8 @@ Nederlandse uitleg, grenzen en uitgeschakelde selector beschikbaar.
 ## Bestaande installaties
 
 Het gewijzigde root-integration.mjs en app-start.js zitten in gescheiden
-cache-first shells. De rootcache wordt daarom v38-nova-language-handoff en
-uitsluitend de gegenereerde appcache wordt v6. De oorspronkelijke appbron en
+cache-first shells. De rootcache wordt daarom v39-nova-language-handoff en
+uitsluitend de gegenereerde appcache wordt v7. De oorspronkelijke appbron en
 bronworker v3 blijven intact. De publieke lijst blijft 22 bestanden; CSP,
 queryweigering, cache-uitsluitingen en publicatieprofiel veranderen niet.
 De receptie wordt niet als offline pagina gecachet.
@@ -50,8 +50,8 @@ De receptie wordt niet als offline pagina gecachet.
 De bestaande echte v35-migratie blijft draaien. Een nieuwe proef gebruikt
 bytevaste v37/v5-workers van de vorige preview: beide nieuwe workers moeten
 echt wachten terwijl hun oude pagina's open zijn. Eerst sluit alleen de app;
-v6 mag activeren terwijl de root blijft wachten. Daarna sluit de root en mag
-v38 activeren. Contacten, een onbekende cache, afzonderlijke registraties,
+v7 mag activeren terwijl de root blijft wachten. Daarna sluit de root en mag
+v39 activeren. Contacten, een onbekende cache, afzonderlijke registraties,
 nieuwe taallinks en echte offline reloads moeten behouden blijven. Dit bewijst
 de worker/cacheovergang met actuele HTML; geen reconstructie van de hele oude UI.
 Herkomst en SHA256 van de vaste LF-fixtures staan in de test-README.
@@ -64,6 +64,16 @@ focus en toetsenbord, geen NOVA-opslag/API/cookies, scriptvrije fallback, de
 zelfstandige file-app en 320-pixelweergave. Publieke navigatie wordt volledig
 lokaal onderschept, zodat de test geen openbare proef activeert.
 De bestaande taal-, route-, offline-, contact- en cacheproeven blijven behouden.
+Een extra schermmatrix vond in de bestaande mobiele VisitCard-navigatie 18 pixels
+overloop bij 320 pixels en 32px root/body. De knoptekst kan nu omlopen; een nieuwe
+regressie controleert alle zeven VisitCard- en elf app-talen op die tekstgrootte,
+met behouden 44-pixelknoppen en zonder de overloopassertie te versoepelen.
+De daaropvolgende 12-case-ronde gaf 10 PASS/2 FAIL en vond ook te brede bestaande
+Engine-/contactvelden in andere talen. Hun rasteritems mogen nu krimpen en
+tekst laten omlopen; de appcorrectie wordt alleen in de gegenereerde variant
+en download toegevoegd. De oorspronkelijke appbron blijft intact. De eerste
+commit 761bb01 gebruikte v38/v6; de aanvullende opmaakcommit verhoogt opnieuw
+naar v39/v7, zodat oudere kandidaatcaches geen verkeerde CSS kunnen vasthouden.
 Alleen de bedoelde href-/cacheverwachtingen veranderen; er komt geen retry of
 ruimere tijdslimiet. Exacte CI-head en eindresultaten volgen in de draft-PR en
 het uitvoeringsbewijs; een lopende controle telt niet als geslaagd bewijs.

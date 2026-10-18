@@ -62,6 +62,7 @@ export function buildUnifiedPreview() {
   const originalApp = text('ambassades/rio/palaco-rio-start-v0.1.html');
   const nav = '<nav class="actions" aria-label="PALACO RIO" style="margin:0 0 21px"><a id="unified-home" class="btn outline" href="/">RIO · VisitCard</a><a id="unified-reception" class="btn outline" href="/rio/reception/" hreflang="nl">NOVA uitgelegd · receptie (Nederlands)</a></nav>\n';
   let app = replaceOnce(originalApp, '<div class="actions" style="margin:0 0 21px">', nav + '<div class="actions" style="margin:0 0 21px">');
+  app = replaceOnce(app, '</style>', '\n/* Keep enlarged local contact fields within their grid. */\n.contact-grid > *, .contact-grid input {min-width:0}\n</style>');
   const inline = [...app.matchAll(/<script>([\s\S]*?)<\/script>/g)];
   if (inline.length !== 1) throw Error('SOURCE_CONTRACT_CHANGED');
   let appScript = replaceOnce(inline[0][1], "(isFile?'https://palaco-ambassades.onrender.com':'')", "'" + TRIAL_ORIGIN + "'");
@@ -77,7 +78,7 @@ export function buildUnifiedPreview() {
     '<head>', '<head>\n<link rel="icon" href="/rio/icon-192.png" type="image/png">');
   const appDownload = replaceOnce(app, inline[0][0], '<script>' + appScript + '</script>');
   if (Buffer.byteLength(appDownload) >= 100 * 1024) throw Error('DOWNLOAD_TOO_LARGE');
-  let appWorker = replaceOnce(text('ambassades/rio/sw.js'), 'palaco-rio-start-v0.1-3', 'palaco-rio-start-v0.1-6');
+  let appWorker = replaceOnce(text('ambassades/rio/sw.js'), 'palaco-rio-start-v0.1-3', 'palaco-rio-start-v0.1-7');
   appWorker = replaceOnce(appWorker, "const ASSETS=['/rio/','/rio/manifest.webmanifest','/rio/icon-192.png','/rio/icon-512.png'];", "const ASSETS=['/rio/','/rio/start.js','/rio/manifest.webmanifest','/rio/icon-192.png','/rio/icon-512.png'];");
   let reception = replaceOnce(text('ambassades/rio/reception/index.html'), '<html lang="nl">', '<html lang="nl" data-runtime-mode="static-preview">');
   reception = replaceOnce(reception, '<head>', '<head>\n  <link rel="icon" href="/icon-192.svg" type="image/svg+xml">');

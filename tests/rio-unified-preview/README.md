@@ -19,8 +19,10 @@ the script-free Dutch fallback, native keyboard popups intercepted locally to
 verify destination/referrer/opener boundaries, and 320px layout with actual 200%
 root text. `nova-language-handoff.spec.mjs` adds five cases per surface for
 local-only language fragments, exact validation, keyboard focus, browser fallback,
-script-free fallback, file-mode isolation and narrow layout. The complete suite
-now has 46 browser cases, including the two worker migration cases below.
+script-free fallback, file-mode isolation and narrow layout. A sixth case per
+surface checks all 18 source-language choices at 320px with actual 32px root/body
+text, including wrapping mobile navigation. The complete suite now has 48 browser
+cases, including the two worker migration cases below.
 
 Run the build/HTTP tests and this suite sequentially: both rebuild the same fixed
 generated directory. Do not rebuild it while a running fixture is serving it.
@@ -53,7 +55,7 @@ cache entry.
 It intentionally includes its old broad fetch handler and destructive cache
 cleanup. It first activates in an empty, isolated profile; only afterward are the
 app worker, app cache, unrelated cache and fictitious contact created. The current
-v38 worker must then reach the real `waiting` state without reloading its open
+v39 worker must then reach the real `waiting` state without reloading its open
 client. Closing the root client allows activation while the app remains open.
 The test proves migration from this fixed old worker/cache state; it does not
 reconstruct the historical HTML or claim that the old cleanup was safe.
@@ -61,7 +63,7 @@ reconstruct the historical HTML or claim that the old cleanup was safe.
 `language-worker-update.spec.mjs` also installs fixed root v37 and generated app
 v5 workers from the previous bf6d865 preview. Both new workers must reach the
 actual waiting state while their old pages remain open. Closing only the app
-activates v6 while root v38 keeps waiting; closing the root then activates v38.
+activates v7 while root v39 keeps waiting; closing the root then activates v39.
 The fictitious contact, unrelated cache, separate registrations, new local
 language links and genuine offline reloads remain intact. The existing app
 worker keeps its scoped clients.claim; the root has neither clients.claim nor

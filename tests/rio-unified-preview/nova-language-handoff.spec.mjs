@@ -250,3 +250,28 @@ test('incoming language routes remain readable at 320 pixels and focus the expla
     await checked.verify();
   }finally{await checked.context.close();}
 });
+
+test('local NOVA links and mobile navigation wrap within 320 pixels at actual double text size',async({browser})=>{
+  const checked=await checkedContext(browser,{viewport:{width:320,height:900}}),page=await checked.context.newPage();
+  try{
+    for(const source of ['root','app']){
+      await page.goto(fixture.origin+(source==='root'?'/':'/rio/'));
+      await page.evaluate(()=>{document.documentElement.style.fontSize='32px';document.body.style.fontSize='32px';});
+      expect(await page.evaluate(()=>[getComputedStyle(document.documentElement).fontSize,getComputedStyle(document.body).fontSize])).toEqual(['32px','32px']);
+      for(const code of source==='root'?rootLanguages:languages){
+        if(source==='root')await page.locator('.lang-btn[data-lang="'+code+'"]').click();
+        else await page.locator('#language').selectOption(code);
+        const selector=source==='root'?'#rio-unified-reception':'#unified-reception';
+        await expect(page.locator(selector)).toHaveAttribute('href','/rio/reception/#nova-explained:'+code);
+        expect(await page.evaluate(()=>({scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth})),source+'/'+code+' horizontal overflow').toEqual({scrollWidth:320,viewport:320});
+        const targets=source==='root'?[selector,'.mobile-nav a']: [selector];
+        for(const target of targets)for(const link of await page.locator(target).all()){
+          const box=await link.boundingBox();
+          expect(box.width).toBeGreaterThanOrEqual(44);expect(box.height).toBeGreaterThanOrEqual(44);
+          expect(box.x).toBeGreaterThanOrEqual(0);expect(box.x+box.width).toBeLessThanOrEqual(320);
+        }
+      }
+    }
+    await checked.verify();
+  }finally{await checked.context.close();}
+});
