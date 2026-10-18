@@ -73,6 +73,21 @@ De betekenis van branch en autoDeployTrigger is gecontroleerd tegen de
 [officiële Blueprint-specificatie](https://render.com/docs/blueprint-spec).
 Er is geen Blueprint toegepast, geen dienst gewijzigd en geen deploy gestart.
 
+De volledige receptiesuite vond aanvankelijk vier fouten: de nieuwe kaart
+voegde een tweede live-meldingsgebied toe, terwijl de bestaande regel er één
+toestaat. De kaart gebruikt nu de gewone gelabelde taalkeuze en laat het
+bestaande live-statusgebied intact. De oorspronkelijke asserties zijn behouden;
+de nieuwe taalsuite controleert dezelfde grens in alle elf talen.
+
+De containeraanmaak strandde vóór de appbuild tweemaal op een externe ECR
+HTTP429-downloadlimiet. De CI-bron wordt daarom de officiële
+`docker.io/library/node`, vastgepind op exact dezelfde indexdigest
+`sha256:a5f4366e834695d5f363b920c104953a535d3a9864d1bdf74566a0ebe01daee5`.
+De opgehaalde officiële indexbytes en linux/amd64-verwijzing zijn geverifieerd
+tegen de eerder waargenomen ECR-digests; dit is hetzelfde basisbeeld.
+Er zijn geen inloggegevens opgeslagen. Alleen het CI-buildargument verandert;
+het Dockerfile en de Render-diensten worden niet gewijzigd.
+
 ## Controle en behouden tegenbewijs
 
 De eerste nieuwe browserronde gaf 24/26 PASS. De twee fouten betroffen de
@@ -96,7 +111,7 @@ nieuwe draft-PR en het uitvoeringsrapport vastgelegd.
 - **Onderwerp:** NOVA als bestaande mascotte en wegwijzer; herkenbare uitlegkaart in elf talen.
 - **Touchflow:** expliciete taalselector; geen gekoppelde consent- of contactactie.
 - **Begrijpelijkheid:** drie korte onderdelen: weg wijzen, zelf kiezen, gesloten grenzen.
-- **Toegankelijkheid:** 48-pixelkeuze, eigen taal/RTL, live uitleg en leesbare HTML-fallback; browser- en schermcontrole, geen certificeringsclaim.
+- **Toegankelijkheid:** 48-pixelkeuze, eigen taal/RTL, gelabelde uitleg en leesbare HTML-fallback; het bestaande ene live-statusgebied blijft behouden. Browser- en schermcontrole, geen certificeringsclaim.
 - **RIO-context:** elf uitlegversies, zeven VisitCard-talen; alleen een bestaande sessietaalcode wordt tussen VisitCard en app gedeeld.
 - **Provenance en grens:** genoemde basis, bestaande mascotte, geschreven vertalingen; kijken verleent geen toelating.
 - **Validatie:** 26 lokale browserproeven na gecorrigeerde fallback; exacte CI en schermmetingen volgen in het uitvoeringsbewijs.

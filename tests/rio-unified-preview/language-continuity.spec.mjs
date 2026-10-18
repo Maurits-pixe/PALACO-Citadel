@@ -53,6 +53,7 @@ test('NOVA explains its role and unchanged boundaries in all eleven languages wi
       scopes.add(await page.locator('#nova-language-scope').textContent());
       await expect(page.locator('#runtime-nova')).toHaveAttribute('data-state','unconfirmed');
       await expect(page.locator('#refresh-availability')).toBeDisabled();
+      await expect(page.locator('[aria-live="polite"]')).toHaveCount(1);
       expect(await page.evaluate(()=>[localStorage.length,sessionStorage.length])).toEqual([0,0]);
       const bounds=await page.locator('#nova-language').boundingBox();expect(bounds.height).toBeGreaterThanOrEqual(44);
       expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
