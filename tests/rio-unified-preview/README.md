@@ -17,7 +17,10 @@ or desktop project settings. `nova-routes.spec.mjs` adds four scenarios per
 surface: eleven translated route choices without background traffic or storage,
 the script-free Dutch fallback, native keyboard popups intercepted locally to
 verify destination/referrer/opener boundaries, and 320px layout with actual 200%
-root text. The complete suite now has 34 browser cases.
+root text. `nova-language-handoff.spec.mjs` adds five cases per surface for
+local-only language fragments, exact validation, keyboard focus, browser fallback,
+script-free fallback, file-mode isolation and narrow layout. The complete suite
+now has 46 browser cases, including the two worker migration cases below.
 
 Run the build/HTTP tests and this suite sequentially: both rebuild the same fixed
 generated directory. Do not rebuild it while a running fixture is serving it.
@@ -50,10 +53,26 @@ cache entry.
 It intentionally includes its old broad fetch handler and destructive cache
 cleanup. It first activates in an empty, isolated profile; only afterward are the
 app worker, app cache, unrelated cache and fictitious contact created. The current
-v37 worker must then reach the real `waiting` state without reloading its open
+v38 worker must then reach the real `waiting` state without reloading its open
 client. Closing the root client allows activation while the app remains open.
 The test proves migration from this fixed old worker/cache state; it does not
 reconstruct the historical HTML or claim that the old cleanup was safe.
+
+`language-worker-update.spec.mjs` also installs fixed root v37 and generated app
+v5 workers from the previous bf6d865 preview. Both new workers must reach the
+actual waiting state while their old pages remain open. Closing only the app
+activates v6 while root v38 keeps waiting; closing the root then activates v38.
+The fictitious contact, unrelated cache, separate registrations, new local
+language links and genuine offline reloads remain intact. The existing app
+worker keeps its scoped clients.claim; the root has neither clients.claim nor
+skipWaiting. The fixture uses current generated HTML/assets, so this proves the
+worker/cache transition rather than reconstructing every historical UI byte.
+
+Fixed fixture provenance (LF bytes pinned by .gitattributes):
+- root-v37-sw.js: bf6d8652e0785377325c78d219fb6f31e276533d:ambassades/rio/visitcard/sw.js,
+  SHA256 a44e3295e908c92d83e7d92e9c32e89ae42079a6a7a8c9ca32f6d1a3c80bf742.
+- app-v5-sw.js: generated render-dist/rio/sw.js from that same verified preview,
+  SHA256 4af7f56c4ae3d4616d701ba697b2bee1a28aaf015f230b231c71c604753fac9f.
 
 No test grants identity, verifies a real phone or email, starts a chat service,
 contacts a person, deploys, or merges. Test output goes to

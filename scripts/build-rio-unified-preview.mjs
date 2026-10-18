@@ -31,19 +31,22 @@ function emit(path, content) {
 const navigation = `
 (() => {
   const labels = {
-    nl: ['RIO · VisitCard', 'NOVA · Receptie (Nederlands)'], en: ['RIO · VisitCard', 'NOVA · Reception (Dutch)'],
-    de: ['RIO · VisitCard', 'NOVA · Empfang (Niederländisch)'], fr: ['RIO · VisitCard', 'NOVA · Accueil (néerlandais)'],
-    es: ['RIO · VisitCard', 'NOVA · Recepción (neerlandés)'], it: ['RIO · VisitCard', 'NOVA · Accoglienza (olandese)'],
-    pt: ['RIO · VisitCard', 'NOVA · Receção (neerlandês)'], ru: ['RIO · VisitCard', 'NOVA · Приёмная (нидерландский)'],
-    zh: ['RIO · VisitCard', 'NOVA · 接待（荷兰语）'], ar: ['RIO · VisitCard', 'NOVA · الاستقبال (بالهولندية)'],
-    eo: ['RIO · VisitCard', 'NOVA · Akceptejo (nederlande)']
+    nl: ['RIO · VisitCard', 'NOVA uitgelegd · receptie (Nederlands)'], en: ['RIO · VisitCard', 'NOVA explained · reception (Dutch)'],
+    de: ['RIO · VisitCard', 'NOVA erklärt · Empfang (Niederländisch)'], fr: ['RIO · VisitCard', 'NOVA expliquée · accueil (néerlandais)'],
+    es: ['RIO · VisitCard', 'NOVA explicada · recepción (neerlandés)'], it: ['RIO · VisitCard', 'NOVA spiegata · accoglienza (olandese)'],
+    pt: ['RIO · VisitCard', 'NOVA explicada · receção (neerlandês)'], ru: ['RIO · VisitCard', 'О NOVA · приёмная (нидерландский)'],
+    zh: ['RIO · VisitCard', 'NOVA 说明 · 接待（荷兰语）'], ar: ['RIO · VisitCard', 'شرح NOVA · الاستقبال (بالهولندية)'],
+    eo: ['RIO · VisitCard', 'NOVA klarigita · akceptejo (nederlande)']
   };
   const update = () => {
-    const copy = labels[document.documentElement.lang.split('-')[0]] || labels.en;
+    const requested = document.documentElement.lang.split('-')[0];
+    const language = Object.hasOwn(labels, requested) ? requested : 'en';
+    const copy = labels[language];
     const prefix = location.protocol === 'file:' ? '${PREVIEW_ORIGIN}' : '';
     [['unified-home','/'],['unified-reception','/rio/reception/']].forEach(([id,path],index) => {
       const link = document.getElementById(id);
-      link.textContent = copy[index]; link.href = prefix + path;
+      link.textContent = copy[index];
+      link.href = prefix + path + (index === 1 && !prefix ? '#nova-explained:' + language : '');
       if (prefix) { link.target = '_blank'; link.rel = 'noopener noreferrer'; }
     });
   };
@@ -57,7 +60,7 @@ export function buildUnifiedPreview() {
   if (relative(root, output) !== 'render-dist' || realpathSync(dirname(output)) !== root
       || (existsSync(output) && (lstatSync(output).isSymbolicLink() || realpathSync(output) !== output))) throw Error('UNSAFE_OUTPUT_DIRECTORY');
   const originalApp = text('ambassades/rio/palaco-rio-start-v0.1.html');
-  const nav = '<nav class="actions" aria-label="PALACO RIO" style="margin:0 0 21px"><a id="unified-home" class="btn outline" href="/">RIO · VisitCard</a><a id="unified-reception" class="btn outline" href="/rio/reception/" hreflang="nl">NOVA · Receptie (Nederlands)</a></nav>\n';
+  const nav = '<nav class="actions" aria-label="PALACO RIO" style="margin:0 0 21px"><a id="unified-home" class="btn outline" href="/">RIO · VisitCard</a><a id="unified-reception" class="btn outline" href="/rio/reception/" hreflang="nl">NOVA uitgelegd · receptie (Nederlands)</a></nav>\n';
   let app = replaceOnce(originalApp, '<div class="actions" style="margin:0 0 21px">', nav + '<div class="actions" style="margin:0 0 21px">');
   const inline = [...app.matchAll(/<script>([\s\S]*?)<\/script>/g)];
   if (inline.length !== 1) throw Error('SOURCE_CONTRACT_CHANGED');
@@ -74,7 +77,7 @@ export function buildUnifiedPreview() {
     '<head>', '<head>\n<link rel="icon" href="/rio/icon-192.png" type="image/png">');
   const appDownload = replaceOnce(app, inline[0][0], '<script>' + appScript + '</script>');
   if (Buffer.byteLength(appDownload) >= 100 * 1024) throw Error('DOWNLOAD_TOO_LARGE');
-  let appWorker = replaceOnce(text('ambassades/rio/sw.js'), 'palaco-rio-start-v0.1-3', 'palaco-rio-start-v0.1-5');
+  let appWorker = replaceOnce(text('ambassades/rio/sw.js'), 'palaco-rio-start-v0.1-3', 'palaco-rio-start-v0.1-6');
   appWorker = replaceOnce(appWorker, "const ASSETS=['/rio/','/rio/manifest.webmanifest','/rio/icon-192.png','/rio/icon-512.png'];", "const ASSETS=['/rio/','/rio/start.js','/rio/manifest.webmanifest','/rio/icon-192.png','/rio/icon-512.png'];");
   let reception = replaceOnce(text('ambassades/rio/reception/index.html'), '<html lang="nl">', '<html lang="nl" data-runtime-mode="static-preview">');
   reception = replaceOnce(reception, '<head>', '<head>\n  <link rel="icon" href="/icon-192.svg" type="image/svg+xml">');

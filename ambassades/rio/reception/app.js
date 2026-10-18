@@ -109,6 +109,15 @@
       'Esploru la akceptejon', 'Provu elpensitan peton ĉe NOVA. Elekto ĉe la akceptejo ne malfermas kontakton kun alia persono.', 'Malfermu la NOVA-provon'],
   };
   const novaLanguage = byId('nova-language');
+  function novaLanguageFromLink() {
+    const match = /^#nova-explained:([a-z]{2})$/.exec(location.hash);
+    return match && Object.hasOwn(novaCopy, match[1]) ? match[1] : null;
+  }
+  function focusNovaExplanation() {
+    const section = byId('nova-explained');
+    section.focus({ preventScroll: true });
+    section.scrollIntoView({ block: 'start' });
+  }
   function explainNova(language) {
     const selected = Object.hasOwn(novaCopy, language) ? language : 'nl';
     const section = byId('nova-explained');
@@ -123,11 +132,20 @@
     novaLanguage.value = selected;
   }
   if (novaLanguage) {
-    explainNova(navigator.language?.toLowerCase().split('-')[0]);
+    const fromLink = novaLanguageFromLink();
+    explainNova(fromLink || navigator.language?.toLowerCase().split('-')[0]);
     novaLanguage.disabled = false;
     const fallbackHint = byId('nova-no-script');
     if (fallbackHint) fallbackHint.hidden = true;
     novaLanguage.addEventListener('change', () => explainNova(novaLanguage.value));
+    if (fromLink) focusNovaExplanation();
+    window.addEventListener('hashchange', () => {
+      const language = novaLanguageFromLink();
+      if (language) {
+        explainNova(language);
+        focusNovaExplanation();
+      }
+    });
   }
   const nova = byId('runtime-nova');
   const device = byId('runtime-device');

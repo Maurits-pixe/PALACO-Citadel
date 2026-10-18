@@ -246,6 +246,11 @@ test('translated NOVA choices keep local runtime destinations and create no extr
     await expect(page.locator('[aria-live="polite"]')).toHaveCount(1);
     await noConnectionClaim(page);
   }
+  await page.evaluate(() => { location.hash = '#nova-explained:ar'; });
+  await expect(page.locator('#nova-language')).toHaveValue('ar');
+  await expect(page.locator('#nova-explained')).toBeFocused();
+  await expect(page.locator('#runtime-nova')).toHaveAttribute('data-state', 'available');
+  await noConnectionClaim(page);
   expect(api.sort()).toEqual([['GET', DEVICE], ['GET', NOVA]].sort());
   expect(foreign).toEqual([]);
   expect(await context.cookies()).toEqual([]);

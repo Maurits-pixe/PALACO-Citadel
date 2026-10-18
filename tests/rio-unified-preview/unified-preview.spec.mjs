@@ -9,9 +9,9 @@ import { CSP } from '../../scripts/build-rio-unified-preview.mjs';
 
 const repository = fileURLToPath(new URL('../../', import.meta.url));
 const output = resolve(repository, 'render-dist');
-const ROOT_CACHE = 'palaco-rio-shell-v37-unified-language';
+const ROOT_CACHE = 'palaco-rio-shell-v38-nova-language-handoff';
 const OLD_ROOT_CACHE = 'palaco-rio-shell-v35-guard-explanations';
-const APP_CACHE = 'palaco-rio-start-v0.1-5';
+const APP_CACHE = 'palaco-rio-start-v0.1-6';
 const ROOT_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/rio-engine-web.mjs', '/engine.mjs', '/chat-preview.mjs', '/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg', '/integration.mjs', '/rio/reception/nova.png'].sort();
 const APP_ASSETS = ['/rio/', '/rio/start.js', '/rio/manifest.webmanifest', '/rio/icon-192.png', '/rio/icon-512.png'].sort();
 let fixture;
@@ -95,7 +95,7 @@ test('generated public bundle has working mutual navigation, seven VisitCard lan
     rootTitles.add((await page.locator('[data-i18n="tagline"]').textContent()).trim());
     integrationPolicies.add((await page.locator('[data-rio-integration="policy"]').textContent()).trim());
     await expect(page.locator('#rio-unified-offline')).toHaveAttribute('href', '/rio/');
-    await expect(page.locator('#rio-unified-reception')).toHaveAttribute('href', '/rio/reception/');
+    await expect(page.locator('#rio-unified-reception')).toHaveAttribute('href', '/rio/reception/#nova-explained:' + language);
     await expect(page.locator('#rio-unified-offline')).toBeVisible();
     await expect(page.locator('#rio-unified-reception')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), language).toBe(true);
@@ -105,9 +105,9 @@ test('generated public bundle has working mutual navigation, seven VisitCard lan
   await page.locator('#rio-unified-offline').click();
   await expect(page).toHaveURL(fixture.origin + '/rio/');
   await expect(page.locator('#unified-home')).toHaveAttribute('href', '/');
-  await expect(page.locator('#unified-reception')).toHaveAttribute('href', '/rio/reception/');
+  await expect(page.locator('#unified-reception')).toHaveAttribute('href', '/rio/reception/#nova-explained:zh');
   await page.locator('#unified-reception').click();
-  await expect(page).toHaveURL(fixture.origin + '/rio/reception/');
+  await expect(page).toHaveURL(fixture.origin + '/rio/reception/#nova-explained:zh');
   await page.locator('a.brand[href="/"]').click();
   await expect(page).toHaveURL(fixture.origin + '/');
   for (const path of ['/auth/server.mjs', '/api/me', '/api/rio/nova/runtime', '/api/rio/device-test/runtime', '/package.json', '/scripts/build-rio-unified-preview.mjs', '/ambassades/auth/server.mjs']) {
@@ -247,7 +247,7 @@ test('root worker excludes private, query, download, POST and real loopback cros
   } finally { await context.close(); await isolated.close(); await other.close(); }
 });
 
-test('fixed v35 root update to v37 genuinely waits and preserves the active RIO worker, contacts and unrelated cache', async ({ browser }, testInfo) => {
+test('fixed v35 root update to v38 genuinely waits and preserves the active RIO worker, contacts and unrelated cache', async ({ browser }, testInfo) => {
   const legacyWorker = await readFile(new URL('./fixtures/root-v35-sw.js', import.meta.url), 'utf8');
   const currentWorker = await readFile(join(output, 'sw.js'), 'utf8');
   expect(currentWorker).not.toContain('skipWaiting');

@@ -37,7 +37,7 @@ test('build transforms only preview artifacts; web app uses a self-only external
  assert.ok(download.includes('<script>'));assert.ok(!/<script[^>]*\bsrc=/i.test(download));
  assert.ok(Buffer.byteLength(download)<100*1024);
  assert.ok(source('render-dist/rio/start.js').includes("novaLink.href='"+TRIAL_ORIGIN+"'"));
- assert.ok(source('render-dist/rio/sw.js').includes('palaco-rio-start-v0.1-5'));
+ assert.ok(source('render-dist/rio/sw.js').includes('palaco-rio-start-v0.1-6'));
  assert.ok(source('render-dist/rio/sw.js').includes("'/rio/start.js'"));
  assert.ok(source('ambassades/rio/sw.js').includes('palaco-rio-start-v0.1-3'));
  assert.deepEqual(JSON.parse(source('render-dist/rio/manifest.webmanifest')),JSON.parse(source('ambassades/rio/manifest.webmanifest')));
