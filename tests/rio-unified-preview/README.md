@@ -13,11 +13,20 @@ explanations without storage/API access; plain-HTML fallback without scripts;
 shared session language; safe app-only/invalid preferences; denied/quota storage;
 real offline language navigation; and query precedence with a file-mode download
 that never reads the new session-language preference. Contexts inherit the mobile
-or desktop project settings. The complete suite now has 26 browser cases.
+or desktop project settings. `nova-routes.spec.mjs` adds four scenarios per
+surface: eleven translated route choices without background traffic or storage,
+the script-free Dutch fallback, native keyboard popups intercepted locally to
+verify destination/referrer/opener boundaries, and 320px layout with actual 200%
+root text. The complete suite now has 34 browser cases.
+
+Run the build/HTTP tests and this suite sequentially: both rebuild the same fixed
+generated directory. Do not rebuild it while a running fixture is serving it.
 Its HTTP fixture serves only that generated directory, including the explicit
 download file; it never runs the authentication server or exposes repository
-sources. The normal fixture uses the builder's exported CSP. No public online
-trial is opened and no external request is expected.
+sources. The normal fixture uses the builder's exported CSP. Only the popup
+scenario issues the two fixed trial navigations, fulfilled entirely by a local
+interception; no request is sent to the public trial service. Other cases expect
+zero external requests.
 
 Six scenarios run on mobile and desktop: mutual navigation and the seven
 VisitCard translations; a read-only static NOVA page with PHONE-or-EMAIL design

@@ -79,7 +79,14 @@ export function buildUnifiedPreview() {
   let reception = replaceOnce(text('ambassades/rio/reception/index.html'), '<html lang="nl">', '<html lang="nl" data-runtime-mode="static-preview">');
   reception = replaceOnce(reception, '<head>', '<head>\n  <link rel="icon" href="/icon-192.svg" type="image/svg+xml">');
   reception = replaceOnce(reception, '<a class="brand" href="/rio/"', '<a class="brand" href="/"');
-  for (const route of ['nova','device-test']) reception = replaceOnce(reception, 'href="/rio/' + route + '/"', 'href="' + TRIAL_ORIGIN + '/rio/' + route + '/" target="_blank" rel="noopener noreferrer"');
+  for (const [id, style, route, alreadyOpensTab] of [
+    ['start-device-test', 'primary', 'device-test', false], ['start-nova', 'secondary', 'nova', false],
+    ['nova-guide-device', 'secondary', 'device-test', true], ['nova-guide-reception', 'secondary', 'nova', true],
+  ]) {
+    const prefix = '<a id="' + id + '" class="button button-' + style + '" href="';
+    reception = replaceOnce(reception, prefix + '/rio/' + route + '/"', prefix + TRIAL_ORIGIN + '/rio/' + route + '/"' + (alreadyOpensTab ? '' : ' target="_blank" rel="noopener noreferrer"'));
+  }
+  reception = replaceOnce(reception, 'id="nova-trial-destination" class="nova-language-scope" hidden', 'id="nova-trial-destination" class="nova-language-scope"');
   reception = replaceOnce(reception, 'Zet JavaScript aan om hier de bereikbaarheid te controleren.', 'Deze preview meet de bereikbaarheid niet; de proeven openen op de beveiligde proefserver.');
   if (existsSync(output)) rmSync(output, {recursive:true,force:true});
   mkdirSync(output, {recursive:true});

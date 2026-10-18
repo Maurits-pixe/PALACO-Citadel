@@ -48,6 +48,18 @@ test('static reception disables measurement and names only the fixed HTTPS trial
  assert.ok(html.includes('data-runtime-mode="static-preview"'));
  for(const path of ['/rio/nova/','/rio/device-test/'])assert.ok(html.includes('href="'+TRIAL_ORIGIN+path+'"'));
  assert.ok(!html.includes('href="/rio/nova/"'));assert.ok(!html.includes('href="/rio/device-test/"'));
+ for(const [id,path] of [['start-device-test','device-test'],['start-nova','nova'],['nova-guide-device','device-test'],['nova-guide-reception','nova']]) {
+   const links=[...html.matchAll(new RegExp('<a id="'+id+'"[^>]*>','g'))];
+   assert.equal(links.length,1,id);
+   assert.ok(links[0][0].includes('href="'+TRIAL_ORIGIN+'/rio/'+path+'/"'),id);
+   assert.ok(links[0][0].includes('target="_blank"'),id);
+   assert.ok(links[0][0].includes('rel="noopener noreferrer"'),id);
+ }
+ assert.ok(html.includes('id="nova-trial-destination" class="nova-language-scope">'));
+ assert.ok(html.includes('<bdi dir="ltr" lang="en">'+new URL(TRIAL_ORIGIN).hostname+'</bdi>'));
+ const original=source('ambassades/rio/reception/index.html');
+ assert.ok(original.includes('id="nova-trial-destination" class="nova-language-scope" hidden'));
+ assert.ok(original.includes('href="/rio/device-test/"'));assert.ok(original.includes('href="/rio/nova/"'));
  const profile=JSON.parse(source('ambassades/deployment/render-unified-preview.yaml'));
  assert.equal(profile.services.length,1);
  const service=profile.services[0];

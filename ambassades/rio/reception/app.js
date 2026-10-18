@@ -72,6 +72,42 @@
       'Kio restas fermita?', 'Ĉi tiu klarigo ne registras vin. Ĝi ne konfirmas telefonnumeron aŭ retpoŝtadreson kaj ne malfermas veran babilejon. BRI9ADE estas ĉi tie projekto; la naŭ kontroloj ne estas farataj.',
       'Ĉi tiu klarigo pri NOVA estas tradukita. La cetera akceptejo restas en la nederlanda. Via lingvoelekto ne estas konservata ĉi tie.'],
   };
+  const novaRouteKeys = ['title', 'note', 'destination', 'deviceTitle', 'deviceCopy', 'deviceAction', 'receptionTitle', 'receptionCopy', 'receptionAction'];
+  const novaRoutes = {
+    nl: ['Kies een proef', 'De proeven zijn Nederlands en openen in een nieuw tabblad. Deze uitleg blijft hier open.', 'Andere proefsite:',
+      'Met twee apparaten', 'Stuur samen gemaakte testcodes heen en terug. De testserver kan de codes lezen. Gebruik geen persoonlijke berichten.', 'Open de telefoonproef',
+      'Bekijk de ontvangst', 'Probeer een verzonnen verzoek bij NOVA. Een ontvangstkeuze opent geen contact met een andere persoon.', 'Open de NOVA-proef'],
+    en: ['Choose a trial', 'The trials are in Dutch and open in a new tab. This explanation stays open here.', 'Other trial site:',
+      'With two devices', 'Send made-up test codes back and forth together. The test server can read the codes. Do not use personal messages.', 'Open the phone trial',
+      'Explore the reception', 'Try a made-up request with NOVA. A reception choice does not open contact with another person.', 'Open the NOVA trial'],
+    de: ['Wähle einen Test', 'Die Tests sind auf Niederländisch und öffnen sich in einem neuen Tab. Diese Erklärung bleibt hier geöffnet.', 'Andere Testseite:',
+      'Mit zwei Geräten', 'Sendet gemeinsam erfundene Testcodes hin und her. Der Testserver kann die Codes lesen. Verwendet keine persönlichen Nachrichten.', 'Öffne den Telefontest',
+      'Entdecke den Empfang', 'Probiere eine erfundene Anfrage bei NOVA aus. Eine Empfangsauswahl öffnet keinen Kontakt zu einer anderen Person.', 'Öffne den NOVA-Test'],
+    fr: ['Choisissez un essai', 'Les essais sont en néerlandais et s’ouvrent dans un nouvel onglet. Cette explication reste ouverte ici.', 'Autre site d’essai :',
+      'Avec deux appareils', 'Envoyez ensemble des codes de test inventés dans les deux sens. Le serveur de test peut les lire. N’utilisez pas de messages personnels.', 'Ouvrir l’essai sur téléphone',
+      'Découvrez l’accueil', 'Essayez une demande inventée auprès de NOVA. Un choix à l’accueil n’ouvre pas de contact avec une autre personne.', 'Ouvrir l’essai NOVA'],
+    es: ['Elige una prueba', 'Las pruebas están en neerlandés y se abren en una pestaña nueva. Esta explicación queda abierta aquí.', 'Otro sitio de pruebas:',
+      'Con dos dispositivos', 'Enviad juntos códigos de prueba inventados en ambos sentidos. El servidor de prueba puede leerlos. No uséis mensajes personales.', 'Abrir la prueba de teléfono',
+      'Explora la recepción', 'Prueba una solicitud inventada con NOVA. Elegir una opción en la recepción no abre contacto con otra persona.', 'Abrir la prueba de NOVA'],
+    it: ['Scegli una prova', 'Le prove sono in olandese e si aprono in una nuova scheda. Questa spiegazione resta aperta qui.', 'Altro sito di prova:',
+      'Con due dispositivi', 'Inviate insieme codici di prova inventati in entrambe le direzioni. Il server di prova può leggerli. Non usate messaggi personali.', 'Apri la prova sul telefono',
+      'Scopri l’accoglienza', 'Prova una richiesta inventata con NOVA. Una scelta all’accoglienza non apre un contatto con un’altra persona.', 'Apri la prova NOVA'],
+    pt: ['Escolhe um teste', 'Os testes estão em neerlandês e abrem num novo separador. Esta explicação fica aberta aqui.', 'Outro site de testes:',
+      'Com dois dispositivos', 'Enviem juntos códigos de teste inventados nos dois sentidos. O servidor de teste pode ler os códigos. Não usem mensagens pessoais.', 'Abrir o teste no telefone',
+      'Explora a receção', 'Experimenta um pedido inventado com a NOVA. Uma escolha na receção não abre contacto com outra pessoa.', 'Abrir o teste da NOVA'],
+    ru: ['Выбери пробу', 'Пробы на нидерландском языке откроются в новой вкладке. Это объяснение останется открытым здесь.', 'Другой сайт для проб:',
+      'С двумя устройствами', 'Отправляйте друг другу придуманные тестовые коды. Тестовый сервер может читать коды. Не используйте личные сообщения.', 'Открыть пробу с телефоном',
+      'Посмотри приёмную', 'Попробуй вымышленный запрос к NOVA. Выбор в приёмной не открывает контакт с другим человеком.', 'Открыть пробу NOVA'],
+    zh: ['选择一项试验', '试验页面为荷兰语，将在新标签页中打开。本说明会继续在这里保持打开。', '另一个试验网站：',
+      '使用两台设备', '一起往返发送虚构的测试代码。测试服务器可以读取这些代码。请勿使用私人消息。', '打开手机试验',
+      '了解接待过程', '向 NOVA 提交一个虚构的请求进行试验。在接待页做出选择不会开启与他人的联系。', '打开 NOVA 试验'],
+    ar: ['اختر تجربة', 'صفحات التجارب باللغة الهولندية وتُفتح في علامة تبويب جديدة. يبقى هذا الشرح مفتوحًا هنا.', 'موقع آخر للتجربة:',
+      'باستخدام جهازين', 'تبادلا رموز اختبار مختلقة ذهابًا وإيابًا. يستطيع خادم الاختبار قراءة الرموز. لا تستخدما رسائل شخصية.', 'افتح تجربة الهاتف',
+      'استكشف الاستقبال', 'جرّب طلبًا مختلقًا لدى NOVA. الاختيار في صفحة الاستقبال لا يفتح تواصلًا مع شخص آخر.', 'افتح تجربة NOVA'],
+    eo: ['Elektu provon', 'La provoj estas en la nederlanda kaj malfermiĝas en nova langeto. Ĉi tiu klarigo restas malfermita ĉi tie.', 'Alia prova retejo:',
+      'Per du aparatoj', 'Sendu kune elpensitajn testkodojn tien kaj reen. La testservilo povas legi la kodojn. Ne uzu personajn mesaĝojn.', 'Malfermu la telefonan provon',
+      'Esploru la akceptejon', 'Provu elpensitan peton ĉe NOVA. Elekto ĉe la akceptejo ne malfermas kontakton kun alia persono.', 'Malfermu la NOVA-provon'],
+  };
   const novaLanguage = byId('nova-language');
   function explainNova(language) {
     const selected = Object.hasOwn(novaCopy, language) ? language : 'nl';
@@ -80,6 +116,9 @@
     section.dir = selected === 'ar' ? 'rtl' : 'ltr';
     section.querySelectorAll('[data-nova-copy]').forEach(element => {
       element.textContent = novaCopy[selected][novaCopyKeys.indexOf(element.dataset.novaCopy)];
+    });
+    section.querySelectorAll('[data-nova-route-copy]').forEach(element => {
+      element.textContent = novaRoutes[selected][novaRouteKeys.indexOf(element.dataset.novaRouteCopy)];
     });
     novaLanguage.value = selected;
   }
