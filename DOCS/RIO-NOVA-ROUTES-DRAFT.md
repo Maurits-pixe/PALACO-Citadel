@@ -35,6 +35,9 @@ Het bestaande ene beleefde live-statusgebied blijft behouden. De routegroep
 heeft een naam; gewone links werken ook zonder scripts. De header kan nu bij
 320 pixels met dubbele tekstgrootte omlopen zonder horizontale overloop.
 De publieke lijst blijft 22 bestanden. Caches en publicatieprofiel veranderen niet.
+Een aanvullende schermbeoordeling laat de nieuwe knoptekst in dezelfde
+inline tekststroom lopen als het pijltje. Bij dubbele tekstgrootte blijft daardoor
+meer ruimte voor hele woorden; de 44-pixelbediening blijft behouden.
 
 ## Verificatie en tegenbewijs
 
