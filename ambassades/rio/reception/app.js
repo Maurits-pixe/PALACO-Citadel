@@ -3,6 +3,93 @@
   const MAX_BYTES = 8192;
   const TIMEOUT_MS = 8000;
   const byId = id => document.getElementById(id);
+  const novaCopyKeys = ['label', 'title', 'language', 'intro', 'doesTitle', 'does', 'choiceTitle', 'choice', 'boundaryTitle', 'boundary', 'scope'];
+  const novaCopy = {
+    nl: ['NOVA · jouw wegwijzer', 'Wie is NOVA?', 'Taal van deze uitleg',
+      'NOVA helpt je beginnen bij PALACO RIO. De mascotte wijst je de weg.',
+      'Dit doet NOVA', 'NOVA legt de routes uit. Je kunt naar de receptie kijken of een proef met een tweede apparaat openen.',
+      'Jij kiest', 'Jij beslist of je verdergaat. Een pagina bekijken of een knop aanraken geeft geen toestemming voor contact.',
+      'Dit blijft nog gesloten', 'Deze uitleg registreert je niet. Zij bevestigt geen telefoonnummer of e-mailadres en opent geen echte chat. BRI9ADE is hier een ontwerp; er worden geen negen controles uitgevoerd.',
+      'Deze NOVA-uitleg is vertaald. De overige receptie blijft Nederlands. Je taalkeuze wordt hier niet opgeslagen.'],
+    en: ['NOVA · your guide', 'Who is NOVA?', 'Language of this explanation',
+      'NOVA helps you get started with PALACO RIO. The mascot shows you the way.',
+      'What NOVA does', 'NOVA explains the routes. You can explore the reception or open a trial with a second device.',
+      'You choose', 'You decide whether to continue. Viewing a page or touching a button does not give permission for contact.',
+      'What remains closed', 'This explanation does not register you. It does not confirm a phone number or email address, or open a real chat. BRI9ADE is a design here; its nine checks are not performed.',
+      'This NOVA explanation is translated. The rest of the reception remains in Dutch. Your language choice is not saved here.'],
+    de: ['NOVA · dein Wegweiser', 'Wer ist NOVA?', 'Sprache dieser Erklärung',
+      'NOVA hilft dir beim Einstieg in PALACO RIO. Das Maskottchen zeigt dir den Weg.',
+      'Das macht NOVA', 'NOVA erklärt die Wege. Du kannst dir den Empfang ansehen oder einen Test mit einem zweiten Gerät öffnen.',
+      'Du entscheidest', 'Du entscheidest, ob du weitergehst. Eine Seite anzusehen oder eine Schaltfläche zu berühren erteilt keine Erlaubnis zum Kontakt.',
+      'Das bleibt noch geschlossen', 'Diese Erklärung registriert dich nicht. Sie bestätigt weder eine Telefonnummer noch eine E-Mail-Adresse und öffnet keinen echten Chat. BRI9ADE ist hier ein Entwurf; die neun Prüfungen werden nicht durchgeführt.',
+      'Diese NOVA-Erklärung ist übersetzt. Der übrige Empfang bleibt auf Niederländisch. Deine Sprachwahl wird hier nicht gespeichert.'],
+    fr: ['NOVA · votre guide', 'Qui est NOVA ?', 'Langue de cette explication',
+      'NOVA vous aide à découvrir PALACO RIO. La mascotte vous montre le chemin.',
+      'Ce que fait NOVA', 'NOVA explique les parcours. Vous pouvez découvrir l’accueil ou ouvrir un essai avec un deuxième appareil.',
+      'Vous choisissez', 'Vous décidez de continuer ou non. Consulter une page ou toucher un bouton ne donne pas la permission de prendre contact.',
+      'Ce qui reste fermé', 'Cette explication ne vous inscrit pas. Elle ne confirme ni numéro de téléphone ni adresse e-mail et n’ouvre pas de véritable chat. BRI9ADE est ici un projet ; les neuf contrôles ne sont pas effectués.',
+      'Cette explication de NOVA est traduite. Le reste de l’accueil demeure en néerlandais. Votre choix de langue n’est pas enregistré ici.'],
+    es: ['NOVA · tu guía', '¿Quién es NOVA?', 'Idioma de esta explicación',
+      'NOVA te ayuda a empezar en PALACO RIO. La mascota te muestra el camino.',
+      'Qué hace NOVA', 'NOVA explica las rutas. Puedes explorar la recepción o abrir una prueba con un segundo dispositivo.',
+      'Tú eliges', 'Tú decides si continúas. Ver una página o tocar un botón no da permiso para establecer contacto.',
+      'Qué sigue cerrado', 'Esta explicación no te registra. No confirma un número de teléfono ni una dirección de correo, ni abre un chat real. BRI9ADE es aquí un diseño; no se realizan los nueve controles.',
+      'Esta explicación de NOVA está traducida. El resto de la recepción sigue en neerlandés. Tu elección de idioma no se guarda aquí.'],
+    it: ['NOVA · la tua guida', 'Chi è NOVA?', 'Lingua di questa spiegazione',
+      'NOVA ti aiuta a iniziare con PALACO RIO. La mascotte ti mostra la strada.',
+      'Cosa fa NOVA', 'NOVA spiega i percorsi. Puoi esplorare l’accoglienza o aprire una prova con un secondo dispositivo.',
+      'Scegli tu', 'Decidi tu se continuare. Guardare una pagina o toccare un pulsante non dà il permesso di avviare un contatto.',
+      'Cosa resta chiuso', 'Questa spiegazione non ti registra. Non conferma un numero di telefono o un indirizzo e-mail e non apre una vera chat. BRI9ADE è qui un progetto; i nove controlli non vengono eseguiti.',
+      'Questa spiegazione di NOVA è tradotta. Il resto dell’accoglienza rimane in olandese. La tua scelta della lingua non viene salvata qui.'],
+    pt: ['NOVA · a tua guia', 'Quem é a NOVA?', 'Idioma desta explicação',
+      'A NOVA ajuda-te a começar no PALACO RIO. A mascote mostra-te o caminho.',
+      'O que faz a NOVA', 'A NOVA explica os percursos. Podes explorar a receção ou abrir um teste com um segundo dispositivo.',
+      'Tu escolhes', 'Tu decides se queres continuar. Ver uma página ou tocar num botão não dá autorização para estabelecer contacto.',
+      'O que continua fechado', 'Esta explicação não te regista. Não confirma um número de telefone ou endereço de e-mail, nem abre uma conversa real. A BRI9ADE é aqui um projeto; os nove controlos não são realizados.',
+      'Esta explicação da NOVA está traduzida. O resto da receção continua em neerlandês. A tua escolha de idioma não é guardada aqui.'],
+    ru: ['NOVA · твой проводник', 'Кто такая NOVA?', 'Язык этого объяснения',
+      'NOVA помогает начать знакомство с PALACO RIO. Этот персонаж показывает путь.',
+      'Что делает NOVA', 'NOVA объясняет маршруты. Можно посмотреть приёмную или открыть пробу со вторым устройством.',
+      'Выбираешь ты', 'Ты решаешь, продолжать ли дальше. Просмотр страницы или нажатие кнопки не даёт разрешения на контакт.',
+      'Что пока закрыто', 'Это объяснение не регистрирует тебя. Оно не подтверждает номер телефона или адрес электронной почты и не открывает настоящий чат. BRI9ADE здесь — проект; девять проверок не выполняются.',
+      'Это объяснение NOVA переведено. Остальная приёмная остаётся на нидерландском языке. Твой выбор языка здесь не сохраняется.'],
+    zh: ['NOVA · 你的向导', 'NOVA 是谁？', '本说明的语言',
+      'NOVA 帮助你开始了解 PALACO RIO。这位吉祥物会为你指路。',
+      'NOVA 做什么', 'NOVA 介绍各条路径。你可以了解接待页，或打开使用第二台设备的试验。',
+      '由你选择', '是否继续由你决定。查看页面或点击按钮，并不代表获得联系许可。',
+      '哪些功能仍未开放', '本说明不会为你注册，不会确认电话号码或电子邮箱，也不会开启真正的聊天。BRI9ADE 在这里仍是设计，不会执行九项检查。',
+      '这部分 NOVA 说明已翻译。接待页的其他内容仍为荷兰语。这里不会保存你的语言选择。'],
+    ar: ['NOVA · دليلك', 'من هي NOVA؟', 'لغة هذا الشرح',
+      'تساعدك NOVA على البدء مع PALACO RIO. هذه الشخصية ترشدك إلى الطريق.',
+      'ماذا تفعل NOVA؟', 'تشرح NOVA المسارات. يمكنك استكشاف صفحة الاستقبال أو فتح تجربة باستخدام جهاز ثانٍ.',
+      'أنت تختار', 'أنت تقرر إن كنت تريد المتابعة. مشاهدة صفحة أو لمس زر لا يمنح إذنًا بالتواصل.',
+      'ما الذي لم يُفتح بعد؟', 'هذا الشرح لا يسجّلك. لا يؤكّد رقم هاتف أو عنوان بريد إلكتروني ولا يفتح دردشة حقيقية. تظل BRI9ADE هنا تصميمًا؛ ولا تُجرى الفحوص التسعة.',
+      'تُرجم هذا الشرح الخاص بـ NOVA. تبقى بقية صفحة الاستقبال باللغة الهولندية. لا يُحفظ اختيارك للغة هنا.'],
+    eo: ['NOVA · via gvidanto', 'Kiu estas NOVA?', 'Lingvo de ĉi tiu klarigo',
+      'NOVA helpas vin ekkoni PALACO RIO. La maskoto montras al vi la vojon.',
+      'Kion faras NOVA?', 'NOVA klarigas la vojojn. Vi povas esplori la akceptejon aŭ malfermi provon per dua aparato.',
+      'Vi elektas', 'Vi decidas, ĉu daŭrigi. Rigardi paĝon aŭ tuŝi butonon ne donas permeson por kontakto.',
+      'Kio restas fermita?', 'Ĉi tiu klarigo ne registras vin. Ĝi ne konfirmas telefonnumeron aŭ retpoŝtadreson kaj ne malfermas veran babilejon. BRI9ADE estas ĉi tie projekto; la naŭ kontroloj ne estas farataj.',
+      'Ĉi tiu klarigo pri NOVA estas tradukita. La cetera akceptejo restas en la nederlanda. Via lingvoelekto ne estas konservata ĉi tie.'],
+  };
+  const novaLanguage = byId('nova-language');
+  function explainNova(language) {
+    const selected = Object.hasOwn(novaCopy, language) ? language : 'nl';
+    const section = byId('nova-explained');
+    section.lang = selected === 'zh' ? 'zh-Hans' : selected;
+    section.dir = selected === 'ar' ? 'rtl' : 'ltr';
+    section.querySelectorAll('[data-nova-copy]').forEach(element => {
+      element.textContent = novaCopy[selected][novaCopyKeys.indexOf(element.dataset.novaCopy)];
+    });
+    novaLanguage.value = selected;
+  }
+  if (novaLanguage) {
+    explainNova(navigator.language?.toLowerCase().split('-')[0]);
+    novaLanguage.disabled = false;
+    const fallbackHint = byId('nova-no-script');
+    if (fallbackHint) fallbackHint.hidden = true;
+    novaLanguage.addEventListener('change', () => explainNova(novaLanguage.value));
+  }
   const nova = byId('runtime-nova');
   const device = byId('runtime-device');
   const feedback = byId('availability-feedback');

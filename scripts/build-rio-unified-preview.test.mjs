@@ -37,7 +37,7 @@ test('build transforms only preview artifacts; web app uses a self-only external
  assert.ok(download.includes('<script>'));assert.ok(!/<script[^>]*\bsrc=/i.test(download));
  assert.ok(Buffer.byteLength(download)<100*1024);
  assert.ok(source('render-dist/rio/start.js').includes("novaLink.href='"+TRIAL_ORIGIN+"'"));
- assert.ok(source('render-dist/rio/sw.js').includes('palaco-rio-start-v0.1-4'));
+ assert.ok(source('render-dist/rio/sw.js').includes('palaco-rio-start-v0.1-5'));
  assert.ok(source('render-dist/rio/sw.js').includes("'/rio/start.js'"));
  assert.ok(source('ambassades/rio/sw.js').includes('palaco-rio-start-v0.1-3'));
  assert.deepEqual(JSON.parse(source('render-dist/rio/manifest.webmanifest')),JSON.parse(source('ambassades/rio/manifest.webmanifest')));
@@ -52,6 +52,7 @@ test('static reception disables measurement and names only the fixed HTTPS trial
  assert.equal(profile.services.length,1);
  const service=profile.services[0];
  assert.equal(service.name,new URL(PREVIEW_ORIGIN).hostname.split('.')[0]);assert.equal(service.runtime,'static');
+ assert.equal(service.branch,'codex/rio-nova-multilingual-draft');
  assert.equal(service.autoDeployTrigger,'off');assert.equal(service.staticPublishPath,'render-dist');
  assert.equal(service.buildCommand,'node scripts/build-rio-unified-preview.mjs');
  assert.equal(service.headers.find(header=>header.name==='Content-Security-Policy').value,CSP);

@@ -31,12 +31,12 @@ function emit(path, content) {
 const navigation = `
 (() => {
   const labels = {
-    nl: ['RIO · VisitCard', 'NOVA · Receptie'], en: ['RIO · VisitCard', 'NOVA · Reception'],
-    de: ['RIO · VisitCard', 'NOVA · Empfang'], fr: ['RIO · VisitCard', 'NOVA · Accueil'],
-    es: ['RIO · VisitCard', 'NOVA · Recepción'], it: ['RIO · VisitCard', 'NOVA · Accoglienza'],
-    pt: ['RIO · VisitCard', 'NOVA · Receção'], ru: ['RIO · VisitCard', 'NOVA · Приёмная'],
-    zh: ['RIO · VisitCard', 'NOVA · 接待'], ar: ['RIO · VisitCard', 'NOVA · الاستقبال'],
-    eo: ['RIO · VisitCard', 'NOVA · Akceptejo']
+    nl: ['RIO · VisitCard', 'NOVA · Receptie (Nederlands)'], en: ['RIO · VisitCard', 'NOVA · Reception (Dutch)'],
+    de: ['RIO · VisitCard', 'NOVA · Empfang (Niederländisch)'], fr: ['RIO · VisitCard', 'NOVA · Accueil (néerlandais)'],
+    es: ['RIO · VisitCard', 'NOVA · Recepción (neerlandés)'], it: ['RIO · VisitCard', 'NOVA · Accoglienza (olandese)'],
+    pt: ['RIO · VisitCard', 'NOVA · Receção (neerlandês)'], ru: ['RIO · VisitCard', 'NOVA · Приёмная (нидерландский)'],
+    zh: ['RIO · VisitCard', 'NOVA · 接待（荷兰语）'], ar: ['RIO · VisitCard', 'NOVA · الاستقبال (بالهولندية)'],
+    eo: ['RIO · VisitCard', 'NOVA · Akceptejo (nederlande)']
   };
   const update = () => {
     const copy = labels[document.documentElement.lang.split('-')[0]] || labels.en;
@@ -57,16 +57,24 @@ export function buildUnifiedPreview() {
   if (relative(root, output) !== 'render-dist' || realpathSync(dirname(output)) !== root
       || (existsSync(output) && (lstatSync(output).isSymbolicLink() || realpathSync(output) !== output))) throw Error('UNSAFE_OUTPUT_DIRECTORY');
   const originalApp = text('ambassades/rio/palaco-rio-start-v0.1.html');
-  const nav = '<nav class="actions" aria-label="PALACO RIO" style="margin:0 0 21px"><a id="unified-home" class="btn outline" href="/">RIO · VisitCard</a><a id="unified-reception" class="btn outline" href="/rio/reception/">NOVA · Receptie</a></nav>\n';
+  const nav = '<nav class="actions" aria-label="PALACO RIO" style="margin:0 0 21px"><a id="unified-home" class="btn outline" href="/">RIO · VisitCard</a><a id="unified-reception" class="btn outline" href="/rio/reception/" hreflang="nl">NOVA · Receptie (Nederlands)</a></nav>\n';
   let app = replaceOnce(originalApp, '<div class="actions" style="margin:0 0 21px">', nav + '<div class="actions" style="margin:0 0 21px">');
   const inline = [...app.matchAll(/<script>([\s\S]*?)<\/script>/g)];
   if (inline.length !== 1) throw Error('SOURCE_CONTRACT_CHANGED');
-  const appScript = replaceOnce(inline[0][1], "(isFile?'https://palaco-ambassades.onrender.com':'')", "'" + TRIAL_ORIGIN + "'") + navigation;
+  let appScript = replaceOnce(inline[0][1], "(isFile?'https://palaco-ambassades.onrender.com':'')", "'" + TRIAL_ORIGIN + "'");
+  appScript = replaceOnce(appScript, "const isFile=location.protocol==='file:';\nfunction renderInstall(){", 'function renderInstall(){');
+  appScript = replaceOnce(appScript,
+    "const getLanguage=()=>{const query=new URLSearchParams(location.search).get('lang');return own(translations,query)?query:'nl';};",
+    "const isFile=location.protocol==='file:';\nconst getLanguage=()=>{const query=new URLSearchParams(location.search).get('lang');if(own(translations,query))return query;if(!isFile)try{const saved=sessionStorage.getItem('palaco-language');if(own(translations,saved))return saved;}catch{}return 'nl';};");
+  appScript = replaceOnce(appScript,
+    "function applyLanguage(next){\n const previous=language;language=own(translations,next)?next:'nl';",
+    "function applyLanguage(next){\n const previous=language;language=own(translations,next)?next:'nl';\n if(!isFile)try{sessionStorage.setItem('palaco-language',language);}catch{}");
+  appScript += navigation;
   const appOnline = replaceOnce(replaceOnce(app, inline[0][0], '<script src="/rio/start.js" defer></script>'),
     '<head>', '<head>\n<link rel="icon" href="/rio/icon-192.png" type="image/png">');
   const appDownload = replaceOnce(app, inline[0][0], '<script>' + appScript + '</script>');
   if (Buffer.byteLength(appDownload) >= 100 * 1024) throw Error('DOWNLOAD_TOO_LARGE');
-  let appWorker = replaceOnce(text('ambassades/rio/sw.js'), 'palaco-rio-start-v0.1-3', 'palaco-rio-start-v0.1-4');
+  let appWorker = replaceOnce(text('ambassades/rio/sw.js'), 'palaco-rio-start-v0.1-3', 'palaco-rio-start-v0.1-5');
   appWorker = replaceOnce(appWorker, "const ASSETS=['/rio/','/rio/manifest.webmanifest','/rio/icon-192.png','/rio/icon-512.png'];", "const ASSETS=['/rio/','/rio/start.js','/rio/manifest.webmanifest','/rio/icon-192.png','/rio/icon-512.png'];");
   let reception = replaceOnce(text('ambassades/rio/reception/index.html'), '<html lang="nl">', '<html lang="nl" data-runtime-mode="static-preview">');
   reception = replaceOnce(reception, '<head>', '<head>\n  <link rel="icon" href="/icon-192.svg" type="image/svg+xml">');
