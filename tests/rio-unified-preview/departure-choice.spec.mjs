@@ -59,6 +59,16 @@ async function openChat(page,value){
   await page.locator('#chat-preview-toggle').click();
   await page.locator('#chat-preview-input').fill(value);
 }
+async function clearChat(page){
+  await page.locator('#chat-preview-clear').click();
+  await page.locator('#chat-preview-clear-confirm').click();
+  // Native close-event work must be visible before another interaction can
+  // claim to follow clearing. This also observes its final focus restoration.
+  await expect(page.locator('#chat-preview-messages .is-visitor')).toHaveCount(0);
+  await expect(page.locator('#chat-preview-input')).toHaveValue('');
+  await expect(page.locator('#chat-preview-input')).toBeFocused();
+  await expect(page.locator('#chat-preview-subject')).not.toBeVisible();
+}
 async function chooseDeparture(page,selector='#rio-unified-reception'){
   const trigger=page.locator(selector);
   await activate(page,trigger);
@@ -86,8 +96,7 @@ test('fresh, welcome-only, whitespace-only and explicitly cleared chats retain o
         if(state==='cleared'){
           await page.locator('#chat-preview-send').click();
           await expect(page.locator('#chat-preview-messages .is-visitor')).toHaveCount(1);
-          await page.locator('#chat-preview-clear').click();
-          await page.locator('#chat-preview-clear-confirm').click();
+          await clearChat(page);
         }
         await expect(page.locator('#chat-preview-messages .is-visitor')).toHaveCount(0);
       }
@@ -148,12 +157,7 @@ test('selected subjects and sent visitor messages count as temporary work until 
     await chooseDeparture(page,'#rio-unified-offline');
     await page.keyboard.press('Escape');
     await expect(page.locator('#chat-preview-messages .is-visitor')).toHaveCount(1);
-    await page.locator('#chat-preview-clear').click();
-    await page.locator('#chat-preview-clear-confirm').click();
-    // The native close event performs clearing. Observe its public result
-    // before starting another navigation; a click alone is not that result.
-    await expect(page.locator('#chat-preview-messages .is-visitor')).toHaveCount(0);
-    await expect(page.locator('#chat-preview-input')).toHaveValue('');
+    await clearChat(page);
     await activate(page,page.locator('#rio-unified-offline'));
     await expect(page).toHaveURL(fixture.origin+'/rio/');
     await checked.verify();
@@ -179,8 +183,7 @@ test('Engine memory drafts and consented dossiers are protected independently of
     const question='When is the TST-private appointment?';
     await page.locator('#question-input').fill(question);
     await openChat(page,'TST-chat cleared independently');
-    await page.locator('#chat-preview-clear').click();
-    await page.locator('#chat-preview-clear-confirm').click();
+    await clearChat(page);
     await chooseDeparture(page);
     await page.locator('#rio-departure-stay').click();
     await expect(page.locator('#question-input')).toHaveValue(question);
