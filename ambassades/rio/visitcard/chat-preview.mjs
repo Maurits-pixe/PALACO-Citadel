@@ -176,6 +176,10 @@ const followupTitle = document.querySelector("#chat-preview-followups-title");
 const followupButtons = document.querySelector("#chat-preview-followup-buttons");
 let selectedSubject;
 let inputErrorKey;
+let hasVisitorMessages = false;
+
+// Share only whether work exists, never its content or subject identity.
+export const hasTemporaryChatWork = () => Boolean(input.value.trim() || selectedSubject || hasVisitorMessages);
 
 let language = document.documentElement.lang in copy ? document.documentElement.lang : "nl";
 let strings = copy[language];
@@ -270,6 +274,7 @@ const answerFor = (message, prompt) => {
 const sendMessage = (message, prompt) => {
   const body = message.trim();
   if (!body) return;
+  hasVisitorMessages = true;
   status.textContent = "";
   appendMessage(strings.visitor, body, "visitor", prompt ? language : "");
   appendMessage(strings.rio, answerFor(body, prompt), "rio");
@@ -368,7 +373,7 @@ closeButton?.addEventListener("click", () => {
 });
 
 document.addEventListener("keydown", (event) => {
-  if (event.key !== "Escape" || panel.hidden || clearDialog.open) return;
+  if (event.key !== "Escape" || panel.hidden || document.querySelector('dialog[open]')) return;
   panel.hidden = true;
   toggle.setAttribute("aria-expanded", "false");
   toggle.focus();
@@ -403,6 +408,7 @@ clearDialog.addEventListener("close", () => {
     return;
   }
   clearSubject();
+  hasVisitorMessages = false;
   messages.replaceChildren();
   readingControls.hidden = true;
   form.reset();

@@ -98,6 +98,24 @@ test('real loopback server confines files, methods, Host and Origin and serves i
   assert.deepEqual((await get(review.origin, '/')).body, home.body);
 });
 
+test('only exact app language queries reach immutable public bytes; other queries and aliases remain closed', async t => {
+  const paths = fixture(), review = await startReviewServer({...paths, port:0});
+  t.after(() => review.close());
+  const app = await get(review.origin, '/rio/');
+  for (const code of ['nl','en','de','fr','es','it','pt','ru','zh','ar','eo']) {
+    const response = await get(review.origin, '/rio/?lang=' + code);
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body, app.body);
+    assert.equal(response.headers['cache-control'], 'no-store');
+  }
+  for (const path of ['/?lang=fr','/rio/index.html?lang=fr','/rio/reception/?lang=fr',
+    '/api/?lang=fr','/rio/?lang=FR','/rio/?lang=xx','/rio/?lang=',
+    '/rio/?lang=fr&lang=en','/rio/?lang=fr&token=example','/rio/?lang=%66r',
+    '/rio/?%6cang=fr','/rio/?lang=fr/../index.html','/rio/?lang=fr#extra']) {
+    assert.equal((await get(review.origin, path)).status, 400, path);
+  }
+});
+
 test('occupied fixed port fails without silently changing browser storage origin', async t => {
   const paths = fixture(), first = await startReviewServer({...paths, port:0});
   t.after(() => first.close());

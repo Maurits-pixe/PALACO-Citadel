@@ -1,3 +1,20 @@
+import {hasTemporaryChatWork} from './chat-preview.mjs';
+import {hasTemporaryEngineWork} from './rio-engine-web.mjs';
+
+const departure = {
+  nl: ['Je bent nog bezig.', 'Je hebt een tijdelijk gesprek, concept of oefening op deze pagina. Open de volgende plek in een nieuw tabblad om hier verder te kunnen. Je tekst gaat niet mee. Herladen of sluiten kan je werk wissen.', 'Volgende plek:', 'Blijf hier', 'Open in nieuw tabblad'],
+  en: ['You are still working here.', 'You have a temporary conversation, draft or exercise on this page. Open the next place in a new tab to continue here. Your text does not travel with you. Reloading or closing may clear your work.', 'Next place:', 'Stay here', 'Open in a new tab'],
+  de: ['Du bist hier noch beschäftigt.', 'Du hast ein vorübergehendes Gespräch, einen Entwurf oder eine Übung auf dieser Seite. Öffne den nächsten Ort in einem neuen Tab, um hier weitermachen zu können. Dein Text wird nicht übertragen. Neuladen oder Schließen kann deine Arbeit löschen.', 'Nächster Ort:', 'Hier bleiben', 'In neuem Tab öffnen'],
+  fr: ['Vous travaillez encore ici.', 'Vous avez une conversation, un brouillon ou un exercice temporaire sur cette page. Ouvrez la suite dans un nouvel onglet pour pouvoir continuer ici. Votre texte ne sera pas transféré. Recharger ou fermer peut effacer votre travail.', 'Prochaine étape :', 'Rester ici', 'Ouvrir dans un nouvel onglet'],
+  es: ['Todavía estás trabajando aquí.', 'Tienes una conversación, un borrador o un ejercicio temporal en esta página. Abre el siguiente lugar en otra pestaña para poder continuar aquí. Tu texto no se transfiere. Recargar o cerrar puede borrar tu trabajo.', 'Siguiente lugar:', 'Quedarme aquí', 'Abrir en otra pestaña'],
+  ar: ['ما زلت تعمل هنا.', 'لديك محادثة أو مسودة أو تجربة مؤقتة في هذه الصفحة. افتح المكان التالي في علامة تبويب جديدة لتتمكن من المتابعة هنا. لن ينتقل نصك معك. قد تؤدي إعادة التحميل أو الإغلاق إلى مسح عملك.', 'المكان التالي:', 'البقاء هنا', 'افتح في علامة تبويب جديدة'],
+  zh: ['你还在这里进行练习。', '此页面上有临时对话、草稿或练习。请在新标签页中打开下一处，以便继续使用此页面。你的文字不会随之转移。重新加载或关闭可能会清除你的内容。', '下一处：', '留在这里', '在新标签页中打开'],
+};
+const departureFields = ['title', 'warning', 'destination', 'stay', 'open'];
+const departureDialog = document.getElementById('rio-departure-dialog');
+const departureLink = document.getElementById('rio-departure-new-tab');
+let departureTrigger;
+
 const translations = {
   nl: {
     label: 'RIO · NOVA · JOUW EIGEN ID',
@@ -68,6 +85,9 @@ function updateIntegration() {
   const language = Object.hasOwn(translations, document.documentElement.lang)
     ? document.documentElement.lang : 'nl';
   const copy = translations[language];
+  departureFields.forEach((field, index) => {
+    departureDialog.querySelector('[data-rio-departure="' + field + '"]').textContent = departure[language][index];
+  });
   document.querySelectorAll('[data-rio-integration]').forEach(element => {
     const text = copy[element.dataset.rioIntegration];
     if (typeof text === 'string') element.textContent = text;
@@ -84,3 +104,58 @@ function updateIntegration() {
 
 window.addEventListener('rio:languagechange', updateIntegration);
 updateIntegration();
+
+const externalDestinations = new Set([
+  'https://palaco.mauritsvang1.chatgpt.site/',
+  'https://citadel.mauritsvang1.chatgpt.site/',
+  'https://palaco.mauritsvang1.chatgpt.site/account.html',
+]);
+
+function checkedDestination(link) {
+  let url;
+  try { url = new URL(link.href); } catch { return null; }
+  if (!/^https?:$/.test(url.protocol)) return null;
+  if (link.id === 'rio-unified-reception' && url.origin === location.origin
+      && url.pathname === '/rio/reception/' && !url.search
+      && /^#nova-explained:(nl|en|de|fr|es|ar|zh)$/.test(url.hash)) return url;
+  if (link.id === 'rio-unified-offline' && url.origin === location.origin
+      && url.pathname === '/rio/' && !url.search && !url.hash) {
+    // Reuse the app's existing language parser. A noopener tab does not inherit
+    // per-tab preferences; only a known public language code crosses this link.
+    url.searchParams.set('lang', Object.hasOwn(departure, document.documentElement.lang)
+      ? document.documentElement.lang : 'nl');
+    return url;
+  }
+  return link.matches('.taskbar a') && externalDestinations.has(url.href) ? url : null;
+}
+
+document.addEventListener('click', event => {
+  if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  const link = event.target.closest?.('#rio-unified-reception, #rio-unified-offline, .taskbar a');
+  if (!link || link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
+  const destination = checkedDestination(link);
+  if (!destination || !(hasTemporaryChatWork() || hasTemporaryEngineWork()) || departureDialog.open) return;
+  event.preventDefault();
+  departureTrigger = link;
+  departureLink.href = destination.href;
+  document.getElementById('rio-departure-name').textContent = link.textContent.trim();
+  document.getElementById('rio-departure-origin').textContent = destination.origin;
+  departureDialog.showModal();
+});
+
+document.getElementById('rio-departure-stay').addEventListener('click', () => departureDialog.close());
+departureLink.addEventListener('click', event => {
+  if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) departureDialog.close();
+});
+departureDialog.addEventListener('click', event => {
+  if (event.target !== departureDialog) return;
+  const rect = departureDialog.getBoundingClientRect();
+  if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) departureDialog.close();
+});
+departureDialog.addEventListener('close', () => {
+  departureLink.removeAttribute('href');
+  document.getElementById('rio-departure-name').textContent = '';
+  document.getElementById('rio-departure-origin').textContent = '';
+  departureTrigger?.focus({preventScroll:true});
+  departureTrigger = undefined;
+});

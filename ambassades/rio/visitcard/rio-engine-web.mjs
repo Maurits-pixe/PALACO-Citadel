@@ -92,6 +92,7 @@ const answerSources = document.querySelector("#engine-answer-sources");
 
 let language = document.documentElement.lang || "nl";
 let dossier;
+export const hasTemporaryEngineWork = () => Boolean(dossier || memoryInput.value.trim() || questionInput.value.trim());
 let sequence = 0;
 const suffix = crypto.randomUUID();
 const owner = `participant:local:${suffix}`;

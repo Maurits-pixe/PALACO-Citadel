@@ -353,6 +353,16 @@
       </form>
     </dialog>
 
+    <dialog id="rio-departure-dialog" class="rio-departure-dialog" aria-labelledby="rio-departure-title" aria-describedby="rio-departure-warning">
+      <h2 id="rio-departure-title" data-rio-departure="title">Je bent nog bezig.</h2>
+      <p id="rio-departure-warning" data-rio-departure="warning">Je hebt een tijdelijk gesprek, concept of oefening op deze pagina. Open de volgende plek in een nieuw tabblad om hier verder te kunnen. Je tekst gaat niet mee. Herladen of sluiten kan je werk wissen.</p>
+      <p class="rio-departure-destination"><span data-rio-departure="destination">Volgende plek:</span> <strong id="rio-departure-name"></strong><br><bdi id="rio-departure-origin" dir="ltr"></bdi></p>
+      <div class="rio-departure-actions">
+        <button id="rio-departure-stay" type="button" autofocus data-rio-departure="stay">Blijf hier</button>
+        <a id="rio-departure-new-tab" target="_blank" rel="noopener noreferrer" data-rio-departure="open">Open in nieuw tabblad</a>
+      </div>
+    </dialog>
+
     <dialog id="subject-dialog" class="subject-dialog" aria-labelledby="subject-dialog-title" aria-describedby="subject-dialog-description">
       <div id="subject-sheet" class="subject-sheet">
         <div class="sheet-handle" aria-hidden="true"></div>

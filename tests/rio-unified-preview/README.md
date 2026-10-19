@@ -55,7 +55,7 @@ cache entry.
 It intentionally includes its old broad fetch handler and destructive cache
 cleanup. It first activates in an empty, isolated profile; only afterward are the
 app worker, app cache, unrelated cache and fictitious contact created. The current
-v39 worker must then reach the real `waiting` state without reloading its open
+v40 worker must then reach the real `waiting` state without reloading its open
 client. Closing the root client allows activation while the app remains open.
 The test proves migration from this fixed old worker/cache state; it does not
 reconstruct the historical HTML or claim that the old cleanup was safe.
@@ -63,7 +63,7 @@ reconstruct the historical HTML or claim that the old cleanup was safe.
 `language-worker-update.spec.mjs` also installs fixed root v37 and generated app
 v5 workers from the previous bf6d865 preview. Both new workers must reach the
 actual waiting state while their old pages remain open. Closing only the app
-activates v7 while root v39 keeps waiting; closing the root then activates v39.
+activates v7 while root v40 keeps waiting; closing the root then activates v40.
 The fictitious contact, unrelated cache, separate registrations, new local
 language links and genuine offline reloads remain intact. The existing app
 worker keeps its scoped clients.claim; the root has neither clients.claim nor
@@ -75,6 +75,21 @@ Fixed fixture provenance (LF bytes pinned by .gitattributes):
   SHA256 a44e3295e908c92d83e7d92e9c32e89ae42079a6a7a8c9ca32f6d1a3c80bf742.
 - app-v5-sw.js: generated render-dist/rio/sw.js from that same verified preview,
   SHA256 4af7f56c4ae3d4616d701ba697b2bee1a28aaf015f230b231c71c604753fac9f.
+
+`departure-choice.spec.mjs` protects temporary VisitCard chat drafts, visitor
+messages, selected subjects and separate Engine drafts/dossiers. Only the two
+RIO route links and three fixed external taskbar links are guarded. A native
+dialog offers staying here or opening the checked public destination in a
+noopener/noreferrer tab. Empty/welcome-only/cleared chats keep direct navigation;
+same-page anchors, downloads and modified clicks retain browser behavior.
+The app's existing `?lang=` parser receives only one of the seven public root
+language codes in that new-tab link; NOVA keeps its existing language fragment.
+No message, draft, subject or dossier is copied. Seven languages, Arabic RTL,
+keyboard/Escape/backdrop/focus and 320px double-text layout are exercised.
+Public destination responses are intercepted locally, never contacted.
+These departure checks use the actual portable review server. Its unit test
+accepts only `/rio/?lang=<known code>` as an additional raw public route;
+other query fields, duplicates, encodings and path aliases remain closed.
 
 No test grants identity, verifies a real phone or email, starts a chat service,
 contacts a person, deploys, or merges. Test output goes to
