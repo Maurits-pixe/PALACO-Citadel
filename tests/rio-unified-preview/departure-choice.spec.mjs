@@ -149,6 +149,10 @@ test('selected subjects and sent visitor messages count as temporary work until 
     await expect(page.locator('#chat-preview-messages .is-visitor')).toHaveCount(1);
     await page.locator('#chat-preview-clear').click();
     await page.locator('#chat-preview-clear-confirm').click();
+    // The native close event performs clearing. Observe its public result
+    // before starting another navigation; a click alone is not that result.
+    await expect(page.locator('#chat-preview-messages .is-visitor')).toHaveCount(0);
+    await expect(page.locator('#chat-preview-input')).toHaveValue('');
     await activate(page,page.locator('#rio-unified-offline'));
     await expect(page).toHaveURL(fixture.origin+'/rio/');
     await checked.verify();
