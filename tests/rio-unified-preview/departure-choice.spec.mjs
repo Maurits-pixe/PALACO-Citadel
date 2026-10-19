@@ -1,5 +1,6 @@
 import {test, expect} from '@playwright/test';
 import {execFileSync} from 'node:child_process';
+import {readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {startReviewServer} from '../../scripts/serve-rio-unified-preview.mjs';
@@ -191,41 +192,43 @@ test('Engine memory drafts and consented dossiers are protected independently of
 });
 
 test('same-document, native new-tab, download and modified navigation retain their browser behavior',async({browser})=>{
-  const checked=await checkedContext(browser),page=await checked.context.newPage();
-  try{
-    await page.goto(fixture.origin+'/');
-    const draft='TST-native navigation draft';
-    await openChat(page,draft);
-    await page.locator('#chat-preview-close').click();
-    await activate(page,page.locator('.taskbar a[href="#top"]'));
-    await expect(page).toHaveURL(fixture.origin+'/#top');
-    await expect(page.locator('#rio-departure-dialog')).not.toBeVisible();
-    const link=page.locator('#rio-unified-reception');
-    await link.evaluate(element=>element.target='_blank');
-    let popupPromise=checked.context.waitForEvent('page');
-    await activate(page,link);
-    let popup=await popupPromise;
-    await popup.waitForLoadState('load');
-    await expect(popup).toHaveURL(new URL(await link.getAttribute('href'),fixture.origin).href);
-    await popup.close();await page.bringToFront();
-    await expect(page.locator('#rio-departure-dialog')).not.toBeVisible();
-    await link.evaluate(element=>element.removeAttribute('target'));
-    popupPromise=checked.context.waitForEvent('page');
-    await link.click({modifiers:['Control']});
-    popup=await popupPromise;await popup.waitForLoadState('load');
-    await popup.close();await page.bringToFront();
-    await expect(page.locator('#rio-departure-dialog')).not.toBeVisible();
-    const downloadLink=page.locator('#rio-unified-offline');
-    await downloadLink.evaluate(element=>{element.href='/rio/download';element.download='RIO.html';});
-    const downloadPromise=page.waitForEvent('download');
-    await activate(page,downloadLink);
-    const download=await downloadPromise;
-    expect(download.suggestedFilename()).toBe('PALACO-RIO-v0.1.html');
-    await expect(page.locator('#rio-departure-dialog')).not.toBeVisible();
-    await expect(page.locator('#chat-preview-input')).toHaveValue(draft);
-    expect(page.url()).toBe(fixture.origin+'/#top');
-    await checked.verify();
-  }finally{await checked.context.close();}
+  // Browser gestures own different tab/download lifecycles. Isolate each one
+  // and report its step rather than letting pending work mask a later failure.
+  for(const kind of ['fragment','new-tab','modified','download'])await test.step(kind,async()=>{
+    const checked=await checkedContext(browser),page=await checked.context.newPage();
+    try{
+      await page.goto(fixture.origin+'/');
+      const draft='TST-native navigation draft';
+      await openChat(page,draft);
+      await page.locator('#chat-preview-close').click();
+      if(kind==='fragment'){
+        await activate(page,page.locator('.taskbar a[href="#top"]'));
+      }else if(kind==='download'){
+        const link=page.locator('#rio-unified-offline');
+        await link.evaluate(element=>{element.href='/rio/download';element.download='RIO.html';});
+        const downloaded=page.waitForEvent('download');
+        await activate(page,link);
+        const download=await downloaded;
+        expect(download.suggestedFilename()).toBe('PALACO-RIO-v0.1.html');
+        // Observe a completed file, not just the download-start event.
+        expect(await download.failure()).toBeNull();
+        expect(await readFile(await download.path())).toEqual(await readFile(resolve(repository,'render-dist/rio/download')));
+      }else{
+        const link=page.locator('#rio-unified-reception');
+        if(kind==='new-tab')await link.evaluate(element=>element.target='_blank');
+        const opened=checked.context.waitForEvent('page');
+        if(kind==='modified')await link.click({modifiers:['Control']});
+        else await activate(page,link);
+        const popup=await opened;await popup.waitForLoadState('load');
+        await expect(popup).toHaveURL(new URL(await link.getAttribute('href'),fixture.origin).href);
+        await popup.close();await page.bringToFront();
+      }
+      await expect(page.locator('#rio-departure-dialog')).not.toBeVisible();
+      await expect(page.locator('#chat-preview-input')).toHaveValue(draft);
+      expect(page.url()).toBe(fixture.origin+'/'+(kind==='fragment'?'#top':''));
+      await checked.verify();
+    }finally{await checked.context.close();}
+  });
 });
 
 test('each protected route opens a native isolated tab containing only its public destination and language',async({browser})=>{
