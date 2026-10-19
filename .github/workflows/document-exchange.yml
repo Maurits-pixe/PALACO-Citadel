@@ -1,9 +1,9 @@
 name: Document exchange contract
 on:
   push:
-    paths: ['ecosystem/**', '.github/workflows/document-exchange.yml']
+    paths: ['rio/vendor/**', 'ecosystem/**', '.github/workflows/document-exchange.yml']
   pull_request:
-    paths: ['ecosystem/**', '.github/workflows/document-exchange.yml']
+    paths: ['rio/vendor/**', 'ecosystem/**', '.github/workflows/document-exchange.yml']
 permissions:
   contents: read
 jobs:
