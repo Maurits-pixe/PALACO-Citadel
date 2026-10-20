@@ -12,6 +12,8 @@ const compassBackTopBtn = document.querySelector('#compass-back-top');
 const compassCommandInput = document.querySelector('#compass-command');
 const compassCommandOutput = document.querySelector('#compass-command-output');
 const compassCommandClearBtn = document.querySelector('#compass-command-clear');
+const compassCommandReplayBtn = document.querySelector('#compass-command-replay');
+const compassCommandHistoryClearBtn = document.querySelector('#compass-command-history-clear');
 const compassCommandHistoryList = document.querySelector('#compass-command-history-list');
 const commandRouteButtons = document.querySelectorAll('.command-shortcut-btn');
 
@@ -322,8 +324,12 @@ const translations = {
     commandRouteParticipation: 'Participation dashboard',
     commandRouteGateway: 'Public gateway dashboard',
     commandClear: 'Clear command',
+    commandReplayLast: 'Replay last route',
+    commandHistoryClear: 'Clear history',
     commandHistoryTitle: 'Recent routes',
     commandHistoryEmpty: 'No recent routes yet.',
+    commandHistoryCleared: 'Recent route history cleared.',
+    commandHistoryMissing: 'No recent route available yet.',
     adaptiveDepthTitle: 'Adaptive depth',
     beginnerMode: 'Beginner mode',
     expertMode: 'Expert mode',
@@ -651,8 +657,12 @@ const translations = {
     commandRouteParticipation: 'Participatiedashboard',
     commandRouteGateway: 'Publiek gateway-dashboard',
     commandClear: 'Wis opdracht',
+    commandReplayLast: 'Herhaal laatste route',
+    commandHistoryClear: 'Wis geschiedenis',
     commandHistoryTitle: 'Recente routes',
     commandHistoryEmpty: 'Nog geen recente routes.',
+    commandHistoryCleared: 'Recente routegeschiedenis gewist.',
+    commandHistoryMissing: 'Nog geen recente route beschikbaar.',
     adaptiveDepthTitle: 'Adaptieve diepte',
     beginnerMode: 'Beginner-modus',
     expertMode: 'Expert-modus',
@@ -980,8 +990,12 @@ const translations = {
     commandRouteParticipation: 'Partoprena panelo',
     commandRouteGateway: 'Publika enireja panelo',
     commandClear: 'Forigi komandon',
+    commandReplayLast: 'Ripeti lastan vojon',
+    commandHistoryClear: 'Forigi historion',
     commandHistoryTitle: 'Lastatempaj vojoj',
     commandHistoryEmpty: 'Ankoraŭ neniuj lastatempaj vojoj.',
+    commandHistoryCleared: 'Historio de lastatempaj vojoj forigita.',
+    commandHistoryMissing: 'Ankoraŭ neniu lastatempa vojo disponeblas.',
     adaptiveDepthTitle: 'Adapta profundo',
     beginnerMode: 'Komencanta reĝimo',
     expertMode: 'Sperta reĝimo',
@@ -1240,6 +1254,7 @@ let commandHighlightTimer;
 const COMMAND_HISTORY_KEY = 'palaco-command-history';
 const COMMAND_HISTORY_LIMIT = 4;
 let commandHistory = [];
+let commandHistoryCursor = -1;
 
 const findCommandRoute = (rawValue) => {
   const normalized = (rawValue || '').trim().toLowerCase();
@@ -1283,6 +1298,8 @@ const saveCommandHistory = () => {
   localStorage.setItem(COMMAND_HISTORY_KEY, JSON.stringify(commandHistory));
 };
 
+const getRouteByLabelKey = (labelKey) => COMMAND_ROUTES.find((candidate) => candidate.labelKey === labelKey);
+
 const renderCommandHistory = () => {
   if (!compassCommandHistoryList) return;
   compassCommandHistoryList.innerHTML = '';
@@ -1292,11 +1309,16 @@ const renderCommandHistory = () => {
     empty.className = 'command-history-empty';
     empty.textContent = getTranslation(currentLanguage, 'commandHistoryEmpty');
     compassCommandHistoryList.appendChild(empty);
+    if (compassCommandReplayBtn) compassCommandReplayBtn.disabled = true;
+    if (compassCommandHistoryClearBtn) compassCommandHistoryClearBtn.disabled = true;
     return;
   }
 
+  if (compassCommandReplayBtn) compassCommandReplayBtn.disabled = false;
+  if (compassCommandHistoryClearBtn) compassCommandHistoryClearBtn.disabled = false;
+
   commandHistory.forEach((labelKey) => {
-    const route = COMMAND_ROUTES.find((candidate) => candidate.labelKey === labelKey);
+    const route = getRouteByLabelKey(labelKey);
     if (!route) return;
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -1309,6 +1331,7 @@ const renderCommandHistory = () => {
 
 const rememberCommandRoute = (labelKey) => {
   commandHistory = [labelKey, ...commandHistory.filter((item) => item !== labelKey)].slice(0, COMMAND_HISTORY_LIMIT);
+  commandHistoryCursor = -1;
   saveCommandHistory();
   renderCommandHistory();
 };
@@ -1384,6 +1407,7 @@ compassBackTopBtn?.addEventListener('click', () => {
 
 compassCommandInput?.addEventListener('input', () => {
   lastCommandValue = compassCommandInput.value;
+  commandHistoryCursor = -1;
   updateCommandOutput();
 });
 
@@ -1391,9 +1415,26 @@ compassCommandInput?.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') {
     compassCommandInput.value = '';
     lastCommandValue = '';
+    commandHistoryCursor = -1;
     compassCommandOutput.classList.remove('is-match', 'is-miss');
     compassCommandOutput.textContent = getTranslation(currentLanguage, 'commandCleared');
     renderCommandHistory();
+    return;
+  }
+
+  if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+    if (!commandHistory.length) return;
+    event.preventDefault();
+    const direction = event.key === 'ArrowUp' ? 1 : -1;
+    commandHistoryCursor = Math.min(
+      commandHistory.length - 1,
+      Math.max(0, commandHistoryCursor + direction)
+    );
+    const route = getRouteByLabelKey(commandHistory[commandHistoryCursor]);
+    if (!route || !compassCommandInput) return;
+    compassCommandInput.value = route.terms[0];
+    lastCommandValue = route.terms[0];
+    updateCommandOutput();
     return;
   }
 
@@ -1430,6 +1471,31 @@ compassCommandClearBtn?.addEventListener('click', () => {
   compassCommandOutput.textContent = getTranslation(currentLanguage, 'commandCleared');
 });
 
+compassCommandReplayBtn?.addEventListener('click', () => {
+  const latestLabel = commandHistory[0];
+  const route = getRouteByLabelKey(latestLabel);
+  if (!route) {
+    compassCommandOutput.classList.remove('is-match', 'is-miss');
+    compassCommandOutput.textContent = getTranslation(currentLanguage, 'commandHistoryMissing');
+    return;
+  }
+  if (compassCommandInput) {
+    compassCommandInput.value = route.terms[0];
+    compassCommandInput.focus();
+  }
+  lastCommandValue = route.terms[0];
+  jumpToCommandRoute(route, { source: 'history' });
+});
+
+compassCommandHistoryClearBtn?.addEventListener('click', () => {
+  commandHistory = [];
+  commandHistoryCursor = -1;
+  saveCommandHistory();
+  renderCommandHistory();
+  compassCommandOutput.classList.remove('is-match', 'is-miss');
+  compassCommandOutput.textContent = getTranslation(currentLanguage, 'commandHistoryCleared');
+});
+
 window.addEventListener('keydown', (event) => {
   if (event.key !== '/') return;
   const activeTag = document.activeElement?.tagName;
@@ -1445,9 +1511,11 @@ try {
   const rawHistory = JSON.parse(localStorage.getItem(COMMAND_HISTORY_KEY) || '[]');
   if (Array.isArray(rawHistory)) {
     commandHistory = rawHistory.filter((item) => COMMAND_ROUTES.some((route) => route.labelKey === item)).slice(0, COMMAND_HISTORY_LIMIT);
+    commandHistoryCursor = -1;
   }
 } catch {
   commandHistory = [];
+  commandHistoryCursor = -1;
 }
 
 let deferredPrompt;

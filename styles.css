@@ -264,7 +264,9 @@ button {
 }
 
 .command-history-btn,
-#compass-command-clear {
+#compass-command-clear,
+#compass-command-replay,
+#compass-command-history-clear {
   border-color: rgba(159, 231, 255, 0.4);
   background: rgba(159, 231, 255, 0.08);
   color: #dff5ff;
@@ -272,9 +274,17 @@ button {
 }
 
 .command-history-btn:hover,
-#compass-command-clear:hover {
+#compass-command-clear:hover,
+#compass-command-replay:hover,
+#compass-command-history-clear:hover {
   border-color: #9fe7ff;
   background: rgba(159, 231, 255, 0.18);
+}
+
+#compass-command-replay:disabled,
+#compass-command-history-clear:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .command-history-empty {
