@@ -98,7 +98,7 @@
         <p data-i18n="rioSubtitle">RIO evolves from chat interface to PALACO conversation and communication platform.</p>
       </div>
       <div class="rio-grid">
-        <article class="card">
+        <article class="card" id="constitution-dashboard-card">
           <h3 data-i18n="rioPillarOneTitle">Surface-independent conversation</h3>
           <ul>
             <li data-i18n="rioPillarOneA">One conversation identity across mobile, web, Citadel, ELIXER, and desktop.</li>
@@ -106,7 +106,7 @@
             <li data-i18n="rioPillarOneC">Cross-surface continuity remains active through sync and reconnect states.</li>
           </ul>
         </article>
-        <article class="card">
+        <article class="card" id="proof-dashboard-card">
           <h3 data-i18n="rioPillarTwoTitle">Presence with boundaries</h3>
           <ul>
             <li data-i18n="rioPillarTwoA">Presence means reachable, never automatic authority.</li>
@@ -114,7 +114,7 @@
             <li data-i18n="rioPillarTwoC">RIO connects communication while PALACO protects authority boundaries.</li>
           </ul>
         </article>
-        <article class="card">
+        <article class="card" id="authority-dashboard-card">
           <h3 data-i18n="rioPillarThreeTitle">Provenance-aware communication</h3>
           <ul>
             <li data-i18n="rioPillarThreeA">Messages preserve identity, context, origin, time, and traceability.</li>
@@ -232,7 +232,7 @@
         </article>
       </div>
 
-      <article class="card participation-dashboard">
+      <article class="card participation-dashboard" id="participation-dashboard-card">
         <h3 data-i18n="participationDashboardTitle">Participation dashboard</h3>
         <p data-i18n="participationDashboardIntro">Flowkaart: preview → authorization → review → revocation.</p>
         <div class="participation-flow">
@@ -258,7 +258,7 @@
         </div>
       </article>
 
-      <article class="card governance-dashboard">
+      <article class="card governance-dashboard" id="governance-dashboard-card">
         <h3 data-i18n="governanceDashboardTitle">Governance dashboard</h3>
         <p data-i18n="governanceDashboardIntro">Active policies, deviations, and review moments without score-magic.</p>
         <div class="governance-section">
@@ -287,7 +287,7 @@
         <p class="governance-note" data-i18n="noScoreMagicNote">No single trust score: governance is shown as explicit facts and review states.</p>
       </article>
 
-      <article class="card health-dashboard">
+      <article class="card health-dashboard" id="health-dashboard-card">
         <h3 data-i18n="citadelHealthTitle">Citadel Health dashboard</h3>
         <p data-i18n="citadelHealthIntro">Operational health and semantic risks with explanation per signal.</p>
         <ul class="health-signal-list">
@@ -309,7 +309,7 @@
         </ul>
       </article>
 
-      <article class="card rio-conversation-dashboard">
+      <article class="card rio-conversation-dashboard" id="rio-dashboard-card">
         <h3 data-i18n="rioConversationDashboardTitle">RIO Conversation dashboard</h3>
         <p data-i18n="rioConversationDashboardIntro">Conversations as access to actions, with context and consequence panel.</p>
         <div class="rio-conversation-grid">
@@ -419,7 +419,7 @@
         </div>
       </article>
 
-      <article class="card elixer-dashboard">
+      <article class="card elixer-dashboard" id="elixer-dashboard-card">
         <h3 data-i18n="elixerDashboardTitle">ELIXER dashboard</h3>
         <p data-i18n="elixerDashboardIntro">Available apps and capabilities per context, with clear choice impact.</p>
         <ul class="elixer-context-list">
@@ -441,7 +441,7 @@
         </ul>
       </article>
 
-      <article class="card evolution-dashboard">
+      <article class="card evolution-dashboard" id="evolution-dashboard-card">
         <h3 data-i18n="evolutionDashboardTitle">Evolution dashboard</h3>
         <p data-i18n="evolutionDashboardIntro">Changes in canon and systems, with a clear “what changes for me?” summary.</p>
         <div class="evolution-grid">
@@ -466,7 +466,7 @@
         </div>
       </article>
 
-      <article class="card gateway-dashboard">
+      <article class="card gateway-dashboard" id="gateway-dashboard-card">
         <h3 data-i18n="gatewayDashboardTitle">Public Gateway dashboard</h3>
         <p data-i18n="gatewayDashboardIntro">Public understanding layer: orientation, core concepts, and safe onboarding.</p>
         <div class="gateway-grid">
@@ -501,6 +501,7 @@
         <label for="compass-command" data-i18n="commandLayerTitle">Command layer</label>
         <input id="compass-command" class="compass-command-input" type="text" data-i18n-placeholder="commandPlaceholder" placeholder="Type natural command…" />
         <p data-i18n="commandHint">Context first, action second.</p>
+        <p id="compass-command-output" class="compass-command-output" data-i18n="commandReady" aria-live="polite">Type a command and press Enter to jump.</p>
       </div>
 
       <div class="sync-row">

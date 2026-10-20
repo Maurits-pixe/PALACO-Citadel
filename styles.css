@@ -201,6 +201,20 @@ button {
   flex: 1;
 }
 
+.compass-command-output {
+  flex-basis: 100%;
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+}
+
+.compass-command-output.is-match {
+  color: #9fe7ff;
+}
+
+.compass-command-output.is-miss {
+  color: #ffd3a1;
+}
+
 .compass-back-btn {
   background: transparent;
   color: var(--accent);

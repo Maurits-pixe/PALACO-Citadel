@@ -9,6 +9,8 @@ const citadelStatus = document.querySelector('#citadel-status');
 const syncBtn = document.querySelector('#sync-btn');
 const syncOutput = document.querySelector('#sync-output');
 const compassBackTopBtn = document.querySelector('#compass-back-top');
+const compassCommandInput = document.querySelector('#compass-command');
+const compassCommandOutput = document.querySelector('#compass-command-output');
 
 const translations = {
   en: {
@@ -303,6 +305,16 @@ const translations = {
     commandLayerTitle: 'Command layer',
     commandPlaceholder: 'Type natural command…',
     commandHint: 'Context first, action second.',
+    commandReady: 'Type a command and press Enter to jump.',
+    commandPressEnter: 'Press Enter to jump to',
+    commandJumping: 'Jumping to',
+    commandUnknown: 'No direct dashboard match found yet. Try: proof, governance, RIO, identity, participation, gateway.',
+    commandRouteProof: 'Proof dashboard',
+    commandRouteGovernance: 'Governance dashboard',
+    commandRouteRio: 'RIO conversation dashboard',
+    commandRouteIdentity: 'Authority & identity dashboard',
+    commandRouteParticipation: 'Participation dashboard',
+    commandRouteGateway: 'Public gateway dashboard',
     adaptiveDepthTitle: 'Adaptive depth',
     beginnerMode: 'Beginner mode',
     expertMode: 'Expert mode',
@@ -616,6 +628,16 @@ const translations = {
     commandLayerTitle: 'Command-laag',
     commandPlaceholder: 'Typ natuurlijke opdracht…',
     commandHint: 'Eerst context, daarna actie.',
+    commandReady: 'Typ een opdracht en druk op Enter om te springen.',
+    commandPressEnter: 'Druk op Enter om te springen naar',
+    commandJumping: 'Springt naar',
+    commandUnknown: 'Nog geen directe dashboard-match gevonden. Probeer: bewijs, governance, RIO, identiteit, participatie, gateway.',
+    commandRouteProof: 'Bewijsdashboard',
+    commandRouteGovernance: 'Governance-dashboard',
+    commandRouteRio: 'RIO-conversatiedashboard',
+    commandRouteIdentity: 'Authority- en identiteitsdashboard',
+    commandRouteParticipation: 'Participatiedashboard',
+    commandRouteGateway: 'Publiek gateway-dashboard',
     adaptiveDepthTitle: 'Adaptieve diepte',
     beginnerMode: 'Beginner-modus',
     expertMode: 'Expert-modus',
@@ -929,6 +951,16 @@ const translations = {
     commandLayerTitle: 'Komanda tavolo',
     commandPlaceholder: 'Tajpu naturan komandon…',
     commandHint: 'Unue kunteksto, poste ago.',
+    commandReady: 'Tajpu komandon kaj premu Enter por salti.',
+    commandPressEnter: 'Premu Enter por salti al',
+    commandJumping: 'Saltas al',
+    commandUnknown: 'Ankoraŭ neniu rekta panela kongruo trovita. Provu: pruvo, administrado, RIO, identeco, partopreno, enirejo.',
+    commandRouteProof: 'Pruva panelo',
+    commandRouteGovernance: 'Administrada panelo',
+    commandRouteRio: 'RIO-konversacia panelo',
+    commandRouteIdentity: 'Aŭtoritata kaj identeca panelo',
+    commandRouteParticipation: 'Partoprena panelo',
+    commandRouteGateway: 'Publika enireja panelo',
     adaptiveDepthTitle: 'Adapta profundo',
     beginnerMode: 'Komencanta reĝimo',
     expertMode: 'Sperta reĝimo',
@@ -1149,6 +1181,70 @@ const updateControlUI = () => {
   updateSyncOutput();
 };
 
+const COMMAND_ROUTES = [
+  {
+    sectionId: 'proof-dashboard-card',
+    labelKey: 'commandRouteProof',
+    terms: ['proof', 'evidence', 'trace', 'traceability', 'bewij', 'pruv']
+  },
+  {
+    sectionId: 'governance-dashboard-card',
+    labelKey: 'commandRouteGovernance',
+    terms: ['govern', 'policy', 'deviation', 'review', 'bestuur']
+  },
+  {
+    sectionId: 'rio-dashboard-card',
+    labelKey: 'commandRouteRio',
+    terms: ['rio', 'conversation', 'delivery', 'consent', 'chat']
+  },
+  {
+    sectionId: 'authority-dashboard-card',
+    labelKey: 'commandRouteIdentity',
+    terms: ['identity', 'identiteit', 'identeco', 'authority', 'session', 'holder']
+  },
+  {
+    sectionId: 'participation-dashboard-card',
+    labelKey: 'commandRouteParticipation',
+    terms: ['participation', 'participatie', 'partopreno', 'authorize', 'preview', 'revoke']
+  },
+  {
+    sectionId: 'gateway-dashboard-card',
+    labelKey: 'commandRouteGateway',
+    terms: ['gateway', 'public', 'onboarding', 'entry', 'instap', 'enirejo']
+  }
+];
+
+let lastCommandValue = '';
+
+const findCommandRoute = (rawValue) => {
+  const normalized = (rawValue || '').trim().toLowerCase();
+  if (!normalized) return null;
+  return COMMAND_ROUTES.find((route) => route.terms.some((term) => normalized.includes(term))) || null;
+};
+
+const updateCommandOutput = ({ jumping = false } = {}) => {
+  if (!compassCommandOutput) return;
+
+  const route = findCommandRoute(lastCommandValue);
+  compassCommandOutput.classList.remove('is-match', 'is-miss');
+
+  if (!lastCommandValue.trim()) {
+    compassCommandOutput.textContent = getTranslation(currentLanguage, 'commandReady');
+    return;
+  }
+
+  if (!route) {
+    compassCommandOutput.classList.add('is-miss');
+    compassCommandOutput.textContent = getTranslation(currentLanguage, 'commandUnknown');
+    return;
+  }
+
+  compassCommandOutput.classList.add('is-match');
+  const prefix = getTranslation(currentLanguage, jumping ? 'commandJumping' : 'commandPressEnter');
+  const routeLabel = getTranslation(currentLanguage, route.labelKey);
+  compassCommandOutput.textContent = `${prefix} ${routeLabel}.`;
+};
+
 const setLanguage = (lang) => {
   if (!isSupportedLanguage(lang)) return;
   currentLanguage = lang;
@@ -1176,6 +1272,7 @@ const setLanguage = (lang) => {
   }
 
   updateControlUI();
+  updateCommandOutput();
 };
 
 form?.addEventListener('submit', (event) => {
@@ -1207,6 +1304,25 @@ compassBackTopBtn?.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
+compassCommandInput?.addEventListener('input', () => {
+  lastCommandValue = compassCommandInput.value;
+  updateCommandOutput();
+});
+
+compassCommandInput?.addEventListener('keydown', (event) => {
+  if (event.key !== 'Enter') return;
+
+  const route = findCommandRoute(compassCommandInput.value);
+  if (!route) {
+    updateCommandOutput();
+    return;
+  }
+
+  const target = document.getElementById(route.sectionId);
+  target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  updateCommandOutput({ jumping: true });
+});
+
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (event) => {
   event.preventDefault();
@@ -1229,3 +1345,4 @@ if ('serviceWorker' in navigator) {
 validateTranslations();
 renderLanguageButtons();
 setLanguage(isSupportedLanguage(currentLanguage) ? currentLanguage : defaultLanguage);
+updateCommandOutput();
