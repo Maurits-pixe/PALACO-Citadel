@@ -11,6 +11,7 @@ const syncOutput = document.querySelector('#sync-output');
 const compassBackTopBtn = document.querySelector('#compass-back-top');
 const compassCommandInput = document.querySelector('#compass-command');
 const compassCommandOutput = document.querySelector('#compass-command-output');
+const commandRouteButtons = document.querySelectorAll('.command-shortcut-btn');
 
 const translations = {
   en: {
@@ -308,6 +309,9 @@ const translations = {
     commandReady: 'Type a command and press Enter to jump.',
     commandPressEnter: 'Press Enter to jump to',
     commandJumping: 'Jumping to',
+    commandCleared: 'Command cleared.',
+    commandShortcutsTitle: 'Quick routes',
+    commandFocusHint: 'Command layer focused. Type and press Enter.',
     commandUnknown: 'No direct dashboard match found yet. Try: proof, governance, RIO, identity, participation, gateway.',
     commandRouteProof: 'Proof dashboard',
     commandRouteGovernance: 'Governance dashboard',
@@ -631,6 +635,9 @@ const translations = {
     commandReady: 'Typ een opdracht en druk op Enter om te springen.',
     commandPressEnter: 'Druk op Enter om te springen naar',
     commandJumping: 'Springt naar',
+    commandCleared: 'Opdracht gewist.',
+    commandShortcutsTitle: 'Snelle routes',
+    commandFocusHint: 'Command-laag gefocust. Typ en druk op Enter.',
     commandUnknown: 'Nog geen directe dashboard-match gevonden. Probeer: bewijs, governance, RIO, identiteit, participatie, gateway.',
     commandRouteProof: 'Bewijsdashboard',
     commandRouteGovernance: 'Governance-dashboard',
@@ -954,6 +961,9 @@ const translations = {
     commandReady: 'Tajpu komandon kaj premu Enter por salti.',
     commandPressEnter: 'Premu Enter por salti al',
     commandJumping: 'Saltas al',
+    commandCleared: 'Komando forigita.',
+    commandShortcutsTitle: 'Rapidaj vojoj',
+    commandFocusHint: 'Komanda tavolo fokusita. Tajpu kaj premu Enter.',
     commandUnknown: 'Ankoraŭ neniu rekta panela kongruo trovita. Provu: pruvo, administrado, RIO, identeco, partopreno, enirejo.',
     commandRouteProof: 'Pruva panelo',
     commandRouteGovernance: 'Administrada panelo',
@@ -1215,6 +1225,7 @@ const COMMAND_ROUTES = [
 ];
 
 let lastCommandValue = '';
+let commandHighlightTimer;
 
 const findCommandRoute = (rawValue) => {
   const normalized = (rawValue || '').trim().toLowerCase();
@@ -1243,6 +1254,23 @@ const updateCommandOutput = ({ jumping = false } = {}) => {
   const prefix = getTranslation(currentLanguage, jumping ? 'commandJumping' : 'commandPressEnter');
   const routeLabel = getTranslation(currentLanguage, route.labelKey);
   compassCommandOutput.textContent = `${prefix} ${routeLabel}.`;
+};
+
+const highlightCommandTarget = (target) => {
+  if (!target) return;
+  target.classList.add('is-command-target');
+  if (commandHighlightTimer) clearTimeout(commandHighlightTimer);
+  commandHighlightTimer = setTimeout(() => {
+    target.classList.remove('is-command-target');
+  }, 1800);
+};
+
+const jumpToCommandRoute = (route, { source = 'enter' } = {}) => {
+  if (!route) return;
+  const target = document.getElementById(route.sectionId);
+  target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  highlightCommandTarget(target);
+  updateCommandOutput({ jumping: source !== 'focus' });
 };
 
 const setLanguage = (lang) => {
@@ -1310,6 +1338,14 @@ compassCommandInput?.addEventListener('input', () => {
 });
 
 compassCommandInput?.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    compassCommandInput.value = '';
+    lastCommandValue = '';
+    compassCommandOutput.classList.remove('is-match', 'is-miss');
+    compassCommandOutput.textContent = getTranslation(currentLanguage, 'commandCleared');
+    return;
+  }
+
   if (event.key !== 'Enter') return;
 
   const route = findCommandRoute(compassCommandInput.value);
@@ -1317,10 +1353,31 @@ compassCommandInput?.addEventListener('keydown', (event) => {
     updateCommandOutput();
     return;
   }
+  jumpToCommandRoute(route);
+});
 
-  const target = document.getElementById(route.sectionId);
-  target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  updateCommandOutput({ jumping: true });
+commandRouteButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    const route = COMMAND_ROUTES.find((candidate) => candidate.labelKey === button.dataset.commandRoute);
+    if (!route) return;
+    lastCommandValue = route.terms[0];
+    if (compassCommandInput) {
+      compassCommandInput.value = route.terms[0];
+      compassCommandInput.focus();
+    }
+    jumpToCommandRoute(route, { source: 'shortcut' });
+  });
+});
+
+window.addEventListener('keydown', (event) => {
+  if (event.key !== '/') return;
+  const activeTag = document.activeElement?.tagName;
+  const isTypingField = ['INPUT', 'TEXTAREA'].includes(activeTag) || document.activeElement?.isContentEditable;
+  if (isTypingField) return;
+  event.preventDefault();
+  compassCommandInput?.focus();
+  compassCommandOutput.classList.remove('is-match', 'is-miss');
+  compassCommandOutput.textContent = getTranslation(currentLanguage, 'commandFocusHint');
 });
 
 let deferredPrompt;

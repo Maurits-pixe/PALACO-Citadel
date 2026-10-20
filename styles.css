@@ -215,6 +215,40 @@ button {
   color: #ffd3a1;
 }
 
+.compass-command-shortcuts {
+  flex-basis: 100%;
+}
+
+.compass-command-shortcuts > strong {
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.compass-command-shortcuts-grid {
+  display: grid;
+  gap: 0.45rem;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.command-shortcut-btn {
+  border-color: rgba(86, 182, 255, 0.45);
+  background: rgba(86, 182, 255, 0.08);
+  color: #d8efff;
+  text-align: left;
+  padding: 0.5rem 0.65rem;
+}
+
+.command-shortcut-btn:hover {
+  border-color: #56b6ff;
+  background: rgba(86, 182, 255, 0.18);
+}
+
+.is-command-target {
+  outline: 2px solid rgba(91, 199, 255, 0.7);
+  outline-offset: 4px;
+  transition: outline-color 180ms ease;
+}
+
 .compass-back-btn {
   background: transparent;
   color: var(--accent);
