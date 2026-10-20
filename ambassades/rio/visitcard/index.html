@@ -234,6 +234,7 @@
             <p id="engine-answer-text"></p>
             <p><strong data-engine-i18n="sources">Bronnen</strong>: <span id="engine-answer-sources"></span></p>
           </article>
+          <button id="engine-clear" class="engine-clear" type="button" aria-haspopup="dialog" aria-controls="engine-clear-dialog" data-engine-i18n="clear" disabled>Maak oefening leeg</button>
           <details class="engine-details">
             <summary data-engine-i18n="detailsTitle">Wat deze proef wel en niet doet</summary>
             <p data-engine-i18n="detailsBody">Geheugen is geen waarheid. Een antwoord is geen besluit. Permanente opslag, ID-koppeling, modeltraining en uitvoering blijven uit en vereisen aparte controle.</p>
@@ -349,6 +350,17 @@
         <div class="chat-preview-clear-actions">
           <button id="chat-preview-clear-cancel" type="submit" value="cancel" autofocus data-chat-i18n="clearCancel">Keep conversation</button>
           <button id="chat-preview-clear-confirm" type="submit" value="confirm" data-chat-i18n="clearConfirm">Yes, clear this conversation</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="engine-clear-dialog" class="engine-clear-dialog" aria-labelledby="engine-clear-title" aria-describedby="engine-clear-warning">
+      <form id="engine-clear-form" method="dialog">
+        <h2 id="engine-clear-title" data-engine-i18n="clearTitle">Deze oefening leegmaken?</h2>
+        <p id="engine-clear-warning" data-engine-i18n="clearWarning">Dit maakt de herinnering, concepten en antwoorden van deze oefening leeg. Je tijdelijke chat en onderwerp blijven staan. Je kunt dit niet ongedaan maken.</p>
+        <div class="engine-clear-actions">
+          <button id="engine-clear-cancel" type="submit" value="cancel" autofocus data-engine-i18n="clearCancel">Oefening behouden</button>
+          <button id="engine-clear-confirm" type="submit" value="confirm" data-engine-i18n="clearConfirm">Ja, maak deze oefening leeg</button>
         </div>
       </form>
     </dialog>

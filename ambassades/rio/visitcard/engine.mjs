@@ -16,6 +16,7 @@ const STOP_WORDS = new Set([
   "como", "cuando", "de", "el", "es", "la", "mi", "mis", "que", "un", "una", "y"
 ]);
 const runtimeStates = new Map();
+const DISPOSED_STATE = Symbol("disposed local session dossier");
 
 const clone = (value) => structuredClone(value);
 const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -246,6 +247,26 @@ function activeConsent(dossier, scope, purpose, at) {
     && consent.purpose === purpose
     && timestamp >= Date.parse(consent.valid_from)
     && (consent.valid_until === null || timestamp <= Date.parse(consent.valid_until)));
+}
+
+// Local runtime cleanup only. Keep the opaque ID reserved to prevent replay,
+// while replacing the serialized private snapshot with a content-free marker.
+// Caller-held copies, browser memory reclamation and formal consent revocation
+// are outside this operation; it produces no dossier or authority receipt.
+export function disposeSessionDossier(dossier) {
+  try {
+    const errors = validateDossier(dossier);
+    if (errors.length > 0) return { ok: false, errors };
+    const current = runtimeStates.get(dossier.dossier_id);
+    if (current === DISPOSED_STATE) return { ok: true, authority_effect: "NONE" };
+    if (current !== serializeState(dossier)) {
+      return { ok: false, errors: ["dossier snapshot is stale, altered, or not registered in this session"] };
+    }
+    runtimeStates.set(dossier.dossier_id, DISPOSED_STATE);
+    return { ok: true, authority_effect: "NONE" };
+  } catch {
+    return { ok: false, errors: ["dossier must be a valid local session snapshot"] };
+  }
 }
 
 export function createDossier(input) {
