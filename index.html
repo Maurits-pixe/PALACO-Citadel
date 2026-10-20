@@ -502,6 +502,9 @@
         <input id="compass-command" class="compass-command-input" type="text" data-i18n-placeholder="commandPlaceholder" placeholder="Type natural command…" />
         <p data-i18n="commandHint">Context first, action second.</p>
         <p id="compass-command-output" class="compass-command-output" data-i18n="commandReady" aria-live="polite">Type a command and press Enter to jump.</p>
+        <div class="compass-command-tools">
+          <button id="compass-command-clear" type="button" data-i18n="commandClear">Clear command</button>
+        </div>
         <div class="compass-command-shortcuts">
           <strong data-i18n="commandShortcutsTitle">Quick routes</strong>
           <div class="compass-command-shortcuts-grid">
@@ -512,6 +515,10 @@
             <button type="button" class="command-shortcut-btn" data-command-route="commandRouteParticipation" data-i18n="commandRouteParticipation">Participation dashboard</button>
             <button type="button" class="command-shortcut-btn" data-command-route="commandRouteGateway" data-i18n="commandRouteGateway">Public gateway dashboard</button>
           </div>
+        </div>
+        <div class="compass-command-history">
+          <strong data-i18n="commandHistoryTitle">Recent routes</strong>
+          <div id="compass-command-history-list" class="compass-command-history-list"></div>
         </div>
       </div>
 

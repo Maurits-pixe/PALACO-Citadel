@@ -11,6 +11,8 @@ const syncOutput = document.querySelector('#sync-output');
 const compassBackTopBtn = document.querySelector('#compass-back-top');
 const compassCommandInput = document.querySelector('#compass-command');
 const compassCommandOutput = document.querySelector('#compass-command-output');
+const compassCommandClearBtn = document.querySelector('#compass-command-clear');
+const compassCommandHistoryList = document.querySelector('#compass-command-history-list');
 const commandRouteButtons = document.querySelectorAll('.command-shortcut-btn');
 
 const translations = {
@@ -319,6 +321,9 @@ const translations = {
     commandRouteIdentity: 'Authority & identity dashboard',
     commandRouteParticipation: 'Participation dashboard',
     commandRouteGateway: 'Public gateway dashboard',
+    commandClear: 'Clear command',
+    commandHistoryTitle: 'Recent routes',
+    commandHistoryEmpty: 'No recent routes yet.',
     adaptiveDepthTitle: 'Adaptive depth',
     beginnerMode: 'Beginner mode',
     expertMode: 'Expert mode',
@@ -645,6 +650,9 @@ const translations = {
     commandRouteIdentity: 'Authority- en identiteitsdashboard',
     commandRouteParticipation: 'Participatiedashboard',
     commandRouteGateway: 'Publiek gateway-dashboard',
+    commandClear: 'Wis opdracht',
+    commandHistoryTitle: 'Recente routes',
+    commandHistoryEmpty: 'Nog geen recente routes.',
     adaptiveDepthTitle: 'Adaptieve diepte',
     beginnerMode: 'Beginner-modus',
     expertMode: 'Expert-modus',
@@ -971,6 +979,9 @@ const translations = {
     commandRouteIdentity: 'Aŭtoritata kaj identeca panelo',
     commandRouteParticipation: 'Partoprena panelo',
     commandRouteGateway: 'Publika enireja panelo',
+    commandClear: 'Forigi komandon',
+    commandHistoryTitle: 'Lastatempaj vojoj',
+    commandHistoryEmpty: 'Ankoraŭ neniuj lastatempaj vojoj.',
     adaptiveDepthTitle: 'Adapta profundo',
     beginnerMode: 'Komencanta reĝimo',
     expertMode: 'Sperta reĝimo',
@@ -1226,6 +1237,9 @@ const COMMAND_ROUTES = [
 
 let lastCommandValue = '';
 let commandHighlightTimer;
+const COMMAND_HISTORY_KEY = 'palaco-command-history';
+const COMMAND_HISTORY_LIMIT = 4;
+let commandHistory = [];
 
 const findCommandRoute = (rawValue) => {
   const normalized = (rawValue || '').trim().toLowerCase();
@@ -1265,11 +1279,46 @@ const highlightCommandTarget = (target) => {
   }, 1800);
 };
 
+const saveCommandHistory = () => {
+  localStorage.setItem(COMMAND_HISTORY_KEY, JSON.stringify(commandHistory));
+};
+
+const renderCommandHistory = () => {
+  if (!compassCommandHistoryList) return;
+  compassCommandHistoryList.innerHTML = '';
+
+  if (!commandHistory.length) {
+    const empty = document.createElement('span');
+    empty.className = 'command-history-empty';
+    empty.textContent = getTranslation(currentLanguage, 'commandHistoryEmpty');
+    compassCommandHistoryList.appendChild(empty);
+    return;
+  }
+
+  commandHistory.forEach((labelKey) => {
+    const route = COMMAND_ROUTES.find((candidate) => candidate.labelKey === labelKey);
+    if (!route) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'command-history-btn';
+    btn.textContent = getTranslation(currentLanguage, labelKey);
+    btn.addEventListener('click', () => jumpToCommandRoute(route, { source: 'history' }));
+    compassCommandHistoryList.appendChild(btn);
+  });
+};
+
+const rememberCommandRoute = (labelKey) => {
+  commandHistory = [labelKey, ...commandHistory.filter((item) => item !== labelKey)].slice(0, COMMAND_HISTORY_LIMIT);
+  saveCommandHistory();
+  renderCommandHistory();
+};
+
 const jumpToCommandRoute = (route, { source = 'enter' } = {}) => {
   if (!route) return;
   const target = document.getElementById(route.sectionId);
   target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   highlightCommandTarget(target);
+  if (source !== 'focus') rememberCommandRoute(route.labelKey);
   updateCommandOutput({ jumping: source !== 'focus' });
 };
 
@@ -1301,6 +1350,7 @@ const setLanguage = (lang) => {
 
   updateControlUI();
   updateCommandOutput();
+  renderCommandHistory();
 };
 
 form?.addEventListener('submit', (event) => {
@@ -1343,6 +1393,7 @@ compassCommandInput?.addEventListener('keydown', (event) => {
     lastCommandValue = '';
     compassCommandOutput.classList.remove('is-match', 'is-miss');
     compassCommandOutput.textContent = getTranslation(currentLanguage, 'commandCleared');
+    renderCommandHistory();
     return;
   }
 
@@ -1369,6 +1420,16 @@ commandRouteButtons.forEach((button) => {
   });
 });
 
+compassCommandClearBtn?.addEventListener('click', () => {
+  if (compassCommandInput) {
+    compassCommandInput.value = '';
+    compassCommandInput.focus();
+  }
+  lastCommandValue = '';
+  compassCommandOutput.classList.remove('is-match', 'is-miss');
+  compassCommandOutput.textContent = getTranslation(currentLanguage, 'commandCleared');
+});
+
 window.addEventListener('keydown', (event) => {
   if (event.key !== '/') return;
   const activeTag = document.activeElement?.tagName;
@@ -1379,6 +1440,15 @@ window.addEventListener('keydown', (event) => {
   compassCommandOutput.classList.remove('is-match', 'is-miss');
   compassCommandOutput.textContent = getTranslation(currentLanguage, 'commandFocusHint');
 });
+
+try {
+  const rawHistory = JSON.parse(localStorage.getItem(COMMAND_HISTORY_KEY) || '[]');
+  if (Array.isArray(rawHistory)) {
+    commandHistory = rawHistory.filter((item) => COMMAND_ROUTES.some((route) => route.labelKey === item)).slice(0, COMMAND_HISTORY_LIMIT);
+  }
+} catch {
+  commandHistory = [];
+}
 
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (event) => {
@@ -1403,3 +1473,4 @@ validateTranslations();
 renderLanguageButtons();
 setLanguage(isSupportedLanguage(currentLanguage) ? currentLanguage : defaultLanguage);
 updateCommandOutput();
+renderCommandHistory();

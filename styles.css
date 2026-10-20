@@ -219,6 +219,11 @@ button {
   flex-basis: 100%;
 }
 
+.compass-command-tools {
+  display: flex;
+  gap: 0.5rem;
+}
+
 .compass-command-shortcuts > strong {
   display: block;
   margin-bottom: 0.4rem;
@@ -241,6 +246,39 @@ button {
 .command-shortcut-btn:hover {
   border-color: #56b6ff;
   background: rgba(86, 182, 255, 0.18);
+}
+
+.compass-command-history {
+  flex-basis: 100%;
+}
+
+.compass-command-history > strong {
+  display: block;
+  margin: 0.45rem 0 0.35rem;
+}
+
+.compass-command-history-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.command-history-btn,
+#compass-command-clear {
+  border-color: rgba(159, 231, 255, 0.4);
+  background: rgba(159, 231, 255, 0.08);
+  color: #dff5ff;
+  padding: 0.42rem 0.65rem;
+}
+
+.command-history-btn:hover,
+#compass-command-clear:hover {
+  border-color: #9fe7ff;
+  background: rgba(159, 231, 255, 0.18);
+}
+
+.command-history-empty {
+  color: var(--muted);
 }
 
 .is-command-target {
