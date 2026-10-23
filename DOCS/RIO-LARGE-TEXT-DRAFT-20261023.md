@@ -23,10 +23,24 @@ De bestaande breedtecaps, padding, maximale hoogte en verticale scroll blijven
 gelden. De beperkte native em-grens hoeft de inhoud daardoor niet meer extra
 smal te maken. De onderwerpkaart en overige vensters worden niet aangepast.
 
-De verbetering verandert geen inhoud, taal, rechten of focuslogica. Chatconcept,
+De indeling verandert geen inhoud, taal of rechten. Chatconcept,
 onderwerp, vergrote chat en afzonderlijke Engine-oefening blijven bestaan. De
-rootcache gaat naar v42 en wacht op oude gecontroleerde tabs; de appcache blijft
+rootcache gaat naar v43 en wacht op oude gecontroleerde tabs; de appcache blijft
 v7. Er is geen root skipWaiting/clients.claim, nieuwe opslag of netwerkbestemming.
+
+CI vond daarnaast een bestaande focusrace na de vertrekkeuze. Het native venster
+herstelde de focus al bij sluiten; een later close-event focuste de oude link
+opnieuw. Een gerichte proef met echt Escape en een volgende focusactie vóór
+de applicatie-close-handler toonde op mobiel én desktop dat de Engine-knop zijn
+focus verloor. De twee negatieve waarnemingen blijven bewaard. De reparatie rondt
+sluiten en focus synchroon af bij behouden, Escape, achtergrondklik en de gewone
+nieuw-tabkeuze. De latere handler ruimt uitsluitend openbare bestemmingstekst op
+en slaat een inmiddels heropend venster over. De href blijft bestaan tot na de
+native klikactie, zodat target=_blank zijn normale werking houdt.
+
+Vergeleken met de vorige levering veranderen drie openbare bestanden: styles.css,
+integration.mjs en sw.js. De overige negentien, de app, NOVA en de zelfstandige
+offlineversie blijven bytegelijk. Dit verleent geen toegang of nieuwe rechten.
 
 ## Bewijsgrens
 
@@ -47,6 +61,13 @@ Alle oorspronkelijke asserts en de deadline blijven; geen retries of skips.
 Andere gevallen houden hun bestaande browser. De precieze oorzaak binnen
 Chromium is hiermee niet bewezen en blijft als onzekerheid gerapporteerd.
 
+Een volgende CI-run op b2ca92d had 77/78 PASS: de tabgebaren en nieuwe indeling
+slaagden, maar de mobiele resetkeuze bleef verborgen. Dit leidde tot de hierboven
+bewezen applicatiefout. De oorspronkelijke timing trad lokaal niet vanzelf op;
+de gerichte eventvolgorde maakt het focusverlies aantoonbaar zonder sleeps of
+synthetisch close-event. Tests bewaken ook dat een oude close een opnieuw
+geopende keuze niet leegmaakt. Definitieve uitslagen staan in de levering.
+
 PALACO PR75 is op 23 oktober alleen-lezen hercontroleerd: al extern gemerged in
 zijn eigen featurebasis, niet main. Bestaande exacte-head runs zijn historisch
 groen; hun stagingadapter-, accountbinding- en TLS-dekking is vandaag niet opnieuw
@@ -58,9 +79,9 @@ BRI9ADE en fysieke telefoon-/screenreaderacceptatie blijven open.
 
 - **Publiek en surface:** VisitCard op smalle telefoon en compacte/brede desktopchat, touch en toetsenbord.
 - **Onderwerp:** tijdelijke chat en drie bevestigingskeuzes; dezelfde inhoud en status met meer leesruimte.
-- **Touchflow:** chat openen/vergroten, keuze openen, behouden of expliciet bevestigen; dezelfde vervolgfocus.
+- **Touchflow:** chat openen/vergroten, keuze openen, behouden of expliciet bevestigen; directe vervolgfocus zonder latere focusdiefstal.
 - **Begrijpelijkheid:** titel en knoppen delen geen te smalle kolommen; grote letters blijven groot.
-- **Toegankelijkheid:** extra rij waar nodig, 44px acties, RTL, native dialoog, verticale scroll, bestaande focus en reduced-motion.
+- **Toegankelijkheid:** extra rij waar nodig, 44px acties, RTL, native dialoog, verticale scroll, synchrone focus en reduced-motion.
 - **RIO-context:** zeven VisitCard-talen, elf NOVA-talen, aparte tijdelijke oefeningen en ongewijzigde permissions.
 - **Provenance en grens:** bestaande schermafbeeldingen/geometrie en nieuwe tests; presentatie verleent geen identiteit of authority.
 - **Validatie:** nieuwe gerichte browsergevallen en exacte-head CI volgens het definitieve bouwrapport; fysieke acceptatie blijft open.
@@ -69,10 +90,10 @@ BRI9ADE en fysieke telefoon-/screenreaderacceptatie blijven open.
 
 ## PALACO PROOF
 
-- **Proposition:** grote tekst behoudt voldoende titel-/dialoogruimte zonder verlies van inhoud, bediening of focus.
+- **Proposition:** grote tekst behoudt voldoende titel-/dialoogruimte; de vertrekkeuze behoudt inhoud en pakt geen volgende focusactie terug.
 - **Scope and criterion:** lokale Chromium-preview, zeven talen, smal scherm en compacte desktopchat; geometrie en bediening slagen op dezelfde commit.
 - **Evidence:** oud Frans scherm als tegenbewijs voor bredere leesbaarheidsclaim, oude breedtemetingen, nieuwe browsergevallen en CI/pakketcontrole.
 - **Provenance:** fasebasis 4b22579; definitieve head/tree, runs, metingen en hashes staan in de levering.
-- **Falsification:** titel blijft samengedrukt, dialoog houdt de em-krimp, knop raakt buiten bereik, concept gaat verloren of extra netwerk/opslag ontstaat.
+- **Falsification:** titel blijft samengedrukt, dialoog houdt de em-krimp, knop raakt buiten bereik, een oude close pakt focus of wist een heropende keuze, concept gaat verloren of extra netwerk/opslag ontstaat.
 - **Status:** PROVISIONAL.
 - **Limits:** definitieve controles nog vast te leggen; geen algemene toegankelijkheidscertificering, echte toelating, fysieke acceptatie, merge of deploy.

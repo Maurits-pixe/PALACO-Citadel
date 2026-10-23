@@ -1,6 +1,7 @@
 import {test, expect} from '@playwright/test';
 import {execFileSync} from 'node:child_process';
-import {readFile} from 'node:fs/promises';
+import {readFile,writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
 import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {startReviewServer} from '../../scripts/serve-rio-unified-preview.mjs';
@@ -118,15 +119,21 @@ test('cancel, Escape and backdrop preserve a draft and return focus without clos
     const draft='TST-private draft stays in this page';
     await openChat(page,draft);
     const before=await storage(page),original=page.url();
-    for(const action of ['cancel','escape','backdrop']){
-      const {dialog,trigger}=await chooseDeparture(page);
+    const dismiss=async(action,dialog)=>{
       if(action==='cancel')await page.locator('#rio-departure-stay').click();
       else if(action==='escape')await page.keyboard.press('Escape');
       else{
-        const bounds=await dialog.boundingBox();
-        expect(bounds.y).toBeGreaterThan(2);
+        const bounds=await dialog.boundingBox();expect(bounds.y).toBeGreaterThan(2);
         await page.mouse.click(2,2);
       }
+    };
+    for(const action of ['cancel','escape','backdrop'])await test.step('ordinary '+action,async()=>{
+      const {dialog,trigger}=await chooseDeparture(page);
+      await page.evaluate(()=>{
+        window.__rioOrdinaryDepartureClosed=new Promise(done=>document.querySelector('#rio-departure-dialog')
+          .addEventListener('close',()=>done(true),{once:true}));
+      });
+      await dismiss(action,dialog);
       await expect(dialog).not.toBeVisible();
       await expect(trigger).toBeFocused();
       await expect(page.locator('#chat-preview-panel')).toBeVisible();
@@ -134,7 +141,69 @@ test('cancel, Escape and backdrop preserve a draft and return focus without clos
       await expect(page.locator('#chat-preview-input')).toHaveValue(draft);
       expect(page.url()).toBe(original);
       expect(await storage(page)).toEqual(before);
-    }
+      // Finish this independent real close before arming a new close observer.
+      // The focus/content assertions above still observe the ordinary action.
+      await page.evaluate(()=>window.__rioOrdinaryDepartureClosed);
+    });
+    const reopened=[];
+    for(const action of ['cancel','escape','backdrop'])await test.step('reopen during native '+action+' close',async()=>{
+      const {dialog}=await chooseDeparture(page),next=page.locator('#rio-unified-offline');
+      const expected={href:fixture.origin+'/rio/?lang='+await page.locator('html').getAttribute('lang'),
+        name:(await next.innerText()).trim(),origin:fixture.origin};
+      await page.evaluate(()=>{
+        const dialog=document.querySelector('#rio-departure-dialog'),next=document.querySelector('#rio-unified-offline');
+        let wasClosed;
+        window.__rioReopenedDeparture=new Promise(done=>{
+          // Real UA close, with the next public route selected in capture.
+          // The old application close-handler then runs against the reopened
+          // dialog; it must not erase this newer choice or move its focus.
+          dialog.addEventListener('close',()=>{
+            wasClosed=!dialog.open;
+            next.focus({preventScroll:true});next.click();
+          },{capture:true,once:true});
+          dialog.addEventListener('close',()=>done({wasClosed,open:dialog.open,
+            href:document.querySelector('#rio-departure-new-tab').getAttribute('href'),
+            name:document.querySelector('#rio-departure-name').textContent,
+            origin:document.querySelector('#rio-departure-origin').textContent,
+            focused:document.activeElement.id}),{once:true});
+        });
+      });
+      await dismiss(action,dialog);
+      const observed=await page.evaluate(()=>window.__rioReopenedDeparture);
+      reopened.push({action,expected,observed});
+      expect(observed).toEqual({wasClosed:true,open:true,...expected,focused:'rio-departure-stay'});
+      await expect(dialog).toBeVisible();await expect(page.locator('#rio-departure-stay')).toBeFocused();
+      await expect(page.locator('#rio-departure-new-tab')).toHaveAttribute('href',expected.href);
+      await page.evaluate(()=>{
+        window.__rioReopenedChoiceClosed=new Promise(done=>document.querySelector('#rio-departure-dialog')
+          .addEventListener('close',()=>done(true),{once:true}));
+      });
+      const popupPromise=checked.context.waitForEvent('page');
+      await activate(page,page.locator('#rio-departure-new-tab'));
+      const popup=await popupPromise;await popup.waitForLoadState('load');
+      await expect(popup).toHaveURL(expected.href);
+      expect(await popup.evaluate(()=>({opener:window.opener===null,referrer:document.referrer}))).toEqual({opener:true,referrer:''});
+      expect(await popup.locator('body').innerText()).not.toContain(draft);
+      expect(JSON.stringify(await storage(popup))).not.toContain(draft);
+      const navigation=checked.requests.filter(request=>request.url===expected.href).at(-1);
+      expect(navigation).toBeTruthy();
+      expect(navigation.headers.referer).toBeUndefined();expect(navigation.headers.cookie).toBeUndefined();
+      expect(navigation.headers.authorization).toBeUndefined();
+      await popup.close();await page.bringToFront();
+      await page.evaluate(()=>window.__rioReopenedChoiceClosed);
+      await expect(dialog).not.toBeVisible();await expect(next).toBeFocused();
+      await expect(page.locator('#chat-preview-panel')).toBeVisible();
+      await expect(page.locator('#chat-preview-input')).toHaveValue(draft);
+      expect(page.url()).toBe(original);expect(await storage(page)).toEqual(before);
+      expect(JSON.stringify(checked.requests)).not.toContain(draft);
+    });
+    const evidence={schema:'rio-departure-reopen/1',project:test.info().project.name,
+      sourceHead:execFileSync('git',['rev-parse','HEAD'],{cwd:repository,encoding:'utf8'}).trim(),
+      sourceIntegrationSha256:createHash('sha256').update(await readFile(resolve(repository,'render-dist/integration.mjs'))).digest('hex'),
+      reopened};
+    const path=test.info().outputPath('departure-reopen-state.json');
+    await writeFile(path,JSON.stringify(evidence,null,2)+'\n');
+    await test.info().attach('departure-reopen-state',{path,contentType:'application/json'});
     await checked.verify();
   }finally{await checked.context.close();}
 });

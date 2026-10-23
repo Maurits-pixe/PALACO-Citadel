@@ -143,19 +143,34 @@ document.addEventListener('click', event => {
   departureDialog.showModal();
 });
 
-document.getElementById('rio-departure-stay').addEventListener('click', () => departureDialog.close());
+function finishDeparture() {
+  if (!departureDialog.open) return;
+  const trigger = departureTrigger;
+  departureTrigger = undefined;
+  departureDialog.close();
+  // Finish focus with the action; a later close event must not move it again.
+  trigger?.focus({preventScroll:true});
+}
+
+document.getElementById('rio-departure-stay').addEventListener('click', finishDeparture);
 departureLink.addEventListener('click', event => {
-  if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) departureDialog.close();
+  if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) finishDeparture();
 });
 departureDialog.addEventListener('click', event => {
   if (event.target !== departureDialog) return;
   const rect = departureDialog.getBoundingClientRect();
-  if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) departureDialog.close();
+  if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) finishDeparture();
 });
+departureDialog.addEventListener('cancel', event => {
+  event.preventDefault();
+  finishDeparture();
+});
+
 departureDialog.addEventListener('close', () => {
+  // A previous queued close must not clear a newly opened choice.
+  if (departureDialog.open) return;
+  // Retain href until the native target=_blank click default has run.
   departureLink.removeAttribute('href');
   document.getElementById('rio-departure-name').textContent = '';
   document.getElementById('rio-departure-origin').textContent = '';
-  departureTrigger?.focus({preventScroll:true});
-  departureTrigger = undefined;
 });

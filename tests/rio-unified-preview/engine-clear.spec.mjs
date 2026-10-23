@@ -1,6 +1,7 @@
 import {test,expect} from '@playwright/test';
 import {execFileSync} from 'node:child_process';
-import {writeFile} from 'node:fs/promises';
+import {writeFile,readFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
 import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {startReviewServer} from '../../scripts/serve-rio-unified-preview.mjs';
@@ -103,6 +104,46 @@ async function departure(page){
   await expect(page.locator('#rio-departure-stay')).toBeFocused();
   await page.keyboard.press('Escape');
   await expect(page.locator('#rio-unified-reception')).toBeFocused();
+}
+async function observeDepartureCloseFocus(page){
+  const observations=[];
+  for(const action of ['escape','stay','backdrop']){
+  await activate(page,'#rio-unified-reception');
+  await expect(page.locator('#rio-departure-dialog')).toBeVisible();
+  await page.evaluate(()=>{
+    const dialog=document.querySelector('#rio-departure-dialog'),next=document.querySelector('#engine-clear');
+    const events=[];
+    window.__rioDepartureCloseFocus=new Promise(resolve=>{
+      // Use the real close event. Its capture phase represents a next public
+      // focus action before the queued application close-handler runs.
+      dialog.addEventListener('close',()=>{
+        events.push({phase:'before-next-focus',active:document.activeElement.id,open:dialog.open});
+        next.focus({preventScroll:true});
+        events.push({phase:'next-control-focused',active:document.activeElement.id,open:dialog.open});
+      },{capture:true,once:true});
+      dialog.addEventListener('close',()=>{
+        events.push({phase:'after-application-close-handler',active:document.activeElement.id,open:dialog.open});
+        resolve(events);
+      },{once:true});
+    });
+  });
+  if(action==='escape')await page.keyboard.press('Escape');
+  else if(action==='stay')await page.locator('#rio-departure-stay').click();
+  else await page.mouse.click(2,2);
+  const events=await page.evaluate(()=>window.__rioDepartureCloseFocus);
+  observations.push({action,events});
+  expect(events[1].active).toBe('engine-clear');
+  expect(events[2].active).toBe('engine-clear');
+  await expect(page.locator('#engine-clear')).toBeFocused();
+  }
+  const evidence={head:execFileSync('git',['rev-parse','HEAD'],{cwd:repository,encoding:'utf8'}).trim(),
+    integrationSha256:createHash('sha256').update(await readFile(resolve(repository,'ambassades/rio/visitcard/integration.mjs'))).digest('hex'),
+    observations,
+    project:test.info().project.name};
+  console.log('RIO_DEPARTURE_CLOSE_FOCUS '+JSON.stringify(evidence));
+  const path=test.info().outputPath('departure-close-focus.json');
+  await writeFile(path,JSON.stringify(evidence,null,2)+'\n');
+  await test.info().attach('departure-close-focus',{path,contentType:'application/json'});
 }
 async function focusedCloseGeometry(page,label){
   const geometry=await page.locator('#chat-preview-close').evaluate(element=>{
@@ -278,6 +319,7 @@ test('Engine reset releases its departure gate while remaining chat work still r
   try{
     await page.goto(fixture.origin+'/');
     await page.locator('#memory-input').fill('TST-only-Engine-draft');
+    await observeDepartureCloseFocus(page);
     await departure(page);
     await openReset(page);await page.locator('#engine-clear-confirm').click();
     await cleared(page);await expect(page.locator('#memory-input')).toBeFocused();

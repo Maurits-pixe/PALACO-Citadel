@@ -55,7 +55,7 @@ cache entry.
 It intentionally includes its old broad fetch handler and destructive cache
 cleanup. It first activates in an empty, isolated profile; only afterward are the
 app worker, app cache, unrelated cache and fictitious contact created. The current
-v42 worker must then reach the real `waiting` state without reloading its open
+v43 worker must then reach the real `waiting` state without reloading its open
 client. Closing the root client allows activation while the app remains open.
 The test proves migration from this fixed old worker/cache state; it does not
 reconstruct the historical HTML or claim that the old cleanup was safe.
@@ -63,7 +63,7 @@ reconstruct the historical HTML or claim that the old cleanup was safe.
 `language-worker-update.spec.mjs` also installs fixed root v37 and generated app
 v5 workers from the previous bf6d865 preview. Both new workers must reach the
 actual waiting state while their old pages remain open. Closing only the app
-activates v7 while root v42 keeps waiting; closing the root then activates v42.
+activates v7 while root v43 keeps waiting; closing the root then activates v43.
 The fictitious contact, unrelated cache, separate registrations, new local
 language links and genuine offline reloads remain intact. The existing app
 worker keeps its scoped clients.claim; the root has neither clients.claim nor
@@ -99,6 +99,16 @@ probe the real browser implementation, as described in the
 [Playwright browser documentation](https://playwright.dev/docs/browsers#chromium-new-headless-mode).
 The other cases retain their default browser, and every original assertion,
 deadline and privacy boundary stays. Chromium installation already includes both.
+
+The departure choice finishes closing and restoring focus synchronously. Its
+later native close handler only clears public destination fields if the dialog
+has not reopened. It keeps the href through native target=_blank activation.
+The reset test interleaves a next public focus action with the actual UA close
+event for Escape, staying and backdrop dismissal; a queued handler must not
+steal that focus. Reopening checks retain the new destination and safe focus.
+These regressions use real native events, no synthetic close, sleeps or retries.
+The saved old Escape observations show focus theft on both surfaces; passing
+the ordinary timing locally had not ruled out this product defect.
 
 `engine-clear.spec.mjs` adds six cases on each surface for independently emptying
 the temporary Engine exercise. Its native confirmation starts on keeping the
