@@ -55,7 +55,7 @@ cache entry.
 It intentionally includes its old broad fetch handler and destructive cache
 cleanup. It first activates in an empty, isolated profile; only afterward are the
 app worker, app cache, unrelated cache and fictitious contact created. The current
-v43 worker must then reach the real `waiting` state without reloading its open
+v44 worker must then reach the real `waiting` state without reloading its open
 client. Closing the root client allows activation while the app remains open.
 The test proves migration from this fixed old worker/cache state; it does not
 reconstruct the historical HTML or claim that the old cleanup was safe.
@@ -63,7 +63,7 @@ reconstruct the historical HTML or claim that the old cleanup was safe.
 `language-worker-update.spec.mjs` also installs fixed root v37 and generated app
 v5 workers from the previous bf6d865 preview. Both new workers must reach the
 actual waiting state while their old pages remain open. Closing only the app
-activates v7 while root v43 keeps waiting; closing the root then activates v43.
+activates v7 while root v44 keeps waiting; closing the root then activates v44.
 The fictitious contact, unrelated cache, separate registrations, new local
 language links and genuine offline reloads remain intact. The existing app
 worker keeps its scoped clients.claim; the root has neither clients.claim nor
@@ -141,6 +141,14 @@ scroll, and keep both native keyboard actions reachable. The checks preserve a
 synthetic draft/subject and reject added storage, API or external traffic.
 The earlier layout run proved containment/focus; the saved screenshot and raw
 geometry are counterevidence to any broader claim that its title was readable.
+
+The final package matrix then exposed a second gap: a 320px/32px Dutch send
+button shrank below its text width, creating horizontal form/panel scroll while
+the header itself still passed. The footer now wraps and protects the send
+button's readable width. These same cases also measure the full panel, form,
+counter, textarea and send control; control text must fit, and native Tab from
+the textarea must reveal a visible, unobscured send button without scripted
+scroll assistance. The failed matrix and original package bytes remain evidence.
 
 No test grants identity, verifies a real phone or email, starts a chat service,
 contacts a person, deploys, or merges. Test output goes to

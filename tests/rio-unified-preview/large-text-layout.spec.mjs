@@ -68,6 +68,25 @@ async function headerGeometry(page){
       buttons:[...header.querySelectorAll('button')].map(button=>({id:button.id,...box(button),scrollWidth:button.scrollWidth,clientWidth:button.clientWidth})),words};
   });
 }
+async function composerGeometry(page){
+  return page.locator('#chat-preview-panel').evaluate(panel=>{
+    const box=element=>{const r=element.getBoundingClientRect();return {left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height};};
+    const item=(element,withText=false)=>{const range=document.createRange();if(withText)range.selectNodeContents(element);
+      return {...box(element),scrollWidth:element.scrollWidth,clientWidth:element.clientWidth,
+        scrollHeight:element.scrollHeight,clientHeight:element.clientHeight,scrollLeft:element.scrollLeft,scrollTop:element.scrollTop,
+        text:withText?element.textContent:undefined,
+        textRects:withText?[...range.getClientRects()].map(r=>({left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height})):[]};};
+    const form=panel.querySelector('#chat-preview-form'),footer=form.querySelector('.chat-preview-form-footer');
+    const input=form.querySelector('#chat-preview-input'),send=form.querySelector('#chat-preview-send');
+    const sendBox=send.getBoundingClientRect(),hit=document.elementFromPoint(sendBox.left+sendBox.width/2,sendBox.top+sendBox.height/2);
+    return {viewport:{width:innerWidth,height:innerHeight,clientWidth:document.documentElement.clientWidth},
+      panel:item(panel),form:item(form),footer:item(footer),textarea:item(input),
+      label:item(form.querySelector('label'),true),count:item(form.querySelector('#chat-preview-count'),true),
+      localOnly:item(footer.querySelector('[data-chat-i18n="localOnly"]'),true),send:item(send,true),
+      draftLength:input.value.length,maxLength:input.maxLength,
+      sendFocus:{focused:document.activeElement===send,focusVisible:send.matches(':focus-visible'),hit:send.contains(hit)}};
+  });
+}
 async function dialogGeometry(page,contract){
   return page.locator(contract.dialog).evaluate((dialog,selectors)=>{
     const box=element=>{const r=element.getBoundingClientRect();return {left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height};};
@@ -122,6 +141,7 @@ test('seven chat headings keep full large-text width, separate actions and visib
         await page.locator('#chat-preview-title').focus();
         await page.locator('#chat-preview-title').evaluate(element=>element.scrollIntoView({behavior:'instant',block:'nearest'}));
         const geometry=await headerGeometry(page);
+        const observation={regime:name,language,geometry};observations.push(observation);
         expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.clientWidth+1);
         expect(overlap(geometry.titleColumn,geometry.actions)).toBeLessThanOrEqual(1);
         containedHorizontally(geometry.titleColumn,geometry.header);containedHorizontally(geometry.actions,geometry.header);
@@ -171,12 +191,40 @@ test('seven chat headings keep full large-text width, separate actions and visib
         });
         await expect(page.locator('#chat-preview-input')).toHaveValue(draft);
         expect(await storage(page)).toEqual(before);
-        observations.push({regime:name,language,geometry,focus:{size:sizeFocus,close:closeFocus},expanded});
+        observation.focus={size:sizeFocus,close:closeFocus};observation.expanded=expanded;
+        // Keep the complete translated counter and footer in the measurement, not only the header.
+        const composer=await composerGeometry(page);observation.composer=composer;
+        // Real Tab navigation must reveal Send; no scripted scrolling assists this check.
+        await page.locator('#chat-preview-input').focus();await page.keyboard.press('Tab');
+        const afterSendTab=await composerGeometry(page);observation.afterSendTab=afterSendTab;
+        await expect(page.locator('#chat-preview-send')).toBeFocused();
+        for(const measured of [composer,afterSendTab]){
+          for(const [elementName,element]of Object.entries({panel:measured.panel,form:measured.form,
+            footer:measured.footer,textarea:measured.textarea,label:measured.label,count:measured.count,
+            localOnly:measured.localOnly,send:measured.send})){
+            expect(element.scrollWidth,elementName+' has no horizontal overflow').toBeLessThanOrEqual(element.clientWidth+1);
+          }
+          containedHorizontally(measured.panel,{left:0,right:measured.viewport.clientWidth});
+          containedHorizontally(measured.form,measured.panel);
+          for(const child of [measured.label,measured.textarea,measured.count,measured.footer])containedHorizontally(child,measured.form);
+          for(const child of [measured.localOnly,measured.send])containedHorizontally(child,measured.footer);
+          for(const child of [measured.label,measured.count,measured.localOnly,measured.send])
+            for(const rect of child.textRects)containedHorizontally(rect,child);
+          expect(overlap(measured.localOnly,measured.send)).toBeLessThanOrEqual(1);
+          expect(measured.count.text).toContain(String(draft.length));expect(measured.count.text).toContain(String(measured.maxLength));
+          expect(measured.send.width).toBeGreaterThanOrEqual(44);expect(measured.send.height).toBeGreaterThanOrEqual(44);
+        }
+        expect(afterSendTab.sendFocus).toEqual({focused:true,focusVisible:true,hit:true});
+        expect(afterSendTab.send.top).toBeGreaterThanOrEqual(-1);
+        expect(afterSendTab.send.bottom).toBeLessThanOrEqual(afterSendTab.viewport.height+1);
+        await expect(page.locator('#chat-preview-input')).toHaveValue(draft);
+        expect(await storage(page)).toEqual(before);
       });
     }
-    await saveEvidence('large-text-chat-headings',observations);
     await checked.verify();
-  }finally{await checked.context.close();}
+  }finally{
+    try{await saveEvidence('large-text-chat-headings',observations);}finally{await checked.context.close();}
+  }
 });
 
 test('seven languages use available dialog width with readable order and keyboard access to every action',async({browser})=>{

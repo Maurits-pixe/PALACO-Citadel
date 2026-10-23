@@ -23,9 +23,16 @@ De bestaande breedtecaps, padding, maximale hoogte en verticale scroll blijven
 gelden. De beperkte native em-grens hoeft de inhoud daardoor niet meer extra
 smal te maken. De onderwerpkaart en overige vensters worden niet aangepast.
 
+De afsluitende pakketmatrix vond daarna een tweede leesbaarheidsgebrek lager
+in de chat. Op 320px/32px pasten paneel en kop, maar de Nederlandse verzendknop
+kromp tot 88px. Zijn tekst had meer ruimte nodig: clientWidth 84 en scrollWidth
+112. Daardoor scrolde het formulier horizontaal (290 tegenover 264px). De
+onderste rij mag nu afbreken en de knop krimpt niet onder zijn tekstbreedte;
+maximale breedte en woordafbreking blijven begrensd. Letters blijven even groot.
+
 De indeling verandert geen inhoud, taal of rechten. Chatconcept,
 onderwerp, vergrote chat en afzonderlijke Engine-oefening blijven bestaan. De
-rootcache gaat naar v43 en wacht op oude gecontroleerde tabs; de appcache blijft
+rootcache gaat naar v44 en wacht op oude gecontroleerde tabs; de appcache blijft
 v7. Er is geen root skipWaiting/clients.claim, nieuwe opslag of netwerkbestemming.
 
 CI vond daarnaast een bestaande focusrace na de vertrekkeuze. Het native venster
@@ -68,6 +75,13 @@ de gerichte eventvolgorde maakt het focusverlies aantoonbaar zonder sleeps of
 synthetisch close-event. Tests bewaken ook dat een oude close een opnieuw
 geopende keuze niet leegmaakt. Definitieve uitslagen staan in de levering.
 
+Beide workflows op 5966a6a waren groen, maar de eerste pakketmatrix stopte na
+14/28 geslaagde toestanden bij bovenstaande formulieroverflow. Dat tegenbewijs,
+de oorspronkelijke pakketbytes en twee afmetingsdiagnoses blijven behouden.
+De verbeterde regressie meet nu ook paneel, formulier, teller, verzendknop en
+werkelijke Tab-focus naar verzenden, inclusief tekst binnen de knopgrens.
+Groene kopcontroles alleen bewijzen geen bruikbaarheid van de hele chat.
+
 PALACO PR75 is op 23 oktober alleen-lezen hercontroleerd: al extern gemerged in
 zijn eigen featurebasis, niet main. Bestaande exacte-head runs zijn historisch
 groen; hun stagingadapter-, accountbinding- en TLS-dekking is vandaag niet opnieuw
@@ -78,9 +92,9 @@ BRI9ADE en fysieke telefoon-/screenreaderacceptatie blijven open.
 ## VORM9EVIN9 RECORD
 
 - **Publiek en surface:** VisitCard op smalle telefoon en compacte/brede desktopchat, touch en toetsenbord.
-- **Onderwerp:** tijdelijke chat en drie bevestigingskeuzes; dezelfde inhoud en status met meer leesruimte.
+- **Onderwerp:** tijdelijke chatkop, formulier en drie bevestigingskeuzes; dezelfde inhoud en status met meer leesruimte.
 - **Touchflow:** chat openen/vergroten, keuze openen, behouden of expliciet bevestigen; directe vervolgfocus zonder latere focusdiefstal.
-- **Begrijpelijkheid:** titel en knoppen delen geen te smalle kolommen; grote letters blijven groot.
+- **Begrijpelijkheid:** titel en verzendtekst houden leesruimte; rijen breken waar nodig en grote letters blijven groot.
 - **Toegankelijkheid:** extra rij waar nodig, 44px acties, RTL, native dialoog, verticale scroll, synchrone focus en reduced-motion.
 - **RIO-context:** zeven VisitCard-talen, elf NOVA-talen, aparte tijdelijke oefeningen en ongewijzigde permissions.
 - **Provenance en grens:** bestaande schermafbeeldingen/geometrie en nieuwe tests; presentatie verleent geen identiteit of authority.
