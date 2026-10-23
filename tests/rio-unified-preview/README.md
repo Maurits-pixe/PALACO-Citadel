@@ -91,6 +91,15 @@ These departure checks use the actual portable review server. Its unit test
 accepts only `/rio/?lang=<known code>` as an additional raw public route;
 other query fields, duplicates, encodings and path aliases remain closed.
 
+Only the native fragment/new-tab/Control-click/download case uses the full
+Chromium channel in new headless mode. A preserved Linux CI failure stalled at
+foregrounding a Control-clicked background tab in the default headless shell;
+its underlying browser cause is not proven. Full Chromium gives this native-tab
+probe the real browser implementation, as described in the
+[Playwright browser documentation](https://playwright.dev/docs/browsers#chromium-new-headless-mode).
+The other cases retain their default browser, and every original assertion,
+deadline and privacy boundary stays. Chromium installation already includes both.
+
 `engine-clear.spec.mjs` adds six cases on each surface for independently emptying
 the temporary Engine exercise. Its native confirmation starts on keeping the
 exercise. Cancel, Escape and backdrop preserve all content; confirmation clears

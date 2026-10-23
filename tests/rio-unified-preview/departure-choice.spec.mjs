@@ -194,7 +194,18 @@ test('Engine memory drafts and consented dossiers are protected independently of
   }finally{await checked.context.close();}
 });
 
-test('same-document, native new-tab, download and modified navigation retain their browser behavior',async({browser})=>{
+// Use full Chromium's new headless mode for native tab/foreground gestures.
+// https://playwright.dev/docs/browsers#chromium-new-headless-mode
+// A dedicated test-scoped fixture leaves the other cases on the default shell.
+const nativeGestureTest=test.extend({
+  nativeBrowser:async({playwright},use)=>{
+    const browser=await playwright.chromium.launch({channel:'chromium'});
+    try{await use(browser);}finally{await browser.close();}
+  },
+});
+
+test.describe('native browser gestures',()=>{
+nativeGestureTest('same-document, native new-tab, download and modified navigation retain their browser behavior',async({nativeBrowser:browser})=>{
   // Browser gestures own different tab/download lifecycles. Isolate each one
   // and report its step rather than letting pending work mask a later failure.
   for(const kind of ['fragment','new-tab','modified','download'])await test.step(kind,async()=>{
@@ -257,6 +268,7 @@ test('same-document, native new-tab, download and modified navigation retain the
       }
     }
   });
+});
 });
 
 test('each protected route opens a native isolated tab containing only its public destination and language',async({browser})=>{

@@ -38,6 +38,15 @@ strikte pakketserver; er wordt geen publieke dienst benaderd. De volledige CI
 controleert daarna dezelfde nieuwe commit. Resultaten, head/tree, negatieve
 eerste uitslagen en pakketvergelijking worden in de definitieve levering vastgelegd.
 
+Een bestaande native Control-click-proef liep in Linux-CI vast. Extra
+diagnostiek behield de primaire fout: het activeren van een achtergrondtab in
+de standaard headless shell bereikte de deadline. Alleen de proef met native
+tab-/downloadgebaren gebruikt daarom de volledige Chromium-browser via het
+[officiële nieuwe headless-kanaal](https://playwright.dev/docs/browsers#chromium-new-headless-mode).
+Alle oorspronkelijke asserts en de deadline blijven; geen retries of skips.
+Andere gevallen houden hun bestaande browser. De precieze oorzaak binnen
+Chromium is hiermee niet bewezen en blijft als onzekerheid gerapporteerd.
+
 PALACO PR75 is op 23 oktober alleen-lezen hercontroleerd: al extern gemerged in
 zijn eigen featurebasis, niet main. Bestaande exacte-head runs zijn historisch
 groen; hun stagingadapter-, accountbinding- en TLS-dekking is vandaag niet opnieuw
