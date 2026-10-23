@@ -21,7 +21,7 @@ root text. `nova-language-handoff.spec.mjs` adds five cases per surface for
 local-only language fragments, exact validation, keyboard focus, browser fallback,
 script-free fallback, file-mode isolation and narrow layout. A sixth case per
 surface checks all 18 source-language choices at 320px with actual 32px root/body
-text, including wrapping mobile navigation. The complete suite now has 74 browser
+text, including wrapping mobile navigation. The complete suite now has 78 browser
 cases, including worker migration, departure and independent exercise-reset checks.
 
 Run the build/HTTP tests and this suite sequentially: both rebuild the same fixed
@@ -55,7 +55,7 @@ cache entry.
 It intentionally includes its old broad fetch handler and destructive cache
 cleanup. It first activates in an empty, isolated profile; only afterward are the
 app worker, app cache, unrelated cache and fictitious contact created. The current
-v41 worker must then reach the real `waiting` state without reloading its open
+v42 worker must then reach the real `waiting` state without reloading its open
 client. Closing the root client allows activation while the app remains open.
 The test proves migration from this fixed old worker/cache state; it does not
 reconstruct the historical HTML or claim that the old cleanup was safe.
@@ -63,7 +63,7 @@ reconstruct the historical HTML or claim that the old cleanup was safe.
 `language-worker-update.spec.mjs` also installs fixed root v37 and generated app
 v5 workers from the previous bf6d865 preview. Both new workers must reach the
 actual waiting state while their old pages remain open. Closing only the app
-activates v7 while root v41 keeps waiting; closing the root then activates v41.
+activates v7 while root v42 keeps waiting; closing the root then activates v42.
 The fictitious contact, unrelated cache, separate registrations, new local
 language links and genuine offline reloads remain intact. The existing app
 worker keeps its scoped clients.claim; the root has neither clients.claim nor
@@ -111,6 +111,17 @@ reserved; stale snapshots cannot perform any of the six mutations or recreate th
 same ID. Other dossiers remain usable. Unknown, stale, altered and throwing inputs
 fail closed. This is local runtime cleanup, not formal consent revocation or a
 promise to erase caller-held copies, browser memory or historical screenshots.
+
+`large-text-layout.spec.mjs` adds two cases per surface for seven-language chat
+headers and all three confirmation dialogs. Narrow 320px and compact desktop
+panels with actual 32px root/body text must give the title its full row and place
+actions below it; a French word-range check detects the former split of
+"bonjour". Ordinary 390px/1440px layouts and the expanded chat remain usable.
+Each dialog must use its available width up to the existing cap, preserve vertical
+scroll, and keep both native keyboard actions reachable. The checks preserve a
+synthetic draft/subject and reject added storage, API or external traffic.
+The earlier layout run proved containment/focus; the saved screenshot and raw
+geometry are counterevidence to any broader claim that its title was readable.
 
 No test grants identity, verifies a real phone or email, starts a chat service,
 contacts a person, deploys, or merges. Test output goes to

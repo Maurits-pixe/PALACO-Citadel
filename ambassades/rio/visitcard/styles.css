@@ -571,10 +571,10 @@ footer small { grid-column: 1 / -1; }
 
 .chat-preview-panel[hidden] { display: none; }
 .chat-preview-panel > * { flex-shrink: 0; }
-.chat-preview-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.chat-preview-header > div:first-child { min-width: 0; }
-.chat-preview-header-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; max-width: 52%; }
-.chat-preview-header-actions button { overflow-wrap: anywhere; }
+.chat-preview-header { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.chat-preview-header > div:first-child { flex: 1 1 12rem; min-width: 0; max-width: 100%; }
+.chat-preview-header-actions { display: flex; flex: 0 1 auto; flex-wrap: wrap; justify-content: flex-end; gap: 6px; max-width: 100%; }
+.chat-preview-header-actions button { max-width: 100%; overflow-wrap: anywhere; }
 .chat-preview-header h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.35rem, 4vw, 1.8rem); line-height: 1.1; }
 .chat-preview-eyebrow { margin: 0 0 5px; color: var(--blue); font-size: 0.7rem; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; }
 .chat-preview-panel .chat-preview-icon-button { flex: 0 0 auto; min-width: 44px; padding: 0 12px; background: white; }
@@ -659,6 +659,11 @@ footer small { grid-column: 1 / -1; }
 .rio-departure-actions a { background: var(--yellow); }
 .rio-departure-actions > *:hover { background: var(--cyan); }
 .rio-departure-actions > *:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+
+/* Keep the viewport gutter independent of the browser's font-based dialog cap. */
+.engine-clear-dialog,
+.chat-preview-clear-dialog,
+.rio-departure-dialog { max-width: calc(100% - 32px); }
 
 @media (max-width: 420px) {
   .taskbar-label { display: grid; place-items: center; }
