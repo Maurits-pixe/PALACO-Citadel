@@ -198,12 +198,14 @@ test('same-document, native new-tab, download and modified navigation retain the
   // Browser gestures own different tab/download lifecycles. Isolate each one
   // and report its step rather than letting pending work mask a later failure.
   for(const kind of ['fragment','new-tab','modified','download'])await test.step(kind,async()=>{
-    const checked=await checkedContext(browser),page=await checked.context.newPage();
+    const checked=await test.step('create the isolated gesture profile',()=>checkedContext(browser));
+    let primaryError;
     try{
-      await page.goto(fixture.origin+'/');
+      const page=await test.step('create the source page',()=>checked.context.newPage());
+      await test.step('load the source page',()=>page.goto(fixture.origin+'/'));
       const draft='TST-native navigation draft';
-      await openChat(page,draft);
-      await page.locator('#chat-preview-close').click();
+      await test.step('keep a temporary chat draft',()=>openChat(page,draft));
+      await test.step('close the chat view without clearing its draft',()=>page.locator('#chat-preview-close').click());
       if(kind==='fragment'){
         await activate(page,page.locator('.taskbar a[href="#top"]'));
       }else if(kind==='download'){
@@ -218,19 +220,42 @@ test('same-document, native new-tab, download and modified navigation retain the
         expect(await readFile(await download.path())).toEqual(await readFile(resolve(repository,'render-dist/rio/download')));
       }else{
         const link=page.locator('#rio-unified-reception');
-        if(kind==='new-tab')await link.evaluate(element=>element.target='_blank');
-        const opened=checked.context.waitForEvent('page');
-        if(kind==='modified')await link.click({modifiers:['Control']});
-        else await activate(page,link);
-        const popup=await opened;await popup.waitForLoadState('load');
-        await expect(popup).toHaveURL(new URL(await link.getAttribute('href'),fixture.origin).href);
-        await popup.close();await page.bringToFront();
+        if(kind==='new-tab')await test.step('set the native blank target',()=>link.evaluate(element=>element.target='_blank'));
+        const destination=await test.step('read the existing reception destination',async()=>new URL(await link.getAttribute('href'),fixture.origin).href);
+        await test.step('foreground the source before the browser gesture',()=>page.bringToFront());
+        const popup=await test.step('perform the native gesture and observe its new page',async()=>{
+          // Arm creation before clicking and observe both promises together so
+          // a failed gesture cannot leave an unobserved page-wait rejection.
+          const opened=checked.context.waitForEvent('page');
+          const gesture=test.step(kind==='modified'?'Control-click the reception link':'activate the blank-target link',
+            ()=>kind==='modified'?link.click({modifiers:['Control']}):activate(page,link));
+          const [created]=await Promise.all([test.step('observe the browser-created page',()=>opened),gesture]);
+          return created;
+        });
+        // A Control-click can create a background tab. Make that explicit
+        // before waiting for its complete load, without changing the gesture.
+        await test.step('foreground the newly opened page',()=>popup.bringToFront());
+        await test.step('wait for the native destination to finish loading',()=>popup.waitForLoadState('load'));
+        await test.step('verify the original destination URL',()=>expect(popup).toHaveURL(destination));
+        await test.step('close the opened native page',()=>popup.close());
+        await test.step('return to the preserved source page',()=>page.bringToFront());
       }
       await expect(page.locator('#rio-departure-dialog')).not.toBeVisible();
       await expect(page.locator('#chat-preview-input')).toHaveValue(draft);
       expect(page.url()).toBe(fixture.origin+'/'+(kind==='fragment'?'#top':''));
       await checked.verify();
-    }finally{await checked.context.close();}
+    }catch(error){primaryError=error;throw error;}
+    finally{
+      try{await test.step('close the isolated gesture context',()=>checked.context.close());}
+      catch(cleanupError){
+        // Timeout disposal may already have removed this context. Preserve the
+        // operation that failed; cleanup must still fail an otherwise good test.
+        if(!primaryError&&test.info().status!=='timedOut')throw cleanupError;
+        const details=String(cleanupError.stack||cleanupError);
+        try{await test.info().attach(kind+'-secondary-cleanup-error',{body:details,contentType:'text/plain'});}
+        catch{console.warn('Secondary gesture cleanup failure: '+details);}
+      }
+    }
   });
 });
 
