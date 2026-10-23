@@ -111,6 +111,8 @@ test('seven chat headings keep full large-text width, separate actions and visib
   const observations=[];
   try{
     await page.goto(fixture.origin+'/');await page.locator('#chat-preview-toggle').click();
+    const draft='TST-header-draft-survives-resizing';
+    await page.locator('#chat-preview-input').fill(draft);
     for(const [name,viewport,size]of [['default',surface.viewport,16],['narrow-double',{width:320,height:900},32],['wide-double',{width:1440,height:900},32]]){
       await page.setViewportSize(viewport);await font(page,size);
       for(const language of languages)await test.step(name+' '+language,async()=>{
@@ -141,8 +143,35 @@ test('seven chat headings keep full large-text width, separate actions and visib
         await page.keyboard.press('Tab');const sizeFocus=await focusedControl(page,'#chat-preview-size');
         await page.keyboard.press('Tab');const closeFocus=await focusedControl(page,'#chat-preview-close');
         await page.keyboard.press('Shift+Tab');await expect(page.locator('#chat-preview-size')).toBeFocused();
+        let expanded;
+        if(name==='wide-double'&&language==='fr')await test.step('expand and restore the French chat at doubled text',async()=>{
+          const panel=page.locator('#chat-preview-panel'),sizeButton=page.locator('#chat-preview-size');
+          await expect(sizeButton).toHaveAttribute('aria-pressed','false');
+          await page.keyboard.press('Enter');
+          await expect(sizeButton).toHaveAttribute('aria-pressed','true');
+          await expect(panel).toHaveClass(/is-expanded/);
+          const expandedGeometry=await headerGeometry(page);
+          expect(overlap(expandedGeometry.titleColumn,expandedGeometry.actions)).toBeLessThanOrEqual(1);
+          expect(overlap(...expandedGeometry.buttons)).toBeLessThanOrEqual(1);
+          containedHorizontally(expandedGeometry.titleColumn,expandedGeometry.header);
+          containedHorizontally(expandedGeometry.actions,expandedGeometry.header);
+          for(const button of expandedGeometry.buttons){
+            expect(button.width).toBeGreaterThanOrEqual(44);expect(button.height).toBeGreaterThanOrEqual(44);
+            containedHorizontally(button,expandedGeometry.actions);
+          }
+          const expandedSize=await focusedControl(page,'#chat-preview-size');
+          await page.keyboard.press('Tab');const expandedClose=await focusedControl(page,'#chat-preview-close');
+          await expect(page.locator('#chat-preview-input')).toHaveValue(draft);
+          await page.keyboard.press('Shift+Tab');await expect(sizeButton).toBeFocused();
+          await page.keyboard.press('Enter');
+          await expect(sizeButton).toHaveAttribute('aria-pressed','false');await expect(panel).not.toHaveClass(/is-expanded/);
+          await focusedControl(page,'#chat-preview-size');
+          await expect(page.locator('#chat-preview-input')).toHaveValue(draft);
+          expanded={geometry:expandedGeometry,focus:{size:expandedSize,close:expandedClose},restoredCompact:true};
+        });
+        await expect(page.locator('#chat-preview-input')).toHaveValue(draft);
         expect(await storage(page)).toEqual(before);
-        observations.push({regime:name,language,geometry,focus:{size:sizeFocus,close:closeFocus}});
+        observations.push({regime:name,language,geometry,focus:{size:sizeFocus,close:closeFocus},expanded});
       });
     }
     await saveEvidence('large-text-chat-headings',observations);
@@ -154,12 +183,18 @@ test('seven languages use available dialog width with readable order and keyboar
   const checked=await checkedContext(browser),page=await checked.context.newPage();
   const observations=[];
   try{
-    await page.goto(fixture.origin+'/');await page.locator('#chat-preview-toggle').click();
+    await page.goto(fixture.origin+'/');
+    await page.locator('[data-subject="symbol"]').click();
+    await page.locator('#subject-continue').click();
+    await expect(page.locator('#chat-preview-panel')).toBeVisible();
+    const subject=page.locator('#chat-preview-subject'),summary=subject.locator('summary');
+    await expect(subject).toBeVisible();
     const draft='TST-layout-private-draft';await page.locator('#chat-preview-input').fill(draft);
     for(const [name,viewport,size]of [['default',surface.viewport,16],['narrow-double',{width:320,height:900},32]]){
       await page.setViewportSize(viewport);await font(page,size);
       for(const language of languages)await test.step(name+' '+language,async()=>{
         await activate(page,'.lang-btn[data-lang="'+language+'"]');const before=await storage(page);
+        const subjectBefore={text:await subject.textContent(),summary:await summary.innerText(),open:await subject.getAttribute('open')};
         await expect(page.locator('html')).toHaveAttribute('dir',language==='ar'?'rtl':'ltr');
         for(const contract of dialogs)await test.step(contract.name,async()=>{
           await activate(page,contract.trigger);const dialog=page.locator(contract.dialog);
@@ -191,9 +226,14 @@ test('seven languages use available dialog width with readable order and keyboar
           await expect(page.locator(contract.restore)).toBeFocused();
           await expect(page.locator('#chat-preview-input')).toHaveValue(draft);
           await expect(page.locator('#chat-preview-panel')).toBeVisible();
+          await expect(subject).toBeVisible();
+          expect(await subject.textContent()).toBe(subjectBefore.text);
+          expect(await summary.innerText()).toBe(subjectBefore.summary);
+          expect(await subject.getAttribute('open')).toBe(subjectBefore.open);
           expect(await storage(page)).toEqual(before);
           expect(JSON.stringify(await storage(page))).not.toContain(draft);
-          observations.push({regime:name,language,kind:contract.name,geometry,focus:{first,second},scroll});
+          observations.push({regime:name,language,kind:contract.name,geometry,focus:{first,second},scroll,
+            subject:{summary:subjectBefore.summary,preserved:true}});
         });
       });
     }
