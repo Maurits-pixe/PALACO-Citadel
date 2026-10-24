@@ -177,6 +177,7 @@ const followupButtons = document.querySelector("#chat-preview-followup-buttons")
 let selectedSubject;
 let inputErrorKey;
 let hasVisitorMessages = false;
+let welcomeMessage;
 
 // Share only whether work exists, never its content or subject identity.
 export const hasTemporaryChatWork = () => Boolean(input.value.trim() || selectedSubject || hasVisitorMessages);
@@ -245,9 +246,24 @@ const appendMessage = (author, body, kind, bodyLanguage = language) => {
   messages.append(item);
   readingControls.hidden = messages.childElementCount < 2;
   if (!panel.hidden) revealLatestAnswer();
+  return item;
 };
 
-const addWelcome = () => appendMessage(strings.rio, strings.welcome, "rio");
+const addWelcome = () => {
+  welcomeMessage = appendMessage(strings.rio, strings.welcome, "rio");
+};
+
+const refreshWelcome = () => {
+  // Only the sole greeting is interface copy. Sent messages remain history.
+  if (hasVisitorMessages || messages.childElementCount !== 1
+      || messages.firstElementChild !== welcomeMessage || welcomeMessage.lang === language) return;
+  const name = welcomeMessage.querySelector("strong");
+  const body = welcomeMessage.querySelector("p");
+  welcomeMessage.lang = body.lang = language;
+  welcomeMessage.dir = body.dir = language === "ar" ? "rtl" : "ltr";
+  if (name.textContent !== strings.rio) name.textContent = strings.rio;
+  if (body.textContent !== strings.welcome) body.textContent = strings.welcome;
+};
 
 const withSubjectSource = (answer) =>
   `${answer}\n\n${strings.subjectSource}: ${selectedSubject.source}\n${strings.subjectStatus}: ${selectedSubject.status}\n\n${selectedSubject.boundary}`;
@@ -421,6 +437,7 @@ clearDialog.addEventListener("close", () => {
 
 window.addEventListener("rio:languagechange", () => {
   updateCopy();
+  refreshWelcome();
   status.textContent = "";
 });
 updateCopy();

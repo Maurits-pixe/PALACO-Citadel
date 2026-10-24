@@ -1,5 +1,5 @@
 'use strict';
-const CACHE_NAME = 'palaco-rio-shell-v44-chat-form-layout';
+const CACHE_NAME = 'palaco-rio-shell-v45-welcome-language';
 const CACHE_PREFIX = 'palaco-rio-shell-';
 const SHELL_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/rio-engine-web.mjs', '/engine.mjs', '/chat-preview.mjs', '/integration.mjs', '/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg', '/rio/reception/nova.png'];
 
