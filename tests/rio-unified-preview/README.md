@@ -21,7 +21,7 @@ root text. `nova-language-handoff.spec.mjs` adds five cases per surface for
 local-only language fragments, exact validation, keyboard focus, browser fallback,
 script-free fallback, file-mode isolation and narrow layout. A sixth case per
 surface checks all 18 source-language choices at 320px with actual 32px root/body
-text, including wrapping mobile navigation. The complete suite now has 86 browser
+text, including wrapping mobile navigation. The complete suite now has 90 browser
 cases, including worker migration, departure and independent exercise-reset checks.
 
 Run the build/HTTP tests and this suite sequentially: both rebuild the same fixed
@@ -55,7 +55,7 @@ cache entry.
 It intentionally includes its old broad fetch handler and destructive cache
 cleanup. It first activates in an empty, isolated profile; only afterward are the
 app worker, app cache, unrelated cache and fictitious contact created. The current
-v46 worker must then reach the real `waiting` state without reloading its open
+v47 worker must then reach the real `waiting` state without reloading its open
 client. Closing the root client allows activation while the app remains open.
 The test proves migration from this fixed old worker/cache state; it does not
 reconstruct the historical HTML or claim that the old cleanup was safe.
@@ -63,7 +63,7 @@ reconstruct the historical HTML or claim that the old cleanup was safe.
 `language-worker-update.spec.mjs` also installs fixed root v37 and generated app
 v5 workers from the previous bf6d865 preview. Both new workers must reach the
 actual waiting state while their old pages remain open. Closing only the app
-activates v7 while root v46 keeps waiting; closing the root then activates v46.
+activates v7 while root v47 keeps waiting; closing the root then activates v47.
 The fictitious contact, unrelated cache, separate registrations, new local
 language links and genuine offline reloads remain intact. The existing app
 worker keeps its scoped clients.claim; the root has neither clients.claim nor
@@ -170,6 +170,22 @@ from a later public control interleaved at the real close event's capture phase.
 The isolated Arabic/RTL records bind served source hashes and preserve the
 baseline failures alongside passing changed-source evidence. No synthetic close,
 timer, retry, backdrop change, new storage or private network call is added.
+
+`engine-answer-language.spec.mjs` adds two cases per surface for the exercise's
+fixed answer presentation. Seven languages cover fresh insufficient-evidence
+answers and later language changes after an actual cached offline reload. A
+supported mixed-language memory stays literal text in the same node, with unknown
+language and automatic direction; status labels follow the UI. Citations, visible
+dossier identity, drafts, consent and the separate sent chat/subject stay intact.
+Both answer transitions, replacement and confirmed reset followed by all seven
+languages guard against resurfacing old output. Translation keys are recorded
+only as diagnostics; assertions cover visible behavior and language semantics.
+The old harness/results remain source-bound evidence: fresh status and Dutch
+copy, original source text/IDs and clear/replacement already worked; the six
+other explanations, later status and body annotations needed correction.
+This does not infer private core question counts from DOM IDs or translate the
+stored Engine result. The web adapter's source and unchanged core bytes provide
+the separate no-replay/no-core-mutation reasoning.
 
 No test grants identity, verifies a real phone or email, starts a chat service,
 contacts a person, deploys, or merges. Test output goes to

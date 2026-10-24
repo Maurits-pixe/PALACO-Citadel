@@ -16,6 +16,7 @@ const copy = {
     ask: "Vraag RIO", sources: "Bronnen", detailsTitle: "Wat deze proef wel en niet doet",
     detailsBody: "Geheugen is geen waarheid. Een antwoord is geen besluit. Permanente opslag, ID-koppeling, modeltraining en uitvoering blijven uit en vereisen aparte controle.",
     ready: "Klaar voor vragen. Sessie-ID", supported: "ANTWOORD MET BEWIJS", insufficient: "ONVOLDOENDE BEWIJS", failed: "RIO stopte veilig:",
+    insufficientAnswer: "RIO heeft binnen dit dossier onvoldoende bewijs om deze vraag te beantwoorden.",
     clear: "Maak oefening leeg", clearTitle: "Deze oefening leegmaken?", clearWarning: "Dit maakt de herinnering, concepten en antwoorden van deze oefening leeg. Je tijdelijke chat en onderwerp blijven staan. Je kunt dit niet ongedaan maken.",
     clearCancel: "Oefening behouden", clearConfirm: "Ja, maak deze oefening leeg", cleared: "Oefening is leeg. Geef opnieuw toestemming en een herinnering."
   },
@@ -28,6 +29,7 @@ const copy = {
     ask: "Ask RIO", sources: "Sources", detailsTitle: "What this trial does and does not do",
     detailsBody: "Memory is not truth. An answer is not a decision. Persistent storage, ID linking, model training, and execution remain disabled and require separate review.",
     ready: "Ready for questions. Session ID", supported: "ANSWER WITH EVIDENCE", insufficient: "INSUFFICIENT EVIDENCE", failed: "RIO stopped safely:",
+    insufficientAnswer: "RIO has insufficient evidence in this dossier to answer this question.",
     clear: "Empty exercise", clearTitle: "Empty this exercise?", clearWarning: "This empties this exercise's memory, drafts and answers. Your temporary chat and subject stay. You cannot undo this.",
     clearCancel: "Keep exercise", clearConfirm: "Yes, empty this exercise", cleared: "Exercise is empty. Give consent and a memory again."
   },
@@ -40,6 +42,7 @@ const copy = {
     ask: "RIO fragen", sources: "Quellen", detailsTitle: "Was dieser Test tut und nicht tut",
     detailsBody: "Erinnerung ist keine Wahrheit. Eine Antwort ist keine Entscheidung. Dauerhafte Speicherung, ID-Verknüpfung, Modelltraining und Ausführung bleiben aus und benötigen eine separate Prüfung.",
     ready: "Bereit für Fragen. Sitzungs-ID", supported: "ANTWORT MIT BELEG", insufficient: "UNZUREICHENDE BELEGE", failed: "RIO stoppte sicher:",
+    insufficientAnswer: "RIO hat in diesem Dossier nicht genügend Belege, um diese Frage zu beantworten.",
     clear: "Übung leeren", clearTitle: "Diese Übung leeren?", clearWarning: "Dies leert die Erinnerung, Entwürfe und Antworten dieser Übung. Dein vorübergehender Chat und dein Thema bleiben bestehen. Du kannst dies nicht rückgängig machen.",
     clearCancel: "Übung behalten", clearConfirm: "Ja, diese Übung leeren", cleared: "Die Übung ist leer. Gib erneut deine Zustimmung und eine Erinnerung."
   },
@@ -52,6 +55,7 @@ const copy = {
     ask: "Demander à RIO", sources: "Sources", detailsTitle: "Ce que fait et ne fait pas cet essai",
     detailsBody: "La mémoire n'est pas la vérité. Une réponse n'est pas une décision. Le stockage permanent, la liaison d'identité, l'entraînement et l'exécution restent désactivés et exigent un contrôle séparé.",
     ready: "Prêt pour les questions. ID de session", supported: "RÉPONSE AVEC PREUVE", insufficient: "PREUVE INSUFFISANTE", failed: "RIO s'est arrêté en sécurité :",
+    insufficientAnswer: "RIO ne dispose pas de preuves suffisantes dans ce dossier pour répondre à cette question.",
     clear: "Vider l’exercice", clearTitle: "Vider cet exercice ?", clearWarning: "Cela vide le souvenir, les brouillons et les réponses de cet exercice. Votre chat temporaire et votre sujet restent en place. Cette action est irréversible.",
     clearCancel: "Conserver l’exercice", clearConfirm: "Oui, vider cet exercice", cleared: "L’exercice est vide. Donnez à nouveau votre consentement et un souvenir."
   },
@@ -64,6 +68,7 @@ const copy = {
     ask: "Preguntar a RIO", sources: "Fuentes", detailsTitle: "Qué hace y qué no hace esta prueba",
     detailsBody: "La memoria no es verdad. Una respuesta no es una decisión. El almacenamiento permanente, la vinculación de ID, el entrenamiento y la ejecución siguen desactivados y requieren revisión aparte.",
     ready: "Listo para preguntas. ID de sesión", supported: "RESPUESTA CON PRUEBAS", insufficient: "PRUEBAS INSUFICIENTES", failed: "RIO se detuvo de forma segura:",
+    insufficientAnswer: "RIO no tiene pruebas suficientes en este expediente para responder a esta pregunta.",
     clear: "Vaciar ejercicio", clearTitle: "¿Vaciar este ejercicio?", clearWarning: "Esto vacía el recuerdo, los borradores y las respuestas de este ejercicio. Tu chat temporal y tu tema se conservan. No se puede deshacer.",
     clearCancel: "Conservar ejercicio", clearConfirm: "Sí, vaciar este ejercicio", cleared: "El ejercicio está vacío. Da tu consentimiento y un recuerdo de nuevo."
   },
@@ -76,6 +81,7 @@ const copy = {
     ask: "اسأل RIO", sources: "المصادر", detailsTitle: "ما الذي يفعله هذا الاختبار وما الذي لا يفعله",
     detailsBody: "الذاكرة ليست حقيقة. والجواب ليس قراراً. يبقى التخزين الدائم وربط الهوية وتدريب النموذج والتنفيذ معطلاً ويتطلب مراجعة منفصلة.",
     ready: "جاهز للأسئلة. معرّف الجلسة", supported: "إجابة مع دليل", insufficient: "دليل غير كافٍ", failed: "توقف RIO بأمان:",
+    insufficientAnswer: "لا يملك RIO أدلة كافية في هذا الملف للإجابة عن هذا السؤال.",
     clear: "أفرغ التمرين", clearTitle: "هل تريد إفراغ هذا التمرين؟", clearWarning: "يُفرغ هذا ذكرى التمرين ومسوداته وإجاباته. تبقى الدردشة المؤقتة والموضوع كما هما. لا يمكنك التراجع عن هذا الإجراء.",
     clearCancel: "احتفظ بالتمرين", clearConfirm: "نعم، أفرغ هذا التمرين", cleared: "التمرين فارغ. أعطِ موافقتك وذكرى من جديد."
   },
@@ -88,6 +94,7 @@ const copy = {
     ask: "询问 RIO", sources: "来源", detailsTitle: "此试用会做什么、不会做什么",
     detailsBody: "记忆不等于真相。回答不等于决定。持久存储、身份关联、模型训练和执行均保持关闭，并需要单独审查。",
     ready: "可以提问。会话 ID", supported: "有证据的回答", insufficient: "证据不足", failed: "RIO 已安全停止：",
+    insufficientAnswer: "RIO 在此档案中没有足够的证据来回答这个问题。",
     clear: "清空练习", clearTitle: "清空此练习？", clearWarning: "这会清空此练习的记忆、草稿和回答。你的临时聊天和主题会保留。此操作无法撤销。",
     clearCancel: "保留练习", clearConfirm: "是的，清空此练习", cleared: "练习已清空。请重新同意并提供一条记忆。"
   }
@@ -127,12 +134,22 @@ const record = (recordedAt) => ({
 function translate(nextLanguage) {
   language = copy[nextLanguage] ? nextLanguage : "en";
   document.querySelectorAll("[data-engine-i18n]").forEach((element) => {
-    element.textContent = t(element.dataset.engineI18n);
+    const value = t(element.dataset.engineI18n);
+    if (element.textContent !== value) element.textContent = value;
   });
   document.querySelectorAll("[data-engine-i18n-placeholder]").forEach((element) => {
     element.placeholder = t(element.dataset.engineI18nPlaceholder);
   });
   if (dossier) dossierOutput.textContent = `${t("ready")}: ${dossier.dossier_id}`;
+  updateAnswerLanguage();
+}
+
+function updateAnswerLanguage() {
+  if (answerPanel.hidden) return;
+  const fixedCopy = answerText.dataset.engineI18n === "insufficientAnswer";
+  // A visitor's quoted source has an unknown language, independent of the UI.
+  answerText.lang = fixedCopy ? language : "";
+  answerText.dir = fixedCopy ? (language === "ar" ? "rtl" : "ltr") : "auto";
 }
 
 function showFailure(errors) {
@@ -220,15 +237,25 @@ questionForm?.addEventListener("submit", (event) => {
   if (!answered.ok) return showFailure(answered.errors);
   dossier = answered.dossier;
   answerPanel.hidden = false;
-  answerState.textContent = answered.result.status === "ANSWER_SUPPORTED" ? t("supported") : t("insufficient");
-  answerText.textContent = answered.result.answer;
+  const supported = answered.result.status === "ANSWER_SUPPORTED";
+  answerState.dataset.engineI18n = supported ? "supported" : "insufficient";
+  answerState.textContent = t(answerState.dataset.engineI18n);
+  if (supported) delete answerText.dataset.engineI18n;
+  else answerText.dataset.engineI18n = "insufficientAnswer";
+  answerText.textContent = supported ? answered.result.answer : t("insufficientAnswer");
+  updateAnswerLanguage();
   answerSources.textContent = answered.result.citations.length > 0 ? answered.result.citations.join(", ") : "—";
 });
 
 function clearAnswer() {
   answerPanel.hidden = true;
+  // A later language choice must not repopulate cleared presentation fields.
+  delete answerState.dataset.engineI18n;
+  delete answerText.dataset.engineI18n;
   answerState.textContent = "";
   answerText.textContent = "";
+  answerText.removeAttribute("lang");
+  answerText.removeAttribute("dir");
   answerSources.textContent = "";
 }
 
