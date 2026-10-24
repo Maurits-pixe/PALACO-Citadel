@@ -31,19 +31,22 @@ function emit(path, content) {
 const navigation = `
 (() => {
   const labels = {
-    nl: ['RIO · VisitCard', 'NOVA · Receptie'], en: ['RIO · VisitCard', 'NOVA · Reception'],
-    de: ['RIO · VisitCard', 'NOVA · Empfang'], fr: ['RIO · VisitCard', 'NOVA · Accueil'],
-    es: ['RIO · VisitCard', 'NOVA · Recepción'], it: ['RIO · VisitCard', 'NOVA · Accoglienza'],
-    pt: ['RIO · VisitCard', 'NOVA · Receção'], ru: ['RIO · VisitCard', 'NOVA · Приёмная'],
-    zh: ['RIO · VisitCard', 'NOVA · 接待'], ar: ['RIO · VisitCard', 'NOVA · الاستقبال'],
-    eo: ['RIO · VisitCard', 'NOVA · Akceptejo']
+    nl: ['RIO · VisitCard', 'NOVA uitgelegd · receptie (Nederlands)'], en: ['RIO · VisitCard', 'NOVA explained · reception (Dutch)'],
+    de: ['RIO · VisitCard', 'NOVA erklärt · Empfang (Niederländisch)'], fr: ['RIO · VisitCard', 'NOVA expliquée · accueil (néerlandais)'],
+    es: ['RIO · VisitCard', 'NOVA explicada · recepción (neerlandés)'], it: ['RIO · VisitCard', 'NOVA spiegata · accoglienza (olandese)'],
+    pt: ['RIO · VisitCard', 'NOVA explicada · receção (neerlandês)'], ru: ['RIO · VisitCard', 'О NOVA · приёмная (нидерландский)'],
+    zh: ['RIO · VisitCard', 'NOVA 说明 · 接待（荷兰语）'], ar: ['RIO · VisitCard', 'شرح NOVA · الاستقبال (بالهولندية)'],
+    eo: ['RIO · VisitCard', 'NOVA klarigita · akceptejo (nederlande)']
   };
   const update = () => {
-    const copy = labels[document.documentElement.lang.split('-')[0]] || labels.en;
+    const requested = document.documentElement.lang.split('-')[0];
+    const language = Object.hasOwn(labels, requested) ? requested : 'en';
+    const copy = labels[language];
     const prefix = location.protocol === 'file:' ? '${PREVIEW_ORIGIN}' : '';
     [['unified-home','/'],['unified-reception','/rio/reception/']].forEach(([id,path],index) => {
       const link = document.getElementById(id);
-      link.textContent = copy[index]; link.href = prefix + path;
+      link.textContent = copy[index];
+      link.href = prefix + path + (index === 1 && !prefix ? '#nova-explained:' + language : '');
       if (prefix) { link.target = '_blank'; link.rel = 'noopener noreferrer'; }
     });
   };
@@ -57,21 +60,37 @@ export function buildUnifiedPreview() {
   if (relative(root, output) !== 'render-dist' || realpathSync(dirname(output)) !== root
       || (existsSync(output) && (lstatSync(output).isSymbolicLink() || realpathSync(output) !== output))) throw Error('UNSAFE_OUTPUT_DIRECTORY');
   const originalApp = text('ambassades/rio/palaco-rio-start-v0.1.html');
-  const nav = '<nav class="actions" aria-label="PALACO RIO" style="margin:0 0 21px"><a id="unified-home" class="btn outline" href="/">RIO · VisitCard</a><a id="unified-reception" class="btn outline" href="/rio/reception/">NOVA · Receptie</a></nav>\n';
+  const nav = '<nav class="actions" aria-label="PALACO RIO" style="margin:0 0 21px"><a id="unified-home" class="btn outline" href="/">RIO · VisitCard</a><a id="unified-reception" class="btn outline" href="/rio/reception/" hreflang="nl">NOVA uitgelegd · receptie (Nederlands)</a></nav>\n';
   let app = replaceOnce(originalApp, '<div class="actions" style="margin:0 0 21px">', nav + '<div class="actions" style="margin:0 0 21px">');
+  app = replaceOnce(app, '</style>', '\n/* Keep enlarged local contact fields within their grid. */\n.contact-grid > *, .contact-grid input {min-width:0}\n</style>');
   const inline = [...app.matchAll(/<script>([\s\S]*?)<\/script>/g)];
   if (inline.length !== 1) throw Error('SOURCE_CONTRACT_CHANGED');
-  const appScript = replaceOnce(inline[0][1], "(isFile?'https://palaco-ambassades.onrender.com':'')", "'" + TRIAL_ORIGIN + "'") + navigation;
+  let appScript = replaceOnce(inline[0][1], "(isFile?'https://palaco-ambassades.onrender.com':'')", "'" + TRIAL_ORIGIN + "'");
+  appScript = replaceOnce(appScript, "const isFile=location.protocol==='file:';\nfunction renderInstall(){", 'function renderInstall(){');
+  appScript = replaceOnce(appScript,
+    "const getLanguage=()=>{const query=new URLSearchParams(location.search).get('lang');return own(translations,query)?query:'nl';};",
+    "const isFile=location.protocol==='file:';\nconst getLanguage=()=>{const query=new URLSearchParams(location.search).get('lang');if(own(translations,query))return query;if(!isFile)try{const saved=sessionStorage.getItem('palaco-language');if(own(translations,saved))return saved;}catch{}return 'nl';};");
+  appScript = replaceOnce(appScript,
+    "function applyLanguage(next){\n const previous=language;language=own(translations,next)?next:'nl';",
+    "function applyLanguage(next){\n const previous=language;language=own(translations,next)?next:'nl';\n if(!isFile)try{sessionStorage.setItem('palaco-language',language);}catch{}");
+  appScript += navigation;
   const appOnline = replaceOnce(replaceOnce(app, inline[0][0], '<script src="/rio/start.js" defer></script>'),
     '<head>', '<head>\n<link rel="icon" href="/rio/icon-192.png" type="image/png">');
   const appDownload = replaceOnce(app, inline[0][0], '<script>' + appScript + '</script>');
   if (Buffer.byteLength(appDownload) >= 100 * 1024) throw Error('DOWNLOAD_TOO_LARGE');
-  let appWorker = replaceOnce(text('ambassades/rio/sw.js'), 'palaco-rio-start-v0.1-3', 'palaco-rio-start-v0.1-4');
+  let appWorker = replaceOnce(text('ambassades/rio/sw.js'), 'palaco-rio-start-v0.1-3', 'palaco-rio-start-v0.1-7');
   appWorker = replaceOnce(appWorker, "const ASSETS=['/rio/','/rio/manifest.webmanifest','/rio/icon-192.png','/rio/icon-512.png'];", "const ASSETS=['/rio/','/rio/start.js','/rio/manifest.webmanifest','/rio/icon-192.png','/rio/icon-512.png'];");
   let reception = replaceOnce(text('ambassades/rio/reception/index.html'), '<html lang="nl">', '<html lang="nl" data-runtime-mode="static-preview">');
   reception = replaceOnce(reception, '<head>', '<head>\n  <link rel="icon" href="/icon-192.svg" type="image/svg+xml">');
   reception = replaceOnce(reception, '<a class="brand" href="/rio/"', '<a class="brand" href="/"');
-  for (const route of ['nova','device-test']) reception = replaceOnce(reception, 'href="/rio/' + route + '/"', 'href="' + TRIAL_ORIGIN + '/rio/' + route + '/" target="_blank" rel="noopener noreferrer"');
+  for (const [id, style, route, alreadyOpensTab] of [
+    ['start-device-test', 'primary', 'device-test', false], ['start-nova', 'secondary', 'nova', false],
+    ['nova-guide-device', 'secondary', 'device-test', true], ['nova-guide-reception', 'secondary', 'nova', true],
+  ]) {
+    const prefix = '<a id="' + id + '" class="button button-' + style + '" href="';
+    reception = replaceOnce(reception, prefix + '/rio/' + route + '/"', prefix + TRIAL_ORIGIN + '/rio/' + route + '/"' + (alreadyOpensTab ? '' : ' target="_blank" rel="noopener noreferrer"'));
+  }
+  reception = replaceOnce(reception, 'id="nova-trial-destination" class="nova-language-scope" hidden', 'id="nova-trial-destination" class="nova-language-scope"');
   reception = replaceOnce(reception, 'Zet JavaScript aan om hier de bereikbaarheid te controleren.', 'Deze preview meet de bereikbaarheid niet; de proeven openen op de beveiligde proefserver.');
   if (existsSync(output)) rmSync(output, {recursive:true,force:true});
   mkdirSync(output, {recursive:true});

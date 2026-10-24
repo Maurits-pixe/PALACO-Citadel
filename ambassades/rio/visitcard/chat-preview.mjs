@@ -176,6 +176,11 @@ const followupTitle = document.querySelector("#chat-preview-followups-title");
 const followupButtons = document.querySelector("#chat-preview-followup-buttons");
 let selectedSubject;
 let inputErrorKey;
+let hasVisitorMessages = false;
+let welcomeMessage;
+
+// Share only whether work exists, never its content or subject identity.
+export const hasTemporaryChatWork = () => Boolean(input.value.trim() || selectedSubject || hasVisitorMessages);
 
 let language = document.documentElement.lang in copy ? document.documentElement.lang : "nl";
 let strings = copy[language];
@@ -241,9 +246,24 @@ const appendMessage = (author, body, kind, bodyLanguage = language) => {
   messages.append(item);
   readingControls.hidden = messages.childElementCount < 2;
   if (!panel.hidden) revealLatestAnswer();
+  return item;
 };
 
-const addWelcome = () => appendMessage(strings.rio, strings.welcome, "rio");
+const addWelcome = () => {
+  welcomeMessage = appendMessage(strings.rio, strings.welcome, "rio");
+};
+
+const refreshWelcome = () => {
+  // Only the sole greeting is interface copy. Sent messages remain history.
+  if (hasVisitorMessages || messages.childElementCount !== 1
+      || messages.firstElementChild !== welcomeMessage || welcomeMessage.lang === language) return;
+  const name = welcomeMessage.querySelector("strong");
+  const body = welcomeMessage.querySelector("p");
+  welcomeMessage.lang = body.lang = language;
+  welcomeMessage.dir = body.dir = language === "ar" ? "rtl" : "ltr";
+  if (name.textContent !== strings.rio) name.textContent = strings.rio;
+  if (body.textContent !== strings.welcome) body.textContent = strings.welcome;
+};
 
 const withSubjectSource = (answer) =>
   `${answer}\n\n${strings.subjectSource}: ${selectedSubject.source}\n${strings.subjectStatus}: ${selectedSubject.status}\n\n${selectedSubject.boundary}`;
@@ -270,6 +290,7 @@ const answerFor = (message, prompt) => {
 const sendMessage = (message, prompt) => {
   const body = message.trim();
   if (!body) return;
+  hasVisitorMessages = true;
   status.textContent = "";
   appendMessage(strings.visitor, body, "visitor", prompt ? language : "");
   appendMessage(strings.rio, answerFor(body, prompt), "rio");
@@ -368,7 +389,7 @@ closeButton?.addEventListener("click", () => {
 });
 
 document.addEventListener("keydown", (event) => {
-  if (event.key !== "Escape" || panel.hidden || clearDialog.open) return;
+  if (event.key !== "Escape" || panel.hidden || document.querySelector('dialog[open]')) return;
   panel.hidden = true;
   toggle.setAttribute("aria-expanded", "false");
   toggle.focus();
@@ -397,12 +418,15 @@ clearButton.addEventListener("click", () => {
   clearDialog.showModal();
 });
 
-clearDialog.addEventListener("close", () => {
-  if (clearDialog.returnValue !== "confirm") {
+const finishClear = (confirmed) => {
+  if (!clearDialog.open) return;
+  if (!confirmed) {
+    clearDialog.close("cancel");
     clearButton.focus();
     return;
   }
   clearSubject();
+  hasVisitorMessages = false;
   messages.replaceChildren();
   readingControls.hidden = true;
   form.reset();
@@ -410,11 +434,25 @@ clearDialog.addEventListener("close", () => {
   updateComposer();
   addWelcome();
   status.textContent = strings.cleared;
+  clearDialog.close("confirm");
+  // Complete state and focus with the choice; a queued close event must not
+  // erase newer work or move focus after the visitor's next interaction.
   input.focus();
+};
+
+clearDialog.querySelector("form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  finishClear(event.submitter?.value === "confirm");
+});
+
+clearDialog.addEventListener("cancel", (event) => {
+  event.preventDefault();
+  finishClear(false);
 });
 
 window.addEventListener("rio:languagechange", () => {
   updateCopy();
+  refreshWelcome();
   status.textContent = "";
 });
 updateCopy();

@@ -28,10 +28,11 @@ button, a, summary, select { touch-action: manipulation; }
 .skip-link:focus { top: 1rem; }
 .site-header { border-bottom: 1px solid var(--line); background: var(--white); }
 .header-inner { min-height: 96px; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; padding-block: 1rem; }
-.brand { display: inline-flex; align-items: center; gap: .8rem; text-decoration: none; flex-shrink: 0; }
+.brand { display: inline-flex; align-items: center; gap: .8rem; max-width: 100%; text-decoration: none; flex-shrink: 0; }
 .brand-mark { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 54px; border: 2px solid var(--ink); border-radius: .6rem; background: var(--yellow); font: 800 27px/1 Georgia, serif; letter-spacing: -.06em; box-shadow: 3px 3px 0 var(--cyan); }
 .brand-dot { position: absolute; width: 8px; height: 8px; border-radius: 50%; right: 5px; top: 5px; background: var(--coral); }
-.brand-name { display: grid; gap: .05rem; font-size: .85rem; font-weight: 800; letter-spacing: .08em; }
+.brand-mark { flex-shrink: 0; }
+.brand-name { display: grid; min-width: 0; gap: .05rem; font-size: .85rem; font-weight: 800; letter-spacing: .08em; }
 .brand-name span { color: var(--muted); font-size: .68rem; font-weight: 500; letter-spacing: 0; }
 .header-nav { display: flex; gap: 1.15rem; flex-wrap: wrap; }
 .header-nav a { display: inline-flex; min-height: 44px; align-items: center; font-size: .85rem; text-decoration-thickness: 1px; }
@@ -106,6 +107,29 @@ h2 { margin-top: .45rem; font: 750 clamp(1.8rem, 3vw, 2.55rem)/1.15 Georgia, "Ti
 .brigade-heading { align-items: center; }
 .section-subtitle { margin-top: .4rem; font-size: 1rem; color: var(--muted); }
 .design-label { max-width: 16rem; padding: .45rem .7rem; border: 1px solid var(--ink); border-radius: .5rem; background: var(--white); font-size: .7rem; font-weight: 700; }
+.nova-explained { margin-bottom: 3rem; padding: clamp(16px, 4vw, 32px); border: 1px solid var(--ink); border-radius: 1rem; background: var(--pale-cyan); scroll-margin-top: 1rem; }
+.nova-explained-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1.25rem 2rem; align-items: start; }
+.nova-explained-heading h2 { max-width: 20ch; overflow-wrap: anywhere; }
+.nova-language-field { display: grid; gap: .4rem; max-width: 100%; }
+.nova-language-field label { font-size: .85rem; font-weight: 700; }
+.nova-language-field select { min-height: 48px; max-width: 100%; padding: .6rem .9rem; border: 1px solid var(--ink); border-radius: .45rem; background: var(--white); color: var(--ink); font: inherit; }
+.nova-explained-content { margin-top: 1.25rem; }
+.nova-explained-lead { max-width: 65ch; font-size: 1rem; }
+.nova-explained-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1rem; margin-top: 1.25rem; }
+.nova-explained-grid article { min-width: 0; padding: clamp(12px, 2.5vw, 18px); border: 1px solid var(--line); border-radius: .6rem; background: var(--white); }
+.nova-explained-grid h3 { margin-bottom: .5rem; font-size: 1rem; overflow-wrap: anywhere; }
+.nova-explained-grid p, .nova-language-scope { font-size: .9rem; overflow-wrap: anywhere; }
+.nova-language-scope { margin-top: 1.1rem; max-width: 85ch; }
+.nova-routes { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
+.nova-routes > h3 { font-size: 1.1rem; }
+.nova-routes > .nova-language-scope { margin-top: .6rem; }
+.nova-route-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 1rem; margin-top: 1rem; }
+.nova-route-grid article { display: flex; flex-direction: column; align-items: start; min-width: 0; gap: .75rem; padding: clamp(12px, 2.5vw, 18px); border: 1px solid var(--line); border-radius: .6rem; background: var(--white); }
+.nova-route-grid h4 { margin: 0; font-size: 1rem; }
+.nova-route-grid p { font-size: .9rem; }
+.nova-route-grid .button { display: block; margin-top: auto; max-width: 100%; padding-inline: clamp(10px, 2vw, 16px); text-align: start; }
+.nova-route-grid .button span { font-size: inherit; }
+.nova-routes bdi { overflow-wrap: anywhere; }
 .brigade-intro { max-width: 72ch; margin-bottom: 1.6rem; font-size: .9rem; color: var(--muted); }
 .guard-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; padding: 0; margin: 0; list-style: none; }
 .guard-grid li { display: flex; gap: .8rem; min-width: 0; padding: 1.1rem; border: 1px solid var(--line); border-radius: .6rem; background: var(--white); }

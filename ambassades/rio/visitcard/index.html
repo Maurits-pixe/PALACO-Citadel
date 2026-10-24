@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#fff45c" />
-    <meta name="description" content="RIO is het visitekaartje van PALACO. Zeg hallo en neem je gesprek overal mee naartoe." />
+    <meta name="description" content="RIO is het visitekaartje van PALACO. Ontdek de lokale proef. Jij kiest iedere volgende stap." />
     <title>RIO · Het visitekaartje van PALACO</title>
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/icon-192.svg" type="image/svg+xml" />
@@ -46,7 +46,7 @@
           <h2 id="rio-unified-title" data-rio-integration="title">Samen op één plek. Jij kiest de volgende stap.</h2>
           <p data-rio-integration="policy">In het ontwerp geeft een bevestigd telefoonnummer óf bevestigd e-mailadres chattoelating, via P.P. gekoppeld aan je eigen persoons-ID. Wifi, mobiel of een andere verbinding verandert je ID niet.</p>
           <div class="rio-unified-actions">
-            <a id="rio-unified-reception" href="/rio/reception/" aria-describedby="rio-unified-boundary" data-rio-integration="reception">Naar NOVA · uitleg en proefroutes</a>
+            <a id="rio-unified-reception" href="/rio/reception/" hreflang="nl" aria-describedby="rio-unified-boundary" data-rio-integration="reception">NOVA uitgelegd · receptie in het Nederlands</a>
             <a id="rio-unified-offline" href="/rio/" aria-describedby="rio-unified-boundary" data-rio-integration="offline">Open de offline RIO-app</a>
           </div>
           <p id="rio-unified-boundary" class="rio-unified-boundary" data-rio-integration="boundary">Je tijdelijke chat en Engine-oefening blijven afzonderlijk op deze pagina en gaan niet mee naar de andere routes. Deze uitleg registreert of bevestigt niets. Echte chat en accounts blijven gesloten.</p>
@@ -54,7 +54,7 @@
       </section>
 
       <section id="everywhere" class="everywhere" aria-labelledby="everywhere-title">
-        <div><p class="section-label">ONE RIO · MANY SURFACES</p><h2 id="everywhere-title" data-i18n="everywhereTitle">Eén begroeting. Overal.</h2><p data-i18n="everywhereBody">Je gesprek reist met je mee. De betekenis blijft hetzelfde.</p></div>
+        <div><p class="section-label">ONE RIO · MANY SURFACES</p><h2 id="everywhere-title" data-i18n="everywhereTitle">Eén begroeting. Overal.</h2><p data-i18n="everywhereBody">Bekijk de lokale proef op je eigen apparaat. Chat en Engine-inhoud blijven op de geopende pagina.</p></div>
         <div class="surface-line" aria-label="Ondersteunde omgevingen"><span>Mobile</span><span>Web</span><span>Citadel</span><span>ELIXER</span><span>Desktop</span></div>
       </section>
 
@@ -83,7 +83,7 @@
 
       <section id="meet" class="meet" aria-labelledby="meet-title">
         <p class="section-label" data-i18n="flowLabel">Zo werkt RIO</p><h2 id="meet-title" data-i18n="flowTitle">Van hallo naar een echt gesprek.</h2>
-        <div class="steps"><article><span>01</span><h3 data-i18n="stepOneTitle">Kijk</h3><p data-i18n="stepOneBody">RIO laat zien wie of wat je ontmoet.</p></article><article><span>02</span><h3 data-i18n="stepTwoTitle">Kies</h3><p data-i18n="stepTwoBody">Jij beslist of je verder wilt gaan.</p></article><article><span>03</span><h3 data-i18n="stepThreeTitle">Praat</h3><p data-i18n="stepThreeBody">RIO bewaart de weg en het gesprek.</p></article></div>
+        <div class="steps"><article><span>01</span><h3 data-i18n="stepOneTitle">Kijk</h3><p data-i18n="stepOneBody">RIO laat zien wie of wat je ontmoet.</p></article><article><span>02</span><h3 data-i18n="stepTwoTitle">Kies</h3><p data-i18n="stepTwoBody">Jij beslist of je verder wilt gaan.</p></article><article><span>03</span><h3 data-i18n="stepThreeTitle">Praat</h3><p data-i18n="stepThreeBody">Probeer de tijdelijke chat op deze pagina. Je berichten worden niet bewaard.</p></article></div>
       </section>
 
       <section class="hello-panel" aria-labelledby="hello-title">
@@ -234,6 +234,7 @@
             <p id="engine-answer-text"></p>
             <p><strong data-engine-i18n="sources">Bronnen</strong>: <span id="engine-answer-sources"></span></p>
           </article>
+          <button id="engine-clear" class="engine-clear" type="button" aria-haspopup="dialog" aria-controls="engine-clear-dialog" data-engine-i18n="clear" disabled>Maak oefening leeg</button>
           <details class="engine-details">
             <summary data-engine-i18n="detailsTitle">Wat deze proef wel en niet doet</summary>
             <p data-engine-i18n="detailsBody">Geheugen is geen waarheid. Een antwoord is geen besluit. Permanente opslag, ID-koppeling, modeltraining en uitvoering blijven uit en vereisen aparte controle.</p>
@@ -351,6 +352,27 @@
           <button id="chat-preview-clear-confirm" type="submit" value="confirm" data-chat-i18n="clearConfirm">Yes, clear this conversation</button>
         </div>
       </form>
+    </dialog>
+
+    <dialog id="engine-clear-dialog" class="engine-clear-dialog" aria-labelledby="engine-clear-title" aria-describedby="engine-clear-warning">
+      <form id="engine-clear-form" method="dialog">
+        <h2 id="engine-clear-title" data-engine-i18n="clearTitle">Deze oefening leegmaken?</h2>
+        <p id="engine-clear-warning" data-engine-i18n="clearWarning">Dit maakt de herinnering, concepten en antwoorden van deze oefening leeg. Je tijdelijke chat en onderwerp blijven staan. Je kunt dit niet ongedaan maken.</p>
+        <div class="engine-clear-actions">
+          <button id="engine-clear-cancel" type="submit" value="cancel" autofocus data-engine-i18n="clearCancel">Oefening behouden</button>
+          <button id="engine-clear-confirm" type="submit" value="confirm" data-engine-i18n="clearConfirm">Ja, maak deze oefening leeg</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="rio-departure-dialog" class="rio-departure-dialog" aria-labelledby="rio-departure-title" aria-describedby="rio-departure-warning">
+      <h2 id="rio-departure-title" data-rio-departure="title">Je bent nog bezig.</h2>
+      <p id="rio-departure-warning" data-rio-departure="warning">Je hebt een tijdelijk gesprek, concept of oefening op deze pagina. Open de volgende plek in een nieuw tabblad om hier verder te kunnen. Je tekst gaat niet mee. Herladen of sluiten kan je werk wissen.</p>
+      <p class="rio-departure-destination"><span data-rio-departure="destination">Volgende plek:</span> <strong id="rio-departure-name"></strong><br><bdi id="rio-departure-origin" dir="ltr"></bdi></p>
+      <div class="rio-departure-actions">
+        <button id="rio-departure-stay" type="button" autofocus data-rio-departure="stay">Blijf hier</button>
+        <a id="rio-departure-new-tab" target="_blank" rel="noopener noreferrer" data-rio-departure="open">Open in nieuw tabblad</a>
+      </div>
     </dialog>
 
     <dialog id="subject-dialog" class="subject-dialog" aria-labelledby="subject-dialog-title" aria-describedby="subject-dialog-description">

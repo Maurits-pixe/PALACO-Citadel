@@ -2,6 +2,7 @@ import {
   addMemory,
   answerQuestion,
   createDossier,
+  disposeSessionDossier,
   grantDossierConsent
 } from "./engine.mjs";
 
@@ -14,7 +15,10 @@ const copy = {
     consentRequired: "Toestemming en een herinnering zijn nodig.", questionLabel: "Wat wil je vragen?", questionPlaceholder: "Wanneer is mijn afspraak?",
     ask: "Vraag RIO", sources: "Bronnen", detailsTitle: "Wat deze proef wel en niet doet",
     detailsBody: "Geheugen is geen waarheid. Een antwoord is geen besluit. Permanente opslag, ID-koppeling, modeltraining en uitvoering blijven uit en vereisen aparte controle.",
-    ready: "Klaar voor vragen. Sessie-ID", supported: "ANTWOORD MET BEWIJS", insufficient: "ONVOLDOENDE BEWIJS", failed: "RIO stopte veilig:"
+    ready: "Klaar voor vragen. Sessie-ID", supported: "ANTWOORD MET BEWIJS", insufficient: "ONVOLDOENDE BEWIJS", failed: "RIO stopte veilig:",
+    insufficientAnswer: "RIO heeft binnen dit dossier onvoldoende bewijs om deze vraag te beantwoorden.",
+    clear: "Maak oefening leeg", clearTitle: "Deze oefening leegmaken?", clearWarning: "Dit maakt de herinnering, concepten en antwoorden van deze oefening leeg. Je tijdelijke chat en onderwerp blijven staan. Je kunt dit niet ongedaan maken.",
+    clearCancel: "Oefening behouden", clearConfirm: "Ja, maak deze oefening leeg", cleared: "Oefening is leeg. Geef opnieuw toestemming en een herinnering."
   },
   en: {
     title: "Ask. Evidence. Answer.", intro: "Give RIO one memory, then ask a question. RIO cites your source or honestly says evidence is missing.",
@@ -24,7 +28,10 @@ const copy = {
     consentRequired: "Consent and one memory are required.", questionLabel: "What do you want to ask?", questionPlaceholder: "When is my appointment?",
     ask: "Ask RIO", sources: "Sources", detailsTitle: "What this trial does and does not do",
     detailsBody: "Memory is not truth. An answer is not a decision. Persistent storage, ID linking, model training, and execution remain disabled and require separate review.",
-    ready: "Ready for questions. Session ID", supported: "ANSWER WITH EVIDENCE", insufficient: "INSUFFICIENT EVIDENCE", failed: "RIO stopped safely:"
+    ready: "Ready for questions. Session ID", supported: "ANSWER WITH EVIDENCE", insufficient: "INSUFFICIENT EVIDENCE", failed: "RIO stopped safely:",
+    insufficientAnswer: "RIO has insufficient evidence in this dossier to answer this question.",
+    clear: "Empty exercise", clearTitle: "Empty this exercise?", clearWarning: "This empties this exercise's memory, drafts and answers. Your temporary chat and subject stay. You cannot undo this.",
+    clearCancel: "Keep exercise", clearConfirm: "Yes, empty this exercise", cleared: "Exercise is empty. Give consent and a memory again."
   },
   de: {
     title: "Frage. Beleg. Antwort.", intro: "Gib RIO eine Erinnerung und stelle dann eine Frage. RIO nennt deine Quelle oder sagt ehrlich, dass Belege fehlen.",
@@ -34,7 +41,10 @@ const copy = {
     consentRequired: "Zustimmung und eine Erinnerung sind erforderlich.", questionLabel: "Was möchtest du fragen?", questionPlaceholder: "Wann ist mein Termin?",
     ask: "RIO fragen", sources: "Quellen", detailsTitle: "Was dieser Test tut und nicht tut",
     detailsBody: "Erinnerung ist keine Wahrheit. Eine Antwort ist keine Entscheidung. Dauerhafte Speicherung, ID-Verknüpfung, Modelltraining und Ausführung bleiben aus und benötigen eine separate Prüfung.",
-    ready: "Bereit für Fragen. Sitzungs-ID", supported: "ANTWORT MIT BELEG", insufficient: "UNZUREICHENDE BELEGE", failed: "RIO stoppte sicher:"
+    ready: "Bereit für Fragen. Sitzungs-ID", supported: "ANTWORT MIT BELEG", insufficient: "UNZUREICHENDE BELEGE", failed: "RIO stoppte sicher:",
+    insufficientAnswer: "RIO hat in diesem Dossier nicht genügend Belege, um diese Frage zu beantworten.",
+    clear: "Übung leeren", clearTitle: "Diese Übung leeren?", clearWarning: "Dies leert die Erinnerung, Entwürfe und Antworten dieser Übung. Dein vorübergehender Chat und dein Thema bleiben bestehen. Du kannst dies nicht rückgängig machen.",
+    clearCancel: "Übung behalten", clearConfirm: "Ja, diese Übung leeren", cleared: "Die Übung ist leer. Gib erneut deine Zustimmung und eine Erinnerung."
   },
   fr: {
     title: "Question. Preuve. Réponse.", intro: "Donnez un souvenir à RIO, puis posez une question. RIO cite votre source ou indique honnêtement que la preuve manque.",
@@ -44,7 +54,10 @@ const copy = {
     consentRequired: "Un consentement et un souvenir sont nécessaires.", questionLabel: "Que voulez-vous demander ?", questionPlaceholder: "Quand est mon rendez-vous ?",
     ask: "Demander à RIO", sources: "Sources", detailsTitle: "Ce que fait et ne fait pas cet essai",
     detailsBody: "La mémoire n'est pas la vérité. Une réponse n'est pas une décision. Le stockage permanent, la liaison d'identité, l'entraînement et l'exécution restent désactivés et exigent un contrôle séparé.",
-    ready: "Prêt pour les questions. ID de session", supported: "RÉPONSE AVEC PREUVE", insufficient: "PREUVE INSUFFISANTE", failed: "RIO s'est arrêté en sécurité :"
+    ready: "Prêt pour les questions. ID de session", supported: "RÉPONSE AVEC PREUVE", insufficient: "PREUVE INSUFFISANTE", failed: "RIO s'est arrêté en sécurité :",
+    insufficientAnswer: "RIO ne dispose pas de preuves suffisantes dans ce dossier pour répondre à cette question.",
+    clear: "Vider l’exercice", clearTitle: "Vider cet exercice ?", clearWarning: "Cela vide le souvenir, les brouillons et les réponses de cet exercice. Votre chat temporaire et votre sujet restent en place. Cette action est irréversible.",
+    clearCancel: "Conserver l’exercice", clearConfirm: "Oui, vider cet exercice", cleared: "L’exercice est vide. Donnez à nouveau votre consentement et un souvenir."
   },
   es: {
     title: "Pregunta. Prueba. Respuesta.", intro: "Dale a RIO un recuerdo y luego haz una pregunta. RIO cita tu fuente o dice con claridad que faltan pruebas.",
@@ -54,7 +67,10 @@ const copy = {
     consentRequired: "Se necesitan consentimiento y un recuerdo.", questionLabel: "¿Qué quieres preguntar?", questionPlaceholder: "¿Cuándo es mi cita?",
     ask: "Preguntar a RIO", sources: "Fuentes", detailsTitle: "Qué hace y qué no hace esta prueba",
     detailsBody: "La memoria no es verdad. Una respuesta no es una decisión. El almacenamiento permanente, la vinculación de ID, el entrenamiento y la ejecución siguen desactivados y requieren revisión aparte.",
-    ready: "Listo para preguntas. ID de sesión", supported: "RESPUESTA CON PRUEBAS", insufficient: "PRUEBAS INSUFICIENTES", failed: "RIO se detuvo de forma segura:"
+    ready: "Listo para preguntas. ID de sesión", supported: "RESPUESTA CON PRUEBAS", insufficient: "PRUEBAS INSUFICIENTES", failed: "RIO se detuvo de forma segura:",
+    insufficientAnswer: "RIO no tiene pruebas suficientes en este expediente para responder a esta pregunta.",
+    clear: "Vaciar ejercicio", clearTitle: "¿Vaciar este ejercicio?", clearWarning: "Esto vacía el recuerdo, los borradores y las respuestas de este ejercicio. Tu chat temporal y tu tema se conservan. No se puede deshacer.",
+    clearCancel: "Conservar ejercicio", clearConfirm: "Sí, vaciar este ejercicio", cleared: "El ejercicio está vacío. Da tu consentimiento y un recuerdo de nuevo."
   },
   ar: {
     title: "سؤال. دليل. جواب.", intro: "أعطِ RIO ذكرى واحدة ثم اطرح سؤالاً. يذكر RIO مصدرك أو يقول بوضوح إن الدليل غير كافٍ.",
@@ -64,7 +80,10 @@ const copy = {
     consentRequired: "تلزم الموافقة وذكرى واحدة.", questionLabel: "ماذا تريد أن تسأل؟", questionPlaceholder: "متى موعدي؟",
     ask: "اسأل RIO", sources: "المصادر", detailsTitle: "ما الذي يفعله هذا الاختبار وما الذي لا يفعله",
     detailsBody: "الذاكرة ليست حقيقة. والجواب ليس قراراً. يبقى التخزين الدائم وربط الهوية وتدريب النموذج والتنفيذ معطلاً ويتطلب مراجعة منفصلة.",
-    ready: "جاهز للأسئلة. معرّف الجلسة", supported: "إجابة مع دليل", insufficient: "دليل غير كافٍ", failed: "توقف RIO بأمان:"
+    ready: "جاهز للأسئلة. معرّف الجلسة", supported: "إجابة مع دليل", insufficient: "دليل غير كافٍ", failed: "توقف RIO بأمان:",
+    insufficientAnswer: "لا يملك RIO أدلة كافية في هذا الملف للإجابة عن هذا السؤال.",
+    clear: "أفرغ التمرين", clearTitle: "هل تريد إفراغ هذا التمرين؟", clearWarning: "يُفرغ هذا ذكرى التمرين ومسوداته وإجاباته. تبقى الدردشة المؤقتة والموضوع كما هما. لا يمكنك التراجع عن هذا الإجراء.",
+    clearCancel: "احتفظ بالتمرين", clearConfirm: "نعم، أفرغ هذا التمرين", cleared: "التمرين فارغ. أعطِ موافقتك وذكرى من جديد."
   },
   zh: {
     title: "提问。证据。回答。", intro: "给 RIO 一条记忆，然后提问。RIO 会引用你的来源，或坦诚说明证据不足。",
@@ -74,7 +93,10 @@ const copy = {
     consentRequired: "需要同意并提供一条记忆。", questionLabel: "你想问什么？", questionPlaceholder: "我的预约是什么时候？",
     ask: "询问 RIO", sources: "来源", detailsTitle: "此试用会做什么、不会做什么",
     detailsBody: "记忆不等于真相。回答不等于决定。持久存储、身份关联、模型训练和执行均保持关闭，并需要单独审查。",
-    ready: "可以提问。会话 ID", supported: "有证据的回答", insufficient: "证据不足", failed: "RIO 已安全停止："
+    ready: "可以提问。会话 ID", supported: "有证据的回答", insufficient: "证据不足", failed: "RIO 已安全停止：",
+    insufficientAnswer: "RIO 在此档案中没有足够的证据来回答这个问题。",
+    clear: "清空练习", clearTitle: "清空此练习？", clearWarning: "这会清空此练习的记忆、草稿和回答。你的临时聊天和主题会保留。此操作无法撤销。",
+    clearCancel: "保留练习", clearConfirm: "是的，清空此练习", cleared: "练习已清空。请重新同意并提供一条记忆。"
   }
 };
 
@@ -89,9 +111,12 @@ const answerPanel = document.querySelector("#engine-answer");
 const answerState = document.querySelector("#engine-answer-state");
 const answerText = document.querySelector("#engine-answer-text");
 const answerSources = document.querySelector("#engine-answer-sources");
+const clearButton = document.querySelector("#engine-clear");
+const clearDialog = document.querySelector("#engine-clear-dialog");
 
 let language = document.documentElement.lang || "nl";
 let dossier;
+export const hasTemporaryEngineWork = () => Boolean(dossier || memoryInput.value.trim() || questionInput.value.trim());
 let sequence = 0;
 const suffix = crypto.randomUUID();
 const owner = `participant:local:${suffix}`;
@@ -109,12 +134,22 @@ const record = (recordedAt) => ({
 function translate(nextLanguage) {
   language = copy[nextLanguage] ? nextLanguage : "en";
   document.querySelectorAll("[data-engine-i18n]").forEach((element) => {
-    element.textContent = t(element.dataset.engineI18n);
+    const value = t(element.dataset.engineI18n);
+    if (element.textContent !== value) element.textContent = value;
   });
   document.querySelectorAll("[data-engine-i18n-placeholder]").forEach((element) => {
     element.placeholder = t(element.dataset.engineI18nPlaceholder);
   });
   if (dossier) dossierOutput.textContent = `${t("ready")}: ${dossier.dossier_id}`;
+  updateAnswerLanguage();
+}
+
+function updateAnswerLanguage() {
+  if (answerPanel.hidden) return;
+  const fixedCopy = answerText.dataset.engineI18n === "insufficientAnswer";
+  // A visitor's quoted source has an unknown language, independent of the UI.
+  answerText.lang = fixedCopy ? language : "";
+  answerText.dir = fixedCopy ? (language === "ar" ? "rtl" : "ltr") : "auto";
 }
 
 function showFailure(errors) {
@@ -145,7 +180,10 @@ memoryForm?.addEventListener("submit", (event) => {
     valid_from: consentTime,
     valid_until: null
   }, record(consentTime));
-  if (!consented.ok) return showFailure(consented.errors);
+  if (!consented.ok) {
+    disposeSessionDossier(created.dossier);
+    return showFailure(consented.errors);
+  }
 
   const capturedAt = now();
   const remembered = addMemory(consented.dossier, {
@@ -158,13 +196,28 @@ memoryForm?.addEventListener("submit", (event) => {
     sensitivity: "PRIVATE",
     retention_until: null
   }, record(capturedAt));
-  if (!remembered.ok) return showFailure(remembered.errors);
+  if (!remembered.ok) {
+    disposeSessionDossier(consented.dossier);
+    return showFailure(remembered.errors);
+  }
+
+  // A successful replacement must also retire the previous core snapshot;
+  // dropping this module's old reference alone would retain its private text.
+  if (dossier) {
+    const released = disposeSessionDossier(dossier);
+    if (!released.ok) {
+      disposeSessionDossier(remembered.dossier);
+      return showFailure(released.errors);
+    }
+  }
 
   dossier = remembered.dossier;
+  clearAnswer();
   memoryInput.value = "";
   memoryConsent.checked = false;
   questionInput.disabled = false;
   questionButton.disabled = false;
+  dossierOutput.dataset.engineI18n = "consentRequired";
   dossierOutput.dataset.state = "READY";
   dossierOutput.textContent = `${t("ready")}: ${dossier.dossier_id}`;
   questionInput.focus();
@@ -184,10 +237,87 @@ questionForm?.addEventListener("submit", (event) => {
   if (!answered.ok) return showFailure(answered.errors);
   dossier = answered.dossier;
   answerPanel.hidden = false;
-  answerState.textContent = answered.result.status === "ANSWER_SUPPORTED" ? t("supported") : t("insufficient");
-  answerText.textContent = answered.result.answer;
+  const supported = answered.result.status === "ANSWER_SUPPORTED";
+  answerState.dataset.engineI18n = supported ? "supported" : "insufficient";
+  answerState.textContent = t(answerState.dataset.engineI18n);
+  if (supported) delete answerText.dataset.engineI18n;
+  else answerText.dataset.engineI18n = "insufficientAnswer";
+  answerText.textContent = supported ? answered.result.answer : t("insufficientAnswer");
+  updateAnswerLanguage();
   answerSources.textContent = answered.result.citations.length > 0 ? answered.result.citations.join(", ") : "—";
+});
+
+function clearAnswer() {
+  answerPanel.hidden = true;
+  // A later language choice must not repopulate cleared presentation fields.
+  delete answerState.dataset.engineI18n;
+  delete answerText.dataset.engineI18n;
+  answerState.textContent = "";
+  answerText.textContent = "";
+  answerText.removeAttribute("lang");
+  answerText.removeAttribute("dir");
+  answerSources.textContent = "";
+}
+
+function finishClear(confirmed) {
+  if (confirmed) {
+    // Release this exercise's state and remove its visible private content.
+    // This does not access the separate chat or promise secure memory erasure.
+    const released = dossier ? disposeSessionDossier(dossier) : { ok: true };
+    if (!released.ok) {
+      showFailure(released.errors);
+      clearDialog.close("cancel");
+      focusAfterClear(false);
+      return;
+    }
+    dossier = undefined;
+    memoryForm.reset();
+    questionForm.reset();
+    memoryInput.value = "";
+    questionInput.value = "";
+    memoryConsent.checked = false;
+    memoryInput.setCustomValidity("");
+    questionInput.setCustomValidity("");
+    questionInput.disabled = true;
+    questionButton.disabled = true;
+    clearAnswer();
+    dossierOutput.dataset.state = "CONSENT_REQUIRED";
+    dossierOutput.dataset.engineI18n = "cleared";
+    dossierOutput.textContent = t("cleared");
+  }
+  clearDialog.close(confirmed ? "confirm" : "cancel");
+  // Complete state and focus together; no later close-event work can steal
+  // focus from the user's next action.
+  focusAfterClear(confirmed);
+}
+
+function focusAfterClear(confirmed) {
+  // An open fixed chat can cover the workspace. Keep its state and content,
+  // but return to its explicit close control instead of a covered root field.
+  const chatOpen = document.querySelector("#chat-preview-panel")?.hidden === false;
+  const target = chatOpen ? document.querySelector("#chat-preview-close") : confirmed ? memoryInput : clearButton;
+  target.focus({ preventScroll: true });
+  target.scrollIntoView({ behavior: "instant", block: chatOpen ? "nearest" : "center", inline: "nearest" });
+}
+
+clearButton.addEventListener("click", () => {
+  clearDialog.returnValue = "";
+  clearDialog.showModal();
+});
+document.querySelector("#engine-clear-form").addEventListener("submit", event => {
+  event.preventDefault();
+  finishClear(event.submitter?.value === "confirm");
+});
+clearDialog.addEventListener("cancel", event => {
+  event.preventDefault();
+  finishClear(false);
+});
+clearDialog.addEventListener("click", event => {
+  if (event.target !== clearDialog) return;
+  const rect = clearDialog.getBoundingClientRect();
+  if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) finishClear(false);
 });
 
 window.addEventListener("rio:languagechange", (event) => translate(event.detail.language));
 translate(language);
+clearButton.disabled = false;
