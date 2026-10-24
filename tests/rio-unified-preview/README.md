@@ -21,7 +21,7 @@ root text. `nova-language-handoff.spec.mjs` adds five cases per surface for
 local-only language fragments, exact validation, keyboard focus, browser fallback,
 script-free fallback, file-mode isolation and narrow layout. A sixth case per
 surface checks all 18 source-language choices at 320px with actual 32px root/body
-text, including wrapping mobile navigation. The complete suite now has 90 browser
+text, including wrapping mobile navigation. The complete suite now has 94 browser
 cases, including worker migration, departure and independent exercise-reset checks.
 
 Run the build/HTTP tests and this suite sequentially: both rebuild the same fixed
@@ -55,7 +55,7 @@ cache entry.
 It intentionally includes its old broad fetch handler and destructive cache
 cleanup. It first activates in an empty, isolated profile; only afterward are the
 app worker, app cache, unrelated cache and fictitious contact created. The current
-v47 worker must then reach the real `waiting` state without reloading its open
+v48 worker must then reach the real `waiting` state without reloading its open
 client. Closing the root client allows activation while the app remains open.
 The test proves migration from this fixed old worker/cache state; it does not
 reconstruct the historical HTML or claim that the old cleanup was safe.
@@ -63,7 +63,7 @@ reconstruct the historical HTML or claim that the old cleanup was safe.
 `language-worker-update.spec.mjs` also installs fixed root v37 and generated app
 v5 workers from the previous bf6d865 preview. Both new workers must reach the
 actual waiting state while their old pages remain open. Closing only the app
-activates v7 while root v47 keeps waiting; closing the root then activates v47.
+activates v7 while root v48 keeps waiting; closing the root then activates v48.
 The fictitious contact, unrelated cache, separate registrations, new local
 language links and genuine offline reloads remain intact. The existing app
 worker keeps its scoped clients.claim; the root has neither clients.claim nor
@@ -186,6 +186,22 @@ other explanations, later status and body annotations needed correction.
 This does not infer private core question counts from DOM IDs or translate the
 stored Engine result. The web adapter's source and unchanged core bytes provide
 the separate no-replay/no-core-mutation reasoning.
+
+`subject-dialog-lifecycle.spec.mjs` adds two cases per surface for subject-card
+focus ownership. Native Close/Escape/backdrop cases cover four subject types in
+Dutch and Arabic. A later public focus action interleaved in actual trusted
+close-capture must survive the application phase. Seven languages and four
+types also exercise two explicit Continue activations before their queued close
+events: immediate publication, stable metadata, chat opening and the subsequent
+focus owner remain intact. Existing chat drafts/history, selected context and
+Engine work are preserved. Continue's two publication events are counted;
+dismissal preserves the observed selected context, while the absence of a
+publication call in its close path is established by source review.
+The existing tile action hides chat; dismissal does not add automatic reopening.
+These are mouse/keyboard native-event regressions, not new physical swipe or
+screenreader acceptance. Baseline harness errors are kept apart from valid
+source-bound product failures. A brief reopened dialog sampled before the second
+Continue is distinct from leaving a new dialog open until after an old close.
 
 No test grants identity, verifies a real phone or email, starts a chat service,
 contacts a person, deploys, or merges. Test output goes to

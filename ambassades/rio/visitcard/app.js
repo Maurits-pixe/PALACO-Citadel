@@ -842,7 +842,6 @@ let currentLanguage = supportedLanguages.includes(savedLanguage) ? savedLanguage
 let deferredPrompt;
 let activeSubject;
 let selectedSubject;
-let continuingSubject = false;
 let lastSubjectTrigger;
 let touchStart;
 
@@ -950,8 +949,13 @@ const renderSubject = (subjectId) => {
   }
 };
 
-const closeSubjectDialog = () => {
-  if (subjectDialog?.open) subjectDialog.close();
+const closeSubjectDialog = ({ restoreFocus = true } = {}) => {
+  if (!subjectDialog?.open) return;
+  const trigger = lastSubjectTrigger;
+  lastSubjectTrigger = undefined;
+  subjectDialog.close();
+  // Finish focus with this action; a later native close must not move it again.
+  if (restoreFocus) trigger?.focus();
 };
 
 const setLanguage = (language, { remember = true } = {}) => {
@@ -1014,13 +1018,13 @@ subjectTiles.forEach((tile) => tile.addEventListener('click', () => {
   subjectDialog.showModal();
 }));
 
-subjectClose?.addEventListener('click', closeSubjectDialog);
+subjectClose?.addEventListener('click', () => closeSubjectDialog());
 subjectDialog?.addEventListener('click', (event) => {
   if (event.target === subjectDialog) closeSubjectDialog();
 });
-subjectDialog?.addEventListener('close', () => {
-  if (!continuingSubject) lastSubjectTrigger?.focus();
-  continuingSubject = false;
+subjectDialog?.addEventListener('cancel', (event) => {
+  event.preventDefault();
+  closeSubjectDialog();
 });
 
 subjectSheet?.addEventListener('pointerdown', (event) => {
@@ -1037,8 +1041,7 @@ subjectSheet?.addEventListener('pointerup', (event) => {
 subjectContinue?.addEventListener('click', () => {
   if (!activeSubject) return;
   selectedSubject = activeSubject;
-  continuingSubject = true;
-  closeSubjectDialog();
+  closeSubjectDialog({ restoreFocus: false });
   publishSelectedSubject(true);
 });
 
