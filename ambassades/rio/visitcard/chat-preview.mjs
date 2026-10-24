@@ -418,8 +418,10 @@ clearButton.addEventListener("click", () => {
   clearDialog.showModal();
 });
 
-clearDialog.addEventListener("close", () => {
-  if (clearDialog.returnValue !== "confirm") {
+const finishClear = (confirmed) => {
+  if (!clearDialog.open) return;
+  if (!confirmed) {
+    clearDialog.close("cancel");
     clearButton.focus();
     return;
   }
@@ -432,7 +434,20 @@ clearDialog.addEventListener("close", () => {
   updateComposer();
   addWelcome();
   status.textContent = strings.cleared;
+  clearDialog.close("confirm");
+  // Complete state and focus with the choice; a queued close event must not
+  // erase newer work or move focus after the visitor's next interaction.
   input.focus();
+};
+
+clearDialog.querySelector("form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  finishClear(event.submitter?.value === "confirm");
+});
+
+clearDialog.addEventListener("cancel", (event) => {
+  event.preventDefault();
+  finishClear(false);
 });
 
 window.addEventListener("rio:languagechange", () => {
