@@ -2,6 +2,7 @@
   "schemaVersion": "0.1",
   "candidateId": "lab:haram:001",
   "version": "0.1.0",
+  "lifecycle": "LAB_CANDIDATE",
   "canonicalName": "H∆R∆M",
   "nameStatus": "PROVISIONAL",
   "visualAlias": "HARAM",

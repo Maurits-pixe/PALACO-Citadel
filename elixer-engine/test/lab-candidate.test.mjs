@@ -13,6 +13,7 @@ test('provisional identity preserves explicit unknowns and does not become a run
   const value = loadLabCandidate();
   assert.deepEqual(validateLabCandidate(value), { valid: true, errors: [] });
   assert.equal(value.canonicalName, 'H∆R∆M');
+  assert.equal(value.lifecycle, 'LAB_CANDIDATE');
   assert.equal(value.existingRuntime.canonicalName, 'H∆R∆');
   assert.equal(value.existingRuntime.binding, 'UNCONFIRMED');
   assert.equal(validateManifest(value).valid, false);
@@ -62,6 +63,12 @@ test('privilege fields, live providers and execution capabilities are refused at
 });
 
 test('conformance, review, issuance and activation cannot be promoted by editing the descriptor', () => {
+  for (const lifecycle of ['ISSUED', 'RELEASE_CANDIDATE', null, undefined]) {
+    const value = candidate();
+    if (lifecycle === undefined) delete value.lifecycle;
+    else value.lifecycle = lifecycle;
+    assert.equal(validateLabCandidate(value).valid, false);
+  }
   for (const [axis, forged] of Object.entries({ integrity: 'INTEGRITY_VERIFIED', conformance: 'PASS', review: 'ACCEPTED', authority: 'ISSUED_REFERENCE', issuance: 'ISSUED', distribution: 'ALLOWED', activation: 'ACTIVE', freshness: 'CURRENT' })) {
     const value = candidate(); value.statusAxes[axis] = forged;
     assert.equal(validateLabCandidate(value).valid, false, axis);

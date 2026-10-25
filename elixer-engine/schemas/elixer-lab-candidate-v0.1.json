@@ -22,6 +22,10 @@
       "type": "string",
       "const": "H∆R∆M"
     },
+    "lifecycle": {
+      "type": "string",
+      "const": "LAB_CANDIDATE"
+    },
     "nameStatus": {
       "type": "string",
       "const": "PROVISIONAL"
@@ -306,6 +310,7 @@
     "schemaVersion",
     "candidateId",
     "version",
+    "lifecycle",
     "canonicalName",
     "nameStatus",
     "visualAlias",
