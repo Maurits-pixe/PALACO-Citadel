@@ -1,5 +1,5 @@
 'use strict';
-const CACHE_NAME = 'palaco-rio-shell-v49-citadel-navigation-icon';
+const CACHE_NAME = 'palaco-rio-shell-v50-destination-names';
 const CACHE_PREFIX = 'palaco-rio-shell-';
 const SHELL_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/rio-engine-web.mjs', '/engine.mjs', '/chat-preview.mjs', '/integration.mjs', '/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg', '/citadel-icon.png', '/rio/reception/nova.png'];
 

@@ -129,6 +129,15 @@ function checkedDestination(link) {
   return link.matches('.taskbar a') && externalDestinations.has(url.href) ? url : null;
 }
 
+function destinationName(link) {
+  const label = link.querySelector('.taskbar-label');
+  if (!label) return link.textContent.trim();
+  const caption = label.querySelector('.taskbar-full-label') ?? label;
+  const detail = link.querySelector('.taskbar-detail');
+  return [caption.textContent, detail?.textContent]
+    .map(part => part?.trim()).filter(Boolean).join(' ');
+}
+
 document.addEventListener('click', event => {
   if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
   const link = event.target.closest?.('#rio-unified-reception, #rio-unified-offline, .taskbar a');
@@ -138,7 +147,7 @@ document.addEventListener('click', event => {
   event.preventDefault();
   departureTrigger = link;
   departureLink.href = destination.href;
-  document.getElementById('rio-departure-name').textContent = link.textContent.trim();
+  document.getElementById('rio-departure-name').textContent = destinationName(link);
   document.getElementById('rio-departure-origin').textContent = destination.origin;
   departureDialog.showModal();
 });

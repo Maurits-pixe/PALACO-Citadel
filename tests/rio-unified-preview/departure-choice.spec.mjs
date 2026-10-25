@@ -355,6 +355,13 @@ test('each protected route opens a native isolated tab containing only its publi
       const before=await storage(page),original=page.url();
       const {dialog,trigger}=await chooseDeparture(page,selector);
       const sourceHref=new URL(await trigger.getAttribute('href'),fixture.origin).href;
+      const destinationNames={
+        [links[2]]:'PALACO Hoofdkantoor',
+        [links[3]]:'Citadel Consommateur',
+        [links[4]]:'5CRIPTIE ID Compte personnel',
+      };
+      await expect(page.locator('#rio-departure-name')).toHaveText(
+        destinationNames[selector]??(await trigger.textContent()).trim());
       const expected=selector==='#rio-unified-offline'?fixture.origin+'/rio/?lang=fr':sourceHref;
       const newTab=page.locator('#rio-departure-new-tab');
       await expect(newTab).toHaveAttribute('href',expected);
