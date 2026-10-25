@@ -11,7 +11,7 @@ const repository = fileURLToPath(new URL('../../', import.meta.url));
 const output = resolve(repository, 'render-dist');
 const ROOT_CACHE = 'palaco-rio-shell-v50-destination-names';
 const OLD_ROOT_CACHE = 'palaco-rio-shell-v35-guard-explanations';
-const APP_CACHE = 'palaco-rio-start-v0.1-7';
+const APP_CACHE = 'palaco-rio-start-v0.1-8';
 const ROOT_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/rio-engine-web.mjs', '/engine.mjs', '/chat-preview.mjs', '/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg', '/citadel-icon.png', '/integration.mjs', '/rio/reception/nova.png'].sort();
 const APP_ASSETS = ['/rio/', '/rio/start.js', '/rio/manifest.webmanifest', '/rio/icon-192.png', '/rio/icon-512.png'].sort();
 let fixture;

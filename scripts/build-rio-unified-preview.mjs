@@ -69,16 +69,26 @@ export function buildUnifiedPreview() {
   appScript = replaceOnce(appScript, "const isFile=location.protocol==='file:';\nfunction renderInstall(){", 'function renderInstall(){');
   appScript = replaceOnce(appScript,
     "const getLanguage=()=>{const query=new URLSearchParams(location.search).get('lang');return own(translations,query)?query:'nl';};",
-    "const isFile=location.protocol==='file:';\nconst getLanguage=()=>{const query=new URLSearchParams(location.search).get('lang');if(own(translations,query))return query;if(!isFile)try{const saved=sessionStorage.getItem('palaco-language');if(own(translations,saved))return saved;}catch{}return 'nl';};");
+    `const isFile=location.protocol==='file:';
+function syncLanguageQuery(next){
+ if(isFile)return;
+ try{
+  const url=new URL(location.href),values=url.searchParams.getAll('lang');
+  if(values.length!==1||!own(translations,values[0])||values[0]===next)return;
+  url.searchParams.set('lang',next);
+  history.replaceState(history.state,'',url);
+ }catch{}
+}
+const getLanguage=()=>{const query=new URLSearchParams(location.search).get('lang');if(own(translations,query))return query;if(!isFile)try{const saved=sessionStorage.getItem('palaco-language');if(own(translations,saved))return saved;}catch{}return 'nl';};`);
   appScript = replaceOnce(appScript,
     "function applyLanguage(next){\n const previous=language;language=own(translations,next)?next:'nl';",
-    "function applyLanguage(next){\n const previous=language;language=own(translations,next)?next:'nl';\n if(!isFile)try{sessionStorage.setItem('palaco-language',language);}catch{}");
+    "function applyLanguage(next){\n const previous=language;language=own(translations,next)?next:'nl';\n if(!isFile)try{sessionStorage.setItem('palaco-language',language);}catch{}\n syncLanguageQuery(language);");
   appScript += navigation;
   const appOnline = replaceOnce(replaceOnce(app, inline[0][0], '<script src="/rio/start.js" defer></script>'),
     '<head>', '<head>\n<link rel="icon" href="/rio/icon-192.png" type="image/png">');
   const appDownload = replaceOnce(app, inline[0][0], '<script>' + appScript + '</script>');
   if (Buffer.byteLength(appDownload) >= 100 * 1024) throw Error('DOWNLOAD_TOO_LARGE');
-  let appWorker = replaceOnce(text('ambassades/rio/sw.js'), 'palaco-rio-start-v0.1-3', 'palaco-rio-start-v0.1-7');
+  let appWorker = replaceOnce(text('ambassades/rio/sw.js'), 'palaco-rio-start-v0.1-3', 'palaco-rio-start-v0.1-8');
   appWorker = replaceOnce(appWorker, "const ASSETS=['/rio/','/rio/manifest.webmanifest','/rio/icon-192.png','/rio/icon-512.png'];", "const ASSETS=['/rio/','/rio/start.js','/rio/manifest.webmanifest','/rio/icon-192.png','/rio/icon-512.png'];");
   let reception = replaceOnce(text('ambassades/rio/reception/index.html'), '<html lang="nl">', '<html lang="nl" data-runtime-mode="static-preview">');
   reception = replaceOnce(reception, '<head>', '<head>\n  <link rel="icon" href="/icon-192.svg" type="image/svg+xml">');

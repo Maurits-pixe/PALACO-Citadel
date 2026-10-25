@@ -8,11 +8,16 @@ npx playwright test --config tests/rio-unified-preview/playwright.config.mjs
 ```
 
 The suite builds the 23-file public bundle before each project's worker starts.
-`language-continuity.spec.mjs` adds seven scenarios per surface: all eleven NOVA
+`language-continuity.spec.mjs` adds eight scenarios per surface: all eleven NOVA
 explanations without storage/API access; plain-HTML fallback without scripts;
 shared session language; safe app-only/invalid preferences; denied/quota storage;
-real offline language navigation; and query precedence with a file-mode download
-that never reads the new session-language preference. Contexts inherit the mobile
+real offline language navigation; an incoming language query following later
+Arabic/Chinese/Esperanto choices through online/offline reload with normal,
+blocked and full storage; and query precedence with a file-mode download that
+never reads the session-language preference or writes history. Refused browser
+history leaves language controls usable. Queryless navigation stays queryless;
+the single valid existing public language parameter changes in place, preserving
+the fragment, history state and entry count. Contexts inherit the mobile
 or desktop project settings. `nova-routes.spec.mjs` adds four scenarios per
 surface: eleven translated route choices without background traffic or storage,
 the script-free Dutch fallback, native keyboard popups intercepted locally to
@@ -21,7 +26,7 @@ root text. `nova-language-handoff.spec.mjs` adds five cases per surface for
 local-only language fragments, exact validation, keyboard focus, browser fallback,
 script-free fallback, file-mode isolation and narrow layout. A sixth case per
 surface checks all 18 source-language choices at 320px with actual 32px root/body
-text, including wrapping mobile navigation. The complete suite now has 94 browser
+text, including wrapping mobile navigation. The complete suite now has 96 browser
 cases, including worker migration, departure and independent exercise-reset checks.
 
 Run the build/HTTP tests and this suite sequentially: both rebuild the same fixed
@@ -63,7 +68,7 @@ reconstruct the historical HTML or claim that the old cleanup was safe.
 `language-worker-update.spec.mjs` also installs fixed root v37 and generated app
 v5 workers from the previous bf6d865 preview. Both new workers must reach the
 actual waiting state while their old pages remain open. Closing only the app
-activates v7 while root v50 keeps waiting; closing the root then activates v50.
+activates v8 while root v50 keeps waiting; closing the root then activates v50.
 The fictitious contact, unrelated cache, separate registrations, new local
 language links and genuine offline reloads remain intact. The existing app
 worker keeps its scoped clients.claim; the root has neither clients.claim nor

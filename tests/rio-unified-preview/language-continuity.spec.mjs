@@ -150,10 +150,44 @@ test('both installed apps preserve language across real offline navigation witho
     await page.locator('#rio-unified-offline').click();await language(page,'ar');
     expect(new URL(page.url()).search).toBe('');
     const keys=await page.evaluate(()=>caches.keys());
-    expect(keys).toContain('palaco-rio-shell-v50-destination-names');expect(keys).toContain('palaco-rio-start-v0.1-7');
+    expect(keys).toContain('palaco-rio-shell-v50-destination-names');expect(keys).toContain('palaco-rio-start-v0.1-8');
     await page.locator('#language').selectOption('fr');await page.locator('#unified-home').click();
     await expect(page.locator('html')).toHaveAttribute('lang','fr');
   }finally{await checked.close();}
+});
+
+test('an incoming app language follows later choices through reload, offline and blocked storage without adding history',async({browser})=>{
+  for(const mode of ['normal','blocked','quota']){
+    const checked=await checkedContext(browser),page=await checked.context.newPage();
+    try{
+      if(mode!=='normal')await checked.context.addInitScript(mode=>{
+        if(mode==='blocked')Object.defineProperty(window,'sessionStorage',{get(){throw new DOMException('Blocked','SecurityError');}});
+        else Storage.prototype.setItem=function(){throw new DOMException('Full','QuotaExceededError');};
+      },mode);
+      await page.goto(fixture.origin+'/rio/?lang=fr#install');await language(page,'fr');
+      await page.evaluate(()=>navigator.serviceWorker.ready);
+      await expect.poll(()=>page.evaluate(()=>navigator.serviceWorker.controller?.scriptURL)).toBe(fixture.origin+'/rio/sw.js');
+      const historyLength=await page.evaluate(()=>{
+        history.replaceState({publicTest:'TST-language-choice'},'',location.href);
+        return history.length;
+      });
+      for(const code of ['ar','zh','eo']){
+        await page.locator('#language').selectOption(code);await language(page,code);
+        if(code==='eo')await checked.context.setOffline(true);
+        await page.reload();await language(page,code);
+        expect(new URL(page.url()).search).toBe('?lang='+code);
+        expect(new URL(page.url()).hash).toBe('#install');
+        expect(await page.evaluate(()=>({length:history.length,state:history.state}))).toEqual({
+          length:historyLength,state:{publicTest:'TST-language-choice'},
+        });
+      }
+      const keys=await page.evaluate(async()=>{
+        const cache=await caches.open('palaco-rio-start-v0.1-8');
+        return (await cache.keys()).map(request=>new URL(request.url).search);
+      });
+      expect(keys.length).toBeGreaterThan(0);expect(keys.every(query=>query==='')).toBe(true);
+    }finally{await checked.close();}
+  }
 });
 
 test('explicit app query has priority while the offline download adds no session-language access',async({browser})=>{
@@ -162,14 +196,22 @@ test('explicit app query has priority while the offline download adds no session
     await checked.context.addInitScript(()=>{if(location.protocol!=='file:')sessionStorage.setItem('palaco-language','fr');});
     await page.goto(fixture.origin+'/rio/?lang=ar');await language(page,'ar');
     expect(await page.evaluate(()=>sessionStorage.getItem('palaco-language'))).toBe('ar');
+    // A browser refusing URL replacement must not disable the language control.
+    await page.evaluate(()=>{history.replaceState=()=>{throw new DOMException('Blocked','SecurityError');};});
+    await page.locator('#language').selectOption('de');await language(page,'de');
+    expect(new URL(page.url()).search).toBe('?lang=ar');
     directory=await mkdtemp(join(tmpdir(),'rio-language-download-'));
     const file=join(directory,'RIO-offline.html');await writeFile(file,await readFile(resolve(repository,'render-dist/rio/download')));
     await checked.context.addInitScript(()=>{
-      if(location.protocol==='file:')Object.defineProperty(window,'sessionStorage',{get(){window.__languageStorageReads=(window.__languageStorageReads||0)+1;throw new DOMException('Blocked','SecurityError');}});
+      if(location.protocol==='file:'){
+        Object.defineProperty(window,'sessionStorage',{get(){window.__languageStorageReads=(window.__languageStorageReads||0)+1;throw new DOMException('Blocked','SecurityError');}});
+        history.replaceState=()=>{window.__languageHistoryWrites=(window.__languageHistoryWrites||0)+1;throw new DOMException('Blocked','SecurityError');};
+      }
     });
     await checked.context.setOffline(true);await page.goto(pathToFileURL(file).href);
     await page.locator('#language').selectOption('pt');await language(page,'pt');
     expect(await page.evaluate(()=>window.__languageStorageReads||0)).toBe(0);
+    expect(await page.evaluate(()=>window.__languageHistoryWrites||0)).toBe(0);
   }finally{
     await checked.close();
     if(directory){const actual=await realpath(directory),base=await realpath(tmpdir()),child=relative(base,actual);if(!child.startsWith('rio-language-download-')||isAbsolute(child)||child.includes(sep))throw Error('UNSAFE_DOWNLOAD_DIRECTORY');await rm(actual,{recursive:true,force:true});}
