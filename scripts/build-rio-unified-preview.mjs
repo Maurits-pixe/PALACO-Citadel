@@ -8,7 +8,7 @@ const output = resolve(root, 'render-dist');
 export const PREVIEW_ORIGIN = 'https://palaco-rio-preview-temporary.onrender.com';
 export const TRIAL_ORIGIN = 'https://palaco-ambassades.onrender.com';
 export const ROOT_ASSETS = Object.freeze(['index.html', 'styles.css', 'app.js', 'sw.js',
-  'manifest.webmanifest', 'icon-192.svg', 'icon-512.svg', 'citadel-icon.png', 'hara-icon.png', 'rio-engine-web.mjs', 'engine.mjs',
+  'manifest.webmanifest', 'icon-192.svg', 'icon-512.svg', 'citadel-icon.png', 'hara-icon.png', 'mundo-icon.png', 'rio-engine-web.mjs', 'engine.mjs',
   'chat-preview.mjs', 'integration.mjs']);
 export const OUTPUT_FILES = Object.freeze([...ROOT_ASSETS, 'rio/index.html', 'rio/start.js',
   'rio/download', 'rio/sw.js', 'rio/manifest.webmanifest', 'rio/icon-192.png', 'rio/icon-512.png',

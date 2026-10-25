@@ -9,13 +9,13 @@ import {startStaticFixture} from './static-fixture.mjs';
 const repository=fileURLToPath(new URL('../../',import.meta.url));
 const output=resolve(repository,'render-dist');
 const OLD_ROOT='palaco-rio-shell-v37-unified-language';
-const NEXT_ROOT='palaco-rio-shell-v55-eleven-languages';
+const NEXT_ROOT='palaco-rio-shell-v56-mundo-icon';
 const OLD_APP='palaco-rio-start-v0.1-5';
 const NEXT_APP='palaco-rio-start-v0.1-9';
 const UNRELATED='unrelated-rio-language-migration';
 const CONTACT_KEY='palaco.rio.start.contacts.v1';
-const ROOT_ASSETS=['/','/index.html','/styles.css','/app.js','/rio-engine-web.mjs','/engine.mjs','/chat-preview.mjs','/integration.mjs','/manifest.webmanifest','/icon-192.svg','/icon-512.svg','/citadel-icon.png','/hara-icon.png','/rio/reception/nova.png'].sort();
-const OLD_ROOT_ASSETS=ROOT_ASSETS.filter(path=>!['/citadel-icon.png','/hara-icon.png'].includes(path));
+const ROOT_ASSETS=['/','/index.html','/styles.css','/app.js','/rio-engine-web.mjs','/engine.mjs','/chat-preview.mjs','/integration.mjs','/manifest.webmanifest','/icon-192.svg','/icon-512.svg','/citadel-icon.png','/hara-icon.png','/mundo-icon.png','/rio/reception/nova.png'].sort();
+const OLD_ROOT_ASSETS=ROOT_ASSETS.filter(path=>!['/citadel-icon.png','/hara-icon.png','/mundo-icon.png'].includes(path));
 const APP_ASSETS=['/rio/','/rio/start.js','/rio/manifest.webmanifest','/rio/icon-192.png','/rio/icon-512.png'].sort();
 const expectedCaches=(...names)=>names.map(name=>({name,paths:name===UNRELATED?['/unrelated-language-migration']:name===OLD_ROOT?OLD_ROOT_ASSETS:name===NEXT_ROOT?ROOT_ASSETS:APP_ASSETS})).sort((a,b)=>a.name.localeCompare(b.name));
 

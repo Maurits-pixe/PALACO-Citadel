@@ -463,10 +463,10 @@ footer small { grid-column: 1 / -1; }
 }
 .taskbar-label { font-weight: 750; }
 .taskbar-compact-label { display: none; }
-.rio-taskbar-label, .citadel-taskbar-label, .hara-taskbar-label { position: relative; display: grid; min-height: 36px; place-items: center; }
-.rio-taskbar-icon, .citadel-taskbar-icon, .hara-taskbar-icon { display: block; width: 36px; height: 36px; border-radius: 7px; }
-.citadel-taskbar-icon, .hara-taskbar-icon { border-radius: 0; object-fit: contain; }
-.rio-taskbar-name, .citadel-taskbar-name, .hara-taskbar-name { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+.rio-taskbar-label, .citadel-taskbar-label, .hara-taskbar-label, .mundo-taskbar-label { position: relative; display: grid; min-height: 36px; place-items: center; }
+.rio-taskbar-icon, .citadel-taskbar-icon, .hara-taskbar-icon, .mundo-taskbar-icon { display: block; width: 36px; height: 36px; border-radius: 7px; }
+.citadel-taskbar-icon, .hara-taskbar-icon, .mundo-taskbar-icon { border-radius: 0; object-fit: contain; }
+.rio-taskbar-name, .citadel-taskbar-name, .hara-taskbar-name, .mundo-taskbar-name { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
 .taskbar-detail { color: #52647a; font-size: 0.82em; }
 .taskbar-item[aria-current="page"] {
   border-color: rgba(23, 91, 216, 0.24);

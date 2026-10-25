@@ -41,7 +41,7 @@ test('portable launcher uses only its adjacent package and matches the builder s
   copyFileSync(resolve(root, 'scripts/serve-rio-unified-preview.mjs'), launcher);
   const portable = await import(pathToFileURL(launcher));
   assert.deepEqual(portable.defaultReviewPaths(), paths);
-  assert.equal(portable.loadReviewSnapshot(paths).size, 24);
+  assert.equal(portable.loadReviewSnapshot(paths).size, 25);
 });
 
 test('manifest cannot add private files, repeat entries, or turn on operational flags', () => {

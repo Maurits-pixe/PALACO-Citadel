@@ -7,11 +7,14 @@ $env:PLAYWRIGHT_BROWSERS_PATH = '..\browser-runtime'
 npx playwright test --config tests/rio-unified-preview/playwright.config.mjs
 ```
 
-The suite builds the 24-file public bundle before each project's worker starts.
-The navigation case checks the original HARA icon loads at 36×36px while its
-button remains disabled and exposes its full name and translated unavailable
-status in all eleven VisitCard languages. Both original navigation PNGs are
-included in the current root worker cache; fixed historical workers remain unchanged.
+The suite builds the 25-file public bundle before each project's worker starts.
+The navigation case checks the original HARA and MUNDO icons load at 36×36px
+while their buttons remain disabled and expose their full names and translated
+availability in all eleven VisitCard languages. MUNDO also retains its translated
+consumer label; its original PNG has a natural size of 256×256px and its served
+bytes match the original attachment's pinned SHA-256. All three original
+navigation PNGs are included in the current root worker cache; fixed historical
+workers remain unchanged and their expected caches exclude the later icon assets.
 The main-navigation and language-choice group names follow all eleven VisitCard
 languages, so assistive navigation uses the same language as the page.
 The VisitCard header uses 44px minimum touch targets for its brand, navigation
@@ -91,7 +94,7 @@ cache entry.
 It intentionally includes its old broad fetch handler and destructive cache
 cleanup. It first activates in an empty, isolated profile; only afterward are the
 app worker, app cache, unrelated cache and fictitious contact created. The current
-v55 worker must then reach the real `waiting` state without reloading its open
+v56 worker must then reach the real `waiting` state without reloading its open
 client. Closing the root client allows activation while the app remains open.
 The test proves migration from this fixed old worker/cache state; it does not
 reconstruct the historical HTML or claim that the old cleanup was safe.
@@ -99,7 +102,7 @@ reconstruct the historical HTML or claim that the old cleanup was safe.
 `language-worker-update.spec.mjs` also installs fixed root v37 and generated app
 v5 workers from the previous bf6d865 preview. Both new workers must reach the
 actual waiting state while their old pages remain open. Closing only the app
-activates v9 while root v55 keeps waiting; closing the root then activates v55.
+activates v9 while root v56 keeps waiting; closing the root then activates v56.
 The fictitious contact, unrelated cache, separate registrations, new local
 language links and genuine offline reloads remain intact. The existing app
 worker keeps its scoped clients.claim; the root has neither clients.claim nor
