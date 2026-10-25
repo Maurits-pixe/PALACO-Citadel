@@ -62,7 +62,7 @@ export function buildUnifiedPreview() {
   const originalApp = text('ambassades/rio/palaco-rio-start-v0.1.html');
   const nav = '<nav class="actions" aria-label="PALACO RIO" style="margin:0 0 21px"><a id="unified-home" class="btn outline" href="/">RIO · VisitCard</a><a id="unified-reception" class="btn outline" href="/rio/reception/" hreflang="nl">NOVA uitgelegd · receptie (Nederlands)</a></nav>\n';
   let app = replaceOnce(originalApp, '<div class="actions" style="margin:0 0 21px">', nav + '<div class="actions" style="margin:0 0 21px">');
-  app = replaceOnce(app, '</style>', '\n/* Keep enlarged local contact fields within their grid. */\n.contact-grid > *, .contact-grid input {min-width:0}\n</style>');
+  app = replaceOnce(app, '</style>', '\n/* Keep enlarged local contact fields within their grid. */\n.contact-grid > *, .contact-grid input {min-width:0}\n#language {min-height:44px}\n</style>');
   const inline = [...app.matchAll(/<script>([\s\S]*?)<\/script>/g)];
   if (inline.length !== 1) throw Error('SOURCE_CONTRACT_CHANGED');
   let appScript = replaceOnce(inline[0][1], "(isFile?'https://palaco-ambassades.onrender.com':'')", "'" + TRIAL_ORIGIN + "'");

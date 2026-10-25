@@ -165,6 +165,7 @@ test('an incoming app language follows later choices through reload, offline and
         else Storage.prototype.setItem=function(){throw new DOMException('Full','QuotaExceededError');};
       },mode);
       await page.goto(fixture.origin+'/rio/?lang=fr#install');await language(page,'fr');
+      expect((await page.locator('#language').boundingBox()).height).toBeGreaterThanOrEqual(44);
       await page.evaluate(()=>navigator.serviceWorker.ready);
       await expect.poll(()=>page.evaluate(()=>navigator.serviceWorker.controller?.scriptURL)).toBe(fixture.origin+'/rio/sw.js');
       const historyLength=await page.evaluate(()=>{

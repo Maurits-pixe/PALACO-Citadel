@@ -18,7 +18,8 @@ never reads the session-language preference or writes history. Refused browser
 history leaves language controls usable. Queryless navigation stays queryless;
 the single valid existing public language parameter changes in place, preserving
 the fragment, history state and entry count. Contexts inherit the mobile
-or desktop project settings. `nova-routes.spec.mjs` adds four scenarios per
+or desktop project settings; the app language control has a 44px minimum height.
+`nova-routes.spec.mjs` adds four scenarios per
 surface: eleven translated route choices without background traffic or storage,
 the script-free Dutch fallback, native keyboard popups intercepted locally to
 verify destination/referrer/opener boundaries, and 320px layout with actual 200%
