@@ -34,6 +34,7 @@ The PALACO 2040 Compass section now includes the following dashboard layers in C
 - Citadel Health Dashboard — operational + semantic risk signals with per-signal explanation
 - RIO Conversation Dashboard — conversations as access to actions with context/consequence panels
 - ELIXER Dashboard — available apps/capabilities per context with clear choice impact
+- Aether — visual-only encoding demo; it has no protected vault or verified security level
 - Evolution Dashboard — canon/system changes with “what changes for me?” summary
 - Public Gateway Dashboard — public orientation layer with core concepts and safe onboarding
 
@@ -42,6 +43,10 @@ Implementation references:
 - Structure/content: `/home/runner/work/PALACO-Citadel/PALACO-Citadel/index.html`
 - Localization keys: `/home/runner/work/PALACO-Citadel/PALACO-Citadel/app.js`
 - UI styling: `/home/runner/work/PALACO-Citadel/PALACO-Citadel/styles.css`
+
+The Aether panel uses a fixed public sample to demonstrate reversible Base64 encoding.
+It is not encryption, authentication, secure storage, or a production vault; do not enter
+or store secrets in this demo.
 
 ## GitHub preparation canon
 

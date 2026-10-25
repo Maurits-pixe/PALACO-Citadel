@@ -31,6 +31,7 @@
         <a href="#compass-dashboard" data-i18n="previewCompass">Governance compass</a>
         <a href="/atelier/wizard.html" data-i18n="previewAtelier">Atelier · DRAFT</a>
         <a href="/DOCS/levensader-readonly/" data-i18n="previewLevensader">Levensader · read-only</a>
+        <a href="#aether-demo" data-i18n="previewAether">Aether · visual demo</a>
       </nav>
     </header>
 
@@ -439,6 +440,32 @@
             <p><span data-i18n="elixerImpactLabel">Choice impact</span>: <span data-i18n="elixerContextOpsImpact">Operational choices can trigger policy review windows and resilience actions.</span></p>
           </li>
         </ul>
+      </article>
+
+      <article class="card aether-demo" id="aether-demo" aria-labelledby="aether-demo-title">
+        <div class="aether-demo-head">
+          <p class="aether-demo-eyebrow" data-i18n="aetherDemoEyebrow">AETHER · ENCODING LAB</p>
+          <span class="aether-demo-badge" data-i18n="aetherDemoBadge">VISUAL DEMO</span>
+        </div>
+        <h3 id="aether-demo-title" data-i18n="aetherDemoTitle">Aether — vault interface concept</h3>
+        <p class="aether-demo-warning" data-i18n="aetherDemoIntro">This is a visual demo. Nothing here is protected.</p>
+        <div class="aether-demo-grid">
+          <section class="aether-demo-panel">
+            <h4 data-i18n="aetherSampleTitle">Public sample</h4>
+            <p data-i18n="aetherSampleBody">A fixed, public sample is encoded below; no user text or secrets are accepted.</p>
+            <button id="aether-encode" type="button" data-i18n="aetherEncodeButton">Encode sample with Base64</button>
+            <p class="aether-output-label" data-i18n="aetherEncodedLabel">Reversible Base64 output</p>
+            <output id="aether-output" class="aether-output" aria-live="polite" hidden></output>
+          </section>
+          <section class="aether-demo-panel">
+            <h4 data-i18n="aetherLimitsTitle">Security boundaries</h4>
+            <ul>
+              <li data-i18n="aetherLimitOne">Base64 is reversible encoding, not encryption.</li>
+              <li data-i18n="aetherLimitTwo">No access code, authentication, encrypted storage, or secure vault is implemented.</li>
+              <li data-i18n="aetherLimitThree">No security level or production readiness has been independently verified.</li>
+            </ul>
+          </section>
+        </div>
       </article>
 
       <article class="card evolution-dashboard">

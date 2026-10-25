@@ -9,6 +9,8 @@ const citadelStatus = document.querySelector('#citadel-status');
 const syncBtn = document.querySelector('#sync-btn');
 const syncOutput = document.querySelector('#sync-output');
 const compassBackTopBtn = document.querySelector('#compass-back-top');
+const aetherEncodeButton = document.querySelector('#aether-encode');
+const aetherEncodedOutput = document.querySelector('#aether-output');
 
 const translations = {
   en: {
@@ -20,6 +22,7 @@ const translations = {
     previewCompass: 'Governance compass',
     previewAtelier: 'Atelier · DRAFT',
     previewLevensader: 'Levensader · read-only',
+    previewAether: 'Aether · visual demo',
     visionTitle: 'Vision',
     visionBody: 'PALACO means “palace” in Esperanto: a shared digital place to build, create, and bring ideas to life.',
     launchTitle: 'Launch Pad',
@@ -270,6 +273,18 @@ const translations = {
     elixerContextOpsTitle: 'Operations context',
     elixerContextOpsCapabilities: 'Continuity monitor, policy alignment checks, incident replay.',
     elixerContextOpsImpact: 'Operational choices can trigger policy review windows and resilience actions.',
+    aetherDemoEyebrow: 'AETHER · ENCODING LAB',
+    aetherDemoBadge: 'VISUAL DEMO',
+    aetherDemoTitle: 'Aether — vault interface concept',
+    aetherDemoIntro: 'This is a visual demo. Nothing here is protected.',
+    aetherSampleTitle: 'Public sample',
+    aetherSampleBody: 'A fixed, public sample is encoded below; no user text or secrets are accepted.',
+    aetherEncodeButton: 'Encode sample with Base64',
+    aetherEncodedLabel: 'Reversible Base64 output',
+    aetherLimitsTitle: 'Security boundaries',
+    aetherLimitOne: 'Base64 is reversible encoding, not encryption.',
+    aetherLimitTwo: 'No access code, authentication, encrypted storage, or secure vault is implemented.',
+    aetherLimitThree: 'No security level or production readiness has been independently verified.',
     evolutionDashboardTitle: 'Evolution dashboard',
     evolutionDashboardIntro: 'Changes in canon and systems, with a clear “what changes for me?” summary.',
     evolutionCanonTitle: 'Canon changes',
@@ -333,6 +348,7 @@ const translations = {
     previewCompass: 'Governancekompas',
     previewAtelier: 'Atelier · DRAFT',
     previewLevensader: 'Levensader · alleen-lezen',
+    previewAether: 'Aether · visuele demo',
     visionTitle: 'Visie',
     visionBody: 'PALACO betekent “paleis” in Esperanto: een gedeelde digitale plek om te bouwen, te creëren en ideeën tot leven te brengen.',
     launchTitle: 'Startplatform',
@@ -583,6 +599,18 @@ const translations = {
     elixerContextOpsTitle: 'Operations-context',
     elixerContextOpsCapabilities: 'Continuïteitsmonitor, policy-alignment checks, incident replay.',
     elixerContextOpsImpact: 'Operationele keuzes kunnen policy-reviewvensters en resilience-acties activeren.',
+    aetherDemoEyebrow: 'AETHER · CODEERLAB',
+    aetherDemoBadge: 'VISUELE DEMO',
+    aetherDemoTitle: 'Aether — concept voor een kluisinterface',
+    aetherDemoIntro: 'Dit is een visuele demo. Niets hierin is beschermd.',
+    aetherSampleTitle: 'Openbaar voorbeeld',
+    aetherSampleBody: 'Hieronder wordt een vast, openbaar voorbeeld gecodeerd; invoer en geheimen zijn niet mogelijk.',
+    aetherEncodeButton: 'Codeer voorbeeld met Base64',
+    aetherEncodedLabel: 'Omkeerbare Base64-uitvoer',
+    aetherLimitsTitle: 'Beveiligingsgrenzen',
+    aetherLimitOne: 'Base64 is omkeerbare codering, geen versleuteling.',
+    aetherLimitTwo: 'Er is geen toegangscode, authenticatie, versleutelde opslag of beveiligde kluis.',
+    aetherLimitThree: 'Een beveiligingsniveau of productiegeschiktheid is niet onafhankelijk geverifieerd.',
     evolutionDashboardTitle: 'Evolutie-dashboard',
     evolutionDashboardIntro: 'Wijzigingen in canon en systemen, met een heldere “wat verandert er voor mij?” samenvatting.',
     evolutionCanonTitle: 'Canon-wijzigingen',
@@ -646,6 +674,7 @@ const translations = {
     previewCompass: 'Administra kompaso',
     previewAtelier: 'Atelier · MALNETO',
     previewLevensader: 'Levensader · nurlega',
+    previewAether: 'Aether · vida demo',
     visionTitle: 'Vizio',
     visionBody: 'PALACO signifas “palaco” en Esperanto: komuna cifereca loko por konstrui, krei kaj vivigi ideojn.',
     launchTitle: 'Lanĉejo',
@@ -896,6 +925,18 @@ const translations = {
     elixerContextOpsTitle: 'Operacia kunteksto',
     elixerContextOpsCapabilities: 'Kontinueca monitoro, politik-kongruaj kontroloj, incidenta reludo.',
     elixerContextOpsImpact: 'Operaciaj elektoj povas ekigi politikajn revizifenestrojn kaj rezistecajn agojn.',
+    aetherDemoEyebrow: 'AETHER · KODIGA LABORATORIO',
+    aetherDemoBadge: 'VIDA DEMO',
+    aetherDemoTitle: 'Aether — koncepto por trezoreja interfaco',
+    aetherDemoIntro: 'Tio estas vida demo. Nenio ĉi tie estas protektata.',
+    aetherSampleTitle: 'Publika ekzemplo',
+    aetherSampleBody: 'Fiksa publika ekzemplo estas kodata sube; uzanta teksto kaj sekretoj ne estas akceptataj.',
+    aetherEncodeButton: 'Kodu ekzemplon per Base64',
+    aetherEncodedLabel: 'Reigebla Base64-eligo',
+    aetherLimitsTitle: 'Sekurecaj limoj',
+    aetherLimitOne: 'Base64 estas reigebla kodigo, ne ĉifrado.',
+    aetherLimitTwo: 'Neniu alirkodo, aŭtentikigo, ĉifrita konservado aŭ sekura trezorejo estas efektivigita.',
+    aetherLimitThree: 'Neniu sekurecnivelo aŭ produkta preteco estis sendepende kontrolita.',
     evolutionDashboardTitle: 'Evolua panelo',
     evolutionDashboardIntro: 'Ŝanĝoj en kanono kaj sistemoj, kun klara “kio ŝanĝiĝas por mi?” resumo.',
     evolutionCanonTitle: 'Kanonaj ŝanĝoj',
@@ -1201,6 +1242,15 @@ controlButtons.forEach((button) => {
 syncBtn?.addEventListener('click', () => {
   localStorage.setItem('palaco-last-sync', new Date().toISOString());
   updateSyncOutput();
+});
+
+aetherEncodeButton?.addEventListener('click', () => {
+  if (!aetherEncodedOutput) return;
+  const bytes = new TextEncoder().encode('Aether visual demo only.');
+  let binary = '';
+  bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
+  aetherEncodedOutput.textContent = window.btoa(binary);
+  aetherEncodedOutput.hidden = false;
 });
 
 compassBackTopBtn?.addEventListener('click', () => {
