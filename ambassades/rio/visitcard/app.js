@@ -1729,10 +1729,15 @@ let touchStart;
 const text = (key) => shareTranslations[currentLanguage]?.[key] ?? translations[currentLanguage][key] ?? elixerContentTranslations[currentLanguage]?.[key] ?? elixerDigestTranslations[currentLanguage]?.[key] ?? elixerDossierTranslations[currentLanguage]?.[key] ?? subjectTranslations[currentLanguage]?.[key] ?? mobileNavTranslations[currentLanguage]?.[key] ?? taskbarTranslations[currentLanguage]?.[key];
 
 const taskbar = document.querySelector('.taskbar');
-const updateTaskbarHeight = () => document.documentElement.style.setProperty('--taskbar-height', `${taskbar.getBoundingClientRect().height}px`);
-updateTaskbarHeight();
-const taskbarObserver = new ResizeObserver(updateTaskbarHeight);
-taskbarObserver.observe(taskbar);
+const chatToggle = document.querySelector('#chat-preview-toggle');
+const updateDockHeights = () => {
+  document.documentElement.style.setProperty('--taskbar-height', `${taskbar.getBoundingClientRect().height}px`);
+  document.documentElement.style.setProperty('--chat-toggle-height', `${chatToggle.getBoundingClientRect().height}px`);
+};
+updateDockHeights();
+const dockObserver = new ResizeObserver(updateDockHeights);
+dockObserver.observe(taskbar);
+dockObserver.observe(chatToggle);
 
 const subjects = {
   symbol: { subject_id: 'rio:subject:palaco-symbol', type: 'SYMBOL', name: 'symbolTitle', preview_reference: 'asset:palaco-symbol', meaning: 'symbolDescription', provenance_reference: 'rio-web-subject-catalog-v1', state: 'CURRENT', boundary: 'subjectBoundary', next_action: 'subjectContinue', presentation_effect: 'NONE', kind: 'symbolType', preview: '∆' },

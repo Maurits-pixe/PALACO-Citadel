@@ -42,8 +42,18 @@ root text. `nova-language-handoff.spec.mjs` adds five cases per surface for
 local-only language fragments, exact validation, keyboard focus, browser fallback,
 script-free fallback, file-mode isolation and narrow layout. A sixth case per
 surface checks all 23 source-language choices at 320px with actual 32px root/body
-text, including wrapping mobile navigation. The complete suite now has 114 browser
+text, including wrapping mobile navigation. The complete suite now has 122 browser
 cases, including worker migration, departure and independent exercise-reset checks.
+
+`chat-dock-layout.spec.mjs` adds four cases per surface. The chat toggle follows
+the measured taskbar height, and both compact and expanded panels stay above the
+measured toggle. CSS retains the bottom safe-area inset and gaps; available panel
+height follows the viewport. The cases check actual rectangles and hit targets
+across narrow, intermediate, wide and landscape layouts with normal/doubled text,
+including the 420px breakpoint, six languages and Arabic RTL. Resizing and
+translation preserve the draft and storage; Close and Send remain reachable with
+the keyboard through the scrollable panel. These are browser simulations, not
+physical-device or operating-system keyboard certification.
 
 `share-preview.spec.mjs` adds six cases per surface. Sharing opens a translated
 dialog with an explicit canonical root link, copy action and optional native
@@ -94,7 +104,7 @@ cache entry.
 It intentionally includes its old broad fetch handler and destructive cache
 cleanup. It first activates in an empty, isolated profile; only afterward are the
 app worker, app cache, unrelated cache and fictitious contact created. The current
-v56 worker must then reach the real `waiting` state without reloading its open
+v57 worker must then reach the real `waiting` state without reloading its open
 client. Closing the root client allows activation while the app remains open.
 The test proves migration from this fixed old worker/cache state; it does not
 reconstruct the historical HTML or claim that the old cleanup was safe.
@@ -102,7 +112,7 @@ reconstruct the historical HTML or claim that the old cleanup was safe.
 `language-worker-update.spec.mjs` also installs fixed root v37 and generated app
 v5 workers from the previous bf6d865 preview. Both new workers must reach the
 actual waiting state while their old pages remain open. Closing only the app
-activates v9 while root v56 keeps waiting; closing the root then activates v56.
+activates v9 while root v57 keeps waiting; closing the root then activates v57.
 The fictitious contact, unrelated cache, separate registrations, new local
 language links and genuine offline reloads remain intact. The existing app
 worker keeps its scoped clients.claim; the root has neither clients.claim nor

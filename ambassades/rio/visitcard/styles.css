@@ -9,13 +9,16 @@
   --blue: #175bd8;
   --line: rgba(16, 36, 62, 0.2);
   --shadow: 0 24px 70px rgba(16, 36, 62, 0.18);
+  --taskbar-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  --chat-toggle-bottom: calc(var(--taskbar-height, 6rem) + var(--taskbar-bottom) + 12px);
+  --chat-panel-bottom: calc(var(--chat-toggle-bottom) + var(--chat-toggle-height, 48px) + 12px);
 }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
   margin: 0;
-  padding-bottom: var(--taskbar-height, calc(12rem + env(safe-area-inset-bottom, 0px)));
+  padding-bottom: calc(var(--taskbar-height, 6rem) + var(--taskbar-bottom) + 16px);
   min-width: 320px;
   background-color: var(--paper);
   background-image: radial-gradient(rgba(23, 91, 216, 0.12) 1px, transparent 1px);
@@ -426,7 +429,7 @@ footer small { grid-column: 1 / -1; }
   position: fixed;
   z-index: 20;
   inset-inline: 0;
-  bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  bottom: var(--taskbar-bottom);
   width: min(860px, calc(100% - 24px));
   margin-inline: auto;
   display: grid;
@@ -536,12 +539,13 @@ footer small { grid-column: 1 / -1; }
   position: fixed;
   z-index: 30;
   inset-inline-end: max(16px, env(safe-area-inset-right, 0px));
-  bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+  bottom: var(--chat-toggle-bottom);
+  max-inline-size: calc(100vw - 32px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 0 18px;
+  padding: 6px 18px;
   box-shadow: 0 8px 24px rgba(16, 36, 62, 0.25);
 }
 
@@ -565,12 +569,12 @@ footer small { grid-column: 1 / -1; }
   position: fixed;
   z-index: 30;
   inset-inline-end: max(16px, env(safe-area-inset-right, 0px));
-  bottom: calc(10.25rem + env(safe-area-inset-bottom, 0px));
+  bottom: var(--chat-panel-bottom);
   display: flex;
   flex-direction: column;
   gap: 12px;
   width: min(420px, calc(100vw - 32px));
-  max-height: min(580px, calc(100svh - 12rem - env(safe-area-inset-bottom, 0px)));
+  max-height: min(580px, calc(100dvh - var(--chat-panel-bottom) - 16px));
   padding: clamp(16px, 3vw, 22px);
   overflow-y: auto;
   border: 2px solid var(--ink);
@@ -744,9 +748,8 @@ footer small { grid-column: 1 / -1; }
   .chat-preview-toggle { min-height: 48px; }
   .chat-preview-panel {
     inset-inline: max(12px, env(safe-area-inset-left, 0px));
-    bottom: calc(10rem + env(safe-area-inset-bottom, 0px));
     width: auto;
-    max-height: min(540px, calc(100svh - 11rem - env(safe-area-inset-bottom, 0px)));
+    max-height: min(540px, calc(100dvh - var(--chat-panel-bottom) - 16px));
     gap: 10px;
     padding: 14px;
   }
@@ -760,9 +763,8 @@ footer small { grid-column: 1 / -1; }
 
 .chat-preview-panel.is-expanded {
   width: min(760px, calc(100vw - 32px));
-  bottom: calc(var(--taskbar-height, 6rem) + 24px);
-  height: calc(100dvh - var(--taskbar-height, 6rem) - 40px);
-  max-height: calc(100dvh - var(--taskbar-height, 6rem) - 40px);
+  height: calc(100dvh - var(--chat-panel-bottom) - 16px);
+  max-height: calc(100dvh - var(--chat-panel-bottom) - 16px);
 }
 .chat-preview-panel.is-expanded .chat-preview-messages { flex-basis: 35svh; min-height: 12rem; max-height: 50svh; }
 @media (max-width: 640px) {

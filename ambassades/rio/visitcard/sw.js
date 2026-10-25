@@ -1,5 +1,5 @@
 'use strict';
-const CACHE_NAME = 'palaco-rio-shell-v56-mundo-icon';
+const CACHE_NAME = 'palaco-rio-shell-v57-chat-dock';
 const CACHE_PREFIX = 'palaco-rio-shell-';
 const SHELL_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/rio-engine-web.mjs', '/engine.mjs', '/chat-preview.mjs', '/integration.mjs', '/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg', '/citadel-icon.png', '/hara-icon.png', '/mundo-icon.png', '/rio/reception/nova.png'];
 
