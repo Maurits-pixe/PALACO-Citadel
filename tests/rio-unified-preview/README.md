@@ -14,6 +14,12 @@ status in all seven VisitCard languages. Both original navigation PNGs are
 included in the current root worker cache; fixed historical workers remain unchanged.
 The main-navigation and language-choice group names follow all seven VisitCard
 languages, so assistive navigation uses the same language as the page.
+The VisitCard header uses 44px minimum touch targets for its brand, navigation
+links and language buttons, with a visible keyboard focus indicator. At widths
+below 360px the seven language choices wrap into two centered rows; intermediate
+desktop widths put language choice below the brand and main navigation, keeping
+the visual and native keyboard order aligned. The original icons,
+destinations and availability states stay unchanged.
 `language-continuity.spec.mjs` adds eight scenarios per surface: all eleven NOVA
 explanations without storage/API access; plain-HTML fallback without scripts;
 shared session language; safe app-only/invalid preferences; denied/quota storage;
@@ -67,7 +73,7 @@ cache entry.
 It intentionally includes its old broad fetch handler and destructive cache
 cleanup. It first activates in an empty, isolated profile; only afterward are the
 app worker, app cache, unrelated cache and fictitious contact created. The current
-v52 worker must then reach the real `waiting` state without reloading its open
+v53 worker must then reach the real `waiting` state without reloading its open
 client. Closing the root client allows activation while the app remains open.
 The test proves migration from this fixed old worker/cache state; it does not
 reconstruct the historical HTML or claim that the old cleanup was safe.
@@ -75,7 +81,7 @@ reconstruct the historical HTML or claim that the old cleanup was safe.
 `language-worker-update.spec.mjs` also installs fixed root v37 and generated app
 v5 workers from the previous bf6d865 preview. Both new workers must reach the
 actual waiting state while their old pages remain open. Closing only the app
-activates v8 while root v52 keeps waiting; closing the root then activates v52.
+activates v8 while root v53 keeps waiting; closing the root then activates v53.
 The fictitious contact, unrelated cache, separate registrations, new local
 language links and genuine offline reloads remain intact. The existing app
 worker keeps its scoped clients.claim; the root has neither clients.claim nor

@@ -9,7 +9,7 @@ import { CSP } from '../../scripts/build-rio-unified-preview.mjs';
 
 const repository = fileURLToPath(new URL('../../', import.meta.url));
 const output = resolve(repository, 'render-dist');
-const ROOT_CACHE = 'palaco-rio-shell-v52-navigation-labels';
+const ROOT_CACHE = 'palaco-rio-shell-v53-header-controls';
 const OLD_ROOT_CACHE = 'palaco-rio-shell-v35-guard-explanations';
 const APP_CACHE = 'palaco-rio-start-v0.1-8';
 const ROOT_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/rio-engine-web.mjs', '/engine.mjs', '/chat-preview.mjs', '/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg', '/citadel-icon.png', '/hara-icon.png', '/integration.mjs', '/rio/reception/nova.png'].sort();
@@ -106,6 +106,10 @@ test('generated public bundle has working mutual navigation, seven VisitCard lan
     await expect(page.locator('html')).toHaveAttribute('dir', language === 'ar' ? 'rtl' : 'ltr');
     await expect(page.getByRole('group', { name: landmarkNames[language][1], exact: true })).toBeVisible();
     await expect(page.getByRole('navigation', { name: landmarkNames[language][0], exact: true, includeHidden: true })).toHaveCount(1);
+    const languageTargets = await page.locator('.lang-btn').evaluateAll(buttons => buttons.map(button => {
+      const box = button.getBoundingClientRect();return { width: box.width, height: box.height };
+    }));
+    expect(languageTargets.every(box => box.width >= 44 && box.height >= 44), language + ' language touch targets').toBe(true);
     await expect(hara).toBeDisabled();
     await expect(hara).toHaveAccessibleName('HARA ELIXER HARAM ' + unavailable[language]);
     rootTitles.add((await page.locator('[data-i18n="tagline"]').textContent()).trim());
@@ -266,7 +270,7 @@ test('root worker excludes private, query, download, POST and real loopback cros
   } finally { await context.close(); await isolated.close(); await other.close(); }
 });
 
-test('fixed v35 root update to v52 genuinely waits and preserves the active RIO worker, contacts and unrelated cache', async ({ browser }, testInfo) => {
+test('fixed v35 root update to v53 genuinely waits and preserves the active RIO worker, contacts and unrelated cache', async ({ browser }, testInfo) => {
   const legacyWorker = await readFile(new URL('./fixtures/root-v35-sw.js', import.meta.url), 'utf8');
   const currentWorker = await readFile(join(output, 'sw.js'), 'utf8');
   expect(currentWorker).not.toContain('skipWaiting');
