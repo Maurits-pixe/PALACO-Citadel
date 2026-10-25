@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 
 // Standalone on purpose: this exact file also runs beside a portable public/ folder.
 export const REVIEW_FILES = Object.freeze(['index.html', 'styles.css', 'app.js', 'sw.js',
-  'manifest.webmanifest', 'icon-192.svg', 'icon-512.svg', 'rio-engine-web.mjs', 'engine.mjs',
+  'manifest.webmanifest', 'icon-192.svg', 'icon-512.svg', 'citadel-icon.png', 'rio-engine-web.mjs', 'engine.mjs',
   'chat-preview.mjs', 'integration.mjs', 'rio/index.html', 'rio/start.js', 'rio/download',
   'rio/sw.js', 'rio/manifest.webmanifest', 'rio/icon-192.png', 'rio/icon-512.png',
   'rio/reception/index.html', 'rio/reception/app.css', 'rio/reception/app.js', 'rio/reception/nova.png']);
