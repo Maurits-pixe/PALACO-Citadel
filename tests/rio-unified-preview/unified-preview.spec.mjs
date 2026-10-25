@@ -9,7 +9,7 @@ import { CSP } from '../../scripts/build-rio-unified-preview.mjs';
 
 const repository = fileURLToPath(new URL('../../', import.meta.url));
 const output = resolve(repository, 'render-dist');
-const ROOT_CACHE = 'palaco-rio-shell-v51-hara-navigation-icon';
+const ROOT_CACHE = 'palaco-rio-shell-v52-navigation-labels';
 const OLD_ROOT_CACHE = 'palaco-rio-shell-v35-guard-explanations';
 const APP_CACHE = 'palaco-rio-start-v0.1-8';
 const ROOT_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/rio-engine-web.mjs', '/engine.mjs', '/chat-preview.mjs', '/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg', '/citadel-icon.png', '/hara-icon.png', '/integration.mjs', '/rio/reception/nova.png'].sort();
@@ -91,6 +91,11 @@ test('generated public bundle has working mutual navigation, seven VisitCard lan
   const hara = page.locator('.taskbar button').filter({ has: page.locator('img[src="/hara-icon.png"]') });
   const haraIcon = hara.locator('img');
   const unavailable = { nl: 'Niet beschikbaar', en: 'Unavailable', de: 'Nicht verfügbar', fr: 'Indisponible', es: 'No disponible', ar: 'غير متاح', zh: '暂不可用' };
+  const landmarkNames = {
+    nl: ['Hoofdnavigatie', 'Taal'], en: ['Main navigation', 'Language'],
+    de: ['Hauptnavigation', 'Sprache'], fr: ['Navigation principale', 'Langue'],
+    es: ['Navegación principal', 'Idioma'], ar: ['التنقل الرئيسي', 'اللغة'], zh: ['主导航', '语言'],
+  };
   await expect(haraIcon).toBeVisible();
   await expect(haraIcon).toHaveCSS('width', '36px');
   await expect(haraIcon).toHaveCSS('height', '36px');
@@ -99,6 +104,8 @@ test('generated public bundle has working mutual navigation, seven VisitCard lan
     await page.locator('.lang-btn[data-lang="' + language + '"]').click();
     await expect(page.locator('html')).toHaveAttribute('lang', language);
     await expect(page.locator('html')).toHaveAttribute('dir', language === 'ar' ? 'rtl' : 'ltr');
+    await expect(page.getByRole('group', { name: landmarkNames[language][1], exact: true })).toBeVisible();
+    await expect(page.getByRole('navigation', { name: landmarkNames[language][0], exact: true, includeHidden: true })).toHaveCount(1);
     await expect(hara).toBeDisabled();
     await expect(hara).toHaveAccessibleName('HARA ELIXER HARAM ' + unavailable[language]);
     rootTitles.add((await page.locator('[data-i18n="tagline"]').textContent()).trim());
@@ -119,6 +126,9 @@ test('generated public bundle has working mutual navigation, seven VisitCard lan
   await expect(page).toHaveURL(fixture.origin + '/rio/reception/#nova-explained:zh');
   await page.locator('a.brand[href="/"]').click();
   await expect(page).toHaveURL(fixture.origin + '/');
+  await page.reload();
+  await expect(page.getByRole('group', { name: '语言', exact: true })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: '主导航', exact: true, includeHidden: true })).toHaveCount(1);
   for (const path of ['/auth/server.mjs', '/api/me', '/api/rio/nova/runtime', '/api/rio/device-test/runtime', '/package.json', '/scripts/build-rio-unified-preview.mjs', '/ambassades/auth/server.mjs']) {
     const privateResponse = await request.get(fixture.origin + path);
     expect(privateResponse.status(), path).toBe(404);
@@ -256,7 +266,7 @@ test('root worker excludes private, query, download, POST and real loopback cros
   } finally { await context.close(); await isolated.close(); await other.close(); }
 });
 
-test('fixed v35 root update to v51 genuinely waits and preserves the active RIO worker, contacts and unrelated cache', async ({ browser }, testInfo) => {
+test('fixed v35 root update to v52 genuinely waits and preserves the active RIO worker, contacts and unrelated cache', async ({ browser }, testInfo) => {
   const legacyWorker = await readFile(new URL('./fixtures/root-v35-sw.js', import.meta.url), 'utf8');
   const currentWorker = await readFile(join(output, 'sw.js'), 'utf8');
   expect(currentWorker).not.toContain('skipWaiting');
