@@ -17,6 +17,7 @@ function files(dir, prefix='') {
 
 test('actual static output contains only the explicit public surface; no backend, source contracts or test fixtures leak',()=>{
  assert.deepEqual(files(resolve(root,'render-dist')).sort(), [...OUTPUT_FILES].sort());
+ for(const icon of ['citadel-icon.png','hara-icon.png'])assert.deepEqual(bytes('render-dist/'+icon),bytes('ambassades/rio/visitcard/'+icon));
  for(const file of record.files){assert.equal(hash('render-dist/'+file.path),file.sha256);assert.ok(file.bytes>0);}
  for(const path of ['/api/rio/nova/session','auth/server.mjs','.env','rio/identity-design/draft.json','members.example.json','README.md','source-record.json']) {
    assert.ok(!record.files.some(file=>file.path===path.replace(/^\//,'')));

@@ -9,10 +9,10 @@ import { CSP } from '../../scripts/build-rio-unified-preview.mjs';
 
 const repository = fileURLToPath(new URL('../../', import.meta.url));
 const output = resolve(repository, 'render-dist');
-const ROOT_CACHE = 'palaco-rio-shell-v50-destination-names';
+const ROOT_CACHE = 'palaco-rio-shell-v51-hara-navigation-icon';
 const OLD_ROOT_CACHE = 'palaco-rio-shell-v35-guard-explanations';
 const APP_CACHE = 'palaco-rio-start-v0.1-8';
-const ROOT_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/rio-engine-web.mjs', '/engine.mjs', '/chat-preview.mjs', '/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg', '/citadel-icon.png', '/integration.mjs', '/rio/reception/nova.png'].sort();
+const ROOT_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/rio-engine-web.mjs', '/engine.mjs', '/chat-preview.mjs', '/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg', '/citadel-icon.png', '/hara-icon.png', '/integration.mjs', '/rio/reception/nova.png'].sort();
 const APP_ASSETS = ['/rio/', '/rio/start.js', '/rio/manifest.webmanifest', '/rio/icon-192.png', '/rio/icon-512.png'].sort();
 let fixture;
 const errors = new WeakMap();
@@ -88,10 +88,19 @@ test('generated public bundle has working mutual navigation, seven VisitCard lan
   await expect(page.locator('#rio-title')).toContainText('RIO');
   const rootTitles = new Set();
   const integrationPolicies = new Set();
+  const hara = page.locator('.taskbar button').filter({ has: page.locator('img[src="/hara-icon.png"]') });
+  const haraIcon = hara.locator('img');
+  const unavailable = { nl: 'Niet beschikbaar', en: 'Unavailable', de: 'Nicht verfügbar', fr: 'Indisponible', es: 'No disponible', ar: 'غير متاح', zh: '暂不可用' };
+  await expect(haraIcon).toBeVisible();
+  await expect(haraIcon).toHaveCSS('width', '36px');
+  await expect(haraIcon).toHaveCSS('height', '36px');
+  await expect.poll(() => haraIcon.evaluate(image => image.complete && image.naturalWidth > 0 && image.naturalHeight > 0)).toBe(true);
   for (const language of ['nl', 'en', 'de', 'fr', 'es', 'ar', 'zh']) {
     await page.locator('.lang-btn[data-lang="' + language + '"]').click();
     await expect(page.locator('html')).toHaveAttribute('lang', language);
     await expect(page.locator('html')).toHaveAttribute('dir', language === 'ar' ? 'rtl' : 'ltr');
+    await expect(hara).toBeDisabled();
+    await expect(hara).toHaveAccessibleName('HARA ELIXER HARAM ' + unavailable[language]);
     rootTitles.add((await page.locator('[data-i18n="tagline"]').textContent()).trim());
     integrationPolicies.add((await page.locator('[data-rio-integration="policy"]').textContent()).trim());
     await expect(page.locator('#rio-unified-offline')).toHaveAttribute('href', '/rio/');
@@ -247,7 +256,7 @@ test('root worker excludes private, query, download, POST and real loopback cros
   } finally { await context.close(); await isolated.close(); await other.close(); }
 });
 
-test('fixed v35 root update to v50 genuinely waits and preserves the active RIO worker, contacts and unrelated cache', async ({ browser }, testInfo) => {
+test('fixed v35 root update to v51 genuinely waits and preserves the active RIO worker, contacts and unrelated cache', async ({ browser }, testInfo) => {
   const legacyWorker = await readFile(new URL('./fixtures/root-v35-sw.js', import.meta.url), 'utf8');
   const currentWorker = await readFile(join(output, 'sw.js'), 'utf8');
   expect(currentWorker).not.toContain('skipWaiting');
@@ -275,7 +284,7 @@ test('fixed v35 root update to v50 genuinely waits and preserves the active RIO 
       await unknown.put('/unrelated-public', new Response('preserve'));
     });
     expect(await cacheContents(app)).toEqual([
-      { name: OLD_ROOT_CACHE, paths: ROOT_ASSETS.filter(path => !['/integration.mjs', '/rio/reception/nova.png', '/citadel-icon.png'].includes(path)) },
+      { name: OLD_ROOT_CACHE, paths: ROOT_ASSETS.filter(path => !['/integration.mjs', '/rio/reception/nova.png', '/citadel-icon.png', '/hara-icon.png'].includes(path)) },
       { name: APP_CACHE, paths: APP_ASSETS },
       { name: 'unrelated-app-public', paths: ['/unrelated-public'] },
     ].sort((a, b) => a.name.localeCompare(b.name)));

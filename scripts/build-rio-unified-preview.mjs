@@ -8,7 +8,7 @@ const output = resolve(root, 'render-dist');
 export const PREVIEW_ORIGIN = 'https://palaco-rio-preview-temporary.onrender.com';
 export const TRIAL_ORIGIN = 'https://palaco-ambassades.onrender.com';
 export const ROOT_ASSETS = Object.freeze(['index.html', 'styles.css', 'app.js', 'sw.js',
-  'manifest.webmanifest', 'icon-192.svg', 'icon-512.svg', 'citadel-icon.png', 'rio-engine-web.mjs', 'engine.mjs',
+  'manifest.webmanifest', 'icon-192.svg', 'icon-512.svg', 'citadel-icon.png', 'hara-icon.png', 'rio-engine-web.mjs', 'engine.mjs',
   'chat-preview.mjs', 'integration.mjs']);
 export const OUTPUT_FILES = Object.freeze([...ROOT_ASSETS, 'rio/index.html', 'rio/start.js',
   'rio/download', 'rio/sw.js', 'rio/manifest.webmanifest', 'rio/icon-192.png', 'rio/icon-512.png',
@@ -104,7 +104,7 @@ const getLanguage=()=>{const query=new URLSearchParams(location.search).get('lan
   reception = replaceOnce(reception, 'Zet JavaScript aan om hier de bereikbaarheid te controleren.', 'Deze preview meet de bereikbaarheid niet; de proeven openen op de beveiligde proefserver.');
   if (existsSync(output)) rmSync(output, {recursive:true,force:true});
   mkdirSync(output, {recursive:true});
-  for (const file of ROOT_ASSETS) emit(file, file === 'citadel-icon.png'
+  for (const file of ROOT_ASSETS) emit(file, file.endsWith('.png')
     ? readFileSync(resolve(root, 'ambassades/rio/visitcard/' + file)) : text('ambassades/rio/visitcard/' + file));
   emit('rio/index.html', appOnline); emit('rio/start.js', appScript); emit('rio/download', appDownload); emit('rio/sw.js', appWorker);
   for (const file of ['manifest.webmanifest','icon-192.png','icon-512.png']) emit('rio/'+file, readFileSync(resolve(root,'ambassades/rio/'+file)));

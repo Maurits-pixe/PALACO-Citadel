@@ -10,5 +10,6 @@ ambassades/rio/nova/index.html text eol=lf
 ambassades/rio/visitcard/* text eol=lf
 # Preserve the user-supplied PNG byte for byte, including embedded CRLF bytes.
 ambassades/rio/visitcard/citadel-icon.png binary
+ambassades/rio/visitcard/hara-icon.png binary
 # Historical worker fixtures have byte-pinned provenance and must remain LF.
 tests/rio-unified-preview/fixtures/*-sw.js text eol=lf
