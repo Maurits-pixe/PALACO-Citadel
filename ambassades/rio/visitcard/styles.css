@@ -771,6 +771,23 @@ footer small { grid-column: 1 / -1; }
   .chat-preview-panel.is-expanded { width: auto; }
 }
 
+.chat-focus-mode .taskbar,
+.chat-focus-mode .chat-preview-toggle { visibility: hidden; }
+.chat-focus-mode .chat-preview-panel,
+.chat-focus-mode .chat-preview-panel.is-expanded {
+  inset-block: calc(8px + env(safe-area-inset-top, 0px)) calc(8px + env(safe-area-inset-bottom, 0px));
+  inset-inline: max(12px, env(safe-area-inset-left, 0px)) max(12px, env(safe-area-inset-right, 0px));
+  width: auto;
+  height: calc(100dvh - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  max-height: calc(100dvh - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  overscroll-behavior: contain;
+  box-shadow: 0 0 0 100vmax rgba(16, 36, 62, 0.68);
+}
+[dir="rtl"].chat-focus-mode .chat-preview-panel {
+  inset-inline-start: max(12px, env(safe-area-inset-right, 0px));
+  inset-inline-end: max(12px, env(safe-area-inset-left, 0px));
+}
+
 @media (max-width: 720px) {
   .latest-panel { grid-template-columns: minmax(0, 1fr); }
 }

@@ -273,6 +273,54 @@ export const hasTemporaryChatWork = () => Boolean(input.value.trim() || selected
 let language = document.documentElement.lang in copy ? document.documentElement.lang : "nl";
 let strings = copy[language];
 
+let focusMode = false;
+const backgroundInert = new Map();
+const updateFocusMode = () => {
+  // Keep the measured dock in place, but reclaim its space when controls would
+  // no longer fit. Hidden navigation retains its height, preventing a resize loop.
+  const next = !panel.hidden && toggle.getBoundingClientRect().top - 28 < 160;
+  if (next === focusMode) return;
+  focusMode = next;
+  document.documentElement.classList.toggle("chat-focus-mode", focusMode);
+  if (focusMode) {
+    panel.setAttribute("role", "dialog");
+    panel.setAttribute("aria-modal", "true");
+    for (const element of document.body.children) {
+      if (element === panel || element.tagName === "DIALOG" || element.tagName === "SCRIPT") continue;
+      backgroundInert.set(element, element.inert);
+      element.inert = true;
+    }
+    if (!panel.contains(document.activeElement) && !document.querySelector("dialog[open]")) input.focus();
+  } else {
+    panel.removeAttribute("role");
+    panel.removeAttribute("aria-modal");
+    for (const [element, wasInert] of backgroundInert) element.inert = wasInert;
+    backgroundInert.clear();
+  }
+};
+const setChatOpen = (open) => {
+  panel.hidden = !open;
+  toggle.setAttribute("aria-expanded", String(open));
+  // Restore background controls before any synchronous focus restoration.
+  updateFocusMode();
+};
+const roomObserver = new ResizeObserver(updateFocusMode);
+roomObserver.observe(document.querySelector(".taskbar"));
+roomObserver.observe(toggle);
+window.addEventListener("resize", updateFocusMode);
+
+document.addEventListener("keydown", (event) => {
+  if (!focusMode || event.key !== "Tab" || document.querySelector("dialog[open]")) return;
+  const controls = [...panel.querySelectorAll("button, textarea, input, select, a[href], summary, [tabindex]")]
+    .filter(element => element.tabIndex >= 0 && !element.disabled && !element.closest("[inert]")
+      && element.checkVisibility({visibilityProperty: true}));
+  const first = controls[0], last = controls.at(-1), active = document.activeElement;
+  if (event.shiftKey ? active === first || !controls.includes(active) : active === last || !controls.includes(active)) {
+    event.preventDefault();
+    (event.shiftKey ? last : first)?.focus();
+  }
+});
+
 const updateComposer = () => {
   counter.textContent = strings.characterCount.replace("{count}", String(input.value.length)).replace("{limit}", String(input.maxLength));
   inputError.hidden = !inputErrorKey;
@@ -387,8 +435,7 @@ const sendMessage = (message, prompt) => {
 };
 
 const openChat = () => {
-  panel.hidden = false;
-  toggle.setAttribute("aria-expanded", "true");
+  setChatOpen(true);
   input.focus();
 };
 
@@ -453,8 +500,7 @@ window.addEventListener("rio:subjectchange", (event) => {
 
 document.querySelectorAll(".subject-tile").forEach((tile) => {
   tile.addEventListener("click", () => {
-    panel.hidden = true;
-    toggle.setAttribute("aria-expanded", "false");
+    setChatOpen(false);
   });
 });
 
@@ -466,22 +512,19 @@ document.querySelector("#chat-preview-subject-clear").addEventListener("click", 
 
 toggle?.addEventListener("click", () => {
   const open = panel.hidden;
-  panel.hidden = !open;
-  toggle.setAttribute("aria-expanded", String(open));
+  setChatOpen(open);
   if (open) input.focus();
   else toggle.focus();
 });
 
 closeButton?.addEventListener("click", () => {
-  panel.hidden = true;
-  toggle.setAttribute("aria-expanded", "false");
+  setChatOpen(false);
   toggle.focus();
 });
 
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape" || panel.hidden || document.querySelector('dialog[open]')) return;
-  panel.hidden = true;
-  toggle.setAttribute("aria-expanded", "false");
+  setChatOpen(false);
   toggle.focus();
 });
 
