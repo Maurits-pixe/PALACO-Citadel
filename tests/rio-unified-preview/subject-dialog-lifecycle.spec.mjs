@@ -71,7 +71,15 @@ async function prepare(page){
   await page.locator('#memory-input').fill('TST-subject-Engine-draft');
   await page.locator('#question-input').fill('TST-subject-question-draft');
   await activate(page,'[data-subject="elixer"]');
+  await page.evaluate(()=>{
+    const dialog=document.querySelector('#subject-dialog');
+    window.__rioPreparedSubjectClose=new Promise(resolve=>dialog.addEventListener('close',event=>
+      resolve({open:dialog.open,trusted:event.isTrusted}),{once:true}));
+  });
   await activate(page,'#subject-continue');
+  // Consume setup's real queued close before installing the next action's
+  // observer. An older setup event must not stand in for that action's event.
+  expect(await page.evaluate(()=>window.__rioPreparedSubjectClose)).toEqual({open:false,trusted:true});
   await expect(page.locator('#chat-preview-input')).toBeFocused();
   await page.locator('#chat-preview-input').fill('TST-subject-private-history');
   await activate(page,'#chat-preview-send');
