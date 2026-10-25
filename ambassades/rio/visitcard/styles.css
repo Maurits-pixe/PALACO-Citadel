@@ -65,7 +65,7 @@ nav a:hover { color: var(--blue); }
 .spark-field { position: absolute; inset: 0; z-index: -1; opacity: 0.5; background-image: radial-gradient(circle, var(--ink) 1.5px, transparent 1.6px); background-size: 38px 38px; mask-image: linear-gradient(to bottom, black, transparent 75%); }
 .eyebrow, .section-label { margin: 0 0 12px; color: var(--blue); font-size: 0.75rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; }
 h1, h2, h3, p { overflow-wrap: anywhere; }
-h1 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(5rem, 16vw, 11rem); font-weight: 700; line-height: 0.78; letter-spacing: 0; }
+h1 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: min(clamp(5rem, 16vw, 11rem), 30vw); font-weight: 700; line-height: 0.78; letter-spacing: 0; }
 .title-dot { color: var(--coral); }
 .tagline { margin: 24px auto 8px; font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.55rem, 4vw, 2.7rem); font-weight: 700; }
 .intro-copy { max-width: 610px; margin: 0 auto; font-size: clamp(1rem, 2vw, 1.25rem); line-height: 1.6; }
@@ -359,6 +359,7 @@ footer small { grid-column: 1 / -1; }
   .site-header { width: min(100% - 24px, 1180px); grid-template-columns: 1fr; gap: 10px; }
   .brand { justify-content: center; }
   .language-switch { width: 100%; justify-self: stretch; }
+  .language-switch .lang-btn { flex-basis: calc(16.666% - 2px); padding-inline: 4px; }
   .rio-intro { min-height: auto; padding-inline: 16px; }
   .hero-actions { flex-direction: column; align-items: stretch; }
   .visitcard { min-height: 400px; padding: 20px; box-shadow: 8px 8px 0 var(--cyan); transform: none; }
@@ -417,10 +418,6 @@ footer small { grid-column: 1 / -1; }
   }
   .mobile-nav a > span:first-child { color: var(--blue); font-size: 1.05rem; line-height: 1; }
   .mobile-nav a:active, .mobile-nav a[aria-current="location"] { background: var(--yellow); color: var(--ink); }
-}
-
-@media (max-width: 359px) {
-  .language-switch .lang-btn { flex-basis: calc(25% - 2px); }
 }
 
 @keyframes sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }

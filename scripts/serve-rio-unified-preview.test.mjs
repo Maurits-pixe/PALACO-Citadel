@@ -102,7 +102,7 @@ test('only exact app language queries reach immutable public bytes; other querie
   const paths = fixture(), review = await startReviewServer({...paths, port:0});
   t.after(() => review.close());
   const app = await get(review.origin, '/rio/');
-  for (const code of ['nl','en','de','fr','es','it','pt','ru','zh','ar','eo']) {
+  for (const code of ['nl','en','de','fr','es','it','pt','ru','pl','zh','ar','eo']) {
     const response = await get(review.origin, '/rio/?lang=' + code);
     assert.equal(response.status, 200);
     assert.deepEqual(response.body, app.body);

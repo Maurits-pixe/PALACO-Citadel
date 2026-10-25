@@ -36,7 +36,8 @@ const navigation = `
     es: ['RIO · VisitCard', 'NOVA explicada · recepción (neerlandés)'], it: ['RIO · VisitCard', 'NOVA spiegata · accoglienza (olandese)'],
     pt: ['RIO · VisitCard', 'NOVA explicada · receção (neerlandês)'], ru: ['RIO · VisitCard', 'О NOVA · приёмная (нидерландский)'],
     zh: ['RIO · VisitCard', 'NOVA 说明 · 接待（荷兰语）'], ar: ['RIO · VisitCard', 'شرح NOVA · الاستقبال (بالهولندية)'],
-    eo: ['RIO · VisitCard', 'NOVA klarigita · akceptejo (nederlande)']
+    eo: ['RIO · VisitCard', 'NOVA klarigita · akceptejo (nederlande)'],
+    pl: ['RIO · VisitCard', 'NOVA wyjaśniona · recepcja (po niderlandzku)']
   };
   const update = () => {
     const requested = document.documentElement.lang.split('-')[0];
@@ -88,7 +89,7 @@ const getLanguage=()=>{const query=new URLSearchParams(location.search).get('lan
     '<head>', '<head>\n<link rel="icon" href="/rio/icon-192.png" type="image/png">');
   const appDownload = replaceOnce(app, inline[0][0], '<script>' + appScript + '</script>');
   if (Buffer.byteLength(appDownload) >= 100 * 1024) throw Error('DOWNLOAD_TOO_LARGE');
-  let appWorker = replaceOnce(text('ambassades/rio/sw.js'), 'palaco-rio-start-v0.1-3', 'palaco-rio-start-v0.1-8');
+  let appWorker = replaceOnce(text('ambassades/rio/sw.js'), 'palaco-rio-start-v0.1-4', 'palaco-rio-start-v0.1-9');
   appWorker = replaceOnce(appWorker, "const ASSETS=['/rio/','/rio/manifest.webmanifest','/rio/icon-192.png','/rio/icon-512.png'];", "const ASSETS=['/rio/','/rio/start.js','/rio/manifest.webmanifest','/rio/icon-192.png','/rio/icon-512.png'];");
   let reception = replaceOnce(text('ambassades/rio/reception/index.html'), '<html lang="nl">', '<html lang="nl" data-runtime-mode="static-preview">');
   reception = replaceOnce(reception, '<head>', '<head>\n  <link rel="icon" href="/icon-192.svg" type="image/svg+xml">');

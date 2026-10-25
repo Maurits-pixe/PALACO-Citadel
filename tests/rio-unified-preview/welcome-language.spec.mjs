@@ -13,6 +13,10 @@ const welcomes={
   de:'Hallo! Ich bin RIO. Frag mich gern zu RIO oder dieser Vorschau.',
   fr:'Bonjour ! Je suis RIO. Posez-moi une question sur RIO ou cet aperçu.',
   es:'¡Hola! Soy RIO. Pregúntame sobre RIO o esta vista previa.',
+  pt:'Olá! Sou RIO. Pergunte sobre o RIO ou esta prévia.',
+  ru:'Здравствуйте! Я RIO. Задайте вопрос о RIO или этом предпросмотре.',
+  eo:'Saluton! Mi estas RIO. Demandu pri RIO aŭ ĉi tiu antaŭrigardo.',
+  pl:'Cześć! Jestem RIO. Zapytaj o RIO lub ten podgląd.',
   ar:'مرحباً! أنا RIO. يمكنك سؤالي عن RIO أو هذه المعاينة.',
   zh:'你好！我是 RIO。你可以询问关于 RIO 或此预览的问题。',
 };
@@ -140,7 +144,7 @@ async function expectHistory(page,history,handles){
     element===document.querySelector('#chat-preview-messages').children[index],index)).toBe(true);
 }
 
-test('one unsent welcome follows all seven explicit languages in place while preserving draft and subject',async({browser})=>{
+test('one unsent welcome follows all eleven explicit languages in place while preserving draft and subject',async({browser})=>{
   const checked=await checkedContext(browser),page=await checked.context.newPage(),observations=[];
   const draft='TST-unsent-welcome-draft مرحبا <b>literal</b>';
   try{

@@ -7,7 +7,7 @@ import {startStaticFixture} from './static-fixture.mjs';
 const repository=fileURLToPath(new URL('../../',import.meta.url));
 const trialOrigin='https://palaco-ambassades.onrender.com';
 const trialHost='palaco-ambassades.onrender.com';
-const languages=['nl','en','de','fr','es','it','pt','ru','zh','ar','eo'];
+const languages=['nl','en','de','fr','es','it','pt','ru','zh','ar','eo','pl'];
 const routes=[
   {id:'nova-guide-device',path:'/rio/device-test/',action:'deviceAction'},
   {id:'nova-guide-reception',path:'/rio/nova/',action:'receptionAction'},
@@ -86,7 +86,7 @@ async function routeContract(page){
   await expect(page.locator('[aria-live="assertive"]')).toHaveCount(0);
 }
 
-test('all eleven NOVA languages explain the next routes before any external request or storage access',async({browser})=>{
+test('all twelve NOVA languages explain the next routes before any external request or storage access',async({browser})=>{
   const checked=await checkedContext(browser),page=await checked.context.newPage();
   try{
     await page.goto(fixture.origin+'/rio/reception/#nova-explained');
@@ -115,7 +115,7 @@ test('all eleven NOVA languages explain the next routes before any external requ
       await routeContract(page);
       await checked.verify(page);
     }
-    for(const [key,values]of variants)expect(values.size,key+' must be translated in every supported language').toBe(11);
+    for(const [key,values]of variants)expect(values.size,key+' must be translated in every supported language').toBe(languages.length);
   }finally{await checked.context.close();}
 });
 

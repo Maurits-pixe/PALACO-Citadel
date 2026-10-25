@@ -84,6 +84,29 @@ function fixture(name) {
     proposal, proposalId, secret, grant, remember, answer, populate};
 }
 
+test('new-language function words alone cannot support an unrelated answer while matching subject words retain their source', () => {
+  const examples = [
+    ['pt', 'A minha reunião é na terça-feira às 10.', 'Qual é a minha senha?', 'Quando é a reunião?'],
+    ['ru', 'Моя встреча во вторник в 10.', 'Какая моя сумма?', 'Когда моя встреча?'],
+    ['eo', 'Mia renkontiĝo estas marde je 10.', 'Kio estas mia pasvorto?', 'Kiam estas la renkontiĝo?'],
+    ['pl', 'Moje spotkanie jest we wtorek o 10.', 'Jaki jest kod dostępu?', 'Kiedy jest spotkanie?'],
+  ];
+  for (const [language, memory, unrelated, related] of examples) {
+    const f = fixture('language-overlap-' + language);
+    let dossier = successful(f.remember(successful(f.grant(f.created)), memory));
+    for (const [text, status] of [[unrelated, 'INSUFFICIENT_EVIDENCE'], [related, 'ANSWER_SUPPORTED']]) {
+      const record = f.record();
+      const answer = answerQuestion(dossier, {...f.question(record.recorded_at), text}, record);
+      dossier = successful(answer);
+      assert.equal(answer.result.status, status, language + ': ' + text);
+      assert.deepEqual(answer.result.citations, status === 'ANSWER_SUPPORTED' ? [dossier.memories[0].memory_id] : []);
+      assert.equal(answer.result.authority_effect, 'NONE');
+      if (status === 'ANSWER_SUPPORTED') assert.ok(answer.result.answer.includes(memory));
+    }
+    assert.deepEqual(disposeSessionDossier(dossier), disposed);
+  }
+});
+
 test('disposal is content-free and idempotent, reserves its ID and refuses all held-snapshot operations', () => {
   const f = fixture('dispose-held');
   const current = f.populate();

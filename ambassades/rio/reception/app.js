@@ -72,6 +72,12 @@
       'Kio restas fermita?', 'Ĉi tiu klarigo ne registras vin. Ĝi ne konfirmas telefonnumeron aŭ retpoŝtadreson kaj ne malfermas veran babilejon. BRI9ADE estas ĉi tie projekto; la naŭ kontroloj ne estas farataj.',
       'Ĉi tiu klarigo pri NOVA estas tradukita. La cetera akceptejo restas en la nederlanda. Via lingvoelekto ne estas konservata ĉi tie.'],
   };
+  novaCopy.pl = ['NOVA · twój przewodnik', 'Kim jest NOVA?', 'Język tego wyjaśnienia',
+    'NOVA pomaga ci zacząć poznawać PALACO RIO. Maskotka wskazuje drogę.',
+    'Co robi NOVA', 'NOVA wyjaśnia dostępne ścieżki. Możesz obejrzeć recepcję lub otworzyć próbę z drugim urządzeniem.',
+    'Ty wybierasz', 'Ty decydujesz, czy chcesz kontynuować. Oglądanie strony lub dotknięcie przycisku nie daje zgody na kontakt.',
+    'Co pozostaje zamknięte', 'To wyjaśnienie cię nie rejestruje. Nie potwierdza numeru telefonu ani adresu e-mail i nie otwiera prawdziwego czatu. BRI9ADE jest tu projektem; dziewięć kontroli nie jest wykonywanych.',
+    'To wyjaśnienie NOVA zostało przetłumaczone. Pozostała część recepcji jest po niderlandzku. Twój wybór języka nie jest tutaj zapisywany.'];
   const novaRouteKeys = ['title', 'note', 'destination', 'deviceTitle', 'deviceCopy', 'deviceAction', 'receptionTitle', 'receptionCopy', 'receptionAction'];
   const novaRoutes = {
     nl: ['Kies een proef', 'De proeven zijn Nederlands en openen in een nieuw tabblad. Deze uitleg blijft hier open.', 'Andere proefsite:',
@@ -108,6 +114,9 @@
       'Per du aparatoj', 'Sendu kune elpensitajn testkodojn tien kaj reen. La testservilo povas legi la kodojn. Ne uzu personajn mesaĝojn.', 'Malfermu la telefonan provon',
       'Esploru la akceptejon', 'Provu elpensitan peton ĉe NOVA. Elekto ĉe la akceptejo ne malfermas kontakton kun alia persono.', 'Malfermu la NOVA-provon'],
   };
+  novaRoutes.pl = ['Wybierz próbę', 'Próby są po niderlandzku i otwierają się w nowej karcie. To wyjaśnienie pozostaje tutaj otwarte.', 'Inna strona prób:',
+    'Z dwoma urządzeniami', 'Wspólnie przesyłajcie wymyślone kody testowe w obie strony. Serwer testowy może je odczytać. Nie używajcie osobistych wiadomości.', 'Otwórz próbę na telefonie',
+    'Poznaj recepcję', 'Wypróbuj wymyślone zgłoszenie w NOVA. Wybór w recepcji nie otwiera kontaktu z inną osobą.', 'Otwórz próbę NOVA'];
   const novaLanguage = byId('nova-language');
   function novaLanguageFromLink() {
     const match = /^#nova-explained:([a-z]{2})$/.exec(location.hash);

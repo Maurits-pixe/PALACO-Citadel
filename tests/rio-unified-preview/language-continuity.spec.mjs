@@ -32,13 +32,13 @@ async function checkedContext(browser,options={}){
   return {context,async close(){expect(errors).toEqual([]);expect(api).toEqual([]);expect(foreign).toEqual([]);await context.close();}};
 }
 
-test('NOVA explains its role and unchanged boundaries in all eleven languages without storage or API access',async({browser})=>{
+test('NOVA explains its role and unchanged boundaries in all twelve languages without storage or API access',async({browser})=>{
   const checked=await checkedContext(browser),page=await checked.context.newPage();
   try{
     await page.goto(fixture.origin+'/rio/reception/');
-    const titles={nl:'Wie is NOVA?',en:'Who is NOVA?',de:'Wer ist NOVA?',fr:'Qui est NOVA ?',es:'¿Quién es NOVA?',it:'Chi è NOVA?',pt:'Quem é a NOVA?',ru:'Кто такая NOVA?',zh:'NOVA 是谁？',ar:'من هي NOVA؟',eo:'Kiu estas NOVA?'};
+    const titles={nl:'Wie is NOVA?',en:'Who is NOVA?',de:'Wer ist NOVA?',fr:'Qui est NOVA ?',es:'¿Quién es NOVA?',it:'Chi è NOVA?',pt:'Quem é a NOVA?',ru:'Кто такая NOVA?',zh:'NOVA 是谁？',ar:'من هي NOVA؟',eo:'Kiu estas NOVA?',pl:'Kim jest NOVA?'};
     const boundaries=new Set(),scopes=new Set();
-    await expect(page.locator('#nova-language option')).toHaveCount(11);
+    await expect(page.locator('#nova-language option')).toHaveCount(12);
     for(const [code,title]of Object.entries(titles)){
       await page.locator('#nova-language').selectOption(code);
       await expect(page.locator('#nova-explained')).toHaveAttribute('lang',normalized(code));
@@ -58,7 +58,7 @@ test('NOVA explains its role and unchanged boundaries in all eleven languages wi
       const bounds=await page.locator('#nova-language').boundingBox();expect(bounds.height).toBeGreaterThanOrEqual(44);
       expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
     }
-    expect(boundaries.size).toBe(11);expect(scopes.size).toBe(11);
+    expect(boundaries.size).toBe(12);expect(scopes.size).toBe(12);
     expect(await checked.context.cookies()).toEqual([]);
   }finally{await checked.close();}
 });
@@ -101,7 +101,7 @@ test('app-only and invalid language values cannot break the root or erase the ap
   const checked=await checkedContext(browser),page=await checked.context.newPage();
   try{
     await page.goto(fixture.origin+'/rio/');
-    for(const code of ['it','pt','ru','eo']){
+    for(const code of ['it']){
       await page.locator('#language').selectOption(code);
       await page.locator('#unified-home').click();
       await expect(page.locator('html')).toHaveAttribute('lang','en');
@@ -150,7 +150,7 @@ test('both installed apps preserve language across real offline navigation witho
     await page.locator('#rio-unified-offline').click();await language(page,'ar');
     expect(new URL(page.url()).search).toBe('');
     const keys=await page.evaluate(()=>caches.keys());
-    expect(keys).toContain('palaco-rio-shell-v54-share-link');expect(keys).toContain('palaco-rio-start-v0.1-8');
+    expect(keys).toContain('palaco-rio-shell-v55-eleven-languages');expect(keys).toContain('palaco-rio-start-v0.1-9');
     await page.locator('#language').selectOption('fr');await page.locator('#unified-home').click();
     await expect(page.locator('html')).toHaveAttribute('lang','fr');
   }finally{await checked.close();}
@@ -183,7 +183,7 @@ test('an incoming app language follows later choices through reload, offline and
         });
       }
       const keys=await page.evaluate(async()=>{
-        const cache=await caches.open('palaco-rio-start-v0.1-8');
+        const cache=await caches.open('palaco-rio-start-v0.1-9');
         return (await cache.keys()).map(request=>new URL(request.url).search);
       });
       expect(keys.length).toBeGreaterThan(0);expect(keys.every(query=>query==='')).toBe(true);

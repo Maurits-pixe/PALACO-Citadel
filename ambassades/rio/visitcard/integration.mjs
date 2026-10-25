@@ -2,6 +2,10 @@ import {hasTemporaryChatWork} from './chat-preview.mjs';
 import {hasTemporaryEngineWork} from './rio-engine-web.mjs';
 
 const departure = {
+  pl: ['Nadal tutaj pracujesz.', 'Na tej stronie masz tymczasową rozmowę, szkic lub ćwiczenie. Otwórz następne miejsce w nowej karcie, aby móc kontynuować tutaj. Twój tekst nie zostanie przeniesiony. Odświeżenie lub zamknięcie strony może usunąć Twoją pracę.', 'Następne miejsce:', 'Zostań tutaj', 'Otwórz w nowej karcie'],
+  pt: ['Ainda está a trabalhar aqui.', 'Tem uma conversa, um rascunho ou um exercício temporário nesta página. Abra o próximo destino num novo separador para poder continuar aqui. O seu texto não será transferido. Recarregar ou fechar pode apagar o seu trabalho.', 'Próximo destino:', 'Ficar aqui', 'Abrir num novo separador'],
+  ru: ['Вы ещё работаете здесь.', 'На этой странице есть временный разговор, черновик или упражнение. Откройте следующее место в новой вкладке, чтобы продолжить здесь. Ваш текст не будет перенесён. Перезагрузка или закрытие могут удалить вашу работу.', 'Следующее место:', 'Остаться здесь', 'Открыть в новой вкладке'],
+  eo: ['Vi ankoraŭ laboras ĉi tie.', 'Vi havas provizoran konversacion, malneton aŭ ekzercon sur ĉi tiu paĝo. Malfermu la sekvan lokon en nova langeto por povi daŭrigi ĉi tie. Via teksto ne estos transdonita. Reŝargo aŭ fermo povas forviŝi vian laboron.', 'Sekva loko:', 'Resti ĉi tie', 'Malfermi en nova langeto'],
   nl: ['Je bent nog bezig.', 'Je hebt een tijdelijk gesprek, concept of oefening op deze pagina. Open de volgende plek in een nieuw tabblad om hier verder te kunnen. Je tekst gaat niet mee. Herladen of sluiten kan je werk wissen.', 'Volgende plek:', 'Blijf hier', 'Open in nieuw tabblad'],
   en: ['You are still working here.', 'You have a temporary conversation, draft or exercise on this page. Open the next place in a new tab to continue here. Your text does not travel with you. Reloading or closing may clear your work.', 'Next place:', 'Stay here', 'Open in a new tab'],
   de: ['Du bist hier noch beschäftigt.', 'Du hast ein vorübergehendes Gespräch, einen Entwurf oder eine Übung auf dieser Seite. Öffne den nächsten Ort in einem neuen Tab, um hier weitermachen zu können. Dein Text wird nicht übertragen. Neuladen oder Schließen kann deine Arbeit löschen.', 'Nächster Ort:', 'Hier bleiben', 'In neuem Tab öffnen'],
@@ -61,6 +65,42 @@ const translations = {
     boundary: 'Tu chat temporal y el ejercicio de Engine permanecen separados en esta página y no se transfieren a las otras rutas. Esta explicación no registra ni confirma nada. El chat real y las cuentas siguen cerrados.',
     mascotAlt: 'NOVA, la guía de esta prueba',
   },
+  pt: {
+    label: 'RIO · NOVA · O SEU PRÓPRIO ID',
+    title: 'Juntos no mesmo lugar. Você escolhe o próximo passo.',
+    policy: 'No projeto, um número de telefone confirmado OU um endereço de e-mail confirmado confere elegibilidade para o chat, ligado por P.P. ao seu próprio ID pessoal. Wi-Fi, dados móveis ou outra ligação não alteram o seu ID.',
+    reception: 'NOVA explicada · receção em neerlandês',
+    offline: 'Abrir a aplicação RIO sem ligação',
+    boundary: 'A conversa temporária e o exercício Engine ficam separados nesta página e não são transferidos para os outros percursos. Esta explicação não regista nem confirma nada. O chat real e as contas continuam fechados.',
+    mascotAlt: 'NOVA, a guia desta experiência',
+  },
+  ru: {
+    label: 'RIO · NOVA · ВАШ ЛИЧНЫЙ ID',
+    title: 'Вместе в одном месте. Следующий шаг выбираете вы.',
+    policy: 'По проекту подтверждённый номер телефона ИЛИ подтверждённый адрес электронной почты даёт допуск к чату через P.P., связанный с вашим личным ID. Wi-Fi, мобильный интернет или другое соединение не меняют ваш ID.',
+    reception: 'О NOVA · приёмная на нидерландском языке',
+    offline: 'Открыть приложение RIO без интернета',
+    boundary: 'Временный чат и упражнение Engine остаются раздельно на этой странице и не переносятся в другие разделы. Это пояснение ничего не регистрирует и не подтверждает. Настоящий чат и учётные записи остаются закрытыми.',
+    mascotAlt: 'NOVA, проводник в этом тесте',
+  },
+  eo: {
+    label: 'RIO · NOVA · VIA PROPRA IDENTIGILO',
+    title: 'Kune en unu loko. Vi elektas la sekvan paŝon.',
+    policy: 'Laŭ la projekto, konfirmita telefonnumero AŬ konfirmita retpoŝtadreso plenumas la identigan antaŭkondiĉon por babilado, ligite per P.P. al via propra persona identigilo. Sendrata reto, poŝtelefonaj datumoj aŭ alia konekto ne ŝanĝas vian identigilon.',
+    reception: 'NOVA klarigita · akceptejo en la nederlanda',
+    offline: 'Malfermi la eksterretan RIO-aplikaĵon',
+    boundary: 'Via provizora babilejo kaj Engine-ekzerco restas apartaj sur ĉi tiu paĝo kaj ne transiras al aliaj vojoj. Ĉi tiu klarigo registras aŭ konfirmas nenion. Vera babilado kaj kontoj restas fermitaj.',
+    mascotAlt: 'NOVA, la gvidanto de ĉi tiu provo',
+  },
+  pl: {
+    label: 'RIO · NOVA · TWÓJ WŁASNY ID',
+    title: 'Razem w jednym miejscu. Ty wybierasz następny krok.',
+    policy: 'W projekcie potwierdzony numer telefonu LUB potwierdzony adres e-mail spełnia warunek dopuszczenia do czatu, z powiązaniem przez P.P. z Twoim indywidualnym identyfikatorem osoby. Wi-Fi, dane komórkowe ani inne połączenie nie zmieniają Twojego ID.',
+    reception: 'NOVA wyjaśniona · recepcja w języku niderlandzkim',
+    offline: 'Otwórz aplikację RIO bez internetu',
+    boundary: 'Tymczasowy czat i ćwiczenie Engine pozostają oddzielnie na tej stronie i nie są przenoszone do innych ścieżek. To wyjaśnienie niczego nie rejestruje ani nie potwierdza. Prawdziwy czat i konta pozostają zamknięte.',
+    mascotAlt: 'NOVA, przewodnik po tej próbie',
+  },
   ar: {
     label: 'RIO · NOVA · هويتك الخاصة',
     title: 'معًا في مكان واحد. أنت تختار الخطوة التالية.',
@@ -117,7 +157,7 @@ function checkedDestination(link) {
   if (!/^https?:$/.test(url.protocol)) return null;
   if (link.id === 'rio-unified-reception' && url.origin === location.origin
       && url.pathname === '/rio/reception/' && !url.search
-      && /^#nova-explained:(nl|en|de|fr|es|ar|zh)$/.test(url.hash)) return url;
+      && /^#nova-explained:(nl|en|de|fr|es|pt|ru|eo|pl|ar|zh)$/.test(url.hash)) return url;
   if (link.id === 'rio-unified-offline' && url.origin === location.origin
       && url.pathname === '/rio/' && !url.search && !url.hash) {
     // Reuse the app's existing language parser. A noopener tab does not inherit

@@ -72,6 +72,58 @@ const copy = {
     clear: "Vaciar ejercicio", clearTitle: "¿Vaciar este ejercicio?", clearWarning: "Esto vacía el recuerdo, los borradores y las respuestas de este ejercicio. Tu chat temporal y tu tema se conservan. No se puede deshacer.",
     clearCancel: "Conservar ejercicio", clearConfirm: "Sí, vaciar este ejercicio", cleared: "El ejercicio está vacío. Da tu consentimiento y un recuerdo de nuevo."
   },
+  pt: {
+    title: "Pergunta. Prova. Resposta.", intro: "Dê uma lembrança ao RIO e depois faça uma pergunta. O RIO cita a sua fonte ou diz com clareza que faltam provas.",
+    sessionOnly: "Só nesta sessão", sessionDetail: "Nada é enviado. Recarregar apaga este dossier.",
+    memoryLabel: "O que pode o RIO lembrar temporariamente?", memoryPlaceholder: "Por exemplo: A minha consulta é na terça-feira às 10 horas.",
+    consent: "Autorizo o uso disto apenas nesta página aberta para responder às minhas perguntas.", remember: "Lembrar temporariamente",
+    consentRequired: "São necessários consentimento e uma lembrança.", questionLabel: "O que quer perguntar?", questionPlaceholder: "Quando é a minha consulta?",
+    ask: "Perguntar ao RIO", sources: "Fontes", detailsTitle: "O que este teste faz e não faz",
+    detailsBody: "Memória não é verdade. Uma resposta não é uma decisão. O armazenamento permanente, a ligação de ID, o treino de modelos e a execução continuam desativados e exigem revisão separada.",
+    ready: "Pronto para perguntas. ID da sessão", supported: "RESPOSTA COM PROVAS", insufficient: "PROVAS INSUFICIENTES", failed: "O RIO parou em segurança:",
+    insufficientAnswer: "O RIO não tem provas suficientes neste dossier para responder a esta pergunta.",
+    clear: "Esvaziar exercício", clearTitle: "Esvaziar este exercício?", clearWarning: "Isto apaga a lembrança, os rascunhos e as respostas deste exercício. A conversa temporária e o assunto são mantidos. Esta ação não pode ser desfeita.",
+    clearCancel: "Manter o exercício", clearConfirm: "Sim, esvaziar este exercício", cleared: "O exercício está vazio. Dê novamente consentimento e uma lembrança."
+  },
+  ru: {
+    title: "Вопрос. Доказательство. Ответ.", intro: "Дайте RIO одно воспоминание, затем задайте вопрос. RIO процитирует ваш источник или честно скажет, что доказательств недостаточно.",
+    sessionOnly: "Только этот сеанс", sessionDetail: "Ничего не загружается. Перезагрузка удалит это досье.",
+    memoryLabel: "Что RIO может временно запомнить?", memoryPlaceholder: "Например: Моя встреча во вторник в 10 часов.",
+    consent: "Я разрешаю использовать это только на этой открытой странице для ответов на мои вопросы.", remember: "Временно запомнить",
+    consentRequired: "Необходимы согласие и одно воспоминание.", questionLabel: "Что вы хотите спросить?", questionPlaceholder: "Когда моя встреча?",
+    ask: "Спросить RIO", sources: "Источники", detailsTitle: "Что делает и чего не делает этот тест",
+    detailsBody: "Память не равна истине. Ответ не является решением. Постоянное хранение, привязка ID, обучение моделей и выполнение действий остаются отключёнными и требуют отдельной проверки.",
+    ready: "Можно задавать вопросы. ID сеанса", supported: "ОТВЕТ С ДОКАЗАТЕЛЬСТВОМ", insufficient: "НЕДОСТАТОЧНО ДОКАЗАТЕЛЬСТВ", failed: "RIO безопасно остановлен:",
+    insufficientAnswer: "В этом досье у RIO недостаточно доказательств, чтобы ответить на этот вопрос.",
+    clear: "Очистить упражнение", clearTitle: "Очистить это упражнение?", clearWarning: "Будут удалены воспоминание, черновики и ответы этого упражнения. Временный чат и тема сохранятся. Отменить это действие нельзя.",
+    clearCancel: "Сохранить упражнение", clearConfirm: "Да, очистить это упражнение", cleared: "Упражнение очищено. Снова дайте согласие и добавьте воспоминание."
+  },
+  eo: {
+    title: "Demando. Pruvo. Respondo.", intro: "Donu unu memoraĵon al RIO, poste faru demandon. RIO citas vian fonton aŭ honeste diras, ke pruvo mankas.",
+    sessionOnly: "Nur ĉi tiu seanco", sessionDetail: "Nenio estas alŝutata. Reŝargo forviŝas ĉi tiun dosieron.",
+    memoryLabel: "Kion RIO rajtas provizore memori?", memoryPlaceholder: "Ekzemple: Mia rendevuo estas marde je la 10-a.",
+    consent: "Mi konsentas uzi tion nur en ĉi tiu malfermita paĝo por miaj demandoj.", remember: "Memori provizore",
+    consentRequired: "Necesas konsento kaj unu memoraĵo.", questionLabel: "Kion vi volas demandi?", questionPlaceholder: "Kiam estas mia rendevuo?",
+    ask: "Demandi RIO", sources: "Fontoj", detailsTitle: "Kion ĉi tiu provo faras kaj ne faras",
+    detailsBody: "Memoro ne estas vero. Respondo ne estas decido. Daŭra konservado, identigila ligado, modeltrejnado kaj plenumado restas malŝaltitaj kaj postulas apartan kontrolon.",
+    ready: "Preta por demandoj. Seanca identigilo", supported: "RESPONDO KUN PRUVO", insufficient: "NESUFIĈA PRUVO", failed: "RIO haltis sekure:",
+    insufficientAnswer: "RIO ne havas sufiĉan pruvon en ĉi tiu dosiero por respondi ĉi tiun demandon.",
+    clear: "Malplenigi ekzercon", clearTitle: "Ĉu malplenigi ĉi tiun ekzercon?", clearWarning: "Tio forviŝas la memoraĵon, malnetojn kaj respondojn de ĉi tiu ekzerco. Via provizora babilejo kaj temo restas. Tio ne estas malfarebla.",
+    clearCancel: "Konservi la ekzercon", clearConfirm: "Jes, malplenigi ĉi tiun ekzercon", cleared: "La ekzerco estas malplena. Denove donu konsenton kaj memoraĵon."
+  },
+  pl: {
+    title: "Pytanie. Dowód. Odpowiedź.", intro: "Przekaż RIO jedno wspomnienie, a potem zadaj pytanie. RIO zacytuje Twoje źródło lub uczciwie powie, że brakuje dowodów.",
+    sessionOnly: "Tylko ta sesja", sessionDetail: "Nic nie jest przesyłane. Odświeżenie strony usuwa to dossier.",
+    memoryLabel: "Co RIO może tymczasowo zapamiętać?", memoryPlaceholder: "Na przykład: Moje spotkanie jest we wtorek o 10.",
+    consent: "Zgadzam się na użycie tego wyłącznie na tej otwartej stronie do odpowiadania na moje pytania.", remember: "Zapamiętaj tymczasowo",
+    consentRequired: "Potrzebne są zgoda i jedno wspomnienie.", questionLabel: "O co chcesz zapytać?", questionPlaceholder: "Kiedy jest moje spotkanie?",
+    ask: "Zapytaj RIO", sources: "Źródła", detailsTitle: "Co robi ta próba i czego nie robi",
+    detailsBody: "Pamięć nie jest prawdą. Odpowiedź nie jest decyzją. Trwałe przechowywanie, łączenie identyfikatorów, trenowanie modeli i wykonywanie działań pozostają wyłączone i wymagają osobnej kontroli.",
+    ready: "Możesz zadawać pytania. ID sesji", supported: "ODPOWIEDŹ Z DOWODEM", insufficient: "NIEWYSTARCZAJĄCE DOWODY", failed: "RIO bezpiecznie się zatrzymał:",
+    insufficientAnswer: "RIO nie ma w tym dossier wystarczających dowodów, aby odpowiedzieć na to pytanie.",
+    clear: "Wyczyść ćwiczenie", clearTitle: "Wyczyścić to ćwiczenie?", clearWarning: "Spowoduje to usunięcie wspomnienia, szkiców i odpowiedzi z tego ćwiczenia. Tymczasowy czat i temat pozostaną. Tej czynności nie można cofnąć.",
+    clearCancel: "Zachowaj ćwiczenie", clearConfirm: "Tak, wyczyść to ćwiczenie", cleared: "Ćwiczenie jest puste. Ponownie wyraź zgodę i podaj wspomnienie."
+  },
   ar: {
     title: "سؤال. دليل. جواب.", intro: "أعطِ RIO ذكرى واحدة ثم اطرح سؤالاً. يذكر RIO مصدرك أو يقول بوضوح إن الدليل غير كافٍ.",
     sessionOnly: "لهذه الجلسة فقط", sessionDetail: "لن يُرفع شيء. إعادة التحميل تمحو هذا الملف.",

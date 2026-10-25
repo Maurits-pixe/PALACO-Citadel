@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {startReviewServer} from '../../scripts/serve-rio-unified-preview.mjs';
 
 const repository=fileURLToPath(new URL('../../',import.meta.url));
-const languages=['nl','en','de','fr','es','ar','zh'];
+const languages=['nl','en','de','fr','es','pt','ru','eo','pl','ar','zh'];
 const privateMarker='TST-share-private-context';
 let fixture,surface,source;
 test.beforeEach(async({},info)=>{
@@ -264,7 +264,7 @@ test('closing invalidates pending work and language changes cannot revive a stal
   await evidence('pending-close-language',observations);
 });
 
-test('seven translated choices fit 320 pixels at doubled text with RTL and native modal keyboard containment',async({browser})=>{
+test('eleven translated choices fit 320 pixels at doubled text with RTL and native modal keyboard containment',async({browser})=>{
   const checked=await checkedContext(browser,{viewport:{width:320,height:844},clipboard:'absent',share:'resolve',canShare:'yes'});
   const page=await checked.context.newPage(),observations=[],titles=new Set(),boundaries=new Set(),manual=new Set();
   try{
@@ -313,7 +313,7 @@ test('seven translated choices fit 320 pixels at doubled text with RTL and nativ
       await expect(page.locator('#share-btn')).toBeFocused();
       observations.push({language,title,boundary,geometry,focus});
     }
-    expect(titles.size).toBe(7);expect(boundaries.size).toBe(7);expect(manual.size).toBe(7);
+    expect(titles.size).toBe(languages.length);expect(boundaries.size).toBe(languages.length);expect(manual.size).toBe(languages.length);
     expect((await calls(page)).clipboard).toEqual([]);expect((await calls(page)).share).toEqual([]);
     await checked.verify();await evidence('translated-large-text-keyboard',observations);
   }finally{await checked.context.close();}

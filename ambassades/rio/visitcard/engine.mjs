@@ -13,7 +13,11 @@ const STOP_WORDS = new Set([
   "a", "am", "and", "are", "at", "how", "i", "in", "is", "my", "of", "on", "the", "to", "what", "when",
   "der", "die", "das", "ein", "eine", "ich", "ist", "mein", "meine", "und", "wann", "was", "wie",
   "de", "des", "est", "et", "je", "la", "le", "les", "ma", "mes", "mon", "quand", "que",
-  "como", "cuando", "de", "el", "es", "la", "mi", "mis", "que", "un", "una", "y"
+  "como", "cuando", "de", "el", "es", "la", "mi", "mis", "que", "un", "una", "y",
+  "minha", "minhas", "meu", "meus", "sua", "suas", "seu", "seus", "qual", "quais", "quem", "quando", "onde", "uma", "para", "por", "com", "sem", "dos", "das", "são", "sou", "está", "esta", "estão",
+  "моя", "мои", "мой", "моё", "мое", "твоя", "твой", "своя", "свой", "какая", "какой", "какое", "какие", "когда", "где", "что", "это", "эта", "этот", "эти", "для", "или", "есть", "был", "была", "будет", "как",
+  "mia", "miaj", "via", "viaj", "nia", "niaj", "estas", "estis", "estos", "kiu", "kio", "kiam", "kie", "kiel", "kies", "kiaj", "kiuj", "kaj", "por", "kun", "sen", "unu",
+  "moje", "moja", "mój", "moi", "twoje", "twoja", "twój", "swoje", "swoja", "jest", "są", "był", "była", "będzie", "jaki", "jaka", "jakie", "kiedy", "gdzie", "czy", "oraz", "dla", "jak", "ten", "tego", "tej", "też", "się", "nie"
 ]);
 const runtimeStates = new Map();
 const DISPOSED_STATE = Symbol("disposed local session dossier");

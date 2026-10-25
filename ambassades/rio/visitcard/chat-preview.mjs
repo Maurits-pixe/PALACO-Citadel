@@ -109,6 +109,94 @@ const copy = {
     subjectLeft: "Tema retirado. Los mensajes anteriores siguen visibles hasta que borres la conversación.",
     subjectOther: "Aquí solo puedo repetir la explicación mostrada, no establecer el estado en directo ni los derechos. Usa la pregunta sugerida sobre este tema."
   },
+  pt: {
+    open: "Abrir chat", close: "Fechar", title: "Diga olá ao RIO", badge: "RIO · prévia",
+    boundary: "Apenas uma prévia. As mensagens ficam nesta página e são apagadas ao recarregar. Nenhuma pessoa ou serviço em tempo real está conectado.",
+    welcome: "Olá! Sou RIO. Pergunte sobre o RIO ou esta prévia.",
+    aboutPrompt: "O que é o RIO?", privacyPrompt: "Para onde vão as minhas mensagens?",
+    inputLabel: "A sua mensagem", inputPlaceholder: "Escreva uma mensagem", send: "Enviar",
+    localOnly: "Demonstração local · nada é enviado", clear: "Apagar esta conversa",
+    transcript: "Conversa do RIO", suggestions: "Perguntas sugeridas", visitor: "Você", rio: "RIO",
+    aboutAnswer: "O RIO ajuda a encontrar pessoas e ideias. Você escolhe sempre o que partilha e se quer continuar.",
+    privacyAnswer: "Esta é apenas uma prévia local. As mensagens não saem desta página nem são guardadas após recarregar.",
+    otherAnswer: "Nesta prévia só posso explicar o RIO e como esta conversa é tratada. Experimente uma das perguntas sugeridas.",
+    cleared: "A conversa foi apagada.", larger: "Ampliar chat", compact: "Chat compacto",
+    latest: "Última resposta", readingHint: "Coloque o foco na conversa e use as teclas de seta para ler mensagens anteriores.",
+    clearTitle: "Apagar esta conversa?", clearWarning: "Isto apaga as mensagens, o assunto escolhido e o rascunho desta conversa. Esta ação não pode ser desfeita. O seu dossier pessoal é separado e não será apagado.",
+    clearConfirm: "Sim, apagar esta conversa", clearCancel: "Manter a conversa",
+    characterCount: "{count} / {limit} unidades de carácter", emptyMessage: "Escreva uma mensagem que não contenha apenas espaços.",
+    longMessage: "A sua mensagem é demasiado longa. Use no máximo {limit} unidades de carácter; alguns emojis contam como duas.",
+    subjectLabel: "Assunto", subjectSource: "Origem", subjectStatus: "Estado",
+    subjectPrompt: "De que trata este assunto?", leaveSubject: "Sair deste assunto",
+    subjectLeft: "Assunto removido. As mensagens anteriores continuam visíveis até apagar a conversa.",
+    subjectOther: "Aqui só posso repetir a explicação apresentada sobre o assunto, sem determinar o estado em tempo real ou os direitos. Use a pergunta sugerida sobre este assunto."
+  },
+  ru: {
+    open: "Открыть чат", close: "Закрыть", title: "Поздоровайтесь с RIO", badge: "RIO · предпросмотр",
+    boundary: "Только предпросмотр. Сообщения остаются на этой странице и удаляются при перезагрузке. Живой собеседник или сервис не подключён.",
+    welcome: "Здравствуйте! Я RIO. Задайте вопрос о RIO или этом предпросмотре.",
+    aboutPrompt: "Что такое RIO?", privacyPrompt: "Куда отправляются мои сообщения?",
+    inputLabel: "Ваше сообщение", inputPlaceholder: "Введите сообщение", send: "Отправить",
+    localOnly: "Локальная демонстрация · ничего не отправляется", clear: "Очистить этот разговор",
+    transcript: "Разговор с RIO", suggestions: "Примеры вопросов", visitor: "Вы", rio: "RIO",
+    aboutAnswer: "RIO помогает находить людей и идеи. Вы всегда решаете, чем поделиться и продолжать ли разговор.",
+    privacyAnswer: "Это только локальный предпросмотр. Сообщения не покидают эту страницу и не сохраняются после перезагрузки.",
+    otherAnswer: "В этом предпросмотре я могу только рассказать о RIO и о том, как обрабатывается разговор. Попробуйте один из предложенных вопросов.",
+    cleared: "Разговор очищен.", larger: "Увеличить чат", compact: "Компактный чат",
+    latest: "Последний ответ", readingHint: "Переведите фокус на разговор и используйте клавиши со стрелками, чтобы читать предыдущие сообщения.",
+    clearTitle: "Очистить этот разговор?", clearWarning: "Будут удалены сообщения, выбранная тема и черновик этого чата. Отменить это действие нельзя. Ваше личное досье хранится отдельно и не будет очищено.",
+    clearConfirm: "Да, очистить этот разговор", clearCancel: "Сохранить разговор",
+    characterCount: "{count} / {limit} символьных единиц", emptyMessage: "Введите сообщение, содержащее не только пробелы.",
+    longMessage: "Сообщение слишком длинное. Используйте не более {limit} символьных единиц; некоторые эмодзи считаются за две.",
+    subjectLabel: "Тема", subjectSource: "Источник", subjectStatus: "Статус",
+    subjectPrompt: "О чём эта тема?", leaveSubject: "Покинуть эту тему",
+    subjectLeft: "Тема удалена. Предыдущие сообщения остаются видимыми, пока вы не очистите разговор.",
+    subjectOther: "Здесь я могу только повторить показанное пояснение темы, но не определить текущий статус или права. Используйте предложенный вопрос об этой теме."
+  },
+  eo: {
+    open: "Malfermi babilejon", close: "Fermi", title: "Salutu RIO", badge: "RIO · antaŭrigardo",
+    boundary: "Nur antaŭrigardo. Mesaĝoj restas sur ĉi tiu paĝo kaj forviŝiĝas dum reŝargo. Neniu vera persono aŭ viva servo estas konektita.",
+    welcome: "Saluton! Mi estas RIO. Demandu pri RIO aŭ ĉi tiu antaŭrigardo.",
+    aboutPrompt: "Kio estas RIO?", privacyPrompt: "Kien iras miaj mesaĝoj?",
+    inputLabel: "Via mesaĝo", inputPlaceholder: "Tajpu mesaĝon", send: "Sendi",
+    localOnly: "Loka demonstraĵo · nenio estas sendata", clear: "Forviŝi ĉi tiun konversacion",
+    transcript: "RIO-konversacio", suggestions: "Proponitaj demandoj", visitor: "Vi", rio: "RIO",
+    aboutAnswer: "RIO helpas vin trovi homojn kaj ideojn. Vi ĉiam elektas, kion vi dividas kaj ĉu daŭrigi.",
+    privacyAnswer: "Ĉi tio estas nur loka antaŭrigardo. Mesaĝoj ne forlasas ĉi tiun paĝon kaj ne konserviĝas post reŝargo.",
+    otherAnswer: "En ĉi tiu antaŭrigardo mi povas nur klarigi RIO kaj la traktadon de ĉi tiu konversacio. Provu unu el la proponitaj demandoj.",
+    cleared: "La konversacio estas forviŝita.", larger: "Pligrandigi babilejon", compact: "Kompakta babilejo",
+    latest: "Lasta respondo", readingHint: "Fokusu la konversacion kaj uzu la sagoklavojn por legi antaŭajn mesaĝojn.",
+    clearTitle: "Ĉu forviŝi ĉi tiun konversacion?", clearWarning: "Tio forviŝas viajn mesaĝojn, la elektitan temon kaj la malneton de ĉi tiu babilejo. Tio ne estas malfarebla. Via persona dosiero estas aparta kaj ne estos forviŝita.",
+    clearConfirm: "Jes, forviŝi ĉi tiun konversacion", clearCancel: "Konservi la konversacion",
+    characterCount: "{count} / {limit} signounuoj", emptyMessage: "Enigu mesaĝon enhavantan pli ol nur spacojn.",
+    longMessage: "Via mesaĝo estas tro longa. Uzu maksimume {limit} signounuojn; iuj emoĝioj kalkuliĝas kiel du.",
+    subjectLabel: "Temo", subjectSource: "Fonto", subjectStatus: "Stato",
+    subjectPrompt: "Pri kio temas ĉi tiu temo?", leaveSubject: "Forlasi ĉi tiun temon",
+    subjectLeft: "Temo forigita. Antaŭaj mesaĝoj restas videblaj ĝis vi forviŝas la konversacion.",
+    subjectOther: "Mi povas ĉi tie nur ripeti la montritan klarigon pri la temo, ne konstati aktualan staton aŭ rajtojn. Uzu la proponitan demandon pri ĉi tiu temo."
+  },
+  pl: {
+    open: "Otwórz czat", close: "Zamknij", title: "Przywitaj się z RIO", badge: "RIO · podgląd",
+    boundary: "Tylko podgląd. Wiadomości pozostają na tej stronie i są usuwane po jej odświeżeniu. Żadna osoba ani usługa na żywo nie jest podłączona.",
+    welcome: "Cześć! Jestem RIO. Zapytaj o RIO lub ten podgląd.",
+    aboutPrompt: "Czym jest RIO?", privacyPrompt: "Dokąd trafiają moje wiadomości?",
+    inputLabel: "Twoja wiadomość", inputPlaceholder: "Wpisz wiadomość", send: "Wyślij",
+    localOnly: "Lokalna demonstracja · nic nie jest wysyłane", clear: "Wyczyść tę rozmowę",
+    transcript: "Rozmowa z RIO", suggestions: "Proponowane pytania", visitor: "Ty", rio: "RIO",
+    aboutAnswer: "RIO pomaga znajdować ludzi i pomysły. Zawsze decydujesz, czym się dzielisz i czy chcesz kontynuować.",
+    privacyAnswer: "To tylko lokalny podgląd. Wiadomości nie opuszczają tej strony i nie są zachowywane po jej odświeżeniu.",
+    otherAnswer: "W tym podglądzie mogę jedynie wyjaśnić, czym jest RIO i jak obsługiwana jest ta rozmowa. Wypróbuj jedno z proponowanych pytań.",
+    cleared: "Rozmowa została wyczyszczona.", larger: "Powiększ czat", compact: "Kompaktowy czat",
+    latest: "Ostatnia odpowiedź", readingHint: "Ustaw fokus na rozmowie i użyj klawiszy strzałek, aby czytać wcześniejsze wiadomości.",
+    clearTitle: "Wyczyścić tę rozmowę?", clearWarning: "Spowoduje to usunięcie wiadomości, wybranego tematu i szkicu z tego czatu. Tej czynności nie można cofnąć. Twoje osobiste dossier jest oddzielne i nie zostanie wyczyszczone.",
+    clearConfirm: "Tak, wyczyść tę rozmowę", clearCancel: "Zachowaj rozmowę",
+    characterCount: "{count} / {limit} jednostek znakowych", emptyMessage: "Wpisz wiadomość zawierającą coś więcej niż spacje.",
+    longMessage: "Twoja wiadomość jest zbyt długa. Użyj najwyżej {limit} jednostek znakowych; niektóre emoji liczą się podwójnie.",
+    subjectLabel: "Temat", subjectSource: "Źródło", subjectStatus: "Status",
+    subjectPrompt: "O czym jest ten temat?", leaveSubject: "Opuść ten temat",
+    subjectLeft: "Temat został usunięty. Wcześniejsze wiadomości pozostają widoczne, dopóki nie wyczyścisz rozmowy.",
+    subjectOther: "Mogę tu jedynie powtórzyć wyświetlone objaśnienie tematu, a nie ustalić aktualny status lub uprawnienia. Użyj proponowanego pytania dotyczącego tego tematu."
+  },
   ar: {
     open: "افتح الدردشة", close: "إغلاق", title: "ألقِ التحية على RIO", badge: "RIO · معاينة",
     boundary: "معاينة فقط. تبقى الرسائل في هذه الصفحة وتُمسح عند إعادة التحميل. لا يوجد شخص أو خدمة مباشرة متصلة.",
@@ -268,6 +356,7 @@ const refreshWelcome = () => {
 const withSubjectSource = (answer) =>
   `${answer}\n\n${strings.subjectSource}: ${selectedSubject.source}\n${strings.subjectStatus}: ${selectedSubject.status}\n\n${selectedSubject.boundary}`;
 
+const normalizeQuestion = (message) => message.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLocaleLowerCase();
 const answerFor = (message, prompt) => {
   if (prompt === "subject" && selectedSubject) {
     return withSubjectSource(selectedSubject.description);
@@ -276,8 +365,9 @@ const answerFor = (message, prompt) => {
   if (question) return withSubjectSource(question.answer);
   if (prompt === "about") return strings.aboutAnswer;
   if (prompt === "privacy") return strings.privacyAnswer;
-  const normalized = message.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLocaleLowerCase();
-  if (/\b(privacy|privacidad|datenschutz|confidentialite|confidentialidad|gegevens|privé|data|message|messages|bericht|berichten)\b|بيانات|رسائلي|隐私|消息/u.test(normalized)) {
+  const normalized = normalizeQuestion(message);
+  if (normalized === normalizeQuestion(strings.privacyPrompt)
+      || /\b(privacy|privacidad|datenschutz|confidentialite|confidentialidad|gegevens|privé|data|message|messages|bericht|berichten)\b|بيانات|رسائلي|隐私|消息/u.test(normalized)) {
     return strings.privacyAnswer;
   }
   if (selectedSubject) return strings.subjectOther;

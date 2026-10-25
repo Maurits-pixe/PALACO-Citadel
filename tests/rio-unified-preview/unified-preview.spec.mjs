@@ -9,9 +9,9 @@ import { CSP } from '../../scripts/build-rio-unified-preview.mjs';
 
 const repository = fileURLToPath(new URL('../../', import.meta.url));
 const output = resolve(repository, 'render-dist');
-const ROOT_CACHE = 'palaco-rio-shell-v54-share-link';
+const ROOT_CACHE = 'palaco-rio-shell-v55-eleven-languages';
 const OLD_ROOT_CACHE = 'palaco-rio-shell-v35-guard-explanations';
-const APP_CACHE = 'palaco-rio-start-v0.1-8';
+const APP_CACHE = 'palaco-rio-start-v0.1-9';
 const ROOT_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/rio-engine-web.mjs', '/engine.mjs', '/chat-preview.mjs', '/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg', '/citadel-icon.png', '/hara-icon.png', '/integration.mjs', '/rio/reception/nova.png'].sort();
 const APP_ASSETS = ['/rio/', '/rio/start.js', '/rio/manifest.webmanifest', '/rio/icon-192.png', '/rio/icon-512.png'].sort();
 let fixture;
@@ -80,7 +80,7 @@ async function removeDownloadFixture(directory) {
   await rm(actual, { recursive: true, force: true });
 }
 
-test('generated public bundle has working mutual navigation, seven VisitCard languages and RTL', async ({ page, request }) => {
+test('generated public bundle has working mutual navigation, eleven VisitCard languages and RTL', async ({ page, request }) => {
   const response = await page.goto(fixture.origin + '/');
   expect(response.headers()['content-security-policy']).toContain("script-src 'self';");
   expect(response.headers()['content-security-policy']).not.toContain("script-src 'self' 'unsafe-inline'");
@@ -90,17 +90,18 @@ test('generated public bundle has working mutual navigation, seven VisitCard lan
   const integrationPolicies = new Set();
   const hara = page.locator('.taskbar button').filter({ has: page.locator('img[src="/hara-icon.png"]') });
   const haraIcon = hara.locator('img');
-  const unavailable = { nl: 'Niet beschikbaar', en: 'Unavailable', de: 'Nicht verfügbar', fr: 'Indisponible', es: 'No disponible', ar: 'غير متاح', zh: '暂不可用' };
+  const unavailable = { nl: 'Niet beschikbaar', en: 'Unavailable', de: 'Nicht verfügbar', fr: 'Indisponible', es: 'No disponible', pt: 'Indisponível', ru: 'Недоступно', eo: 'Nedisponebla', pl: 'Niedostępne', ar: 'غير متاح', zh: '暂不可用' };
   const landmarkNames = {
     nl: ['Hoofdnavigatie', 'Taal'], en: ['Main navigation', 'Language'],
     de: ['Hauptnavigation', 'Sprache'], fr: ['Navigation principale', 'Langue'],
     es: ['Navegación principal', 'Idioma'], ar: ['التنقل الرئيسي', 'اللغة'], zh: ['主导航', '语言'],
+    pt: ['Navegação principal', 'Idioma'], ru: ['Основная навигация', 'Язык'], eo: ['Ĉefa navigado', 'Lingvo'], pl: ['Nawigacja główna', 'Język'],
   };
   await expect(haraIcon).toBeVisible();
   await expect(haraIcon).toHaveCSS('width', '36px');
   await expect(haraIcon).toHaveCSS('height', '36px');
   await expect.poll(() => haraIcon.evaluate(image => image.complete && image.naturalWidth > 0 && image.naturalHeight > 0)).toBe(true);
-  for (const language of ['nl', 'en', 'de', 'fr', 'es', 'ar', 'zh']) {
+  for (const language of ['nl', 'en', 'de', 'fr', 'es', 'pt', 'ru', 'eo', 'pl', 'ar', 'zh']) {
     await page.locator('.lang-btn[data-lang="' + language + '"]').click();
     await expect(page.locator('html')).toHaveAttribute('lang', language);
     await expect(page.locator('html')).toHaveAttribute('dir', language === 'ar' ? 'rtl' : 'ltr');
@@ -120,8 +121,8 @@ test('generated public bundle has working mutual navigation, seven VisitCard lan
     await expect(page.locator('#rio-unified-reception')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), language).toBe(true);
   }
-  expect(rootTitles.size).toBe(7);
-  expect(integrationPolicies.size).toBe(7);
+  expect(rootTitles.size).toBe(11);
+  expect(integrationPolicies.size).toBe(11);
   await page.locator('#rio-unified-offline').click();
   await expect(page).toHaveURL(fixture.origin + '/rio/');
   await expect(page.locator('#unified-home')).toHaveAttribute('href', '/');
@@ -184,7 +185,7 @@ test('online app guide is translated and the exact small download works as a gen
   const policies = new Set();
   const receptionLabels = new Set();
   await page.locator('#pp-identity-guide summary').click();
-  for (const language of ['nl', 'en', 'de', 'fr', 'es', 'it', 'pt', 'ru', 'zh', 'ar', 'eo']) {
+  for (const language of ['nl', 'en', 'de', 'fr', 'es', 'it', 'pt', 'ru', 'zh', 'ar', 'eo', 'pl']) {
     await page.locator('#language').selectOption(language);
     await expect(page.locator('html')).toHaveAttribute('dir', language === 'ar' ? 'rtl' : 'ltr');
     policies.add((await page.locator('[data-i18n="ppGuidePolicy"]').textContent()).trim());
@@ -192,8 +193,8 @@ test('online app guide is translated and the exact small download works as a gen
     await expect(page.locator('#unified-reception')).not.toBeEmpty();
     receptionLabels.add((await page.locator('#unified-reception').textContent()).trim());
   }
-  expect(policies.size).toBe(11);
-  expect(receptionLabels.size).toBe(11);
+  expect(policies.size).toBe(12);
+  expect(receptionLabels.size).toBe(12);
   await page.locator('#language').selectOption('nl');
   await page.locator('#tab-install').click();
   const event = page.waitForEvent('download');
@@ -270,7 +271,7 @@ test('root worker excludes private, query, download, POST and real loopback cros
   } finally { await context.close(); await isolated.close(); await other.close(); }
 });
 
-test('fixed v35 root update to v54 genuinely waits and preserves the active RIO worker, contacts and unrelated cache', async ({ browser }, testInfo) => {
+test('fixed v35 root update to v55 genuinely waits and preserves the active RIO worker, contacts and unrelated cache', async ({ browser }, testInfo) => {
   const legacyWorker = await readFile(new URL('./fixtures/root-v35-sw.js', import.meta.url), 'utf8');
   const currentWorker = await readFile(join(output, 'sw.js'), 'utf8');
   expect(currentWorker).not.toContain('skipWaiting');

@@ -10,17 +10,17 @@ npx playwright test --config tests/rio-unified-preview/playwright.config.mjs
 The suite builds the 24-file public bundle before each project's worker starts.
 The navigation case checks the original HARA icon loads at 36×36px while its
 button remains disabled and exposes its full name and translated unavailable
-status in all seven VisitCard languages. Both original navigation PNGs are
+status in all eleven VisitCard languages. Both original navigation PNGs are
 included in the current root worker cache; fixed historical workers remain unchanged.
-The main-navigation and language-choice group names follow all seven VisitCard
+The main-navigation and language-choice group names follow all eleven VisitCard
 languages, so assistive navigation uses the same language as the page.
 The VisitCard header uses 44px minimum touch targets for its brand, navigation
 links and language buttons, with a visible keyboard focus indicator. At widths
-below 360px the seven language choices wrap into two centered rows; intermediate
+below 640px the eleven language choices wrap into two rows; intermediate
 desktop widths put language choice below the brand and main navigation, keeping
 the visual and native keyboard order aligned. The original icons,
 destinations and availability states stay unchanged.
-`language-continuity.spec.mjs` adds eight scenarios per surface: all eleven NOVA
+`language-continuity.spec.mjs` adds eight scenarios per surface: all twelve NOVA
 explanations without storage/API access; plain-HTML fallback without scripts;
 shared session language; safe app-only/invalid preferences; denied/quota storage;
 real offline language navigation; an incoming language query following later
@@ -32,14 +32,14 @@ the single valid existing public language parameter changes in place, preserving
 the fragment, history state and entry count. Contexts inherit the mobile
 or desktop project settings; the app language control has a 44px minimum height.
 `nova-routes.spec.mjs` adds four scenarios per
-surface: eleven translated route choices without background traffic or storage,
+surface: twelve translated route choices without background traffic or storage,
 the script-free Dutch fallback, native keyboard popups intercepted locally to
 verify destination/referrer/opener boundaries, and 320px layout with actual 200%
 root text. `nova-language-handoff.spec.mjs` adds five cases per surface for
 local-only language fragments, exact validation, keyboard focus, browser fallback,
 script-free fallback, file-mode isolation and narrow layout. A sixth case per
-surface checks all 18 source-language choices at 320px with actual 32px root/body
-text, including wrapping mobile navigation. The complete suite now has 108 browser
+surface checks all 23 source-language choices at 320px with actual 32px root/body
+text, including wrapping mobile navigation. The complete suite now has 114 browser
 cases, including worker migration, departure and independent exercise-reset checks.
 
 `share-preview.spec.mjs` adds six cases per surface. Sharing opens a translated
@@ -47,9 +47,18 @@ dialog with an explicit canonical root link, copy action and optional native
 share menu. Query/hash and private drafts stay out of the payload. The cases
 cover unavailable/denied clipboard access, native success/cancellation/failure,
 double activation, pending action invalidation on close/reopen, language updates,
-native keyboard navigation and all seven languages at 320px with doubled text.
+native keyboard navigation and all eleven languages at 320px with doubled text.
 Browser APIs are replaced by deterministic test doubles before startup; these
 tests never invoke the operating-system share sheet or touch the real clipboard.
+
+`root-language-expansion.spec.mjs` adds three cases per surface for Portuguese,
+Russian, Esperanto and Polish: explicit RIO/NOVA/app continuity, browser-language
+fallback with blocked/full storage, and genuine offline language use with local
+chat, insufficient-evidence answers, separate reset choices and departure gates.
+The root offers eleven languages; the app and NOVA explanation offer twelve,
+including Italian. NOVA's remaining reception page and source quotations keep
+their explicitly labelled Dutch language. Polish is included in the standalone
+download, local contact trial and identity explanation; the download stays below 100 KiB.
 
 Run the build/HTTP tests and this suite sequentially: both rebuild the same fixed
 generated directory. Do not rebuild it while a running fixture is serving it.
@@ -60,9 +69,9 @@ scenario issues the two fixed trial navigations, fulfilled entirely by a local
 interception; no request is sent to the public trial service. Other cases expect
 zero external requests.
 
-Six scenarios run on mobile and desktop: mutual navigation and the seven
+Six scenarios run on mobile and desktop: mutual navigation and the eleven
 VisitCard translations; a read-only static NOVA page with PHONE-or-EMAIL design
-explanation; eleven app translations and the actual downloaded file offline;
+explanation; twelve app translations and the actual downloaded file offline;
 root-worker cache exclusions; an actual waiting worker update with both
 the root and `/rio/` service workers active. The last scenario also reloads both
 applications genuinely offline and checks preserved fictitious contacts. A sixth
@@ -82,7 +91,7 @@ cache entry.
 It intentionally includes its old broad fetch handler and destructive cache
 cleanup. It first activates in an empty, isolated profile; only afterward are the
 app worker, app cache, unrelated cache and fictitious contact created. The current
-v54 worker must then reach the real `waiting` state without reloading its open
+v55 worker must then reach the real `waiting` state without reloading its open
 client. Closing the root client allows activation while the app remains open.
 The test proves migration from this fixed old worker/cache state; it does not
 reconstruct the historical HTML or claim that the old cleanup was safe.
@@ -90,7 +99,7 @@ reconstruct the historical HTML or claim that the old cleanup was safe.
 `language-worker-update.spec.mjs` also installs fixed root v37 and generated app
 v5 workers from the previous bf6d865 preview. Both new workers must reach the
 actual waiting state while their old pages remain open. Closing only the app
-activates v8 while root v54 keeps waiting; closing the root then activates v54.
+activates v9 while root v55 keeps waiting; closing the root then activates v55.
 The fictitious contact, unrelated cache, separate registrations, new local
 language links and genuine offline reloads remain intact. The existing app
 worker keeps its scoped clients.claim; the root has neither clients.claim nor

@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {startReviewServer} from '../../scripts/serve-rio-unified-preview.mjs';
 
 const repository=fileURLToPath(new URL('../../',import.meta.url));
-const languages=['nl','en','de','fr','es','ar','zh'];
+const languages=['nl','en','de','fr','es','pt','ru','eo','pl','ar','zh'];
 const subjects={
   symbol:{id:'rio:subject:palaco-symbol',type:'SYMBOL',state:'CURRENT',preview:'asset:palaco-symbol',provenance:'rio-web-subject-catalog-v1'},
   image:{id:'rio:subject:rio-image',type:'IMAGE',state:'CURRENT',preview:'asset:rio-icon-192',provenance:'rio-web-subject-catalog-v1'},

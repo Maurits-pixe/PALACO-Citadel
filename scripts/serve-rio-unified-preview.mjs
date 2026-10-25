@@ -67,7 +67,7 @@ export async function startReviewServer({port = 4173, ...paths} = defaultReviewP
     let path = request.url;
     // The standalone app already accepts these public language codes. Permit
     // only this exact raw query, without decoding or accepting other fields.
-    if (/^\/rio\/\?lang=(nl|en|de|fr|es|it|pt|ru|zh|ar|eo)$/.test(path)) path = '/rio/';
+    if (/^\/rio\/\?lang=(nl|en|de|fr|es|it|pt|ru|pl|zh|ar|eo)$/.test(path)) path = '/rio/';
     if (typeof path !== 'string' || !path.startsWith('/') || /[%?\\\x00-\x20]/.test(path)) return end(400);
     const route = {'/':'/index.html', '/rio/':'/rio/index.html', '/rio/reception/':'/rio/reception/index.html'}[path] || path;
     if (!snapshot.has(route)) return end(404);

@@ -8,8 +8,8 @@ import {startStaticFixture} from './static-fixture.mjs';
 
 const repository=fileURLToPath(new URL('../../',import.meta.url));
 const previewOrigin='https://palaco-rio-preview-temporary.onrender.com';
-const rootLanguages=['nl','en','de','fr','es','ar','zh'];
-const languages=['nl','en','de','fr','es','it','pt','ru','zh','ar','eo'];
+const rootLanguages=['nl','en','de','fr','es','pt','ru','eo','pl','ar','zh'];
+const languages=['nl','en','de','fr','es','it','pt','ru','zh','ar','eo','pl'];
 const normalized=code=>code==='zh'?'zh-Hans':code;
 let fixture;
 let surface;
