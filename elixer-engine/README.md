@@ -45,6 +45,10 @@ Onderhoud, replay-ledger, canonieke historiek en receipts zijn alleen process-lo
 
 ## Bronnen en presentatie
 
+Het nieuw aangeleverde voorlopige H∆R∆M-manifest staat afzonderlijk onder
+[lab/](lab/README.md). Dat descriptorcontract houdt naam- en runtimebinding
+onbevestigd en kan het bestaande HARA-profiel niet activeren of hernoemen.
+
 - [ELIXER ENGINE — Kernelcontract v0.1](https://app.notion.com/p/bf8b28ff413049c5985caab475827458)
 - [ELIXER LABORATORIUM](https://app.notion.com/p/50f3dbccda0a4e03a26476cdc6f44cd7)
 - [VORM9EVIN9](../.github/agents/palaco-vorm9evin9.agent.md)

@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "0.1",
+  "candidateId": "lab:haram:001",
+  "version": "0.1.0",
+  "canonicalName": "H∆R∆M",
+  "nameStatus": "PROVISIONAL",
+  "visualAlias": "HARAM",
+  "purpose": "Human interface voor coördinatie, gesprek, presentatie en provenance-navigatie.",
+  "elixerId": null,
+  "namespace": null,
+  "laBinding": {
+    "proposed": "Levensader",
+    "status": "UNCONFIRMED"
+  },
+  "scope": {
+    "tenantId": "lab-haram-tenant-001",
+    "dataClassification": "SYNTHETIC_ONLY",
+    "worldRef": null,
+    "citadelRef": null
+  },
+  "capabilities": [
+    "READ",
+    "EXPLAIN",
+    "PROPOSE",
+    "PRESENT"
+  ],
+  "permissions": [
+    "synthetic.public.read"
+  ],
+  "forbiddenActions": [
+    "AUTHORIZE",
+    "EXECUTE",
+    "MODIFY",
+    "PUBLISH",
+    "ISSUE",
+    "DISTRIBUTE",
+    "REVOKE"
+  ],
+  "personas": [
+    {
+      "name": "H∆R∆M",
+      "role": "COORDINATION_PRESENTATION",
+      "mode": "DETERMINISTIC_MOCK"
+    },
+    {
+      "name": "CHING CHING",
+      "role": "CONSENT_FIRST_ADVICE",
+      "mode": "DETERMINISTIC_MOCK"
+    },
+    {
+      "name": "HANNIE",
+      "role": "HOUSEHOLD_CONTEXT_WITHOUT_MUTATION",
+      "mode": "DETERMINISTIC_MOCK"
+    }
+  ],
+  "surfaceBindings": {
+    "full": "FULL_ELIXER",
+    "widget": "WIDGET",
+    "stateSource": "ONE_CANONICAL_READ_ONLY_STATE"
+  },
+  "memoryPolicy": {
+    "mode": "EPHEMERAL",
+    "productionData": false
+  },
+  "consentPolicy": {
+    "contextRead": "EXPLICIT_CONSENT_REQUIRED"
+  },
+  "statusAxes": {
+    "development": "SPECIFIED",
+    "integrity": "UNKNOWN",
+    "conformance": "NOT_RUN",
+    "review": "REVIEW_REQUIRED",
+    "authority": "NONE",
+    "issuance": "NOT_REQUESTED",
+    "distribution": "NOT_ALLOWED",
+    "activation": "INACTIVE",
+    "freshness": "UNKNOWN"
+  },
+  "existingRuntime": {
+    "elixerId": "HARA-LAB-001",
+    "canonicalName": "H∆R∆",
+    "binding": "UNCONFIRMED"
+  },
+  "source": {
+    "repository": "Maurits-pixe/PALACO-Citadel",
+    "commit": null,
+    "refs": [
+      "https://app.notion.com/p/50f3dbccda0a4e03a26476cdc6f44cd7",
+      "https://app.notion.com/p/bf8b28ff413049c5985caab475827458"
+    ]
+  },
+  "packageDigest": null,
+  "issuerRef": null,
+  "signerRef": null,
+  "reviewRefs": []
+}

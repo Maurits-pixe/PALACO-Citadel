@@ -1,0 +1,333 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:palaco:schemas:elixer-lab-candidate-v0.1",
+  "title": "H∆R∆M provisional lab candidate, not a runtime manifest",
+  "description": "One synthetic read-only candidate. Null fields are required unknowns. PRESENT grants no runtime action.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "candidateId": {
+      "type": "string",
+      "const": "lab:haram:001"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^0\\.1\\.(0|[1-9][0-9]*)$",
+      "maxLength": 32
+    },
+    "canonicalName": {
+      "type": "string",
+      "const": "H∆R∆M"
+    },
+    "nameStatus": {
+      "type": "string",
+      "const": "PROVISIONAL"
+    },
+    "visualAlias": {
+      "type": "string",
+      "const": "HARAM"
+    },
+    "purpose": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "pattern": "\\S"
+    },
+    "elixerId": {
+      "type": "null"
+    },
+    "namespace": {
+      "type": "null"
+    },
+    "laBinding": {
+      "type": "object",
+      "properties": {
+        "proposed": {
+          "type": "string",
+          "const": "Levensader"
+        },
+        "status": {
+          "type": "string",
+          "const": "UNCONFIRMED"
+        }
+      },
+      "required": [
+        "proposed",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "scope": {
+      "type": "object",
+      "properties": {
+        "tenantId": {
+          "type": "string",
+          "const": "lab-haram-tenant-001"
+        },
+        "dataClassification": {
+          "type": "string",
+          "const": "SYNTHETIC_ONLY"
+        },
+        "worldRef": {
+          "type": "null"
+        },
+        "citadelRef": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "tenantId",
+        "dataClassification",
+        "worldRef",
+        "citadelRef"
+      ],
+      "additionalProperties": false
+    },
+    "capabilities": {
+      "type": "array",
+      "const": [
+        "READ",
+        "EXPLAIN",
+        "PROPOSE",
+        "PRESENT"
+      ]
+    },
+    "permissions": {
+      "type": "array",
+      "const": [
+        "synthetic.public.read"
+      ]
+    },
+    "forbiddenActions": {
+      "type": "array",
+      "const": [
+        "AUTHORIZE",
+        "EXECUTE",
+        "MODIFY",
+        "PUBLISH",
+        "ISSUE",
+        "DISTRIBUTE",
+        "REVOKE"
+      ]
+    },
+    "personas": {
+      "type": "array",
+      "const": [
+        {
+          "name": "H∆R∆M",
+          "role": "COORDINATION_PRESENTATION",
+          "mode": "DETERMINISTIC_MOCK"
+        },
+        {
+          "name": "CHING CHING",
+          "role": "CONSENT_FIRST_ADVICE",
+          "mode": "DETERMINISTIC_MOCK"
+        },
+        {
+          "name": "HANNIE",
+          "role": "HOUSEHOLD_CONTEXT_WITHOUT_MUTATION",
+          "mode": "DETERMINISTIC_MOCK"
+        }
+      ]
+    },
+    "surfaceBindings": {
+      "type": "object",
+      "properties": {
+        "full": {
+          "type": "string",
+          "const": "FULL_ELIXER"
+        },
+        "widget": {
+          "type": "string",
+          "const": "WIDGET"
+        },
+        "stateSource": {
+          "type": "string",
+          "const": "ONE_CANONICAL_READ_ONLY_STATE"
+        }
+      },
+      "required": [
+        "full",
+        "widget",
+        "stateSource"
+      ],
+      "additionalProperties": false
+    },
+    "memoryPolicy": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "const": "EPHEMERAL"
+        },
+        "productionData": {
+          "type": "boolean",
+          "const": false
+        }
+      },
+      "required": [
+        "mode",
+        "productionData"
+      ],
+      "additionalProperties": false
+    },
+    "consentPolicy": {
+      "type": "object",
+      "properties": {
+        "contextRead": {
+          "type": "string",
+          "const": "EXPLICIT_CONSENT_REQUIRED"
+        }
+      },
+      "required": [
+        "contextRead"
+      ],
+      "additionalProperties": false
+    },
+    "statusAxes": {
+      "type": "object",
+      "properties": {
+        "development": {
+          "type": "string",
+          "const": "SPECIFIED"
+        },
+        "integrity": {
+          "type": "string",
+          "const": "UNKNOWN"
+        },
+        "conformance": {
+          "type": "string",
+          "const": "NOT_RUN"
+        },
+        "review": {
+          "type": "string",
+          "const": "REVIEW_REQUIRED"
+        },
+        "authority": {
+          "type": "string",
+          "const": "NONE"
+        },
+        "issuance": {
+          "type": "string",
+          "const": "NOT_REQUESTED"
+        },
+        "distribution": {
+          "type": "string",
+          "const": "NOT_ALLOWED"
+        },
+        "activation": {
+          "type": "string",
+          "const": "INACTIVE"
+        },
+        "freshness": {
+          "type": "string",
+          "const": "UNKNOWN"
+        }
+      },
+      "required": [
+        "development",
+        "integrity",
+        "conformance",
+        "review",
+        "authority",
+        "issuance",
+        "distribution",
+        "activation",
+        "freshness"
+      ],
+      "additionalProperties": false
+    },
+    "existingRuntime": {
+      "type": "object",
+      "properties": {
+        "elixerId": {
+          "type": "string",
+          "const": "HARA-LAB-001"
+        },
+        "canonicalName": {
+          "type": "string",
+          "const": "H∆R∆"
+        },
+        "binding": {
+          "type": "string",
+          "const": "UNCONFIRMED"
+        }
+      },
+      "required": [
+        "elixerId",
+        "canonicalName",
+        "binding"
+      ],
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "const": "Maurits-pixe/PALACO-Citadel"
+        },
+        "commit": {
+          "type": "null"
+        },
+        "refs": {
+          "type": "array",
+          "const": [
+            "https://app.notion.com/p/50f3dbccda0a4e03a26476cdc6f44cd7",
+            "https://app.notion.com/p/bf8b28ff413049c5985caab475827458"
+          ]
+        }
+      },
+      "required": [
+        "repository",
+        "commit",
+        "refs"
+      ],
+      "additionalProperties": false
+    },
+    "packageDigest": {
+      "type": "null"
+    },
+    "issuerRef": {
+      "type": "null"
+    },
+    "signerRef": {
+      "type": "null"
+    },
+    "reviewRefs": {
+      "type": "array",
+      "const": []
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "candidateId",
+    "version",
+    "canonicalName",
+    "nameStatus",
+    "visualAlias",
+    "purpose",
+    "elixerId",
+    "namespace",
+    "laBinding",
+    "scope",
+    "capabilities",
+    "permissions",
+    "forbiddenActions",
+    "personas",
+    "surfaceBindings",
+    "memoryPolicy",
+    "consentPolicy",
+    "statusAxes",
+    "existingRuntime",
+    "source",
+    "packageDigest",
+    "issuerRef",
+    "signerRef",
+    "reviewRefs"
+  ],
+  "additionalProperties": false
+}
