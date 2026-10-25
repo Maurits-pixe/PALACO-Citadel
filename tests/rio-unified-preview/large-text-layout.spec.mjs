@@ -50,6 +50,39 @@ async function font(page,size){await page.evaluate(value=>{
 },size);}
 async function storage(page){return page.evaluate(()=>({local:Object.fromEntries(Object.entries(localStorage)),
   session:Object.fromEntries(Object.entries(sessionStorage))}));}
+async function languageGeometry(page){
+  return page.locator('.language-switch').evaluate(group=>{
+    const box=element=>{const r=element.getBoundingClientRect();return {left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height};};
+    return {group:box(group),scrollWidth:group.scrollWidth,clientWidth:group.clientWidth,
+      rootFontSize:parseFloat(getComputedStyle(document.documentElement).fontSize),
+      choices:[...group.querySelectorAll('.lang-btn')].map(button=>{
+        const range=document.createRange();range.selectNodeContents(button);
+        return {...box(button),code:button.dataset.lang,text:button.textContent,
+          fontSize:parseFloat(getComputedStyle(button).fontSize),scrollWidth:button.scrollWidth,clientWidth:button.clientWidth,
+          textRects:[...range.getClientRects()].map(rect=>({left:rect.left,top:rect.top,right:rect.right,bottom:rect.bottom,width:rect.width,height:rect.height}))};
+      })};
+  });
+}
+function assertLanguageChoices(g){
+  expect(g.choices.map(choice=>choice.code).sort()).toEqual([...languages].sort());
+  expect(g.scrollWidth).toBeLessThanOrEqual(g.clientWidth+1);
+  for(const choice of g.choices){
+    expect(choice.width).toBeGreaterThanOrEqual(44);expect(choice.height).toBeGreaterThanOrEqual(44);
+    expect(choice.fontSize,choice.code+' keeps the enlarged language font').toBeCloseTo(g.rootFontSize*.75,2);
+    expect(choice.scrollWidth).toBeLessThanOrEqual(choice.clientWidth+1);
+    containedHorizontally(choice,g.group);
+    // A button can meet its touch-target size while splitting 中文 across two
+    // lines. Measure the actual rendered text rather than just the button box.
+    expect(choice.textRects,choice.code+' remains on one visible line').toHaveLength(1);
+    for(const rect of choice.textRects){
+      containedHorizontally(rect,choice);
+      expect(rect.top).toBeGreaterThanOrEqual(choice.top-1);expect(rect.bottom).toBeLessThanOrEqual(choice.bottom+1);
+    }
+  }
+  for(let i=0;i<g.choices.length;i++)for(let j=i+1;j<g.choices.length;j++)
+    expect(overlap(g.choices[i],g.choices[j]),'language targets do not overlap').toBeLessThanOrEqual(1);
+  expect(g.choices.find(choice=>choice.code==='zh').text).toBe('中文');
+}
 async function headerGeometry(page){
   return page.locator('.chat-preview-header').evaluate(header=>{
     const box=element=>{const r=element.getBoundingClientRect();return {left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height};};
@@ -138,10 +171,11 @@ test('twelve chat headings keep full large-text width, separate actions and visi
         await activate(page,'.lang-btn[data-lang="'+language+'"]');
         const before=await storage(page);
         await expect(page.locator('html')).toHaveAttribute('dir',language==='ar'?'rtl':'ltr');
+        const languageChoices=await languageGeometry(page);assertLanguageChoices(languageChoices);
         await page.locator('#chat-preview-title').focus();
         await page.locator('#chat-preview-title').evaluate(element=>element.scrollIntoView({behavior:'instant',block:'nearest'}));
         const geometry=await headerGeometry(page);
-        const observation={regime:name,language,geometry};observations.push(observation);
+        const observation={regime:name,language,geometry,languageChoices};observations.push(observation);
         expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.clientWidth+1);
         expect(overlap(geometry.titleColumn,geometry.actions)).toBeLessThanOrEqual(1);
         containedHorizontally(geometry.titleColumn,geometry.header);containedHorizontally(geometry.actions,geometry.header);

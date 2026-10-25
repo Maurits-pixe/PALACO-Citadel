@@ -81,11 +81,27 @@ async function geometry(page){
       return {...r,disabled:Boolean(element.disabled),hit:element.contains(hit),
         scrollWidth:element.scrollWidth,clientWidth:element.clientWidth};
     };
+    const headquarters=document.querySelector('.taskbar-item'),compact=headquarters.querySelector('.taskbar-compact-label');
+    let compactHeadquarters=null;
+    if(getComputedStyle(compact).display!=='none'){
+      const css=getComputedStyle(compact),context=document.createElement('canvas').getContext('2d');
+      context.font=css.fontStyle+' '+css.fontWeight+' '+css.fontSize+' '+css.fontFamily;
+      const words=[...compact.textContent.matchAll(/[\p{L}\p{N}]+/gu)].map(match=>{
+        const range=document.createRange();range.setStart(compact.firstChild,match.index);
+        range.setEnd(compact.firstChild,match.index+match[0].length);
+        return {word:match[0],naturalWidth:context.measureText(match[0]).width,
+          rects:[...range.getClientRects()].map(rect=>({left:rect.left,right:rect.right,top:rect.top,bottom:rect.bottom,width:rect.width,height:rect.height}))};
+      });
+      compactHeadquarters={item:box(headquarters),label:box(compact),words,
+        fontSize:parseFloat(css.fontSize),itemFontSize:parseFloat(getComputedStyle(headquarters).fontSize),
+        rootFontSize:parseFloat(getComputedStyle(document.documentElement).fontSize)};
+    }
     const panel=document.querySelector('#chat-preview-panel');
     return {viewport:{width:document.documentElement.clientWidth,height:innerHeight,
       scrollWidth:document.documentElement.scrollWidth},
       nav:box(document.querySelector('.taskbar')),
       navigation:[...document.querySelectorAll('.taskbar-item')].map(control),
+      compactHeadquarters,
       toggle:control(document.querySelector('#chat-preview-toggle')),
       panel:panel.hidden?null:box(panel),expanded:panel.classList.contains('is-expanded')};
   });
@@ -115,6 +131,22 @@ function assertDock(g){
   for(const item of g.navigation){
     expect(item.width).toBeGreaterThanOrEqual(44);expect(item.height).toBeGreaterThanOrEqual(44);
     if(!item.disabled)expect(item.hit).toBe(true);
+  }
+  if(g.compactHeadquarters){
+    const label=g.compactHeadquarters;
+    expect(label.words.map(word=>word.word)).toEqual(['PALACO','HQ']);
+    // More space must preserve the inherited large text, rather than hide the
+    // defect by reducing the label font or breaking PALACO into characters.
+    expect(label.fontSize).toBeCloseTo(label.itemFontSize,2);
+    expect(label.fontSize).toBeGreaterThanOrEqual(label.rootFontSize*.625-.1);
+    for(const word of label.words){
+      expect(word.naturalWidth,word.word+' fits in its navigation target').toBeLessThanOrEqual(label.item.width+1);
+      expect(word.rects,word.word+' remains a whole word').toHaveLength(1);
+      for(const rect of word.rects){
+        expect(rect.left).toBeGreaterThanOrEqual(label.item.left-1);expect(rect.right).toBeLessThanOrEqual(label.item.right+1);
+        expect(rect.top).toBeGreaterThanOrEqual(label.item.top-1);expect(rect.bottom).toBeLessThanOrEqual(label.item.bottom+1);
+      }
+    }
   }
   if(g.panel){
     expect(g.panel.top).toBeGreaterThanOrEqual(15);
