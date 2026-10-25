@@ -2,6 +2,7 @@ import {hasTemporaryChatWork} from './chat-preview.mjs';
 import {hasTemporaryEngineWork} from './rio-engine-web.mjs';
 
 const departure = {
+  it: ['Stai ancora lavorando qui.', 'Hai una conversazione, una bozza o un esercizio temporaneo su questa pagina. Apri la destinazione successiva in una nuova scheda per poter continuare qui. Il tuo testo non verrà trasferito. Ricaricare o chiudere la pagina può cancellare il tuo lavoro.', 'Prossima destinazione:', 'Resta qui', 'Apri in una nuova scheda'],
   pl: ['Nadal tutaj pracujesz.', 'Na tej stronie masz tymczasową rozmowę, szkic lub ćwiczenie. Otwórz następne miejsce w nowej karcie, aby móc kontynuować tutaj. Twój tekst nie zostanie przeniesiony. Odświeżenie lub zamknięcie strony może usunąć Twoją pracę.', 'Następne miejsce:', 'Zostań tutaj', 'Otwórz w nowej karcie'],
   pt: ['Ainda está a trabalhar aqui.', 'Tem uma conversa, um rascunho ou um exercício temporário nesta página. Abra o próximo destino num novo separador para poder continuar aqui. O seu texto não será transferido. Recarregar ou fechar pode apagar o seu trabalho.', 'Próximo destino:', 'Ficar aqui', 'Abrir num novo separador'],
   ru: ['Вы ещё работаете здесь.', 'На этой странице есть временный разговор, черновик или упражнение. Откройте следующее место в новой вкладке, чтобы продолжить здесь. Ваш текст не будет перенесён. Перезагрузка или закрытие могут удалить вашу работу.', 'Следующее место:', 'Остаться здесь', 'Открыть в новой вкладке'],
@@ -64,6 +65,15 @@ const translations = {
     offline: 'Abrir la aplicación RIO sin conexión',
     boundary: 'Tu chat temporal y el ejercicio de Engine permanecen separados en esta página y no se transfieren a las otras rutas. Esta explicación no registra ni confirma nada. El chat real y las cuentas siguen cerrados.',
     mascotAlt: 'NOVA, la guía de esta prueba',
+  },
+  it: {
+    label: 'RIO · NOVA · IL TUO ID PERSONALE',
+    title: 'Insieme in un unico posto. Scegli tu il prossimo passo.',
+    policy: 'Nel progetto, un numero di telefono confermato O un indirizzo e-mail confermato soddisfa il requisito di accesso alla chat, collegato tramite P.P. al tuo ID personale. Wi-Fi, dati mobili o un’altra connessione non cambiano il tuo ID.',
+    reception: 'NOVA spiegata · reception in neerlandese',
+    offline: 'Apri l’app RIO offline',
+    boundary: 'La chat temporanea e l’esercizio Engine restano separati su questa pagina e non vengono trasferiti agli altri percorsi. Questa spiegazione non registra né conferma nulla. La chat reale e gli account restano chiusi.',
+    mascotAlt: 'NOVA, la guida di questa prova',
   },
   pt: {
     label: 'RIO · NOVA · O SEU PRÓPRIO ID',
@@ -157,7 +167,7 @@ function checkedDestination(link) {
   if (!/^https?:$/.test(url.protocol)) return null;
   if (link.id === 'rio-unified-reception' && url.origin === location.origin
       && url.pathname === '/rio/reception/' && !url.search
-      && /^#nova-explained:(nl|en|de|fr|es|pt|ru|eo|pl|ar|zh)$/.test(url.hash)) return url;
+      && /^#nova-explained:(nl|en|de|fr|es|it|pt|ru|eo|pl|ar|zh)$/.test(url.hash)) return url;
   if (link.id === 'rio-unified-offline' && url.origin === location.origin
       && url.pathname === '/rio/' && !url.search && !url.hash) {
     // Reuse the app's existing language parser. A noopener tab does not inherit

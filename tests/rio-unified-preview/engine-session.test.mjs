@@ -86,6 +86,7 @@ function fixture(name) {
 
 test('new-language function words alone cannot support an unrelated answer while matching subject words retain their source', () => {
   const examples = [
+    ['it', 'Il mio appuntamento è martedì alle 10.', 'Qual è il mio saldo?', 'Quando è l’appuntamento?'],
     ['pt', 'A minha reunião é na terça-feira às 10.', 'Qual é a minha senha?', 'Quando é a reunião?'],
     ['ru', 'Моя встреча во вторник в 10.', 'Какая моя сумма?', 'Когда моя встреча?'],
     ['eo', 'Mia renkontiĝo estas marde je 10.', 'Kio estas mia pasvorto?', 'Kiam estas la renkontiĝo?'],

@@ -10,26 +10,26 @@ npx playwright test --config tests/rio-unified-preview/playwright.config.mjs
 The suite builds the 25-file public bundle before each project's worker starts.
 The navigation case checks the original HARA and MUNDO icons load at 36×36px
 while their buttons remain disabled and expose their full names and translated
-availability in all eleven VisitCard languages. MUNDO also retains its translated
+availability in all twelve VisitCard languages. MUNDO also retains its translated
 consumer label; its original PNG has a natural size of 256×256px and its served
 bytes match the original attachment's pinned SHA-256. All three original
 navigation PNGs are included in the current root worker cache; fixed historical
 workers remain unchanged and their expected caches exclude the later icon assets.
-The main-navigation and language-choice group names follow all eleven VisitCard
+The main-navigation and language-choice group names follow all twelve VisitCard
 languages, so assistive navigation uses the same language as the page.
 The VisitCard header uses 44px minimum touch targets for its brand, navigation
 links and language buttons, with a visible keyboard focus indicator. At widths
-below 640px the eleven language choices wrap into two rows; intermediate
+below 640px the twelve language choices wrap into two rows; intermediate
 desktop widths put language choice below the brand and main navigation, keeping
 the visual and native keyboard order aligned. The original icons,
 destinations and availability states stay unchanged.
-The floating chat button names its current action in all eleven languages:
+The floating chat button names its current action in all twelve languages:
 Open chat while closed, Close chat while open. Existing language, dock and
 short-screen cases exercise the control and preserve work through these changes;
 the separately recorded local visual check captures the displayed action labels.
 `language-continuity.spec.mjs` adds eight scenarios per surface: all twelve NOVA
 explanations without storage/API access; plain-HTML fallback without scripts;
-shared session language; safe app-only/invalid preferences; denied/quota storage;
+shared session language; Italian app/root roundtrips and safe invalid preferences; denied/quota storage;
 real offline language navigation; an incoming language query following later
 Arabic/Chinese/Esperanto choices through online/offline reload with normal,
 blocked and full storage; and query precedence with a file-mode download that
@@ -54,7 +54,7 @@ the measured taskbar height, and both compact and expanded panels stay above the
 measured toggle. CSS retains the bottom safe-area inset and gaps; available panel
 height follows the viewport. The cases check actual rectangles and hit targets
 across narrow, intermediate, wide and landscape layouts with normal/doubled text,
-including the 420px breakpoint, six languages and Arabic RTL. Resizing and
+including the 420px breakpoint, seven languages and Arabic RTL. Resizing and
 translation preserve the draft and storage; Close and Send remain reachable with
 the keyboard through the scrollable panel. These are browser simulations, not
 physical-device or operating-system keyboard certification.
@@ -66,7 +66,7 @@ its measured size while hidden. Other page content becomes inert, preserving
 its previous inert state, and Tab cycles within the chat. Close/Escape restore
 the navigation synchronously. Native clear dialogs keep their own focus and
 keyboard handling. The cases cover five short-screen sizes with doubled text,
-six languages, shrink/grow and close/reopen with chat/subject/Engine work intact,
+seven languages, shrink/grow and close/reopen with chat/subject/Engine work intact,
 native clear during resizing, and ordinary nonmodal landscape use. These checks
 resize a browser viewport; they do not exercise a physical screen keyboard or
 the separate visual viewport used by some mobile browsers.
@@ -76,18 +76,25 @@ dialog with an explicit canonical root link, copy action and optional native
 share menu. Query/hash and private drafts stay out of the payload. The cases
 cover unavailable/denied clipboard access, native success/cancellation/failure,
 double activation, pending action invalidation on close/reopen, language updates,
-native keyboard navigation and all eleven languages at 320px with doubled text.
+native keyboard navigation and all twelve languages at 320px with doubled text.
 Browser APIs are replaced by deterministic test doubles before startup; these
 tests never invoke the operating-system share sheet or touch the real clipboard.
 
 `root-language-expansion.spec.mjs` adds three cases per surface for Portuguese,
-Russian, Esperanto and Polish: explicit RIO/NOVA/app continuity, browser-language
+Russian, Esperanto, Polish and Italian: explicit RIO/NOVA/app continuity, browser-language
 fallback with blocked/full storage, and genuine offline language use with local
 chat, insufficient-evidence answers, separate reset choices and departure gates.
-The root offers eleven languages; the app and NOVA explanation offer twelve,
+The root, app and NOVA explanation each offer the same twelve languages,
 including Italian. NOVA's remaining reception page and source quotations keep
 their explicitly labelled Dutch language. Polish is included in the standalone
 download, local contact trial and identity explanation; the download stays below 100 KiB.
+
+Italian is now a root choice as well as an existing app/NOVA choice. Its saved
+preference survives navigation in both directions, including denied/full storage
+and genuine offline use. NOVA's temporary explanation choice is tested separately
+from the saved root/app preference. The Engine exercises an Italian appointment
+question with its exact cited source and refuses an unrelated balance question
+that only shares a possessive pronoun. It remains a lexical demonstration.
 
 Run the build/HTTP tests and this suite sequentially: both rebuild the same fixed
 generated directory. Do not rebuild it while a running fixture is serving it.
@@ -98,7 +105,7 @@ scenario issues the two fixed trial navigations, fulfilled entirely by a local
 interception; no request is sent to the public trial service. Other cases expect
 zero external requests.
 
-Six scenarios run on mobile and desktop: mutual navigation and the eleven
+Six scenarios run on mobile and desktop: mutual navigation and the twelve
 VisitCard translations; a read-only static NOVA page with PHONE-or-EMAIL design
 explanation; twelve app translations and the actual downloaded file offline;
 root-worker cache exclusions; an actual waiting worker update with both
@@ -120,7 +127,7 @@ cache entry.
 It intentionally includes its old broad fetch handler and destructive cache
 cleanup. It first activates in an empty, isolated profile; only afterward are the
 app worker, app cache, unrelated cache and fictitious contact created. The current
-v59 worker must then reach the real `waiting` state without reloading its open
+v60 worker must then reach the real `waiting` state without reloading its open
 client. Closing the root client allows activation while the app remains open.
 The test proves migration from this fixed old worker/cache state; it does not
 reconstruct the historical HTML or claim that the old cleanup was safe.
@@ -128,7 +135,7 @@ reconstruct the historical HTML or claim that the old cleanup was safe.
 `language-worker-update.spec.mjs` also installs fixed root v37 and generated app
 v5 workers from the previous bf6d865 preview. Both new workers must reach the
 actual waiting state while their old pages remain open. Closing only the app
-activates v9 while root v59 keeps waiting; closing the root then activates v59.
+activates v9 while root v60 keeps waiting; closing the root then activates v60.
 The fictitious contact, unrelated cache, separate registrations, new local
 language links and genuine offline reloads remain intact. The existing app
 worker keeps its scoped clients.claim; the root has neither clients.claim nor

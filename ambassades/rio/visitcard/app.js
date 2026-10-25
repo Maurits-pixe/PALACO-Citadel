@@ -185,6 +185,23 @@ const contactRouteTranslations = {
     "boundary": "HOLD · Ta strona nie przyznaje dopuszczenia, nie przeprowadza kontroli bezpieczeństwa i nie nawiązuje kontaktu. Kliknięcie kroku pokazuje jedynie objaśnienie.",
     "mascot": "Maskotka i tekst są treścią, a nie bramą dopuszczenia. W źródle nie znaleziono osobnej ścieżki dla maskotki. BRI9ADE/6RI9ADE pozostaje tu odniesieniem do projektu; historyczny alias BRIGADE nie został potwierdzony.",
     "sources": "Źródła i brakujące powiązania"
+  },
+  it: {
+    "entry": "Esplora il percorso di contatto",
+    "overviewTitle": "Vai a una spiegazione",
+    "backToOverview": "Torna alla panoramica del percorso",
+    "explanationLink": "Link a questa spiegazione",
+    "startReading": "Leggi il percorso passo dopo passo",
+    "previousExplanation": "Spiegazione precedente",
+    "nextExplanation": "Spiegazione successiva",
+    "readSources": "Leggi le fonti e i collegamenti mancanti",
+    "openSteps": "Apri tutte e sette le spiegazioni",
+    "closeSteps": "Chiudi tutte e sette le spiegazioni",
+    "title": "Il percorso verso un contatto entro limiti definiti.",
+    "intro": "Percorso di riferimento riprodotto, senza un servizio di contatto collegato. Apri un passaggio per leggerne i limiti. Le citazioni delle fonti restano in olandese, la loro lingua originale.",
+    "boundary": "HOLD · Questa pagina non concede accesso, non esegue controlli di sicurezza e non avvia alcun contatto. Un clic su un passaggio mostra soltanto una spiegazione.",
+    "mascot": "La mascotte e il testo sono contenuti, non una porta di accesso. Nella fonte non è stato trovato un percorso separato per la mascotte. BRI9ADE/6RI9ADE resta qui un riferimento progettuale; il legame storico con l’alias BRIGADE non è accertato.",
+    "sources": "Fonti e collegamenti mancanti"
   }
 };
 
@@ -517,6 +534,60 @@ const translations = {
     "trustHistoryBody": "Ważne kroki pozostają możliwe do prześledzenia.",
     "installButton": "Zainstaluj RIO",
     "footer": "PALACO · Miejsce dla ludzi i pomysłów."
+  },
+  it: {
+    "mainNavLabel": "Navigazione principale",
+    "languageSwitchLabel": "Lingua",
+    "navMeet": "Incontra RIO",
+    "navEverywhere": "Ovunque",
+    "navTrust": "Fiducia",
+    "eyebrow": "PALACO presenta",
+    "tagline": "Il biglietto da visita di PALACO.",
+    "intro": "RIO ti saluta. RIO ti aiuta a trovare persone e idee. Scegli sempre tu cosa condividere.",
+    "meetButton": "Conosci RIO",
+    "shareButton": "Condividi RIO",
+    "shareReady": "Il link di RIO è pronto da condividere.",
+    "shareUnavailable": "La condivisione non è disponibile al momento.",
+    "live": "Pronto per connettersi",
+    "cardIntro": "Ciao, sono RIO.",
+    "cardBody": "Ti accompagno in sicurezza al posto giusto in PALACO.",
+    "identityLabel": "Identità",
+    "verified": "Non ancora verificata",
+    "consentLabel": "La tua scelta",
+    "consentValue": "Sempre al primo posto",
+    "authorityLabel": "Autorità",
+    "authorityValue": "Nessuna",
+    "addressLabel": "Indirizzo RIO",
+    "openCard": "Apri il biglietto",
+    "closeCard": "Chiudi il biglietto",
+    "cardReveal": "Prima incontrarsi. Poi scegliere. Solo dopo connettersi.",
+    "everywhereTitle": "Un saluto. Ovunque.",
+    "everywhereBody": "Esplora la prova locale sul tuo dispositivo. La chat e i contenuti di Engine restano nella pagina aperta.",
+    "flowLabel": "Come funziona RIO",
+    "flowTitle": "Da un saluto a una vera conversazione.",
+    "stepOneTitle": "Guarda",
+    "stepOneBody": "RIO mostra chi o cosa incontri.",
+    "stepTwoTitle": "Scegli",
+    "stepTwoBody": "Decidi tu se vuoi continuare.",
+    "stepThreeTitle": "Parla",
+    "stepThreeBody": "Prova la chat temporanea in questa pagina. I tuoi messaggi non vengono salvati.",
+    "helloTitle": "Saluta RIO.",
+    "helloBody": "Inizia con poco. Basta il tuo nome.",
+    "nameLabel": "Come possiamo chiamarti?",
+    "namePlaceholder": "Il tuo nome",
+    "startButton": "Inizia",
+    "helloPrefix": "Ciao",
+    "helloSuffix": "RIO è qui. Scegli tu cosa condividere.",
+    "trustTitle": "Chiarezza sulla fiducia.",
+    "trustBody": "RIO connette. Tu mantieni il controllo. PALACO tutela i limiti.",
+    "trustIdentity": "Chi è?",
+    "trustIdentityBody": "L’identità è visibile; per verificarla servono prove separate.",
+    "trustConsent": "È consentito?",
+    "trustConsentBody": "Nulla prosegue senza la tua scelta.",
+    "trustHistory": "Cosa è successo?",
+    "trustHistoryBody": "I passaggi importanti restano tracciabili.",
+    "installButton": "Installa RIO",
+    "footer": "PALACO · Un luogo per persone e idee."
   }
 };
 
@@ -639,6 +710,34 @@ const subjectTranslations = {
     "subjectBoundary": "Oglądanie nie przyznaje dostępu. Zawsze samodzielnie wybierasz następny krok.",
     "subjectContinue": "Kontynuuj z tym tematem",
     "subjectChosen": "Ten temat jest gotowy do twojej rozmowy."
+  },
+  it: {
+    "subjectsLabel": "Tocca e scopri",
+    "subjectsTitle": "Ogni argomento può vivere in RIO.",
+    "subjectsBody": "Un segno, un’immagine, una scena disegnata o un ELIXER completo. Tocca per guardare. Decidi tu se continuare.",
+    "subjectsAria": "Scorri gli argomenti di RIO",
+    "symbolType": "Simbolo",
+    "symbolTitle": "Un segno con un significato",
+    "symbolDescription": "Un piccolo segno può rendere riconoscibile una grande idea.",
+    "imageType": "Immagine",
+    "imageTitle": "Il volto di RIO",
+    "imageDescription": "Un’immagine ti aiuta a capire subito dove ti trovi.",
+    "photoType": "Scena disegnata",
+    "photoTitle": "Un luogo disegnato localmente",
+    "photoAlt": "Paesaggio immaginario con colline e sole, disegnato localmente con campiture di colore",
+    "photoDescription": "Questo paesaggio è disegnato su questa pagina con campiture di colore. Non è una fotografia di un luogo reale.",
+    "photoSource": "Disegnato localmente su questa pagina",
+    "photoStatus": "Illustrazione · nessuna prova di un luogo",
+    "elixerTitle": "Un mondo completo",
+    "elixerDescription": "Un ELIXER può aprirsi come argomento completo, con contenuti e limiti propri.",
+    "tapHint": "Tocca per aprire",
+    "closeSubject": "Chiudi argomento",
+    "subjectSource": "Fonte",
+    "subjectState": "Stato",
+    "subjectVerified": "Visibile e verificabile",
+    "subjectBoundary": "Guardare non concede accesso. Scegli sempre tu il passo successivo.",
+    "subjectContinue": "Continua con questo argomento",
+    "subjectChosen": "Questo argomento è pronto per la tua conversazione."
   }
 };
 
@@ -708,6 +807,12 @@ const elixerContentTranslations = {
     "elixerDescription": "ELIXER pokazuje możliwości według kontekstu oraz znaczenie wyborów. Przykłady: Holder, Steward i Operations. Nie ma katalogu na żywo; widoczność nie przyznaje dostępu.",
     "elixerStatus": "Przykład referencyjny; aktualny stan niepotwierdzony",
     "elixerSource": "PALACO-Citadel · dostarczone podsumowanie"
+  },
+  it: {
+    "elixerTitle": "Capacità per contesto",
+    "elixerDescription": "ELIXER mostra le capacità per contesto e gli effetti delle scelte. Esempi: Holder, Steward e Operations. Non è un catalogo in tempo reale; la visibilità non concede accesso.",
+    "elixerStatus": "Esempio di riferimento; stato in tempo reale non confermato",
+    "elixerSource": "PALACO-Citadel · riepilogo fornito"
   }
 };
 
@@ -854,6 +959,19 @@ const elixerDossierTranslations = {
     "elixerDossierInfrastructureBody": "Laboratorium ELIXER wspiera budowanie, testowanie, dowody i pakowanie; ELIXER Engine jest warstwą wykonywania, walidacji i koordynacji. Żadne z nich samo w sobie nie jest ELIXER ani nie nadaje uprawnień.",
     "elixerDossierBoundaries": "Możliwość ≠ pozwolenie · Dostęp ≠ autoryzacja · Dystrybucja ≠ aktywacja · Odpowiedź AI ≠ dowód.",
     "elixerDossierNextGate": "Udany test lub podgląd nie dowodzi oficjalnego wydania. Rejestr, przegląd, wydanie i aktywacja produkcyjna to osobne etapy; ten podgląd nie wykonuje żadnego z nich."
+  },
+  it: {
+    "elixerDossierSummary": "Scopri di più su ELIXER",
+    "elixerDossierDefinition": "Un ELIXER è un pacchetto di intelligenza con limiti e versione definiti, più di un chatbot o di una schermata.",
+    "elixerDossierManifest": "La scheda di un pacchetto dovrebbe descrivere identità e versione, scopo e ambito, personas e capacità, permessi e azioni vietate, regole per consenso, memoria, privacy e revoca, digest e provenienza, prove di test e revisione, e stato di distribuzione e attivazione.",
+    "elixerDossierCandidateTitle": "Stato del candidato (riepilogo fornito)",
+    "elixerDossierCandidateBody": "Il riepilogo fornito indica H∆R∆-ELIXER come candidato e riporta LAB-CANDIDATE, sintetico, in sola lettura, non ufficialmente emesso né attivato. La descrizione dell’MVP esclude dati di produzione, pagamenti, sincronizzazione del calendario e modifiche esterne. Questa pagina non ha un registro in tempo reale e non può confermare tale stato.",
+    "elixerDossierPersonasTitle": "Personas all’interno di H∆R∆",
+    "elixerDossierPersonasBody": "H∆R∆M (coordinamento e conversazione), Ching Ching (consulenza finanziaria e sociale con consenso preventivo) e Hannie (contesto di calendario e casa senza modifiche silenziose) sono descritte come personas all’interno di H∆R∆, non come ELIXER separati.",
+    "elixerDossierInfrastructureTitle": "Laboratorio ed Engine",
+    "elixerDossierInfrastructureBody": "Il Laboratorio ELIXER supporta sviluppo, test, prove e creazione dei pacchetti; ELIXER Engine è il livello di esecuzione, validazione e orchestrazione. Nessuno dei due è un ELIXER o conferisce autorità.",
+    "elixerDossierBoundaries": "Capacità ≠ permesso · Accesso ≠ autorizzazione · Distribuzione ≠ attivazione · Risultato IA ≠ prova.",
+    "elixerDossierNextGate": "Un test superato o un’anteprima non dimostra l’emissione ufficiale. Registro, revisione, emissione e attivazione in produzione sono passaggi separati; questa anteprima non li esegue."
   }
 };
 
@@ -1500,6 +1618,67 @@ const elixerDigestTranslations = {
     "elixerGateIssuance": "Oficjalne wydanie",
     "elixerGateActivation": "Aktywacja produkcyjna",
     "elixerGateStatus": "Niepotwierdzone w tym podglądzie"
+  },
+  it: {
+    "elixerDossierSummary": "ELIXER in breve",
+    "elixerDossierDefinition": "Un ELIXER è un pacchetto con limiti e versione definiti, composto da intelligenza, personas, capacità e regole.",
+    "elixerDossierRolesTitle": "Tre ruoli, in breve",
+    "elixerRolePackage": "Il pacchetto con una versione definita",
+    "elixerRoleLabTerm": "Laboratorio",
+    "elixerRoleLab": "Crea e testa i pacchetti",
+    "elixerRoleEngineTerm": "Engine",
+    "elixerRoleEngine": "Li esegue con controlli",
+    "elixerContextExamplesTitle": "Esempi di contesto",
+    "elixerContextExamplesNote": "Sono soltanto nomi di contesto tratti da un esempio ingegneristico; questa anteprima non mostra offerte, capacità o diritti in questa sezione.",
+    "elixerContextExampleLabel": "Esempio di riferimento",
+    "elixerDossierCandidateTitle": "H∆R∆-ELIXER · candidato",
+    "elixerCandidatePlainLabel": "In parole semplici",
+    "elixerCandidatePlain": "Un candidato di prova, non ufficialmente emesso né attivato.",
+    "elixerCandidateTagsLabel": "Caratteristiche del candidato",
+    "elixerCandidateSynthetic": "Sintetico",
+    "elixerCandidateReadOnly": "Sola lettura",
+    "elixerCandidateSyntheticMeaning": "Pensato come contesto di prova, non come dati reali di produzione.",
+    "elixerCandidateReadOnlyMeaning": "Pensato per consultare informazioni senza apportare modifiche.",
+    "elixerCandidateMeaningNote": "Questi significati seguono il riepilogo fornito; il comportamento non è stato testato qui.",
+    "elixerCandidateSourceLabel": "Fonte di queste caratteristiche",
+    "elixerCandidateSource": "Riepilogo fornito",
+    "elixerCandidateVerificationLabel": "Verificato in tempo reale?",
+    "elixerCandidateVerification": "No, non in questa anteprima",
+    "elixerDossierCandidateBody": "Secondo il tuo riepilogo: non ufficialmente emesso né attivato. Lo stato attuale non è confermato qui.",
+    "elixerDossierPersonasTitle": "Tre personas all’interno di H∆R∆",
+    "elixerPersonaHaram": "H∆R∆M · coordinamento e conversazione",
+    "elixerPersonaChing": "Ching Ching · consulenza finanziaria e sociale con consenso preventivo",
+    "elixerPersonaHannie": "Hannie · calendario e casa, senza modifiche silenziose",
+    "elixerDossierPersonasNote": "Sono personas all’interno di H∆R∆, non ELIXER separati.",
+    "elixerTechnicalSummary": "Dettagli tecnici e limiti",
+    "elixerDossierEvidenceTitle": "Cosa è dimostrato in questa anteprima?",
+    "elixerDossierEvidenceNote": "Questa anteprima non è collegata a un registro in tempo reale. I test di questo sito verificano soltanto l’interfaccia; non dimostrano che il pacchetto ELIXER stesso sia stato testato o sia conforme. Le informazioni mancanti restano sconosciute.",
+    "elixerEvidenceVersion": "Versione del pacchetto",
+    "elixerEvidenceDigest": "Digest del pacchetto",
+    "elixerEvidenceRegistry": "Voce del registro",
+    "elixerEvidenceTest": "Prove dei test del pacchetto ELIXER",
+    "elixerEvidenceUnavailable": "Non disponibile in questa anteprima",
+    "elixerDossierManifestTitle": "Cosa comprende la scheda di un pacchetto?",
+    "elixerDossierManifest": "Identità e versione; scopo e ambito; personas, capacità e azioni vietate; regole per consenso, memoria, privacy e revoca; digest, provenienza e prove dei test; stato di distribuzione e attivazione.",
+    "elixerDossierInfrastructureTitle": "Laboratorio ≠ Engine ≠ ELIXER",
+    "elixerDossierInfrastructureBody": "Il Laboratorio crea e testa i pacchetti. Engine li esegue con controlli. Nessuno dei due conferisce autorità.",
+    "elixerBoundaryCapability": "Capacità",
+    "elixerBoundaryPermission": "permesso",
+    "elixerBoundaryAccess": "Accesso",
+    "elixerBoundaryAuthorization": "autorizzazione",
+    "elixerBoundaryDistribution": "Distribuzione",
+    "elixerBoundaryActivation": "attivazione",
+    "elixerBoundaryOutput": "Risultato IA",
+    "elixerBoundaryEvidence": "prova",
+    "elixerDossierNextGateTitle": "Cosa resta da fare?",
+    "elixerDossierNextGate": "Un test superato o un’anteprima non dimostra l’emissione ufficiale e non sostituisce questi passaggi.",
+    "elixerDossierGatesTitle": "Prossimi passaggi separati",
+    "elixerDossierGatesNote": "Sono passaggi distinti. Questa anteprima non conferma che alcuno di essi sia completo.",
+    "elixerGateRegistry": "Voce nel registro ELIXER",
+    "elixerGateReview": "Revisione indipendente",
+    "elixerGateIssuance": "Emissione ufficiale",
+    "elixerGateActivation": "Attivazione in produzione",
+    "elixerGateStatus": "Non confermato in questa anteprima"
   }
 };
 
@@ -1526,6 +1705,10 @@ const mobileNavTranslations = {
   pl: {
     "navExplore": "Odkrywaj",
     "mobileNavLabel": "Główna nawigacja mobilna"
+  },
+  it: {
+    "navExplore": "Esplora",
+    "mobileNavLabel": "Navigazione principale mobile"
   }
 };
 
@@ -1569,6 +1752,14 @@ const releasePanelTranslations = {
     "boundaryTitle": "Tylko referencja; bez połączenia z tą stroną",
     "boundary": "Wyłącznie syntetyczne dane testowe. Bez prawdziwych kont, hostowanego przekaźnika, dostarczania E2EE, aktywacji produkcyjnej ani logowania.",
     "source": "Przeczytaj publiczne źródło (main · bcf2684)"
+  },
+  it: {
+    "label": "FINESTRE DI CONTATTO RIO · FONTE PUBBLICA · MAIN BCF2684",
+    "title": "Un riferimento per il contatto con limiti chiari.",
+    "summary": "Il riferimento pubblico di RIO prova il percorso di contatto in due browser di test separati, con una casella di uscita dimostrativa persistente in SQLite e una casella di entrata sintetica.",
+    "boundaryTitle": "Solo riferimento — non collegato a questa pagina",
+    "boundary": "Solo dati di test sintetici. Nessun account reale, relay ospitato, consegna E2EE, attivazione in produzione o accesso con credenziali.",
+    "source": "Leggi la fonte pubblica (main · bcf2684)"
   }
 };
 const taskbarTranslations = {
@@ -1610,6 +1801,14 @@ const taskbarTranslations = {
     "consumer": "Konsument",
     "personalAccount": "Konto osobiste",
     "navigationBoundary": "Wybierz miejsce. HARA i MUNDO nie są jeszcze dostępne. Tymczasowa treść pozostaje na tej otwartej stronie. Zamknięcie lub ponowne załadowanie może ją usunąć. Link do konta nie loguje cię ani nie potwierdza twojej tożsamości."
+  },
+  it: {
+    "taskbarLabel": "Navigazione principale PALACO",
+    "unavailable": "Non disponibile",
+    "here": "Qui",
+    "consumer": "Consumatore",
+    "personalAccount": "Account personale",
+    "navigationBoundary": "Scegli un luogo. HARA e MUNDO non sono ancora disponibili. I contenuti temporanei restano in questa pagina aperta. Chiuderla o ricaricarla può cancellarli. Il link dell’account non effettua l’accesso e non verifica la tua identità."
   }
 };
 const shareTranslations = {
@@ -1683,6 +1882,22 @@ const shareTranslations = {
     "shareCancelled": "Udostępnianie anulowane.",
     "shareManual": "Zaznacz link i skopiuj go samodzielnie. Automatyczne kopiowanie jest tutaj niedostępne.",
     "shareUnavailable": "Menu udostępniania jest teraz niedostępne. Możesz skopiować link."
+  },
+  it: {
+    "shareTitle": "Porta RIO con te.",
+    "shareBoundary": "Condividi soltanto il link a questa anteprima. Il tuo nome, la chat e l’esercizio Engine restano qui. Un link temporaneo potrebbe smettere di funzionare.",
+    "shareLinkLabel": "Link a RIO",
+    "shareHelp": "Puoi anche selezionare il link e copiarlo manualmente.",
+    "shareCopy": "Copia link",
+    "shareNative": "Apri il menu di condivisione",
+    "shareClose": "Chiudi",
+    "shareCopying": "Copia del link…",
+    "shareCopied": "Link copiato.",
+    "shareSharing": "Menu di condivisione aperto…",
+    "shareShared": "Link passato al menu di condivisione.",
+    "shareCancelled": "Condivisione annullata.",
+    "shareManual": "Seleziona il link e copialo manualmente. La copia automatica non è disponibile qui.",
+    "shareUnavailable": "Il menu di condivisione non è disponibile al momento. Puoi copiare il link."
   }
 };
 const languageButtons = document.querySelectorAll('.lang-btn');

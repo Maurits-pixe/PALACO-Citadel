@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {startReviewServer} from '../../scripts/serve-rio-unified-preview.mjs';
 
 const repository=fileURLToPath(new URL('../../',import.meta.url));
-const languages=['nl','pl','ar','pt','ru','eo'];
+const languages=['nl','pl','ar','pt','ru','eo','it'];
 const regimes=[
   {name:'320-normal',width:320,height:844,font:16,group:'narrow'},
   {name:'320-double',width:320,height:900,font:32,group:'narrow'},

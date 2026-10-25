@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {startReviewServer} from '../../scripts/serve-rio-unified-preview.mjs';
 
 const repository=fileURLToPath(new URL('../../',import.meta.url));
-const languages=['nl','en','de','fr','es','pt','ru','eo','pl','ar','zh'];
+const languages=['nl','en','de','fr','es','it','pt','ru','eo','pl','ar','zh'];
 const links=['#rio-unified-reception','#rio-unified-offline',
   '.taskbar a[href="https://palaco.mauritsvang1.chatgpt.site/"]',
   '.taskbar a[href="https://citadel.mauritsvang1.chatgpt.site/"]',
@@ -400,7 +400,7 @@ test('each protected route opens a native isolated tab containing only its publi
   }finally{await checked.context.close();}
 });
 
-test('eleven translated modal choices remain contained and keyboard reachable at 320 pixels with doubled text',async({browser})=>{
+test('twelve translated modal choices remain contained and keyboard reachable at 320 pixels with doubled text',async({browser})=>{
   const checked=await checkedContext(browser,{viewport:{width:320,height:844}}),page=await checked.context.newPage();
   try{
     const titles=new Set();

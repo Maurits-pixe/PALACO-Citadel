@@ -13,6 +13,7 @@ const copy={
   de:{supported:'ANTWORT MIT BELEG',insufficient:'UNZUREICHENDE BELEGE',abstention:'RIO hat in diesem Dossier nicht genügend Belege, um diese Frage zu beantworten.'},
   fr:{supported:'RÉPONSE AVEC PREUVE',insufficient:'PREUVE INSUFFISANTE',abstention:'RIO ne dispose pas de preuves suffisantes dans ce dossier pour répondre à cette question.'},
   es:{supported:'RESPUESTA CON PRUEBAS',insufficient:'PRUEBAS INSUFICIENTES',abstention:'RIO no tiene pruebas suficientes en este expediente para responder a esta pregunta.'},
+  it:{supported:'RISPOSTA CON PROVE',insufficient:'PROVE INSUFFICIENTI',abstention:'RIO non ha prove sufficienti in questo dossier per rispondere a questa domanda.'},
   pt:{supported:'RESPOSTA COM PROVAS',insufficient:'PROVAS INSUFICIENTES',abstention:'O RIO não tem provas suficientes neste dossier para responder a esta pergunta.'},
   ru:{supported:'ОТВЕТ С ДОКАЗАТЕЛЬСТВОМ',insufficient:'НЕДОСТАТОЧНО ДОКАЗАТЕЛЬСТВ',abstention:'В этом досье у RIO недостаточно доказательств, чтобы ответить на этот вопрос.'},
   eo:{supported:'RESPONDO KUN PRUVO',insufficient:'NESUFIĈA PRUVO',abstention:'RIO ne havas sufiĉan pruvon en ĉi tiu dosiero por respondi ĉi tiun demandon.'},
@@ -138,7 +139,7 @@ function expectCleared(observation,dossierId){
   expect.soft(observation.observed.dossierId).toBe(dossierId);
 }
 
-test('fresh and existing insufficient-evidence answers follow all eleven real language choices in the cached offline root',async({browser})=>{
+test('fresh and existing insufficient-evidence answers follow all twelve real language choices in the cached offline root',async({browser})=>{
   const checked=await checkedContext(browser),page=await checked.context.newPage(),observations=[];
   let offline,dossierId;
   try{
@@ -156,7 +157,7 @@ test('fresh and existing insufficient-evidence answers follow all eleven real la
       observations.push({action:'existing-answer-language-change',expectedLanguage:next,before,observed:await snapshot(page),
         newRequests:checked.requests.slice(requestCount),newFailures:checked.failures.slice(failureCount)});
     }
-    // Keep all eleven actual results, including the old implementation's wrong
+    // Keep all twelve actual results, including the old implementation's wrong
     // text and annotations, before a failing expectation can mask later cases.
     await saveEvidence('insufficient-answer-language',observations,{offline,dossierId},false);
     expect(offline.fromServiceWorker).toBe(true);expect(dossierId).toMatch(/^rio:dossier:/);

@@ -78,7 +78,7 @@ test('NOVA has a readable Dutch fallback and honest disabled language choice wit
 test('explicit shared language survives root to app, reload and return without query or contact transfer',async({browser})=>{
   const checked=await checkedContext(browser),page=await checked.context.newPage();
   try{
-    for(const code of ['fr','ar','zh','nl']){
+    for(const code of ['fr','ar','zh','it','nl']){
       await page.goto(fixture.origin+'/');
       await page.locator('.lang-btn[data-lang="'+code+'"]').click();
       await expect(page.locator('#rio-unified-reception')).toHaveAttribute('hreflang','nl');
@@ -97,14 +97,15 @@ test('explicit shared language survives root to app, reload and return without q
   }finally{await checked.close();}
 });
 
-test('app-only and invalid language values cannot break the root or erase the app choice on root startup',async({browser})=>{
+test('Italian stays selected across app and root while invalid preferences keep the safe fallback',async({browser})=>{
   const checked=await checkedContext(browser),page=await checked.context.newPage();
   try{
     await page.goto(fixture.origin+'/rio/');
     for(const code of ['it']){
       await page.locator('#language').selectOption(code);
       await page.locator('#unified-home').click();
-      await expect(page.locator('html')).toHaveAttribute('lang','en');
+      await expect(page.locator('html')).toHaveAttribute('lang',code);
+      await expect(page.locator('#rio-unified-reception')).toHaveAttribute('href','/rio/reception/#nova-explained:it');
       expect(await page.evaluate(()=>sessionStorage.getItem('palaco-language'))).toBe(code);
       await page.locator('#rio-unified-offline').click();await language(page,code);
     }
@@ -150,7 +151,7 @@ test('both installed apps preserve language across real offline navigation witho
     await page.locator('#rio-unified-offline').click();await language(page,'ar');
     expect(new URL(page.url()).search).toBe('');
     const keys=await page.evaluate(()=>caches.keys());
-    expect(keys).toContain('palaco-rio-shell-v59-chat-action');expect(keys).toContain('palaco-rio-start-v0.1-9');
+    expect(keys).toContain('palaco-rio-shell-v60-italian');expect(keys).toContain('palaco-rio-start-v0.1-9');
     await page.locator('#language').selectOption('fr');await page.locator('#unified-home').click();
     await expect(page.locator('html')).toHaveAttribute('lang','fr');
   }finally{await checked.close();}

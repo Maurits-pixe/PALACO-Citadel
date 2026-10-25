@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {startReviewServer} from '../../scripts/serve-rio-unified-preview.mjs';
 
 const repository=fileURLToPath(new URL('../../',import.meta.url));
-const languages=['nl','en','de','fr','es','pt','ru','eo','pl','ar','zh'];
+const languages=['nl','en','de','fr','es','it','pt','ru','eo','pl','ar','zh'];
 const oldMemory='TST-OUD: Mijn afspraak is dinsdag om tien uur.';
 const oldQuestion='Wanneer is mijn afspraak?';
 let fixture,surface;
@@ -342,7 +342,7 @@ test('Engine reset releases its departure gate while remaining chat work still r
   }finally{await checked.context.close();}
 });
 
-test('eleven translated reset choices remain readable and keyboard operable at 320 pixels with doubled text',async({browser})=>{
+test('twelve translated reset choices remain readable and keyboard operable at 320 pixels with doubled text',async({browser})=>{
   const checked=await checkedContext(browser,{viewport:{width:320,height:844}}),page=await checked.context.newPage();
   try{
     const titles=new Set(),confirmations=new Set();

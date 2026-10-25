@@ -109,6 +109,28 @@ const copy = {
     subjectLeft: "Tema retirado. Los mensajes anteriores siguen visibles hasta que borres la conversación.",
     subjectOther: "Aquí solo puedo repetir la explicación mostrada, no establecer el estado en directo ni los derechos. Usa la pregunta sugerida sobre este tema."
   },
+  it: {
+    open: "Apri chat", closeChat: "Chiudi chat", close: "Chiudi", title: "Saluta RIO", badge: "RIO · anteprima",
+    boundary: "Solo un’anteprima. I messaggi restano su questa pagina e vengono cancellati quando la ricarichi. Nessuna persona o servizio in tempo reale è collegato.",
+    welcome: "Ciao! Sono RIO. Fammi una domanda su RIO o su questa anteprima.",
+    aboutPrompt: "Che cos’è RIO?", privacyPrompt: "Dove vanno i miei messaggi?",
+    inputLabel: "Il tuo messaggio", inputPlaceholder: "Scrivi un messaggio", send: "Invia",
+    localOnly: "Demo locale · non viene inviato nulla", clear: "Cancella questa conversazione",
+    transcript: "Conversazione con RIO", suggestions: "Domande di esempio", visitor: "Tu", rio: "RIO",
+    aboutAnswer: "RIO ti aiuta a trovare persone e idee. Scegli sempre tu cosa condividere e se continuare.",
+    privacyAnswer: "Questa è solo un’anteprima locale. I messaggi non lasciano questa pagina e non vengono conservati dopo averla ricaricata.",
+    otherAnswer: "In questa anteprima posso solo spiegare RIO e come viene gestita questa conversazione. Prova una delle domande di esempio.",
+    cleared: "La conversazione è stata cancellata.", larger: "Ingrandisci chat", compact: "Chat compatta",
+    latest: "Ultima risposta", readingHint: "Porta il focus sulla conversazione e usa i tasti freccia per rileggere i messaggi precedenti.",
+    clearTitle: "Cancellare questa conversazione?", clearWarning: "Questa azione elimina i messaggi, l’argomento scelto e la bozza da questa chat. Non può essere annullata. Il tuo dossier personale è separato e non viene cancellato.",
+    clearConfirm: "Sì, cancella questa conversazione", clearCancel: "Mantieni la conversazione",
+    characterCount: "{count} / {limit} unità di carattere", emptyMessage: "Scrivi un messaggio che non contenga solo spazi.",
+    longMessage: "Il messaggio è troppo lungo. Usa al massimo {limit} unità di carattere; alcune emoji contano come due.",
+    subjectLabel: "Argomento", subjectSource: "Fonte", subjectStatus: "Stato",
+    subjectPrompt: "Di cosa tratta questo argomento?", leaveSubject: "Lascia questo argomento",
+    subjectLeft: "Argomento rimosso. I messaggi precedenti restano visibili finché non cancelli la conversazione.",
+    subjectOther: "Qui posso solo ripetere la spiegazione mostrata dell’argomento, senza accertare lo stato in tempo reale o i diritti. Usa la domanda di esempio su questo argomento."
+  },
   pt: {
     open: "Abrir chat", closeChat: "Fechar chat", close: "Fechar", title: "Diga olá ao RIO", badge: "RIO · prévia",
     boundary: "Apenas uma prévia. As mensagens ficam nesta página e são apagadas ao recarregar. Nenhuma pessoa ou serviço em tempo real está conectado.",

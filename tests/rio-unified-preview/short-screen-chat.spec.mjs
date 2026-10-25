@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {startReviewServer} from '../../scripts/serve-rio-unified-preview.mjs';
 
 const repository=fileURLToPath(new URL('../../',import.meta.url));
-const languages=['nl','pl','ar','pt','ru','eo'];
+const languages=['nl','pl','ar','pt','ru','eo','it'];
 const shortScreens=[
   {width:430,height:280},{width:430,height:320},{width:320,height:320},
   {width:640,height:320},{width:844,height:320},
@@ -153,7 +153,7 @@ async function observeClearClose(page){
   });
 }
 
-test('short screens keep large-text Close and Send reachable with bounded keyboard focus in six languages',async({browser})=>{
+test('short screens keep large-text Close and Send reachable with bounded keyboard focus in seven languages',async({browser})=>{
   test.setTimeout(120000);
   const checked=await checkedContext(browser),page=await checked.context.newPage(),observations=[];
   try{

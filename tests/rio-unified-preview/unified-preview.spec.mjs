@@ -10,7 +10,7 @@ import { CSP } from '../../scripts/build-rio-unified-preview.mjs';
 
 const repository = fileURLToPath(new URL('../../', import.meta.url));
 const output = resolve(repository, 'render-dist');
-const ROOT_CACHE = 'palaco-rio-shell-v59-chat-action';
+const ROOT_CACHE = 'palaco-rio-shell-v60-italian';
 const OLD_ROOT_CACHE = 'palaco-rio-shell-v35-guard-explanations';
 const APP_CACHE = 'palaco-rio-start-v0.1-9';
 const ROOT_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/rio-engine-web.mjs', '/engine.mjs', '/chat-preview.mjs', '/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg', '/citadel-icon.png', '/hara-icon.png', '/mundo-icon.png', '/integration.mjs', '/rio/reception/nova.png'].sort();
@@ -81,7 +81,7 @@ async function removeDownloadFixture(directory) {
   await rm(actual, { recursive: true, force: true });
 }
 
-test('generated public bundle has working mutual navigation, eleven VisitCard languages and RTL', async ({ page, request }) => {
+test('generated public bundle has working mutual navigation, twelve VisitCard languages and RTL', async ({ page, request }) => {
   const response = await page.goto(fixture.origin + '/');
   expect(response.headers()['content-security-policy']).toContain("script-src 'self';");
   expect(response.headers()['content-security-policy']).not.toContain("script-src 'self' 'unsafe-inline'");
@@ -93,12 +93,12 @@ test('generated public bundle has working mutual navigation, eleven VisitCard la
   const haraIcon = hara.locator('img');
   const mundo = page.locator('.taskbar button').filter({ has: page.locator('img[src="/mundo-icon.png"]') });
   const mundoIcon = mundo.locator('img');
-  const unavailable = { nl: 'Niet beschikbaar', en: 'Unavailable', de: 'Nicht verfügbar', fr: 'Indisponible', es: 'No disponible', pt: 'Indisponível', ru: 'Недоступно', eo: 'Nedisponebla', pl: 'Niedostępne', ar: 'غير متاح', zh: '暂不可用' };
-  const consumer = { nl: 'Consument', en: 'Consumer', de: 'Verbraucher', fr: 'Consommateur', es: 'Consumidor', pt: 'Consumidor', ru: 'Потребитель', eo: 'Konsumanto', pl: 'Konsument', ar: 'مستهلك', zh: '消费者' };
+  const unavailable = { nl: 'Niet beschikbaar', en: 'Unavailable', de: 'Nicht verfügbar', fr: 'Indisponible', es: 'No disponible', it: 'Non disponibile', pt: 'Indisponível', ru: 'Недоступно', eo: 'Nedisponebla', pl: 'Niedostępne', ar: 'غير متاح', zh: '暂不可用' };
+  const consumer = { nl: 'Consument', en: 'Consumer', de: 'Verbraucher', fr: 'Consommateur', es: 'Consumidor', it: 'Consumatore', pt: 'Consumidor', ru: 'Потребитель', eo: 'Konsumanto', pl: 'Konsument', ar: 'مستهلك', zh: '消费者' };
   const landmarkNames = {
     nl: ['Hoofdnavigatie', 'Taal'], en: ['Main navigation', 'Language'],
     de: ['Hauptnavigation', 'Sprache'], fr: ['Navigation principale', 'Langue'],
-    es: ['Navegación principal', 'Idioma'], ar: ['التنقل الرئيسي', 'اللغة'], zh: ['主导航', '语言'],
+    es: ['Navegación principal', 'Idioma'], it: ['Navigazione principale', 'Lingua'], ar: ['التنقل الرئيسي', 'اللغة'], zh: ['主导航', '语言'],
     pt: ['Navegação principal', 'Idioma'], ru: ['Основная навигация', 'Язык'], eo: ['Ĉefa navigado', 'Lingvo'], pl: ['Nawigacja główna', 'Język'],
   };
   await expect(haraIcon).toBeVisible();
@@ -116,7 +116,7 @@ test('generated public bundle has working mutual navigation, eleven VisitCard la
   expect(mundoResponse.headers()['content-type']).toBe('image/png');
   expect(createHash('sha256').update(await mundoResponse.body()).digest('hex'))
     .toBe('fc3d09b49035bde97673194b3730e0440223c621b0feb3222d2a473fb2ec7579');
-  for (const language of ['nl', 'en', 'de', 'fr', 'es', 'pt', 'ru', 'eo', 'pl', 'ar', 'zh']) {
+  for (const language of ['nl', 'en', 'de', 'fr', 'es', 'it', 'pt', 'ru', 'eo', 'pl', 'ar', 'zh']) {
     await page.locator('.lang-btn[data-lang="' + language + '"]').click();
     await expect(page.locator('html')).toHaveAttribute('lang', language);
     await expect(page.locator('html')).toHaveAttribute('dir', language === 'ar' ? 'rtl' : 'ltr');
@@ -138,8 +138,8 @@ test('generated public bundle has working mutual navigation, eleven VisitCard la
     await expect(page.locator('#rio-unified-reception')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), language).toBe(true);
   }
-  expect(rootTitles.size).toBe(11);
-  expect(integrationPolicies.size).toBe(11);
+  expect(rootTitles.size).toBe(12);
+  expect(integrationPolicies.size).toBe(12);
   await page.locator('#rio-unified-offline').click();
   await expect(page).toHaveURL(fixture.origin + '/rio/');
   await expect(page.locator('#unified-home')).toHaveAttribute('href', '/');
@@ -288,7 +288,7 @@ test('root worker excludes private, query, download, POST and real loopback cros
   } finally { await context.close(); await isolated.close(); await other.close(); }
 });
 
-test('fixed v35 root update to v59 genuinely waits and preserves the active RIO worker, contacts and unrelated cache', async ({ browser }, testInfo) => {
+test('fixed v35 root update to v60 genuinely waits and preserves the active RIO worker, contacts and unrelated cache', async ({ browser }, testInfo) => {
   const legacyWorker = await readFile(new URL('./fixtures/root-v35-sw.js', import.meta.url), 'utf8');
   const currentWorker = await readFile(join(output, 'sw.js'), 'utf8');
   expect(currentWorker).not.toContain('skipWaiting');

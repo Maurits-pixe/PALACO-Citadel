@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {startReviewServer} from '../../scripts/serve-rio-unified-preview.mjs';
 
 const repository=fileURLToPath(new URL('../../',import.meta.url));
-const languages=['nl','en','de','fr','es','pt','ru','eo','pl','ar','zh'];
+const languages=['nl','en','de','fr','es','it','pt','ru','eo','pl','ar','zh'];
 const dialogs=[
   {name:'chat-clear',cap:480,trigger:'#chat-preview-clear',dialog:'#chat-preview-clear-dialog',title:'#chat-preview-clear-title',warning:'#chat-preview-clear-warning',actions:'.chat-preview-clear-actions',first:'#chat-preview-clear-cancel',second:'#chat-preview-clear-confirm',restore:'#chat-preview-clear'},
   {name:'engine-clear',cap:520,trigger:'#engine-clear',dialog:'#engine-clear-dialog',title:'#engine-clear-title',warning:'#engine-clear-warning',actions:'.engine-clear-actions',first:'#engine-clear-cancel',second:'#engine-clear-confirm',restore:'#chat-preview-close'},
@@ -125,7 +125,7 @@ async function saveEvidence(name,observations){
   await test.info().attach(name,{path,contentType:'application/json'});
 }
 
-test('eleven chat headings keep full large-text width, separate actions and visible keyboard targets',async({browser})=>{
+test('twelve chat headings keep full large-text width, separate actions and visible keyboard targets',async({browser})=>{
   const checked=await checkedContext(browser),page=await checked.context.newPage();
   const observations=[];
   try{
@@ -227,7 +227,7 @@ test('eleven chat headings keep full large-text width, separate actions and visi
   }
 });
 
-test('eleven languages use available dialog width with readable order and keyboard access to every action',async({browser})=>{
+test('twelve languages use available dialog width with readable order and keyboard access to every action',async({browser})=>{
   const checked=await checkedContext(browser),page=await checked.context.newPage();
   const observations=[];
   try{

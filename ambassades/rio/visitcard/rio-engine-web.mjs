@@ -72,6 +72,19 @@ const copy = {
     clear: "Vaciar ejercicio", clearTitle: "¿Vaciar este ejercicio?", clearWarning: "Esto vacía el recuerdo, los borradores y las respuestas de este ejercicio. Tu chat temporal y tu tema se conservan. No se puede deshacer.",
     clearCancel: "Conservar ejercicio", clearConfirm: "Sí, vaciar este ejercicio", cleared: "El ejercicio está vacío. Da tu consentimiento y un recuerdo de nuevo."
   },
+  it: {
+    title: "Domanda. Prova. Risposta.", intro: "Fornisci a RIO un ricordo, poi fai una domanda. RIO cita la tua fonte oppure dice con chiarezza che mancano prove.",
+    sessionOnly: "Solo questa sessione", sessionDetail: "Non viene caricato nulla online. Ricaricare la pagina cancella questo dossier.",
+    memoryLabel: "Cosa può ricordare RIO temporaneamente?", memoryPlaceholder: "Per esempio: Il mio appuntamento è martedì alle dieci.",
+    consent: "Acconsento a usare questo solo in questa pagina aperta per rispondere alle mie domande.", remember: "Ricorda temporaneamente",
+    consentRequired: "Servono il consenso e un ricordo.", questionLabel: "Cosa vuoi chiedere?", questionPlaceholder: "Quando è il mio appuntamento?",
+    ask: "Chiedi a RIO", sources: "Fonti", detailsTitle: "Cosa fa e cosa non fa questa prova",
+    detailsBody: "La memoria non è verità. Una risposta non è una decisione. L’archiviazione permanente, il collegamento all’ID, l’addestramento dei modelli e l’esecuzione restano disattivati e richiedono una verifica separata.",
+    ready: "Pronto per le domande. ID di sessione", supported: "RISPOSTA CON PROVE", insufficient: "PROVE INSUFFICIENTI", failed: "RIO si è fermato in sicurezza:",
+    insufficientAnswer: "RIO non ha prove sufficienti in questo dossier per rispondere a questa domanda.",
+    clear: "Svuota esercizio", clearTitle: "Svuotare questo esercizio?", clearWarning: "Questa azione elimina il ricordo, le bozze e le risposte di questo esercizio. La chat temporanea e l’argomento restano. Non puoi annullarla.",
+    clearCancel: "Mantieni l’esercizio", clearConfirm: "Sì, svuota questo esercizio", cleared: "L’esercizio è vuoto. Dai nuovamente il consenso e inserisci un ricordo."
+  },
   pt: {
     title: "Pergunta. Prova. Resposta.", intro: "Dê uma lembrança ao RIO e depois faça uma pergunta. O RIO cita a sua fonte ou diz com clareza que faltam provas.",
     sessionOnly: "Só nesta sessão", sessionDetail: "Nada é enviado. Recarregar apaga este dossier.",

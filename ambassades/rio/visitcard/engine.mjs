@@ -14,6 +14,7 @@ const STOP_WORDS = new Set([
   "der", "die", "das", "ein", "eine", "ich", "ist", "mein", "meine", "und", "wann", "was", "wie",
   "de", "des", "est", "et", "je", "la", "le", "les", "ma", "mes", "mon", "quand", "que",
   "como", "cuando", "de", "el", "es", "la", "mi", "mis", "que", "un", "una", "y",
+  "mio", "miei", "mie", "tuo", "tua", "tuoi", "tue", "suo", "suoi", "sue", "sono", "sei", "siamo", "siete", "era", "erano", "sarà", "quale", "quali", "chi", "cosa", "come", "dove", "per", "con", "senza", "del", "della", "dello", "dei", "degli", "delle", "alla", "allo", "agli", "alle", "nel", "nella", "nello", "nei", "negli", "nelle", "che",
   "minha", "minhas", "meu", "meus", "sua", "suas", "seu", "seus", "qual", "quais", "quem", "quando", "onde", "uma", "para", "por", "com", "sem", "dos", "das", "são", "sou", "está", "esta", "estão",
   "моя", "мои", "мой", "моё", "мое", "твоя", "твой", "своя", "свой", "какая", "какой", "какое", "какие", "когда", "где", "что", "это", "эта", "этот", "эти", "для", "или", "есть", "был", "была", "будет", "как",
   "mia", "miaj", "via", "viaj", "nia", "niaj", "estas", "estis", "estos", "kiu", "kio", "kiam", "kie", "kiel", "kies", "kiaj", "kiuj", "kaj", "por", "kun", "sen", "unu",
