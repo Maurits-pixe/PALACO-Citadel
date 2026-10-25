@@ -23,6 +23,10 @@ below 640px the eleven language choices wrap into two rows; intermediate
 desktop widths put language choice below the brand and main navigation, keeping
 the visual and native keyboard order aligned. The original icons,
 destinations and availability states stay unchanged.
+The floating chat button names its current action in all eleven languages:
+Open chat while closed, Close chat while open. Existing language, dock and
+short-screen cases exercise the control and preserve work through these changes;
+the separately recorded local visual check captures the displayed action labels.
 `language-continuity.spec.mjs` adds eight scenarios per surface: all twelve NOVA
 explanations without storage/API access; plain-HTML fallback without scripts;
 shared session language; safe app-only/invalid preferences; denied/quota storage;
@@ -116,7 +120,7 @@ cache entry.
 It intentionally includes its old broad fetch handler and destructive cache
 cleanup. It first activates in an empty, isolated profile; only afterward are the
 app worker, app cache, unrelated cache and fictitious contact created. The current
-v58 worker must then reach the real `waiting` state without reloading its open
+v59 worker must then reach the real `waiting` state without reloading its open
 client. Closing the root client allows activation while the app remains open.
 The test proves migration from this fixed old worker/cache state; it does not
 reconstruct the historical HTML or claim that the old cleanup was safe.
@@ -124,7 +128,7 @@ reconstruct the historical HTML or claim that the old cleanup was safe.
 `language-worker-update.spec.mjs` also installs fixed root v37 and generated app
 v5 workers from the previous bf6d865 preview. Both new workers must reach the
 actual waiting state while their old pages remain open. Closing only the app
-activates v9 while root v58 keeps waiting; closing the root then activates v58.
+activates v9 while root v59 keeps waiting; closing the root then activates v59.
 The fictitious contact, unrelated cache, separate registrations, new local
 language links and genuine offline reloads remain intact. The existing app
 worker keeps its scoped clients.claim; the root has neither clients.claim nor

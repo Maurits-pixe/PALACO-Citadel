@@ -1,6 +1,6 @@
 const copy = {
   nl: {
-    open: "Open chat", close: "Sluiten", title: "Zeg hallo tegen RIO", badge: "RIO · preview",
+    open: "Open chat", closeChat: "Sluit chat", close: "Sluiten", title: "Zeg hallo tegen RIO", badge: "RIO · preview",
     boundary: "Alleen een preview. Berichten blijven op deze pagina en verdwijnen bij herladen. Er is geen persoon of live dienst verbonden.",
     welcome: "Hallo! Ik ben RIO. Stel gerust een vraag over RIO of deze preview.",
     aboutPrompt: "Wat is RIO?", privacyPrompt: "Waar blijven mijn berichten?",
@@ -22,7 +22,7 @@ const copy = {
     subjectOther: "Ik kan hier alleen de getoonde onderwerpuitleg herhalen, niet de live status of rechten vaststellen. Gebruik de voorbeeldvraag over dit onderwerp."
   },
   en: {
-    open: "Open chat", close: "Close", title: "Say hello to RIO", badge: "RIO · preview",
+    open: "Open chat", closeChat: "Close chat", close: "Close", title: "Say hello to RIO", badge: "RIO · preview",
     boundary: "Preview only. Messages stay on this page and are cleared when you reload. No live person or service is connected.",
     welcome: "Hello! I'm RIO. Ask me about RIO or this preview.",
     aboutPrompt: "What is RIO?", privacyPrompt: "Where do my messages go?",
@@ -44,7 +44,7 @@ const copy = {
     subjectOther: "I can only repeat the displayed subject explanation here, not establish live status or rights. Use the suggested question about this subject."
   },
   de: {
-    open: "Chat öffnen", close: "Schließen", title: "Sag RIO Hallo", badge: "RIO · Vorschau",
+    open: "Chat öffnen", closeChat: "Chat schließen", close: "Schließen", title: "Sag RIO Hallo", badge: "RIO · Vorschau",
     boundary: "Nur eine Vorschau. Nachrichten bleiben auf dieser Seite und werden beim Neuladen gelöscht. Es ist keine echte Person oder ein Live-Dienst verbunden.",
     welcome: "Hallo! Ich bin RIO. Frag mich gern zu RIO oder dieser Vorschau.",
     aboutPrompt: "Was ist RIO?", privacyPrompt: "Wohin gehen meine Nachrichten?",
@@ -66,7 +66,7 @@ const copy = {
     subjectOther: "Ich kann hier nur die angezeigte Themenerklärung wiederholen, nicht den Live-Status oder Rechte feststellen. Nutze die Beispielfrage zum Thema."
   },
   fr: {
-    open: "Ouvrir le chat", close: "Fermer", title: "Dites bonjour à RIO", badge: "RIO · aperçu",
+    open: "Ouvrir le chat", closeChat: "Fermer le chat", close: "Fermer", title: "Dites bonjour à RIO", badge: "RIO · aperçu",
     boundary: "Aperçu uniquement. Les messages restent sur cette page et sont effacés au rechargement. Aucune personne ni aucun service en direct n'est connecté.",
     welcome: "Bonjour ! Je suis RIO. Posez-moi une question sur RIO ou cet aperçu.",
     aboutPrompt: "Qu'est-ce que RIO ?", privacyPrompt: "Où vont mes messages ?",
@@ -88,7 +88,7 @@ const copy = {
     subjectOther: "Je peux seulement répéter l’explication affichée, pas établir le statut en direct ni les droits. Utilisez la question suggérée sur ce sujet."
   },
   es: {
-    open: "Abrir chat", close: "Cerrar", title: "Saluda a RIO", badge: "RIO · vista previa",
+    open: "Abrir chat", closeChat: "Cerrar chat", close: "Cerrar", title: "Saluda a RIO", badge: "RIO · vista previa",
     boundary: "Solo una vista previa. Los mensajes permanecen en esta página y se borran al recargar. No hay ninguna persona ni servicio en directo conectado.",
     welcome: "¡Hola! Soy RIO. Pregúntame sobre RIO o esta vista previa.",
     aboutPrompt: "¿Qué es RIO?", privacyPrompt: "¿Adónde van mis mensajes?",
@@ -110,7 +110,7 @@ const copy = {
     subjectOther: "Aquí solo puedo repetir la explicación mostrada, no establecer el estado en directo ni los derechos. Usa la pregunta sugerida sobre este tema."
   },
   pt: {
-    open: "Abrir chat", close: "Fechar", title: "Diga olá ao RIO", badge: "RIO · prévia",
+    open: "Abrir chat", closeChat: "Fechar chat", close: "Fechar", title: "Diga olá ao RIO", badge: "RIO · prévia",
     boundary: "Apenas uma prévia. As mensagens ficam nesta página e são apagadas ao recarregar. Nenhuma pessoa ou serviço em tempo real está conectado.",
     welcome: "Olá! Sou RIO. Pergunte sobre o RIO ou esta prévia.",
     aboutPrompt: "O que é o RIO?", privacyPrompt: "Para onde vão as minhas mensagens?",
@@ -132,7 +132,7 @@ const copy = {
     subjectOther: "Aqui só posso repetir a explicação apresentada sobre o assunto, sem determinar o estado em tempo real ou os direitos. Use a pergunta sugerida sobre este assunto."
   },
   ru: {
-    open: "Открыть чат", close: "Закрыть", title: "Поздоровайтесь с RIO", badge: "RIO · предпросмотр",
+    open: "Открыть чат", closeChat: "Закрыть чат", close: "Закрыть", title: "Поздоровайтесь с RIO", badge: "RIO · предпросмотр",
     boundary: "Только предпросмотр. Сообщения остаются на этой странице и удаляются при перезагрузке. Живой собеседник или сервис не подключён.",
     welcome: "Здравствуйте! Я RIO. Задайте вопрос о RIO или этом предпросмотре.",
     aboutPrompt: "Что такое RIO?", privacyPrompt: "Куда отправляются мои сообщения?",
@@ -154,7 +154,7 @@ const copy = {
     subjectOther: "Здесь я могу только повторить показанное пояснение темы, но не определить текущий статус или права. Используйте предложенный вопрос об этой теме."
   },
   eo: {
-    open: "Malfermi babilejon", close: "Fermi", title: "Salutu RIO", badge: "RIO · antaŭrigardo",
+    open: "Malfermi babilejon", closeChat: "Fermi babilejon", close: "Fermi", title: "Salutu RIO", badge: "RIO · antaŭrigardo",
     boundary: "Nur antaŭrigardo. Mesaĝoj restas sur ĉi tiu paĝo kaj forviŝiĝas dum reŝargo. Neniu vera persono aŭ viva servo estas konektita.",
     welcome: "Saluton! Mi estas RIO. Demandu pri RIO aŭ ĉi tiu antaŭrigardo.",
     aboutPrompt: "Kio estas RIO?", privacyPrompt: "Kien iras miaj mesaĝoj?",
@@ -176,7 +176,7 @@ const copy = {
     subjectOther: "Mi povas ĉi tie nur ripeti la montritan klarigon pri la temo, ne konstati aktualan staton aŭ rajtojn. Uzu la proponitan demandon pri ĉi tiu temo."
   },
   pl: {
-    open: "Otwórz czat", close: "Zamknij", title: "Przywitaj się z RIO", badge: "RIO · podgląd",
+    open: "Otwórz czat", closeChat: "Zamknij czat", close: "Zamknij", title: "Przywitaj się z RIO", badge: "RIO · podgląd",
     boundary: "Tylko podgląd. Wiadomości pozostają na tej stronie i są usuwane po jej odświeżeniu. Żadna osoba ani usługa na żywo nie jest podłączona.",
     welcome: "Cześć! Jestem RIO. Zapytaj o RIO lub ten podgląd.",
     aboutPrompt: "Czym jest RIO?", privacyPrompt: "Dokąd trafiają moje wiadomości?",
@@ -198,7 +198,7 @@ const copy = {
     subjectOther: "Mogę tu jedynie powtórzyć wyświetlone objaśnienie tematu, a nie ustalić aktualny status lub uprawnienia. Użyj proponowanego pytania dotyczącego tego tematu."
   },
   ar: {
-    open: "افتح الدردشة", close: "إغلاق", title: "ألقِ التحية على RIO", badge: "RIO · معاينة",
+    open: "افتح الدردشة", closeChat: "أغلق الدردشة", close: "إغلاق", title: "ألقِ التحية على RIO", badge: "RIO · معاينة",
     boundary: "معاينة فقط. تبقى الرسائل في هذه الصفحة وتُمسح عند إعادة التحميل. لا يوجد شخص أو خدمة مباشرة متصلة.",
     welcome: "مرحباً! أنا RIO. يمكنك سؤالي عن RIO أو هذه المعاينة.",
     aboutPrompt: "ما هو RIO؟", privacyPrompt: "أين تذهب رسائلي؟",
@@ -220,7 +220,7 @@ const copy = {
     subjectOther: "يمكنني فقط تكرار الشرح المعروض، لا إثبات الحالة المباشرة أو الحقوق. استخدم السؤال المقترح عن هذا الموضوع."
   },
   zh: {
-    open: "打开聊天", close: "关闭", title: "向 RIO 问好", badge: "RIO · 预览",
+    open: "打开聊天", closeChat: "关闭聊天", close: "关闭", title: "向 RIO 问好", badge: "RIO · 预览",
     boundary: "仅供预览。消息只保留在此页面，重新加载后会清除。没有连接真实人员或在线服务。",
     welcome: "你好！我是 RIO。你可以询问关于 RIO 或此预览的问题。",
     aboutPrompt: "RIO 是什么？", privacyPrompt: "我的消息会发到哪里？",
@@ -301,6 +301,8 @@ const updateFocusMode = () => {
 const setChatOpen = (open) => {
   panel.hidden = !open;
   toggle.setAttribute("aria-expanded", String(open));
+  toggle.dataset.chatI18n = open ? "closeChat" : "open";
+  toggle.textContent = strings[toggle.dataset.chatI18n];
   // Restore background controls before any synchronous focus restoration.
   updateFocusMode();
 };

@@ -150,7 +150,7 @@ test('both installed apps preserve language across real offline navigation witho
     await page.locator('#rio-unified-offline').click();await language(page,'ar');
     expect(new URL(page.url()).search).toBe('');
     const keys=await page.evaluate(()=>caches.keys());
-    expect(keys).toContain('palaco-rio-shell-v58-short-screen');expect(keys).toContain('palaco-rio-start-v0.1-9');
+    expect(keys).toContain('palaco-rio-shell-v59-chat-action');expect(keys).toContain('palaco-rio-start-v0.1-9');
     await page.locator('#language').selectOption('fr');await page.locator('#unified-home').click();
     await expect(page.locator('html')).toHaveAttribute('lang','fr');
   }finally{await checked.close();}
