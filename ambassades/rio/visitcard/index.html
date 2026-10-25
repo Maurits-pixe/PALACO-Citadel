@@ -26,8 +26,7 @@
         <h1 id="rio-title">RIO<span class="title-dot">.</span></h1>
         <p class="tagline" data-i18n="tagline">Het visitekaartje van PALACO.</p>
         <p class="intro-copy" data-i18n="intro">RIO zegt hallo. RIO helpt je mensen en ideeën te vinden. Jij kiest altijd wat je deelt.</p>
-        <div class="hero-actions"><button id="meet-btn" type="button" class="primary-action" data-i18n="meetButton">Maak kennis</button><button id="share-btn" type="button" class="secondary-action" data-i18n="shareButton">Deel RIO</button></div>
-        <p id="share-output" class="action-output" aria-live="polite"></p>
+        <div class="hero-actions"><button id="meet-btn" type="button" class="primary-action" data-i18n="meetButton">Maak kennis</button><button id="share-btn" type="button" class="secondary-action" aria-haspopup="dialog" aria-controls="share-dialog" data-i18n="shareButton">Deel RIO</button></div>
         <a class="contact-route-entry" href="#contact-route-title" data-route-i18n="entry">Bekijk de contactroute</a>
 
         <article class="visitcard" aria-label="RIO VisitCard">
@@ -372,6 +371,21 @@
       <div class="rio-departure-actions">
         <button id="rio-departure-stay" type="button" autofocus data-rio-departure="stay">Blijf hier</button>
         <a id="rio-departure-new-tab" target="_blank" rel="noopener noreferrer" data-rio-departure="open">Open in nieuw tabblad</a>
+      </div>
+    </dialog>
+
+    <dialog id="share-dialog" class="share-dialog" aria-labelledby="share-title" aria-describedby="share-boundary">
+      <p class="section-label">RIO · PREVIEW</p>
+      <h2 id="share-title" data-i18n="shareTitle">Neem RIO mee.</h2>
+      <p id="share-boundary" data-i18n="shareBoundary">Deel alleen de link naar deze preview. Je naam, chat en Engine-oefening gaan niet mee. Een tijdelijke link kan later stoppen.</p>
+      <label for="share-link" data-i18n="shareLinkLabel">Link naar RIO</label>
+      <input id="share-link" type="url" readonly dir="ltr" autocomplete="off" spellcheck="false" aria-describedby="share-help" />
+      <p id="share-help" class="share-help" data-i18n="shareHelp">Je kunt de link ook selecteren en zelf kopiëren.</p>
+      <p id="share-status" class="share-status" role="status" aria-live="polite" data-state="idle"></p>
+      <div class="share-actions">
+        <button id="share-copy" type="button" data-i18n="shareCopy">Kopieer link</button>
+        <button id="share-native" type="button" hidden data-i18n="shareNative">Open deelmenu</button>
+        <button id="share-close" type="button" data-i18n="shareClose">Sluiten</button>
       </div>
     </dialog>
 

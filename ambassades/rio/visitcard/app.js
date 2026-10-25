@@ -816,10 +816,24 @@ const taskbarTranslations = {
   ar: { taskbarLabel: 'التنقل الرئيسي في PALACO', unavailable: 'غير متاح', here: 'هنا', consumer: 'مستهلك', personalAccount: 'حساب شخصي', navigationBoundary: 'اختر مكانًا. HARA وMUNDO غير متاحين بعد. يبقى المحتوى المؤقت في هذه الصفحة المفتوحة. قد يؤدي الإغلاق أو إعادة التحميل إلى مسحه. رابط الحساب لا يسجل دخولك ولا يتحقق من هويتك.' },
   zh: { taskbarLabel: 'PALACO 主导航', unavailable: '暂不可用', here: '当前页面', consumer: '消费者', personalAccount: '个人账户', navigationBoundary: '选择一个地方。HARA 和 MUNDO 暂不可用。临时内容保留在此打开的页面中。关闭或重新加载可能会清除它。账户链接不会登录或验证你的身份。' }
 };
+const shareTranslations = {
+  nl: { shareTitle: 'Neem RIO mee.', shareBoundary: 'Deel alleen de link naar deze preview. Je naam, chat en Engine-oefening gaan niet mee. Een tijdelijke link kan later stoppen.', shareLinkLabel: 'Link naar RIO', shareHelp: 'Je kunt de link ook selecteren en zelf kopiëren.', shareCopy: 'Kopieer link', shareNative: 'Open deelmenu', shareClose: 'Sluiten', shareCopying: 'Link kopiëren…', shareCopied: 'Link gekopieerd.', shareSharing: 'Deelmenu open…', shareShared: 'Link doorgegeven aan het deelmenu.', shareCancelled: 'Delen geannuleerd.', shareManual: 'Selecteer de link en kopieer hem zelf. Automatisch kopiëren lukt hier niet.', shareUnavailable: 'Het deelmenu werkt nu niet. Je kunt de link kopiëren.' },
+  en: { shareTitle: 'Take RIO with you.', shareBoundary: 'Share only the link to this preview. Your name, chat and Engine exercise stay here. A temporary link may stop working later.', shareLinkLabel: 'Link to RIO', shareHelp: 'You can also select the link and copy it yourself.', shareCopy: 'Copy link', shareNative: 'Open share menu', shareClose: 'Close', shareCopying: 'Copying link…', shareCopied: 'Link copied.', shareSharing: 'Share menu open…', shareShared: 'Link passed to the share menu.', shareCancelled: 'Sharing cancelled.', shareManual: 'Select the link and copy it yourself. Automatic copying is unavailable here.', shareUnavailable: 'The share menu is unavailable now. You can copy the link.' },
+  de: { shareTitle: 'Nimm RIO mit.', shareBoundary: 'Teile nur den Link zu dieser Vorschau. Dein Name, Chat und die Engine-Übung bleiben hier. Ein temporärer Link kann später nicht mehr funktionieren.', shareLinkLabel: 'Link zu RIO', shareHelp: 'Du kannst den Link auch auswählen und selbst kopieren.', shareCopy: 'Link kopieren', shareNative: 'Teilen-Menü öffnen', shareClose: 'Schließen', shareCopying: 'Link wird kopiert…', shareCopied: 'Link kopiert.', shareSharing: 'Teilen-Menü geöffnet…', shareShared: 'Link an das Teilen-Menü übergeben.', shareCancelled: 'Teilen abgebrochen.', shareManual: 'Wähle den Link aus und kopiere ihn selbst. Automatisches Kopieren ist hier nicht möglich.', shareUnavailable: 'Das Teilen-Menü ist gerade nicht verfügbar. Du kannst den Link kopieren.' },
+  fr: { shareTitle: 'Emportez RIO avec vous.', shareBoundary: 'Partagez uniquement le lien vers cet aperçu. Votre nom, le chat et l’exercice Engine restent ici. Un lien temporaire peut cesser de fonctionner.', shareLinkLabel: 'Lien vers RIO', shareHelp: 'Vous pouvez aussi sélectionner le lien et le copier vous-même.', shareCopy: 'Copier le lien', shareNative: 'Ouvrir le menu de partage', shareClose: 'Fermer', shareCopying: 'Copie du lien…', shareCopied: 'Lien copié.', shareSharing: 'Menu de partage ouvert…', shareShared: 'Lien transmis au menu de partage.', shareCancelled: 'Partage annulé.', shareManual: 'Sélectionnez le lien et copiez-le vous-même. La copie automatique est indisponible ici.', shareUnavailable: 'Le menu de partage est indisponible. Vous pouvez copier le lien.' },
+  es: { shareTitle: 'Lleva RIO contigo.', shareBoundary: 'Comparte solo el enlace a esta vista previa. Tu nombre, el chat y el ejercicio Engine se quedan aquí. Un enlace temporal puede dejar de funcionar.', shareLinkLabel: 'Enlace a RIO', shareHelp: 'También puedes seleccionar el enlace y copiarlo tú mismo.', shareCopy: 'Copiar enlace', shareNative: 'Abrir menú para compartir', shareClose: 'Cerrar', shareCopying: 'Copiando enlace…', shareCopied: 'Enlace copiado.', shareSharing: 'Menú para compartir abierto…', shareShared: 'Enlace enviado al menú para compartir.', shareCancelled: 'Se canceló compartir.', shareManual: 'Selecciona el enlace y cópialo tú mismo. La copia automática no está disponible aquí.', shareUnavailable: 'El menú para compartir no está disponible. Puedes copiar el enlace.' },
+  ar: { shareTitle: 'خذ RIO معك.', shareBoundary: 'شارك رابط هذه المعاينة فقط. يبقى اسمك والدردشة وتمرين Engine هنا. قد يتوقف الرابط المؤقت عن العمل لاحقاً.', shareLinkLabel: 'رابط RIO', shareHelp: 'يمكنك أيضاً تحديد الرابط ونسخه بنفسك.', shareCopy: 'نسخ الرابط', shareNative: 'فتح قائمة المشاركة', shareClose: 'إغلاق', shareCopying: 'جارٍ نسخ الرابط…', shareCopied: 'تم نسخ الرابط.', shareSharing: 'قائمة المشاركة مفتوحة…', shareShared: 'تم تمرير الرابط إلى قائمة المشاركة.', shareCancelled: 'أُلغيت المشاركة.', shareManual: 'حدد الرابط وانسخه بنفسك. النسخ التلقائي غير متاح هنا.', shareUnavailable: 'قائمة المشاركة غير متاحة الآن. يمكنك نسخ الرابط.' },
+  zh: { shareTitle: '带上 RIO。', shareBoundary: '只分享此预览的链接。你的名字、聊天和 Engine 练习留在这里。临时链接可能稍后失效。', shareLinkLabel: 'RIO 链接', shareHelp: '你也可以选中链接并自行复制。', shareCopy: '复制链接', shareNative: '打开分享菜单', shareClose: '关闭', shareCopying: '正在复制链接…', shareCopied: '链接已复制。', shareSharing: '分享菜单已打开…', shareShared: '链接已传给分享菜单。', shareCancelled: '已取消分享。', shareManual: '请选中链接并自行复制。此处无法自动复制。', shareUnavailable: '分享菜单暂不可用。你可以复制链接。' }
+};
 const languageButtons = document.querySelectorAll('.lang-btn');
 const meetButton = document.querySelector('#meet-btn');
 const shareButton = document.querySelector('#share-btn');
-const shareOutput = document.querySelector('#share-output');
+const shareDialog = document.querySelector('#share-dialog');
+const shareLink = document.querySelector('#share-link');
+const shareCopy = document.querySelector('#share-copy');
+const shareNative = document.querySelector('#share-native');
+const shareClose = document.querySelector('#share-close');
+const shareStatus = document.querySelector('#share-status');
 const cardToggle = document.querySelector('#card-toggle');
 const cardReveal = document.querySelector('#card-reveal');
 const helloForm = document.querySelector('#hello-form');
@@ -852,7 +866,7 @@ let selectedSubject;
 let lastSubjectTrigger;
 let touchStart;
 
-const text = (key) => translations[currentLanguage][key] ?? elixerContentTranslations[currentLanguage]?.[key] ?? elixerDigestTranslations[currentLanguage]?.[key] ?? elixerDossierTranslations[currentLanguage]?.[key] ?? subjectTranslations[currentLanguage]?.[key] ?? mobileNavTranslations[currentLanguage]?.[key] ?? taskbarTranslations[currentLanguage]?.[key];
+const text = (key) => shareTranslations[currentLanguage]?.[key] ?? translations[currentLanguage][key] ?? elixerContentTranslations[currentLanguage]?.[key] ?? elixerDigestTranslations[currentLanguage]?.[key] ?? elixerDossierTranslations[currentLanguage]?.[key] ?? subjectTranslations[currentLanguage]?.[key] ?? mobileNavTranslations[currentLanguage]?.[key] ?? taskbarTranslations[currentLanguage]?.[key];
 
 const taskbar = document.querySelector('.taskbar');
 const updateTaskbarHeight = () => document.documentElement.style.setProperty('--taskbar-height', `${taskbar.getBoundingClientRect().height}px`);
@@ -1004,6 +1018,7 @@ const setLanguage = (language, { remember = true } = {}) => {
   if (cardToggle?.getAttribute('aria-expanded') === 'true') cardToggle.textContent = text('closeCard');
   if (activeSubject) renderSubject(activeSubject);
   document.title = `RIO · ${text('tagline')}`;
+  renderShareStatus();
   window.dispatchEvent(new CustomEvent('rio:languagechange', { detail: { language } }));
   publishSelectedSubject();
 };
@@ -1072,17 +1087,64 @@ if ('IntersectionObserver' in window) {
   mobileSections.forEach((section) => sectionObserver.observe(section));
 }
 
-shareButton?.addEventListener('click', async () => {
-  const shareData = { title: document.title, text: text('tagline'), url: window.location.href };
-  try {
-    if (navigator.share) await navigator.share(shareData);
-    else if (navigator.clipboard) await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
-    else throw new Error('Sharing unavailable');
-    shareOutput.textContent = text('shareReady');
-  } catch (error) {
-    if (error.name !== 'AbortError') shareOutput.textContent = text('shareUnavailable');
-  }
+let shareAttempt = 0;
+let shareBusy = false;
+let shareState = 'idle';
+const shareData = () => ({ title: document.title, text: text('tagline'), url: new URL('/', location.origin).href });
+const renderShareStatus = () => {
+  shareStatus.dataset.state = shareState;
+  shareStatus.textContent = shareState === 'idle' ? '' : text('share' + shareState[0].toUpperCase() + shareState.slice(1));
+  shareCopy.disabled = shareNative.disabled = shareBusy;
+};
+const selectShareLink = () => { shareLink.focus(); shareLink.select(); };
+const closeShareDialog = () => {
+  ++shareAttempt;
+  shareBusy = false;
+  shareState = 'idle';
+  renderShareStatus();
+  shareDialog.close();
+  shareButton.focus();
+};
+shareButton?.addEventListener('click', () => {
+  if (shareDialog.open) return;
+  ++shareAttempt;
+  shareBusy = false;
+  shareState = 'idle';
+  shareLink.value = shareData().url;
+  let nativeAvailable = typeof navigator.share === 'function';
+  try { if (nativeAvailable && typeof navigator.canShare === 'function') nativeAvailable = navigator.canShare(shareData()); }
+  catch { nativeAvailable = false; }
+  shareNative.hidden = !nativeAvailable;
+  renderShareStatus();
+  shareDialog.showModal();
+  selectShareLink();
 });
+shareClose?.addEventListener('click', closeShareDialog);
+shareDialog?.addEventListener('cancel', (event) => {
+  event.preventDefault();
+  closeShareDialog();
+});
+const runShareAction = async (kind) => {
+  if (shareBusy || !shareDialog.open) return;
+  const attempt = ++shareAttempt;
+  shareBusy = true;
+  shareState = kind === 'copy' ? 'copying' : 'sharing';
+  renderShareStatus();
+  try {
+    if (kind === 'copy') await navigator.clipboard.writeText(shareLink.value);
+    else await navigator.share(shareData());
+    if (attempt !== shareAttempt || !shareDialog.open) return;
+    shareState = kind === 'copy' ? 'copied' : 'shared';
+  } catch (error) {
+    if (attempt !== shareAttempt || !shareDialog.open) return;
+    shareState = kind === 'copy' ? 'manual' : error?.name === 'AbortError' ? 'cancelled' : 'unavailable';
+    if (kind === 'copy') selectShareLink();
+  } finally {
+    if (attempt === shareAttempt && shareDialog.open) { shareBusy = false; renderShareStatus(); }
+  }
+};
+shareCopy?.addEventListener('click', () => runShareAction('copy'));
+shareNative?.addEventListener('click', () => runShareAction('native'));
 
 helloForm?.addEventListener('submit', (event) => {
   event.preventDefault();
