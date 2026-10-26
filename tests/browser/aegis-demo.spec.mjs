@@ -6,7 +6,9 @@ test('keeps Aegis as a fictional monitoring simulation with synthetic local data
   page.on('request', request => {
     if (!request.url().startsWith('http://127.0.0.1:4173/')) externalRequests.push(request.url());
   });
-  await page.goto('/citadel/aegis/');
+  await page.goto('/');
+  await expect(page.locator('.hero-preview a[href="/citadel/aegis/"]')).toBeVisible();
+  await page.locator('.hero-preview a[href="/citadel/aegis/"]').click();
 
   await expect(page).toHaveTitle('Aegis · Monitoring simulation');
   await expect(page.locator('h1')).toHaveText('AEGIS');
