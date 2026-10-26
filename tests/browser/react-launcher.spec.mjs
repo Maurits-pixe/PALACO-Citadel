@@ -4,7 +4,7 @@ test('builds and opens the standalone React launcher without replacing the stati
   await page.goto('/citadel/react/');
 
   await expect(page).toHaveTitle('PALACO Hoofdkantoor · React launcher');
-  await expect(page.getByRole('heading', { name: 'PALACO HOOFDKANTOOR' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'PALACO HOOFDKANTOOR', exact: true })).toBeVisible();
   await expect(page.locator('.module-card')).toHaveCount(3);
   await expect(page.locator('#boundary-title')).toContainText('GEEN OPERATIONELE DIENSTEN');
 
