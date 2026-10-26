@@ -5,22 +5,34 @@ const translations = {
     eyebrow: 'PALACO HOOFDKANTOOR · MODULE ACCESS',
     launcherWord: 'HOOFDKANTOOR',
     languageLabel: 'Language',
-    boundaryTitle: 'CONCEPT PREVIEWS · NOT OPERATIONAL SERVICES',
-    boundaryBody: 'These modules are limited prototypes. AETHER performs local AES-GCM text encryption but is not an audited vault; Bastion is not production-secure and its messages are not end-to-end encrypted; 5CRIPTIE uses synthetic data and does not scan or monitor live systems. Selecting a module grants no access or authority.',
-    introEyebrow: 'SELECT A MODULE',
-    menuTitle: 'Choose a module preview',
-    menuDescription: 'Open one of the existing concept previews in this workspace.',
-    vaultCategory: 'LOCAL TEXT ENCRYPTION',
-    vaultDescription: 'Encrypt or decrypt text locally with Web Crypto AES-GCM-256; not an audited vault.',
-    bastionCategory: 'COMMAND-CENTER CONCEPT',
-    bastionDescription: 'An authenticated development prototype; not production-secure and chat is not end-to-end encrypted.',
-    aegisCategory: 'CODE INTEGRITY · SIMULATION',
-    aegisDescription: 'Synthetic scan logs and metrics only; no code scanning or live threat monitoring.',
-    openModule: 'OPEN PREVIEW',
-    returnButton: 'BACK TO MODULES',
-    openStandalone: 'Open separately ↗',
-    footer: 'A launcher is only navigation. It does not change the capabilities or limitations of the selected preview.',
-    selectedTitle: 'Selected module: {module}'
+    boundaryTitle: 'TEMPORARY LAUNCHER · LINKS UNDER VERIFICATION',
+    boundaryBody: 'This launcher only stores destinations and opens links. It does not verify app ownership, authentication, authorization, or security. Do not enter sensitive information unless you independently verify the service.',
+    introEyebrow: 'CONFIGURE MODULE LINKS',
+    menuTitle: 'PALACO module destinations',
+    menuDescription: 'Enter only addresses you have verified with the responsible administrator. Empty addresses remain unlinked.',
+    storageNote: 'Links are kept only for this browser tab session and are cleared when the session ends.',
+    vaultCategory: 'CIPHER VAULT',
+    vaultDescription: 'Verify the destination and its protections with its administrator before opening.',
+    bastionCategory: 'TEAM COLLABORATION',
+    bastionDescription: 'Verify the destination and its protections with its administrator before opening.',
+    scriptieCategory: 'CODE INTEGRITY',
+    scriptieDescription: 'Verify the destination and its protections with its administrator before opening.',
+    addressLabel: 'App address (HTTPS only)',
+    saveAddress: 'Save for this session',
+    notConfigured: 'Not configured',
+    configured: 'Configured — not verified',
+    verified: 'Verified (self-reported)',
+    unsaved: 'Address changed — save it to update',
+    invalidAddress: 'Invalid address. Enter a full HTTPS URL without user credentials.',
+    storageError: 'Could not save this session setting. Check browser storage permissions.',
+    destinationLabel: 'Destination domain:',
+    verificationLegend: 'Confirm these checks yourself',
+    checkDestination: 'The destination and its responsible administrator are confirmed.',
+    checkHttps: 'The service is available at this HTTPS address.',
+    checkAccess: 'Authentication and authorization were explicitly checked.',
+    verificationCaveat: 'These checks are your report, not an independent verification by this launcher.',
+    openApp: 'Open app in a new tab ↗',
+    footer: 'Temporary launcher — links under verification. A configured address is not proof of a working or secure integration.'
   },
   nl: {
     title: 'PALACO Hoofdkantoor · Launcher',
@@ -28,22 +40,34 @@ const translations = {
     eyebrow: 'PALACO HOOFDKANTOOR · MODULETOEGANG',
     launcherWord: 'HOOFDKANTOOR',
     languageLabel: 'Taal',
-    boundaryTitle: 'CONCEPTVOORBEELDEN · GEEN OPERATIONELE DIENSTEN',
-    boundaryBody: 'Dit zijn beperkte prototypes. AETHER versleutelt tekst lokaal met AES-GCM maar is geen gecontroleerde kluis; Bastion is niet productieveilig en berichten zijn niet end-to-end versleuteld; 5CRIPTIE gebruikt synthetische gegevens en scant of monitort geen live systemen. Een module kiezen verleent geen toegang of bevoegdheid.',
-    introEyebrow: 'KIES EEN MODULE',
-    menuTitle: 'Kies een modulevoorbeeld',
-    menuDescription: 'Open een van de bestaande conceptvoorbeelden in deze werkruimte.',
-    vaultCategory: 'LOKALE TEKSTVERSLEUTELING',
-    vaultDescription: 'Versleutel of ontcijfer tekst lokaal met Web Crypto AES-GCM-256; geen gecontroleerde kluis.',
-    bastionCategory: 'COMMANDOCENTRUMCONCEPT',
-    bastionDescription: 'Een geauthenticeerd ontwikkelprototype; niet productieveilig en chat is niet end-to-end versleuteld.',
-    aegisCategory: 'CODE-INTEGRITEIT · SIMULATIE',
-    aegisDescription: 'Alleen synthetische scanlogs en meetwaarden; geen code-scan of live dreigingsmonitoring.',
-    openModule: 'OPEN VOORBEELD',
-    returnButton: 'TERUG NAAR MODULES',
-    openStandalone: 'Apart openen ↗',
-    footer: 'Een launcher is alleen navigatie. Deze verandert de mogelijkheden of beperkingen van het gekozen voorbeeld niet.',
-    selectedTitle: 'Gekozen module: {module}'
+    boundaryTitle: 'TIJDELIJKE LAUNCHER · KOPPELINGEN IN VERIFICATIE',
+    boundaryBody: 'Deze launcher bewaart alleen bestemmingen en opent links. Hij controleert geen app-eigendom, authenticatie, autorisatie of beveiliging. Gebruik geen gevoelige gegevens voordat je de dienst zelfstandig hebt gecontroleerd.',
+    introEyebrow: 'KOPPELINGEN INSTELLEN',
+    menuTitle: 'PALACO-modulebestemmingen',
+    menuDescription: 'Vul alleen adressen in die je met de verantwoordelijke beheerder hebt gecontroleerd. Lege adressen blijven ongekoppeld.',
+    storageNote: 'Koppelingen worden alleen bewaard tijdens deze tabsessie en verdwijnen wanneer de sessie eindigt.',
+    vaultCategory: 'CIPHERKLUIS',
+    vaultDescription: 'Controleer de bestemming en beveiliging met de beheerder voordat je de app opent.',
+    bastionCategory: 'TEAM SAMENWERKING',
+    bastionDescription: 'Controleer de bestemming en beveiliging met de beheerder voordat je de app opent.',
+    scriptieCategory: 'CODE-INTEGRITEIT',
+    scriptieDescription: 'Controleer de bestemming en beveiliging met de beheerder voordat je de app opent.',
+    addressLabel: 'Appadres (alleen HTTPS)',
+    saveAddress: 'Bewaar voor deze sessie',
+    notConfigured: 'Niet ingesteld',
+    configured: 'Ingesteld — niet geverifieerd',
+    verified: 'Geverifieerd (zelf gemeld)',
+    unsaved: 'Adres gewijzigd — sla op om bij te werken',
+    invalidAddress: 'Ongeldig adres. Vul een volledig HTTPS-adres in zonder gebruikersgegevens.',
+    storageError: 'Deze instelling kon niet in de sessie worden opgeslagen. Controleer de browseropslag.',
+    destinationLabel: 'Bestemmingsdomein:',
+    verificationLegend: 'Bevestig deze controles zelf',
+    checkDestination: 'De bestemming en de verantwoordelijke beheerder zijn bevestigd.',
+    checkHttps: 'De dienst is bereikbaar op dit HTTPS-adres.',
+    checkAccess: 'Authenticatie en autorisatie zijn expliciet gecontroleerd.',
+    verificationCaveat: 'Deze controles zijn jouw verklaring; de launcher voert geen onafhankelijke verificatie uit.',
+    openApp: 'App openen in een nieuw tabblad ↗',
+    footer: 'Tijdelijke launcher — koppelingen in verificatie. Een ingesteld adres bewijst geen werkende of veilige integratie.'
   },
   eo: {
     title: 'PALACO Hoofdkantoor · Lanĉilo',
@@ -51,108 +75,211 @@ const translations = {
     eyebrow: 'PALACO HOOFDKANTOOR · MODULA ALIRO',
     launcherWord: 'HOOFDKANTOOR',
     languageLabel: 'Lingvo',
-    boundaryTitle: 'KONCEPTAJ DEMOJ · NE OPERACIAJ SERVOJ',
-    boundaryBody: 'Ĉi tiuj estas limigitaj prototipoj. AETHER loke ĉifras tekston per AES-GCM sed ne estas kontrolita trezorejo; Bastion ne estas produkt-sekura kaj ĝiaj mesaĝoj ne estas ĉifritaj fine-al-fine; 5CRIPTIE uzas sintezajn datumojn kaj ne skanas aŭ monitoras realajn sistemojn. Elekto donas nek aliron nek aŭtoritaton.',
-    introEyebrow: 'ELEKTU MODULON',
-    menuTitle: 'Elektu modulan antaŭrigardon',
-    menuDescription: 'Malfermu unu el la ekzistantaj konceptaj demonstraĵoj en ĉi tiu laborspaco.',
-    vaultCategory: 'LOKA TEKSTĈIFRADO',
-    vaultDescription: 'Ĉifru aŭ malĉifru tekston loke per Web Crypto AES-GCM-256; ne reviziita trezorejo.',
-    bastionCategory: 'KONCEPTO DE KOMANDEJO',
-    bastionDescription: 'Aŭtentigita disvolva prototipo; ne produkt-sekura kaj babilejo ne estas ĉifrita fine-al-fine.',
-    aegisCategory: 'KODA INTEGRECO · SIMULADO',
-    aegisDescription: 'Nur sintezaj skanaj protokoloj kaj mezuroj; sen koda skanado aŭ realtempa monitorado.',
-    openModule: 'MALFERMI DEMON',
-    returnButton: 'REIRI AL MODULOJ',
-    openStandalone: 'Malfermi aparte ↗',
-    footer: 'Lanĉilo estas nur navigado. Ĝi ne ŝanĝas la kapablojn aŭ limojn de la elektita demonstraĵo.',
-    selectedTitle: 'Elektita modulo: {module}'
+    boundaryTitle: 'PROVIZORA LANĈILO · LIGILOJ SUB KONTROLO',
+    boundaryBody: 'Ĉi tiu lanĉilo nur konservas celojn kaj malfermas ligilojn. Ĝi ne kontrolas posedon, aŭtentigon, rajtigon aŭ sekurecon de aplikaĵoj. Ne enigu sentemajn datumojn sen memstara kontrolo de la servo.',
+    introEyebrow: 'AGORDI MODUL-LIGILOJN',
+    menuTitle: 'Celoj de PALACO-moduloj',
+    menuDescription: 'Enigu nur adresojn kontrolitajn kun la respondeca administranto. Malplenaj adresoj restas malligitaj.',
+    storageNote: 'Ligiloj estas konservataj nur dum ĉi tiu retumila langeta sesio kaj foriĝas kiam ĝi finiĝas.',
+    vaultCategory: 'ĈIFRA TREZOREJO',
+    vaultDescription: 'Kontrolu la celon kaj ĝiajn protektojn kun la administranto antaŭ malfermo.',
+    bastionCategory: 'TEAMA KUNLABORO',
+    bastionDescription: 'Kontrolu la celon kaj ĝiajn protektojn kun la administranto antaŭ malfermo.',
+    scriptieCategory: 'KODA INTEGRECO',
+    scriptieDescription: 'Kontrolu la celon kaj ĝiajn protektojn kun la administranto antaŭ malfermo.',
+    addressLabel: 'Aplikaĵa adreso (nur HTTPS)',
+    saveAddress: 'Konservi por ĉi tiu sesio',
+    notConfigured: 'Ne agordita',
+    configured: 'Agordita — ne kontrolita',
+    verified: 'Kontrolita (memdeklarita)',
+    unsaved: 'Adreso ŝanĝiĝis — konservu por ĝisdatigi',
+    invalidAddress: 'Nevalida adreso. Enigu kompletan HTTPS-URL sen uzantaj datumoj.',
+    storageError: 'Ne eblis konservi la sesian agordon. Kontrolu la retumilan konservadon.',
+    destinationLabel: 'Cela domajno:',
+    verificationLegend: 'Konfirmu ĉi tiujn kontrolojn mem',
+    checkDestination: 'La celo kaj ĝia respondeca administranto estas konfirmitaj.',
+    checkHttps: 'La servo disponeblas ĉe ĉi tiu HTTPS-adreso.',
+    checkAccess: 'Aŭtentigo kaj rajtigo estis eksplicite kontrolitaj.',
+    verificationCaveat: 'Ĉi tiuj kontroloj estas via deklaro; la lanĉilo ne faras sendependan kontrolon.',
+    openApp: 'Malfermi aplikaĵon en nova langeto ↗',
+    footer: 'Provizora lanĉilo — ligiloj sub kontrolo. Agordita adreso ne pruvas funkciantan aŭ sekuran integriĝon.'
   }
 };
 
-const modules = {
-  aether: { name: 'AETHER', path: '/citadel/iii6v9/' },
-  bastion: { name: 'Bastion', path: '/citadel/bastion-app/' },
-  scriptie: { name: '5CRIPTIE', path: '/citadel/aegis/' }
-};
-
-const menu = document.querySelector('#module-menu');
-const moduleView = document.querySelector('#module-view');
-const frame = document.querySelector('#module-frame');
-const title = document.querySelector('#active-module-title');
-const returnButton = document.querySelector('#return-button');
-const standaloneLink = document.querySelector('#standalone-link');
-const languageSelect = document.querySelector('#language-select');
+const storageKey = 'palaco-launcher-links-v1';
+const validChecks = ['destination', 'https', 'access'];
 let language = 'en';
-let selectedButton = null;
+let settings = readSettings();
 
 function translate(key) {
   return translations[language][key] || translations.en[key] || key;
 }
 
+function parseHttpsUrl(value) {
+  const candidate = value.trim();
+  if (!/^https:\/\//i.test(candidate)) return null;
+
+  try {
+    const url = new URL(candidate);
+    if (url.protocol !== 'https:' || !url.hostname || url.username || url.password) return null;
+    return url;
+  } catch {
+    return null;
+  }
+}
+
+function readSettings() {
+  try {
+    const stored = JSON.parse(sessionStorage.getItem(storageKey) || '{}');
+    if (!stored || typeof stored !== 'object' || Array.isArray(stored)) return {};
+    return Object.fromEntries(Object.entries(stored).flatMap(([module, item]) => {
+      if (!['aether', 'bastion', 'scriptie'].includes(module) || !item || typeof item.url !== 'string') return [];
+      const url = parseHttpsUrl(item.url);
+      if (!url) return [];
+      const checks = Object.fromEntries(validChecks.map(check => [check, item.checks?.[check] === true]));
+      return [[module, { url: url.href, checks }]];
+    }));
+  } catch {
+    return {};
+  }
+}
+
+function saveSettings(nextSettings) {
+  try {
+    sessionStorage.setItem(storageKey, JSON.stringify(nextSettings));
+    settings = nextSettings;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function setMessage(form, key, isError = false) {
+  const message = form.querySelector('[data-message]');
+  message.textContent = translate(key);
+  message.classList.toggle('is-error', isError);
+  message.classList.toggle('is-verified', key === 'verified');
+  message.dataset.i18n = key;
+}
+
+function renderForm(form) {
+  const module = form.dataset.module;
+  const config = settings[module];
+  const details = form.querySelector('[data-details]');
+  const input = form.querySelector('[data-url-input]');
+
+  if (!config) {
+    details.hidden = true;
+    input.value = '';
+    setMessage(form, 'notConfigured');
+    return;
+  }
+
+  const url = parseHttpsUrl(config.url);
+  if (!url) {
+    details.hidden = true;
+    setMessage(form, 'notConfigured');
+    return;
+  }
+
+  input.value = config.url;
+  details.hidden = false;
+  form.querySelector('[data-domain]').textContent = url.hostname;
+  const openLink = form.querySelector('[data-open-link]');
+  openLink.href = url.href;
+
+  form.querySelectorAll('[data-check]').forEach(checkbox => {
+    checkbox.checked = config.checks[checkbox.dataset.check] === true;
+  });
+
+  const isVerified = validChecks.every(check => config.checks[check] === true);
+  setMessage(form, isVerified ? 'verified' : 'configured');
+}
+
 function applyLanguage() {
   document.documentElement.lang = language;
-  if (!moduleView.hidden && selectedButton) {
-    title.textContent = translate('selectedTitle').replace('{module}', modules[selectedButton.dataset.module].name);
-  }
-  const currentModule = selectedButton ? modules[selectedButton.dataset.module] : null;
-  document.title = currentModule ? `${currentModule.name} · ${translate('title')}` : translate('title');
+  document.title = translate('title');
   document.querySelectorAll('[data-i18n]').forEach(element => {
     element.textContent = translate(element.dataset.i18n);
   });
-  frame.title = currentModule
-    ? `${currentModule.name} · ${translate('menuTitle')}`
-    : translate('menuTitle');
+  document.querySelectorAll('.module-form').forEach(renderForm);
 }
 
-function openModule(button) {
-  const module = modules[button.dataset.module];
-  if (!module) return;
-  selectedButton = button;
-  title.textContent = translate('selectedTitle').replace('{module}', module.name);
-  standaloneLink.href = module.path;
-  frame.title = `${module.name} · ${translate('menuTitle')}`;
-  frame.src = module.path;
-  menu.hidden = true;
-  moduleView.hidden = false;
-  document.title = `${module.name} · ${translate('title')}`;
-  returnButton.focus();
-}
+document.querySelectorAll('.module-form').forEach(form => {
+  const input = form.querySelector('[data-url-input]');
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const value = input.value.trim();
+    const nextSettings = { ...settings };
 
-function returnToMenu() {
-  moduleView.hidden = true;
-  menu.hidden = false;
-  frame.removeAttribute('src');
-  document.title = translate('title');
-  requestAnimationFrame(() => (selectedButton || document.querySelector('[data-module]')).focus());
-}
+    if (!value) {
+      delete nextSettings[form.dataset.module];
+      if (saveSettings(nextSettings)) renderForm(form);
+      else setMessage(form, 'storageError', true);
+      return;
+    }
 
-frame.addEventListener('load', () => {
-  try {
-    frame.contentDocument.addEventListener('click', event => {
-      if (event.target.closest('a[href="/"], a[href="/citadel/"]')) {
-        event.preventDefault();
-        returnToMenu();
+    const url = parseHttpsUrl(value);
+    if (!url) {
+      form.querySelector('[data-details]').hidden = true;
+      setMessage(form, 'invalidAddress', true);
+      return;
+    }
+
+    nextSettings[form.dataset.module] = {
+      url: url.href,
+      checks: Object.fromEntries(validChecks.map(check => [check, false]))
+    };
+    if (saveSettings(nextSettings)) renderForm(form);
+    else setMessage(form, 'storageError', true);
+  });
+
+  input.addEventListener('input', () => {
+    const saved = settings[form.dataset.module];
+    if (!saved) {
+      form.querySelector('[data-details]').hidden = true;
+      setMessage(form, 'notConfigured');
+    } else if (input.value.trim() !== saved.url) {
+      form.querySelector('[data-details]').hidden = true;
+      setMessage(form, 'unsaved');
+    } else {
+      renderForm(form);
+    }
+  });
+
+  form.querySelectorAll('[data-check]').forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+      const current = settings[form.dataset.module];
+      if (!current) return;
+      const nextSettings = {
+        ...settings,
+        [form.dataset.module]: {
+          ...current,
+          checks: { ...current.checks, [checkbox.dataset.check]: checkbox.checked }
+        }
+      };
+      if (saveSettings(nextSettings)) renderForm(form);
+      else {
+        checkbox.checked = !checkbox.checked;
+        setMessage(form, 'storageError', true);
       }
     });
-  } catch {}
+  });
+
+  renderForm(form);
 });
 
-document.querySelectorAll('[data-module]').forEach(button => {
-  button.addEventListener('click', () => openModule(button));
-});
-
-returnButton.addEventListener('click', returnToMenu);
+const languageSelect = document.querySelector('#language-select');
 languageSelect.addEventListener('change', () => {
   language = translations[languageSelect.value] ? languageSelect.value : 'en';
   try {
-    localStorage.setItem('palaco-language', language);
+    sessionStorage.setItem('palaco-language', language);
   } catch {}
   applyLanguage();
 });
 
 try {
-  const savedLanguage = localStorage.getItem('palaco-language');
+  const savedLanguage = sessionStorage.getItem('palaco-language');
   if (translations[savedLanguage]) {
     language = savedLanguage;
     languageSelect.value = language;

@@ -38,7 +38,7 @@ The PALACO 2040 Compass section now includes the following dashboard layers in C
 - [AETHER](citadel/iii6v9/) — local AES-GCM-256 text encryption using PBKDF2-SHA-256; not an audited vault or production security claim
 - [Bastion static preview](citadel/bastion/) — fictional command-center simulation; local-only messages, no secure comms or live roster
 - [5CRIPTIE](citadel/aegis/) — synthetic code-integrity dashboard; no source scan, live monitoring, detection, or defensive actions
-- [PALACO Hoofdkantoor](citadel/) — opens AETHER, the Bastion prototype, or 5CRIPTIE in the same screen; navigation does not grant access or capabilities
+- [PALACO Hoofdkantoor](citadel/) — temporary launcher with administrator-configured HTTPS links and user-reported verification status
 - [React launcher](citadel/react/) — separate React entry point for the same previews; source is in `src/`
 - [Bastion team prototype](citadel/bastion-app/) — Vue client for the separately hosted Node/PostgreSQL prototype
 - Evolution Dashboard — canon/system changes with “what changes for me?” summary
@@ -68,13 +68,18 @@ persisted, or securely erased, and the demo does not implement access control.
 does not inspect source code or network traffic, monitor system health, detect threats, or
 block activity, and must not be used for operational security decisions.
 
-The PALACO Hoofdkantoor launcher embeds the static AETHER and 5CRIPTIE previews and the
-separately built Bastion Vue prototype in an iframe for convenient navigation. Embedding does
-not provide security isolation, authentication, access control, or operational capability.
+The PALACO Hoofdkantoor launcher has no preconfigured app addresses. Configure each destination
+yourself after confirming it with the responsible administrator. The launcher accepts HTTPS
+URLs only, shows the destination hostname, and opens apps in a separate tab. Address settings
+are held in the current tab's `sessionStorage` and cleared when that tab session ends.
+“Verified” means the user checked the destination, administrator, HTTPS, and access controls;
+the launcher does not independently verify any of these. Do not treat a configured address or
+self-reported status as proof of a working integration or security.
 
-Build the standalone React launcher with `npm run build`; it is emitted to `citadel/react/`.
-The Pages workflow builds it for deployment. The static `/citadel/bastion/` preview remains
-available, while the main launcher now opens the separate Vue prototype.
+Build the separate React launcher with `npm run build`; it is emitted to `citadel/react/`.
+The Pages workflow builds it for deployment. The static `/citadel/bastion/` preview and the
+separately hosted Vue prototype remain available, but neither is linked from the configurable
+main launcher unless you enter and verify its address yourself.
 
 ### Bastion team prototype
 

@@ -32,54 +32,100 @@
       <section class="boundary-notice" aria-labelledby="boundary-title">
         <span class="notice-icon" aria-hidden="true">i</span>
         <div>
-          <h2 id="boundary-title" data-i18n="boundaryTitle">CONCEPT PREVIEWS · NOT OPERATIONAL SERVICES</h2>
-          <p data-i18n="boundaryBody">These modules are visual demos only. III6V9 does not protect or encrypt data; Bastion has no secure team communications; Aegis does not monitor live systems. Selecting a module grants no access or authority.</p>
+          <h2 id="boundary-title" data-i18n="boundaryTitle">TEMPORARY LAUNCHER · LINKS UNDER VERIFICATION</h2>
+          <p data-i18n="boundaryBody">This launcher only stores destinations and opens links. It does not verify app ownership, authentication, authorization, or security. Do not enter sensitive information unless you independently verify the service.</p>
         </div>
       </section>
 
-      <section id="module-menu" aria-labelledby="menu-title">
+      <section aria-labelledby="menu-title">
         <div class="intro">
-          <p class="eyebrow" data-i18n="introEyebrow">SELECT A MODULE</p>
-          <h2 id="menu-title" data-i18n="menuTitle">Choose a Citadel preview</h2>
-          <p data-i18n="menuDescription">Open one of the existing concept previews in this workspace.</p>
+          <p class="eyebrow" data-i18n="introEyebrow">CONFIGURE MODULE LINKS</p>
+          <h2 id="menu-title" data-i18n="menuTitle">PALACO module destinations</h2>
+          <p data-i18n="menuDescription">Enter only addresses you have verified with the responsible administrator. Empty addresses remain unlinked.</p>
+          <p class="storage-note" data-i18n="storageNote">Links are kept only for this browser tab session and are cleared when the session ends.</p>
         </div>
-        <div class="module-grid">
-          <button class="module-card vault-card" type="button" data-module="aether" aria-controls="module-frame">
-            <span class="module-symbol" aria-hidden="true">⌑</span>
-            <span class="module-name">AETHER</span>
-            <span class="module-category" data-i18n="vaultCategory">CIPHER VAULT CONCEPT</span>
-            <span class="module-description" data-i18n="vaultDescription">A visual cipher-vault concept with fictional examples; no authentication or encryption.</span>
-            <span class="module-action" data-i18n="openModule">OPEN PREVIEW</span>
-          </button>
-          <button class="module-card bastion-card" type="button" data-module="bastion" aria-controls="module-frame">
-            <span class="module-symbol" aria-hidden="true">▤</span>
-            <span class="module-name">BASTION</span>
-            <span class="module-category" data-i18n="bastionCategory">COMMAND-CENTER CONCEPT</span>
-            <span class="module-description" data-i18n="bastionDescription">A fictional team dashboard; no secure communications, authorization, or live roster.</span>
-            <span class="module-action" data-i18n="openModule">OPEN PREVIEW</span>
-          </button>
-          <button class="module-card aegis-card" type="button" data-module="scriptie" aria-controls="module-frame">
-            <span class="module-symbol" aria-hidden="true">◉</span>
-            <span class="module-name">5CRIPTIE</span>
-            <span class="module-category" data-i18n="aegisCategory">MONITORING CONCEPT</span>
-            <span class="module-description" data-i18n="aegisDescription">Synthetic traffic and metrics only; no live monitoring or threat detection.</span>
-            <span class="module-action" data-i18n="openModule">OPEN PREVIEW</span>
-          </button>
-        </div>
-      </section>
 
-      <section id="module-view" class="module-view" aria-label="Selected Citadel module" hidden>
-        <div class="module-toolbar">
-          <button id="return-button" class="return-button" type="button">
-            <span aria-hidden="true">←</span>
-            <span data-i18n="returnButton">BACK TO MODULES</span>
-          </button>
-          <h2 id="active-module-title"></h2>
-          <a id="standalone-link" class="standalone-link" href="/" target="_blank" rel="noopener" data-i18n="openStandalone">Open separately ↗</a>
+        <div class="module-grid">
+          <article class="module-card vault-card">
+            <span class="module-symbol" aria-hidden="true">⌑</span>
+            <h3 class="module-name">AETHER</h3>
+            <p class="module-category" data-i18n="vaultCategory">CIPHER VAULT</p>
+            <p class="module-description" data-i18n="vaultDescription">Verify the destination and its protections with its administrator before opening.</p>
+            <form class="module-form" data-module="aether" novalidate>
+              <label for="aether-url" data-i18n="addressLabel">App address (HTTPS only)</label>
+              <div class="address-row">
+                <input id="aether-url" data-url-input type="url" inputmode="url" autocomplete="off" placeholder="https://example.com" aria-describedby="aether-message" />
+                <button class="save-button" type="submit" data-i18n="saveAddress">Save for this session</button>
+              </div>
+              <p class="module-message" id="aether-message" data-message aria-live="polite" data-i18n="notConfigured">Not configured</p>
+              <div class="module-details" data-details hidden>
+                <p class="destination"><span data-i18n="destinationLabel">Destination domain:</span> <code data-domain></code></p>
+                <fieldset class="verification-checks">
+                  <legend data-i18n="verificationLegend">Confirm these checks yourself</legend>
+                  <label><input type="checkbox" data-check="destination" /> <span data-i18n="checkDestination">The destination and its responsible administrator are confirmed.</span></label>
+                  <label><input type="checkbox" data-check="https" /> <span data-i18n="checkHttps">The service is available at this HTTPS address.</span></label>
+                  <label><input type="checkbox" data-check="access" /> <span data-i18n="checkAccess">Authentication and authorization were explicitly checked.</span></label>
+                </fieldset>
+                <p class="verification-caveat" data-i18n="verificationCaveat">These checks are your report, not an independent verification by this launcher.</p>
+                <a class="open-link" data-open-link target="_blank" rel="noopener noreferrer" data-i18n="openApp">Open app in a new tab ↗</a>
+              </div>
+            </form>
+          </article>
+
+          <article class="module-card bastion-card">
+            <span class="module-symbol" aria-hidden="true">▤</span>
+            <h3 class="module-name">Bastion</h3>
+            <p class="module-category" data-i18n="bastionCategory">TEAM COLLABORATION</p>
+            <p class="module-description" data-i18n="bastionDescription">Verify the destination and its protections with its administrator before opening.</p>
+            <form class="module-form" data-module="bastion" novalidate>
+              <label for="bastion-url" data-i18n="addressLabel">App address (HTTPS only)</label>
+              <div class="address-row">
+                <input id="bastion-url" data-url-input type="url" inputmode="url" autocomplete="off" placeholder="https://example.com" aria-describedby="bastion-message" />
+                <button class="save-button" type="submit" data-i18n="saveAddress">Save for this session</button>
+              </div>
+              <p class="module-message" id="bastion-message" data-message aria-live="polite" data-i18n="notConfigured">Not configured</p>
+              <div class="module-details" data-details hidden>
+                <p class="destination"><span data-i18n="destinationLabel">Destination domain:</span> <code data-domain></code></p>
+                <fieldset class="verification-checks">
+                  <legend data-i18n="verificationLegend">Confirm these checks yourself</legend>
+                  <label><input type="checkbox" data-check="destination" /> <span data-i18n="checkDestination">The destination and its responsible administrator are confirmed.</span></label>
+                  <label><input type="checkbox" data-check="https" /> <span data-i18n="checkHttps">The service is available at this HTTPS address.</span></label>
+                  <label><input type="checkbox" data-check="access" /> <span data-i18n="checkAccess">Authentication and authorization were explicitly checked.</span></label>
+                </fieldset>
+                <p class="verification-caveat" data-i18n="verificationCaveat">These checks are your report, not an independent verification by this launcher.</p>
+                <a class="open-link" data-open-link target="_blank" rel="noopener noreferrer" data-i18n="openApp">Open app in a new tab ↗</a>
+              </div>
+            </form>
+          </article>
+
+          <article class="module-card aegis-card">
+            <span class="module-symbol" aria-hidden="true">◉</span>
+            <h3 class="module-name">5CRIPTIE</h3>
+            <p class="module-category" data-i18n="scriptieCategory">CODE INTEGRITY</p>
+            <p class="module-description" data-i18n="scriptieDescription">Verify the destination and its protections with its administrator before opening.</p>
+            <form class="module-form" data-module="scriptie" novalidate>
+              <label for="scriptie-url" data-i18n="addressLabel">App address (HTTPS only)</label>
+              <div class="address-row">
+                <input id="scriptie-url" data-url-input type="url" inputmode="url" autocomplete="off" placeholder="https://example.com" aria-describedby="scriptie-message" />
+                <button class="save-button" type="submit" data-i18n="saveAddress">Save for this session</button>
+              </div>
+              <p class="module-message" id="scriptie-message" data-message aria-live="polite" data-i18n="notConfigured">Not configured</p>
+              <div class="module-details" data-details hidden>
+                <p class="destination"><span data-i18n="destinationLabel">Destination domain:</span> <code data-domain></code></p>
+                <fieldset class="verification-checks">
+                  <legend data-i18n="verificationLegend">Confirm these checks yourself</legend>
+                  <label><input type="checkbox" data-check="destination" /> <span data-i18n="checkDestination">The destination and its responsible administrator are confirmed.</span></label>
+                  <label><input type="checkbox" data-check="https" /> <span data-i18n="checkHttps">The service is available at this HTTPS address.</span></label>
+                  <label><input type="checkbox" data-check="access" /> <span data-i18n="checkAccess">Authentication and authorization were explicitly checked.</span></label>
+                </fieldset>
+                <p class="verification-caveat" data-i18n="verificationCaveat">These checks are your report, not an independent verification by this launcher.</p>
+                <a class="open-link" data-open-link target="_blank" rel="noopener noreferrer" data-i18n="openApp">Open app in a new tab ↗</a>
+              </div>
+            </form>
+          </article>
         </div>
-        <iframe id="module-frame" title="Selected Citadel module preview" referrerpolicy="no-referrer"></iframe>
       </section>
-      <footer class="launcher-footer" data-i18n="footer">A launcher is only navigation. It does not change the capabilities or limitations of the selected preview.</footer>
+      <footer class="launcher-footer" data-i18n="footer">Temporary launcher — links under verification. A configured address is not proof of a working or secure integration.</footer>
     </main>
   </body>
 </html>
