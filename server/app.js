@@ -111,7 +111,12 @@ export function createBastionApp({ pool, jwtSecret, allowedOrigins, ioRef = { cu
     legacyHeaders: false
   }));
 
-  app.get('/health', async (_req, res) => {
+  app.get('/health', rateLimit({
+    windowMs: 60 * 1000,
+    limit: 60,
+    standardHeaders: 'draft-8',
+    legacyHeaders: false
+  }), async (_req, res) => {
     try {
       await pool.query('SELECT 1');
       return res.json({ status: 'ok' });
