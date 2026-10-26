@@ -61,6 +61,19 @@ test('confirms only expected schema-valid metadata from the approved origin', as
   assert.equal(options.cache, 'no-store');
 });
 
+test('uses the canonical 5criptie appId independently from its launcher key', async () => {
+  const outcome = await verifyModuleMetadata(url, '5criptie', origin, {
+    fetchImpl: async () => jsonResponse({
+      appId: '5criptie',
+      version: '1.0.0',
+      status: 'maintenance'
+    })
+  });
+  assert.equal(outcome.status, 'metadata-confirmed');
+  assert.equal(outcome.expectedAppId, '5criptie');
+  assert.equal(outcome.reportedStatus, 'maintenance');
+});
+
 test('does not request an origin that is not explicitly approved', async () => {
   let requestCount = 0;
   const outcome = await verifyModuleMetadata(url, 'aether', 'https://other.example.test', {
@@ -93,11 +106,17 @@ test('rejects absent, wrong, and unexpected app identities', async t => {
 test('rejects invalid JSON, missing schema fields, invalid status, and non-JSON content type', async t => {
   const cases = [
     ['malformed JSON', new Response('{', { status: 200, headers: { 'content-type': 'application/json' } })],
+    ['unreadable body', new Response(new ReadableStream({
+      start(controller) {
+        controller.error(new TypeError('body read failed'));
+      }
+    }), { status: 200, headers: { 'content-type': 'application/json' } })],
     ['missing version', jsonResponse({ appId: 'aether', status: 'operational' })],
     ['missing status', jsonResponse({ appId: 'aether', version: '1.0.0' })],
     ['invalid version', jsonResponse({ ...goodMetadata, version: 'latest' })],
     ['invalid status', jsonResponse({ ...goodMetadata, status: 'unknown' })],
     ['unexpected field', jsonResponse({ ...goodMetadata, owner: 'unknown' })],
+    ['oversized body', new Response(JSON.stringify({ ...goodMetadata, note: 'x'.repeat(17 * 1024) }), { status: 200, headers: { 'content-type': 'application/json' } })],
     ['non-JSON content type', new Response(JSON.stringify(goodMetadata), { status: 200, headers: { 'content-type': 'text/plain' } })]
   ];
 

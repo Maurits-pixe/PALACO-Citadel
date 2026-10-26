@@ -30,7 +30,7 @@ test('Vue launcher rejects unapproved HTTPS destinations without claiming metada
   await address.fill('https://vault.example.test/path?source=launcher');
   await aether.locator('button[type="submit"]').click();
   await expect(aether.locator('[data-message]')).toHaveText('Destination not approved');
-  await expect(aether.locator('[data-domain]')).toHaveText('vault.example.test');
+  await expect(aether.locator('[data-domain]')).toHaveText('https://vault.example.test');
   await expect(aether.locator('[data-open-link]')).toHaveCount(0);
   await expect(aether.getByRole('button', { name: 'Check module metadata' })).toHaveCount(0);
 
@@ -38,7 +38,7 @@ test('Vue launcher rejects unapproved HTTPS destinations without claiming metada
   await expect(page.locator('.module-form[data-module="aether"] [data-message]'))
     .toHaveText('Destination not approved');
   await expect(page.locator('.module-form[data-module="aether"] [data-domain]'))
-    .toHaveText('vault.example.test');
+    .toHaveText('https://vault.example.test');
 
   const newTab = await page.context().newPage();
   await newTab.goto('/citadel/');

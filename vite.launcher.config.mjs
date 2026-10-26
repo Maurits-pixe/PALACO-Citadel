@@ -10,6 +10,7 @@ const hasMkcertPair = existsSync(mkcertKey) && existsSync(mkcertCert);
 
 export default defineConfig(({ command }) => ({
   root: 'launcher-vue',
+  envDir: process.cwd(),
   base: command === 'build' ? '/citadel/' : '/',
   plugins: [vue(), ...(hasMkcertPair ? [] : [basicSsl()])],
   server: {

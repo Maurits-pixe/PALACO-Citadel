@@ -44,7 +44,7 @@ const translations = {
     invalidAddress: 'Invalid address. Enter a full HTTPS URL without user credentials.',
     storageError: 'Could not save this session setting. Check browser storage permissions.',
     checkMetadata: 'Check module metadata',
-    evidenceDetails: 'Checked {checkedAt}; expires {expiresAt}. Expected appId: {expectedAppId}; received: {receivedAppId}.',
+    evidenceDetails: '{method} {endpoint} · Checked {checkedAt}; expires {expiresAt}. Expected appId: {expectedAppId}; received: {receivedAppId}.',
     reportedState: 'Self-reported status: {status}.',
     reason_wrong_identity: 'The endpoint did not report the expected appId.',
     reason_invalid_response: 'The endpoint response did not match the metadata contract.',
@@ -53,7 +53,7 @@ const translations = {
     reason_request_unavailable: 'The browser could not read the response (network, CORS, TLS, or redirect failure).',
     reason_destination_unapproved: 'This exact HTTPS origin is not in the configured allowlist.',
     reason_invalid_url: 'The configured address is not a valid HTTPS URL.',
-    destinationLabel: 'Destination domain:',
+    destinationLabel: 'Destination origin:',
     verificationLegend: 'Metadata check evidence',
     verificationCaveat: 'A matching appId is self-declared metadata. This does not verify ownership, authentication, authorization, or app security.',
     openApp: 'Open app in a new tab',
@@ -92,7 +92,7 @@ const translations = {
     invalidAddress: 'Ongeldig adres. Vul een volledig HTTPS-adres in zonder gebruikersgegevens.',
     storageError: 'Deze instelling kon niet in de sessie worden opgeslagen. Controleer de browseropslag.',
     checkMetadata: 'Modulemetadata controleren',
-    evidenceDetails: 'Gecontroleerd op {checkedAt}; verloopt {expiresAt}. Verwachte appId: {expectedAppId}; ontvangen: {receivedAppId}.',
+    evidenceDetails: '{method} {endpoint} · Gecontroleerd op {checkedAt}; verloopt {expiresAt}. Verwachte appId: {expectedAppId}; ontvangen: {receivedAppId}.',
     reportedState: 'Zelfgerapporteerde status: {status}.',
     reason_wrong_identity: 'Het endpoint gaf niet de verwachte appId terug.',
     reason_invalid_response: 'Het antwoord voldoet niet aan het metadata-contract.',
@@ -101,7 +101,7 @@ const translations = {
     reason_request_unavailable: 'De browser kon het antwoord niet lezen (netwerk-, CORS-, TLS- of redirectfout).',
     reason_destination_unapproved: 'Deze exacte HTTPS-origin staat niet op de ingestelde goedkeuringslijst.',
     reason_invalid_url: 'Het ingestelde adres is geen geldige HTTPS-URL.',
-    destinationLabel: 'Bestemmingsdomein:',
+    destinationLabel: 'Bestemmingsorigin:',
     verificationLegend: 'Bewijs metadata-controle',
     verificationCaveat: 'Een overeenkomende appId is zelfgerapporteerde metadata. Dit controleert geen eigenaarschap, authenticatie, autorisatie of appbeveiliging.',
     openApp: 'App openen in een nieuw tabblad',
@@ -140,7 +140,7 @@ const translations = {
     invalidAddress: 'Nevalida adreso. Enigu kompletan HTTPS-URL sen uzantaj datumoj.',
     storageError: 'Ne eblis konservi la sesian agordon. Kontrolu la retumilan konservadon.',
     checkMetadata: 'Kontroli modulajn metadatumojn',
-    evidenceDetails: 'Kontrolita {checkedAt}; eksvalidiĝas {expiresAt}. Atendita appId: {expectedAppId}; ricevita: {receivedAppId}.',
+    evidenceDetails: '{method} {endpoint} · Kontrolita {checkedAt}; eksvalidiĝas {expiresAt}. Atendita appId: {expectedAppId}; ricevita: {receivedAppId}.',
     reportedState: 'Memraportita stato: {status}.',
     reason_wrong_identity: 'La endpoint ne raportis la atenditan appId.',
     reason_invalid_response: 'La respondo ne konformas al la metadatuma kontrakto.',
@@ -149,7 +149,7 @@ const translations = {
     reason_request_unavailable: 'La retumilo ne povis legi la respondon (reto, CORS, TLS aŭ alidirekto).',
     reason_destination_unapproved: 'Ĉi tiu HTTPS-origino ne estas en la agordita listo.',
     reason_invalid_url: 'La agordita adreso ne estas valida HTTPS-URL.',
-    destinationLabel: 'Cela domajno:',
+    destinationLabel: 'Cela origino:',
     verificationLegend: 'Pruvo de metadatuma kontrolo',
     verificationCaveat: 'Kongrua appId estas memraportita metadatumo. Ĝi ne kontrolas posedon, aŭtentigon, rajtigon aŭ aplikaĵan sekurecon.',
     openApp: 'Malfermi aplikaĵon en nova langeto',
@@ -161,7 +161,7 @@ const translations = {
 const modules = [
   { id: 'aether', name: 'AETHER', category: 'vaultCategory', description: 'vaultDescription', className: 'vault-card' },
   { id: 'bastion', name: 'Bastion', category: 'bastionCategory', description: 'bastionDescription', className: 'bastion-card' },
-  { id: 'scriptie', name: '5CRIPTIE', category: 'scriptieCategory', description: 'scriptieDescription', className: 'aegis-card' }
+  { id: 'scriptie', appId: '5criptie', name: '5CRIPTIE', category: 'scriptieCategory', description: 'scriptieDescription', className: 'aegis-card' }
 ];
 const storageKey = 'palaco-launcher-links-v1';
 const languageKey = 'palaco-language';
@@ -204,6 +204,9 @@ const strings = computed(() => translations[language.value]);
 const requestGuard = createRequestGuard();
 const expiryTimers = new Map();
 const clock = ref(Date.now());
+const refreshClock = () => {
+  clock.value = Date.now();
+};
 
 function clearEvidence(moduleId) {
   if (expiryTimers.has(moduleId)) clearTimeout(expiryTimers.get(moduleId));
@@ -224,7 +227,9 @@ for (const module of modules) {
 
 onBeforeUnmount(() => {
   for (const timer of expiryTimers.values()) clearTimeout(timer);
+  document.removeEventListener('visibilitychange', refreshClock);
 });
+document.addEventListener('visibilitychange', refreshClock);
 
 function persist(next) {
   try {
@@ -273,7 +278,7 @@ function status(module) {
   if (!url) return 'invalidAddress';
   if (!isOriginApproved(url.href, trustedOrigins[module.id])) return 'destinationUnapproved';
   const saved = settings[module.id];
-  if (!saved || draft !== saved.url) return 'configured';
+  if (!saved || draft !== saved.url) return 'unsaved';
   if (checking[module.id]) return 'checking';
   const currentEvidence = evidence[module.id];
   if (!currentEvidence) return 'configured';
@@ -301,11 +306,13 @@ function evidenceDetails(item) {
     .replace('{checkedAt}', date(item.checkedAt))
     .replace('{expiresAt}', date(item.expiresAt))
     .replace('{expectedAppId}', item.expectedAppId || '—')
-    .replace('{receivedAppId}', item.receivedAppId || '—');
+    .replace('{receivedAppId}', item.receivedAppId || '—')
+    .replace('{method}', item.method || '—')
+    .replace('{endpoint}', item.endpoint || '—');
 }
 
 function destination(module) {
-  return parseHttpsUrl(drafts[module.id])?.hostname || '';
+  return parseHttpsUrl(drafts[module.id])?.origin || '';
 }
 
 function isApproved(module) {
@@ -320,9 +327,14 @@ function canOpen(module) {
     && saved.url === drafts[module.id].trim()
     && currentEvidence?.status === 'metadata-confirmed'
     && currentEvidence.origin === parseHttpsUrl(saved.url)?.origin
-    && currentEvidence.expectedAppId === module.id
+    && currentEvidence.expectedAppId === module.appId
     && getEvidenceStatus(currentEvidence, clock.value) === 'metadata-confirmed'
   );
+}
+
+function openModule(module, event) {
+  refreshClock();
+  if (!canOpen(module)) event.preventDefault();
 }
 
 async function verify(module) {
@@ -334,7 +346,7 @@ async function verify(module) {
   checking[module.id] = true;
   errors[module.id] = '';
 
-  const outcome = await verifyModuleMetadata(saved.url, module.id, trustedOrigins[module.id]);
+  const outcome = await verifyModuleMetadata(saved.url, module.appId, trustedOrigins[module.id]);
   const current = commitIfCurrent({
     guard: requestGuard,
     id: module.id,
@@ -448,7 +460,7 @@ document.title = strings.value.title;
             >{{ strings[status(module)] }}</p>
 
             <template v-if="drafts[module.id].trim()">
-              <p class="destination">
+              <p v-if="destination(module)" class="destination">
                 <span>{{ strings.destinationLabel }}</span> <code data-domain>{{ destination(module) }}</code>
               </p>
               <button
@@ -480,6 +492,7 @@ document.title = strings.value.title;
                 :href="drafts[module.id]"
                 target="_blank"
                 rel="noopener noreferrer"
+                @click="openModule(module, $event)"
               >
                 {{ strings.openApp }} <ExternalLink :size="15" aria-hidden="true" />
               </a>
