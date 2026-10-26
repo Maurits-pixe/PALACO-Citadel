@@ -8,7 +8,7 @@ import { startReviewServer } from '../../scripts/serve-rio-unified-preview.mjs';
 
 const repository = fileURLToPath(new URL('../../', import.meta.url));
 const output = resolve(repository, 'render-dist');
-const ROOT_CACHE = 'palaco-rio-shell-v64-hara-readable-heading';
+const ROOT_CACHE = 'palaco-rio-shell-v65-haram-local-runtime';
 const HARA_ASSETS = ['/hara/', '/hara/index.html', '/hara/app.css', '/hara/app.js', '/hara/reference.jpg'];
 const REFERENCE_SHA256 = 'c6b7fa7adf66fbd6aeb58fbd0198e48f1c38fb1f5870aa87d7181076ee164de6';
 const previousRelation = {
@@ -92,6 +92,10 @@ async function boundaries(page) {
   await expect(page.locator('#review-gate')).toContainText('OPEN');
   await expect(page.locator('#connect-elixers')).toBeDisabled();
   await expect(page.locator('#connect-elixers')).toHaveAttribute('aria-describedby', 'connection-boundary');
+  await expect(page.locator('#hara-runtime-link')).toHaveAttribute('href', 'http://127.0.0.1:4193/');
+  await expect(page.locator('#hara-runtime-link')).toHaveAttribute('target', '_blank');
+  await expect(page.locator('#hara-runtime-link')).toHaveAttribute('rel', 'noopener noreferrer');
+  await expect(page.locator('#hara-runtime-link')).toContainText('deze computer');
   await expect(page.locator('#connection-boundary')).toContainText('activatie blijven geblokkeerd');
   await expect(page.locator('form, input, textarea, select')).toHaveCount(0);
 }

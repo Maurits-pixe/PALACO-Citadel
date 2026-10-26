@@ -1,0 +1,19 @@
+{
+  "name": "palaco-hara-household-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=../.env.local server.mjs",
+    "test": "node --test --test-concurrency=1 test/*.test.mjs",
+    "smoke": "node --env-file-if-exists=../.env.local smoke.mjs"
+  },
+  "dependencies": {
+    "@openai/agents": "0.21.0",
+    "openai": "7.43.0",
+    "zod": "4.6.7"
+  }
+}

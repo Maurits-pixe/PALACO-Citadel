@@ -10,7 +10,7 @@ import { CSP } from '../../scripts/build-rio-unified-preview.mjs';
 
 const repository = fileURLToPath(new URL('../../', import.meta.url));
 const output = resolve(repository, 'render-dist');
-const ROOT_CACHE = 'palaco-rio-shell-v64-hara-readable-heading';
+const ROOT_CACHE = 'palaco-rio-shell-v65-haram-local-runtime';
 const OLD_ROOT_CACHE = 'palaco-rio-shell-v35-guard-explanations';
 const APP_CACHE = 'palaco-rio-start-v0.1-9';
 const HARA_ASSETS = ['/hara/', '/hara/index.html', '/hara/app.css', '/hara/app.js', '/hara/reference.jpg'];

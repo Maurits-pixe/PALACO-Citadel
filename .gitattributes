@@ -9,6 +9,7 @@ ambassades/rio/nova/index.html text eol=lf
 # Pinned preview sources are explicitly normalized to LF; keep build bytes stable.
 ambassades/rio/visitcard/* text eol=lf
 ambassades/rio/visitcard/hara/* text eol=lf
+hara-runtime/public/* text eol=lf
 # Preserve the user-supplied PNG byte for byte, including embedded CRLF bytes.
 ambassades/rio/visitcard/citadel-icon.png binary
 ambassades/rio/visitcard/hara-icon.png binary
