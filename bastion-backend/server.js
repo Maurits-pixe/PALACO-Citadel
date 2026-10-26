@@ -2,11 +2,13 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import { createServer as createHttpsServer } from 'node:https';
 import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
 import express from 'express';
 import { validate as validateUuid, v4 as uuidv4 } from 'uuid';
 import { openDatabase } from './db.js';
 
+const directory = dirname(fileURLToPath(import.meta.url));
 const TICKET_TTL_MS = 30_000;
 const DEMO_OWNER_ID = 'local-demo';
 const DEFAULT_ORIGINS = ['https://localhost:5173', 'https://localhost:5175'];
@@ -173,23 +175,26 @@ export function createBastionDemoApp({
 }
 
 export function startBastionDemoServer({
-  db = openDatabase(resolve('bastion.db')),
+  db,
+  databasePath = resolve(directory, 'bastion.db'),
   port = Number(process.env.PORT || 3005),
   host = '127.0.0.1',
-  certPath = process.env.TLS_CERT_PATH || resolve('localhost.pem'),
-  keyPath = process.env.TLS_KEY_PATH || resolve('localhost-key.pem'),
+  certPath = process.env.TLS_CERT_PATH || resolve(directory, 'localhost.pem'),
+  keyPath = process.env.TLS_KEY_PATH || resolve(directory, 'localhost-key.pem'),
   allowedOrigins = parseOrigins(process.env.ALLOWED_ORIGINS)
 } = {}) {
-  const app = createBastionDemoApp({ db, allowedOrigins });
-  const server = createHttpsServer({
+  const credentials = {
     cert: readFileSync(certPath),
     key: readFileSync(keyPath)
-  }, app);
+  };
+  const activeDb = db || openDatabase(databasePath);
+  const app = createBastionDemoApp({ db: activeDb, allowedOrigins });
+  const server = createHttpsServer(credentials, app);
   server.listen(port, host);
-  return { server, db };
+  return { server, db: activeDb };
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === resolve(new URL(import.meta.url).pathname)) {
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     const { server, db } = startBastionDemoServer();
     const shutdown = () => server.close(() => {

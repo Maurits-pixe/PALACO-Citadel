@@ -60,9 +60,12 @@ uploaded. The page has no account, recovery, persistent storage, or independent 
 audit. It is not a production vault; use strong passphrases and do not rely on it for highly
 sensitive data.
 
-Bastion uses invented tasks and personnel. Task changes are tab-local; demo messages are
-held in memory and removed from the view after 30 seconds. Messages are not transmitted,
-persisted, or securely erased, and the demo does not implement access control.
+Bastion's static preview uses invented tasks and personnel. Task changes are tab-local; demo
+messages are held in memory and removed from the view after 30 seconds. Messages are not
+transmitted, persisted, or securely erased, and the preview does not implement access control.
+An isolated local SQLite API prototype is documented in `bastion-backend/README.md`; it is not
+connected to the static preview or the separate PostgreSQL prototype, and it does not establish
+authentication, authorization, or D-013 compliance.
 
 5CRIPTIE generates decorative code-log entries, metrics, and data streams in the browser. It
 does not inspect source code or network traffic, monitor system health, detect threats, or

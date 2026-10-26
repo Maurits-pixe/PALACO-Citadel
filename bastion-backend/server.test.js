@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createServer } from 'node:http';
 import test from 'node:test';
 import { openDatabase } from './db.js';
-import { createBastionDemoApp } from './server.js';
+import { createBastionDemoApp, startBastionDemoServer } from './server.js';
 
 const launcherOrigin = 'https://localhost:5173';
 
@@ -138,4 +138,17 @@ test('database state survives closing and reopening the SQLite file', async t =>
   const reopened = openDatabase(filename);
   assert.equal(reopened.prepare('SELECT status FROM tasks WHERE id = 1').get().status, 'COMPLETED');
   reopened.close();
+});
+
+test('HTTPS startup refuses missing certificates before creating persistent data', t => {
+  const directory = mkdtempSync(join(tmpdir(), 'bastion-no-cert-'));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const databasePath = join(directory, 'not-created.db');
+  assert.throws(() => startBastionDemoServer({
+    port: 0,
+    certPath: join(directory, 'missing.pem'),
+    keyPath: join(directory, 'missing-key.pem'),
+    databasePath
+  }), /ENOENT/);
+  assert.equal(existsSync(databasePath), false);
 });
