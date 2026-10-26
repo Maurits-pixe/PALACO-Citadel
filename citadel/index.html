@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#080d14" />
+    <title>Citadel · Module launcher</title>
+    <link rel="stylesheet" href="./launcher.css" />
+    <script src="./launcher.js" defer></script>
+  </head>
+  <body>
+    <header class="launcher-header">
+      <a class="home-link" href="/" data-i18n="homeLink">← Citadel home</a>
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">C</span>
+        <div>
+          <p class="eyebrow" data-i18n="eyebrow">CITADEL · MODULE ACCESS</p>
+          <h1>CITADEL <span data-i18n="launcherWord">LAUNCHER</span></h1>
+        </div>
+      </div>
+      <label class="language-control">
+        <span data-i18n="languageLabel">Language</span>
+        <select id="language-select">
+          <option value="en">English</option>
+          <option value="nl">Nederlands</option>
+          <option value="eo">Esperanto</option>
+        </select>
+      </label>
+    </header>
+
+    <main class="launcher-main">
+      <section class="boundary-notice" aria-labelledby="boundary-title">
+        <span class="notice-icon" aria-hidden="true">i</span>
+        <div>
+          <h2 id="boundary-title" data-i18n="boundaryTitle">CONCEPT PREVIEWS · NOT OPERATIONAL SERVICES</h2>
+          <p data-i18n="boundaryBody">These modules are visual demos only. III6V9 does not protect or encrypt data; Bastion has no secure team communications; Aegis does not monitor live systems. Selecting a module grants no access or authority.</p>
+        </div>
+      </section>
+
+      <section id="module-menu" aria-labelledby="menu-title">
+        <div class="intro">
+          <p class="eyebrow" data-i18n="introEyebrow">SELECT A MODULE</p>
+          <h2 id="menu-title" data-i18n="menuTitle">Choose a Citadel preview</h2>
+          <p data-i18n="menuDescription">Open one of the existing concept previews in this workspace.</p>
+        </div>
+        <div class="module-grid">
+          <button class="module-card vault-card" type="button" data-module="iii6v9" aria-controls="module-frame">
+            <span class="module-symbol" aria-hidden="true">⌑</span>
+            <span class="module-name">III6V9</span>
+            <span class="module-category" data-i18n="vaultCategory">CIPHER VAULT CONCEPT</span>
+            <span class="module-description" data-i18n="vaultDescription">A visual cipher-vault concept with fictional examples; no authentication or encryption.</span>
+            <span class="module-action" data-i18n="openModule">OPEN PREVIEW</span>
+          </button>
+          <button class="module-card bastion-card" type="button" data-module="bastion" aria-controls="module-frame">
+            <span class="module-symbol" aria-hidden="true">▤</span>
+            <span class="module-name">BASTION</span>
+            <span class="module-category" data-i18n="bastionCategory">COMMAND-CENTER CONCEPT</span>
+            <span class="module-description" data-i18n="bastionDescription">A fictional team dashboard; no secure communications, authorization, or live roster.</span>
+            <span class="module-action" data-i18n="openModule">OPEN PREVIEW</span>
+          </button>
+          <button class="module-card aegis-card" type="button" data-module="aegis" aria-controls="module-frame">
+            <span class="module-symbol" aria-hidden="true">◉</span>
+            <span class="module-name">AEGIS</span>
+            <span class="module-category" data-i18n="aegisCategory">MONITORING CONCEPT</span>
+            <span class="module-description" data-i18n="aegisDescription">Synthetic traffic and metrics only; no live monitoring or threat detection.</span>
+            <span class="module-action" data-i18n="openModule">OPEN PREVIEW</span>
+          </button>
+        </div>
+      </section>
+
+      <section id="module-view" class="module-view" aria-label="Selected Citadel module" hidden>
+        <div class="module-toolbar">
+          <button id="return-button" class="return-button" type="button">
+            <span aria-hidden="true">←</span>
+            <span data-i18n="returnButton">BACK TO MODULES</span>
+          </button>
+          <h2 id="active-module-title"></h2>
+          <a id="standalone-link" class="standalone-link" href="/" target="_blank" rel="noopener" data-i18n="openStandalone">Open separately ↗</a>
+        </div>
+        <iframe id="module-frame" title="Selected Citadel module preview" referrerpolicy="no-referrer"></iframe>
+      </section>
+      <footer class="launcher-footer" data-i18n="footer">A launcher is only navigation. It does not change the capabilities or limitations of the selected preview.</footer>
+    </main>
+  </body>
+</html>

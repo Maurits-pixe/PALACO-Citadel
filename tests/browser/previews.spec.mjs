@@ -7,7 +7,8 @@ const surfaces = [
   { path: '/DOCS/levensader-readonly/index.html', title: 'PALACO · Objectinspectie', heading: 'Bekijk wat we weten.' },
   { path: '/citadel/iii6v9/', title: 'III6V9 · Concept preview', heading: 'III6V9' },
   { path: '/citadel/bastion/', title: 'Bastion · Command center demo', heading: 'BASTION' },
-  { path: '/citadel/aegis/', title: 'Aegis · Monitoring simulation', heading: 'AEGIS' }
+  { path: '/citadel/aegis/', title: 'Aegis · Monitoring simulation', heading: 'AEGIS' },
+  { path: '/citadel/', title: 'Citadel · Module launcher', heading: 'CITADEL LAUNCHER' }
 ];
 
 async function waitForWorker(page) {
@@ -54,11 +55,11 @@ test('replaces stale previews online, preserves them offline and retires only ow
   });
   await page.goto('/');
   await waitForWorker(page);
-  expect(await page.evaluate(() => caches.keys())).toEqual(expect.arrayContaining(['palaco-rio-shell-v8', 'unrelated-app-cache']));
+  expect(await page.evaluate(() => caches.keys())).toEqual(expect.arrayContaining(['palaco-rio-shell-v9', 'unrelated-app-cache']));
   expect(await page.evaluate(() => caches.keys())).not.toContain('palaco-rio-shell-v4');
 
   await page.evaluate(async paths => {
-    const cache = await caches.open('palaco-rio-shell-v8');
+    const cache = await caches.open('palaco-rio-shell-v9');
     for (const path of paths) {
       await cache.put(path, new Response('<title>Stale preview</title><h1>Stale preview</h1>', {
         headers: { 'Content-Type': 'text/html' }
@@ -74,7 +75,7 @@ test('replaces stale previews online, preserves them offline and retires only ow
     await expect(page).toHaveTitle(surface.title);
     expect(await page.evaluate(() => window.stalePreview)).toBeUndefined();
     expect(await page.evaluate(async path => {
-      const cache = await caches.open('palaco-rio-shell-v8');
+      const cache = await caches.open('palaco-rio-shell-v9');
       return (await cache.match(path)).text();
     }, surface.path)).not.toContain('Stale preview');
   }
@@ -92,7 +93,7 @@ test('replaces stale previews online, preserves them offline and retires only ow
   await page.goto('/');
   await page.evaluate(() => fetch('/registration/not-a-static-preview'));
   expect(await page.evaluate(async () => {
-    const cache = await caches.open('palaco-rio-shell-v8');
+    const cache = await caches.open('palaco-rio-shell-v9');
     return Boolean(await cache.match('/registration/not-a-static-preview'));
   })).toBe(false);
 });
