@@ -35,6 +35,7 @@ The PALACO 2040 Compass section now includes the following dashboard layers in C
 - RIO Conversation Dashboard — conversations as access to actions with context/consequence panels
 - ELIXER Dashboard — available apps/capabilities per context with clear choice impact
 - Aether — visual-only encoding demo; it has no protected vault or verified security level
+- [III6V9](citadel/iii6v9/) — static cipher-vault concept; no authentication, storage, encryption, or auto-wipe
 - Evolution Dashboard — canon/system changes with “what changes for me?” summary
 - Public Gateway Dashboard — public orientation layer with core concepts and safe onboarding
 
@@ -47,6 +48,10 @@ Implementation references:
 The Aether panel uses a fixed public sample to demonstrate reversible Base64 encoding.
 It is not encryption, authentication, secure storage, or a production vault; do not enter
 or store secrets in this demo.
+
+The III6V9 preview contains fictional interface examples only. Its decorative cipher lock
+does not authenticate, and its inactivity panel does not erase anything. It is not a vault
+and must not be used for real secrets.
 
 ## GitHub preparation canon
 
@@ -75,6 +80,7 @@ De bestaande GitHub Pages-publicatie behoudt `CNAME` (`hoofdkantoor.info`) en de
 - Atelier-wizard, uitsluitend lokaal DRAFT-concept: `https://hoofdkantoor.info/atelier/wizard.html`
 - Levensader-objectinspectie, read-only fixture: `https://hoofdkantoor.info/DOCS/levensader-readonly/`
   (ook de bestaande route met `index.html` blijft werken).
+- III6V9, uitsluitend statische conceptpreview: `https://hoofdkantoor.info/citadel/iii6v9/`.
 
 De homepage linkt naar de afzonderlijke statische previews. Online vraagt de service worker
 de actuele bestanden op dezelfde URL op; offline toont hij de laatst opgeslagen versie.
