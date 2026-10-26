@@ -46,6 +46,9 @@ Database and certificate files are ignored by Git. Seed records are fictional.
 - `POST /api/mutations/prepare` — accepts `COMPLETE` or `ESCALATE` with `{ "taskId": <positive integer> }` and returns a ticket valid for 30 seconds.
 - `POST /api/mutations/execute` — accepts `{ "ticketId": "<uuid>" }`, serializes the single-use operation in an SQLite immediate transaction, and rejects expired tickets without changing a task.
 
+API routes are limited to 60 requests per minute per client IP. This is a basic local-demo limit,
+not abuse protection for an exposed service.
+
 The fixed `local-demo` ticket owner is not a real user identity. The backend is not wired to the
 launcher metadata endpoint, and the static Bastion frontend remains local-only until separately
 integrated and reviewed.

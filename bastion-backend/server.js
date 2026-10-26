@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import express from 'express';
+import { rateLimit } from 'express-rate-limit';
 import { validate as validateUuid, v4 as uuidv4 } from 'uuid';
 import { openDatabase } from './db.js';
 
@@ -47,6 +48,12 @@ export function createBastionDemoApp({
     credentials: false
   }));
   app.use(bodyParser.json({ limit: '16kb', strict: true }));
+  app.use('/api', rateLimit({
+    windowMs: 60_000,
+    limit: 60,
+    standardHeaders: 'draft-8',
+    legacyHeaders: false
+  }));
 
   app.get('/health', (_req, res) => res.json({ status: 'demo-only' }));
 

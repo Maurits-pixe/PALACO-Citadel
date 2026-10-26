@@ -127,6 +127,15 @@ test('CORS grants only configured exact origins', async t => {
   assert.equal(denied.status, 200);
 });
 
+test('rate limits API traffic', async t => {
+  const { baseUrl } = await withApi(t);
+  let response;
+  for (let request = 0; request < 61; request += 1) {
+    response = await fetch(`${baseUrl}/api/tasks`);
+  }
+  assert.equal(response.status, 429);
+});
+
 test('database state survives closing and reopening the SQLite file', async t => {
   const directory = mkdtempSync(join(tmpdir(), 'bastion-restart-'));
   const filename = join(directory, 'bastion.db');
