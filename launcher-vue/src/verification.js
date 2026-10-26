@@ -1,6 +1,6 @@
 export const METADATA_PATH = '/.well-known/palaco-app.json';
 export const VERIFICATION_TIMEOUT_MS = 5000;
-export const VERIFICATION_TTL_MS = 5 * 60 * 1000;
+export const VERIFICATION_TTL_MS = 60 * 1000;
 const MAX_METADATA_BYTES = 16 * 1024;
 
 export function parseHttpsUrl(value) {
@@ -10,7 +10,15 @@ export function parseHttpsUrl(value) {
 
   try {
     const url = new URL(candidate);
-    return url.protocol === 'https:' && url.hostname && !url.username && !url.password ? url : null;
+    return url.protocol === 'https:'
+      && url.hostname
+      && !url.username
+      && !url.password
+      && url.pathname === '/'
+      && !url.search
+      && !url.hash
+      ? url
+      : null;
   } catch {
     return null;
   }

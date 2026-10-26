@@ -2,12 +2,14 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   METADATA_PATH,
+  VERIFICATION_TIMEOUT_MS,
   VERIFICATION_TTL_MS,
   commitIfCurrent,
   createRequestGuard,
   getEvidenceStatus,
   isOriginApproved,
   normalizeApprovedOrigin,
+  parseHttpsUrl,
   verifyModuleMetadata
 } from './verification.js';
 
@@ -31,6 +33,10 @@ test('normalizes and compares approved HTTPS origins including explicit ports', 
   assert.equal(normalizeApprovedOrigin('https://aether.example.test:8443/path'), null);
   assert.equal(normalizeApprovedOrigin('http://aether.example.test:8443'), null);
   assert.equal(isOriginApproved(url, origin), true);
+  assert.equal(parseHttpsUrl('https://aether.example.test:8443/somepath'), null);
+  assert.equal(parseHttpsUrl('https://aether.example.test:8443?query=value'), null);
+  assert.equal(parseHttpsUrl('https://aether.example.test:8443#fragment'), null);
+  assert.equal(isOriginApproved('https://aether.example.test:8443/somepath', origin), false);
   assert.equal(isOriginApproved('https://aether.example.test', origin), false);
   assert.equal(isOriginApproved('https://user@aether.example.test:8443', origin), false);
 });
@@ -156,6 +162,8 @@ test('treats network, CORS, TLS and redirect failures as unavailable', async t =
 });
 
 test('applies the timeout to a pending request and to reading the response body', async t => {
+  assert.equal(VERIFICATION_TIMEOUT_MS, 5000);
+
   await t.test('request timeout', async () => {
     const outcome = await verifyModuleMetadata(url, 'aether', origin, {
       timeoutMs: 5,
@@ -188,6 +196,8 @@ test('expires successful evidence and retains the checked origin and identity bi
   assert.equal(outcome.expectedAppId, 'aether');
   assert.equal(outcome.receivedAppId, 'aether');
   assert.equal(outcome.reportedStatus, 'operational');
+  assert.equal(VERIFICATION_TTL_MS, 60_000);
+  assert.equal(outcome.expiresAt, outcome.checkedAt + 60_000);
   assert.equal(outcome.endpoint, `${origin}${METADATA_PATH}`);
   assert.equal(outcome.method, 'GET');
   assert.equal(getEvidenceStatus(outcome, outcome.expiresAt - 1), 'metadata-confirmed');
@@ -217,4 +227,38 @@ test('does not commit an old response after its saved URL changes', () => {
   });
   assert.equal(committed, false);
   assert.deepEqual(results, []);
+});
+
+test('a later URL check wins even when an earlier response completes afterwards', async () => {
+  const guard = createRequestGuard();
+  const results = [];
+  const oldGeneration = guard.begin('aether');
+  const oldResponse = new Promise(resolve => {
+    setTimeout(() => {
+      resolve(commitIfCurrent({
+        guard,
+        id: 'aether',
+        generation: oldGeneration,
+        currentUrl: 'https://new.example.test',
+        expectedUrl: 'https://old.example.test',
+        value: 'old result',
+        commit: value => results.push(value)
+      }));
+    }, 10);
+  });
+
+  const newGeneration = guard.begin('aether');
+  const newCommitted = commitIfCurrent({
+    guard,
+    id: 'aether',
+    generation: newGeneration,
+    currentUrl: 'https://new.example.test',
+    expectedUrl: 'https://new.example.test',
+    value: 'new result',
+    commit: value => results.push(value)
+  });
+
+  assert.equal(newCommitted, true);
+  assert.equal(await oldResponse, false);
+  assert.deepEqual(results, ['new result']);
 });
