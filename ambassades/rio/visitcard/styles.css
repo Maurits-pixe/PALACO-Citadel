@@ -696,6 +696,7 @@ footer small { grid-column: 1 / -1; }
 
 @media (max-width: 420px) {
   .taskbar { grid-template-columns: repeat(auto-fit, minmax(max(44px, 2.75rem), 1fr)); }
+  .taskbar-item:first-child { padding-inline: 0; }
   .taskbar-label { display: grid; place-items: center; }
   .taskbar-detail {
     position: absolute;
@@ -721,7 +722,7 @@ footer small { grid-column: 1 / -1; }
     white-space: nowrap;
     border: 0;
   }
-  .taskbar-compact-label { display: block; }
+  .taskbar-compact-label { display: block; overflow-wrap: normal; }
   .taskbar-item:disabled {
     border-style: dashed;
     border-color: rgba(16, 36, 62, 0.22);
