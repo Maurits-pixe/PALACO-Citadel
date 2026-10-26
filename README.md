@@ -39,6 +39,7 @@ The PALACO 2040 Compass section now includes the following dashboard layers in C
 - [Bastion](citadel/bastion/) — fictional command-center simulation; local-only messages, no secure comms or live roster
 - [5CRIPTIE](citadel/aegis/) — synthetic code-integrity dashboard; no source scan, live monitoring, detection, or defensive actions
 - [PALACO Hoofdkantoor](citadel/) — opens AETHER, Bastion, or 5CRIPTIE in the same screen; navigation does not grant access or capabilities
+- [React launcher](citadel/react/) — separate React entry point for the same previews; source is in `src/`
 - Evolution Dashboard — canon/system changes with “what changes for me?” summary
 - Public Gateway Dashboard — public orientation layer with core concepts and safe onboarding
 
@@ -69,6 +70,10 @@ block activity, and must not be used for operational security decisions.
 The PALACO Hoofdkantoor launcher embeds these same static previews in an iframe for convenient
 navigation. Embedding does not provide security isolation, authentication, access control,
 or operational capability; each module retains its own demo limitations.
+
+Build the standalone React launcher with `npm run build`; it is emitted to `citadel/react/`.
+The Pages workflow builds it for deployment, while the root homepage and `/citadel/` launcher
+remain unchanged.
 
 ## GitHub preparation canon
 
