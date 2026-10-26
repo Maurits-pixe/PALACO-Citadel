@@ -10,10 +10,11 @@ import { CSP } from '../../scripts/build-rio-unified-preview.mjs';
 
 const repository = fileURLToPath(new URL('../../', import.meta.url));
 const output = resolve(repository, 'render-dist');
-const ROOT_CACHE = 'palaco-rio-shell-v62-font-metrics';
+const ROOT_CACHE = 'palaco-rio-shell-v63-hara-dashboard';
 const OLD_ROOT_CACHE = 'palaco-rio-shell-v35-guard-explanations';
 const APP_CACHE = 'palaco-rio-start-v0.1-9';
-const ROOT_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/rio-engine-web.mjs', '/engine.mjs', '/chat-preview.mjs', '/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg', '/citadel-icon.png', '/hara-icon.png', '/mundo-icon.png', '/integration.mjs', '/rio/reception/nova.png'].sort();
+const HARA_ASSETS = ['/hara/', '/hara/index.html', '/hara/app.css', '/hara/app.js', '/hara/reference.jpg'];
+const ROOT_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/rio-engine-web.mjs', '/engine.mjs', '/chat-preview.mjs', '/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg', '/citadel-icon.png', '/hara-icon.png', '/mundo-icon.png', '/integration.mjs', '/rio/reception/nova.png', ...HARA_ASSETS].sort();
 const APP_ASSETS = ['/rio/', '/rio/start.js', '/rio/manifest.webmanifest', '/rio/icon-192.png', '/rio/icon-512.png'].sort();
 let fixture;
 const errors = new WeakMap();
@@ -89,12 +90,13 @@ test('generated public bundle has working mutual navigation, twelve VisitCard la
   await expect(page.locator('#rio-title')).toContainText('RIO');
   const rootTitles = new Set();
   const integrationPolicies = new Set();
-  const hara = page.locator('.taskbar button').filter({ has: page.locator('img[src="/hara-icon.png"]') });
+  const hara = page.locator('#hara-dashboard-link');
   const haraIcon = hara.locator('img');
   const mundo = page.locator('.taskbar button').filter({ has: page.locator('img[src="/mundo-icon.png"]') });
   const mundoIcon = mundo.locator('img');
   const unavailable = { nl: 'Niet beschikbaar', en: 'Unavailable', de: 'Nicht verfügbar', fr: 'Indisponible', es: 'No disponible', it: 'Non disponibile', pt: 'Indisponível', ru: 'Недоступно', eo: 'Nedisponebla', pl: 'Niedostępne', ar: 'غير متاح', zh: '暂不可用' };
   const consumer = { nl: 'Consument', en: 'Consumer', de: 'Verbraucher', fr: 'Consommateur', es: 'Consumidor', it: 'Consumatore', pt: 'Consumidor', ru: 'Потребитель', eo: 'Konsumanto', pl: 'Konsument', ar: 'مستهلك', zh: '消费者' };
+  const haraPreview = { nl: 'Dashboardpreview · Nederlands', en: 'Dashboard preview · Dutch', de: 'Dashboard-Vorschau · Niederländisch', fr: 'Aperçu du tableau de bord · néerlandais', es: 'Vista previa del panel · neerlandés', it: 'Anteprima dashboard · neerlandese', pt: 'Prévia do painel · neerlandês', ru: 'Предпросмотр панели · нидерландский', eo: 'Panela antaŭrigardo · nederlanda', pl: 'Podgląd panelu · niderlandzki', ar: 'معاينة لوحة المعلومات · الهولندية', zh: '仪表板预览 · 荷兰语' };
   const landmarkNames = {
     nl: ['Hoofdnavigatie', 'Taal'], en: ['Main navigation', 'Language'],
     de: ['Hauptnavigation', 'Sprache'], fr: ['Navigation principale', 'Langue'],
@@ -126,8 +128,9 @@ test('generated public bundle has working mutual navigation, twelve VisitCard la
       const box = button.getBoundingClientRect();return { width: box.width, height: box.height };
     }));
     expect(languageTargets.every(box => box.width >= 44 && box.height >= 44), language + ' language touch targets').toBe(true);
-    await expect(hara).toBeDisabled();
-    await expect(hara).toHaveAccessibleName('HARA ELIXER HARAM ' + unavailable[language]);
+    await expect(hara).toHaveAttribute('href', '/hara/');
+    await expect(hara).toHaveAttribute('hreflang', 'nl');
+    await expect(hara).toHaveAccessibleName('HARA ELIXER HARAM ' + haraPreview[language]);
     await expect(mundo).toBeDisabled();
     await expect(mundo).toHaveAccessibleName('MUNDO ' + consumer[language] + ' · ' + unavailable[language]);
     rootTitles.add((await page.locator('[data-i18n="tagline"]').textContent()).trim());
@@ -288,7 +291,7 @@ test('root worker excludes private, query, download, POST and real loopback cros
   } finally { await context.close(); await isolated.close(); await other.close(); }
 });
 
-test('fixed v35 root update to v62 genuinely waits and preserves the active RIO worker, contacts and unrelated cache', async ({ browser }, testInfo) => {
+test('fixed v35 root update to v63 genuinely waits and preserves the active RIO worker, contacts and unrelated cache', async ({ browser }, testInfo) => {
   const legacyWorker = await readFile(new URL('./fixtures/root-v35-sw.js', import.meta.url), 'utf8');
   const currentWorker = await readFile(join(output, 'sw.js'), 'utf8');
   expect(currentWorker).not.toContain('skipWaiting');
@@ -316,7 +319,7 @@ test('fixed v35 root update to v62 genuinely waits and preserves the active RIO 
       await unknown.put('/unrelated-public', new Response('preserve'));
     });
     expect(await cacheContents(app)).toEqual([
-      { name: OLD_ROOT_CACHE, paths: ROOT_ASSETS.filter(path => !['/integration.mjs', '/rio/reception/nova.png', '/citadel-icon.png', '/hara-icon.png', '/mundo-icon.png'].includes(path)) },
+      { name: OLD_ROOT_CACHE, paths: ROOT_ASSETS.filter(path => !['/integration.mjs', '/rio/reception/nova.png', '/citadel-icon.png', '/hara-icon.png', '/mundo-icon.png', ...HARA_ASSETS].includes(path)) },
       { name: APP_CACHE, paths: APP_ASSETS },
       { name: 'unrelated-app-public', paths: ['/unrelated-public'] },
     ].sort((a, b) => a.name.localeCompare(b.name)));

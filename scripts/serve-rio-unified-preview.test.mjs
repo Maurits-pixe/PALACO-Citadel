@@ -41,7 +41,7 @@ test('portable launcher uses only its adjacent package and matches the builder s
   copyFileSync(resolve(root, 'scripts/serve-rio-unified-preview.mjs'), launcher);
   const portable = await import(pathToFileURL(launcher));
   assert.deepEqual(portable.defaultReviewPaths(), paths);
-  assert.equal(portable.loadReviewSnapshot(paths).size, 25);
+  assert.equal(portable.loadReviewSnapshot(paths).size, 29);
 });
 
 test('manifest cannot add private files, repeat entries, or turn on operational flags', () => {
@@ -79,7 +79,7 @@ test('real loopback server confines files, methods, Host and Origin and serves i
   assert.equal(home.headers['access-control-allow-origin'], undefined);
   assert.equal(home.headers['cache-control'], 'no-store');
   assert.equal(home.headers['content-type'], 'text/html; charset=utf-8');
-  for (const path of ['/api/rio/nova/session', '/.env', '/build-manifest.json', '/review-server.mjs', '/rio/identity-design/draft.json', '/../outside.svg']) {
+  for (const path of ['/api/rio/nova/session', '/.env', '/build-manifest.json', '/review-server.mjs', '/rio/identity-design/draft.json', '/../outside.svg', '/hara/.env', '/hara/source-record.json', '/hara/private.json', '/hara']) {
     assert.equal((await get(review.origin, path)).status, 404, path);
   }
   for (const path of ['/../%2e%2e/.env', '/?token=example', 'http://[']) assert.equal((await get(review.origin, path)).status, 400);
@@ -93,9 +93,19 @@ test('real loopback server confines files, methods, Host and Origin and serves i
   assert.deepEqual(download.body, readFileSync(resolve(paths.directory, 'rio/download')));
   assert.equal((await get(review.origin, '/sw.js')).headers['service-worker-allowed'], '/');
   assert.equal((await get(review.origin, '/rio/sw.js')).headers['service-worker-allowed'], '/rio/');
-  for (const path of ['/rio/', '/rio/reception/']) assert.equal((await get(review.origin, path)).status, 200);
+  for (const path of ['/rio/', '/rio/reception/', '/hara/']) assert.equal((await get(review.origin, path)).status, 200);
+  const dashboard=await get(review.origin,'/hara/');
+  assert.equal(dashboard.headers['content-type'],'text/html; charset=utf-8');
+  assert.deepEqual(dashboard.body,(await get(review.origin,'/hara/index.html')).body);
+  const reference=await get(review.origin,'/hara/reference.jpg');
+  assert.equal(reference.status,200);assert.equal(reference.headers['content-type'],'image/jpeg');
+  assert.equal(reference.body.length,31511);
+  assert.deepEqual(reference.body,readFileSync(resolve(paths.directory,'hara/reference.jpg')));
+  assert.deepEqual(reference.body,readFileSync(resolve(root,'ambassades/rio/visitcard/hara/reference.jpg')));
   writeFileSync(resolve(paths.directory, 'index.html'), 'changed after verification');
   assert.deepEqual((await get(review.origin, '/')).body, home.body);
+  writeFileSync(resolve(paths.directory,'hara/reference.jpg'),'changed after verification');
+  assert.deepEqual((await get(review.origin,'/hara/reference.jpg')).body,reference.body);
 });
 
 test('only exact app language queries reach immutable public bytes; other queries and aliases remain closed', async t => {
@@ -109,6 +119,7 @@ test('only exact app language queries reach immutable public bytes; other querie
     assert.equal(response.headers['cache-control'], 'no-store');
   }
   for (const path of ['/?lang=fr','/rio/index.html?lang=fr','/rio/reception/?lang=fr',
+    '/hara/?lang=it','/hara/index.html?lang=it','/hara/reference.jpg?probe=1',
     '/api/?lang=fr','/rio/?lang=FR','/rio/?lang=xx','/rio/?lang=',
     '/rio/?lang=fr&lang=en','/rio/?lang=fr&token=example','/rio/?lang=%66r',
     '/rio/?%6cang=fr','/rio/?lang=fr/../index.html','/rio/?lang=fr#extra']) {

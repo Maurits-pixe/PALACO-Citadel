@@ -1763,20 +1763,21 @@ const releasePanelTranslations = {
   }
 };
 const taskbarTranslations = {
-  nl: { taskbarLabel: 'PALACO hoofdnavigatie', unavailable: 'Niet beschikbaar', here: 'Hier', consumer: 'Consument', personalAccount: 'Persoonlijk account', navigationBoundary: 'Kies een plek. HARA en MUNDO zijn nog niet beschikbaar. Tijdelijke inhoud blijft op deze geopende pagina. Sluiten of herladen kan haar wissen. De accountlink meldt je niet aan en bevestigt niet wie je bent.' },
-  en: { taskbarLabel: 'PALACO main navigation', unavailable: 'Unavailable', here: 'Here', consumer: 'Consumer', personalAccount: 'Personal account', navigationBoundary: 'Choose a place. HARA and MUNDO are not available yet. Temporary content stays on this open page. Closing or reloading may clear it. The account link does not sign you in or verify your identity.' },
-  de: { taskbarLabel: 'PALACO Hauptnavigation', unavailable: 'Nicht verfügbar', here: 'Hier', consumer: 'Verbraucher', personalAccount: 'Persönliches Konto', navigationBoundary: 'Wähle einen Ort. HARA und MUNDO sind noch nicht verfügbar. Vorübergehende Inhalte bleiben auf dieser geöffneten Seite. Schließen oder Neuladen kann sie löschen. Der Kontolink meldet dich nicht an und bestätigt nicht deine Identität.' },
-  fr: { taskbarLabel: 'Navigation principale PALACO', unavailable: 'Indisponible', here: 'Ici', consumer: 'Consommateur', personalAccount: 'Compte personnel', navigationBoundary: 'Choisissez un lieu. HARA et MUNDO ne sont pas encore disponibles. Le contenu temporaire reste sur cette page ouverte. Fermer ou recharger peut l’effacer. Le lien du compte ne vous connecte pas et ne vérifie pas votre identité.' },
-  es: { taskbarLabel: 'Navegación principal PALACO', unavailable: 'No disponible', here: 'Aquí', consumer: 'Consumidor', personalAccount: 'Cuenta personal', navigationBoundary: 'Elige un lugar. HARA y MUNDO aún no están disponibles. El contenido temporal permanece en esta página abierta. Cerrar o recargar puede borrarlo. El enlace de cuenta no inicia sesión ni verifica tu identidad.' },
-  ar: { taskbarLabel: 'التنقل الرئيسي في PALACO', unavailable: 'غير متاح', here: 'هنا', consumer: 'مستهلك', personalAccount: 'حساب شخصي', navigationBoundary: 'اختر مكانًا. HARA وMUNDO غير متاحين بعد. يبقى المحتوى المؤقت في هذه الصفحة المفتوحة. قد يؤدي الإغلاق أو إعادة التحميل إلى مسحه. رابط الحساب لا يسجل دخولك ولا يتحقق من هويتك.' },
-  zh: { taskbarLabel: 'PALACO 主导航', unavailable: '暂不可用', here: '当前页面', consumer: '消费者', personalAccount: '个人账户', navigationBoundary: '选择一个地方。HARA 和 MUNDO 暂不可用。临时内容保留在此打开的页面中。关闭或重新加载可能会清除它。账户链接不会登录或验证你的身份。' },
+  nl: { taskbarLabel: 'PALACO hoofdnavigatie', unavailable: 'Niet beschikbaar', here: 'Hier', consumer: 'Consument', personalAccount: 'Persoonlijk account', haraPreview: 'Dashboardpreview · Nederlands', navigationBoundary: 'Kies een plek. HARA opent een alleen-lezen dashboardpreview in het Nederlands. De HARA-dienst en MUNDO zijn nog niet beschikbaar. Tijdelijke inhoud blijft op deze geopende pagina. Sluiten of herladen kan haar wissen. De accountlink meldt je niet aan en bevestigt niet wie je bent.' },
+  en: { taskbarLabel: 'PALACO main navigation', unavailable: 'Unavailable', here: 'Here', consumer: 'Consumer', personalAccount: 'Personal account', haraPreview: 'Dashboard preview · Dutch', navigationBoundary: 'Choose a place. HARA opens a read-only dashboard preview in Dutch. The HARA service and MUNDO are not available yet. Temporary content stays on this open page. Closing or reloading may clear it. The account link does not sign you in or verify your identity.' },
+  de: { taskbarLabel: 'PALACO Hauptnavigation', unavailable: 'Nicht verfügbar', here: 'Hier', consumer: 'Verbraucher', personalAccount: 'Persönliches Konto', haraPreview: 'Dashboard-Vorschau · Niederländisch', navigationBoundary: 'Wähle einen Ort. HARA öffnet eine schreibgeschützte Dashboard-Vorschau auf Niederländisch. Der HARA-Dienst und MUNDO sind noch nicht verfügbar. Vorübergehende Inhalte bleiben auf dieser geöffneten Seite. Schließen oder Neuladen kann sie löschen. Der Kontolink meldet dich nicht an und bestätigt nicht deine Identität.' },
+  fr: { taskbarLabel: 'Navigation principale PALACO', unavailable: 'Indisponible', here: 'Ici', consumer: 'Consommateur', personalAccount: 'Compte personnel', haraPreview: 'Aperçu du tableau de bord · néerlandais', navigationBoundary: 'Choisissez un lieu. HARA ouvre un aperçu du tableau de bord en lecture seule, en néerlandais. Le service HARA et MUNDO ne sont pas encore disponibles. Le contenu temporaire reste sur cette page ouverte. Fermer ou recharger peut l’effacer. Le lien du compte ne vous connecte pas et ne vérifie pas votre identité.' },
+  es: { taskbarLabel: 'Navegación principal PALACO', unavailable: 'No disponible', here: 'Aquí', consumer: 'Consumidor', personalAccount: 'Cuenta personal', haraPreview: 'Vista previa del panel · neerlandés', navigationBoundary: 'Elige un lugar. HARA abre una vista previa del panel de solo lectura, en neerlandés. El servicio HARA y MUNDO aún no están disponibles. El contenido temporal permanece en esta página abierta. Cerrar o recargar puede borrarlo. El enlace de cuenta no inicia sesión ni verifica tu identidad.' },
+  ar: { taskbarLabel: 'التنقل الرئيسي في PALACO', unavailable: 'غير متاح', here: 'هنا', consumer: 'مستهلك', personalAccount: 'حساب شخصي', haraPreview: 'معاينة لوحة المعلومات · الهولندية', navigationBoundary: 'اختر مكانًا. يفتح HARA معاينة للوحة المعلومات باللغة الهولندية، للقراءة فقط. خدمة HARA وMUNDO غير متاحين بعد. يبقى المحتوى المؤقت في هذه الصفحة المفتوحة. قد يؤدي الإغلاق أو إعادة التحميل إلى مسحه. رابط الحساب لا يسجل دخولك ولا يتحقق من هويتك.' },
+  zh: { taskbarLabel: 'PALACO 主导航', unavailable: '暂不可用', here: '当前页面', consumer: '消费者', personalAccount: '个人账户', haraPreview: '仪表板预览 · 荷兰语', navigationBoundary: '选择一个地方。HARA 打开荷兰语的只读仪表板预览。HARA 服务和 MUNDO 暂不可用。临时内容保留在此打开的页面中。关闭或重新加载可能会清除它。账户链接不会登录或验证你的身份。' },
   pt: {
     "taskbarLabel": "Navegação principal da PALACO",
     "unavailable": "Indisponível",
     "here": "Aqui",
     "consumer": "Consumidor",
     "personalAccount": "Conta pessoal",
-    "navigationBoundary": "Escolha um lugar. HARA e MUNDO ainda não estão disponíveis. O conteúdo temporário fica nesta página aberta. Fechar ou recarregar pode apagá-lo. A ligação para a conta não inicia sessão nem confirma a sua identidade."
+    "haraPreview": "Prévia do painel · neerlandês",
+    "navigationBoundary": "Escolha um lugar. HARA abre uma prévia do painel só de leitura, em neerlandês. O serviço HARA e MUNDO ainda não estão disponíveis. O conteúdo temporário fica nesta página aberta. Fechar ou recarregar pode apagá-lo. A ligação para a conta não inicia sessão nem confirma a sua identidade."
   },
   ru: {
     "taskbarLabel": "Основная навигация PALACO",
@@ -1784,7 +1785,8 @@ const taskbarTranslations = {
     "here": "Здесь",
     "consumer": "Потребитель",
     "personalAccount": "Личный аккаунт",
-    "navigationBoundary": "Выберите место. HARA и MUNDO пока недоступны. Временное содержимое остаётся на этой открытой странице. Закрытие или перезагрузка может его удалить. Ссылка на аккаунт не выполняет вход и не подтверждает вашу идентичность."
+    "haraPreview": "Предпросмотр панели · нидерландский",
+    "navigationBoundary": "Выберите место. HARA открывает предпросмотр панели на нидерландском языке, только для чтения. Сервис HARA и MUNDO пока недоступны. Временное содержимое остаётся на этой открытой странице. Закрытие или перезагрузка может его удалить. Ссылка на аккаунт не выполняет вход и не подтверждает вашу идентичность."
   },
   eo: {
     "taskbarLabel": "Ĉefa navigado de PALACO",
@@ -1792,7 +1794,8 @@ const taskbarTranslations = {
     "here": "Ĉi tie",
     "consumer": "Konsumanto",
     "personalAccount": "Persona konto",
-    "navigationBoundary": "Elektu lokon. HARA kaj MUNDO ankoraŭ ne estas haveblaj. Provizora enhavo restas sur ĉi tiu malfermita paĝo. Fermo aŭ reŝargo povas forviŝi ĝin. La kontoligilo ne ensalutigas vin kaj ne konfirmas vian identecon."
+    "haraPreview": "Panela antaŭrigardo · nederlanda",
+    "navigationBoundary": "Elektu lokon. HARA malfermas nurlegeblan panelan antaŭrigardon en la nederlanda. La servo HARA kaj MUNDO ankoraŭ ne estas haveblaj. Provizora enhavo restas sur ĉi tiu malfermita paĝo. Fermo aŭ reŝargo povas forviŝi ĝin. La kontoligilo ne ensalutigas vin kaj ne konfirmas vian identecon."
   },
   pl: {
     "taskbarLabel": "Nawigacja główna PALACO",
@@ -1800,7 +1803,8 @@ const taskbarTranslations = {
     "here": "Tutaj",
     "consumer": "Konsument",
     "personalAccount": "Konto osobiste",
-    "navigationBoundary": "Wybierz miejsce. HARA i MUNDO nie są jeszcze dostępne. Tymczasowa treść pozostaje na tej otwartej stronie. Zamknięcie lub ponowne załadowanie może ją usunąć. Link do konta nie loguje cię ani nie potwierdza twojej tożsamości."
+    "haraPreview": "Podgląd panelu · niderlandzki",
+    "navigationBoundary": "Wybierz miejsce. HARA otwiera podgląd panelu tylko do odczytu, w języku niderlandzkim. Usługa HARA i MUNDO nie są jeszcze dostępne. Tymczasowa treść pozostaje na tej otwartej stronie. Zamknięcie lub ponowne załadowanie może ją usunąć. Link do konta nie loguje cię ani nie potwierdza twojej tożsamości."
   },
   it: {
     "taskbarLabel": "Navigazione principale PALACO",
@@ -1808,7 +1812,8 @@ const taskbarTranslations = {
     "here": "Qui",
     "consumer": "Consumatore",
     "personalAccount": "Account personale",
-    "navigationBoundary": "Scegli un luogo. HARA e MUNDO non sono ancora disponibili. I contenuti temporanei restano in questa pagina aperta. Chiuderla o ricaricarla può cancellarli. Il link dell’account non effettua l’accesso e non verifica la tua identità."
+    "haraPreview": "Anteprima dashboard · neerlandese",
+    "navigationBoundary": "Scegli un luogo. HARA apre un’anteprima della dashboard in sola lettura, in neerlandese. Il servizio HARA e MUNDO non sono ancora disponibili. I contenuti temporanei restano in questa pagina aperta. Chiuderla o ricaricarla può cancellarli. Il link dell’account non effettua l’accesso e non verifica la tua identità."
   }
 };
 const shareTranslations = {

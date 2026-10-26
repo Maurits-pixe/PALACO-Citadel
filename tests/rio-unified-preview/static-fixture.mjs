@@ -7,7 +7,7 @@ import { CSP } from '../../scripts/build-rio-unified-preview.mjs';
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8',
-  '.svg': 'image/svg+xml', '.png': 'image/png', '.webmanifest': 'application/manifest+json',
+  '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webmanifest': 'application/manifest+json',
 };
 export async function startStaticFixture(directory, { rootWorker, appWorker, csp = CSP, allowCrossOrigin = false } = {}) {
   const root = await realpath(directory);

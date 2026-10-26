@@ -7,10 +7,11 @@ $env:PLAYWRIGHT_BROWSERS_PATH = '..\browser-runtime'
 npx playwright test --config tests/rio-unified-preview/playwright.config.mjs
 ```
 
-The suite builds the 25-file public bundle before each project's worker starts.
-The navigation case checks the original HARA and MUNDO icons load at 36×36px
-while their buttons remain disabled and expose their full names and translated
-availability in all twelve VisitCard languages. MUNDO also retains its translated
+The suite builds the 29-file public bundle before each project's worker starts.
+The navigation case checks the original HARA and MUNDO icons load at 36×36px.
+HARA opens the local, read-only Dutch dashboard preview, with the destination
+language stated in all twelve VisitCard languages; its full name remains
+accessible. MUNDO remains a disabled button and retains its translated
 consumer label; its original PNG has a natural size of 256×256px and its served
 bytes match the original attachment's pinned SHA-256. All three original
 navigation PNGs are included in the current root worker cache; fixed historical
@@ -28,7 +29,8 @@ target reserves its horizontal space for text and wraps only between words,
 including when the platform's system font has wider glyphs; intermediate
 desktop widths put language choice below the brand and main navigation, keeping
 the visual and native keyboard order aligned. The original icons,
-destinations and availability states stay unchanged.
+MUNDO availability and other destinations stay unchanged; the HARA icon now has
+the explicit local dashboard destination.
 The floating chat button names its current action in all twelve languages:
 Open chat while closed, Close chat while open. Existing language, dock and
 short-screen cases exercise the control and preserve work through these changes;
@@ -52,7 +54,7 @@ root text. `nova-language-handoff.spec.mjs` adds five cases per surface for
 local-only language fragments, exact validation, keyboard focus, browser fallback,
 script-free fallback, file-mode isolation and narrow layout. A sixth case per
 surface checks all 23 source-language choices at 320px with actual 32px root/body
-text, including wrapping mobile navigation. The complete suite now has 130 browser
+text, including wrapping mobile navigation. The complete suite now has 140 browser
 cases, including worker migration, departure and independent exercise-reset checks.
 
 `chat-dock-layout.spec.mjs` adds four cases per surface. The chat toggle follows
@@ -133,7 +135,7 @@ cache entry.
 It intentionally includes its old broad fetch handler and destructive cache
 cleanup. It first activates in an empty, isolated profile; only afterward are the
 app worker, app cache, unrelated cache and fictitious contact created. The current
-v62 worker must then reach the real `waiting` state without reloading its open
+v63 worker must then reach the real `waiting` state without reloading its open
 client. Closing the root client allows activation while the app remains open.
 The test proves migration from this fixed old worker/cache state; it does not
 reconstruct the historical HTML or claim that the old cleanup was safe.
@@ -141,7 +143,7 @@ reconstruct the historical HTML or claim that the old cleanup was safe.
 `language-worker-update.spec.mjs` also installs fixed root v37 and generated app
 v5 workers from the previous bf6d865 preview. Both new workers must reach the
 actual waiting state while their old pages remain open. Closing only the app
-activates v9 while root v62 keeps waiting; closing the root then activates v62.
+activates v9 while root v63 keeps waiting; closing the root then activates v63.
 The fictitious contact, unrelated cache, separate registrations, new local
 language links and genuine offline reloads remain intact. The existing app
 worker keeps its scoped clients.claim; the root has neither clients.claim nor
@@ -155,16 +157,19 @@ Fixed fixture provenance (LF bytes pinned by .gitattributes):
   SHA256 4af7f56c4ae3d4616d701ba697b2bee1a28aaf015f230b231c71c604753fac9f.
 
 `departure-choice.spec.mjs` protects temporary VisitCard chat drafts, visitor
-messages, selected subjects and separate Engine drafts/dossiers. Only the two
-RIO route links and three fixed external taskbar links are guarded. A native
+messages, selected subjects and separate Engine drafts/dossiers. The two RIO
+route links, local HARA dashboard link and three fixed external taskbar links
+are guarded. A native
 dialog offers staying here or opening the checked public destination in a
 noopener/noreferrer tab. Empty/welcome-only/cleared chats keep direct navigation;
 same-page anchors, downloads and modified clicks retain browser behavior.
-The app's existing `?lang=` parser receives only one of the seven public root
+The app's existing `?lang=` parser receives only one of the twelve public root
 language codes in that new-tab link; NOVA keeps its existing language fragment.
 No message, draft, subject or dossier is copied. Seven languages, Arabic RTL,
 keyboard/Escape/backdrop/focus and 320px double-text layout are exercised.
-Public destination responses are intercepted locally, never contacted.
+External destination responses are intercepted locally, never contacted. HARA
+opens the actual generated `/hara/` page with no forwarded language, query,
+fragment, draft, memory or credentials; it stays explicitly Dutch.
 These departure checks use the actual portable review server. Its unit test
 accepts only `/rio/?lang=<known code>` as an additional raw public route;
 other query fields, duplicates, encodings and path aliases remain closed.
@@ -284,3 +289,20 @@ Continue is distinct from leaving a new dialog open until after an old close.
 No test grants identity, verifies a real phone or email, starts a chat service,
 contacts a person, deploys, or merges. Test output goes to
 `artifacts/rio-unified-preview`.
+
+`hara-dashboard.spec.mjs` adds five cases per surface. The Dutch, read-only HARA
+dashboard uses the supplied reference image without altering its bytes. Four
+native disclosure sections remain readable without JavaScript; the explicit
+exploration link opens Citadel and places focus on its summary. The review panel
+records “H∆R∆M is the Matriarch of H∆R∆” as CONFIRMED by Maurits's personal
+declaration on 2026-10-26. Its static JSON agrees exactly with the canonical
+declaration record and preserves the earlier NOT_ESTABLISHED finding as history.
+The supplied M/P/G definitions, registry criteria and review threshold remain
+visible; independent verification is NOT_PERFORMED and registry is DRAFT_RECORD.
+The candidate's separate human review remains OPEN, with no inherited
+capability, identity, issuance or activation granted. Tests cover blocked
+storage/cookie access, no API or external traffic, exact reference JPEG bytes,
+320px doubled text, keyboard focus and 44px targets, and genuine root-worker
+offline loading of all five HARA cache URLs. The actual portable server is used,
+including its strict path/query boundary. Fixed legacy workers remain untouched;
+their expected cache lists explicitly exclude all five later HARA URLs.

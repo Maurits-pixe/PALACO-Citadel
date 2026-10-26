@@ -11,7 +11,8 @@ const languages=['nl','en','de','fr','es','it','pt','ru','eo','pl','ar','zh'];
 const links=['#rio-unified-reception','#rio-unified-offline',
   '.taskbar a[href="https://palaco.mauritsvang1.chatgpt.site/"]',
   '.taskbar a[href="https://citadel.mauritsvang1.chatgpt.site/"]',
-  '.taskbar a[href="https://palaco.mauritsvang1.chatgpt.site/account.html"]'];
+  '.taskbar a[href="https://palaco.mauritsvang1.chatgpt.site/account.html"]',
+  '#hara-dashboard-link'];
 let fixture,surface;
 
 test.beforeEach(async({},info)=>{
@@ -359,6 +360,7 @@ test('each protected route opens a native isolated tab containing only its publi
         [links[2]]:'PALACO Hoofdkantoor',
         [links[3]]:'Citadel Consommateur',
         [links[4]]:'5CRIPTIE ID Compte personnel',
+        '#hara-dashboard-link':'HARA ELIXER HARAM Aperçu du tableau de bord · néerlandais',
       };
       await expect(page.locator('#rio-departure-name')).toHaveText(
         destinationNames[selector]??(await trigger.textContent()).trim());
@@ -378,6 +380,12 @@ test('each protected route opens a native isolated tab containing only its publi
       expect(JSON.stringify(await storage(popup))).not.toContain(memory);
       if(selector==='#rio-unified-offline')await expect(popup.locator('#language')).toHaveValue('fr');
       if(selector==='#rio-unified-reception')await expect(popup.locator('#nova-language')).toHaveValue('fr');
+      if(selector==='#hara-dashboard-link'){
+        await expect(popup.locator('html')).toHaveAttribute('lang','nl');
+        await expect(popup.locator('#matriarch-review')).toBeVisible();
+        expect(new URL(popup.url()).search).toBe('');
+        expect(new URL(popup.url()).hash).toBe('');
+      }
       const navigation=checked.requests.filter(request=>request.url===expected.split('#')[0]).at(-1);
       expect(navigation).toBeTruthy();
       expect(navigation.headers.referer).toBeUndefined();

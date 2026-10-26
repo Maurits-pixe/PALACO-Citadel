@@ -16,11 +16,17 @@ function files(dir, prefix='') {
 }
 
 test('actual static output contains only the explicit public surface; no backend, source contracts or test fixtures leak',()=>{
+ assert.equal(OUTPUT_FILES.length,29);
  assert.deepEqual(files(resolve(root,'render-dist')).sort(), [...OUTPUT_FILES].sort());
  for(const icon of ['citadel-icon.png','hara-icon.png','mundo-icon.png'])assert.deepEqual(bytes('render-dist/'+icon),bytes('ambassades/rio/visitcard/'+icon));
  assert.equal(hash('ambassades/rio/visitcard/mundo-icon.png'),'fc3d09b49035bde97673194b3730e0440223c621b0feb3222d2a473fb2ec7579');
+ for(const file of ['hara/index.html','hara/app.css','hara/app.js'])
+   assert.equal(source('render-dist/'+file),source('ambassades/rio/visitcard/'+file).replace(/\r\n/g,'\n'));
+ const reference=bytes('ambassades/rio/visitcard/hara/reference.jpg');
+ assert.equal(reference.length,31511);assert.equal(reference.subarray(0,3).toString('hex'),'ffd8ff');
+ assert.deepEqual(bytes('render-dist/hara/reference.jpg'),reference);
  for(const file of record.files){assert.equal(hash('render-dist/'+file.path),file.sha256);assert.ok(file.bytes>0);}
- for(const path of ['/api/rio/nova/session','auth/server.mjs','.env','rio/identity-design/draft.json','members.example.json','README.md','source-record.json']) {
+ for(const path of ['/api/rio/nova/session','auth/server.mjs','.env','rio/identity-design/draft.json','members.example.json','README.md','source-record.json','hara/.env','hara/source-record.json','hara/private.json']) {
    assert.ok(!record.files.some(file=>file.path===path.replace(/^\//,'')));
  }
  assert.equal(record.backendPublished,false);assert.equal(record.accountActive,false);assert.equal(record.canOpenContact,false);assert.equal(record.operativeAuthority,'NONE');
@@ -32,7 +38,7 @@ test('build transforms only preview artifacts; web app uses a self-only external
  const online=source('render-dist/rio/index.html'),download=source('render-dist/rio/download');
  assert.equal(record.onlineInlineScripts,false);assert.equal(record.downloadInlineScripts,true);
  assert.equal(Object.hasOwn(record,'inlineScripts'),false);
- for(const path of ['index.html','rio/index.html','rio/reception/index.html']) {
+ for(const path of ['index.html','rio/index.html','rio/reception/index.html','hara/index.html']) {
    assert.ok(!/<script(?![^>]*\bsrc=)[^>]*>/i.test(source('render-dist/'+path)),path);
  }
  assert.ok(online.includes('<script src="/rio/start.js" defer>'));

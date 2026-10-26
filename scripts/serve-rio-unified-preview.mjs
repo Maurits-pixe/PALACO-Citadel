@@ -10,11 +10,12 @@ export const REVIEW_FILES = Object.freeze(['index.html', 'styles.css', 'app.js',
   'manifest.webmanifest', 'icon-192.svg', 'icon-512.svg', 'citadel-icon.png', 'hara-icon.png', 'mundo-icon.png', 'rio-engine-web.mjs', 'engine.mjs',
   'chat-preview.mjs', 'integration.mjs', 'rio/index.html', 'rio/start.js', 'rio/download',
   'rio/sw.js', 'rio/manifest.webmanifest', 'rio/icon-192.png', 'rio/icon-512.png',
-  'rio/reception/index.html', 'rio/reception/app.css', 'rio/reception/app.js', 'rio/reception/nova.png']);
+  'rio/reception/index.html', 'rio/reception/app.css', 'rio/reception/app.js', 'rio/reception/nova.png',
+  'hara/index.html', 'hara/app.css', 'hara/app.js', 'hara/reference.jpg']);
 export const REVIEW_CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'";
 const TYPES = {'.html':'text/html; charset=utf-8', '.css':'text/css; charset=utf-8',
   '.js':'text/javascript; charset=utf-8', '.mjs':'text/javascript; charset=utf-8',
-  '.svg':'image/svg+xml', '.png':'image/png', '.webmanifest':'application/manifest+json'};
+  '.svg':'image/svg+xml', '.png':'image/png', '.jpg':'image/jpeg', '.webmanifest':'application/manifest+json'};
 const here = dirname(fileURLToPath(import.meta.url));
 export function defaultReviewPaths() {
   return existsSync(resolve(here, 'build-manifest.json'))
@@ -69,7 +70,7 @@ export async function startReviewServer({port = 4173, ...paths} = defaultReviewP
     // only this exact raw query, without decoding or accepting other fields.
     if (/^\/rio\/\?lang=(nl|en|de|fr|es|it|pt|ru|pl|zh|ar|eo)$/.test(path)) path = '/rio/';
     if (typeof path !== 'string' || !path.startsWith('/') || /[%?\\\x00-\x20]/.test(path)) return end(400);
-    const route = {'/':'/index.html', '/rio/':'/rio/index.html', '/rio/reception/':'/rio/reception/index.html'}[path] || path;
+    const route = {'/':'/index.html', '/rio/':'/rio/index.html', '/rio/reception/':'/rio/reception/index.html', '/hara/':'/hara/index.html'}[path] || path;
     if (!snapshot.has(route)) return end(404);
     if (route === '/rio/download') {
       headers['Content-Type'] = 'application/octet-stream';
