@@ -45,7 +45,7 @@ const copy = {
     noticeBody: 'Ĉiuj mapaj punktoj, minacaj valoroj, sistemaj mezuroj kaj atentigoj estas generataj en ĉi tiu retumilo. Aegis ne konektiĝas al reto, ne inspektas trafikon, ne detektas minacojn kaj nenion blokas. Ne uzu ĉi tiun ekranon por sekurecaj decidoj.',
     workspaceLabel: 'DEMA MEDIO', overviewTitle: 'Signala superrigardo', simulatedFeed: 'SINTETIKA FLUO',
     mapEyebrow: 'ILUSTRA · NE GEOGRAFIA', mapTitle: 'Trafika bildigo',
-    mapCaption: 'SINTETIKAJ SIGNALOJ · POZICIOJ ESTAS ORNAMaj'.toUpperCase(), signalPoint: 'Sinteza signalo', watchPoint: 'Simulita observa evento',
+    mapCaption: 'SINTETIKAJ SIGNALOJ · POZICIOJ ESTAS ORNAMAJ', signalPoint: 'Sinteza signalo', watchPoint: 'Simulita observa evento',
     threatEyebrow: 'HAZARDA DEMOVALORO', threatTitle: 'Minaca mezurilo', threatLow: 'MALALTA · SIMULITA',
     threatElevated: 'PLI ALTA · SIMULITA', threatHigh: 'ALTA · SIMULITA',
     threatNote: 'Ĉi tiu ŝanĝiĝanta valoro estas hazarda demo-eligo, ne takso de reala risko.',
@@ -163,7 +163,7 @@ function renderAlerts() {
 
 function updateSimulation() {
   tickCount += 1;
-  metrics.cpu.value = 25 + (tickCount * 7) % 58;
+  metrics.cpu.value = 24 + (tickCount * 7) % 58;
   metrics.memory.value = 40 + (tickCount * 5) % 48;
   metrics.network.value = 20 + (tickCount * 11) % 72;
   for (const name of Object.keys(metrics)) {
@@ -181,6 +181,7 @@ function updateSimulation() {
       source: `DEMO-NODE-${String((tickCount * 7) % 90 + 10).padStart(2, '0')}`,
       seconds: 0
     });
+    initialEvents.splice(8);
     renderAlerts();
   }
 }

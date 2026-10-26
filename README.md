@@ -37,6 +37,7 @@ The PALACO 2040 Compass section now includes the following dashboard layers in C
 - Aether — visual-only encoding demo; it has no protected vault or verified security level
 - [III6V9](citadel/iii6v9/) — static cipher-vault concept; no authentication, storage, encryption, or auto-wipe
 - [Bastion](citadel/bastion/) — fictional command-center simulation; local-only messages, no secure comms or live roster
+- [Aegis](citadel/aegis/) — monitoring visualization with synthetic data only; no live traffic, detection, or defensive actions
 - Evolution Dashboard — canon/system changes with “what changes for me?” summary
 - Public Gateway Dashboard — public orientation layer with core concepts and safe onboarding
 
@@ -57,6 +58,10 @@ and must not be used for real secrets.
 Bastion uses invented tasks and personnel. Task changes are tab-local; demo messages are
 held in memory and removed from the view after 30 seconds. Messages are not transmitted,
 persisted, or securely erased, and the demo does not implement access control.
+
+Aegis generates decorative map points, metrics, and alert examples in the browser. It does
+not inspect network traffic, monitor system health, detect threats, or block activity, and
+must not be used for operational security decisions.
 
 ## GitHub preparation canon
 

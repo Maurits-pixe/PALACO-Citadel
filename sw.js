@@ -1,4 +1,4 @@
-const CACHE_NAME = 'palaco-rio-shell-v7';
+const CACHE_NAME = 'palaco-rio-shell-v8';
 const SHELL_ASSETS = [
   '/', '/index.html', '/styles.css', '/app.js', '/manifest.webmanifest',
   '/assets/icon-192.svg', '/assets/icon-512.svg',
@@ -7,7 +7,9 @@ const SHELL_ASSETS = [
   '/citadel/iii6v9/', '/citadel/iii6v9/index.html',
   '/citadel/iii6v9/iii6v9.css', '/citadel/iii6v9/iii6v9.js',
   '/citadel/bastion/', '/citadel/bastion/index.html',
-  '/citadel/bastion/bastion.css', '/citadel/bastion/bastion.js'
+  '/citadel/bastion/bastion.css', '/citadel/bastion/bastion.js',
+  '/citadel/aegis/', '/citadel/aegis/index.html',
+  '/citadel/aegis/aegis.css', '/citadel/aegis/aegis.js'
 ];
 
 self.addEventListener('install', (event) => {
