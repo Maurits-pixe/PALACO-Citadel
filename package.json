@@ -5,14 +5,17 @@
   "scripts": {
     "test": "npm run test:rio && npm run test:server && npm run test:browser",
     "test:rio": "node rio/conformance.mjs",
-    "test:browser": "npm run build && npm run build:bastion && playwright test",
+    "test:browser": "npm run build:launcher && npm run build && npm run build:bastion && playwright test",
     "test:server": "node --test server/*.test.js",
     "dev:bastion": "vite --config vite.bastion.config.mjs",
+    "dev:react": "vite --config vite.config.mjs",
+    "dev:launcher": "vite --config vite.launcher.config.mjs",
     "server:bastion": "node server/index.js",
     "db:migrate:bastion": "node server/migrate.js",
     "db:bootstrap:bastion": "node server/bootstrap.js",
     "db:provision:bastion": "node server/provision-operative.js",
     "build:bastion": "vite build --config vite.bastion.config.mjs",
+    "build:launcher": "vite build --config vite.launcher.config.mjs",
     "test:incident-recovery": "node --test registration/recovery-inspector.test.mjs",
     "test:preview": "node --test registration/preview.test.mjs registration/registry.test.mjs registration/recovery-inspector.test.mjs atelier/wizard.test.mjs atelier/builder.test.mjs citadel-proof/proof.test.mjs",
     "test:preview:browser": "node --test registration/preview.browser.test.mjs",
@@ -20,7 +23,7 @@
     "test:rio:contact:browser": "playwright test --config rio/contact-preview/playwright.config.mjs",
     "test:rio:encrypted:browser": "playwright test --config rio/encrypted-reference/playwright.config.mjs",
     "build": "vite build --config vite.config.mjs",
-    "dev": "vite --config vite.config.mjs"
+    "dev": "npm run dev:launcher"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",

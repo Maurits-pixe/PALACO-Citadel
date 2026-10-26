@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('launcher accepts only HTTPS destinations and presents user-reported verification status', async ({ page }) => {
+test('Vue launcher accepts HTTPS destinations and labels user-reported verification honestly', async ({ page }) => {
   const externalRequests = [];
   page.on('request', request => {
     if (!request.url().startsWith('http://127.0.0.1:4173/')) externalRequests.push(request.url());
@@ -13,35 +13,37 @@ test('launcher accepts only HTTPS destinations and presents user-reported verifi
   await expect(page.locator('.module-card')).toHaveCount(3);
   await expect(page.locator('.module-name')).toHaveText(['AETHER', 'Bastion', '5CRIPTIE']);
   await expect(page.locator('iframe')).toHaveCount(0);
-  await expect(page.locator('[data-message]')).toHaveText([
+  await expect(page.locator('.module-message')).toHaveText([
     'Not configured',
     'Not configured',
     'Not configured'
   ]);
-  await expect(page.locator('.module-details[hidden]')).toHaveCount(3);
+  await expect(page.locator('.open-link')).toHaveCount(0);
 
   const aether = page.locator('.module-form[data-module="aether"]');
   const address = aether.locator('[data-url-input]');
   await address.fill('http://aether.example.test');
   await aether.locator('button[type="submit"]').click();
   await expect(aether.locator('[data-message]')).toHaveText(/Invalid address/);
-  await expect(aether.locator('.module-details')).toBeHidden();
+  await expect(aether.locator('.destination')).toHaveCount(0);
 
   await address.fill('https://vault.example.test/path?source=launcher');
   await aether.locator('button[type="submit"]').click();
   await expect(aether.locator('[data-message]')).toHaveText('Configured — not verified');
   await expect(aether.locator('[data-domain]')).toHaveText('vault.example.test');
+  await expect(aether.locator('[data-open-link]')).toHaveCount(0);
+  const confirmations = aether.locator('input[type="checkbox"]');
+
+  await confirmations.nth(0).check();
+  await confirmations.nth(1).check();
+  await expect(aether.locator('[data-message]')).toHaveText('Configured — not verified');
+  await confirmations.nth(2).check();
+  await expect(aether.locator('[data-message]')).toHaveText('Verified (self-reported)');
+  await expect(aether.locator('.verification-caveat')).toContainText('not an independent verification');
   const link = aether.locator('[data-open-link]');
   await expect(link).toHaveAttribute('href', 'https://vault.example.test/path?source=launcher');
   await expect(link).toHaveAttribute('target', '_blank');
   await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
-
-  await aether.locator('[data-check="destination"]').check();
-  await aether.locator('[data-check="https"]').check();
-  await expect(aether.locator('[data-message]')).toHaveText('Configured — not verified');
-  await aether.locator('[data-check="access"]').check();
-  await expect(aether.locator('[data-message]')).toHaveText('Verified (self-reported)');
-  await expect(aether.locator('.verification-caveat')).toContainText('not an independent verification');
 
   await page.reload();
   await expect(page.locator('.module-form[data-module="aether"] [data-message]'))

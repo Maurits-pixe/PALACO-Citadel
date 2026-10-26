@@ -68,13 +68,18 @@ persisted, or securely erased, and the demo does not implement access control.
 does not inspect source code or network traffic, monitor system health, detect threats, or
 block activity, and must not be used for operational security decisions.
 
-The PALACO Hoofdkantoor launcher has no preconfigured app addresses. Configure each destination
-yourself after confirming it with the responsible administrator. The launcher accepts HTTPS
-URLs only, shows the destination hostname, and opens apps in a separate tab. Address settings
-are held in the current tab's `sessionStorage` and cleared when that tab session ends.
-“Verified” means the user checked the destination, administrator, HTTPS, and access controls;
-the launcher does not independently verify any of these. Do not treat a configured address or
-self-reported status as proof of a working integration or security.
+The PALACO Hoofdkantoor launcher is a Vue app with no preconfigured app addresses. Configure
+each destination yourself after confirming it with the responsible administrator. The launcher
+accepts HTTPS URLs only, shows the destination hostname, and opens apps in a separate tab with
+`noopener,noreferrer`. Address settings are held in the current tab's `sessionStorage` and cleared
+when that tab session ends. “Verified” means the user checked the destination, administrator,
+HTTPS, and access controls; the launcher does not independently verify any of these. Do not
+treat a configured address or self-reported status as proof of a working integration or security.
+
+Run `npm run dev` to start the launcher at `https://localhost:5173`. The development server uses
+a self-signed certificate and browsers may show a certificate warning; this is for local
+development only and is not equivalent to a publicly trusted TLS certificate. Use a trusted
+certificate and HTTPS termination for hosted deployments.
 
 Build the separate React launcher with `npm run build`; it is emitted to `citadel/react/`.
 The Pages workflow builds it for deployment. The static `/citadel/bastion/` preview and the
