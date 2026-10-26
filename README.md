@@ -40,6 +40,7 @@ The PALACO 2040 Compass section now includes the following dashboard layers in C
 - [5CRIPTIE](citadel/aegis/) — synthetic code-integrity dashboard; no source scan, live monitoring, detection, or defensive actions
 - [PALACO Hoofdkantoor](citadel/) — opens AETHER, Bastion, or 5CRIPTIE in the same screen; navigation does not grant access or capabilities
 - [React launcher](citadel/react/) — separate React entry point for the same previews; source is in `src/`
+- [Bastion team prototype](citadel/bastion-app/) — Vue client for the separately hosted Node/PostgreSQL prototype
 - Evolution Dashboard — canon/system changes with “what changes for me?” summary
 - Public Gateway Dashboard — public orientation layer with core concepts and safe onboarding
 
@@ -74,6 +75,45 @@ or operational capability; each module retains its own demo limitations.
 Build the standalone React launcher with `npm run build`; it is emitted to `citadel/react/`.
 The Pages workflow builds it for deployment, while the root homepage and `/citadel/` launcher
 remain unchanged.
+
+### Bastion team prototype
+
+The optional Vue client and Node API are a bounded development prototype, not a production-secure
+service. GitHub Pages can host the client but cannot run the API; the Node service and PostgreSQL
+database must be operated separately. Configure `VITE_BASTION_API_URL` and
+`VITE_BASTION_SOCKET_URL` to the API origin before building for a remote API, and configure
+`ALLOWED_ORIGINS` on the API to the exact client origin.
+
+Copy `.env.example` to `.env`, set a PostgreSQL connection URL and a random `JWT_SECRET` of at
+least 32 bytes, then run:
+
+```sh
+npm install
+npm run db:migrate:bastion
+export BOOTSTRAP_USERNAME=commander
+export BOOTSTRAP_PASSWORD
+export BOOTSTRAP_TEAM='Example team'
+export BOOTSTRAP_CHANNEL='General'
+npm run db:bootstrap:bastion
+npm run server:bastion
+npm run dev:bastion
+```
+
+Provision operatives out of band with `PROVISION_USERNAME`, `PROVISION_PASSWORD`,
+`PROVISION_TEAM_ID`, `PROVISION_CLEARANCE_LEVEL`, and explicit comma-separated
+`PROVISION_CHANNEL_IDS`, then run `npm run db:provision:bastion`. Provisioning does not expose a
+public account-creation or role-escalation endpoint. The access policy requires team membership,
+clearance and, for operatives, assignment/creation to see tasks; channel membership is explicit.
+Only commanders can create tasks, and operatives can update tasks assigned to them.
+
+The API uses password hashes and short-lived signed access tokens; it rejects the sample
+`x-user-id` identity header and requires authentication on both HTTP and Socket.IO. Messages are
+stored as server-readable plaintext, are not end-to-end encrypted, and their expiry only removes
+the active database row content. Backups, database logs, caches, clients, screenshots and memory
+may retain copies. Audit rows reject application-level updates/deletes but are not tamper-proof
+against a database owner. No independent security review, operational authorization policy,
+production deployment, recovery/rotation process, or assurance for sensitive plans is provided.
+Use synthetic data only until those gates are addressed.
 
 ## GitHub preparation canon
 
