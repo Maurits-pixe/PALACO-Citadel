@@ -1,6 +1,15 @@
 <script setup>
-import { computed, reactive, ref } from 'vue';
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { ArrowLeft, ExternalLink, Link2, ShieldCheck } from '@lucide/vue';
+import {
+  createRequestGuard,
+  commitIfCurrent,
+  getEvidenceStatus,
+  isOriginApproved,
+  normalizeApprovedOrigin,
+  parseHttpsUrl,
+  verifyModuleMetadata
+} from './verification.js';
 
 const translations = {
   en: {
@@ -9,11 +18,11 @@ const translations = {
     eyebrow: 'PALACO HOOFDKANTOOR · MODULE ACCESS',
     launcherWord: 'HOOFDKANTOOR',
     languageLabel: 'Language',
-    boundaryTitle: 'TEMPORARY LAUNCHER · LINKS UNDER VERIFICATION',
-    boundaryBody: 'This launcher only stores destinations and opens links. It does not verify app ownership, authentication, authorization, or security. Do not enter sensitive information unless you independently verify the service.',
+    boundaryTitle: 'TEMPORARY LAUNCHER · METADATA CHECKS ARE LIMITED',
+    boundaryBody: 'Metadata checks confirm only that an approved HTTPS origin returned the expected appId. The appId and operational status are self-declared; this does not verify ownership, authentication, authorization, or security.',
     introEyebrow: 'CONFIGURE MODULE LINKS',
     menuTitle: 'PALACO module destinations',
-    menuDescription: 'Enter only addresses you have verified with the responsible administrator. Empty addresses remain unlinked.',
+    menuDescription: 'Only exact HTTPS origins configured in the deployment allowlist can be checked. Empty or unapproved destinations remain unlinked.',
     storageNote: 'Links are kept only for this browser tab session and are cleared when the session ends.',
     vaultCategory: 'CIPHER VAULT',
     vaultDescription: 'Verify the destination and its protections with its administrator before opening.',
@@ -25,18 +34,30 @@ const translations = {
     saveAddress: 'Save for this session',
     notConfigured: 'Not configured',
     configured: 'Configured — not verified',
-    verified: 'Verified (self-reported)',
+    destinationUnapproved: 'Destination not approved',
+    checkUnavailable: 'Configured — check unavailable',
+    verificationFailed: 'Verification failed',
+    metadataConfirmed: 'Module metadata confirmed',
+    verificationExpired: 'Verification expired',
+    checking: 'Checking metadata…',
     unsaved: 'Address changed — save it to update',
     invalidAddress: 'Invalid address. Enter a full HTTPS URL without user credentials.',
     storageError: 'Could not save this session setting. Check browser storage permissions.',
+    checkMetadata: 'Check module metadata',
+    evidenceDetails: 'Checked {checkedAt}; expires {expiresAt}. Expected appId: {expectedAppId}; received: {receivedAppId}.',
+    reportedState: 'Self-reported status: {status}.',
+    reason_wrong_identity: 'The endpoint did not report the expected appId.',
+    reason_invalid_response: 'The endpoint response did not match the metadata contract.',
+    reason_http_error: 'The endpoint returned HTTP {status}.',
+    reason_timeout: 'The metadata request or response body exceeded five seconds.',
+    reason_request_unavailable: 'The browser could not read the response (network, CORS, TLS, or redirect failure).',
+    reason_destination_unapproved: 'This exact HTTPS origin is not in the configured allowlist.',
+    reason_invalid_url: 'The configured address is not a valid HTTPS URL.',
     destinationLabel: 'Destination domain:',
-    verificationLegend: 'Confirm these checks yourself',
-    checkDestination: 'The destination and its responsible administrator are confirmed.',
-    checkHttps: 'The service is available at this HTTPS address.',
-    checkAccess: 'Authentication and authorization were explicitly checked.',
-    verificationCaveat: 'These checks are your report, not an independent verification by this launcher.',
+    verificationLegend: 'Metadata check evidence',
+    verificationCaveat: 'A matching appId is self-declared metadata. This does not verify ownership, authentication, authorization, or app security.',
     openApp: 'Open app in a new tab',
-    openFirst: 'Save the address and complete all confirmations before opening.',
+    openFirst: 'Run a successful metadata check before opening.',
     footer: 'Temporary launcher — links under verification. A configured address is not proof of a working or secure integration.'
   },
   nl: {
@@ -45,11 +66,11 @@ const translations = {
     eyebrow: 'PALACO HOOFDKANTOOR · MODULETOEGANG',
     launcherWord: 'HOOFDKANTOOR',
     languageLabel: 'Taal',
-    boundaryTitle: 'TIJDELIJKE LAUNCHER · KOPPELINGEN IN VERIFICATIE',
-    boundaryBody: 'Deze launcher bewaart alleen bestemmingen en opent links. Hij controleert geen app-eigendom, authenticatie, autorisatie of beveiliging. Gebruik geen gevoelige gegevens voordat je de dienst zelfstandig hebt gecontroleerd.',
+    boundaryTitle: 'TIJDELIJKE LAUNCHER · METADATA-CONTROLE IS BEPERKT',
+    boundaryBody: 'Een metadata-controle bevestigt alleen dat een goedgekeurde HTTPS-origin de verwachte appId teruggaf. appId en operationele status zijn zelfgerapporteerd; eigenaarschap, authenticatie, autorisatie en beveiliging worden niet gecontroleerd.',
     introEyebrow: 'KOPPELINGEN INSTELLEN',
     menuTitle: 'PALACO-modulebestemmingen',
-    menuDescription: 'Vul alleen adressen in die je met de verantwoordelijke beheerder hebt gecontroleerd. Lege adressen blijven ongekoppeld.',
+    menuDescription: 'Alleen exacte HTTPS-origins in de deployment-allowlist kunnen worden gecontroleerd. Lege of niet-goedgekeurde bestemmingen blijven ongekoppeld.',
     storageNote: 'Koppelingen worden alleen bewaard tijdens deze tabsessie en verdwijnen wanneer de sessie eindigt.',
     vaultCategory: 'CIPHERKLUIS',
     vaultDescription: 'Controleer de bestemming en beveiliging met de beheerder voordat je de app opent.',
@@ -61,18 +82,30 @@ const translations = {
     saveAddress: 'Bewaar voor deze sessie',
     notConfigured: 'Niet ingesteld',
     configured: 'Ingesteld — niet geverifieerd',
-    verified: 'Geverifieerd (zelf gemeld)',
+    destinationUnapproved: 'Bestemming niet goedgekeurd',
+    checkUnavailable: 'Ingesteld — controle niet mogelijk',
+    verificationFailed: 'Verificatie mislukt',
+    metadataConfirmed: 'Modulemetadata bevestigd',
+    verificationExpired: 'Verificatie verlopen',
+    checking: 'Metadata controleren…',
     unsaved: 'Adres gewijzigd — sla op om bij te werken',
     invalidAddress: 'Ongeldig adres. Vul een volledig HTTPS-adres in zonder gebruikersgegevens.',
     storageError: 'Deze instelling kon niet in de sessie worden opgeslagen. Controleer de browseropslag.',
+    checkMetadata: 'Modulemetadata controleren',
+    evidenceDetails: 'Gecontroleerd op {checkedAt}; verloopt {expiresAt}. Verwachte appId: {expectedAppId}; ontvangen: {receivedAppId}.',
+    reportedState: 'Zelfgerapporteerde status: {status}.',
+    reason_wrong_identity: 'Het endpoint gaf niet de verwachte appId terug.',
+    reason_invalid_response: 'Het antwoord voldoet niet aan het metadata-contract.',
+    reason_http_error: 'Het endpoint antwoordde met HTTP {status}.',
+    reason_timeout: 'Het metadata-request of het lezen van het antwoord duurde langer dan vijf seconden.',
+    reason_request_unavailable: 'De browser kon het antwoord niet lezen (netwerk-, CORS-, TLS- of redirectfout).',
+    reason_destination_unapproved: 'Deze exacte HTTPS-origin staat niet op de ingestelde goedkeuringslijst.',
+    reason_invalid_url: 'Het ingestelde adres is geen geldige HTTPS-URL.',
     destinationLabel: 'Bestemmingsdomein:',
-    verificationLegend: 'Bevestig deze controles zelf',
-    checkDestination: 'De bestemming en de verantwoordelijke beheerder zijn bevestigd.',
-    checkHttps: 'De dienst is bereikbaar op dit HTTPS-adres.',
-    checkAccess: 'Authenticatie en autorisatie zijn expliciet gecontroleerd.',
-    verificationCaveat: 'Deze controles zijn jouw verklaring; de launcher voert geen onafhankelijke verificatie uit.',
+    verificationLegend: 'Bewijs metadata-controle',
+    verificationCaveat: 'Een overeenkomende appId is zelfgerapporteerde metadata. Dit controleert geen eigenaarschap, authenticatie, autorisatie of appbeveiliging.',
     openApp: 'App openen in een nieuw tabblad',
-    openFirst: 'Sla het adres op en bevestig alle controles voordat je opent.',
+    openFirst: 'Voer eerst een geslaagde metadata-controle uit.',
     footer: 'Tijdelijke launcher — koppelingen in verificatie. Een ingesteld adres bewijst geen werkende of veilige integratie.'
   },
   eo: {
@@ -81,11 +114,11 @@ const translations = {
     eyebrow: 'PALACO HOOFDKANTOOR · MODULA ALIRO',
     launcherWord: 'HOOFDKANTOOR',
     languageLabel: 'Lingvo',
-    boundaryTitle: 'PROVIZORA LANĈILO · LIGILOJ SUB KONTROLO',
-    boundaryBody: 'Ĉi tiu lanĉilo nur konservas celojn kaj malfermas ligilojn. Ĝi ne kontrolas posedon, aŭtentigon, rajtigon aŭ sekurecon de aplikaĵoj. Ne enigu sentemajn datumojn sen memstara kontrolo de la servo.',
+    boundaryTitle: 'PROVIZORA LANĈILO · METADATUMA KONTROLO ESTAS LIMIGITA',
+    boundaryBody: 'Metadatuma kontrolo nur konfirmas, ke aprobita HTTPS-origino liveris la atenditan appId. appId kaj funkcia stato estas memraportitaj; posedo, aŭtentigo, rajtigo kaj sekureco ne estas kontrolitaj.',
     introEyebrow: 'AGORDI MODUL-LIGILOJN',
     menuTitle: 'Celoj de PALACO-moduloj',
-    menuDescription: 'Enigu nur adresojn kontrolitajn kun la respondeca administranto. Malplenaj adresoj restas malligitaj.',
+    menuDescription: 'Nur ekzaktaj HTTPS-originoj en la deploj-listo povas esti kontrolitaj. Malplenaj aŭ neaprobitaj celoj restas malligitaj.',
     storageNote: 'Ligiloj estas konservataj nur dum ĉi tiu retumila langeta sesio kaj foriĝas kiam ĝi finiĝas.',
     vaultCategory: 'ĈIFRA TREZOREJO',
     vaultDescription: 'Kontrolu la celon kaj ĝiajn protektojn kun la administranto antaŭ malfermo.',
@@ -97,18 +130,30 @@ const translations = {
     saveAddress: 'Konservi por ĉi tiu sesio',
     notConfigured: 'Ne agordita',
     configured: 'Agordita — ne kontrolita',
-    verified: 'Kontrolita (memdeklarita)',
+    destinationUnapproved: 'Celo ne aprobita',
+    checkUnavailable: 'Agordita — kontrolo neebla',
+    verificationFailed: 'Kontrolo malsukcesis',
+    metadataConfirmed: 'Modulaj metadatumoj konfirmitaj',
+    verificationExpired: 'Kontrolo eksvalidiĝis',
+    checking: 'Kontrolante metadatumojn…',
     unsaved: 'Adreso ŝanĝiĝis — konservu por ĝisdatigi',
     invalidAddress: 'Nevalida adreso. Enigu kompletan HTTPS-URL sen uzantaj datumoj.',
     storageError: 'Ne eblis konservi la sesian agordon. Kontrolu la retumilan konservadon.',
+    checkMetadata: 'Kontroli modulajn metadatumojn',
+    evidenceDetails: 'Kontrolita {checkedAt}; eksvalidiĝas {expiresAt}. Atendita appId: {expectedAppId}; ricevita: {receivedAppId}.',
+    reportedState: 'Memraportita stato: {status}.',
+    reason_wrong_identity: 'La endpoint ne raportis la atenditan appId.',
+    reason_invalid_response: 'La respondo ne konformas al la metadatuma kontrakto.',
+    reason_http_error: 'La endpoint respondis per HTTP {status}.',
+    reason_timeout: 'La peto aŭ legado de la respondo daŭris pli ol kvin sekundojn.',
+    reason_request_unavailable: 'La retumilo ne povis legi la respondon (reto, CORS, TLS aŭ alidirekto).',
+    reason_destination_unapproved: 'Ĉi tiu HTTPS-origino ne estas en la agordita listo.',
+    reason_invalid_url: 'La agordita adreso ne estas valida HTTPS-URL.',
     destinationLabel: 'Cela domajno:',
-    verificationLegend: 'Konfirmu ĉi tiujn kontrolojn mem',
-    checkDestination: 'La celo kaj ĝia respondeca administranto estas konfirmitaj.',
-    checkHttps: 'La servo disponeblas ĉe ĉi tiu HTTPS-adreso.',
-    checkAccess: 'Aŭtentigo kaj rajtigo estis eksplicite kontrolitaj.',
-    verificationCaveat: 'Ĉi tiuj kontroloj estas via deklaro; la lanĉilo ne faras sendependan kontrolon.',
+    verificationLegend: 'Pruvo de metadatuma kontrolo',
+    verificationCaveat: 'Kongrua appId estas memraportita metadatumo. Ĝi ne kontrolas posedon, aŭtentigon, rajtigon aŭ aplikaĵan sekurecon.',
     openApp: 'Malfermi aplikaĵon en nova langeto',
-    openFirst: 'Konservu la adreson kaj konfirmu ĉiujn kontrolojn antaŭ malfermo.',
+    openFirst: 'Unue faru sukcesan metadatuman kontrolon.',
     footer: 'Provizora lanĉilo — ligiloj sub kontrolo. Agordita adreso ne pruvas funkciantan aŭ sekuran integriĝon.'
   }
 };
@@ -118,22 +163,13 @@ const modules = [
   { id: 'bastion', name: 'Bastion', category: 'bastionCategory', description: 'bastionDescription', className: 'bastion-card' },
   { id: 'scriptie', name: '5CRIPTIE', category: 'scriptieCategory', description: 'scriptieDescription', className: 'aegis-card' }
 ];
-const checks = ['destination', 'https', 'access'];
 const storageKey = 'palaco-launcher-links-v1';
 const languageKey = 'palaco-language';
-
-function parseHttpsUrl(value) {
-  if (typeof value !== 'string') return null;
-  const candidate = value.trim();
-  if (!/^https:\/\//i.test(candidate)) return null;
-
-  try {
-    const url = new URL(candidate);
-    return url.protocol === 'https:' && url.hostname && !url.username && !url.password ? url : null;
-  } catch {
-    return null;
-  }
-}
+const trustedOrigins = {
+  aether: normalizeApprovedOrigin(import.meta.env.VITE_AETHER_ORIGIN),
+  bastion: normalizeApprovedOrigin(import.meta.env.VITE_BASTION_ORIGIN),
+  scriptie: normalizeApprovedOrigin(import.meta.env.VITE_SCRIPTIE_ORIGIN)
+};
 
 function loadSettings() {
   try {
@@ -142,10 +178,7 @@ function loadSettings() {
     return Object.fromEntries(Object.entries(stored).flatMap(([id, entry]) => {
       const url = parseHttpsUrl(entry?.url);
       if (!modules.some(module => module.id === id) || !url) return [];
-      return [[id, {
-        url: url.href,
-        checks: Object.fromEntries(checks.map(check => [check, entry.checks?.[check] === true]))
-      }]];
+      return [[id, { url: url.href }]];
     }));
   } catch {
     return {};
@@ -165,7 +198,33 @@ const language = ref(loadLanguage());
 const settings = reactive(loadSettings());
 const drafts = reactive(Object.fromEntries(modules.map(({ id }) => [id, settings[id]?.url || ''])));
 const errors = reactive({});
+const evidence = reactive({});
+const checking = reactive({});
 const strings = computed(() => translations[language.value]);
+const requestGuard = createRequestGuard();
+const expiryTimers = new Map();
+const clock = ref(Date.now());
+
+function clearEvidence(moduleId) {
+  if (expiryTimers.has(moduleId)) clearTimeout(expiryTimers.get(moduleId));
+  expiryTimers.delete(moduleId);
+  delete evidence[moduleId];
+  delete checking[moduleId];
+}
+
+for (const module of modules) {
+  watch(() => drafts[module.id], (current, previous) => {
+    if (current !== previous) {
+      requestGuard.begin(module.id);
+      clearEvidence(module.id);
+      errors[module.id] = '';
+    }
+  });
+}
+
+onBeforeUnmount(() => {
+  for (const timer of expiryTimers.values()) clearTimeout(timer);
+});
 
 function persist(next) {
   try {
@@ -181,6 +240,8 @@ function persist(next) {
 function save(module) {
   const value = drafts[module.id].trim();
   const next = { ...settings };
+  requestGuard.begin(module.id);
+  clearEvidence(module.id);
   errors[module.id] = '';
 
   if (!value) {
@@ -195,10 +256,7 @@ function save(module) {
     return;
   }
 
-  next[module.id] = {
-    url: url.href,
-    checks: Object.fromEntries(checks.map(check => [check, false]))
-  };
+  next[module.id] = { url: url.href };
   if (!persist(next)) {
     errors[module.id] = 'storageError';
     return;
@@ -207,33 +265,96 @@ function save(module) {
 }
 
 function status(module) {
+  clock.value;
   if (errors[module.id]) return errors[module.id];
+  const draft = drafts[module.id].trim();
+  if (!draft) return 'notConfigured';
+  const url = parseHttpsUrl(draft);
+  if (!url) return 'invalidAddress';
+  if (!isOriginApproved(url.href, trustedOrigins[module.id])) return 'destinationUnapproved';
   const saved = settings[module.id];
-  if (!saved) return 'notConfigured';
-  if (drafts[module.id].trim() !== saved.url) return 'unsaved';
-  return checks.every(check => saved.checks[check]) ? 'verified' : 'configured';
+  if (!saved || draft !== saved.url) return 'configured';
+  if (checking[module.id]) return 'checking';
+  const currentEvidence = evidence[module.id];
+  if (!currentEvidence) return 'configured';
+  const resultStatus = getEvidenceStatus(currentEvidence, clock.value);
+  return ({
+    'destination-unapproved': 'destinationUnapproved',
+    'check-unavailable': 'checkUnavailable',
+    'verification-failed': 'verificationFailed',
+    'metadata-confirmed': 'metadataConfirmed',
+    'verification-expired': 'verificationExpired'
+  })[resultStatus] || 'configured';
 }
 
-function updateCheck(module, check, value) {
-  const saved = settings[module.id];
-  if (!saved) return;
-  const next = {
-    ...settings,
-    [module.id]: {
-      ...saved,
-      checks: { ...saved.checks, [check]: value }
-    }
-  };
-  errors[module.id] = persist(next) ? '' : 'storageError';
+function errorDetail(item) {
+  if (!item) return '';
+  return strings.value[`reason_${item.reason}`]
+    ?.replace('{status}', String(item.httpStatus ?? ''))
+    || '';
 }
 
-function isVerified(module) {
-  const saved = settings[module.id];
-  return Boolean(saved && drafts[module.id].trim() === saved.url && checks.every(check => saved.checks[check]));
+function evidenceDetails(item) {
+  if (!item) return '';
+  const date = value => value ? new Date(value).toISOString() : '—';
+  return strings.value.evidenceDetails
+    .replace('{checkedAt}', date(item.checkedAt))
+    .replace('{expiresAt}', date(item.expiresAt))
+    .replace('{expectedAppId}', item.expectedAppId || '—')
+    .replace('{receivedAppId}', item.receivedAppId || '—');
 }
 
 function destination(module) {
-  return parseHttpsUrl(settings[module.id]?.url)?.hostname || '';
+  return parseHttpsUrl(drafts[module.id])?.hostname || '';
+}
+
+function isApproved(module) {
+  return isOriginApproved(drafts[module.id], trustedOrigins[module.id]);
+}
+
+function canOpen(module) {
+  const currentEvidence = evidence[module.id];
+  const saved = settings[module.id];
+  return Boolean(
+    saved
+    && saved.url === drafts[module.id].trim()
+    && currentEvidence?.status === 'metadata-confirmed'
+    && currentEvidence.origin === parseHttpsUrl(saved.url)?.origin
+    && currentEvidence.expectedAppId === module.id
+    && getEvidenceStatus(currentEvidence, clock.value) === 'metadata-confirmed'
+  );
+}
+
+async function verify(module) {
+  const saved = settings[module.id];
+  if (!saved || drafts[module.id].trim() !== saved.url || !isApproved(module)) return;
+
+  const generation = requestGuard.begin(module.id);
+  clearEvidence(module.id);
+  checking[module.id] = true;
+  errors[module.id] = '';
+
+  const outcome = await verifyModuleMetadata(saved.url, module.id, trustedOrigins[module.id]);
+  const current = commitIfCurrent({
+    guard: requestGuard,
+    id: module.id,
+    generation,
+    currentUrl: settings[module.id]?.url === drafts[module.id].trim() ? drafts[module.id].trim() : null,
+    expectedUrl: saved.url,
+    value: outcome,
+    commit: value => {
+      checking[module.id] = false;
+      evidence[module.id] = value;
+    }
+  });
+  if (!current) return;
+  if (outcome.status === 'metadata-confirmed') {
+    const delay = Math.max(0, outcome.expiresAt - Date.now());
+    expiryTimers.set(module.id, setTimeout(() => {
+      clock.value = Date.now();
+      expiryTimers.delete(module.id);
+    }, delay));
+  }
 }
 
 function changeLanguage(event) {
@@ -318,31 +439,45 @@ document.title = strings.value.title;
               :id="`${module.id}-message`"
               class="module-message"
               data-message
-              :class="{ 'is-error': Boolean(errors[module.id]), 'is-verified': status(module) === 'verified' }"
+              :class="{
+                'is-error': ['invalidAddress', 'verificationFailed', 'destinationUnapproved'].includes(status(module)),
+                'is-verified': status(module) === 'metadataConfirmed',
+                'is-unavailable': ['checkUnavailable', 'verificationExpired'].includes(status(module))
+              }"
               aria-live="polite"
             >{{ strings[status(module)] }}</p>
 
-            <template v-if="settings[module.id]">
+            <template v-if="drafts[module.id].trim()">
               <p class="destination">
                 <span>{{ strings.destinationLabel }}</span> <code data-domain>{{ destination(module) }}</code>
               </p>
-              <fieldset class="verification-checks">
-                <legend>{{ strings.verificationLegend }}</legend>
-                <label v-for="check in checks" :key="check">
-                  <input
-                    type="checkbox"
-                    :checked="settings[module.id].checks[check]"
-                    @change="updateCheck(module, check, $event.target.checked)"
-                  />
-                  <span>{{ strings[`check${check[0].toUpperCase()}${check.slice(1)}`] }}</span>
-                </label>
-              </fieldset>
+              <button
+                v-if="isApproved(module) && settings[module.id]?.url === drafts[module.id].trim()"
+                class="save-button verify-button"
+                type="button"
+                :disabled="checking[module.id]"
+                @click="verify(module)"
+              >{{ checking[module.id] ? strings.checking : strings.checkMetadata }}</button>
+              <p v-else-if="status(module) === 'destinationUnapproved'" class="verification-caveat">
+                {{ strings.reason_destination_unapproved }}
+              </p>
+              <p v-if="evidence[module.id] && settings[module.id]?.url === drafts[module.id].trim()" class="verification-evidence">
+                {{ evidenceDetails(evidence[module.id]) }}
+              </p>
+              <p
+                v-if="evidence[module.id]?.reportedStatus && settings[module.id]?.url === drafts[module.id].trim()"
+                class="verification-caveat"
+              >{{ strings.reportedState.replace('{status}', evidence[module.id].reportedStatus) }}</p>
+              <p
+                v-if="evidence[module.id]?.reason && settings[module.id]?.url === drafts[module.id].trim()"
+                class="verification-caveat"
+              >{{ errorDetail(evidence[module.id]) }}</p>
               <p class="verification-caveat">{{ strings.verificationCaveat }}</p>
               <a
-                v-if="isVerified(module)"
+                v-if="canOpen(module)"
                 class="open-link"
                 data-open-link
-                :href="settings[module.id].url"
+                :href="drafts[module.id]"
                 target="_blank"
                 rel="noopener noreferrer"
               >

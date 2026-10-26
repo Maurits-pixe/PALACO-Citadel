@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('Vue launcher accepts HTTPS destinations and labels user-reported verification honestly', async ({ page }) => {
+test('Vue launcher rejects unapproved HTTPS destinations without claiming metadata verification', async ({ page }) => {
   const externalRequests = [];
   page.on('request', request => {
     if (!request.url().startsWith('http://127.0.0.1:4173/')) externalRequests.push(request.url());
@@ -9,7 +9,7 @@ test('Vue launcher accepts HTTPS destinations and labels user-reported verificat
 
   await expect(page).toHaveTitle('PALACO Hoofdkantoor · Launcher');
   await expect(page.locator('h1')).toHaveText('PALACO HOOFDKANTOOR');
-  await expect(page.locator('#boundary-title')).toHaveText('TEMPORARY LAUNCHER · LINKS UNDER VERIFICATION');
+  await expect(page.locator('#boundary-title')).toHaveText('TEMPORARY LAUNCHER · METADATA CHECKS ARE LIMITED');
   await expect(page.locator('.module-card')).toHaveCount(3);
   await expect(page.locator('.module-name')).toHaveText(['AETHER', 'Bastion', '5CRIPTIE']);
   await expect(page.locator('iframe')).toHaveCount(0);
@@ -29,25 +29,14 @@ test('Vue launcher accepts HTTPS destinations and labels user-reported verificat
 
   await address.fill('https://vault.example.test/path?source=launcher');
   await aether.locator('button[type="submit"]').click();
-  await expect(aether.locator('[data-message]')).toHaveText('Configured — not verified');
+  await expect(aether.locator('[data-message]')).toHaveText('Destination not approved');
   await expect(aether.locator('[data-domain]')).toHaveText('vault.example.test');
   await expect(aether.locator('[data-open-link]')).toHaveCount(0);
-  const confirmations = aether.locator('input[type="checkbox"]');
-
-  await confirmations.nth(0).check();
-  await confirmations.nth(1).check();
-  await expect(aether.locator('[data-message]')).toHaveText('Configured — not verified');
-  await confirmations.nth(2).check();
-  await expect(aether.locator('[data-message]')).toHaveText('Verified (self-reported)');
-  await expect(aether.locator('.verification-caveat')).toContainText('not an independent verification');
-  const link = aether.locator('[data-open-link]');
-  await expect(link).toHaveAttribute('href', 'https://vault.example.test/path?source=launcher');
-  await expect(link).toHaveAttribute('target', '_blank');
-  await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  await expect(aether.getByRole('button', { name: 'Check module metadata' })).toHaveCount(0);
 
   await page.reload();
   await expect(page.locator('.module-form[data-module="aether"] [data-message]'))
-    .toHaveText('Verified (self-reported)');
+    .toHaveText('Destination not approved');
   await expect(page.locator('.module-form[data-module="aether"] [data-domain]'))
     .toHaveText('vault.example.test');
 
@@ -58,9 +47,9 @@ test('Vue launcher accepts HTTPS destinations and labels user-reported verificat
   await newTab.close();
 
   await page.locator('#language-select').selectOption('nl');
-  await expect(page.locator('#boundary-title')).toHaveText('TIJDELIJKE LAUNCHER · KOPPELINGEN IN VERIFICATIE');
+  await expect(page.locator('#boundary-title')).toHaveText('TIJDELIJKE LAUNCHER · METADATA-CONTROLE IS BEPERKT');
   await expect(page.locator('.module-form[data-module="aether"] [data-message]'))
-    .toHaveText('Geverifieerd (zelf gemeld)');
+    .toHaveText('Bestemming niet goedgekeurd');
 
   await expect(page.locator('html')).toHaveAttribute('lang', 'nl');
   expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);

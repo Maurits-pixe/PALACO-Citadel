@@ -1,0 +1,13 @@
+.module-message.is-unavailable { color: #9fcaf2; }
+
+.verify-button:disabled {
+  cursor: wait;
+  opacity: .7;
+}
+
+.verification-evidence {
+  margin: 0;
+  color: #bbc8d0;
+  font: .68rem/1.5 "SFMono-Regular", Consolas, monospace;
+  overflow-wrap: anywhere;
+}

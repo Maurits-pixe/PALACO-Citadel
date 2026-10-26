@@ -68,23 +68,64 @@ persisted, or securely erased, and the demo does not implement access control.
 does not inspect source code or network traffic, monitor system health, detect threats, or
 block activity, and must not be used for operational security decisions.
 
-The PALACO Hoofdkantoor launcher is a Vue app with no preconfigured app addresses. Configure
-each destination yourself after confirming it with the responsible administrator. The launcher
-accepts HTTPS URLs only, shows the destination hostname, and opens apps in a separate tab with
-`noopener,noreferrer`. Address settings are held in the current tab's `sessionStorage` and cleared
-when that tab session ends. “Verified” means the user checked the destination, administrator,
-HTTPS, and access controls; the launcher does not independently verify any of these. Do not
-treat a configured address or self-reported status as proof of a working integration or security.
+The PALACO Hoofdkantoor launcher is a Vue app. It only runs metadata checks for exact HTTPS
+origins explicitly configured in `VITE_AETHER_ORIGIN`, `VITE_BASTION_ORIGIN`, and
+`VITE_SCRIPTIE_ORIGIN`. These values must be origins (scheme, host, and optional port only), not
+paths. They default to empty; no app destinations are assumed. For a Pages build, set the matching
+`PALACO_AETHER_ORIGIN`, `PALACO_BASTION_ORIGIN`, and `PALACO_SCRIPTIE_ORIGIN` repository
+variables only after approving those origins. For local development, set the VITE variables in
+an untracked `.env` file. An unapproved address is never fetched or opened.
 
-Run `npm run dev` to start the launcher at `https://localhost:5173`. The development server uses
-a self-signed certificate and browsers may show a certificate warning; this is for local
-development only and is not equivalent to a publicly trusted TLS certificate. Use a trusted
-certificate and HTTPS termination for hosted deployments.
+**Draft metadata contract (v1):** a check issues a CORS-readable `GET` to
+`/.well-known/palaco-app.json` on the approved origin, with `redirect: error`, omitted credentials,
+`no-store`, and a five-second limit that includes reading the response. Only HTTP 200 with JSON
+matching `launcher-vue/src/metadata-contract.schema.json` and the expected exact `appId` yields
+**“Module metadata confirmed.”** Any metadata `status` value is self-reported only; this check
+does not prove app ownership, feature availability, authentication, authorization, or security.
+Network, TLS, CORS, redirect, and timeout errors are **“Configured — check unavailable”** because
+the browser cannot reliably distinguish their causes. Evidence is held only in page memory,
+bound to the approved origin and expected/received app ID, timestamped, and expires after five
+minutes. Editing or saving a different URL immediately invalidates it; old in-flight results are
+ignored. Opening the app is enabled only while the matching metadata result is current.
 
-Build the separate React launcher with `npm run build`; it is emitted to `citadel/react/`.
-The Pages workflow builds it for deployment. The static `/citadel/bastion/` preview and the
-separately hosted Vue prototype remain available, but neither is linked from the configurable
-main launcher unless you enter and verify its address yourself.
+The endpoint must send an `Access-Control-Allow-Origin` permitting the launcher's exact origin.
+For local development that is `https://localhost:5173`; the deployed launcher needs its actual
+origin. Browser fetch does not expose certificate details; the browser itself must accept the
+TLS certificate. A self-declared `appId` is not proof that the server is controlled by the
+intended operator.
+
+Run `npm run dev` to start the launcher at `https://localhost:5173`. For a locally trusted
+certificate, install mkcert for your operating system, then from the repository root run:
+
+```sh
+mkcert -install
+mkcert localhost 127.0.0.1 ::1
+```
+
+The generated `localhost+2.pem` and `localhost+2-key.pem` files are ignored by Git and Vite uses
+them only when both exist. Keep the mkcert CA private key on your machine; do not commit or share
+it. The CA must be trusted by the browser/OS used for testing. Without this pair, Vite falls back
+to its self-signed development certificate, which may show a warning. Do not click through a
+certificate warning and then describe the connection as trusted. Neither local setup is a
+substitute for publicly trusted TLS in a hosted deployment.
+
+An app operator can serve a response such as the following from the well-known endpoint (use
+the exact module ID and a real app version; the example does not configure or approve a URL):
+
+```json
+{
+  "appId": "aether",
+  "version": "1.0.0",
+  "status": "operational"
+}
+```
+
+`status` describes only what that endpoint claims about itself. For example, `"operational"`
+does not establish that user-facing features work or that access controls are effective.
+
+The Pages workflow builds the Vue launcher into `/citadel/` and the separate React launcher into
+`/citadel/react/`. The static `/citadel/bastion/` preview and separately hosted Bastion prototype
+remain independent destinations and are not implicitly trusted or linked.
 
 ### Bastion team prototype
 

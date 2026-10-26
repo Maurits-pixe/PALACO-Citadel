@@ -63,6 +63,10 @@ jobs:
 
       - name: Build Vue PALACO launcher
         run: npm run build:launcher
+        env:
+          VITE_AETHER_ORIGIN: ${{ vars.PALACO_AETHER_ORIGIN }}
+          VITE_BASTION_ORIGIN: ${{ vars.PALACO_BASTION_ORIGIN }}
+          VITE_SCRIPTIE_ORIGIN: ${{ vars.PALACO_SCRIPTIE_ORIGIN }}
 
       - name: Build React launcher
         run: npm run build

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PALACO app metadata response (draft v1)",
+  "type": "object",
+  "required": ["appId", "version", "status"],
+  "properties": {
+    "appId": {
+      "type": "string",
+      "enum": ["aether", "bastion", "scriptie"]
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["operational", "degraded", "maintenance", "unavailable"],
+      "description": "Self-reported status only; it does not prove service availability or security."
+    }
+  },
+  "additionalProperties": false
+}

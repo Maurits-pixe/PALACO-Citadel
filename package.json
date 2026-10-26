@@ -3,10 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "npm run test:rio && npm run test:server && npm run test:browser",
+    "test": "npm run test:rio && npm run test:server && npm run test:launcher && npm run test:browser",
     "test:rio": "node rio/conformance.mjs",
     "test:browser": "npm run build:launcher && npm run build && npm run build:bastion && playwright test",
     "test:server": "node --test server/*.test.js",
+    "test:launcher": "node --test launcher-vue/src/*.test.js",
     "dev:bastion": "vite --config vite.bastion.config.mjs",
     "dev:react": "vite --config vite.config.mjs",
     "dev:launcher": "vite --config vite.launcher.config.mjs",
