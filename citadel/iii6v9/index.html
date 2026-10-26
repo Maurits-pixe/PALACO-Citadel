@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07110e" />
+    <title>III6V9 · Concept preview</title>
+    <link rel="stylesheet" href="./iii6v9.css" />
+    <script src="./iii6v9.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="back-link" href="/" data-i18n="back">← Citadel home</a>
+      <label class="language-control">
+        <span data-i18n="language">Language</span>
+        <select id="language-select" aria-label="Language">
+          <option value="en">English</option>
+          <option value="nl">Nederlands</option>
+          <option value="eo">Esperanto</option>
+        </select>
+      </label>
+    </header>
+
+    <main class="vault-shell">
+      <div class="eyebrow"><span class="signal-dot" aria-hidden="true"></span><span data-i18n="eyebrow">CITADEL SYSTEMS · CONCEPT 03</span></div>
+      <h1>III6V9</h1>
+      <p class="subtitle" data-i18n="subtitle">Cryptic vault interface concept</p>
+
+      <section class="notice" aria-labelledby="notice-title">
+        <h2 id="notice-title" data-i18n="noticeTitle">CONCEPT PREVIEW — NOTHING IS PROTECTED</h2>
+        <p data-i18n="noticeBody">This page is a visual concept using fictional examples only. It does not encrypt, authenticate, store, or erase data. Do not enter secrets.</p>
+      </section>
+
+      <section class="lock-panel" aria-labelledby="lock-title">
+        <div class="cipher-mark" aria-hidden="true"><span>III</span><span>6</span><span>V9</span></div>
+        <div>
+          <p class="panel-label" data-i18n="lockLabel">INTERFACE STUDY · NO AUTHENTICATION</p>
+          <h2 id="lock-title" data-i18n="lockTitle">Cipher lock concept</h2>
+          <p data-i18n="lockBody">The dial is decorative. There is no access code or unlock action.</p>
+        </div>
+        <span class="state-chip" data-i18n="previewState">PREVIEW ONLY</span>
+      </section>
+
+      <section class="vault-grid" aria-label="Fictional vault interface examples">
+        <article class="vault-card">
+          <div class="card-symbol" aria-hidden="true">01</div>
+          <p class="panel-label" data-i18n="fileLabel">FICTIONAL EXAMPLE</p>
+          <h2 data-i18n="fileTitle">Encrypted file</h2>
+          <p class="sample-name" data-i18n="fileName">sample-archive.enc</p>
+          <p class="card-note" data-i18n="fileNote">Illustrative label only — no file is present or encrypted.</p>
+        </article>
+        <article class="vault-card">
+          <div class="card-symbol" aria-hidden="true">02</div>
+          <p class="panel-label" data-i18n="noteLabel">FICTIONAL EXAMPLE</p>
+          <h2 data-i18n="noteTitle">Private note</h2>
+          <p class="sample-name" data-i18n="noteName">“A note would appear here.”</p>
+          <p class="card-note" data-i18n="noteNote">Placeholder text only — nothing is saved.</p>
+        </article>
+        <article class="vault-card switch-card">
+          <div class="card-symbol" aria-hidden="true">03</div>
+          <p class="panel-label" data-i18n="switchLabel">DESIGN TOPIC · NOT ACTIVE</p>
+          <h2 data-i18n="switchTitle">Inactivity response</h2>
+          <p data-i18n="switchBody">A “dead man’s switch” is not implemented. Browser inactivity cannot guarantee that data is erased.</p>
+        </article>
+      </section>
+
+      <footer>
+        <p data-i18n="footer">Presentation grants no access, security, or authority. A real vault requires a separately reviewed cryptographic design.</p>
+      </footer>
+    </main>
+  </body>
+</html>
