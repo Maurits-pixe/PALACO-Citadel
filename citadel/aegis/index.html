@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07111b" />
+    <title>Aegis · Monitoring simulation</title>
+    <link rel="stylesheet" href="./aegis.css" />
+    <script src="./aegis.js" defer></script>
+  </head>
+  <body>
+    <header class="aegis-header">
+      <a class="back-link" href="/" data-i18n="back">← Citadel home</a>
+      <div class="brand-block">
+        <span class="brand-mark" aria-hidden="true">A</span>
+        <div>
+          <p class="eyebrow" data-i18n="eyebrow">CITADEL SYSTEMS · VISUAL CONCEPT</p>
+          <h1>AEGIS</h1>
+        </div>
+      </div>
+      <label class="language-control">
+        <span data-i18n="language">Language</span>
+        <select id="language-select">
+          <option value="en">English</option>
+          <option value="nl">Nederlands</option>
+          <option value="eo">Esperanto</option>
+        </select>
+      </label>
+    </header>
+
+    <main class="aegis-shell">
+      <section class="simulation-notice" aria-labelledby="notice-title">
+        <span class="notice-mark" aria-hidden="true">SIM</span>
+        <div>
+          <h2 id="notice-title" data-i18n="noticeTitle">SIMULATION ONLY · NO LIVE MONITORING</h2>
+          <p data-i18n="noticeBody">All map points, threat values, system metrics, and alerts are generated in this browser. Aegis does not connect to a network, inspect traffic, detect threats, or block activity. Do not use this display for security decisions.</p>
+        </div>
+      </section>
+
+      <section class="overview-bar" aria-label="Simulation overview">
+        <div>
+          <p class="eyebrow" data-i18n="workspaceLabel">DEMO ENVIRONMENT</p>
+          <h2 data-i18n="overviewTitle">Signal overview</h2>
+        </div>
+        <p class="simulation-state"><span class="state-dot" aria-hidden="true"></span><span data-i18n="simulatedFeed">SYNTHETIC FEED</span></p>
+      </section>
+
+      <div class="dashboard-grid">
+        <section class="panel map-panel" aria-labelledby="map-title">
+          <header class="panel-header">
+            <div>
+              <p class="eyebrow" data-i18n="mapEyebrow">ILLUSTRATIVE · NOT GEOGRAPHIC</p>
+              <h2 id="map-title" data-i18n="mapTitle">Traffic visualization</h2>
+            </div>
+            <span class="panel-code">MAP / SIM-01</span>
+          </header>
+          <div id="traffic-map" class="traffic-map" role="img" aria-label="Illustrative map with synthetic signal points">
+            <div class="map-grid" aria-hidden="true"></div>
+            <div class="map-ring ring-one" aria-hidden="true"></div>
+            <div class="map-ring ring-two" aria-hidden="true"></div>
+            <div class="map-crosshair" aria-hidden="true"></div>
+            <div id="map-points" class="map-points" aria-hidden="true"></div>
+            <span class="map-caption" data-i18n="mapCaption">SYNTHETIC SIGNALS · POSITIONS ARE DECORATIVE</span>
+          </div>
+          <div class="map-legend">
+            <span><i class="legend-dot signal-dot" aria-hidden="true"></i><span data-i18n="signalPoint">Synthetic signal</span></span>
+            <span><i class="legend-dot watch-dot" aria-hidden="true"></i><span data-i18n="watchPoint">Simulated watch event</span></span>
+          </div>
+        </section>
+
+        <section class="panel threat-panel" aria-labelledby="threat-title">
+          <header class="panel-header">
+            <div>
+              <p class="eyebrow" data-i18n="threatEyebrow">RANDOMIZED DEMO VALUE</p>
+              <h2 id="threat-title" data-i18n="threatTitle">Threat meter</h2>
+            </div>
+            <span class="panel-code">RISK / SIM</span>
+          </header>
+          <div class="threat-reading">
+            <strong id="threat-value">18</strong><span>/ 100</span>
+          </div>
+          <div class="meter-track" role="meter" aria-label="Synthetic demo threat level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="18" id="threat-meter">
+            <div id="threat-fill" class="meter-fill"></div>
+          </div>
+          <p id="threat-status" class="threat-status" aria-live="polite" data-i18n="threatLow">LOW · SIMULATED</p>
+          <p class="panel-note" data-i18n="threatNote">This changing value is random demo output, not an assessment of actual risk.</p>
+        </section>
+
+        <section class="panel health-panel" aria-labelledby="health-title">
+          <header class="panel-header">
+            <div>
+              <p class="eyebrow" data-i18n="healthEyebrow">GENERATED LOCALLY · NO DEVICE TELEMETRY</p>
+              <h2 id="health-title" data-i18n="healthTitle">System health</h2>
+            </div>
+            <span class="panel-code">HOST / NONE</span>
+          </header>
+          <div class="health-list">
+            <article class="metric-card">
+              <div class="metric-heading"><span data-i18n="cpuLabel">CPU LOAD</span><strong id="cpu-value">32%</strong></div>
+              <div class="metric-track"><span id="cpu-bar" class="metric-fill cpu-fill" style="width:32%"></span></div>
+              <div id="cpu-chart" class="micro-chart" role="img" aria-label="Synthetic CPU history"></div>
+            </article>
+            <article class="metric-card">
+              <div class="metric-heading"><span data-i18n="memoryLabel">MEMORY LOAD</span><strong id="memory-value">54%</strong></div>
+              <div class="metric-track"><span id="memory-bar" class="metric-fill memory-fill" style="width:54%"></span></div>
+              <div id="memory-chart" class="micro-chart" role="img" aria-label="Synthetic memory history"></div>
+            </article>
+            <article class="metric-card">
+              <div class="metric-heading"><span data-i18n="networkLabel">NETWORK LOAD</span><strong id="network-value">41%</strong></div>
+              <div class="metric-track"><span id="network-bar" class="metric-fill network-fill" style="width:41%"></span></div>
+              <div id="network-chart" class="micro-chart" role="img" aria-label="Synthetic network history"></div>
+            </article>
+          </div>
+          <p class="panel-note" data-i18n="healthNote">Values and charts are generated for this demo; they do not describe this device or a real system.</p>
+        </section>
+
+        <section class="panel alerts-panel" aria-labelledby="alerts-title">
+          <header class="panel-header">
+            <div>
+              <p class="eyebrow" data-i18n="alertsEyebrow">FICTIONAL EVENTS · NO BLOCKING OCCURS</p>
+              <h2 id="alerts-title" data-i18n="alertsTitle">Demo alert feed</h2>
+            </div>
+            <span id="alert-count" class="panel-code">00 EVENTS</span>
+          </header>
+          <p class="panel-note alert-note" data-i18n="alertsNote">These entries are synthetic examples, not observed or blocked attacks.</p>
+          <ol id="alert-list" class="alert-list" aria-label="Synthetic demo alerts" aria-live="polite"></ol>
+        </section>
+      </div>
+      <footer class="aegis-footer" data-i18n="footer">Aegis is a visual simulation. No live traffic, threat detection, system telemetry, network connection, or defensive action is implemented.</footer>
+    </main>
+  </body>
+</html>
