@@ -98,6 +98,12 @@ export function createBastionApp({ pool, jwtSecret, allowedOrigins, ioRef = { cu
     allowedHeaders: ['Authorization', 'Content-Type']
   }));
   app.use(express.json({ limit: '16kb' }));
+  app.use('/api', rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 120,
+    standardHeaders: 'draft-8',
+    legacyHeaders: false
+  }));
   app.use('/api/auth/login', rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 10,
