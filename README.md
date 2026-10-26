@@ -84,11 +84,11 @@ matching `launcher-vue/src/metadata-contract.schema.json` and the expected exact
 does not prove app ownership, feature availability, authentication, authorization, or security.
 Network, TLS, CORS, redirect, and timeout errors are **“Configured — check unavailable”** because
 the browser cannot reliably distinguish their causes. Evidence is held only in page memory,
-bound to the approved origin and expected/received app ID, timestamped, and expires after five
-minutes. Editing or saving a different URL immediately invalidates it; old in-flight results are
+bound to the approved origin and expected/received app ID, timestamped, and expires after 60
+seconds. Editing or saving a different URL immediately invalidates it; old in-flight results are
 ignored. Opening the app is enabled only while the matching metadata result is current. Evidence
-expires after 60 seconds and is never restored on reload or in another tab; the destination URL
-may remain in this tab's session storage, but metadata must be checked again.
+is never restored on reload or in another tab; the destination URL may remain in this tab's session
+storage, but metadata must be checked again.
 
 The endpoint must send an `Access-Control-Allow-Origin` permitting the launcher's exact origin.
 For local development that is `https://localhost:5173`; the deployed launcher needs its actual
