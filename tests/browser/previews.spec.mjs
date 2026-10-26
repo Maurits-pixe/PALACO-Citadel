@@ -5,10 +5,10 @@ const surfaces = [
   { path: '/atelier/wizard.html', title: 'PALACO Atelier · New Citadel', heading: 'New Citadel' },
   { path: '/DOCS/levensader-readonly/', title: 'PALACO · Objectinspectie', heading: 'Bekijk wat we weten.' },
   { path: '/DOCS/levensader-readonly/index.html', title: 'PALACO · Objectinspectie', heading: 'Bekijk wat we weten.' },
-  { path: '/citadel/iii6v9/', title: 'III6V9 · Concept preview', heading: 'III6V9' },
+  { path: '/citadel/iii6v9/', title: 'AETHER · Local encryption', heading: 'AETHER' },
   { path: '/citadel/bastion/', title: 'Bastion · Command center demo', heading: 'BASTION' },
-  { path: '/citadel/aegis/', title: 'Aegis · Monitoring simulation', heading: 'AEGIS' },
-  { path: '/citadel/', title: 'Citadel · Module launcher', heading: 'CITADEL LAUNCHER' }
+  { path: '/citadel/aegis/', title: '5CRIPTIE · Integrity simulation', heading: '5CRIPTIE' },
+  { path: '/citadel/', title: 'PALACO Hoofdkantoor · Launcher', heading: 'PALACO HOOFDKANTOOR' }
 ];
 
 async function waitForWorker(page) {
@@ -55,11 +55,11 @@ test('replaces stale previews online, preserves them offline and retires only ow
   });
   await page.goto('/');
   await waitForWorker(page);
-  expect(await page.evaluate(() => caches.keys())).toEqual(expect.arrayContaining(['palaco-rio-shell-v9', 'unrelated-app-cache']));
+  expect(await page.evaluate(() => caches.keys())).toEqual(expect.arrayContaining(['palaco-rio-shell-v10', 'unrelated-app-cache']));
   expect(await page.evaluate(() => caches.keys())).not.toContain('palaco-rio-shell-v4');
 
   await page.evaluate(async paths => {
-    const cache = await caches.open('palaco-rio-shell-v9');
+    const cache = await caches.open('palaco-rio-shell-v10');
     for (const path of paths) {
       await cache.put(path, new Response('<title>Stale preview</title><h1>Stale preview</h1>', {
         headers: { 'Content-Type': 'text/html' }
@@ -75,7 +75,7 @@ test('replaces stale previews online, preserves them offline and retires only ow
     await expect(page).toHaveTitle(surface.title);
     expect(await page.evaluate(() => window.stalePreview)).toBeUndefined();
     expect(await page.evaluate(async path => {
-      const cache = await caches.open('palaco-rio-shell-v9');
+      const cache = await caches.open('palaco-rio-shell-v10');
       return (await cache.match(path)).text();
     }, surface.path)).not.toContain('Stale preview');
   }
@@ -93,7 +93,7 @@ test('replaces stale previews online, preserves them offline and retires only ow
   await page.goto('/');
   await page.evaluate(() => fetch('/registration/not-a-static-preview'));
   expect(await page.evaluate(async () => {
-    const cache = await caches.open('palaco-rio-shell-v9');
+    const cache = await caches.open('palaco-rio-shell-v10');
     return Boolean(await cache.match('/registration/not-a-static-preview'));
   })).toBe(false);
 });

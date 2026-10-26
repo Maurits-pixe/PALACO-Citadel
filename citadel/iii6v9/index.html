@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#07110e" />
-    <title>III6V9 · Concept preview</title>
+    <title>AETHER · Local encryption</title>
     <link rel="stylesheet" href="./iii6v9.css" />
     <script src="./iii6v9.js" defer></script>
   </head>
@@ -22,50 +22,41 @@
     </header>
 
     <main class="vault-shell">
-      <div class="eyebrow"><span class="signal-dot" aria-hidden="true"></span><span data-i18n="eyebrow">CITADEL SYSTEMS · CONCEPT 03</span></div>
-      <h1>III6V9</h1>
-      <p class="subtitle" data-i18n="subtitle">Cryptic vault interface concept</p>
+      <div class="eyebrow"><span class="signal-dot" aria-hidden="true"></span><span data-i18n="eyebrow">PALACO HOOFDKANTOOR · LOCAL CRYPTOGRAPHY</span></div>
+      <h1>AETHER</h1>
+      <p class="subtitle" data-i18n="subtitle">Client-side text encryption demonstration</p>
 
       <section class="notice" aria-labelledby="notice-title">
-        <h2 id="notice-title" data-i18n="noticeTitle">CONCEPT PREVIEW — NOTHING IS PROTECTED</h2>
-        <p data-i18n="noticeBody">This page is a visual concept using fictional examples only. It does not encrypt, authenticate, store, or erase data. Do not enter secrets.</p>
+        <h2 id="notice-title" data-i18n="noticeTitle">LOCAL ENCRYPTION · SECURITY LIMITATIONS APPLY</h2>
+        <p data-i18n="noticeBody">Text is encrypted in this browser with AES-GCM-256 and a passphrase-derived key. Text and passphrases remain in this page's memory until cleared and are not uploaded or persistently stored. This demo is not an audited vault; browser/device compromise, weak passphrases, or lost passphrases can expose or permanently lose data. Avoid highly sensitive information.</p>
       </section>
 
-      <section class="lock-panel" aria-labelledby="lock-title">
-        <div class="cipher-mark" aria-hidden="true"><span>III</span><span>6</span><span>V9</span></div>
-        <div>
-          <p class="panel-label" data-i18n="lockLabel">INTERFACE STUDY · NO AUTHENTICATION</p>
-          <h2 id="lock-title" data-i18n="lockTitle">Cipher lock concept</h2>
-          <p data-i18n="lockBody">The dial is decorative. There is no access code or unlock action.</p>
+      <section class="crypto-panel" aria-labelledby="crypto-title">
+        <div class="mode-switch" role="group" aria-label="Encryption mode">
+          <button id="encrypt-mode" type="button" aria-pressed="true" data-i18n="encryptMode">ENCRYPT</button>
+          <button id="decrypt-mode" type="button" aria-pressed="false" data-i18n="decryptMode">DECRYPT</button>
         </div>
-        <span class="state-chip" data-i18n="previewState">PREVIEW ONLY</span>
-      </section>
-
-      <section class="vault-grid" aria-label="Fictional vault interface examples">
-        <article class="vault-card">
-          <div class="card-symbol" aria-hidden="true">01</div>
-          <p class="panel-label" data-i18n="fileLabel">FICTIONAL EXAMPLE</p>
-          <h2 data-i18n="fileTitle">Encrypted file</h2>
-          <p class="sample-name" data-i18n="fileName">sample-archive.enc</p>
-          <p class="card-note" data-i18n="fileNote">Illustrative label only — no file is present or encrypted.</p>
-        </article>
-        <article class="vault-card">
-          <div class="card-symbol" aria-hidden="true">02</div>
-          <p class="panel-label" data-i18n="noteLabel">FICTIONAL EXAMPLE</p>
-          <h2 data-i18n="noteTitle">Private note</h2>
-          <p class="sample-name" data-i18n="noteName">“A note would appear here.”</p>
-          <p class="card-note" data-i18n="noteNote">Placeholder text only — nothing is saved.</p>
-        </article>
-        <article class="vault-card switch-card">
-          <div class="card-symbol" aria-hidden="true">03</div>
-          <p class="panel-label" data-i18n="switchLabel">DESIGN TOPIC · NOT ACTIVE</p>
-          <h2 data-i18n="switchTitle">Inactivity response</h2>
-          <p data-i18n="switchBody">A “dead man’s switch” is not implemented. Browser inactivity cannot guarantee that data is erased.</p>
-        </article>
+        <h2 id="crypto-title" data-i18n="cryptoTitle">Encrypt text locally</h2>
+        <form id="crypto-form">
+          <label class="field-label" for="crypto-input" data-i18n="inputLabel">Text to encrypt</label>
+          <textarea id="crypto-input" rows="6" autocomplete="off" spellcheck="false" data-i18n-placeholder="inputPlaceholder" placeholder="Enter text to encrypt…"></textarea>
+          <label class="field-label" for="passphrase" data-i18n="passphraseLabel">Passphrase (minimum 12 characters)</label>
+          <input id="passphrase" type="password" autocomplete="new-password" required />
+          <p class="crypto-method" data-i18n="methodNote">AES-GCM-256 · PBKDF2-SHA-256 · 600,000 iterations · random 16-byte salt and 12-byte IV</p>
+          <button id="process-button" class="process-button" type="submit" data-i18n="processButton">Encrypt in this browser</button>
+        </form>
+        <label class="field-label output-label" for="crypto-output" data-i18n="outputLabel">Result (not saved automatically)</label>
+        <textarea id="crypto-output" rows="6" readonly spellcheck="false" data-i18n-placeholder="outputPlaceholder" placeholder="Your output appears here…"></textarea>
+        <div class="output-actions">
+          <button id="copy-output" type="button" disabled data-i18n="copyButton">Copy result</button>
+          <button id="clear-fields" type="button" data-i18n="clearButton">Clear fields</button>
+        </div>
+        <p id="crypto-status" role="status" aria-live="polite"></p>
+        <p class="format-note" data-i18n="formatNote">Encrypted output starts with AETHER1. Keep it together with your passphrase stored separately. Losing either can make recovery impossible.</p>
       </section>
 
       <footer>
-        <p data-i18n="footer">Presentation grants no access, security, or authority. A real vault requires a separately reviewed cryptographic design.</p>
+        <p data-i18n="footer">Encryption runs locally through the browser Web Crypto API. This page has no account, key recovery, persistent storage, or independent security audit. Verify the code and protect your passphrase before relying on it.</p>
       </footer>
     </main>
   </body>

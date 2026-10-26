@@ -289,3 +289,121 @@ footer p {
     transition-duration: 0.01ms !important;
   }
 }
+
+.crypto-panel {
+  margin-top: 1rem;
+  padding: clamp(1rem, 4vw, 1.75rem);
+  border: 1px solid var(--green);
+  border-radius: 10px;
+  background: rgba(4, 13, 9, .96);
+  box-shadow: 0 0 28px rgba(97, 245, 173, .08);
+}
+
+.mode-switch,
+.output-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .65rem;
+}
+
+.mode-switch button,
+.process-button,
+.output-actions button {
+  min-height: 44px;
+  padding: .65rem 1rem;
+  border: 1px solid var(--green);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--green);
+  font: inherit;
+  cursor: pointer;
+}
+
+.mode-switch button[aria-pressed="true"],
+.process-button {
+  background: var(--green);
+  color: #04100a;
+  font-weight: 700;
+}
+
+.crypto-panel h2 {
+  margin: 1.25rem 0;
+}
+
+.field-label {
+  display: block;
+  margin: 1rem 0 .5rem;
+  color: var(--green);
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+.crypto-panel textarea,
+.crypto-panel input {
+  display: block;
+  width: 100%;
+  padding: .85rem;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: #020604;
+  color: #e1f5eb;
+  font: inherit;
+  line-height: 1.5;
+}
+
+.crypto-panel textarea {
+  min-height: 140px;
+  resize: vertical;
+  overflow-wrap: anywhere;
+}
+
+.crypto-panel textarea:focus-visible,
+.crypto-panel input:focus-visible,
+.crypto-panel button:focus-visible {
+  outline: 3px solid #ffe18a;
+  outline-offset: 3px;
+}
+
+.crypto-method,
+.format-note {
+  color: var(--muted);
+  font-size: .78rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.process-button {
+  width: 100%;
+  margin-top: .6rem;
+}
+
+.process-button:disabled,
+.output-actions button:disabled {
+  cursor: wait;
+  opacity: .6;
+}
+
+.output-label {
+  margin-top: 1.4rem;
+}
+
+.output-actions {
+  margin-top: .6rem;
+}
+
+.output-actions button:disabled {
+  cursor: not-allowed;
+}
+
+#crypto-status {
+  min-height: 1.5em;
+  color: #ffe0a4;
+  font-size: .84rem;
+  line-height: 1.5;
+}
+
+.format-note {
+  margin-bottom: 0;
+  padding-top: .8rem;
+  border-top: 1px solid var(--line);
+}

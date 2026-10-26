@@ -34,11 +34,11 @@ The PALACO 2040 Compass section now includes the following dashboard layers in C
 - Citadel Health Dashboard — operational + semantic risk signals with per-signal explanation
 - RIO Conversation Dashboard — conversations as access to actions with context/consequence panels
 - ELIXER Dashboard — available apps/capabilities per context with clear choice impact
-- Aether — visual-only encoding demo; it has no protected vault or verified security level
-- [III6V9](citadel/iii6v9/) — static cipher-vault concept; no authentication, storage, encryption, or auto-wipe
+- Aether homepage widget — reversible Base64 visual demo; it is not encryption
+- [AETHER](citadel/iii6v9/) — local AES-GCM-256 text encryption using PBKDF2-SHA-256; not an audited vault or production security claim
 - [Bastion](citadel/bastion/) — fictional command-center simulation; local-only messages, no secure comms or live roster
-- [Aegis](citadel/aegis/) — monitoring visualization with synthetic data only; no live traffic, detection, or defensive actions
-- [Citadel launcher](citadel/) — opens the III6V9, Bastion, or Aegis preview in the same screen; navigation does not grant access or capabilities
+- [5CRIPTIE](citadel/aegis/) — synthetic code-integrity dashboard; no source scan, live monitoring, detection, or defensive actions
+- [PALACO Hoofdkantoor](citadel/) — opens AETHER, Bastion, or 5CRIPTIE in the same screen; navigation does not grant access or capabilities
 - Evolution Dashboard — canon/system changes with “what changes for me?” summary
 - Public Gateway Dashboard — public orientation layer with core concepts and safe onboarding
 
@@ -48,23 +48,25 @@ Implementation references:
 - Localization keys: `/home/runner/work/PALACO-Citadel/PALACO-Citadel/app.js`
 - UI styling: `/home/runner/work/PALACO-Citadel/PALACO-Citadel/styles.css`
 
-The Aether panel uses a fixed public sample to demonstrate reversible Base64 encoding.
-It is not encryption, authentication, secure storage, or a production vault; do not enter
-or store secrets in this demo.
+The homepage Aether widget uses a fixed public sample to demonstrate reversible Base64
+encoding. It is not encryption, authentication, secure storage, or a production vault.
 
-The III6V9 preview contains fictional interface examples only. Its decorative cipher lock
-does not authenticate, and its inactivity panel does not erase anything. It is not a vault
-and must not be used for real secrets.
+AETHER encrypts text locally with the browser Web Crypto API using AES-GCM-256 and a key
+derived by PBKDF2-SHA-256 (600,000 iterations, per-message random salt and IV). Input and
+passphrase remain in the active page memory until cleared; encrypted output is not saved or
+uploaded. The page has no account, recovery, persistent storage, or independent security
+audit. It is not a production vault; use strong passphrases and do not rely on it for highly
+sensitive data.
 
 Bastion uses invented tasks and personnel. Task changes are tab-local; demo messages are
 held in memory and removed from the view after 30 seconds. Messages are not transmitted,
 persisted, or securely erased, and the demo does not implement access control.
 
-Aegis generates decorative map points, metrics, and alert examples in the browser. It does
-not inspect network traffic, monitor system health, detect threats, or block activity, and
-must not be used for operational security decisions.
+5CRIPTIE generates decorative code-log entries, metrics, and data streams in the browser. It
+does not inspect source code or network traffic, monitor system health, detect threats, or
+block activity, and must not be used for operational security decisions.
 
-The Citadel launcher embeds these same static concept previews in an iframe for convenient
+The PALACO Hoofdkantoor launcher embeds these same static previews in an iframe for convenient
 navigation. Embedding does not provide security isolation, authentication, access control,
 or operational capability; each module retains its own demo limitations.
 
@@ -95,8 +97,10 @@ De bestaande GitHub Pages-publicatie behoudt `CNAME` (`hoofdkantoor.info`) en de
 - Atelier-wizard, uitsluitend lokaal DRAFT-concept: `https://hoofdkantoor.info/atelier/wizard.html`
 - Levensader-objectinspectie, read-only fixture: `https://hoofdkantoor.info/DOCS/levensader-readonly/`
   (ook de bestaande route met `index.html` blijft werken).
-- III6V9, uitsluitend statische conceptpreview: `https://hoofdkantoor.info/citadel/iii6v9/`.
+- AETHER, legacy route `/citadel/iii6v9/`: `https://hoofdkantoor.info/citadel/iii6v9/`.
 - Bastion, uitsluitend lokale commandocentrumsimulatie: `https://hoofdkantoor.info/citadel/bastion/`.
+- 5CRIPTIE, legacy route `/citadel/aegis/`: `https://hoofdkantoor.info/citadel/aegis/`.
+- PALACO Hoofdkantoor launcher: `https://hoofdkantoor.info/citadel/`.
 
 De homepage linkt naar de afzonderlijke statische previews. Online vraagt de service worker
 de actuele bestanden op dezelfde URL op; offline toont hij de laatst opgeslagen versie.

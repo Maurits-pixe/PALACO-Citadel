@@ -1,4 +1,4 @@
-const CACHE_NAME = 'palaco-rio-shell-v9';
+const CACHE_NAME = 'palaco-rio-shell-v10';
 const SHELL_ASSETS = [
   '/', '/index.html', '/styles.css', '/app.js', '/manifest.webmanifest',
   '/assets/icon-192.svg', '/assets/icon-512.svg',

@@ -1,86 +1,105 @@
-const copy = {
+const messages = {
   en: {
-    title: 'Aegis · Monitoring simulation', back: '← Citadel home', language: 'Language',
-    eyebrow: 'CITADEL SYSTEMS · VISUAL CONCEPT', noticeTitle: 'SIMULATION ONLY · NO LIVE MONITORING',
-    noticeBody: 'All map points, threat values, system metrics, and alerts are generated in this browser. Aegis does not connect to a network, inspect traffic, detect threats, or block activity. Do not use this display for security decisions.',
-    workspaceLabel: 'DEMO ENVIRONMENT', overviewTitle: 'Signal overview', simulatedFeed: 'SYNTHETIC FEED',
-    mapEyebrow: 'ILLUSTRATIVE · NOT GEOGRAPHIC', mapTitle: 'Traffic visualization',
-    mapCaption: 'SYNTHETIC SIGNALS · POSITIONS ARE DECORATIVE', signalPoint: 'Synthetic signal', watchPoint: 'Simulated watch event',
-    threatEyebrow: 'SYNTHETIC DEMO VALUE', threatTitle: 'Threat meter', threatLow: 'LOW · SIMULATED',
-    threatElevated: 'ELEVATED · SIMULATED', threatHigh: 'HIGH · SIMULATED',
-    threatNote: 'This changing value is generated demo output, not an assessment of actual risk.',
-    healthEyebrow: 'GENERATED LOCALLY · NO DEVICE TELEMETRY', healthTitle: 'System health',
-    cpuLabel: 'CPU LOAD', memoryLabel: 'MEMORY LOAD', networkLabel: 'NETWORK LOAD',
-    cpuChart: 'Synthetic CPU history', memoryChart: 'Synthetic memory history', networkChart: 'Synthetic network history',
-    healthNote: 'Values and charts are generated for this demo; they do not describe this device or a real system.',
-    alertsEyebrow: 'FICTIONAL EVENTS · NO BLOCKING OCCURS', alertsTitle: 'Demo alert feed',
-    alertsNote: 'These entries are synthetic examples, not observed or blocked attacks.',
-    alertStatus: 'SIMULATED · NOT BLOCKED', alertEmpty: 'No synthetic demo events.',
-    eventScan: 'Synthetic pattern match', eventBurst: 'Illustrative traffic spike', eventPolicy: 'Demo rule notification',
-    footer: 'Aegis is a visual simulation. No live traffic, threat detection, system telemetry, network connection, or defensive action is implemented.'
+    title: '5CRIPTIE · Integrity simulation', back: '← PALACO home', language: 'Language',
+    eyebrow: 'PALACO HEADQUARTERS · VISUAL SIMULATION',
+    noticeTitle: 'SIMULATION ONLY · NO CODE IS SCANNED',
+    noticeBody: 'The scan log, integrity percentage, counters, and data streams are synthetic browser animations. 5CRIPTIE does not inspect source code, connect to a network, monitor a system, detect threats, or block activity. Do not use this display for security decisions.',
+    workspace: 'DEMO ENVIRONMENT', overviewTitle: 'Code integrity & threat monitor', simulated: 'SYNTHETIC FEED',
+    scanEyebrow: 'FICTIONAL SAMPLE LOG', scanTitle: 'Script analysis simulation',
+    scanLabel: 'Synthetic scan animation', logLabel: 'Synthetic sample log',
+    logNote: 'Log entries are fictional text and are not analysis results.',
+    integrityEyebrow: 'GENERATED DEMO VALUE', integrityTitle: 'Simulated integrity',
+    integrityLabel: 'SIMULATED · NO ASSESSMENT',
+    integrityNote: 'This changing percentage is not a security score or real integrity check.',
+    statsEyebrow: 'SYNTHETIC COUNTERS', statsTitle: 'Demo counters',
+    threadsLabel: 'SIMULATED THREADS', linesLabel: 'ILLUSTRATIVE LINES',
+    statsNote: 'No files, processes, or source code are accessed.',
+    streamEyebrow: 'DECORATIVE ANIMATION · NO NETWORK', streamTitle: 'Illustrative data streams',
+    streamLabel: 'Synthetic animated data bars', streamCaption: 'Decorative data visualization · not packet traffic',
+    streamNote: 'The animation is generated locally and does not represent real network activity.',
+    footer: '5CRIPTIE is a visual simulation. No source scan, code-integrity validation, live monitoring, threat detection, network connection, or defensive action is implemented.',
+    logNormal: 'import crypto from "crypto";',
+    logHighlight: 'const sampleMode = "SIMULATION_ONLY";',
+    logComment: '// Displaying fictional sample event…',
+    logWarning: 'SAMPLE WARNING: illustrative event; no finding produced',
+    logCheck: 'function demoCheck() { return "NOT A SCAN"; }',
+    logStream: 'Generating synthetic stream visual…',
+    logComplete: 'Demo cycle updated; no source was inspected'
   },
   nl: {
-    title: 'Aegis · Monitoring-simulatie', back: '← Citadel-startpagina', language: 'Taal',
-    eyebrow: 'CITADEL-SYSTEMEN · VISUEEL CONCEPT', noticeTitle: 'ALLEEN SIMULATIE · GEEN LIVE MONITORING',
-    noticeBody: 'Alle kaartpunten, dreigingswaarden, systeemmetingen en meldingen worden in deze browser gegenereerd. Aegis maakt geen netwerkverbinding, inspecteert geen verkeer, detecteert geen dreigingen en blokkeert niets. Gebruik dit scherm niet voor beveiligingsbeslissingen.',
-    workspaceLabel: 'DEMO-OMGEVING', overviewTitle: 'Signaaloverzicht', simulatedFeed: 'SYNTHETISCHE FEED',
-    mapEyebrow: 'ILLUSTRATIEF · NIET GEOGRAFISCH', mapTitle: 'Verkeersvisualisatie',
-    mapCaption: 'SYNTHETISCHE SIGNALEN · POSITIES ZIJN DECORATIEF', signalPoint: 'Synthetisch signaal', watchPoint: 'Gesimuleerde observatie',
-    threatEyebrow: 'SYNTHETISCHE DEMOWAARDE', threatTitle: 'Dreigingsmeter', threatLow: 'LAAG · GESIMULEERD',
-    threatElevated: 'VERHOOGD · GESIMULEERD', threatHigh: 'HOOG · GESIMULEERD',
-    threatNote: 'Deze veranderende waarde is gegenereerde demo-uitvoer en geen echte risico-inschatting.',
-    healthEyebrow: 'LOKAAL GEGENEREERD · GEEN APPARAATTELEMETRIE', healthTitle: 'Systeemstatus',
-    cpuLabel: 'CPU-BELASTING', memoryLabel: 'GEHEUGENBELASTING', networkLabel: 'NETWERKBELASTING',
-    cpuChart: 'Synthetische CPU-geschiedenis', memoryChart: 'Synthetische geheugengeschiedenis', networkChart: 'Synthetische netwerkgeschiedenis',
-    healthNote: 'Waarden en grafieken zijn voor deze demo gegenereerd; ze beschrijven dit apparaat of een echt systeem niet.',
-    alertsEyebrow: 'FICTIEVE GEBEURTENISSEN · ER WORDT NIETS GEBLOKKEERD', alertsTitle: 'Demo-meldingen',
-    alertsNote: 'Dit zijn synthetische voorbeelden, geen waargenomen of geblokkeerde aanvallen.',
-    alertStatus: 'GESIMULEERD · NIET GEBLOKKEERD', alertEmpty: 'Geen synthetische demo-gebeurtenissen.',
-    eventScan: 'Synthetische patroonmatch', eventBurst: 'Illustratieve verkeerspiek', eventPolicy: 'Demo-regelmelding',
-    footer: 'Aegis is een visuele simulatie. Live verkeer, dreigingsdetectie, systeemtelemetrie, netwerkverbinding en verdedigingsacties zijn niet geïmplementeerd.'
+    title: '5CRIPTIE · Integriteitssimulatie', back: '← PALACO-startpagina', language: 'Taal',
+    eyebrow: 'PALACO HOOFDKANTOOR · VISUELE SIMULATIE',
+    noticeTitle: 'ALLEEN SIMULATIE · ER WORDT GEEN CODE GESCAND',
+    noticeBody: 'De scanlog, integriteitswaarde, tellers en datastromen zijn synthetische browseranimaties. 5CRIPTIE inspecteert geen broncode, maakt geen netwerkverbinding, monitort geen systeem, detecteert geen dreigingen en blokkeert niets. Gebruik dit scherm niet voor beveiligingsbeslissingen.',
+    workspace: 'DEMO-OMGEVING', overviewTitle: 'Code-integriteit & dreigingsmonitor', simulated: 'SYNTHETISCHE FEED',
+    scanEyebrow: 'FICTIEVE VOORBEELDLOG', scanTitle: 'Scriptanalyse-simulatie',
+    scanLabel: 'Synthetische scananimatie', logLabel: 'Synthetische voorbeeldlog',
+    logNote: 'Logregels zijn fictieve tekst en geen analyseresultaten.',
+    integrityEyebrow: 'GEGENEREERDE DEMOWAARDE', integrityTitle: 'Gesimuleerde integriteit',
+    integrityLabel: 'GESIMULEERD · GEEN BEOORDELING',
+    integrityNote: 'Dit veranderende percentage is geen beveiligingsscore of echte integriteitscontrole.',
+    statsEyebrow: 'SYNTHETISCHE TELLERS', statsTitle: 'Demotellers',
+    threadsLabel: 'GESIMULEERDE THREADS', linesLabel: 'ILLUSTRATIEVE REGELS',
+    statsNote: 'Er worden geen bestanden, processen of broncode benaderd.',
+    streamEyebrow: 'DECORATIEVE ANIMATIE · GEEN NETWERK', streamTitle: 'Illustratieve datastromen',
+    streamLabel: 'Synthetische geanimeerde databalken', streamCaption: 'Decoratieve datavisualisatie · geen pakketverkeer',
+    streamNote: 'De animatie wordt lokaal gegenereerd en geeft geen echte netwerkactiviteit weer.',
+    footer: '5CRIPTIE is een visuele simulatie. Er zijn geen broncode-scan, code-integriteitscontrole, live monitoring, dreigingsdetectie, netwerkverbinding of verdedigingsacties geïmplementeerd.',
+    logNormal: 'import crypto from "crypto";',
+    logHighlight: 'const sampleMode = "SIMULATION_ONLY";',
+    logComment: '// Fictieve voorbeeldgebeurtenis tonen…',
+    logWarning: 'VOORBEELDWAARSCHUWING: illustratief; geen bevinding gemaakt',
+    logCheck: 'function demoCheck() { return "GEEN SCAN"; }',
+    logStream: 'Synthetische datastroomvisualisatie genereren…',
+    logComplete: 'Democyclus bijgewerkt; er is geen broncode bekeken'
   },
   eo: {
-    title: 'Aegis · Monitora simulilo', back: '← Citadel-hejmpaĝo', language: 'Lingvo',
-    eyebrow: 'CITADEL-SISTEMOJ · VIDA KONCEPTO', noticeTitle: 'NUR SIMULADO · NENIU REALTEMPA MONITORADO',
-    noticeBody: 'Ĉiuj mapaj punktoj, minacaj valoroj, sistemaj mezuroj kaj atentigoj estas generataj en ĉi tiu retumilo. Aegis ne konektiĝas al reto, ne inspektas trafikon, ne detektas minacojn kaj nenion blokas. Ne uzu ĉi tiun ekranon por sekurecaj decidoj.',
-    workspaceLabel: 'DEMA MEDIO', overviewTitle: 'Signala superrigardo', simulatedFeed: 'SINTETIKA FLUO',
-    mapEyebrow: 'ILUSTRA · NE GEOGRAFIA', mapTitle: 'Trafika bildigo',
-    mapCaption: 'SINTETIKAJ SIGNALOJ · POZICIOJ ESTAS ORNAMAJ', signalPoint: 'Sinteza signalo', watchPoint: 'Simulita observa evento',
-    threatEyebrow: 'SINTETIKA DEMOVALORO', threatTitle: 'Minaca mezurilo', threatLow: 'MALALTA · SIMULITA',
-    threatElevated: 'PLI ALTA · SIMULITA', threatHigh: 'ALTA · SIMULITA',
-    threatNote: 'Ĉi tiu ŝanĝiĝanta valoro estas generata demo-eligo, ne takso de reala risko.',
-    healthEyebrow: 'LOKE GENERATA · NENIU APARATA TELEMETRIO', healthTitle: 'Sistema stato',
-    cpuLabel: 'CPU-ŜARĜO', memoryLabel: 'MEMORA ŜARĜO', networkLabel: 'RETA ŜARĜO',
-    cpuChart: 'Sinteza CPU-historio', memoryChart: 'Sinteza memora historio', networkChart: 'Sinteza reta historio',
-    healthNote: 'Valoroj kaj diagramoj estas generataj por ĉi tiu demo; ili ne priskribas ĉi tiun aparaton aŭ realan sistemon.',
-    alertsEyebrow: 'FIKCIAJ EVENTOJ · NENIO ESTAS BLOKATA', alertsTitle: 'Demo-atentigoj',
-    alertsNote: 'Ĉi tiuj estas sintezaj ekzemploj, ne observitaj aŭ blokitaj atakoj.',
-    alertStatus: 'SIMULITA · NE BLOKITA', alertEmpty: 'Neniuj sintezaj demo-eventoj.',
-    eventScan: 'Sinteza ŝablona kongruo', eventBurst: 'Ilustra trafika pliiĝo', eventPolicy: 'Demo-regula sciigo',
-    footer: 'Aegis estas vida simulado. Neniu realtempa trafiko, minacdetekto, sistema telemetrio, reta konekto aŭ defenda ago estas efektivigita.'
+    title: '5CRIPTIE · Integreca simulado', back: '← PALACO-hejmpaĝo', language: 'Lingvo',
+    eyebrow: 'PALACO HOOFDKANTOOR · VIDA SIMULADO',
+    noticeTitle: 'NUR SIMULADO · NENIU KODO ESTAS SKANATA',
+    noticeBody: 'La skana protokolo, integreca procento, nombriloj kaj datumfluoj estas sintezaj retumilaj animacioj. 5CRIPTIE ne inspektas fontkodon, ne konektiĝas al reto, ne monitoras sistemon, ne detektas minacojn kaj nenion blokas. Ne uzu ĉi tiun ekranon por sekurecaj decidoj.',
+    workspace: 'DEMA MEDIO', overviewTitle: 'Kodintegreco kaj minaca monitoro', simulated: 'SINTETIKA FLUO',
+    scanEyebrow: 'FIKCIA EKZEMPLA PROTOKOLO', scanTitle: 'Simulado de skripta analizo',
+    scanLabel: 'Sinteza skana animacio', logLabel: 'Sinteza ekzempla protokolo',
+    logNote: 'Protokolaj linioj estas fikcia teksto, ne analizrezultoj.',
+    integrityEyebrow: 'GENERATA DEMOVALORO', integrityTitle: 'Simulita integreco',
+    integrityLabel: 'SIMULITA · NENIU TAKSO',
+    integrityNote: 'Ĉi tiu ŝanĝiĝanta procento ne estas sekureca poentaro aŭ reala integreca kontrolo.',
+    statsEyebrow: 'SINTENZAJ NOMBRILOJ', statsTitle: 'Demo-nombriloj',
+    threadsLabel: 'SIMULITAJ FADENOJ', linesLabel: 'ILUSTRAJ LINIOJ',
+    statsNote: 'Neniuj dosieroj, procezoj aŭ fontkodo estas aliritaj.',
+    streamEyebrow: 'ORNAMA ANIMACIO · NENIU RETO', streamTitle: 'Ilustraj datumfluoj',
+    streamLabel: 'Sintezaj animataj datumstrioj', streamCaption: 'Dekoracia datumbildigo · ne pakaĵa trafiko',
+    streamNote: 'La animacio estas generata loke kaj ne reprezentas realan retan agadon.',
+    footer: '5CRIPTIE estas vida simulado. Neniu fontoskano, koda integrecvalidigo, realtempa monitorado, minacdetekto, retkonekto aŭ defenda ago estas efektivigita.',
+    logNormal: 'import crypto from "crypto";',
+    logHighlight: 'const sampleMode = "SIMULATION_ONLY";',
+    logComment: '// Montrante fikcian ekzemplan eventon…',
+    logWarning: 'EKZEMPLA AVERTO: ilustra evento; neniu trovo produktita',
+    logCheck: 'function demoCheck() { return "NE SKANO"; }',
+    logStream: 'Generante sintezan fluobildigon…',
+    logComplete: 'Demo-ciklo ĝisdatigita; neniu fonto estis inspektita'
   }
 };
 
-const metrics = {
-  cpu: { value: 32, history: [24, 35, 29, 41, 33, 38, 30, 36, 32, 44, 28, 32] },
-  memory: { value: 54, history: [49, 52, 51, 55, 53, 57, 50, 56, 54, 58, 52, 54] },
-  network: { value: 41, history: [29, 36, 33, 45, 37, 42, 39, 48, 36, 44, 38, 41] }
-};
-const events = ['eventScan', 'eventBurst', 'eventPolicy'];
-const initialEvents = [
-  { key: 'eventScan', source: 'SIM-EDGE-04', seconds: 8 },
-  { key: 'eventBurst', source: 'DEMO-NODE-12', seconds: 23 },
-  { key: 'eventPolicy', source: 'SIM-CORE-02', seconds: 46 }
+const sampleLog = [
+  { key: 'logNormal', type: 'normal' },
+  { key: 'logHighlight', type: 'highlight' },
+  { key: 'logComment', type: 'notice' },
+  { key: 'logWarning', type: 'warning' },
+  { key: 'logCheck', type: 'normal' },
+  { key: 'logStream', type: 'notice' },
+  { key: 'logComplete', type: 'highlight' }
 ];
-const alertList = document.querySelector('#alert-list');
-const mapPoints = document.querySelector('#map-points');
 const languageSelect = document.querySelector('#language-select');
+const logList = document.querySelector('#code-log');
+const streamBars = document.querySelector('#stream-bars');
 let language = 'en';
-let tickCount = 0;
-let threat = 18;
+let scanProgress = 0;
+let eventCount = 0;
 
 function t(key) {
-  return copy[language][key] || copy.en[key] || key;
+  return messages[language][key] || messages.en[key] || key;
 }
 
 function applyLanguage() {
@@ -89,105 +108,56 @@ function applyLanguage() {
   document.querySelectorAll('[data-i18n]').forEach(element => {
     element.textContent = t(element.dataset.i18n);
   });
-  for (const name of Object.keys(metrics)) {
-    document.querySelector(`#${name}-chart`).setAttribute('aria-label', t(`${name}Chart`));
-  }
-  renderThreat();
-  renderAlerts();
+  document.querySelector('#code-log').setAttribute('aria-label', t('logLabel'));
+  document.querySelector('#stream-bars').setAttribute('aria-label', t('streamLabel'));
+  document.querySelector('.progress-track').setAttribute('aria-label', t('scanLabel'));
+  document.querySelector('#integrity-label').textContent = t('integrityLabel');
 }
 
-function renderThreat() {
-  const fill = document.querySelector('#threat-fill');
-  const meter = document.querySelector('#threat-meter');
-  const value = document.querySelector('#threat-value');
-  const status = document.querySelector('#threat-status');
-  const color = threat < 30 ? 'var(--green)' : threat < 70 ? 'var(--amber)' : 'var(--red)';
-  const label = threat < 30 ? 'threatLow' : threat < 70 ? 'threatElevated' : 'threatHigh';
-  fill.style.width = `${threat}%`;
-  fill.style.backgroundColor = color;
-  value.textContent = String(threat);
-  value.style.color = color;
-  meter.setAttribute('aria-valuenow', String(threat));
-  status.textContent = t(label);
-  status.style.color = color;
+function addLog() {
+  const sample = sampleLog[Math.floor(Math.random() * sampleLog.length)];
+  const item = document.createElement('li');
+  item.className = `log-entry ${sample.type}`;
+  const timestamp = document.createElement('time');
+  timestamp.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  item.append(timestamp, document.createTextNode(` ${t(sample.key)}`));
+  logList.prepend(item);
+  while (logList.children.length > 16) logList.lastElementChild.remove();
 }
 
-function renderMetric(name) {
-  const metric = metrics[name];
-  document.querySelector(`#${name}-value`).textContent = `${metric.value}%`;
-  document.querySelector(`#${name}-bar`).style.width = `${metric.value}%`;
-  const chart = document.querySelector(`#${name}-chart`);
-  chart.replaceChildren(...metric.history.map(amount => {
-    const bar = document.createElement('span');
-    bar.className = 'chart-bar';
-    bar.style.height = `${Math.max(8, amount)}%`;
-    return bar;
-  }));
-}
-
-function addMapPoint(watch = false) {
-  const point = document.createElement('span');
-  point.className = `map-point${watch ? ' watch' : ''}`;
-  point.style.left = `${8 + Math.random() * 84}%`;
-  point.style.top = `${12 + Math.random() * 72}%`;
-  mapPoints.append(point);
-  while (mapPoints.children.length > 12) mapPoints.firstElementChild.remove();
-}
-
-function renderAlerts() {
-  alertList.replaceChildren(...initialEvents.slice(0, 8).map(event => {
-    const item = document.createElement('li');
-    item.className = 'alert-item';
-    const title = document.createElement('span');
-    title.className = 'alert-event';
-    title.textContent = t(event.key);
-    const time = document.createElement('time');
-    time.className = 'alert-time';
-    time.textContent = new Date(Date.now() - event.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const source = document.createElement('span');
-    source.className = 'alert-source';
-    source.textContent = event.source;
-    const status = document.createElement('span');
-    status.className = 'alert-status';
-    status.textContent = t('alertStatus');
-    item.append(title, time, source, status);
-    return item;
-  }));
-  document.querySelector('#alert-count').textContent = `${String(initialEvents.length).padStart(2, '0')} ${language === 'en' ? 'EVENTS' : language === 'nl' ? 'EVENTEN' : 'EVENTOJ'}`;
-  if (initialEvents.length === 0) {
-    const empty = document.createElement('li');
-    empty.textContent = t('alertEmpty');
-    alertList.append(empty);
+function updateStream() {
+  for (const bar of streamBars.children) {
+    const height = 18 + Math.random() * 78;
+    bar.style.height = `${height}%`;
+    bar.classList.toggle('hot', height > 82);
   }
 }
 
 function updateSimulation() {
-  tickCount += 1;
-  metrics.cpu.value = 24 + (tickCount * 7) % 58;
-  metrics.memory.value = 40 + (tickCount * 5) % 48;
-  metrics.network.value = 20 + (tickCount * 11) % 72;
-  for (const name of Object.keys(metrics)) {
-    metrics[name].history.push(metrics[name].value);
-    metrics[name].history.shift();
-    renderMetric(name);
-  }
-  threat = Math.max(3, Math.min(92, 18 + Math.round(26 * Math.sin(tickCount / 3))));
-  renderThreat();
-  const watch = tickCount % 3 === 0;
-  addMapPoint(watch);
-  if (watch) {
-    initialEvents.unshift({
-      key: events[(tickCount / 3 - 1) % events.length],
-      source: `DEMO-NODE-${String((tickCount * 7) % 90 + 10).padStart(2, '0')}`,
-      seconds: 0
-    });
-    initialEvents.splice(8);
-    renderAlerts();
-  }
+  scanProgress = (scanProgress + 7) % 101;
+  eventCount += 1;
+  const integrity = 74 + Math.floor(Math.random() * 25);
+  document.querySelector('#scan-progress').style.width = `${scanProgress}%`;
+  document.querySelector('.progress-track').setAttribute('aria-valuenow', String(scanProgress));
+  document.querySelector('#scan-percent').textContent = `${String(scanProgress).padStart(2, '0')}% · SIM`;
+  document.querySelector('#integrity-value').textContent = String(integrity);
+  document.querySelector('#integrity-fill').style.width = `${integrity}%`;
+  document.querySelector('#thread-count').textContent = String(12 + Math.floor(Math.random() * 50));
+  document.querySelector('#line-count').textContent = (eventCount * 142).toLocaleString();
+  addLog();
+  updateStream();
 }
 
+for (let index = 0; index < 8; index += 1) addLog();
+for (let index = 0; index < 20; index += 1) {
+  const bar = document.createElement('span');
+  bar.className = 'stream-bar';
+  streamBars.append(bar);
+}
+updateStream();
+
 languageSelect.addEventListener('change', () => {
-  language = copy[languageSelect.value] ? languageSelect.value : 'en';
+  language = messages[languageSelect.value] ? languageSelect.value : 'en';
   try {
     localStorage.setItem('palaco-language', language);
   } catch {}
@@ -195,14 +165,12 @@ languageSelect.addEventListener('change', () => {
 });
 
 try {
-  const savedLanguage = localStorage.getItem('palaco-language');
-  if (copy[savedLanguage]) {
+  const savedLanguage = localStorage.getItem('palaco-language') || 'en';
+  if (messages[savedLanguage]) {
     language = savedLanguage;
     languageSelect.value = language;
   }
 } catch {}
 
-for (const name of Object.keys(metrics)) renderMetric(name);
-for (let index = 0; index < 8; index += 1) addMapPoint(index === 2 || index === 6);
 applyLanguage();
-setInterval(updateSimulation, 1500);
+setInterval(updateSimulation, 800);

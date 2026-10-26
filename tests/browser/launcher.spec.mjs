@@ -8,17 +8,17 @@ test('launches each concept preview in the same screen and returns to module cho
   await page.goto('/');
   await page.locator('.hero-preview a[href="/citadel/"]').click();
 
-  await expect(page).toHaveTitle('Citadel · Module launcher');
-  await expect(page.locator('h1')).toHaveText('CITADEL LAUNCHER');
+  await expect(page).toHaveTitle('PALACO Hoofdkantoor · Launcher');
+  await expect(page.locator('h1')).toHaveText('PALACO HOOFDKANTOOR');
   await expect(page.locator('#boundary-title')).toHaveText('CONCEPT PREVIEWS · NOT OPERATIONAL SERVICES');
   await expect(page.locator('.module-card')).toHaveCount(3);
   await page.locator('#language-select').selectOption('nl');
   await expect(page.locator('#boundary-title')).toHaveText('CONCEPTVOORBEELDEN · GEEN OPERATIONELE DIENSTEN');
 
   const modules = [
-    { id: 'iii6v9', heading: 'III6V9', warning: '#notice-title', warningCopy: 'NIETS IS BESCHERMD', backLink: '.back-link' },
-    { id: 'bastion', heading: 'BASTION', warning: '#demo-notice-title', warningCopy: 'ALLEEN SIMULATIE', backLink: '.back-link' },
-    { id: 'aegis', heading: 'AEGIS', warning: '#notice-title', warningCopy: 'ALLEEN SIMULATIE', backLink: '.back-link' }
+    { id: 'aether', heading: 'AETHER', path: '/citadel/iii6v9/', warning: '#notice-title', warningCopy: 'niet gecontroleerde kluis', backLink: '.back-link' },
+    { id: 'bastion', heading: 'BASTION', path: '/citadel/bastion/', warning: '#demo-notice-title', warningCopy: 'ALLEEN SIMULATIE', backLink: '.back-link' },
+    { id: 'scriptie', heading: '5CRIPTIE', path: '/citadel/aegis/', warning: '#notice-title', warningCopy: 'ALLEEN SIMULATIE', backLink: '.back-link' }
   ];
 
   for (const module of modules) {
@@ -32,19 +32,15 @@ test('launches each concept preview in the same screen and returns to module cho
     await expect(frame.locator('h1')).toHaveText(module.heading);
     await expect(frame.locator(module.warning)).toContainText(module.warningCopy);
     await expect(page).toHaveURL(/\/citadel\/$/);
-    await expect(page.locator('#standalone-link')).toHaveAttribute('href', `/citadel/${module.id}/`);
-    if (module.id === 'aegis') {
-      await frame.locator(module.backLink).click();
-    } else {
-      await page.locator('#return-button').click();
-    }
+    await expect(page.locator('#standalone-link')).toHaveAttribute('href', module.path);
+    await frame.locator(module.backLink).click();
     await expect(page.locator('#module-menu')).toBeVisible();
     await expect(choice).toBeFocused();
   }
 
   await page.locator('#language-select').selectOption('eo');
   await expect(page.locator('html')).toHaveAttribute('lang', 'eo');
-  await expect(page.locator('#menu-title')).toHaveText('Elektu Citadel-antaŭrigardon');
+  await expect(page.locator('#menu-title')).toHaveText('Elektu modulan antaŭrigardon');
   expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);
   expect(externalRequests).toEqual([]);
 });
