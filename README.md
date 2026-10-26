@@ -86,7 +86,9 @@ Network, TLS, CORS, redirect, and timeout errors are **“Configured — check u
 the browser cannot reliably distinguish their causes. Evidence is held only in page memory,
 bound to the approved origin and expected/received app ID, timestamped, and expires after five
 minutes. Editing or saving a different URL immediately invalidates it; old in-flight results are
-ignored. Opening the app is enabled only while the matching metadata result is current.
+ignored. Opening the app is enabled only while the matching metadata result is current. Evidence
+expires after 60 seconds and is never restored on reload or in another tab; the destination URL
+may remain in this tab's session storage, but metadata must be checked again.
 
 The endpoint must send an `Access-Control-Allow-Origin` permitting the launcher's exact origin.
 For local development that is `https://localhost:5173`; the deployed launcher needs its actual
@@ -102,12 +104,14 @@ mkcert -install
 mkcert localhost 127.0.0.1 ::1
 ```
 
-The generated `localhost+2.pem` and `localhost+2-key.pem` files are ignored by Git and Vite uses
-them only when both exist. Keep the mkcert CA private key on your machine; do not commit or share
-it. The CA must be trusted by the browser/OS used for testing. Without this pair, Vite falls back
-to its self-signed development certificate, which may show a warning. Do not click through a
-certificate warning and then describe the connection as trusted. Neither local setup is a
-substitute for publicly trusted TLS in a hosted deployment.
+The generated `localhost+2.pem` and `localhost+2-key.pem` files are ignored by Git and the local
+development server requires both files; it will not start with a fallback certificate. Keep the
+mkcert CA private key on your machine; do not commit or share it. The CA must be trusted by the
+browser/OS used for testing. Neither local setup is a substitute for publicly trusted TLS in a
+hosted deployment.
+
+Enter only an HTTPS origin in the launcher, with no path, query, or fragment. A configured
+destination is not automatically trusted merely because its origin can be parsed.
 
 An app operator can serve a response such as the following from the well-known endpoint (use
 the exact module ID and a real app version; the example does not configure or approve a URL):

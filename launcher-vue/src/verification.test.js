@@ -14,7 +14,7 @@ import {
 } from './verification.js';
 
 const origin = 'https://aether.example.test:8443';
-const url = `${origin}/some/path`;
+const url = origin;
 const goodMetadata = {
   appId: 'aether',
   version: '1.0.0',

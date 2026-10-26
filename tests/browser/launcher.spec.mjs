@@ -29,6 +29,11 @@ test('Vue launcher rejects unapproved HTTPS destinations without claiming metada
 
   await address.fill('https://vault.example.test/path?source=launcher');
   await aether.locator('button[type="submit"]').click();
+  await expect(aether.locator('[data-message]')).toHaveText(/Invalid address.*without a path, query, fragment/);
+  await expect(aether.locator('[data-domain]')).toHaveCount(0);
+
+  await address.fill('https://vault.example.test');
+  await aether.locator('button[type="submit"]').click();
   await expect(aether.locator('[data-message]')).toHaveText('Destination not approved');
   await expect(aether.locator('[data-domain]')).toHaveText('https://vault.example.test');
   await expect(aether.locator('[data-open-link]')).toHaveCount(0);
