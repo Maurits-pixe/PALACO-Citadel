@@ -16,9 +16,9 @@ test('launches each concept preview in the same screen and returns to module cho
   await expect(page.locator('#boundary-title')).toHaveText('CONCEPTVOORBEELDEN · GEEN OPERATIONELE DIENSTEN');
 
   const modules = [
-    { id: 'iii6v9', heading: 'III6V9', warning: '#notice-title', warningCopy: 'NIETS IS BESCHERMD' },
-    { id: 'bastion', heading: 'BASTION', warning: '#demo-notice-title', warningCopy: 'ALLEEN SIMULATIE' },
-    { id: 'aegis', heading: 'AEGIS', warning: '#notice-title', warningCopy: 'ALLEEN SIMULATIE' }
+    { id: 'iii6v9', heading: 'III6V9', warning: '#notice-title', warningCopy: 'NIETS IS BESCHERMD', backLink: '.back-link' },
+    { id: 'bastion', heading: 'BASTION', warning: '#demo-notice-title', warningCopy: 'ALLEEN SIMULATIE', backLink: '.back-link' },
+    { id: 'aegis', heading: 'AEGIS', warning: '#notice-title', warningCopy: 'ALLEEN SIMULATIE', backLink: '.back-link' }
   ];
 
   for (const module of modules) {
@@ -33,7 +33,11 @@ test('launches each concept preview in the same screen and returns to module cho
     await expect(frame.locator(module.warning)).toContainText(module.warningCopy);
     await expect(page).toHaveURL(/\/citadel\/$/);
     await expect(page.locator('#standalone-link')).toHaveAttribute('href', `/citadel/${module.id}/`);
-    await page.locator('#return-button').click();
+    if (module.id === 'aegis') {
+      await frame.locator(module.backLink).click();
+    } else {
+      await page.locator('#return-button').click();
+    }
     await expect(page.locator('#module-menu')).toBeVisible();
     await expect(choice).toBeFocused();
   }
