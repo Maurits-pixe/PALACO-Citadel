@@ -36,6 +36,7 @@ The PALACO 2040 Compass section now includes the following dashboard layers in C
 - ELIXER Dashboard — available apps/capabilities per context with clear choice impact
 - Aether — visual-only encoding demo; it has no protected vault or verified security level
 - [III6V9](citadel/iii6v9/) — static cipher-vault concept; no authentication, storage, encryption, or auto-wipe
+- [Bastion](citadel/bastion/) — fictional command-center simulation; local-only messages, no secure comms or live roster
 - Evolution Dashboard — canon/system changes with “what changes for me?” summary
 - Public Gateway Dashboard — public orientation layer with core concepts and safe onboarding
 
@@ -52,6 +53,10 @@ or store secrets in this demo.
 The III6V9 preview contains fictional interface examples only. Its decorative cipher lock
 does not authenticate, and its inactivity panel does not erase anything. It is not a vault
 and must not be used for real secrets.
+
+Bastion uses invented tasks and personnel. Task changes are tab-local; demo messages are
+held in memory and removed from the view after 30 seconds. Messages are not transmitted,
+persisted, or securely erased, and the demo does not implement access control.
 
 ## GitHub preparation canon
 
@@ -81,6 +86,7 @@ De bestaande GitHub Pages-publicatie behoudt `CNAME` (`hoofdkantoor.info`) en de
 - Levensader-objectinspectie, read-only fixture: `https://hoofdkantoor.info/DOCS/levensader-readonly/`
   (ook de bestaande route met `index.html` blijft werken).
 - III6V9, uitsluitend statische conceptpreview: `https://hoofdkantoor.info/citadel/iii6v9/`.
+- Bastion, uitsluitend lokale commandocentrumsimulatie: `https://hoofdkantoor.info/citadel/bastion/`.
 
 De homepage linkt naar de afzonderlijke statische previews. Online vraagt de service worker
 de actuele bestanden op dezelfde URL op; offline toont hij de laatst opgeslagen versie.
