@@ -1,10 +1,12 @@
 {
   "name": "bastion-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Loopback-only SQLite API for fictional Bastion demo data; not an authorization service.",
+  "type": "module",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "test": "node --test server.test.js"
   },
   "keywords": [],
   "author": "",
