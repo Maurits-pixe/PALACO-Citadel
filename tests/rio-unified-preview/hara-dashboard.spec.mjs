@@ -8,7 +8,7 @@ import { startReviewServer } from '../../scripts/serve-rio-unified-preview.mjs';
 
 const repository = fileURLToPath(new URL('../../', import.meta.url));
 const output = resolve(repository, 'render-dist');
-const ROOT_CACHE = 'palaco-rio-shell-v63-hara-dashboard';
+const ROOT_CACHE = 'palaco-rio-shell-v64-hara-readable-heading';
 const HARA_ASSETS = ['/hara/', '/hara/index.html', '/hara/app.css', '/hara/app.js', '/hara/reference.jpg'];
 const REFERENCE_SHA256 = 'c6b7fa7adf66fbd6aeb58fbd0198e48f1c38fb1f5870aa87d7181076ee164de6';
 const previousRelation = {
@@ -266,11 +266,19 @@ test('HARA stays readable with 320px doubled text and loads its complete referen
       const layout = await page.evaluate(() => ({
         width: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth,
         font: parseFloat(getComputedStyle(document.documentElement).fontSize),
+        headingWordLines: (() => {
+          const node = document.querySelector('#review-title').firstChild;
+          const range = document.createRange(), start = node.textContent.indexOf('vastgesteld.');
+          range.setStart(node, start); range.setEnd(node, start + 'vastgesteld.'.length);
+          return [...new Set([...range.getClientRects()].filter(rect => rect.width > 0 && rect.height > 0)
+            .map(rect => Math.round(rect.top)))].length;
+        })(),
         controls: [...document.querySelectorAll('a[data-guide], details > summary, #connect-elixers')].map(element => {
           const rect = element.getBoundingClientRect(); return { width: rect.width, height: rect.height };
         }).filter(rect => rect.width > 0 && rect.height > 0)
       }));
       expect(layout.font).toBe(variant.font); expect(layout.scroll).toBeLessThanOrEqual(layout.width + 1);
+      expect(layout.headingWordLines, 'vastgesteld remains a whole readable word').toBe(1);
       expect(layout.controls.length).toBeGreaterThanOrEqual(9);
       expect(layout.controls.every(rect => rect.width >= 44 && rect.height >= 44)).toBe(true);
       await page.locator('#begin-exploration').focus(); await page.keyboard.press('Enter');

@@ -1,5 +1,5 @@
 'use strict';
-const CACHE_NAME = 'palaco-rio-shell-v63-hara-dashboard';
+const CACHE_NAME = 'palaco-rio-shell-v64-hara-readable-heading';
 const CACHE_PREFIX = 'palaco-rio-shell-';
 const SHELL_ASSETS = ['/', '/index.html', '/styles.css', '/app.js', '/rio-engine-web.mjs', '/engine.mjs', '/chat-preview.mjs', '/integration.mjs', '/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg', '/citadel-icon.png', '/hara-icon.png', '/mundo-icon.png', '/rio/reception/nova.png', '/hara/', '/hara/index.html', '/hara/app.css', '/hara/app.js', '/hara/reference.jpg'];
 

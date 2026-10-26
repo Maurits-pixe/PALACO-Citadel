@@ -9,7 +9,7 @@ import {startStaticFixture} from './static-fixture.mjs';
 const repository=fileURLToPath(new URL('../../',import.meta.url));
 const output=resolve(repository,'render-dist');
 const OLD_ROOT='palaco-rio-shell-v37-unified-language';
-const NEXT_ROOT='palaco-rio-shell-v63-hara-dashboard';
+const NEXT_ROOT='palaco-rio-shell-v64-hara-readable-heading';
 const OLD_APP='palaco-rio-start-v0.1-5';
 const NEXT_APP='palaco-rio-start-v0.1-9';
 const UNRELATED='unrelated-rio-language-migration';
