@@ -16,7 +16,7 @@ test('launches each concept preview in the same screen and returns to module cho
   await expect(page.locator('#boundary-title')).toHaveText('CONCEPTVOORBEELDEN · GEEN OPERATIONELE DIENSTEN');
 
   const modules = [
-    { id: 'aether', heading: 'AETHER', path: '/citadel/iii6v9/', warning: '#notice-title', warningCopy: 'niet gecontroleerde kluis', backLink: '.back-link' },
+    { id: 'aether', heading: 'AETHER', path: '/citadel/iii6v9/', warning: '[data-i18n="noticeBody"]', warningCopy: 'geen onafhankelijk gecontroleerde kluis', backLink: '.back-link' },
     { id: 'bastion', heading: 'BASTION', path: '/citadel/bastion/', warning: '#demo-notice-title', warningCopy: 'ALLEEN SIMULATIE', backLink: '.back-link' },
     { id: 'scriptie', heading: '5CRIPTIE', path: '/citadel/aegis/', warning: '#notice-title', warningCopy: 'ALLEEN SIMULATIE', backLink: '.back-link' }
   ];

@@ -28,6 +28,7 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
 
   await page.locator('#passphrase').fill(passphrase);
   await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Encryption complete. Copy and store the output safely; it is not saved here.');
   const ciphertext = await page.locator('#crypto-output').inputValue();
   expect(ciphertext).toMatch(/^AETHER1\.[A-Za-z0-9+/]+=*\.[A-Za-z0-9+/]+=*\.[A-Za-z0-9+/]+=*$/);
   expect(ciphertext).not.toContain(plaintext);
