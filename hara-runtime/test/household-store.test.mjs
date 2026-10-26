@@ -224,6 +224,20 @@ test('complete is versioned and forget is restricted to memory, never tasks or s
   assert.throws(() => store.propose(context, { operation: 'complete', itemId: 'missing', done: true }), code('NOT_FOUND'));
 });
 
+test('memory cannot be completed or reopened and rejected proposals leave its state unchanged', (t) => {
+  const store = setup(t);
+  approve(store, store.propose(context, add('memory', 'Voorkeur: thee')));
+  const before = store.read(context);
+  const receipts = store.receipts(context);
+  const memory = before.items[0];
+  for (const done of [true, false]) {
+    assert.throws(() => store.propose(context, { operation: 'complete', itemId: memory.id, done }), code('NOT_ALLOWED'));
+  }
+  assert.deepEqual(store.read(context), before);
+  assert.deepEqual(store.pending(context), []);
+  assert.deepEqual(store.receipts(context), receipts);
+});
+
 test('invalid action shapes, malformed dates and prototype/getter tricks are rejected before persistence', (t) => {
   const store = setup(t);
   const invalid = [null, [], 'add', {}, { ...add(), unexpected: true }, { ...add(), kind: 'calendar' },

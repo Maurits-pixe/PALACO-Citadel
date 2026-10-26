@@ -119,6 +119,13 @@ test('keyboard operation, large text and a 320px surface retain readable control
   await expect(page.locator('#conversation img, #conversation script')).toHaveCount(0);
   const metrics = await page.evaluate(() => ({
     rootFont: parseFloat(getComputedStyle(document.documentElement).fontSize),
+    welcomeWordLines: (() => {
+      const heading = document.querySelector('#welcome-title'), text = heading.firstChild;
+      const range = document.createRange();
+      range.setStart(text, text.textContent.indexOf('overzicht.'));
+      range.setEnd(text, text.textContent.length);
+      return new Set([...range.getClientRects()].filter(rect => rect.width > 0).map(rect => Math.round(rect.top))).size;
+    })(),
     shoppingWordLines: (() => {
       const range = document.createRange(); range.selectNodeContents(document.querySelector('#shopping-title'));
       return new Set([...range.getClientRects()].filter(rect => rect.width > 0).map(rect => Math.round(rect.top))).size;
@@ -135,6 +142,7 @@ test('keyboard operation, large text and a 320px surface retain readable control
   }));
   expect(metrics.width).toBeLessThanOrEqual(metrics.viewport + 1);
   expect(metrics.rootFont).toBe(32);
+  expect(metrics.welcomeWordLines).toBe(1);
   expect(metrics.shoppingWordLines).toBe(1);
   for (const control of metrics.controls) {
     expect(control.width, control.id).toBeGreaterThanOrEqual(44);

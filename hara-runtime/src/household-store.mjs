@@ -185,6 +185,7 @@ export function createHouseholdStore(options = {}) {
     const item = db.prepare('SELECT * FROM items WHERE household_id = ? AND id = ?').get(householdId, action.itemId);
     if (!item) fail('NOT_FOUND');
     if (action.operation === 'forget' && item.kind !== 'memory') fail('NOT_ALLOWED');
+    if (action.operation === 'complete' && item.kind === 'memory') fail('NOT_ALLOWED');
     return item;
   }
 
