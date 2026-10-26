@@ -105,7 +105,14 @@ export function createBastionApp({ pool, jwtSecret, allowedOrigins, ioRef = { cu
     legacyHeaders: false
   }));
 
-  app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+  app.get('/health', async (_req, res) => {
+    try {
+      await pool.query('SELECT 1');
+      return res.json({ status: 'ok' });
+    } catch {
+      return res.status(503).json({ status: 'unavailable' });
+    }
+  });
 
   async function authenticate(req, res, next) {
     const token = bearerToken(req.get('authorization'));
@@ -124,10 +131,10 @@ export function createBastionApp({ pool, jwtSecret, allowedOrigins, ioRef = { cu
     }
   }
 
-  async function findMembership(userId, teamId) {
-    const result = await pool.query(
+  async function findMembership(userId, teamId, executor = pool, lock = '') {
+    const result = await executor.query(
       `SELECT team_id, user_id, role, clearance_level
-       FROM team_memberships WHERE user_id = $1 AND team_id = $2`,
+       FROM team_memberships WHERE user_id = $1 AND team_id = $2 ${lock}`,
       [userId, teamId]
     );
     return result.rows[0] || null;
@@ -139,7 +146,8 @@ export function createBastionApp({ pool, jwtSecret, allowedOrigins, ioRef = { cu
               tm.user_id, tm.role, tm.clearance_level AS member_clearance,
               cm.channel_id
        FROM channels c
-       JOIN team_memberships tm ON tm.team_id = c.team_id AND tm.user_id = $1
+       JOIN users u ON u.id = $1 AND u.is_active = TRUE
+       JOIN team_memberships tm ON tm.team_id = c.team_id AND tm.user_id = u.id
        JOIN channel_memberships cm ON cm.channel_id = c.id AND cm.user_id = $1
        WHERE c.id = $2`,
       [userId, channelId]
@@ -209,6 +217,11 @@ export function createBastionApp({ pool, jwtSecret, allowedOrigins, ioRef = { cu
          WHERE tm.user_id = $1 ORDER BY t.name`,
         [req.user.id]
       );
+      await writeAudit(pool, {
+        userId: req.user.id,
+        action: 'VIEW_TEAMS',
+        ipAddress: req.ip
+      });
       res.json(result.rows.map(row => ({ ...row, id: String(row.id) })));
     } catch {
       res.status(503).json({ error: 'Team service unavailable.' });
@@ -218,16 +231,15 @@ export function createBastionApp({ pool, jwtSecret, allowedOrigins, ioRef = { cu
   app.get('/api/teams/:teamId/tasks', authenticate, async (req, res) => {
     if (!id(req.params.teamId)) return res.status(400).json({ error: 'Invalid team.' });
     try {
-      const membership = await findMembership(req.user.id, req.params.teamId);
-      if (!membership) return res.status(404).json({ error: 'Team not found.' });
       const result = await pool.query(
-        `SELECT id, team_id, title, description, status, priority, clearance_level,
-                assigned_to, created_by, created_at, updated_at
-         FROM tasks
-         WHERE team_id = $1 AND clearance_level <= $2
-           AND ($3 = 'commander' OR assigned_to = $4 OR created_by = $4)
-         ORDER BY created_at DESC`,
-        [req.params.teamId, membership.clearance_level, membership.role, req.user.id]
+        `SELECT t.id, t.team_id, t.title, t.description, t.status, t.priority,
+                t.clearance_level, t.assigned_to, t.created_by, t.created_at, t.updated_at
+         FROM tasks t
+         JOIN team_memberships tm ON tm.team_id = t.team_id AND tm.user_id = $2
+         WHERE t.team_id = $1 AND t.clearance_level <= tm.clearance_level
+           AND (tm.role = 'commander' OR t.assigned_to = $2 OR t.created_by = $2)
+         ORDER BY t.created_at DESC`,
+        [req.params.teamId, req.user.id]
       );
       await writeAudit(pool, {
         userId: req.user.id,
@@ -257,20 +269,43 @@ export function createBastionApp({ pool, jwtSecret, allowedOrigins, ioRef = { cu
       return res.status(400).json({ error: 'Invalid task fields.' });
     }
     try {
-      const membership = await findMembership(req.user.id, req.params.teamId);
-      if (!membership || membership.role !== 'commander') {
-        return res.status(403).json({ error: 'Commander membership required.' });
-      }
-      if (clearanceLevel > membership.clearance_level) {
-        return res.status(403).json({ error: 'Task clearance exceeds your authorization.' });
-      }
-      if (assignedTo) {
-        const assignee = await findMembership(assignedTo, req.params.teamId);
-        if (!assignee || assignee.clearance_level < clearanceLevel) {
-          return res.status(400).json({ error: 'Assignee is not eligible for this task.' });
+      const outcome = await inTransaction(pool, async client => {
+        const membership = await findMembership(req.user.id, req.params.teamId, client, 'FOR SHARE');
+        if (!membership || membership.role !== 'commander') {
+          await writeAudit(client, {
+            userId: req.user.id,
+            action: 'DENIED_TASK_CREATE',
+            targetType: 'team',
+            targetId: req.params.teamId,
+            ipAddress: req.ip
+          });
+          return { error: 'Commander membership required.', status: 403 };
         }
-      }
-      const task = await inTransaction(pool, async client => {
+        if (clearanceLevel > membership.clearance_level) {
+          await writeAudit(client, {
+            userId: req.user.id,
+            action: 'DENIED_TASK_CREATE',
+            targetType: 'team',
+            targetId: req.params.teamId,
+            ipAddress: req.ip,
+            details: { requestedClearance: clearanceLevel }
+          });
+          return { error: 'Task clearance exceeds your authorization.', status: 403 };
+        }
+        if (assignedTo) {
+          const assignee = await findMembership(assignedTo, req.params.teamId, client, 'FOR SHARE');
+          if (!assignee || assignee.clearance_level < clearanceLevel) {
+            await writeAudit(client, {
+              userId: req.user.id,
+              action: 'DENIED_TASK_ASSIGNMENT',
+              targetType: 'team',
+              targetId: req.params.teamId,
+              ipAddress: req.ip,
+              details: { requestedClearance: clearanceLevel }
+            });
+            return { error: 'Assignee is not eligible for this task.', status: 400 };
+          }
+        }
         const result = await client.query(
           `INSERT INTO tasks
             (team_id, title, description, priority, clearance_level, assigned_to, created_by)
@@ -288,8 +323,10 @@ export function createBastionApp({ pool, jwtSecret, allowedOrigins, ioRef = { cu
           ipAddress: req.ip,
           details: { teamId: req.params.teamId, clearanceLevel }
         });
-        return insertedTask;
+        return { task: insertedTask };
       });
+      if (outcome.error) return res.status(outcome.status).json({ error: outcome.error });
+      const task = outcome.task;
       emitToTeamMembers(
         ioRef.current,
         pool,
@@ -309,14 +346,33 @@ export function createBastionApp({ pool, jwtSecret, allowedOrigins, ioRef = { cu
       return res.status(400).json({ error: 'Invalid task update.' });
     }
     try {
-      const existing = await pool.query('SELECT * FROM tasks WHERE id = $1', [req.params.taskId]);
-      const task = existing.rows[0];
-      if (!task) return res.status(404).json({ error: 'Task not found.' });
-      const membership = await findMembership(req.user.id, task.team_id);
-      if (!canUpdateTask(membership, task, req.user.id)) {
-        return res.status(404).json({ error: 'Task not found.' });
-      }
-      const updated = await inTransaction(pool, async client => {
+      const outcome = await inTransaction(pool, async client => {
+        const existing = await client.query(
+          'SELECT * FROM tasks WHERE id = $1 FOR UPDATE',
+          [req.params.taskId]
+        );
+        const task = existing.rows[0];
+        if (!task) {
+          await writeAudit(client, {
+            userId: req.user.id,
+            action: 'DENIED_TASK_UPDATE',
+            targetType: 'task',
+            targetId: req.params.taskId,
+            ipAddress: req.ip
+          });
+          return { error: 'Task not found.', status: 404 };
+        }
+        const membership = await findMembership(req.user.id, task.team_id, client, 'FOR SHARE');
+        if (!canUpdateTask(membership, task, req.user.id)) {
+          await writeAudit(client, {
+            userId: req.user.id,
+            action: 'DENIED_TASK_UPDATE',
+            targetType: 'task',
+            targetId: req.params.taskId,
+            ipAddress: req.ip
+          });
+          return { error: 'Task not found.', status: 404 };
+        }
         const result = await client.query(
           `UPDATE tasks SET status = $1, updated_at = NOW()
            WHERE id = $2
@@ -332,8 +388,10 @@ export function createBastionApp({ pool, jwtSecret, allowedOrigins, ioRef = { cu
           ipAddress: req.ip,
           details: { status }
         });
-        return result.rows[0];
+        return { task, updated: result.rows[0] };
       });
+      if (outcome.error) return res.status(outcome.status).json({ error: outcome.error });
+      const { task, updated } = outcome;
       emitToTeamMembers(
         ioRef.current,
         pool,
@@ -353,12 +411,20 @@ export function createBastionApp({ pool, jwtSecret, allowedOrigins, ioRef = { cu
       const result = await pool.query(
         `SELECT c.id, c.team_id, c.name, c.clearance_level
          FROM channels c
-         JOIN team_memberships tm ON tm.team_id = c.team_id AND tm.user_id = $2
+         JOIN users u ON u.id = $2 AND u.is_active = TRUE
+         JOIN team_memberships tm ON tm.team_id = c.team_id AND tm.user_id = u.id
          JOIN channel_memberships cm ON cm.channel_id = c.id AND cm.user_id = $2
          WHERE c.team_id = $1 AND c.clearance_level <= tm.clearance_level
          ORDER BY c.name`,
         [req.params.teamId, req.user.id]
       );
+      await writeAudit(pool, {
+        userId: req.user.id,
+        action: 'VIEW_CHANNELS',
+        targetType: 'team',
+        targetId: req.params.teamId,
+        ipAddress: req.ip
+      });
       res.json(result.rows.map(row => ({ ...row, id: String(row.id), team_id: String(row.team_id) })));
     } catch {
       res.status(503).json({ error: 'Channel service unavailable.' });
@@ -368,24 +434,37 @@ export function createBastionApp({ pool, jwtSecret, allowedOrigins, ioRef = { cu
   app.get('/api/channels/:channelId/messages', authenticate, async (req, res) => {
     if (!id(req.params.channelId)) return res.status(400).json({ error: 'Invalid channel.' });
     try {
-      const access = await findChannelAccess(req.user.id, req.params.channelId);
-      if (!access) return res.status(404).json({ error: 'Channel not found.' });
-      const result = await pool.query(
-        `SELECT id, channel_id, sender_id, content, created_at, expires_at
-         FROM messages
-         WHERE channel_id = $1 AND is_destroyed = FALSE
-           AND (expires_at IS NULL OR expires_at > NOW())
-         ORDER BY created_at DESC LIMIT 100`,
-        [req.params.channelId]
-      );
-      await writeAudit(pool, {
-        userId: req.user.id,
-        action: 'VIEW_CHANNEL_MESSAGES',
-        targetType: 'channel',
-        targetId: req.params.channelId,
-        ipAddress: req.ip
+      const outcome = await inTransaction(pool, async client => {
+        const access = await client.query(
+          `SELECT c.id
+           FROM channels c
+           JOIN users u ON u.id = $1 AND u.is_active = TRUE
+           JOIN team_memberships tm ON tm.team_id = c.team_id AND tm.user_id = u.id
+           JOIN channel_memberships cm ON cm.channel_id = c.id AND cm.user_id = u.id
+           WHERE c.id = $2 AND tm.clearance_level >= c.clearance_level
+           FOR SHARE OF c, u, tm, cm`,
+          [req.user.id, req.params.channelId]
+        );
+        if (!access.rowCount) return { error: 'Channel not found.' };
+        const result = await client.query(
+          `SELECT id, channel_id, sender_id, content, created_at, expires_at
+           FROM messages
+           WHERE channel_id = $1 AND is_destroyed = FALSE
+             AND (expires_at IS NULL OR expires_at > NOW())
+           ORDER BY created_at DESC LIMIT 100`,
+          [req.params.channelId]
+        );
+        await writeAudit(client, {
+          userId: req.user.id,
+          action: 'VIEW_CHANNEL_MESSAGES',
+          targetType: 'channel',
+          targetId: req.params.channelId,
+          ipAddress: req.ip
+        });
+        return { messages: result.rows };
       });
-      res.json(result.rows.reverse().map(publicMessage));
+      if (outcome.error) return res.status(404).json({ error: outcome.error });
+      res.json(outcome.messages.reverse().map(publicMessage));
     } catch {
       res.status(503).json({ error: 'Message service unavailable.' });
     }
@@ -486,29 +565,26 @@ export function attachBastionSockets(io, { pool, jwtSecret }) {
         return acknowledge({ error: 'Invalid message.' });
       }
       try {
-        const result = await pool.query(
-          `SELECT c.id, c.team_id, c.clearance_level,
-                  tm.user_id, tm.role, tm.clearance_level AS member_clearance,
-                  cm.channel_id
-           FROM channels c
-           JOIN users u ON u.id = $1 AND u.is_active = TRUE
-           JOIN team_memberships tm ON tm.team_id = c.team_id AND tm.user_id = u.id
-           JOIN channel_memberships cm ON cm.channel_id = c.id AND cm.user_id = $1
-           WHERE c.id = $2`,
-          [socket.data.userId, channelId]
-        );
-        const row = result.rows[0];
-        const membership = row && {
-          team_id: row.team_id,
-          role: row.role,
-          clearance_level: row.member_clearance
-        };
-        const channel = row && { id: row.id, team_id: row.team_id, clearance_level: row.clearance_level };
-        const channelMembership = row && { channel_id: row.channel_id };
-        if (!canAccessChannel(membership, channel, channelMembership)) {
-          return acknowledge({ error: 'Channel not found.' });
-        }
         const message = await inTransaction(pool, async client => {
+          const access = await client.query(
+            `SELECT c.id
+             FROM channels c
+             JOIN users u ON u.id = $1 AND u.is_active = TRUE
+             JOIN team_memberships tm ON tm.team_id = c.team_id AND tm.user_id = u.id
+             JOIN channel_memberships cm ON cm.channel_id = c.id AND cm.user_id = u.id
+             WHERE c.id = $2 AND tm.clearance_level >= c.clearance_level
+             FOR SHARE OF c, u, tm, cm`,
+            [socket.data.userId, channelId]
+          );
+          if (!access.rowCount) {
+            await writeAudit(client, {
+              userId: socket.data.userId,
+              action: 'DENIED_MESSAGE_SEND',
+              targetType: 'channel',
+              targetId: channelId
+            });
+            return null;
+          }
           const inserted = await client.query(
             `INSERT INTO messages (channel_id, sender_id, content, expires_at)
              VALUES ($1, $2, $3, CASE WHEN $4::integer IS NULL
@@ -526,6 +602,7 @@ export function attachBastionSockets(io, { pool, jwtSecret }) {
           });
           return savedMessage;
         });
+        if (!message) return acknowledge({ error: 'Channel not found.' });
         emitToChannelMembers(io, pool, channelId, 'receive_message', message).catch(() => {});
         return acknowledge({ ok: true, messageId: message.id });
       } catch {

@@ -6,14 +6,14 @@ const translations = {
     launcherWord: 'HOOFDKANTOOR',
     languageLabel: 'Language',
     boundaryTitle: 'CONCEPT PREVIEWS · NOT OPERATIONAL SERVICES',
-    boundaryBody: 'These modules are concept previews. AETHER performs local AES-GCM text encryption but is not an audited vault; Bastion has no secure team communications; 5CRIPTIE uses synthetic data and does not scan or monitor live systems. Selecting a module grants no access or authority.',
+    boundaryBody: 'These modules are limited prototypes. AETHER performs local AES-GCM text encryption but is not an audited vault; Bastion is not production-secure and its messages are not end-to-end encrypted; 5CRIPTIE uses synthetic data and does not scan or monitor live systems. Selecting a module grants no access or authority.',
     introEyebrow: 'SELECT A MODULE',
     menuTitle: 'Choose a module preview',
     menuDescription: 'Open one of the existing concept previews in this workspace.',
     vaultCategory: 'LOCAL TEXT ENCRYPTION',
     vaultDescription: 'Encrypt or decrypt text locally with Web Crypto AES-GCM-256; not an audited vault.',
     bastionCategory: 'COMMAND-CENTER CONCEPT',
-    bastionDescription: 'A fictional team dashboard; no secure communications, authorization, or live roster.',
+    bastionDescription: 'An authenticated development prototype; not production-secure and chat is not end-to-end encrypted.',
     aegisCategory: 'CODE INTEGRITY · SIMULATION',
     aegisDescription: 'Synthetic scan logs and metrics only; no code scanning or live threat monitoring.',
     openModule: 'OPEN PREVIEW',
@@ -29,14 +29,14 @@ const translations = {
     launcherWord: 'HOOFDKANTOOR',
     languageLabel: 'Taal',
     boundaryTitle: 'CONCEPTVOORBEELDEN · GEEN OPERATIONELE DIENSTEN',
-    boundaryBody: 'Dit zijn conceptvoorbeelden. AETHER versleutelt tekst lokaal met AES-GCM maar is geen gecontroleerde kluis; Bastion heeft geen beveiligde teamcommunicatie; 5CRIPTIE gebruikt synthetische gegevens en scant of monitort geen live systemen. Een module kiezen verleent geen toegang of bevoegdheid.',
+    boundaryBody: 'Dit zijn beperkte prototypes. AETHER versleutelt tekst lokaal met AES-GCM maar is geen gecontroleerde kluis; Bastion is niet productieveilig en berichten zijn niet end-to-end versleuteld; 5CRIPTIE gebruikt synthetische gegevens en scant of monitort geen live systemen. Een module kiezen verleent geen toegang of bevoegdheid.',
     introEyebrow: 'KIES EEN MODULE',
     menuTitle: 'Kies een modulevoorbeeld',
     menuDescription: 'Open een van de bestaande conceptvoorbeelden in deze werkruimte.',
     vaultCategory: 'LOKALE TEKSTVERSLEUTELING',
     vaultDescription: 'Versleutel of ontcijfer tekst lokaal met Web Crypto AES-GCM-256; geen gecontroleerde kluis.',
     bastionCategory: 'COMMANDOCENTRUMCONCEPT',
-    bastionDescription: 'Een fictief teamdashboard; geen beveiligde communicatie, autorisatie of live teamoverzicht.',
+    bastionDescription: 'Een geauthenticeerd ontwikkelprototype; niet productieveilig en chat is niet end-to-end versleuteld.',
     aegisCategory: 'CODE-INTEGRITEIT · SIMULATIE',
     aegisDescription: 'Alleen synthetische scanlogs en meetwaarden; geen code-scan of live dreigingsmonitoring.',
     openModule: 'OPEN VOORBEELD',
@@ -52,14 +52,14 @@ const translations = {
     launcherWord: 'HOOFDKANTOOR',
     languageLabel: 'Lingvo',
     boundaryTitle: 'KONCEPTAJ DEMOJ · NE OPERACIAJ SERVOJ',
-    boundaryBody: 'Ĉi tiuj estas konceptaj antaŭrigardoj. AETHER loke ĉifras tekston per AES-GCM sed ne estas kontrolita trezorejo; Bastion ne havas sekuran teaman komunikadon; 5CRIPTIE uzas sintezajn datumojn kaj ne skanas aŭ monitoras realajn sistemojn. Elekto donas nek aliron nek aŭtoritaton.',
+    boundaryBody: 'Ĉi tiuj estas limigitaj prototipoj. AETHER loke ĉifras tekston per AES-GCM sed ne estas kontrolita trezorejo; Bastion ne estas produkt-sekura kaj ĝiaj mesaĝoj ne estas ĉifritaj fine-al-fine; 5CRIPTIE uzas sintezajn datumojn kaj ne skanas aŭ monitoras realajn sistemojn. Elekto donas nek aliron nek aŭtoritaton.',
     introEyebrow: 'ELEKTU MODULON',
     menuTitle: 'Elektu modulan antaŭrigardon',
     menuDescription: 'Malfermu unu el la ekzistantaj konceptaj demonstraĵoj en ĉi tiu laborspaco.',
     vaultCategory: 'LOKA TEKSTĈIFRADO',
     vaultDescription: 'Ĉifru aŭ malĉifru tekston loke per Web Crypto AES-GCM-256; ne reviziita trezorejo.',
     bastionCategory: 'KONCEPTO DE KOMANDEJO',
-    bastionDescription: 'Fikcia teama panelo; sen sekura komunikado, rajtigo aŭ realtempa teamlisto.',
+    bastionDescription: 'Aŭtentigita disvolva prototipo; ne produkt-sekura kaj babilejo ne estas ĉifrita fine-al-fine.',
     aegisCategory: 'KODA INTEGRECO · SIMULADO',
     aegisDescription: 'Nur sintezaj skanaj protokoloj kaj mezuroj; sen koda skanado aŭ realtempa monitorado.',
     openModule: 'MALFERMI DEMON',
@@ -72,7 +72,7 @@ const translations = {
 
 const modules = {
   aether: { name: 'AETHER', path: '/citadel/iii6v9/' },
-  bastion: { name: 'Bastion', path: '/citadel/bastion/' },
+  bastion: { name: 'Bastion', path: '/citadel/bastion-app/' },
   scriptie: { name: '5CRIPTIE', path: '/citadel/aegis/' }
 };
 
@@ -130,7 +130,7 @@ function returnToMenu() {
 frame.addEventListener('load', () => {
   try {
     frame.contentDocument.addEventListener('click', event => {
-      if (event.target.closest('a[href="/"]')) {
+      if (event.target.closest('a[href="/"], a[href="/citadel/"]')) {
         event.preventDefault();
         returnToMenu();
       }

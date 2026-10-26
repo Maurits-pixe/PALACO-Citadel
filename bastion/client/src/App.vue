@@ -5,6 +5,7 @@ import { computed, onBeforeUnmount, ref } from 'vue';
 
 const apiOrigin = import.meta.env.VITE_BASTION_API_URL || '';
 const socketOrigin = import.meta.env.VITE_BASTION_SOCKET_URL || apiOrigin || window.location.origin;
+const apiConfigured = !import.meta.env.PROD || Boolean(apiOrigin);
 const api = axios.create({ baseURL: `${apiOrigin}/api`, timeout: 10000 });
 const usernameInput = ref('');
 const passwordInput = ref('');
@@ -248,12 +249,15 @@ onBeforeUnmount(stopSocket);
         <p class="eyebrow">AUTHENTICATED WORKSPACE</p>
         <h2 id="login-title">Aanmelden bij Bastion</h2>
         <p>Accounts en teamtoegang worden door een beheerder buiten deze interface ingericht.</p>
+        <p v-if="!apiConfigured" class="configuration-warning">
+          De statische hosting heeft geen geconfigureerde Bastion API. Stel de API-origin in vóór aanmelden.
+        </p>
         <form @submit.prevent="login">
           <label for="username">Gebruikersnaam</label>
-          <input id="username" v-model="usernameInput" autocomplete="username" required maxlength="50" />
+          <input id="username" v-model="usernameInput" autocomplete="username" required maxlength="50" :disabled="!apiConfigured" />
           <label for="password">Wachtwoord</label>
-          <input id="password" v-model="passwordInput" type="password" autocomplete="current-password" required />
-          <button class="primary-button" type="submit">Aanmelden</button>
+          <input id="password" v-model="passwordInput" type="password" autocomplete="current-password" required :disabled="!apiConfigured" />
+          <button class="primary-button" type="submit" :disabled="!apiConfigured">Aanmelden</button>
         </form>
       </section>
 
@@ -296,7 +300,9 @@ onBeforeUnmount(stopSocket);
                   <strong>{{ task.title }}</strong>
                   <p>{{ task.priority }} · niveau {{ task.clearance_level }}</p>
                 </div>
-                <select :value="task.status" :aria-label="`Status ${task.title}`" @change="updateTask(task, $event)">
+                <select :value="task.status" :aria-label="`Status ${task.title}`"
+                  :disabled="selectedTeam.role !== 'commander' && task.assigned_to !== currentUser.id"
+                  @change="updateTask(task, $event)">
                   <option value="PENDING">In afwachting</option>
                   <option value="ACTIVE">Actief</option>
                   <option value="COMPLETED">Voltooid</option>

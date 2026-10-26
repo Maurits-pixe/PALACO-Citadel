@@ -36,9 +36,9 @@ The PALACO 2040 Compass section now includes the following dashboard layers in C
 - ELIXER Dashboard — available apps/capabilities per context with clear choice impact
 - Aether homepage widget — reversible Base64 visual demo; it is not encryption
 - [AETHER](citadel/iii6v9/) — local AES-GCM-256 text encryption using PBKDF2-SHA-256; not an audited vault or production security claim
-- [Bastion](citadel/bastion/) — fictional command-center simulation; local-only messages, no secure comms or live roster
+- [Bastion static preview](citadel/bastion/) — fictional command-center simulation; local-only messages, no secure comms or live roster
 - [5CRIPTIE](citadel/aegis/) — synthetic code-integrity dashboard; no source scan, live monitoring, detection, or defensive actions
-- [PALACO Hoofdkantoor](citadel/) — opens AETHER, Bastion, or 5CRIPTIE in the same screen; navigation does not grant access or capabilities
+- [PALACO Hoofdkantoor](citadel/) — opens AETHER, the Bastion prototype, or 5CRIPTIE in the same screen; navigation does not grant access or capabilities
 - [React launcher](citadel/react/) — separate React entry point for the same previews; source is in `src/`
 - [Bastion team prototype](citadel/bastion-app/) — Vue client for the separately hosted Node/PostgreSQL prototype
 - Evolution Dashboard — canon/system changes with “what changes for me?” summary
@@ -68,36 +68,39 @@ persisted, or securely erased, and the demo does not implement access control.
 does not inspect source code or network traffic, monitor system health, detect threats, or
 block activity, and must not be used for operational security decisions.
 
-The PALACO Hoofdkantoor launcher embeds these same static previews in an iframe for convenient
-navigation. Embedding does not provide security isolation, authentication, access control,
-or operational capability; each module retains its own demo limitations.
+The PALACO Hoofdkantoor launcher embeds the static AETHER and 5CRIPTIE previews and the
+separately built Bastion Vue prototype in an iframe for convenient navigation. Embedding does
+not provide security isolation, authentication, access control, or operational capability.
 
 Build the standalone React launcher with `npm run build`; it is emitted to `citadel/react/`.
-The Pages workflow builds it for deployment, while the root homepage and `/citadel/` launcher
-remain unchanged.
+The Pages workflow builds it for deployment. The static `/citadel/bastion/` preview remains
+available, while the main launcher now opens the separate Vue prototype.
 
 ### Bastion team prototype
 
-The optional Vue client and Node API are a bounded development prototype, not a production-secure
+The Vue client and Node API are a bounded development prototype, not a production-secure
 service. GitHub Pages can host the client but cannot run the API; the Node service and PostgreSQL
 database must be operated separately. Configure `VITE_BASTION_API_URL` and
 `VITE_BASTION_SOCKET_URL` to the API origin before building for a remote API, and configure
 `ALLOWED_ORIGINS` on the API to the exact client origin.
 
 Copy `.env.example` to `.env`, set a PostgreSQL connection URL and a random `JWT_SECRET` of at
-least 32 bytes, then run:
+least 32 bytes. Use a TLS-protected PostgreSQL connection for any remote database. Then run:
 
 ```sh
 npm install
 npm run db:migrate:bastion
 export BOOTSTRAP_USERNAME=commander
+read -rsp 'Bootstrap password: ' BOOTSTRAP_PASSWORD; printf '\n'
 export BOOTSTRAP_PASSWORD
 export BOOTSTRAP_TEAM='Example team'
 export BOOTSTRAP_CHANNEL='General'
 npm run db:bootstrap:bastion
-npm run server:bastion
-npm run dev:bastion
 ```
+
+Run `npm run server:bastion` in one terminal and `npm run dev:bastion` in another. The API binds
+to localhost by default; remote deployments must use HTTPS through a correctly configured
+reverse proxy and set the API URL/origin configuration.
 
 Provision operatives out of band with `PROVISION_USERNAME`, `PROVISION_PASSWORD`,
 `PROVISION_TEAM_ID`, `PROVISION_CLEARANCE_LEVEL`, and explicit comma-separated
@@ -114,6 +117,8 @@ may retain copies. Audit rows reject application-level updates/deletes but are n
 against a database owner. No independent security review, operational authorization policy,
 production deployment, recovery/rotation process, or assurance for sensitive plans is provided.
 Use synthetic data only until those gates are addressed.
+When deploying the client through Pages, set the repository variables `BASTION_API_URL` and
+`BASTION_SOCKET_URL`; without `BASTION_API_URL`, the login form remains disabled.
 
 ## GitHub preparation canon
 

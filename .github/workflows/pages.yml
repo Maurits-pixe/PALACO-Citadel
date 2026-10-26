@@ -66,6 +66,9 @@ jobs:
 
       - name: Build Bastion Vue client
         run: npm run build:bastion
+        env:
+          VITE_BASTION_API_URL: ${{ vars.BASTION_API_URL }}
+          VITE_BASTION_SOCKET_URL: ${{ vars.BASTION_SOCKET_URL }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

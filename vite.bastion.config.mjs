@@ -21,6 +21,14 @@ export default defineConfig({
   },
   build: {
     outDir: '../../citadel/bastion-app',
-    emptyOutDir: true
+    emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        entryFileNames: 'assets/bastion.js',
+        assetFileNames: asset => asset.name?.endsWith('.css')
+          ? 'assets/bastion.css'
+          : 'assets/[name]-[hash][extname]'
+      }
+    }
   }
 });

@@ -43,10 +43,24 @@ test('authenticated user without team membership cannot create tasks', async () 
       if (sql.includes('SELECT id, username, role FROM users')) {
         return { rowCount: 1, rows: [{ id: '22', username: 'operative', role: 'operative' }] };
       }
-      if (sql.includes('FROM team_memberships WHERE user_id')) {
-        return { rowCount: 0, rows: [] };
-      }
       throw new Error('Unexpected query');
+    },
+    async connect() {
+      return {
+        async query(sql) {
+          if (sql === 'BEGIN' || sql === 'COMMIT' || sql === 'ROLLBACK') {
+            return { rowCount: null, rows: [] };
+          }
+          if (sql.includes('INSERT INTO audit_logs')) {
+            return { rowCount: 1, rows: [] };
+          }
+          if (sql.includes('FROM team_memberships WHERE user_id')) {
+            return { rowCount: 0, rows: [] };
+          }
+          throw new Error('Unexpected transaction query');
+        },
+        release() {}
+      };
     }
   };
   await withServer(pool, async baseUrl => {

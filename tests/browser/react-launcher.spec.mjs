@@ -10,7 +10,7 @@ test('builds and opens the standalone React launcher without replacing the stati
 
   const moduleCases = [
     { id: 'aether', heading: 'AETHER', route: '/citadel/iii6v9/' },
-    { id: 'bastion', heading: 'BASTION', route: '/citadel/bastion/' },
+    { id: 'bastion', heading: 'BASTION', route: '/citadel/bastion-app/' },
     { id: 'scriptie', heading: '5CRIPTIE', route: '/citadel/aegis/' }
   ];
 
@@ -21,6 +21,10 @@ test('builds and opens the standalone React launcher without replacing the stati
     await expect(page.locator('.module-toolbar h1')).toHaveText(module.heading);
     await expect(page.locator('.module-frame')).toHaveAttribute('src', module.route);
     await expect(page.frameLocator('.module-frame').locator('h1')).toHaveText(module.heading);
+    if (module.id === 'bastion') {
+      await expect(page.frameLocator('.module-frame').locator('#prototype-notice'))
+        .toContainText('NIET VOOR VERTROUWELIJKE GEGEVENS');
+    }
     await page.getByRole('button', { name: 'Terug naar PALACO' }).click();
     await expect(card).toBeFocused();
   }

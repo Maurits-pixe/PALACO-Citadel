@@ -1,10 +1,12 @@
-export default function Bastion() {
+export default function Bastion({ iframeRef, onLoad }) {
   return (
     <iframe
       className="module-frame"
-      src="/citadel/bastion/"
-      title="BASTION · commandocentrum-demo"
+      ref={iframeRef}
+      src="/citadel/bastion-app/"
+      title="BASTION · team prototype"
       referrerPolicy="no-referrer"
+      onLoad={onLoad}
     />
   );
 }

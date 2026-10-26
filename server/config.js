@@ -16,13 +16,16 @@ export function getConfig() {
     .split(',')
     .map(origin => origin.trim())
     .filter(Boolean);
+  const port = Number(process.env.PORT || 3000);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error('PORT must be an integer between 1 and 65535.');
+  }
 
   return {
     databaseUrl: required('DATABASE_URL'),
     jwtSecret,
     allowedOrigins,
     host: process.env.HOST || '127.0.0.1',
-    port: Number(process.env.PORT || 3000),
-    tokenTtl: '15m'
+    port
   };
 }

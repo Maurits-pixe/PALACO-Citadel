@@ -34,11 +34,23 @@ const modules = [
 export default function PalacoLauncher() {
   const [activeModule, setActiveModule] = useState(null);
   const cardRefs = useRef({});
+  const frameRef = useRef(null);
   const active = modules.find(module => module.id === activeModule);
 
   function returnToMenu() {
     setActiveModule(null);
     requestAnimationFrame(() => cardRefs.current[activeModule]?.focus());
+  }
+
+  function handleModuleLoad() {
+    try {
+      frameRef.current.contentDocument.addEventListener('click', event => {
+        if (event.target.closest('a[href="/"], a[href="/citadel/"]')) {
+          event.preventDefault();
+          returnToMenu();
+        }
+      });
+    } catch {}
   }
 
   if (active) {
@@ -55,7 +67,7 @@ export default function PalacoLauncher() {
             Apart openen
           </a>
         </header>
-        <Module />
+        <Module iframeRef={frameRef} onLoad={handleModuleLoad} />
       </main>
     );
   }

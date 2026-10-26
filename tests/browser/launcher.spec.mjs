@@ -17,7 +17,7 @@ test('launches each concept preview in the same screen and returns to module cho
 
   const modules = [
     { id: 'aether', heading: 'AETHER', path: '/citadel/iii6v9/', warning: '[data-i18n="noticeBody"]', warningCopy: 'geen onafhankelijk gecontroleerde kluis', backLink: '.back-link' },
-    { id: 'bastion', heading: 'BASTION', path: '/citadel/bastion/', warning: '#demo-notice-title', warningCopy: 'ALLEEN SIMULATIE', backLink: '.back-link' },
+    { id: 'bastion', heading: 'BASTION', path: '/citadel/bastion-app/', warning: '#prototype-notice', warningCopy: 'NIET VOOR VERTROUWELIJKE GEGEVENS', backLink: '.back-link' },
     { id: 'scriptie', heading: '5CRIPTIE', path: '/citadel/aegis/', warning: '#notice-title', warningCopy: 'ALLEEN SIMULATIE', backLink: '.back-link' }
   ];
 
