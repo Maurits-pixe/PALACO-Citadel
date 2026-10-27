@@ -16,6 +16,9 @@ PALACO-Citadel is now organized as a canonical layered system: read from top to 
 9. [DOCS](DOCS/README.md) — referentie, glossary, FAQ en status
 10. [CANONIEKE_FORMULE](CANONIEKE_FORMULE.md) — de synthesis van het geheel
 
+For a verified cross-repository maintenance overview, see the
+[repository maintenance handoff](docs/REPOSITORY-MAINTENANCE-HANDOFF.md).
+
 ## GitHub links
 
 - PALACO: `https://github.com/Maurits-pixe/PALACO`

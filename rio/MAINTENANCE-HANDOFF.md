@@ -1,8 +1,4 @@
-# RIO Maintenance Handoff
-
-> Scope note: the request said “REO.” This handoff assumes that meant RIO, based on the
-> repository's RIO implementation. If REO means something else, do not treat this note as applying
-> to that system.
+# RIO Subsystem Maintenance Handoff
 
 This is a navigation and continuity record, not new canon. Detailed contracts remain in the
 linked specifications and implementation files.
