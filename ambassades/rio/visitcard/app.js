@@ -1771,7 +1771,8 @@ const taskbarTranslations = {
     "personalAccount": "Persoonlijk account",
     "haraPreview": "HARAM · deze computer",
     "navigationBoundary": "Het HARA-icoon opent HARAM in een nieuw tabblad op deze computer. De lokale runtime moet draaien; de interface is Nederlands. Je RIO-inhoud gaat niet mee. MUNDO is niet beschikbaar. Sluiten of herladen kan tijdelijke inhoud wissen. De accountlink meldt je niet aan en bevestigt niet wie je bent.",
-    "haraInfo": "Over HARA · Nederlands"
+    "haraInfo": "Over HARA · Nederlands",
+    "rioAccount": "Mijn RIO · Nederlands"
   },
   "en": {
     "taskbarLabel": "PALACO main navigation",
@@ -1781,7 +1782,8 @@ const taskbarTranslations = {
     "personalAccount": "Personal account",
     "haraPreview": "HARAM · this computer",
     "navigationBoundary": "The HARA icon opens HARAM in a new tab on this computer. The local runtime must be running; its interface is Dutch. Your RIO content is not transferred. MUNDO is unavailable. Closing or reloading may clear temporary content. The account link does not sign you in or verify your identity.",
-    "haraInfo": "About HARA · Dutch"
+    "haraInfo": "About HARA · Dutch",
+    "rioAccount": "My RIO · Dutch"
   },
   "de": {
     "taskbarLabel": "PALACO Hauptnavigation",
@@ -1791,7 +1793,8 @@ const taskbarTranslations = {
     "personalAccount": "Persönliches Konto",
     "haraPreview": "HARAM · dieser Computer",
     "navigationBoundary": "Das HARA-Symbol öffnet HARAM in einem neuen Tab auf diesem Computer. Die lokale Laufzeit muss laufen; die Oberfläche ist auf Niederländisch. Deine RIO-Inhalte werden nicht übertragen. MUNDO ist nicht verfügbar. Schließen oder Neuladen kann vorübergehende Inhalte löschen. Der Kontolink meldet dich nicht an und bestätigt nicht deine Identität.",
-    "haraInfo": "Über HARA · Niederländisch"
+    "haraInfo": "Über HARA · Niederländisch",
+    "rioAccount": "Mein RIO · Niederländisch"
   },
   "fr": {
     "taskbarLabel": "Navigation principale PALACO",
@@ -1801,7 +1804,8 @@ const taskbarTranslations = {
     "personalAccount": "Compte personnel",
     "haraPreview": "HARAM · cet ordinateur",
     "navigationBoundary": "L’icône HARA ouvre HARAM dans un nouvel onglet sur cet ordinateur. Le moteur local doit fonctionner ; son interface est en néerlandais. Votre contenu RIO n’est pas transféré. MUNDO est indisponible. Fermer ou recharger peut effacer le contenu temporaire. Le lien du compte ne vous connecte pas et ne vérifie pas votre identité.",
-    "haraInfo": "À propos de HARA · néerlandais"
+    "haraInfo": "À propos de HARA · néerlandais",
+    "rioAccount": "Mon RIO · néerlandais"
   },
   "es": {
     "taskbarLabel": "Navegación principal PALACO",
@@ -1811,7 +1815,8 @@ const taskbarTranslations = {
     "personalAccount": "Cuenta personal",
     "haraPreview": "HARAM · este ordenador",
     "navigationBoundary": "El icono HARA abre HARAM en una pestaña nueva en este ordenador. El motor local debe estar en ejecución; su interfaz está en neerlandés. Tu contenido de RIO no se transfiere. MUNDO no está disponible. Cerrar o recargar puede borrar el contenido temporal. El enlace de cuenta no inicia sesión ni verifica tu identidad.",
-    "haraInfo": "Acerca de HARA · neerlandés"
+    "haraInfo": "Acerca de HARA · neerlandés",
+    "rioAccount": "Mi RIO · neerlandés"
   },
   "ar": {
     "taskbarLabel": "التنقل الرئيسي في PALACO",
@@ -1821,7 +1826,8 @@ const taskbarTranslations = {
     "personalAccount": "حساب شخصي",
     "haraPreview": "HARAM · هذا الكمبيوتر",
     "navigationBoundary": "تفتح أيقونة HARA تطبيق HARAM في علامة تبويب جديدة على هذا الكمبيوتر. يجب تشغيل البيئة المحلية؛ الواجهة باللغة الهولندية. لا يتم نقل محتوى RIO. خدمة MUNDO غير متاحة. قد يؤدي الإغلاق أو إعادة التحميل إلى مسح المحتوى المؤقت. رابط الحساب لا يسجل دخولك ولا يتحقق من هويتك.",
-    "haraInfo": "عن HARA · بالهولندية"
+    "haraInfo": "عن HARA · بالهولندية",
+    "rioAccount": "RIO الخاص بي · بالهولندية"
   },
   "zh": {
     "taskbarLabel": "PALACO 主导航",
@@ -1831,7 +1837,8 @@ const taskbarTranslations = {
     "personalAccount": "个人账户",
     "haraPreview": "HARAM · 此电脑",
     "navigationBoundary": "HARA 图标在此电脑的新标签页中打开 HARAM。本地运行环境必须已启动；界面为荷兰语。RIO 内容不会随之传输。MUNDO 暂不可用。关闭或重新加载可能清除临时内容。账户链接不会登录或验证你的身份。",
-    "haraInfo": "关于 HARA · 荷兰语"
+    "haraInfo": "关于 HARA · 荷兰语",
+    "rioAccount": "我的 RIO · 荷兰语"
   },
   "pt": {
     "taskbarLabel": "Navegação principal da PALACO",
@@ -1841,7 +1848,8 @@ const taskbarTranslations = {
     "personalAccount": "Conta pessoal",
     "haraPreview": "HARAM · este computador",
     "navigationBoundary": "O ícone HARA abre HARAM num novo separador neste computador. O motor local tem de estar em execução; a interface é em neerlandês. O conteúdo do RIO não é transferido. MUNDO está indisponível. Fechar ou recarregar pode apagar o conteúdo temporário. A ligação para a conta não inicia sessão nem confirma a sua identidade.",
-    "haraInfo": "Sobre HARA · neerlandês"
+    "haraInfo": "Sobre HARA · neerlandês",
+    "rioAccount": "O meu RIO · neerlandês"
   },
   "ru": {
     "taskbarLabel": "Основная навигация PALACO",
@@ -1851,7 +1859,8 @@ const taskbarTranslations = {
     "personalAccount": "Личный аккаунт",
     "haraPreview": "HARAM · этот компьютер",
     "navigationBoundary": "Значок HARA открывает HARAM в новой вкладке на этом компьютере. Локальная среда выполнения должна быть запущена; интерфейс на нидерландском языке. Содержимое RIO не передаётся. MUNDO недоступно. Закрытие или перезагрузка может удалить временное содержимое. Ссылка на аккаунт не выполняет вход и не подтверждает вашу личность.",
-    "haraInfo": "О HARA · нидерландский"
+    "haraInfo": "О HARA · нидерландский",
+    "rioAccount": "Мой RIO · нидерландский"
   },
   "eo": {
     "taskbarLabel": "Ĉefa navigado de PALACO",
@@ -1861,7 +1870,8 @@ const taskbarTranslations = {
     "personalAccount": "Persona konto",
     "haraPreview": "HARAM · ĉi tiu komputilo",
     "navigationBoundary": "La HARA-piktogramo malfermas HARAM en nova langeto sur ĉi tiu komputilo. La loka rultempa medio devas funkcii; la interfaco estas en la nederlanda. Via RIO-enhavo ne estas transdonata. MUNDO ne estas havebla. Fermo aŭ reŝargo povas forviŝi provizoran enhavon. La kontoligilo ne ensalutigas vin kaj ne konfirmas vian identecon.",
-    "haraInfo": "Pri HARA · nederlanda"
+    "haraInfo": "Pri HARA · nederlanda",
+    "rioAccount": "Mia RIO · nederlanda"
   },
   "pl": {
     "taskbarLabel": "Nawigacja główna PALACO",
@@ -1871,7 +1881,8 @@ const taskbarTranslations = {
     "personalAccount": "Konto osobiste",
     "haraPreview": "HARAM · ten komputer",
     "navigationBoundary": "Ikona HARA otwiera HARAM w nowej karcie na tym komputerze. Lokalne środowisko wykonawcze musi działać; interfejs jest w języku niderlandzkim. Treść RIO nie jest przenoszona. MUNDO jest niedostępne. Zamknięcie lub ponowne załadowanie może usunąć tymczasową treść. Link do konta nie loguje cię ani nie potwierdza twojej tożsamości.",
-    "haraInfo": "O HARA · niderlandzki"
+    "haraInfo": "O HARA · niderlandzki",
+    "rioAccount": "Moje RIO · niderlandzki"
   },
   "it": {
     "taskbarLabel": "Navigazione principale PALACO",
@@ -1881,7 +1892,8 @@ const taskbarTranslations = {
     "personalAccount": "Account personale",
     "haraPreview": "HARAM · questo computer",
     "navigationBoundary": "L’icona HARA apre HARAM in una nuova scheda su questo computer. Il motore locale deve essere in esecuzione; l’interfaccia è in neerlandese. I contenuti di RIO non vengono trasferiti. MUNDO non è disponibile. Chiudere o ricaricare può cancellare i contenuti temporanei. Il link dell’account non effettua l’accesso e non verifica la tua identità.",
-    "haraInfo": "Informazioni su HARA · neerlandese"
+    "haraInfo": "Informazioni su HARA · neerlandese",
+    "rioAccount": "Il mio RIO · neerlandese"
   }
 };
 const shareTranslations = {

@@ -827,3 +827,6 @@ footer small { grid-column: 1 / -1; }
 }
 
 .hara-info-link { grid-column: 1 / -1; justify-self: start; display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; max-width: 100%; padding: 8px 0; color: inherit; font-weight: 800; overflow-wrap: anywhere; text-underline-offset: .2em; }
+
+/* The personal workspace opens separately; the current RIO draft stays here. */
+.hero-actions .rio-account-link { min-height:46px; border:2px solid var(--ink); border-radius:6px; padding:10px 20px; font-weight:900; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; }

@@ -2,6 +2,7 @@ import {existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, rmSync, wr
 import {createHash} from 'node:crypto';
 import {dirname, relative, resolve, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {buildSync} from 'esbuild';
 
 const root = realpathSync(resolve(dirname(fileURLToPath(import.meta.url)), '..'));
 const output = resolve(root, 'render-dist');
@@ -11,9 +12,10 @@ export const ROOT_ASSETS = Object.freeze(['index.html', 'styles.css', 'app.js', 
   'manifest.webmanifest', 'icon-192.svg', 'icon-512.svg', 'citadel-icon.png', 'hara-icon.png', 'mundo-icon.png', 'rio-engine-web.mjs', 'engine.mjs',
   'chat-preview.mjs', 'integration.mjs']);
 export const HARA_ASSETS = Object.freeze(['hara/index.html', 'hara/app.css', 'hara/app.js', 'hara/reference.jpg']);
+export const ACCOUNT_ASSETS = Object.freeze(['rio/account/index.html', 'rio/account/app.css', 'rio/account/app.js']);
 export const OUTPUT_FILES = Object.freeze([...ROOT_ASSETS, 'rio/index.html', 'rio/start.js',
   'rio/download', 'rio/sw.js', 'rio/manifest.webmanifest', 'rio/icon-192.png', 'rio/icon-512.png',
-  'rio/reception/index.html', 'rio/reception/app.css', 'rio/reception/app.js', 'rio/reception/nova.png', ...HARA_ASSETS]);
+  'rio/reception/index.html', 'rio/reception/app.css', 'rio/reception/app.js', 'rio/reception/nova.png', ...HARA_ASSETS, ...ACCOUNT_ASSETS]);
 export const CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'";
 const text = path => readFileSync(resolve(root, path), 'utf8').replace(/\r\n/g, '\n');
 function replaceOnce(source, needle, replacement) {
@@ -114,6 +116,10 @@ const getLanguage=()=>{const query=new URLSearchParams(location.search).get('lan
   for (const file of ['manifest.webmanifest','icon-192.png','icon-512.png']) emit('rio/'+file, readFileSync(resolve(root,'ambassades/rio/'+file)));
   emit('rio/reception/index.html', reception);
   for (const file of ['app.css','app.js','nova.png']) emit('rio/reception/'+file, readFileSync(resolve(root,'ambassades/rio/reception/'+file)));
+  emit('rio/account/index.html', text('rio/backend/public/index.html'));
+  emit('rio/account/app.css', text('rio/backend/public/app.css'));
+  const accountBundle = buildSync({entryPoints:[resolve(root,'rio/backend/public/app.js')], bundle:true, write:false, format:'esm', platform:'browser', target:'es2022', minify:true, sourcemap:false, legalComments:'none'});
+  emit('rio/account/app.js', accountBundle.outputFiles[0].contents);
   const files = OUTPUT_FILES.map(path => {const bytes=readFileSync(resolve(output,path));return {path,bytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')};});
   const record={schemaVersion:'palaco-rio-unified-preview-build/0.1',mode:'STATIC_PREVIEW',previewOrigin:PREVIEW_ORIGIN,trialOrigin:TRIAL_ORIGIN,
     sources:{visitcard:'efda74f0b8f2e91bd694c770564d29ca669ab846',rio:'3a1c67551ef4925728e1c136fcdef001e653df27'},

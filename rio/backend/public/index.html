@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="light">
+  <title>Mijn RIO · Je eigen plek bij PALACO</title>
+  <link rel="icon" href="/icon-192.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./app.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Naar Mijn RIO</a>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Terug naar RIO"><img src="/icon-192.svg" width="40" height="40" alt=""><span>PALACO <strong>RIO</strong></span></a>
+    <a class="back-link" href="/">← Terug naar RIO</a>
+  </header>
+  <main id="main" tabindex="-1">
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">Je eigen plek · testomgeving · Nederlands</p>
+      <h1 id="page-title">Mijn RIO<span>.</span></h1>
+      <p class="lede">Een gedachte bewaren. Later verdergaan.<br>Op je telefoon of op je computer.</p>
+      <div class="connection" id="connection" data-state="checking"><span class="status-dot" aria-hidden="true"></span><strong id="connection-label">Verbinding controleren…</strong></div>
+      <p id="connection-detail" class="connection-detail">RIO controleert of de accountomgeving is ingesteld.</p>
+    </section>
+
+    <div class="workspace-grid">
+      <section class="card account-card" aria-labelledby="account-heading">
+        <p class="step">01 · Je account</p>
+        <h2 id="account-heading">Welkom terug</h2>
+        <p>Gebruik het e-mailadres van je bestaande RIO-account. Je krijgt een eenmalige inlogcode via Supabase.</p>
+        <p class="quiet">Deze pagina maakt geen account of P.P.-nummer aan. Een beheerder moet eerst je persoonlijke RIO-koppeling vastleggen.</p>
+        <form id="request-form">
+          <label for="email">E-mailadres</label>
+          <input id="email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="254" required disabled aria-describedby="email-help">
+          <p class="field-help" id="email-help">Alleen bij jouw keuze om een code te versturen gaat je adres naar Supabase.</p>
+          <button id="request-code" type="submit" disabled>Stuur mijn inlogcode</button>
+        </form>
+        <form id="verify-form" hidden>
+          <label for="code">Inlogcode uit je e-mail</label>
+          <input id="code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6,8}" minlength="6" maxlength="8" required disabled aria-describedby="code-help">
+          <p class="field-help" id="code-help">Vul de 6 tot 8 cijfers in. Deel deze code met niemand.</p>
+          <button id="verify-code" type="submit" disabled>Controleer mijn code</button>
+        </form>
+        <div id="signed-in" hidden>
+          <p class="account-label">Ingelogd als <strong id="user-label"></strong></p>
+          <p class="quiet">Je toegang en persoonlijke koppeling worden opnieuw gecontroleerd wanneer je notities opent of bewaart.</p>
+        </div>
+        <button id="sign-out" class="text-button" type="button" disabled>Uitloggen op dit tabblad</button>
+        <p class="quiet">Je sessie blijft alleen in dit tabblad. Na herladen log je opnieuw in. Andere apparaten blijven ingelogd.</p>
+      </section>
+
+      <section class="card notes-card" aria-labelledby="notes-heading">
+        <p class="step">02 · Je notities</p>
+        <h2 id="notes-heading">Een plek voor je gedachten</h2>
+        <p id="notes-help">Log in met een gekoppeld account om je eigen notities te bekijken en te bewaren.</p>
+        <form id="note-form" aria-describedby="notes-help note-boundary">
+          <label for="note-title">Titel</label>
+          <input id="note-title" name="title" type="text" autocomplete="off" required disabled aria-describedby="title-help">
+          <p class="field-help" id="title-help">Maximaal 120 tekens.</p>
+          <label for="note-body">Wat wil je bewaren?</label>
+          <textarea id="note-body" name="body" rows="6" autocomplete="off" required disabled aria-describedby="body-help"></textarea>
+          <p class="field-help" id="body-help">Maximaal 8.000 tekens. Je concept blijft in dit tabblad tot je opslaat, herlaadt of uitlogt.</p>
+          <label class="consent" for="note-consent"><input id="note-consent" type="checkbox" disabled><span>Deze notitie opslaan in mijn RIO-account.</span></label>
+          <button id="save-note" type="submit" disabled>Bewaar mijn notitie <span aria-hidden="true">↗</span></button>
+        </form>
+        <p class="boundary" id="note-boundary">Alleen deze notitie wordt verstuurd. Je tijdelijke RIO-gesprek, HARAM en huishoudgegevens worden niet automatisch meegenomen. Deze eerste proef bewaart alleen nieuwe notities; aanpassen en verwijderen volgen later. Gebruik nu alleen testnotities.</p>
+        <div class="notes-heading"><h3>Bewaard voor jou</h3><button id="refresh-notes" class="text-button" type="button" disabled>Notities ophalen</button></div>
+        <p id="notes-empty" class="quiet">Je bewaarde notities verschijnen hier nadat je ze ophaalt.</p>
+        <ul id="notes-list" aria-label="Mijn bewaarde notities"></ul>
+      </section>
+    </div>
+    <p id="feedback" class="feedback" role="status" aria-live="polite" aria-atomic="true"></p>
+    <noscript><p class="noscript">Zet JavaScript aan om de accountomgeving te gebruiken. Er is niets verstuurd of opgeslagen.</p></noscript>
+    <footer><strong>RIO connects.</strong><p>Deze accountomgeving is een afzonderlijke stap. Inloggen geeft geen toestemming om namens jou te handelen.</p><a href="/">Terug naar de RIO-preview</a></footer>
+  </main>
+</body>
+</html>

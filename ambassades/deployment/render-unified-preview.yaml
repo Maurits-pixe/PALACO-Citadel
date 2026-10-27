@@ -5,7 +5,7 @@
     "runtime": "static",
     "repo": "https://github.com/Maurits-pixe/PALACO-Citadel",
     "branch": "codex/rio-nova-multilingual-draft",
-    "buildCommand": "node scripts/build-rio-unified-preview.mjs",
+    "buildCommand": "npm ci --include=dev --ignore-scripts && node scripts/build-rio-unified-preview.mjs",
     "staticPublishPath": "render-dist",
     "autoDeployTrigger": "off",
     "envVars": [{"key": "SKIP_INSTALL_DEPS", "value": "true"}, {"key": "NODE_VERSION", "value": "24"}],

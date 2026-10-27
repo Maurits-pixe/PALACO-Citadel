@@ -16,7 +16,7 @@ function files(dir, prefix='') {
 }
 
 test('actual static output contains only the explicit public surface; no backend, source contracts or test fixtures leak',()=>{
- assert.equal(OUTPUT_FILES.length,29);
+ assert.equal(OUTPUT_FILES.length,32);
  assert.deepEqual(files(resolve(root,'render-dist')).sort(), [...OUTPUT_FILES].sort());
  for(const icon of ['citadel-icon.png','hara-icon.png','mundo-icon.png'])assert.deepEqual(bytes('render-dist/'+icon),bytes('ambassades/rio/visitcard/'+icon));
  assert.equal(hash('ambassades/rio/visitcard/mundo-icon.png'),'fc3d09b49035bde97673194b3730e0440223c621b0feb3222d2a473fb2ec7579');
@@ -38,7 +38,7 @@ test('build transforms only preview artifacts; web app uses a self-only external
  const online=source('render-dist/rio/index.html'),download=source('render-dist/rio/download');
  assert.equal(record.onlineInlineScripts,false);assert.equal(record.downloadInlineScripts,true);
  assert.equal(Object.hasOwn(record,'inlineScripts'),false);
- for(const path of ['index.html','rio/index.html','rio/reception/index.html','hara/index.html']) {
+ for(const path of ['index.html','rio/index.html','rio/reception/index.html','hara/index.html','rio/account/index.html']) {
    assert.ok(!/<script(?![^>]*\bsrc=)[^>]*>/i.test(source('render-dist/'+path)),path);
  }
  assert.ok(online.includes('<script src="/rio/start.js" defer>'));
@@ -74,7 +74,7 @@ test('static reception disables measurement and names only the fixed HTTPS trial
  assert.equal(service.name,new URL(PREVIEW_ORIGIN).hostname.split('.')[0]);assert.equal(service.runtime,'static');
  assert.equal(service.branch,'codex/rio-nova-multilingual-draft');
  assert.equal(service.autoDeployTrigger,'off');assert.equal(service.staticPublishPath,'render-dist');
- assert.equal(service.buildCommand,'node scripts/build-rio-unified-preview.mjs');
+ assert.equal(service.buildCommand,'npm ci --include=dev --ignore-scripts && node scripts/build-rio-unified-preview.mjs');
  assert.equal(service.headers.find(header=>header.name==='Content-Security-Policy').value,CSP);
  assert.ok(!service.envVars.some(item=>/OIDC|SECRET|TOKEN|DATABASE|KEY/.test(item.key)));
  assert.ok(!CSP.includes("script-src 'self' 'unsafe-inline'"));

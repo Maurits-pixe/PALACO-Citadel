@@ -3,6 +3,10 @@ on:
   pull_request:
     paths:
       - 'ambassades/rio/**'
+      - 'rio/backend/public/**'
+      - 'rio/backend/client.mjs'
+      - 'package.json'
+      - 'package-lock.json'
       - 'ambassades/deployment/render-unified-preview.yaml'
       - 'scripts/build-rio-unified-preview*'
       - 'scripts/serve-rio-unified-preview*'
@@ -24,9 +28,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+      - run: npm ci --include=dev --ignore-scripts
       - name: Verify explicit public build and closed static deployment profile
         run: node --test --test-concurrency=1 scripts/build-rio-unified-preview.test.mjs scripts/serve-rio-unified-preview.test.mjs tests/rio-unified-preview/static-fixture.test.mjs tests/rio-unified-preview/engine-session.test.mjs
-      - run: npm ci
       - run: npx playwright install --with-deps chromium
       - name: Verify integrated navigation, offline cache isolation and waiting update
         run: npx playwright test --config tests/rio-unified-preview/playwright.config.mjs
