@@ -60,7 +60,8 @@ data flow, caller authentication/authorization, retention and deletion rules, a 
 custody model, and a review of the network exposure before implementation.
 
 The repository already has `.github/workflows/ci.yml`; it was a placeholder, not a missing file.
-It now runs the existing root `npm test` suite (including Playwright Chromium) and the separate
-`bastion-backend/` tests. It deliberately does not pretend to build absent Rust or frontend
-projects. Node 22 is the CI runtime; the proposed Node 18/Rust 1.70 values are not adopted as
-repository requirements.
+It runs the root `npm test` suite (including Playwright Chromium), validates and builds the
+existing root `citadel` Docker Compose service, smoke-tests its health plus `/` and `/citadel/`
+routes, and runs the separate `bastion-backend/` tests. It deliberately does not pretend to build
+absent Rust or frontend projects. Node 22 is the CI runtime; the proposed Node 18/Rust 1.70 values
+are not adopted as repository requirements.

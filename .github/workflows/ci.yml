@@ -28,6 +28,27 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Run repository test suite
         run: npm test
+      - name: Validate and build Docker Compose service
+        run: |
+          docker compose config --quiet
+          docker compose build citadel
+      - name: Smoke-test Docker Compose service
+        run: |
+          set -euo pipefail
+          docker compose up -d
+          trap 'docker compose down' EXIT
+          status=""
+          for attempt in $(seq 1 15); do
+            container_id="$(docker compose ps -q citadel)"
+            if [ -n "$container_id" ]; then
+              status="$(docker inspect --format '{{.State.Health.Status}}' "$container_id" 2>/dev/null || true)"
+              [ "$status" = "healthy" ] && break
+            fi
+            sleep 2
+          done
+          test "$status" = "healthy"
+          curl --fail --silent http://127.0.0.1:8080/ | grep -q '<title>PALACO Citadel</title>'
+          curl --fail --silent http://127.0.0.1:8080/citadel/ | grep -q 'PALACO NEO'
       - name: Install Bastion demo API dependencies
         run: npm ci --prefix bastion-backend
       - name: Test Bastion demo API
