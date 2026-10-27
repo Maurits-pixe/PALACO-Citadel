@@ -1,4 +1,4 @@
-name: CI
+name: PALACO CI
 
 "on":
   push:
@@ -15,9 +15,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run a one-line script
-        run: echo Hello, world!
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            bastion-backend/package-lock.json
+      - name: Install repository dependencies
+        run: npm ci
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run repository test suite
+        run: npm test
+      - name: Install Bastion demo API dependencies
+        run: npm ci --prefix bastion-backend
+      - name: Test Bastion demo API
+        run: npm --prefix bastion-backend test
