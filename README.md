@@ -104,6 +104,35 @@ origin. Browser fetch does not expose certificate details; the browser itself mu
 TLS certificate. A self-declared `appId` is not proof that the server is controlled by the
 intended operator.
 
+## Run the static site with Docker
+
+Docker packages the existing static PALACO-Citadel site; it does not add the proposed Rust
+AETHER service, missing frontend trees, or a live Bastion integration. The Bastion demo API is
+intentionally not included in Compose because it has no authentication and its documentation
+prohibits network exposure.
+
+With Docker Engine and the Compose plugin installed, run from the repository root:
+
+```sh
+docker compose up --build -d
+```
+
+Open `http://localhost:8080`. The container serves the static site only, binds to loopback by
+default, runs Nginx as an unprivileged user, and has a read-only root filesystem. Stop it with
+`docker compose down`.
+
+To publish the static image to an account you control, authenticate with Docker Hub and tag the
+image using your own namespace:
+
+```sh
+docker login
+docker build -t <dockerhub-username>/palaco-citadel:latest .
+docker push <dockerhub-username>/palaco-citadel:latest
+```
+
+Publishing is an explicit manual step; no registry credentials or image pushes are used by this
+repository's Compose setup.
+
 Run `npm run dev` to start the launcher at `https://localhost:5173`. For a locally trusted
 certificate, install mkcert for your operating system, then from the repository root run:
 
