@@ -17,5 +17,4 @@ coverage
 *.db-wal
 Dockerfile
 docker-compose.yml
-nginx.conf
 .dockerignore
