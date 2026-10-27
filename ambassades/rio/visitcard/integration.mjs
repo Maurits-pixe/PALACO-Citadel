@@ -165,8 +165,6 @@ function checkedDestination(link) {
   let url;
   try { url = new URL(link.href); } catch { return null; }
   if (!/^https?:$/.test(url.protocol)) return null;
-  if (link.id === 'hara-dashboard-link' && url.origin === location.origin
-      && url.pathname === '/hara/' && !url.search && !url.hash) return url;
   if (link.id === 'rio-unified-reception' && url.origin === location.origin
       && url.pathname === '/rio/reception/' && !url.search
       && /^#nova-explained:(nl|en|de|fr|es|it|pt|ru|eo|pl|ar|zh)$/.test(url.hash)) return url;

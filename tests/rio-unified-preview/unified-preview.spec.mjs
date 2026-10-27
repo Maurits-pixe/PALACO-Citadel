@@ -10,7 +10,7 @@ import { CSP } from '../../scripts/build-rio-unified-preview.mjs';
 
 const repository = fileURLToPath(new URL('../../', import.meta.url));
 const output = resolve(repository, 'render-dist');
-const ROOT_CACHE = 'palaco-rio-shell-v65-haram-local-runtime';
+const ROOT_CACHE = 'palaco-rio-shell-v66-hara-agent-navigation';
 const OLD_ROOT_CACHE = 'palaco-rio-shell-v35-guard-explanations';
 const APP_CACHE = 'palaco-rio-start-v0.1-9';
 const HARA_ASSETS = ['/hara/', '/hara/index.html', '/hara/app.css', '/hara/app.js', '/hara/reference.jpg'];
@@ -96,7 +96,7 @@ test('generated public bundle has working mutual navigation, twelve VisitCard la
   const mundoIcon = mundo.locator('img');
   const unavailable = { nl: 'Niet beschikbaar', en: 'Unavailable', de: 'Nicht verfügbar', fr: 'Indisponible', es: 'No disponible', it: 'Non disponibile', pt: 'Indisponível', ru: 'Недоступно', eo: 'Nedisponebla', pl: 'Niedostępne', ar: 'غير متاح', zh: '暂不可用' };
   const consumer = { nl: 'Consument', en: 'Consumer', de: 'Verbraucher', fr: 'Consommateur', es: 'Consumidor', it: 'Consumatore', pt: 'Consumidor', ru: 'Потребитель', eo: 'Konsumanto', pl: 'Konsument', ar: 'مستهلك', zh: '消费者' };
-  const haraPreview = { nl: 'Dashboardpreview · Nederlands', en: 'Dashboard preview · Dutch', de: 'Dashboard-Vorschau · Niederländisch', fr: 'Aperçu du tableau de bord · néerlandais', es: 'Vista previa del panel · neerlandés', it: 'Anteprima dashboard · neerlandese', pt: 'Prévia do painel · neerlandês', ru: 'Предпросмотр панели · нидерландский', eo: 'Panela antaŭrigardo · nederlanda', pl: 'Podgląd panelu · niderlandzki', ar: 'معاينة لوحة المعلومات · الهولندية', zh: '仪表板预览 · 荷兰语' };
+  const haraPreview = { nl: 'HARAM · deze computer', en: 'HARAM · this computer', de: 'HARAM · dieser Computer', fr: 'HARAM · cet ordinateur', es: 'HARAM · este ordenador', it: 'HARAM · questo computer', pt: 'HARAM · este computador', ru: 'HARAM · этот компьютер', eo: 'HARAM · ĉi tiu komputilo', pl: 'HARAM · ten komputer', ar: 'HARAM · هذا الكمبيوتر', zh: 'HARAM · 此电脑' };
   const landmarkNames = {
     nl: ['Hoofdnavigatie', 'Taal'], en: ['Main navigation', 'Language'],
     de: ['Hauptnavigation', 'Sprache'], fr: ['Navigation principale', 'Langue'],
@@ -128,9 +128,16 @@ test('generated public bundle has working mutual navigation, twelve VisitCard la
       const box = button.getBoundingClientRect();return { width: box.width, height: box.height };
     }));
     expect(languageTargets.every(box => box.width >= 44 && box.height >= 44), language + ' language touch targets').toBe(true);
-    await expect(hara).toHaveAttribute('href', '/hara/');
+    await expect(hara).toHaveAttribute('href', 'http://127.0.0.1:4193/');
     await expect(hara).toHaveAttribute('hreflang', 'nl');
+    await expect(hara).toHaveAttribute('target', '_blank');
+    expect((await hara.getAttribute('rel')).split(/\s+/).sort()).toEqual(['noopener', 'noreferrer']);
     await expect(hara).toHaveAccessibleName('HARA ELIXER HARAM ' + haraPreview[language]);
+    const haraInfo = page.locator('#hara-info-link');
+    await expect(haraInfo).toHaveAttribute('href', '/hara/');
+    await expect(haraInfo).toHaveAttribute('hreflang', 'nl');
+    await expect(haraInfo).toHaveAttribute('target', '_blank');
+    expect((await haraInfo.getAttribute('rel')).split(/\s+/).sort()).toEqual(['noopener', 'noreferrer']);
     await expect(mundo).toBeDisabled();
     await expect(mundo).toHaveAccessibleName('MUNDO ' + consumer[language] + ' · ' + unavailable[language]);
     rootTitles.add((await page.locator('[data-i18n="tagline"]').textContent()).trim());

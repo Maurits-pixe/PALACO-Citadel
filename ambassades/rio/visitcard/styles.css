@@ -825,3 +825,5 @@ footer small { grid-column: 1 / -1; }
   .rio-unified-portrait img { width: 76px; margin: 0; }
   .rio-unified-actions { flex-direction: column; align-items: stretch; }
 }
+
+.hara-info-link { grid-column: 1 / -1; justify-self: start; display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; max-width: 100%; padding: 8px 0; color: inherit; font-weight: 800; overflow-wrap: anywhere; text-underline-offset: .2em; }

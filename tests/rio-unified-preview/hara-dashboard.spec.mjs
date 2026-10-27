@@ -8,7 +8,7 @@ import { startReviewServer } from '../../scripts/serve-rio-unified-preview.mjs';
 
 const repository = fileURLToPath(new URL('../../', import.meta.url));
 const output = resolve(repository, 'render-dist');
-const ROOT_CACHE = 'palaco-rio-shell-v65-haram-local-runtime';
+const ROOT_CACHE = 'palaco-rio-shell-v66-hara-agent-navigation';
 const HARA_ASSETS = ['/hara/', '/hara/index.html', '/hara/app.css', '/hara/app.js', '/hara/reference.jpg'];
 const REFERENCE_SHA256 = 'c6b7fa7adf66fbd6aeb58fbd0198e48f1c38fb1f5870aa87d7181076ee164de6';
 const previousRelation = {

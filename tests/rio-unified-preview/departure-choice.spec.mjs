@@ -11,8 +11,7 @@ const languages=['nl','en','de','fr','es','it','pt','ru','eo','pl','ar','zh'];
 const links=['#rio-unified-reception','#rio-unified-offline',
   '.taskbar a[href="https://palaco.mauritsvang1.chatgpt.site/"]',
   '.taskbar a[href="https://citadel.mauritsvang1.chatgpt.site/"]',
-  '.taskbar a[href="https://palaco.mauritsvang1.chatgpt.site/account.html"]',
-  '#hara-dashboard-link'];
+  '.taskbar a[href="https://palaco.mauritsvang1.chatgpt.site/account.html"]'];
 let fixture,surface;
 
 test.beforeEach(async({},info)=>{
@@ -36,7 +35,9 @@ async function checkedContext(browser,options={}){
     url:request.url(),method:request.method(),headers:await request.allHeaders(),
   }));
   // Public destinations are represented by inert local responses. No test
-  // contacts PALACO, Citadel, an account service, or a real provider.
+  // contacts PALACO, Citadel, an account service, or a real provider. The
+  // loopback HARAM destination is also inert here: navigation isolation is
+  // tested without starting or probing the household runtime.
   await context.route('**/*',route=>{
     const url=new URL(route.request().url());
     if(!/^https?:$/.test(url.protocol)||url.origin===fixture.origin)return route.continue();
@@ -341,6 +342,82 @@ nativeGestureTest('same-document, native new-tab, download and modified navigati
 });
 });
 
+test('HARA icon and information link open isolated tabs without leaving or transferring temporary RIO work',async({browser})=>{
+  const checked=await checkedContext(browser),page=await checked.context.newPage();
+  try{
+    await page.goto(fixture.origin+'/');
+    const memory='TST-private-Engine-memory-never-transferred';
+    const memoryDraft='TST-private-memory-draft-never-transferred';
+    const question='TST-private-Engine-question-never-transferred';
+    const message='TST-private-chat-message-never-transferred';
+    const draft='TST-private-chat-draft-never-transferred';
+    await page.locator('#memory-input').fill(memory);
+    await page.locator('#memory-consent').check();
+    await page.locator('#memory-form button[type="submit"]').click();
+    await expect(page.locator('#dossier-output')).toHaveAttribute('data-state','READY');
+    await page.locator('#memory-input').fill(memoryDraft);
+    // Saving a memory intentionally clears that form's one-use consent.
+    // Give the next draft its own consent before checking navigation keeps it.
+    await page.locator('#memory-consent').check();
+    await page.locator('#question-input').fill(question);
+    await openChat(page,message);
+    await page.locator('#chat-preview-send').click();
+    await expect(page.locator('#chat-preview-messages .is-visitor')).toHaveCount(1);
+    await page.locator('#chat-preview-input').fill(draft);
+    const before=await storage(page),original=page.url();
+    const conversation=await page.locator('#chat-preview-messages').innerText();
+    const dossier=await page.locator('#dossier-output').innerText();
+    expect(checked.requests.filter(request=>new URL(request.url).origin==='http://127.0.0.1:4193')).toEqual([]);
+    for(const [selector,expected] of [
+      ['#hara-dashboard-link','http://127.0.0.1:4193/'],
+      ['#hara-info-link',fixture.origin+'/hara/'],
+    ]){
+      const link=page.locator(selector);
+      await expect(link).toHaveAttribute('target','_blank');
+      expect((await link.getAttribute('rel')).split(/\s+/).sort()).toEqual(['noopener','noreferrer']);
+      const opened=checked.context.waitForEvent('page');
+      await activate(page,link);
+      const popup=await opened;
+      await popup.waitForLoadState('load');
+      await expect(popup).toHaveURL(expected);
+      expect(await popup.evaluate(()=>({opener:window.opener===null,referrer:document.referrer})))
+        .toEqual({opener:true,referrer:''});
+      for(const privateText of [memory,memoryDraft,question,message,draft]){
+        expect(await popup.locator('body').innerText()).not.toContain(privateText);
+        expect(JSON.stringify(await storage(popup))).not.toContain(privateText);
+        expect(JSON.stringify(checked.requests)).not.toContain(privateText);
+      }
+      if(selector==='#hara-dashboard-link'){
+        // This is an intercepted navigation response, never a live runtime or
+        // a provider-health check. The source only opens the explicit URL.
+        await expect(popup.getByRole('heading',{name:'Local test response',exact:true})).toBeVisible();
+      }else{
+        await expect(popup.locator('html')).toHaveAttribute('lang','nl');
+        await expect(popup.locator('#matriarch-review')).toBeVisible();
+      }
+      const navigation=checked.requests.filter(request=>request.url===expected).at(-1);
+      expect(navigation).toBeTruthy();
+      expect(navigation.headers.referer).toBeUndefined();
+      expect(navigation.headers.cookie).toBeUndefined();
+      expect(navigation.headers.authorization).toBeUndefined();
+      await popup.close();
+      await page.bringToFront();
+      await expect(page.locator('#rio-departure-dialog')).not.toBeVisible();
+      await expect(page.locator('#chat-preview-panel')).toBeVisible();
+      await expect(page.locator('#chat-preview-input')).toHaveValue(draft);
+      expect(await page.locator('#chat-preview-messages').innerText()).toBe(conversation);
+      await expect(page.locator('#memory-input')).toHaveValue(memoryDraft);
+      await expect(page.locator('#question-input')).toHaveValue(question);
+      await expect(page.locator('#memory-consent')).toBeChecked();
+      await expect(page.locator('#dossier-output')).toHaveAttribute('data-state','READY');
+      expect(await page.locator('#dossier-output').innerText()).toBe(dossier);
+      expect(page.url()).toBe(original);
+      expect(await storage(page)).toEqual(before);
+    }
+    await checked.verify();
+  }finally{await checked.context.close();}
+});
+
 test('each protected route opens a native isolated tab containing only its public destination and language',async({browser})=>{
   const checked=await checkedContext(browser),page=await checked.context.newPage();
   try{
@@ -360,7 +437,6 @@ test('each protected route opens a native isolated tab containing only its publi
         [links[2]]:'PALACO Hoofdkantoor',
         [links[3]]:'Citadel Consommateur',
         [links[4]]:'5CRIPTIE ID Compte personnel',
-        '#hara-dashboard-link':'HARA ELIXER HARAM Aperçu du tableau de bord · néerlandais',
       };
       await expect(page.locator('#rio-departure-name')).toHaveText(
         destinationNames[selector]??(await trigger.textContent()).trim());
@@ -380,12 +456,6 @@ test('each protected route opens a native isolated tab containing only its publi
       expect(JSON.stringify(await storage(popup))).not.toContain(memory);
       if(selector==='#rio-unified-offline')await expect(popup.locator('#language')).toHaveValue('fr');
       if(selector==='#rio-unified-reception')await expect(popup.locator('#nova-language')).toHaveValue('fr');
-      if(selector==='#hara-dashboard-link'){
-        await expect(popup.locator('html')).toHaveAttribute('lang','nl');
-        await expect(popup.locator('#matriarch-review')).toBeVisible();
-        expect(new URL(popup.url()).search).toBe('');
-        expect(new URL(popup.url()).hash).toBe('');
-      }
       const navigation=checked.requests.filter(request=>request.url===expected.split('#')[0]).at(-1);
       expect(navigation).toBeTruthy();
       expect(navigation.headers.referer).toBeUndefined();

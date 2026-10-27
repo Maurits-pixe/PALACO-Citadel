@@ -1763,57 +1763,125 @@ const releasePanelTranslations = {
   }
 };
 const taskbarTranslations = {
-  nl: { taskbarLabel: 'PALACO hoofdnavigatie', unavailable: 'Niet beschikbaar', here: 'Hier', consumer: 'Consument', personalAccount: 'Persoonlijk account', haraPreview: 'Dashboardpreview · Nederlands', navigationBoundary: 'Kies een plek. HARA opent een alleen-lezen dashboardpreview in het Nederlands. De HARA-dienst en MUNDO zijn nog niet beschikbaar. Tijdelijke inhoud blijft op deze geopende pagina. Sluiten of herladen kan haar wissen. De accountlink meldt je niet aan en bevestigt niet wie je bent.' },
-  en: { taskbarLabel: 'PALACO main navigation', unavailable: 'Unavailable', here: 'Here', consumer: 'Consumer', personalAccount: 'Personal account', haraPreview: 'Dashboard preview · Dutch', navigationBoundary: 'Choose a place. HARA opens a read-only dashboard preview in Dutch. The HARA service and MUNDO are not available yet. Temporary content stays on this open page. Closing or reloading may clear it. The account link does not sign you in or verify your identity.' },
-  de: { taskbarLabel: 'PALACO Hauptnavigation', unavailable: 'Nicht verfügbar', here: 'Hier', consumer: 'Verbraucher', personalAccount: 'Persönliches Konto', haraPreview: 'Dashboard-Vorschau · Niederländisch', navigationBoundary: 'Wähle einen Ort. HARA öffnet eine schreibgeschützte Dashboard-Vorschau auf Niederländisch. Der HARA-Dienst und MUNDO sind noch nicht verfügbar. Vorübergehende Inhalte bleiben auf dieser geöffneten Seite. Schließen oder Neuladen kann sie löschen. Der Kontolink meldet dich nicht an und bestätigt nicht deine Identität.' },
-  fr: { taskbarLabel: 'Navigation principale PALACO', unavailable: 'Indisponible', here: 'Ici', consumer: 'Consommateur', personalAccount: 'Compte personnel', haraPreview: 'Aperçu du tableau de bord · néerlandais', navigationBoundary: 'Choisissez un lieu. HARA ouvre un aperçu du tableau de bord en lecture seule, en néerlandais. Le service HARA et MUNDO ne sont pas encore disponibles. Le contenu temporaire reste sur cette page ouverte. Fermer ou recharger peut l’effacer. Le lien du compte ne vous connecte pas et ne vérifie pas votre identité.' },
-  es: { taskbarLabel: 'Navegación principal PALACO', unavailable: 'No disponible', here: 'Aquí', consumer: 'Consumidor', personalAccount: 'Cuenta personal', haraPreview: 'Vista previa del panel · neerlandés', navigationBoundary: 'Elige un lugar. HARA abre una vista previa del panel de solo lectura, en neerlandés. El servicio HARA y MUNDO aún no están disponibles. El contenido temporal permanece en esta página abierta. Cerrar o recargar puede borrarlo. El enlace de cuenta no inicia sesión ni verifica tu identidad.' },
-  ar: { taskbarLabel: 'التنقل الرئيسي في PALACO', unavailable: 'غير متاح', here: 'هنا', consumer: 'مستهلك', personalAccount: 'حساب شخصي', haraPreview: 'معاينة لوحة المعلومات · الهولندية', navigationBoundary: 'اختر مكانًا. يفتح HARA معاينة للوحة المعلومات باللغة الهولندية، للقراءة فقط. خدمة HARA وMUNDO غير متاحين بعد. يبقى المحتوى المؤقت في هذه الصفحة المفتوحة. قد يؤدي الإغلاق أو إعادة التحميل إلى مسحه. رابط الحساب لا يسجل دخولك ولا يتحقق من هويتك.' },
-  zh: { taskbarLabel: 'PALACO 主导航', unavailable: '暂不可用', here: '当前页面', consumer: '消费者', personalAccount: '个人账户', haraPreview: '仪表板预览 · 荷兰语', navigationBoundary: '选择一个地方。HARA 打开荷兰语的只读仪表板预览。HARA 服务和 MUNDO 暂不可用。临时内容保留在此打开的页面中。关闭或重新加载可能会清除它。账户链接不会登录或验证你的身份。' },
-  pt: {
+  "nl": {
+    "taskbarLabel": "PALACO hoofdnavigatie",
+    "unavailable": "Niet beschikbaar",
+    "here": "Hier",
+    "consumer": "Consument",
+    "personalAccount": "Persoonlijk account",
+    "haraPreview": "HARAM · deze computer",
+    "navigationBoundary": "Het HARA-icoon opent HARAM in een nieuw tabblad op deze computer. De lokale runtime moet draaien; de interface is Nederlands. Je RIO-inhoud gaat niet mee. MUNDO is niet beschikbaar. Sluiten of herladen kan tijdelijke inhoud wissen. De accountlink meldt je niet aan en bevestigt niet wie je bent.",
+    "haraInfo": "Over HARA · Nederlands"
+  },
+  "en": {
+    "taskbarLabel": "PALACO main navigation",
+    "unavailable": "Unavailable",
+    "here": "Here",
+    "consumer": "Consumer",
+    "personalAccount": "Personal account",
+    "haraPreview": "HARAM · this computer",
+    "navigationBoundary": "The HARA icon opens HARAM in a new tab on this computer. The local runtime must be running; its interface is Dutch. Your RIO content is not transferred. MUNDO is unavailable. Closing or reloading may clear temporary content. The account link does not sign you in or verify your identity.",
+    "haraInfo": "About HARA · Dutch"
+  },
+  "de": {
+    "taskbarLabel": "PALACO Hauptnavigation",
+    "unavailable": "Nicht verfügbar",
+    "here": "Hier",
+    "consumer": "Verbraucher",
+    "personalAccount": "Persönliches Konto",
+    "haraPreview": "HARAM · dieser Computer",
+    "navigationBoundary": "Das HARA-Symbol öffnet HARAM in einem neuen Tab auf diesem Computer. Die lokale Laufzeit muss laufen; die Oberfläche ist auf Niederländisch. Deine RIO-Inhalte werden nicht übertragen. MUNDO ist nicht verfügbar. Schließen oder Neuladen kann vorübergehende Inhalte löschen. Der Kontolink meldet dich nicht an und bestätigt nicht deine Identität.",
+    "haraInfo": "Über HARA · Niederländisch"
+  },
+  "fr": {
+    "taskbarLabel": "Navigation principale PALACO",
+    "unavailable": "Indisponible",
+    "here": "Ici",
+    "consumer": "Consommateur",
+    "personalAccount": "Compte personnel",
+    "haraPreview": "HARAM · cet ordinateur",
+    "navigationBoundary": "L’icône HARA ouvre HARAM dans un nouvel onglet sur cet ordinateur. Le moteur local doit fonctionner ; son interface est en néerlandais. Votre contenu RIO n’est pas transféré. MUNDO est indisponible. Fermer ou recharger peut effacer le contenu temporaire. Le lien du compte ne vous connecte pas et ne vérifie pas votre identité.",
+    "haraInfo": "À propos de HARA · néerlandais"
+  },
+  "es": {
+    "taskbarLabel": "Navegación principal PALACO",
+    "unavailable": "No disponible",
+    "here": "Aquí",
+    "consumer": "Consumidor",
+    "personalAccount": "Cuenta personal",
+    "haraPreview": "HARAM · este ordenador",
+    "navigationBoundary": "El icono HARA abre HARAM en una pestaña nueva en este ordenador. El motor local debe estar en ejecución; su interfaz está en neerlandés. Tu contenido de RIO no se transfiere. MUNDO no está disponible. Cerrar o recargar puede borrar el contenido temporal. El enlace de cuenta no inicia sesión ni verifica tu identidad.",
+    "haraInfo": "Acerca de HARA · neerlandés"
+  },
+  "ar": {
+    "taskbarLabel": "التنقل الرئيسي في PALACO",
+    "unavailable": "غير متاح",
+    "here": "هنا",
+    "consumer": "مستهلك",
+    "personalAccount": "حساب شخصي",
+    "haraPreview": "HARAM · هذا الكمبيوتر",
+    "navigationBoundary": "تفتح أيقونة HARA تطبيق HARAM في علامة تبويب جديدة على هذا الكمبيوتر. يجب تشغيل البيئة المحلية؛ الواجهة باللغة الهولندية. لا يتم نقل محتوى RIO. خدمة MUNDO غير متاحة. قد يؤدي الإغلاق أو إعادة التحميل إلى مسح المحتوى المؤقت. رابط الحساب لا يسجل دخولك ولا يتحقق من هويتك.",
+    "haraInfo": "عن HARA · بالهولندية"
+  },
+  "zh": {
+    "taskbarLabel": "PALACO 主导航",
+    "unavailable": "暂不可用",
+    "here": "当前页面",
+    "consumer": "消费者",
+    "personalAccount": "个人账户",
+    "haraPreview": "HARAM · 此电脑",
+    "navigationBoundary": "HARA 图标在此电脑的新标签页中打开 HARAM。本地运行环境必须已启动；界面为荷兰语。RIO 内容不会随之传输。MUNDO 暂不可用。关闭或重新加载可能清除临时内容。账户链接不会登录或验证你的身份。",
+    "haraInfo": "关于 HARA · 荷兰语"
+  },
+  "pt": {
     "taskbarLabel": "Navegação principal da PALACO",
     "unavailable": "Indisponível",
     "here": "Aqui",
     "consumer": "Consumidor",
     "personalAccount": "Conta pessoal",
-    "haraPreview": "Prévia do painel · neerlandês",
-    "navigationBoundary": "Escolha um lugar. HARA abre uma prévia do painel só de leitura, em neerlandês. O serviço HARA e MUNDO ainda não estão disponíveis. O conteúdo temporário fica nesta página aberta. Fechar ou recarregar pode apagá-lo. A ligação para a conta não inicia sessão nem confirma a sua identidade."
+    "haraPreview": "HARAM · este computador",
+    "navigationBoundary": "O ícone HARA abre HARAM num novo separador neste computador. O motor local tem de estar em execução; a interface é em neerlandês. O conteúdo do RIO não é transferido. MUNDO está indisponível. Fechar ou recarregar pode apagar o conteúdo temporário. A ligação para a conta não inicia sessão nem confirma a sua identidade.",
+    "haraInfo": "Sobre HARA · neerlandês"
   },
-  ru: {
+  "ru": {
     "taskbarLabel": "Основная навигация PALACO",
     "unavailable": "Недоступно",
     "here": "Здесь",
     "consumer": "Потребитель",
     "personalAccount": "Личный аккаунт",
-    "haraPreview": "Предпросмотр панели · нидерландский",
-    "navigationBoundary": "Выберите место. HARA открывает предпросмотр панели на нидерландском языке, только для чтения. Сервис HARA и MUNDO пока недоступны. Временное содержимое остаётся на этой открытой странице. Закрытие или перезагрузка может его удалить. Ссылка на аккаунт не выполняет вход и не подтверждает вашу идентичность."
+    "haraPreview": "HARAM · этот компьютер",
+    "navigationBoundary": "Значок HARA открывает HARAM в новой вкладке на этом компьютере. Локальная среда выполнения должна быть запущена; интерфейс на нидерландском языке. Содержимое RIO не передаётся. MUNDO недоступно. Закрытие или перезагрузка может удалить временное содержимое. Ссылка на аккаунт не выполняет вход и не подтверждает вашу личность.",
+    "haraInfo": "О HARA · нидерландский"
   },
-  eo: {
+  "eo": {
     "taskbarLabel": "Ĉefa navigado de PALACO",
     "unavailable": "Nedisponebla",
     "here": "Ĉi tie",
     "consumer": "Konsumanto",
     "personalAccount": "Persona konto",
-    "haraPreview": "Panela antaŭrigardo · nederlanda",
-    "navigationBoundary": "Elektu lokon. HARA malfermas nurlegeblan panelan antaŭrigardon en la nederlanda. La servo HARA kaj MUNDO ankoraŭ ne estas haveblaj. Provizora enhavo restas sur ĉi tiu malfermita paĝo. Fermo aŭ reŝargo povas forviŝi ĝin. La kontoligilo ne ensalutigas vin kaj ne konfirmas vian identecon."
+    "haraPreview": "HARAM · ĉi tiu komputilo",
+    "navigationBoundary": "La HARA-piktogramo malfermas HARAM en nova langeto sur ĉi tiu komputilo. La loka rultempa medio devas funkcii; la interfaco estas en la nederlanda. Via RIO-enhavo ne estas transdonata. MUNDO ne estas havebla. Fermo aŭ reŝargo povas forviŝi provizoran enhavon. La kontoligilo ne ensalutigas vin kaj ne konfirmas vian identecon.",
+    "haraInfo": "Pri HARA · nederlanda"
   },
-  pl: {
+  "pl": {
     "taskbarLabel": "Nawigacja główna PALACO",
     "unavailable": "Niedostępne",
     "here": "Tutaj",
     "consumer": "Konsument",
     "personalAccount": "Konto osobiste",
-    "haraPreview": "Podgląd panelu · niderlandzki",
-    "navigationBoundary": "Wybierz miejsce. HARA otwiera podgląd panelu tylko do odczytu, w języku niderlandzkim. Usługa HARA i MUNDO nie są jeszcze dostępne. Tymczasowa treść pozostaje na tej otwartej stronie. Zamknięcie lub ponowne załadowanie może ją usunąć. Link do konta nie loguje cię ani nie potwierdza twojej tożsamości."
+    "haraPreview": "HARAM · ten komputer",
+    "navigationBoundary": "Ikona HARA otwiera HARAM w nowej karcie na tym komputerze. Lokalne środowisko wykonawcze musi działać; interfejs jest w języku niderlandzkim. Treść RIO nie jest przenoszona. MUNDO jest niedostępne. Zamknięcie lub ponowne załadowanie może usunąć tymczasową treść. Link do konta nie loguje cię ani nie potwierdza twojej tożsamości.",
+    "haraInfo": "O HARA · niderlandzki"
   },
-  it: {
+  "it": {
     "taskbarLabel": "Navigazione principale PALACO",
     "unavailable": "Non disponibile",
     "here": "Qui",
     "consumer": "Consumatore",
     "personalAccount": "Account personale",
-    "haraPreview": "Anteprima dashboard · neerlandese",
-    "navigationBoundary": "Scegli un luogo. HARA apre un’anteprima della dashboard in sola lettura, in neerlandese. Il servizio HARA e MUNDO non sono ancora disponibili. I contenuti temporanei restano in questa pagina aperta. Chiuderla o ricaricarla può cancellarli. Il link dell’account non effettua l’accesso e non verifica la tua identità."
+    "haraPreview": "HARAM · questo computer",
+    "navigationBoundary": "L’icona HARA apre HARAM in una nuova scheda su questo computer. Il motore locale deve essere in esecuzione; l’interfaccia è in neerlandese. I contenuti di RIO non vengono trasferiti. MUNDO non è disponibile. Chiudere o ricaricare può cancellare i contenuti temporanei. Il link dell’account non effettua l’accesso e non verifica la tua identità.",
+    "haraInfo": "Informazioni su HARA · neerlandese"
   }
 };
 const shareTranslations = {
