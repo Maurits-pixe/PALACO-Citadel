@@ -2,6 +2,8 @@
 
 This directory is a local implementation profile that turns the active RIO specifications into a small, testable contract. It does not create PALACO canon, grant constitutional authority, establish consent, or provide authorization.
 
+For a concise continuity summary and maintainer boundaries, see the [RIO Maintenance Handoff](MAINTENANCE-HANDOFF.md).
+
 ## Canonical Binding
 
 The profile is derived from:
