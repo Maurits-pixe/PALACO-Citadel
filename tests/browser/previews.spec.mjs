@@ -9,7 +9,7 @@ const surfaces = [
   { path: '/citadel/bastion/', title: 'Bastion · Command center demo', heading: 'BASTION' },
   { path: '/citadel/bastion-app/', title: 'Citadel Bastion · Prototype', heading: 'BASTION' },
   { path: '/citadel/aegis/', title: '5CRIPTIE · Integrity simulation', heading: '5CRIPTIE' },
-  { path: '/citadel/', title: 'PALACO Hoofdkantoor · Launcher', heading: 'PALACO HOOFDKANTOOR' }
+  { path: '/citadel/', title: 'PALACO NEO · Launcher', heading: 'PALACO NEO' }
 ];
 
 async function waitForWorker(page) {

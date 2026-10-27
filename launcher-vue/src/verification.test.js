@@ -58,6 +58,8 @@ test('confirms only expected schema-valid metadata from the approved origin', as
   assert.equal(outcome.expectedAppId, 'aether');
   assert.equal(outcome.receivedAppId, 'aether');
   assert.equal(outcome.checkedAt, 1000);
+  assert.equal(typeof outcome.durationMs, 'number');
+  assert.ok(outcome.durationMs >= 0);
   assert.equal(outcome.expiresAt, 1000 + VERIFICATION_TTL_MS);
   assert.equal(requestedUrl, `${origin}${METADATA_PATH}`);
   assert.equal(options.method, 'GET');
@@ -65,6 +67,16 @@ test('confirms only expected schema-valid metadata from the approved origin', as
   assert.equal(options.credentials, 'omit');
   assert.equal(options.redirect, 'error');
   assert.equal(options.cache, 'no-store');
+});
+
+test('reports browser-measured metadata request and body-read duration', async () => {
+  let tick = 0;
+  const outcome = await verifyModuleMetadata(url, 'aether', origin, {
+    fetchImpl: async () => jsonResponse(goodMetadata),
+    monotonicNow: () => (tick++ === 0 ? 100 : 112.4)
+  });
+
+  assert.equal(outcome.durationMs, 12);
 });
 
 test('uses the canonical 5criptie appId independently from its launcher key', async () => {

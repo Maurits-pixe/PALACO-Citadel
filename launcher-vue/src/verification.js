@@ -104,15 +104,21 @@ async function readMetadata(response) {
 export async function verifyModuleMetadata(value, expectedAppId, approvedOrigin, {
   fetchImpl = globalThis.fetch,
   timeoutMs = VERIFICATION_TIMEOUT_MS,
-  now = Date.now
+  now = Date.now,
+  monotonicNow = () => performance.now()
 } = {}) {
   const checkedAt = now();
+  const startedAt = monotonicNow();
+  const complete = outcome => ({
+    ...outcome,
+    durationMs: Math.max(0, Math.round(monotonicNow() - startedAt))
+  });
   const url = parseHttpsUrl(value);
   const origin = url?.origin || null;
 
-  if (!url) return result('verification-failed', 'invalid_url', origin, expectedAppId, checkedAt);
+  if (!url) return complete(result('verification-failed', 'invalid_url', origin, expectedAppId, checkedAt));
   if (!isOriginApproved(url.href, approvedOrigin)) {
-    return result('destination-unapproved', 'destination_unapproved', origin, expectedAppId, checkedAt);
+    return complete(result('destination-unapproved', 'destination_unapproved', origin, expectedAppId, checkedAt));
   }
 
   const controller = new AbortController();
@@ -173,8 +179,8 @@ export async function verifyModuleMetadata(value, expectedAppId, approvedOrigin,
 
   try {
     const outcome = await Promise.race([request, timeout]);
-    if (timedOut) return result('check-unavailable', 'timeout', origin, expectedAppId, checkedAt);
-    return outcome;
+    if (timedOut) return complete(result('check-unavailable', 'timeout', origin, expectedAppId, checkedAt));
+    return complete(outcome);
   } finally {
     clearTimeout(timeoutId);
   }

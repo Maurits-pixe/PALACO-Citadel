@@ -38,7 +38,7 @@ The PALACO 2040 Compass section now includes the following dashboard layers in C
 - [AETHER](citadel/iii6v9/) — local AES-GCM-256 text encryption using PBKDF2-SHA-256; not an audited vault or production security claim
 - [Bastion static preview](citadel/bastion/) — fictional command-center simulation; local-only messages, no secure comms or live roster
 - [5CRIPTIE](citadel/aegis/) — synthetic code-integrity dashboard; no source scan, live monitoring, detection, or defensive actions
-- [PALACO Hoofdkantoor](citadel/) — temporary launcher with administrator-configured HTTPS links and user-reported verification status
+- [PALACO NEO](citadel/) — temporary Vue launcher with administrator-configured HTTPS links and bounded metadata checks
 - [React launcher](citadel/react/) — separate React entry point for the same previews; source is in `src/`
 - [Bastion team prototype](citadel/bastion-app/) — Vue client for the separately hosted Node/PostgreSQL prototype
 - Evolution Dashboard — canon/system changes with “what changes for me?” summary
@@ -71,7 +71,7 @@ authentication, authorization, or D-013 compliance.
 does not inspect source code or network traffic, monitor system health, detect threats, or
 block activity, and must not be used for operational security decisions.
 
-The PALACO Hoofdkantoor launcher is a Vue app. It only runs metadata checks for exact HTTPS
+The PALACO NEO launcher is a Vue app. It only runs metadata checks for exact HTTPS
 origins explicitly configured in `VITE_AETHER_ORIGIN`, `VITE_BASTION_ORIGIN`, and
 `VITE_SCRIPTIE_ORIGIN`. These values must be origins (scheme, host, and optional port only), not
 paths. They default to empty; no app destinations are assumed. For a Pages build, set the matching
@@ -92,6 +92,11 @@ seconds. Editing or saving a different URL immediately invalidates it; old in-fl
 ignored. Opening the app is enabled only while the matching metadata result is current. Evidence
 is never restored on reload or in another tab; the destination URL may remain in this tab's session
 storage, but metadata must be checked again.
+
+The displayed request duration measures only the browser's one-time metadata request and response
+body read. It is not module latency, a health check, heartbeat, or uptime measurement. See
+[`docs/launcher-v2-scope.md`](docs/launcher-v2-scope.md) for the recorded NEO scope and the status
+of requested integrations.
 
 The endpoint must send an `Access-Control-Allow-Origin` permitting the launcher's exact origin.
 For local development that is `https://localhost:5173`; the deployed launcher needs its actual

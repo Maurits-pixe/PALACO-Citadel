@@ -13,10 +13,10 @@ import {
 
 const translations = {
   en: {
-    title: 'PALACO Hoofdkantoor · Launcher',
+    title: 'PALACO NEO · Launcher',
     homeLink: '← PALACO home',
-    eyebrow: 'PALACO HOOFDKANTOOR · MODULE ACCESS',
-    launcherWord: 'HOOFDKANTOOR',
+    eyebrow: 'PALACO NEO · MODULE ACCESS',
+    launcherWord: 'NEO',
     languageLabel: 'Language',
     boundaryTitle: 'TEMPORARY LAUNCHER · METADATA CHECKS ARE LIMITED',
     boundaryBody: 'Metadata checks confirm only that an approved HTTPS origin returned the expected appId. The appId and operational status are self-declared; this does not verify ownership, authentication, authorization, or security.',
@@ -44,7 +44,7 @@ const translations = {
     invalidAddress: 'Invalid address. Enter only an HTTPS origin, without a path, query, fragment, or user credentials.',
     storageError: 'Could not save this session setting. Check browser storage permissions.',
     checkMetadata: 'Check module metadata',
-    evidenceDetails: '{method} {endpoint} · Checked {checkedAt}; expires {expiresAt}. Expected appId: {expectedAppId}; received: {receivedAppId}.',
+    evidenceDetails: '{method} {endpoint} · Checked {checkedAt}; expires {expiresAt}. Browser metadata request + body read: {durationMs} ms. Expected appId: {expectedAppId}; received: {receivedAppId}.',
     reportedState: 'Self-reported status: {status}.',
     reason_wrong_identity: 'The endpoint did not report the expected appId.',
     reason_invalid_response: 'The endpoint response did not match the metadata contract.',
@@ -61,10 +61,10 @@ const translations = {
     footer: 'Temporary launcher — links under verification. A configured address is not proof of a working or secure integration.'
   },
   nl: {
-    title: 'PALACO Hoofdkantoor · Launcher',
+    title: 'PALACO NEO · Launcher',
     homeLink: '← PALACO-startpagina',
-    eyebrow: 'PALACO HOOFDKANTOOR · MODULETOEGANG',
-    launcherWord: 'HOOFDKANTOOR',
+    eyebrow: 'PALACO NEO · MODULETOEGANG',
+    launcherWord: 'NEO',
     languageLabel: 'Taal',
     boundaryTitle: 'TIJDELIJKE LAUNCHER · METADATA-CONTROLE IS BEPERKT',
     boundaryBody: 'Een metadata-controle bevestigt alleen dat een goedgekeurde HTTPS-origin de verwachte appId teruggaf. appId en operationele status zijn zelfgerapporteerd; eigenaarschap, authenticatie, autorisatie en beveiliging worden niet gecontroleerd.',
@@ -92,7 +92,7 @@ const translations = {
     invalidAddress: 'Ongeldig adres. Vul alleen een HTTPS-origin in, zonder pad, query, fragment of gebruikersgegevens.',
     storageError: 'Deze instelling kon niet in de sessie worden opgeslagen. Controleer de browseropslag.',
     checkMetadata: 'Modulemetadata controleren',
-    evidenceDetails: '{method} {endpoint} · Gecontroleerd op {checkedAt}; verloopt {expiresAt}. Verwachte appId: {expectedAppId}; ontvangen: {receivedAppId}.',
+    evidenceDetails: '{method} {endpoint} · Gecontroleerd op {checkedAt}; verloopt {expiresAt}. Browserrequest + antwoordlezen: {durationMs} ms. Verwachte appId: {expectedAppId}; ontvangen: {receivedAppId}.',
     reportedState: 'Zelfgerapporteerde status: {status}.',
     reason_wrong_identity: 'Het endpoint gaf niet de verwachte appId terug.',
     reason_invalid_response: 'Het antwoord voldoet niet aan het metadata-contract.',
@@ -109,10 +109,10 @@ const translations = {
     footer: 'Tijdelijke launcher — koppelingen in verificatie. Een ingesteld adres bewijst geen werkende of veilige integratie.'
   },
   eo: {
-    title: 'PALACO Hoofdkantoor · Lanĉilo',
+    title: 'PALACO NEO · Lanĉilo',
     homeLink: '← PALACO-hejmpaĝo',
-    eyebrow: 'PALACO HOOFDKANTOOR · MODULA ALIRO',
-    launcherWord: 'HOOFDKANTOOR',
+    eyebrow: 'PALACO NEO · MODULA ALIRO',
+    launcherWord: 'NEO',
     languageLabel: 'Lingvo',
     boundaryTitle: 'PROVIZORA LANĈILO · METADATUMA KONTROLO ESTAS LIMIGITA',
     boundaryBody: 'Metadatuma kontrolo nur konfirmas, ke aprobita HTTPS-origino liveris la atenditan appId. appId kaj funkcia stato estas memraportitaj; posedo, aŭtentigo, rajtigo kaj sekureco ne estas kontrolitaj.',
@@ -140,7 +140,7 @@ const translations = {
     invalidAddress: 'Nevalida adreso. Enigu nur HTTPS-originon, sen vojo, query, fragmento aŭ uzantaj datumoj.',
     storageError: 'Ne eblis konservi la sesian agordon. Kontrolu la retumilan konservadon.',
     checkMetadata: 'Kontroli modulajn metadatumojn',
-    evidenceDetails: '{method} {endpoint} · Kontrolita {checkedAt}; eksvalidiĝas {expiresAt}. Atendita appId: {expectedAppId}; ricevita: {receivedAppId}.',
+    evidenceDetails: '{method} {endpoint} · Kontrolita {checkedAt}; eksvalidiĝas {expiresAt}. Retumila metadatuma peto + legado: {durationMs} ms. Atendita appId: {expectedAppId}; ricevita: {receivedAppId}.',
     reportedState: 'Memraportita stato: {status}.',
     reason_wrong_identity: 'La endpoint ne raportis la atenditan appId.',
     reason_invalid_response: 'La respondo ne konformas al la metadatuma kontrakto.',
@@ -308,7 +308,8 @@ function evidenceDetails(item) {
     .replace('{expectedAppId}', item.expectedAppId || '—')
     .replace('{receivedAppId}', item.receivedAppId || '—')
     .replace('{method}', item.method || '—')
-    .replace('{endpoint}', item.endpoint || '—');
+    .replace('{endpoint}', item.endpoint || '—')
+    .replace('{durationMs}', String(item.durationMs ?? '—'));
 }
 
 function destination(module) {

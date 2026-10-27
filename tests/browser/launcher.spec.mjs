@@ -7,8 +7,8 @@ test('Vue launcher rejects unapproved HTTPS destinations without claiming metada
   });
   await page.goto('/citadel/');
 
-  await expect(page).toHaveTitle('PALACO Hoofdkantoor · Launcher');
-  await expect(page.locator('h1')).toHaveText('PALACO HOOFDKANTOOR');
+  await expect(page).toHaveTitle('PALACO NEO · Launcher');
+  await expect(page.locator('h1')).toHaveText('PALACO NEO');
   await expect(page.locator('#boundary-title')).toHaveText('TEMPORARY LAUNCHER · METADATA CHECKS ARE LIMITED');
   await expect(page.locator('.module-card')).toHaveCount(3);
   await expect(page.locator('.module-name')).toHaveText(['AETHER', 'Bastion', '5CRIPTIE']);
