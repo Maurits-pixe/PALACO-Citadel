@@ -20,12 +20,23 @@ De SDK is gekozen omdat deze host de opslag, concrete hulpmiddelen en toestemmin
 ## Wat werkt
 
 - Een echt AI-transport en tool-lus, zonder nagebootste antwoorden in de normale runtime.
+- Zelf lokaal taken, boodschappen en notities invoeren, ook zonder API-sleutel of AI-toestemming. `Zelf iets toevoegen` maakt eerst een voorstel; `Goedkeuren` voert de exacte lokale wijziging uit. Ook afronden, heropenen en vergeten gaan via een aparte kaart.
 - Expliciete toestemming voor berichten/gesprekscontext naar OpenAI. Huishoudcontext heeft een afzonderlijke keuze.
 - Server-owned gesprek en sessie; actor- en huishoudclaims uit een browserbericht worden geweigerd.
 - Huishouden lezen en concrete voorstellen maken voor een taak, boodschap of notitie; een bestaande taak/boodschap afronden of een notitie vergeten.
 - Een aparte bevestigingskaart. De host bindt de exacte actie aan actor, huishouden, sessie, digest, basisrevisie en tien minuten geldigheid. Zonder bevestiging wordt geen huishouditem veranderd.
 - Atomische SQLite-wijziging met uitvoerbewijs. Herhaling van dezelfde bevestiging levert hetzelfde receipt zonder dubbele wijziging.
-- Pauzeren/intrekken breekt het werkelijke providerverzoek af. Een laat antwoord kan niet alsnog worden gepubliceerd. Een gewijzigd toestemmingsbereik of gewist gesprek verwerpt ook eerdere gesprekscontext en open voorstellen.
+- Pauzeren/intrekken breekt het werkelijke providerverzoek af. Een laat antwoord kan niet alsnog worden gepubliceerd. Een gewijzigd toestemmingsbereik of gewist gesprek verwerpt eerdere AI-gesprekscontext en AI-voorstellen. Eigen lokale voorstellen behouden hun afzonderlijke sessiebereik en blijven bruikbaar.
+
+## Zelf bijhouden zonder AI
+
+Open in `Je huishouden` de keuze `Zelf iets toevoegen`. Kies taak, boodschap of notitie en vul titel, eventuele details en datum in. `Voorstel bekijken` toont de exacte inhoud als `Door jou ingevoerd`; pas `Goedkeuren` verandert het overzicht. De knoppen `Afronden`, `Heropenen` en `Vergeten` op bestaande items maken eveneens eerst een voorstel. Een datum is geen automatisch alarm.
+
+Deze lokale handelingen roepen OpenAI niet aan en veranderen geen AI-toestemming. Geef je later toestemming voor huishoudcontext, dan kunnen bevestigde items wel met een volgend AI-gesprek meegaan. Open lokale voorstellen zijn geen modelcontext. Tijdens een lopende AI-beurt in dezelfde browsersessie wacht lokale wijziging op afronding of expliciet pauzeren.
+
+Nieuwe voorstellen en receipts onderscheiden `LOCAL_OPERATOR` van `AGENT_MODEL`; de host kiest die herkomst en bindt haar in digestversie 2. Bestaande records behouden hun oorspronkelijke versie-1-digests en receipts. Hun herkomst is `LEGACY_UNSPECIFIED`, zonder achteraf AI- of menselijke oorsprong toe te kennen. De SQLite-schemauitbreiding gebeurt in één transactie. Er mogen acht lokale voorstellen tegelijk openstaan en maximaal 24 per minuut worden gemaakt; bevestigen en afwijzen gebruiken dezelfde sessie-, CSRF-, revisie- en vervalcontrole.
+
+Open voorstellen horen bij hun huidige browsersessie in het draaiende proces. Een herstart herstelt hun bevestigingsmogelijkheid niet; bevestigde huishoudgegevens en receipts blijven bewaard.
 
 De agent beschikt over `read_household` en `propose_household_change`. Het model krijgt geen uitvoerende schrijf-, shell-, netwerk-, mail-, betaal- of apparaattool. Het bevestigen in de interface voert de begrensde lokale transactie uit. Die hostcontrole is een aparte grens naast de SDK-lus; presentatie of modeltekst kan haar niet overslaan.
 

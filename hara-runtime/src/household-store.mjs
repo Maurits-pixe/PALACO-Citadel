@@ -3,6 +3,7 @@ import { DatabaseSync } from 'node:sqlite';
 
 const PROPOSAL_TTL_MS = 10 * 60 * 1000;
 const KINDS = new Set(['task', 'shopping', 'memory']);
+const HOST_ORIGINS = new Set(['AGENT_MODEL', 'LOCAL_OPERATOR']);
 const ERROR_MESSAGES = Object.freeze({
   INVALID_INPUT: 'De invoer is ongeldig.',
   NOT_ALLOWED: 'Deze handeling is niet toegestaan.',
@@ -72,13 +73,35 @@ function actionInput(value) {
 }
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
-const digestFor = (proposal) => createHash('sha256').update(JSON.stringify({
-  version: 1, proposalId: proposal.id, actorId: proposal.actorId,
-  householdId: proposal.householdId, sessionId: proposal.sessionId,
-  baseRevision: proposal.baseRevision, createdAt: proposal.createdAt,
-  expiresAt: proposal.expiresAt, action: proposal.action,
-})).digest('hex');
-const equalDigest = (left, right) => timingSafeEqual(Buffer.from(left, 'hex'), Buffer.from(right, 'hex'));
+function proposalOrigin(options) {
+  if (options === undefined) return { origin: 'LEGACY_UNSPECIFIED', digestVersion: 1 };
+  record(options, ['origin']);
+  if (!HOST_ORIGINS.has(options.origin)) fail('INVALID_INPUT');
+  return { origin: options.origin, digestVersion: 2 };
+}
+
+function storedOrigin(row) {
+  const origin = row.origin;
+  const digestVersion = row.digest_version;
+  if ((digestVersion === 1 && origin === 'LEGACY_UNSPECIFIED')
+    || (digestVersion === 2 && HOST_ORIGINS.has(origin))) return { origin, digestVersion };
+  fail('NOT_ALLOWED');
+}
+
+function digestFor(proposal) {
+  const payload = {
+    version: proposal.digestVersion, proposalId: proposal.id, actorId: proposal.actorId,
+    householdId: proposal.householdId, sessionId: proposal.sessionId,
+    baseRevision: proposal.baseRevision, createdAt: proposal.createdAt,
+    expiresAt: proposal.expiresAt, action: proposal.action,
+  };
+  // Preserve every v1 byte; origin becomes part of the reviewed digest only in v2.
+  if (proposal.digestVersion === 2) payload.origin = proposal.origin;
+  return createHash('sha256').update(JSON.stringify(payload)).digest('hex');
+}
+const equalDigest = (left, right) => typeof left === 'string' && /^[a-f0-9]{64}$/.test(left)
+  && typeof right === 'string' && /^[a-f0-9]{64}$/.test(right)
+  && timingSafeEqual(Buffer.from(left, 'hex'), Buffer.from(right, 'hex'));
 
 /** Local operator store. Context must come from the trusted host, never from model output. */
 export function createHouseholdStore(options = {}) {
@@ -92,9 +115,8 @@ export function createHouseholdStore(options = {}) {
   try { db = new DatabaseSync(filename); } catch { fail('STORAGE_ERROR'); }
   let closed = false;
   try {
+    db.exec('PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 5000; BEGIN IMMEDIATE;');
     db.exec(`
-      PRAGMA foreign_keys = ON;
-      PRAGMA busy_timeout = 5000;
       CREATE TABLE IF NOT EXISTS households (
         id TEXT PRIMARY KEY, revision INTEGER NOT NULL DEFAULT 0 CHECK(revision >= 0)
       ) STRICT;
@@ -111,13 +133,15 @@ export function createHouseholdStore(options = {}) {
         household_id TEXT NOT NULL REFERENCES households(id), session_id TEXT NOT NULL,
         status TEXT NOT NULL CHECK(status IN ('PENDING','APPROVED','REJECTED','REVOKED')),
         action_json TEXT NOT NULL, digest TEXT NOT NULL, base_revision INTEGER NOT NULL,
-        created_at TEXT NOT NULL, expires_at TEXT NOT NULL
+        created_at TEXT NOT NULL, expires_at TEXT NOT NULL,
+        origin TEXT NOT NULL DEFAULT 'LEGACY_UNSPECIFIED', digest_version INTEGER NOT NULL DEFAULT 1
       ) STRICT;
       CREATE TABLE IF NOT EXISTS receipts (
         id TEXT PRIMARY KEY, proposal_id TEXT NOT NULL UNIQUE REFERENCES proposals(id),
         actor_id TEXT NOT NULL, household_id TEXT NOT NULL REFERENCES households(id),
         session_id TEXT NOT NULL, operation TEXT NOT NULL,
-        revision INTEGER NOT NULL, at TEXT NOT NULL, action_digest TEXT NOT NULL
+        revision INTEGER NOT NULL, at TEXT NOT NULL, action_digest TEXT NOT NULL,
+        origin TEXT NOT NULL DEFAULT 'LEGACY_UNSPECIFIED', digest_version INTEGER NOT NULL DEFAULT 1
       ) STRICT;
       CREATE TABLE IF NOT EXISTS revoked_sessions (
         actor_id TEXT NOT NULL, household_id TEXT NOT NULL REFERENCES households(id),
@@ -130,8 +154,18 @@ export function createHouseholdStore(options = {}) {
         digest TEXT, at TEXT NOT NULL
       ) STRICT;
     `);
+    // Both metadata columns and initial household creation migrate atomically.
+    for (const table of ['proposals', 'receipts']) {
+      const columns = new Set(db.prepare(`PRAGMA table_info(${table})`).all().map((column) => column.name));
+      if (!columns.has('origin')) db.exec(`ALTER TABLE ${table} ADD COLUMN origin TEXT NOT NULL DEFAULT 'LEGACY_UNSPECIFIED'`);
+      if (!columns.has('digest_version')) db.exec(`ALTER TABLE ${table} ADD COLUMN digest_version INTEGER NOT NULL DEFAULT 1`);
+    }
     db.prepare('INSERT OR IGNORE INTO households (id, revision) VALUES (?, 0)').run(householdId);
-  } catch { db.close(); fail('STORAGE_ERROR'); }
+    db.exec('COMMIT');
+  } catch {
+    try { db.exec('ROLLBACK'); } catch { /* Opening or beginning the transaction may have failed. */ }
+    db.close(); fail('STORAGE_ERROR');
+  }
 
   function ensureOpen() { if (closed) fail('STORE_CLOSED'); }
   function now() {
@@ -168,7 +202,7 @@ export function createHouseholdStore(options = {}) {
   }
   function publicProposal(row) {
     return { id: row.id, status: row.status, action: actionInput(JSON.parse(row.action_json)), digest: row.digest,
-      baseRevision: row.base_revision, createdAt: row.created_at, expiresAt: row.expires_at };
+      baseRevision: row.base_revision, createdAt: row.created_at, expiresAt: row.expires_at, ...storedOrigin(row) };
   }
   function boundProposal(context, proposalId) {
     const row = db.prepare('SELECT * FROM proposals WHERE id = ? AND actor_id = ? AND household_id = ? AND session_id = ?')
@@ -177,8 +211,10 @@ export function createHouseholdStore(options = {}) {
     return row;
   }
   function publicReceipt(row) {
-    return { id: row.id, proposalId: row.proposal_id, actorId: row.actor_id, householdId: row.household_id,
+    const metadata = storedOrigin(row);
+    const receipt = { id: row.id, proposalId: row.proposal_id, actorId: row.actor_id, householdId: row.household_id,
       operation: row.operation, revision: row.revision, at: row.at, actionDigest: row.action_digest };
+    return metadata.digestVersion === 2 ? { ...receipt, ...metadata } : receipt;
   }
   function targetFor(action) {
     if (action.operation === 'add') return null;
@@ -202,24 +238,26 @@ export function createHouseholdStore(options = {}) {
         })) };
       });
     },
-    propose(context, action) {
+    propose(context, action, options) {
       const trusted = contextInput(context);
       const normalized = actionInput(action);
+      const metadata = proposalOrigin(options);
       return transaction(() => {
         contextInput(trusted);
         targetFor(normalized);
         const timestamp = now();
         const proposal = { id: randomUUID(), status: 'PENDING', action: normalized, actorId, householdId,
           sessionId: trusted.sessionId, baseRevision: revision(), createdAt: new Date(timestamp).toISOString(),
-          expiresAt: new Date(timestamp + PROPOSAL_TTL_MS).toISOString() };
+          expiresAt: new Date(timestamp + PROPOSAL_TTL_MS).toISOString(), ...metadata };
         proposal.digest = digestFor(proposal);
         db.prepare(`INSERT INTO proposals
-          (id, actor_id, household_id, session_id, status, action_json, digest, base_revision, created_at, expires_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(proposal.id, actorId, householdId, trusted.sessionId,
-          proposal.status, JSON.stringify(normalized), proposal.digest, proposal.baseRevision, proposal.createdAt, proposal.expiresAt);
+          (id, actor_id, household_id, session_id, status, action_json, digest, base_revision, created_at, expires_at, origin, digest_version)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(proposal.id, actorId, householdId, trusted.sessionId,
+          proposal.status, JSON.stringify(normalized), proposal.digest, proposal.baseRevision, proposal.createdAt, proposal.expiresAt,
+          proposal.origin, proposal.digestVersion);
         appendAudit(trusted, 'PROPOSED', proposal.id, proposal.digest, proposal.createdAt);
         return { id: proposal.id, status: proposal.status, action: normalized, digest: proposal.digest,
-          baseRevision: proposal.baseRevision, createdAt: proposal.createdAt, expiresAt: proposal.expiresAt };
+          baseRevision: proposal.baseRevision, createdAt: proposal.createdAt, expiresAt: proposal.expiresAt, ...metadata };
       });
     },
     pending(context) {
@@ -246,6 +284,9 @@ export function createHouseholdStore(options = {}) {
           const existing = db.prepare('SELECT * FROM receipts WHERE proposal_id = ? AND actor_id = ? AND household_id = ? AND session_id = ?')
             .get(row.id, actorId, householdId, trusted.sessionId);
           if (!existing) fail('STORAGE_ERROR');
+          const receiptOrigin = storedOrigin(existing);
+          if (receiptOrigin.origin !== proposal.origin || receiptOrigin.digestVersion !== proposal.digestVersion
+            || !equalDigest(existing.action_digest, proposal.digest)) fail('NOT_ALLOWED');
           return publicReceipt(existing);
         }
         if (row.status !== 'PENDING') fail('NOT_ALLOWED');
@@ -269,11 +310,12 @@ export function createHouseholdStore(options = {}) {
         const nextRevision = row.base_revision + 1;
         db.prepare('UPDATE households SET revision = ? WHERE id = ?').run(nextRevision, householdId);
         const receipt = { id: randomUUID(), proposalId: row.id, actorId, householdId,
-          operation: action.operation, revision: nextRevision, at, actionDigest: row.digest };
+          operation: action.operation, revision: nextRevision, at, actionDigest: row.digest,
+          ...(proposal.digestVersion === 2 ? { origin: proposal.origin, digestVersion: proposal.digestVersion } : {}) };
         db.prepare(`INSERT INTO receipts
-          (id, proposal_id, actor_id, household_id, session_id, operation, revision, at, action_digest)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(receipt.id, row.id, actorId, householdId, trusted.sessionId,
-          receipt.operation, nextRevision, at, row.digest);
+          (id, proposal_id, actor_id, household_id, session_id, operation, revision, at, action_digest, origin, digest_version)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(receipt.id, row.id, actorId, householdId, trusted.sessionId,
+          receipt.operation, nextRevision, at, row.digest, proposal.origin, proposal.digestVersion);
         db.prepare("UPDATE proposals SET status = 'APPROVED' WHERE id = ?").run(row.id);
         appendAudit(trusted, 'APPROVED', row.id, row.digest, at);
         return receipt;

@@ -14,10 +14,13 @@
     sessionTag: byId('session-tag'), householdSummary: byId('household-summary'),
     proposalCount: byId('proposal-count'), proposals: byId('proposals-list'),
     proposalConsentHelp: byId('proposal-consent-help'), reviewConsent: byId('review-consent'),
+    localForm: byId('local-entry-form'), localPanel: byId('local-entry-panel'),
+    localKind: byId('local-kind'), localTitle: byId('local-title'),
+    localDetails: byId('local-details'), localDate: byId('local-date'), localPreview: byId('local-preview'),
     receipts: byId('receipts-list'), starters: [...document.querySelectorAll('[data-prompt]')],
   };
   const labels = { task: 'Taak', shopping: 'Boodschap', memory: 'Geheugen' };
-  const operationLabels = { add: 'Toevoegen', complete: 'Afronden', forget: 'Verwijderen' };
+  const operationLabels = { add: 'Toevoegen', complete: 'Afvinkstatus wijzigen', forget: 'Verwijderen' };
   const errors = {
     PROVIDER_NOT_CONFIGURED: 'De AI-verbinding is nog niet ingesteld. Je bericht is niet verstuurd.',
     PROVIDER_UNAVAILABLE: 'OpenAI is nu niet bereikbaar. Je bericht blijft in het invoerveld staan.',
@@ -28,11 +31,13 @@
     MESSAGE_TOO_LONG: 'Je bericht is te lang. Maak het wat korter en probeer opnieuw.',
     CSRF_INVALID: 'Je sessie is gewijzigd. Vernieuw de pagina voordat je verdergaat.',
     INVALID_CSRF: 'Je sessie is gewijzigd. Vernieuw de pagina voordat je verdergaat.',
-    PROPOSAL_EXPIRED: 'Dit voorstel is verlopen. Vraag HARAM om een nieuw voorstel.',
-    PROPOSAL_CONFLICT: 'Je overzicht is intussen veranderd. Vraag HARAM om een nieuw voorstel.',
+    PROPOSAL_EXPIRED: 'Dit voorstel is verlopen. Maak een nieuw voorstel en bekijk het opnieuw.',
+    PROPOSAL_CONFLICT: 'Je overzicht is intussen veranderd. Maak een nieuw voorstel met de actuele gegevens.',
     PROPOSAL_NOT_FOUND: 'Dit voorstel is niet meer beschikbaar.',
     DIGEST_MISMATCH: 'Het voorstel is veranderd. Controleer het opnieuw voordat je goedkeurt.',
     BUSY: 'HARAM is nog bezig. Wacht even of pauzeer het gesprek.',
+    LOCAL_PROPOSALS_FULL: 'Rond eerst een open lokaal voorstel af. Daarna kun je een nieuw voorstel maken.',
+    RATE_LIMITED: 'Je hebt veel voorstellen gemaakt. Wacht even en probeer het opnieuw.',
     RUNTIME_PAUSED: 'Het gesprek is gepauzeerd. Geef opnieuw toestemming om verder te praten.',
   };
   let state = null;
@@ -73,6 +78,10 @@
     elements.feedback.dataset.error = String(isError);
   };
   const isReady = () => Boolean(state?.consent?.chat && state?.runtime?.providerConfigured && state?.runtime?.state === 'READY');
+  const localReady = () => Boolean(state?.csrfToken && !busy && state?.runtime?.state !== 'THINKING');
+  const isLocal = (proposal) => proposal.origin === 'LOCAL_OPERATOR';
+  const originLabel = (proposal) => isLocal(proposal) ? 'Door jou ingevoerd'
+    : proposal.origin === 'AGENT_MODEL' ? 'Voorstel van HARAM' : 'Herkomst onbekend';
 
   function refreshControls() {
     const connected = Boolean(state?.csrfToken);
@@ -85,10 +94,13 @@
     elements.input.disabled = !chatReady || busy;
     elements.send.disabled = !chatReady || busy || !elements.input.value.trim();
     elements.starters.forEach((button) => { button.disabled = !chatReady || busy; });
+    elements.localForm.querySelectorAll('input, textarea, select, button').forEach((control) => { control.disabled = !localReady(); });
+    document.querySelectorAll('button[data-local-item-action]').forEach((button) => { button.disabled = !localReady(); });
     elements.proposals.querySelectorAll('button[data-proposal-action]').forEach((button) => {
-      button.disabled = busy || !chatReady || !state?.consent?.household;
+      const local = button.dataset.proposalOrigin === 'LOCAL_OPERATOR';
+      button.disabled = local ? !localReady() : busy || !chatReady || !state?.consent?.household;
     });
-    elements.proposalConsentHelp.hidden = !array(state?.proposals).some((proposal) => proposal.status === 'PENDING') || Boolean(state?.consent?.chat && state?.consent?.household);
+    elements.proposalConsentHelp.hidden = !array(state?.proposals).some((proposal) => proposal.status === 'PENDING' && !isLocal(proposal)) || Boolean(state?.consent?.chat && state?.consent?.household);
     elements.reviewConsent.disabled = busy;
     elements.thinking.hidden = !(busy && !pausing && activeRequest?.kind === 'chat');
     elements.chatForm.setAttribute('aria-busy', String(busy && activeRequest?.kind === 'chat'));
@@ -102,7 +114,7 @@
     } else if (state) {
       const ready = isReady();
       const thinking = state.runtime.state === 'THINKING';
-      elements.runtimeStatus.textContent = thinking ? 'HARAM denkt mee' : ready ? 'Klaar om mee te denken' : 'Gepauzeerd';
+      elements.runtimeStatus.textContent = thinking ? 'HARAM denkt mee' : ready ? 'AI klaar om mee te denken' : 'AI-gesprek gepauzeerd';
       elements.runtimeStatus.dataset.state = thinking ? 'THINKING' : ready ? 'READY' : 'PAUSED';
     }
   }
@@ -162,6 +174,7 @@
       selected.forEach((item) => {
         const li = create('li');
         li.dataset.itemId = String(item.id);
+        li.tabIndex = -1;
         const mark = create('span', 'item-mark');
         mark.setAttribute('aria-hidden', 'true');
         mark.dataset.done = String(Boolean(item.done));
@@ -173,6 +186,14 @@
         if (text(item.details)) content.append(create('p', 'item-detail', item.details));
         const metadata = [item.done ? 'Afgerond' : '', item.dueDate ? `Gepland: ${formatDate(item.dueDate)}` : ''].filter(Boolean);
         if (metadata.length) content.append(create('p', 'item-meta', metadata.join(' · ')));
+        const actionButton = create('button', 'item-action secondary-button', kind === 'memory' ? 'Vergeten' : item.done ? 'Heropenen' : 'Afronden');
+        actionButton.type = 'button';
+        actionButton.dataset.localItemAction = kind === 'memory' ? 'forget' : 'complete';
+        actionButton.setAttribute('aria-label', `${actionButton.textContent}: ${text(item.title)}`);
+        actionButton.addEventListener('click', () => proposeLocal(kind === 'memory'
+          ? { operation: 'forget', itemId: item.id }
+          : { operation: 'complete', itemId: item.id, done: !item.done }));
+        content.append(actionButton);
         li.append(mark, content);
         fragment.append(li);
       });
@@ -196,12 +217,17 @@
     if (!pending.length) fragment.append(create('p', 'empty-list', 'Er zijn nog geen voorstellen.'));
     pending.forEach((proposal) => {
       const action = proposal.action || {};
-      const operation = operationLabels[action.operation] || String(action.operation || 'Onbekende wijziging');
+      const operation = action.operation === 'complete' ? action.done === false ? 'Heropenen' : 'Afronden'
+        : operationLabels[action.operation] || String(action.operation || 'Onbekende wijziging');
       const item = array(state?.household?.items).find((entry) => entry.id === action.itemId);
       const title = text(action.title) || text(item?.title) || 'Lokale wijziging';
       const card = create('article', 'proposal-card');
       card.dataset.proposalId = String(proposal.id);
-      card.append(create('p', 'proposal-kicker', 'Voorstel · wacht op jouw keuze'), create('h4', '', title));
+      card.dataset.proposalOrigin = text(proposal.origin) || 'LEGACY_UNSPECIFIED';
+      card.tabIndex = -1;
+      card.setAttribute('aria-label', `${originLabel(proposal)}: ${title}`);
+      card.append(create('p', 'proposal-kicker', originLabel(proposal)), create('h4', '', title));
+      if (isLocal(proposal)) card.append(create('p', 'proposal-local-note', 'Lokaal voorstel · pas na jouw goedkeuring in je overzicht verwerkt. Deze handeling stuurt niets naar OpenAI.'));
       const fields = create('dl', 'proposal-fields');
       proposalField(fields, 'Wijziging', operation);
       proposalField(fields, 'Onderdeel', labels[action.kind] || labels[item?.kind] || text(action.kind) || 'Onbekend');
@@ -218,6 +244,7 @@
         button.type = 'button';
         button.dataset.proposalAction = actionName;
         button.dataset.proposalId = String(proposal.id);
+        button.dataset.proposalOrigin = text(proposal.origin) || 'LEGACY_UNSPECIFIED';
         button.setAttribute('aria-label', `${label}: ${title}`);
         button.addEventListener('click', () => decideProposal(proposal, actionName));
         actions.append(button);
@@ -231,7 +258,7 @@
         card.append(create('p', 'proposal-expiry', `Geldig tot ${date}. De runtime controleert dit opnieuw bij goedkeuring.`));
       }
       const proof = create('details', 'proposal-proof');
-      proof.append(create('summary', '', 'Herkomst van dit voorstel'), create('code', '', `Voorstel-ID: ${String(proposal.id)}\nDigest: ${text(proposal.digest)}`));
+      proof.append(create('summary', '', 'Herkomst van dit voorstel'), create('code', '', `Herkomst: ${originLabel(proposal)}\nVoorstel-ID: ${String(proposal.id)}\nDigest: ${text(proposal.digest)}`));
       card.append(proof);
       fragment.append(card);
     });
@@ -267,7 +294,7 @@
         : `OpenAI ingesteld · nog geen antwoord bevestigd${text(runtime.model) ? ` · ${runtime.model}` : ''}`;
     elements.contextStatus.textContent = state.consent.chat
       ? state.consent.household ? 'Chat en huishoudcontext: toestemming gegeven.' : 'Chat: toestemming gegeven. Huishoudcontext wordt niet meegestuurd.'
-      : 'Geen chattoestemming. Je kunt rustig je lokale overzicht bekijken.';
+      : 'Geen chattoestemming. Je kunt je huishouden zelf lokaal bijhouden.';
     elements.sessionTag.textContent = runtime.state === 'THINKING' ? 'Even bezig' : isReady() ? 'Gesprek open' : 'Gepauzeerd';
     elements.sessionTag.dataset.state = runtime.state === 'THINKING' ? 'THINKING' : isReady() ? 'READY' : 'PAUSED';
     elements.start.firstChild.textContent = state.consent.chat ? 'Toestemming bijwerken ' : 'Start met HARAM ';
@@ -383,13 +410,36 @@
   }
 
   async function decideProposal(proposal, actionName) {
-    if (busy || !state?.consent?.household) return;
+    if (isLocal(proposal) ? !localReady() : busy || !isReady() || !state?.consent?.household) return;
     const id = encodeURIComponent(String(proposal.id));
     const body = actionName === 'approve' ? { digest: text(proposal.digest) } : {};
-    await mutate(`/api/proposals/${id}/${actionName}`, body, 'proposal', actionName === 'approve'
+    const completed = await mutate(`${isLocal(proposal) ? '/api/local/proposals' : '/api/proposals'}/${id}/${actionName}`, body, 'proposal', actionName === 'approve'
       ? 'Goedgekeurd en lokaal vastgelegd. Je overzicht is bijgewerkt.'
       : 'Voorstel afgewezen. Je huishoudcontext is niet gewijzigd.');
+    if (completed) {
+      const item = proposal.action?.itemId && [...document.querySelectorAll('[data-item-id]')].find((node) => node.dataset.itemId === proposal.action.itemId);
+      (item || byId('proposals-title')).focus();
+    }
   }
+
+  async function proposeLocal(action, afterSuccess) {
+    if (!localReady()) return;
+    const previousIds = new Set(array(state.proposals).map((proposal) => proposal.id));
+    const completed = await mutate('/api/local/proposals', { action }, 'local-proposal', 'Lokaal voorstel klaar. Bekijk de wijziging en kies zelf of je goedkeurt.', afterSuccess);
+    if (completed) {
+      const proposal = array(state.proposals).find((entry) => isLocal(entry) && !previousIds.has(entry.id));
+      const card = proposal && [...elements.proposals.querySelectorAll('[data-proposal-id]')].find((node) => node.dataset.proposalId === proposal.id);
+      (card || byId('proposals-title')).focus();
+    }
+  }
+
+  elements.localForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const title = elements.localTitle.value.trim();
+    if (!title || !localReady()) return;
+    await proposeLocal({ operation: 'add', kind: elements.localKind.value, title,
+      details: elements.localDetails.value.trim(), dueDate: elements.localDate.value || null }, () => elements.localForm.reset());
+  });
 
   elements.chatConsent.addEventListener('change', () => { consentWasEdited = true; refreshControls(); });
   elements.householdConsent.addEventListener('change', () => { consentWasEdited = true; });

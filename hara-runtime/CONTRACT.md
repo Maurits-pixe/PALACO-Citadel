@@ -13,7 +13,7 @@ Er wordt geen officiële ELIXER-ID, issuer, signer, namespace of WORLD/Citadel-b
 
 ## Uitvoerbare keten
 
-1. Een lokale browser krijgt een host-owned sessie en CSRF-token; zonder toestemming is het gesprek PAUSED.
+1. Een lokale browser krijgt een host-owned sessie en CSRF-token, met afzonderlijke lokale en AI-scopes. Zonder AI-toestemming is het gesprek PAUSED; het lokale huishouden blijft bruikbaar.
 2. Chattoestemming laat berichten en begrensde gespreksgeschiedenis naar OpenAI gaan. Huishoudcontext vereist een afzonderlijke keuze.
 3. De SDK-agent mag de huidige context lezen en een strikt gestructureerd voorstel maken. Op dit moment wijzigt geen huishouditem.
 4. De gebruiker ziet actie, inhoud en effect en bevestigt de voorstel-digest.
@@ -22,11 +22,15 @@ Er wordt geen officiële ELIXER-ID, issuer, signer, namespace of WORLD/Citadel-b
 
 De modeltoolset bevat uitsluitend `read_household` en `propose_household_change`. Er is geen modeltool waarmee direct items, autorisaties, bestanden, accounts of externe diensten kunnen worden gewijzigd. De menselijke bevestigingsroute is de concrete lokale uitvoertoelating.
 
+Eigen lokale invoer gebruikt `/api/local/proposals` en de bijbehorende aparte bevestigings-/afwijzingsroutes. Deze route verlangt een geldige lokale sessie, exacte Origin, CSRF-token en actie, maar geen chattoestemming, OpenAI-configuratie of toestemming voor delen van huishoudcontext. De host bindt de bron `LOCAL_OPERATOR`; AI-tools krijgen uitsluitend `AGENT_MODEL`. Bron, actor, huishouden en scope zijn geen toegestane browservelden. Een AI-voorstel kan niet via de lokale route worden bevestigd, ook niet na intrekken of als herhaalde bevestiging.
+
+Nieuwe voorstellen binden de herkomst in digestversie 2. De transactionele SQLite-migratie bewaart bestaande versie-1-bytes en receipts; hun herkomst blijft `LEGACY_UNSPECIFIED`. Historische herkomst wordt niet achteraf als AI of mens bevestigd. Intrekken, een AI-toestemmingswijziging of gesprek resetten trekt uitsluitend de AI-scope in; eigen lokale voorstellen behouden hun lokale scope. Beide routes delen de actuele huishoudrevisie. Tijdens een AI-beurt in dezelfde browsersessie worden lokale voorstelmutaties met BUSY geweigerd. Andere browsers delen de huishoudrevisie als conflictgrens. Een sessie kan acht lokale voorstellen openhouden en er maximaal 24 per minuut maken.
+
 ## Acties
 
 `add` maakt een task, shopping-item of memory-notitie. `complete` wijzigt de afvinkstatus van een bestaande taak of boodschap. `forget` verwijdert uitsluitend een actieve memory-notitie. Iedere actie vereist een eigen voorstel en bevestiging. Een datum is een opgegeven kalenderdatum, geen scheduler of notificatie. De huidige host heeft geen timers of externe kalenderverbinding.
 
-Voorstellen vervallen na tien minuten en zijn aan één basisrevisie gebonden. Een gelijktijdige wijziging maakt een eerder voorstel stale. Intrekking maakt open voorstellen onbruikbaar, breekt providerverkeer af en verwerpt laat afgeleide output. Herstart herstelt huishouditems en receipts, maar geen providerconsent of chatsessie.
+Voorstellen vervallen na tien minuten en zijn aan één basisrevisie gebonden. Een gelijktijdige wijziging maakt een eerder voorstel stale. AI-intrekking maakt open AI-voorstellen onbruikbaar, breekt providerverkeer af en verwerpt laat afgeleide output. Herstart herstelt huishouditems en receipts, maar geen providerconsent, chatsessie of bevestigingsscope voor open voorstellen.
 
 ## Grenzen
 

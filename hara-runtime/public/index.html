@@ -94,8 +94,26 @@
         <aside class="household-panel" aria-labelledby="household-title">
           <div class="panel-heading"><div><p class="eyebrow">Wat je wilt bijhouden</p><h2 id="household-title">Je huishouden</h2></div></div>
           <p class="household-summary" id="household-summary">Lokaal overzicht laden…</p>
+          <details class="local-entry-panel" id="local-entry-panel">
+            <summary><span>Zelf iets toevoegen</span><span class="details-sign" aria-hidden="true">+</span></summary>
+            <div class="local-entry-content">
+              <p id="local-entry-help">Voer zelf een taak, boodschap of notitie in. Deze handeling blijft op deze computer en stuurt niets naar OpenAI. Je bekijkt eerst een voorstel en keurt dat apart goed.</p>
+              <p class="fine">Geef je later toestemming voor huishoudcontext in een AI-gesprek? Dan kunnen opgeslagen gegevens wel worden meegestuurd.</p>
+              <form id="local-entry-form" aria-describedby="local-entry-help">
+                <label for="local-kind">Wat wil je bijhouden?</label>
+                <select id="local-kind" name="kind" disabled><option value="task">Taak</option><option value="shopping">Boodschap</option><option value="memory">Notitie</option></select>
+                <label for="local-title">Titel</label>
+                <input id="local-title" name="title" type="text" maxlength="240" required disabled>
+                <label for="local-details">Toelichting <span class="optional">optioneel</span></label>
+                <textarea id="local-details" name="details" rows="3" maxlength="800" disabled></textarea>
+                <label for="local-date">Datum <span class="optional">optioneel</span></label>
+                <input id="local-date" name="dueDate" type="date" min="0001-01-01" max="9999-12-31" disabled>
+                <button id="local-preview" class="primary-button" type="submit" disabled>Voorstel bekijken <span aria-hidden="true">→</span></button>
+              </form>
+            </div>
+          </details>
           <section class="proposal-section" aria-labelledby="proposals-title">
-            <div class="section-heading"><h3 id="proposals-title">Voorstellen</h3><span id="proposal-count" class="count">0</span></div>
+            <div class="section-heading"><h3 id="proposals-title" tabindex="-1">Voorstellen</h3><span id="proposal-count" class="count">0</span></div>
             <p class="section-description">Bekijk de precieze wijziging. Alleen jouw goedkeuring past het lokale overzicht aan.</p>
             <p class="proposal-consent-help" id="proposal-consent-help" hidden>Geef toestemming voor je huishoudcontext om voorstellen te beoordelen. <button class="text-button" id="review-consent" type="button">Toestemming bekijken</button></p>
             <div id="proposals-list" class="proposals-list"><p class="empty-list">Er zijn nog geen voorstellen.</p></div>

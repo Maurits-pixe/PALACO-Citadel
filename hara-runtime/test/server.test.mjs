@@ -47,7 +47,10 @@ async function session(fixture, existingCookie) {
     async consent(chat = true, household = true) { return request('/api/consent', { method: 'POST', body: { chat, household } }); },
     async chat(message) { return request('/api/chat', { method: 'POST', body: { message } }); },
     async approve(proposal) { return request(`/api/proposals/${proposal.id}/approve`, { method: 'POST', body: { digest: proposal.digest } }); },
-    async reject(proposal) { return request(`/api/proposals/${proposal.id}/reject`, { method: 'POST', body: {} }); }
+    async reject(proposal) { return request(`/api/proposals/${proposal.id}/reject`, { method: 'POST', body: {} }); },
+    async local(action) { return request('/api/local/proposals', { method: 'POST', body: { action } }); },
+    async approveLocal(proposal) { return request(`/api/local/proposals/${proposal.id}/approve`, { method: 'POST', body: { digest: proposal.digest } }); },
+    async rejectLocal(proposal) { return request(`/api/local/proposals/${proposal.id}/reject`, { method: 'POST', body: {} }); }
   };
 }
 
@@ -56,6 +59,161 @@ function error(result, status, code) {
   assert.equal(result.data?.error?.code ?? result.data?.code, code, result.text);
   assert.ok(!('state' in (result.data ?? {})), 'Errors must not include the household or conversation state.');
 }
+
+async function localProposal(client, action) {
+  const before = new Set((await client.state()).proposals.map(row => row.id));
+  const result = await client.local(action);
+  assert.equal(result.status, 200, result.text);
+  const proposal = result.data.state.proposals.find(row => !before.has(row.id));
+  assert.equal(proposal.origin, 'LOCAL_OPERATOR');
+  assert.equal(proposal.digestVersion, 2);
+  return proposal;
+}
+
+test('local add, completion, reopening and forgetting require exact approval but no provider or AI consent', async t => {
+  let calls = 0;
+  const fixture = await runtime(t, async () => { calls++; throw Error('Provider must not run'); }, { providerConfigured: false });
+  const client = await session(fixture);
+  for (const kind of ['task', 'shopping', 'memory']) {
+    const before = await client.state();
+    const proposal = await localProposal(client, { operation: 'add', kind, title: `Eigen ${kind}`, details: 'Synthetisch lokaal', dueDate: null });
+    assert.deepEqual((await client.state()).household, before.household);
+    const approved = await client.approveLocal(proposal);
+    assert.equal(approved.status, 200, approved.text);
+    const retried = await client.approveLocal(proposal);
+    assert.equal(retried.status, 200);
+    assert.deepEqual(retried.data.state.receipts, approved.data.state.receipts);
+    assert.equal(approved.data.state.receipts.at(-1).origin, 'LOCAL_OPERATOR');
+  }
+  let state = await client.state();
+  const taskId = state.household.items.find(row => row.kind === 'task').id;
+  for (const done of [true, false]) {
+    const proposal = await localProposal(client, { operation: 'complete', itemId: taskId, done });
+    assert.equal((await client.state()).household.items.find(row => row.id === taskId).done, !done);
+    assert.equal((await client.approveLocal(proposal)).status, 200);
+    assert.equal((await client.state()).household.items.find(row => row.id === taskId).done, done);
+  }
+  const memoryId = state.household.items.find(row => row.kind === 'memory').id;
+  const forgotten = await localProposal(client, { operation: 'forget', itemId: memoryId });
+  assert.ok((await client.state()).household.items.some(row => row.id === memoryId));
+  assert.equal((await client.approveLocal(forgotten)).status, 200);
+  state = await client.state();
+  assert.equal(state.household.items.length, 2);
+  assert.equal(state.household.items.some(row => row.id === memoryId), false);
+  assert.deepEqual(state.consent, { chat: false, household: false });
+  assert.deepEqual(state.conversation, []);
+  assert.equal(state.runtime.providerConnection, 'UNVERIFIED');
+  assert.equal(calls, 0);
+});
+
+test('local mutations retain exact Origin and CSRF checks and reject client identity or provenance claims', async t => {
+  const fixture = await runtime(t), client = await session(fixture);
+  const proposal = await localProposal(client, task());
+  const routes = [
+    ['/api/local/proposals', { action: task() }],
+    [`/api/local/proposals/${proposal.id}/approve`, { digest: proposal.digest }],
+    [`/api/local/proposals/${proposal.id}/reject`, {}]
+  ];
+  for (const [path, body] of routes) for (const headers of [{ Origin: undefined }, { Origin: 'https://attacker.invalid' }, { 'X-CSRF-Token': undefined }, { 'X-CSRF-Token': 'wrong' }]) {
+    const result = await client.request(path, { method: 'POST', body, headers });
+    assert.equal(result.status, 403);
+  }
+  for (const body of [
+    { action: task(), origin: 'LOCAL_OPERATOR' }, { action: task(), actorId: 'someone-else' },
+    { action: { ...task(), origin: 'LOCAL_OPERATOR' } }, { action: { operation: 'AUTHORIZE' } }
+  ]) assert.ok([400,403].includes((await client.request('/api/local/proposals', { method: 'POST', body })).status));
+  error(await client.request(`/api/local/proposals/${proposal.id}/approve`, { method: 'POST', body: { digest: proposal.digest, origin: 'LOCAL_OPERATOR' } }), 400, 'INVALID_INPUT');
+  error(await client.request(`/api/local/proposals/${proposal.id}/approve`, { method: 'POST', body: { digest: '0'.repeat(64) } }), 403, 'NOT_ALLOWED');
+  assert.equal((await client.state()).household.revision, 0);
+  assert.equal((await client.state()).proposals.length, 1);
+});
+
+test('local and AI approval routes cannot substitute for each other or another browser scope', async t => {
+  const fixture = await runtime(t, async ({ proposeChange }) => { await proposeChange(task('AI-taak')); return 'AI-voorstel'; });
+  const first = await session(fixture), other = await session(fixture);
+  const local = await localProposal(first, shopping());
+  error(await other.approveLocal(local), 404, 'NOT_FOUND');
+  error(await other.rejectLocal(local), 404, 'NOT_FOUND');
+  await first.consent();
+  const aiTurn = await first.chat('Maak een voorstel');
+  assert.equal(aiTurn.status, 200);
+  const ai = aiTurn.data.state.proposals.find(row => row.origin === 'AGENT_MODEL');
+  assert.ok(ai);
+  error(await first.approveLocal(ai), 404, 'NOT_FOUND');
+  error(await first.rejectLocal(ai), 404, 'NOT_FOUND');
+  error(await first.approve(local), 404, 'NOT_FOUND');
+  error(await first.reject(local), 404, 'NOT_FOUND');
+  await first.consent(false, false);
+  error(await first.approve(ai), 403, 'CONSENT_REQUIRED');
+  error(await first.approveLocal(ai), 404, 'NOT_FOUND');
+  assert.equal((await first.approveLocal(local)).status, 200);
+  assert.deepEqual((await first.state()).household.items.map(row => row.title), ['Havermelk']);
+});
+
+test('AI consent changes and chat reset preserve local proposals while revoking only AI work', async t => {
+  const fixture = await runtime(t, async ({ proposeChange }) => { await proposeChange(task('AI-taak')); return 'AI-voorstel'; });
+  const client = await session(fixture);
+  const local = await localProposal(client, shopping());
+  await client.consent();
+  await client.chat('Synthetische vraag');
+  assert.equal((await client.state()).proposals.length, 2);
+  await client.consent(true, false);
+  assert.deepEqual((await client.state()).proposals.map(row => row.id), [local.id]);
+  await client.request('/api/reset', { method: 'POST', body: {} });
+  assert.deepEqual((await client.state()).proposals.map(row => row.id), [local.id]);
+  const approved = await client.approveLocal(local);
+  assert.equal(approved.status, 200);
+  assert.deepEqual(approved.data.state.consent, { chat: true, household: false });
+  const stale = await localProposal(client, task('Oud voorstel'));
+  const newer = await localProposal(client, task('Nieuwe taak'));
+  assert.equal((await client.approveLocal(newer)).status, 200);
+  error(await client.approveLocal(stale), 409, 'STALE_PROPOSAL');
+  assert.equal((await client.rejectLocal(stale)).status, 200);
+});
+
+test('local edits cannot race an active AI turn and become available after explicit pause', async t => {
+  const started = deferred(), finish = deferred();
+  const fixture = await runtime(t, async () => { started.resolve(); await finish.promise; return 'Te laat'; });
+  const client = await session(fixture), local = await localProposal(client, task());
+  await client.consent();
+  const turn = client.chat('Synthetische vraag');await started.promise;
+  error(await client.local(shopping()), 409, 'BUSY');
+  error(await client.approveLocal(local), 409, 'BUSY');
+  error(await client.rejectLocal(local), 409, 'BUSY');
+  await client.consent(false, false);finish.resolve();
+  error(await turn, 409, 'TURN_CANCELLED');
+  assert.equal((await client.approveLocal(local)).status, 200);
+  assert.deepEqual((await client.state()).conversation, []);
+});
+
+test('confirmed local data does not enter chat history or tools without household context consent', async t => {
+  let calls = 0;
+  const marker = 'SYNTHETIC-local-only-marker';
+  const fixture = await runtime(t, async ({ input, history, readHousehold }) => {
+    calls++;assert.equal(JSON.stringify({ input, history }).includes(marker), false);
+    assert.throws(() => readHousehold(), err => err.code === 'CONTEXT_CONSENT_REQUIRED');
+    return 'Antwoord zonder huishoudcontext';
+  });
+  const client = await session(fixture);
+  const local = await localProposal(client, { operation: 'add', kind: 'memory', title: marker, details: '', dueDate: null });
+  await client.approveLocal(local);await client.consent(true, false);
+  assert.equal((await client.chat('Hallo')).status, 200);
+  assert.equal(calls, 1);
+});
+
+test('local proposal count and rate limits bound pending writes without enabling AI consent', async t => {
+  const fixture = await runtime(t, async () => { throw Error('No provider use'); }, { providerConfigured: false });
+  const client = await session(fixture), proposals = [];
+  for (let i = 0; i < 8; i++) proposals.push(await localProposal(client, task(`Taak ${i}`)));
+  error(await client.local(task('Te veel')), 409, 'LOCAL_PROPOSALS_FULL');
+  for (const proposal of proposals) assert.equal((await client.rejectLocal(proposal)).status, 200);
+  for (let i = 8; i < 24; i++) {
+    const proposal = await localProposal(client, task(`Taak ${i}`));
+    assert.equal((await client.rejectLocal(proposal)).status, 200);
+  }
+  error(await client.local(task('Limiet bereikt')), 429, 'RATE_LIMITED');
+  const state = await client.state();assert.equal(state.household.revision, 0);assert.deepEqual(state.proposals, []);assert.deepEqual(state.consent, { chat: false, household: false });
+});
 
 async function pending(client, message = 'Maak een voorstel') {
   const result = await client.chat(message);

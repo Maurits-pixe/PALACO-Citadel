@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
@@ -37,6 +38,59 @@ function inspectFile(filename) {
   const inspector = new DatabaseSync(filename);
   fileResources.get(filename).add(inspector);
   return inspector;
+}
+
+// A pre-origin database, constructed without opening the current implementation.
+function legacyFixture(filename) {
+  const db = inspectFile(filename);
+  db.exec(`
+    PRAGMA foreign_keys = ON;
+    CREATE TABLE households (id TEXT PRIMARY KEY, revision INTEGER NOT NULL DEFAULT 0 CHECK(revision >= 0)) STRICT;
+    CREATE TABLE items (
+      household_id TEXT NOT NULL REFERENCES households(id), id TEXT NOT NULL,
+      kind TEXT NOT NULL CHECK(kind IN ('task','shopping','memory')), title TEXT NOT NULL,
+      details TEXT NOT NULL, due_date TEXT, done INTEGER NOT NULL CHECK(done IN (0,1)),
+      version INTEGER NOT NULL CHECK(version > 0), created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+      PRIMARY KEY (household_id, id)
+    ) STRICT;
+    CREATE TABLE proposals (
+      id TEXT PRIMARY KEY, actor_id TEXT NOT NULL, household_id TEXT NOT NULL REFERENCES households(id),
+      session_id TEXT NOT NULL, status TEXT NOT NULL CHECK(status IN ('PENDING','APPROVED','REJECTED','REVOKED')),
+      action_json TEXT NOT NULL, digest TEXT NOT NULL, base_revision INTEGER NOT NULL,
+      created_at TEXT NOT NULL, expires_at TEXT NOT NULL
+    ) STRICT;
+    CREATE TABLE receipts (
+      id TEXT PRIMARY KEY, proposal_id TEXT NOT NULL UNIQUE REFERENCES proposals(id), actor_id TEXT NOT NULL,
+      household_id TEXT NOT NULL REFERENCES households(id), session_id TEXT NOT NULL, operation TEXT NOT NULL,
+      revision INTEGER NOT NULL, at TEXT NOT NULL, action_digest TEXT NOT NULL
+    ) STRICT;
+    CREATE TABLE revoked_sessions (
+      actor_id TEXT NOT NULL, household_id TEXT NOT NULL REFERENCES households(id), session_id TEXT NOT NULL,
+      at TEXT NOT NULL, PRIMARY KEY (actor_id, household_id, session_id)
+    ) STRICT;
+    CREATE TABLE audit (
+      sequence INTEGER PRIMARY KEY, actor_id TEXT NOT NULL, household_id TEXT NOT NULL,
+      session_id TEXT NOT NULL, event TEXT NOT NULL, ref TEXT NOT NULL, digest TEXT, at TEXT NOT NULL
+    ) STRICT;
+  `);
+  db.prepare('INSERT INTO households VALUES (?, 1)').run(context.householdId);
+  const approvedDigest = '7043d2df83bc88468c0685ba7300512bda811cb844726f0ccfb5e9a13de1ba9c';
+  const pendingDigest = 'cc68b49f3e257fc3249e3c8b3c4a875a0f226ce8f5ce5f867cd6db8b49502c6f';
+  const insert = db.prepare('INSERT INTO proposals VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+  insert.run('legacy-approved', context.actorId, context.householdId, context.sessionId, 'APPROVED',
+    JSON.stringify(add('shopping', 'Brood')), approvedDigest, 0, '2026-10-27T09:55:00.000Z', '2026-10-27T10:05:00.000Z');
+  insert.run('legacy-pending', context.actorId, context.householdId, context.sessionId, 'PENDING',
+    JSON.stringify(add()), pendingDigest, 1, '2026-10-27T10:00:00.000Z', '2026-10-27T10:10:00.000Z');
+  db.prepare('INSERT INTO items VALUES (?, ?, ?, ?, ?, NULL, 0, 1, ?, ?)').run(context.householdId,
+    'legacy-item', 'shopping', 'Brood', '', '2026-10-27T09:55:00.000Z', '2026-10-27T09:55:00.000Z');
+  db.prepare('INSERT INTO receipts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)').run('legacy-receipt', 'legacy-approved',
+    context.actorId, context.householdId, context.sessionId, 'add', 1, '2026-10-27T09:55:00.000Z', approvedDigest);
+  return {
+    db, pendingDigest,
+    approved: { id: 'legacy-approved', digest: approvedDigest },
+    receipt: { id: 'legacy-receipt', proposalId: 'legacy-approved', actorId: context.actorId,
+      householdId: context.householdId, operation: 'add', revision: 1, at: '2026-10-27T09:55:00.000Z', actionDigest: approvedDigest },
+  };
 }
 
 test('read and propose are separate from an explicitly approved household change', (t) => {
@@ -344,4 +398,143 @@ test('configuration, clock and closed-store failures are safe and do not leave p
   store.close();
   assert.throws(() => store.read(context), code('STORE_CLOSED'));
   assert.throws(() => store.propose(context, add()), code('STORE_CLOSED'));
+});
+
+test('legacy database migration preserves fixed v1 digests and exact historical receipts', (t) => {
+  const filename = fileSetup(t);
+  const fixture = legacyFixture(filename);
+  assert.equal(fixture.db.prepare('PRAGMA table_info(proposals)').all().some((column) => column.name === 'origin'), false);
+  let timestamp = Date.parse('2026-10-27T10:01:00.000Z');
+  const first = setup(t, { filename, clock: () => timestamp });
+  const pending = first.pending(context)[0];
+  assert.equal(pending.id, 'legacy-pending');
+  assert.equal(pending.digest, fixture.pendingDigest);
+  assert.equal(pending.origin, 'LEGACY_UNSPECIFIED');
+  assert.equal(pending.digestVersion, 1);
+  assert.deepEqual(first.receipts(context), [fixture.receipt]);
+  assert.deepEqual(approve(first, fixture.approved), fixture.receipt);
+  const receipt = approve(first, pending);
+  assert.equal(Object.hasOwn(receipt, 'origin'), false);
+  assert.equal(Object.hasOwn(receipt, 'digestVersion'), false);
+  assert.equal(receipt.actionDigest, fixture.pendingDigest);
+  first.close();
+  timestamp += 86_400_000;
+  const restarted = setup(t, { filename, clock: () => timestamp });
+  assert.deepEqual(approve(restarted, fixture.approved), fixture.receipt);
+  assert.deepEqual(approve(restarted, pending), receipt);
+  assert.deepEqual(restarted.receipts(context), [fixture.receipt, receipt]);
+  assert.equal(restarted.read(context).revision, 2);
+  assert.deepEqual(fixture.db.prepare('SELECT origin, digest_version FROM proposals ORDER BY id').all()
+    .map((row) => ({ ...row })), [
+    { origin: 'LEGACY_UNSPECIFIED', digest_version: 1 }, { origin: 'LEGACY_UNSPECIFIED', digest_version: 1 },
+  ]);
+});
+
+test('schema migration rolls back every added column when initialization fails', (t) => {
+  const filename = fileSetup(t);
+  const fixture = legacyFixture(filename);
+  fixture.db.exec("CREATE TRIGGER initialization_failure BEFORE INSERT ON households BEGIN SELECT RAISE(ABORT, 'private failure'); END");
+  assert.throws(() => createHouseholdStore({ filename, actorId: context.actorId, householdId: context.householdId }), code('STORAGE_ERROR'));
+  for (const table of ['proposals', 'receipts']) {
+    const columns = fixture.db.prepare(`PRAGMA table_info(${table})`).all().map((column) => column.name);
+    assert.equal(columns.includes('origin'), false);
+    assert.equal(columns.includes('digest_version'), false);
+  }
+  assert.equal(fixture.db.prepare('SELECT digest FROM proposals WHERE id = ?').get('legacy-pending').digest, fixture.pendingDigest);
+  assert.equal(fixture.db.prepare('SELECT revision FROM households WHERE id = ?').get(context.householdId).revision, 1);
+  fixture.db.exec('DROP TRIGGER initialization_failure');
+  const recovered = setup(t, { filename, clock: () => Date.parse('2026-10-27T10:01:00.000Z') });
+  assert.equal(recovered.pending(context)[0].origin, 'LEGACY_UNSPECIFIED');
+});
+
+test('trusted model and local origins bind v2 digests and persist in receipts across restarts', (t) => {
+  const filename = fileSetup(t);
+  const timestamp = Date.parse('2026-10-27T11:00:00.000Z');
+  let current = setup(t, { filename, clock: () => timestamp });
+  for (const origin of ['AGENT_MODEL', 'LOCAL_OPERATOR']) {
+    const proposal = current.propose(context, add('shopping', origin), { origin });
+    assert.equal(proposal.origin, origin);
+    assert.equal(proposal.digestVersion, 2);
+    const payload = { version: 2, proposalId: proposal.id, actorId: context.actorId,
+      householdId: context.householdId, sessionId: context.sessionId, baseRevision: proposal.baseRevision,
+      createdAt: proposal.createdAt, expiresAt: proposal.expiresAt, action: proposal.action, origin };
+    assert.equal(proposal.digest, createHash('sha256').update(JSON.stringify(payload)).digest('hex'));
+    current.close();
+    current = setup(t, { filename, clock: () => timestamp });
+    assert.deepEqual(current.pending(context), [proposal]);
+    const receipt = approve(current, proposal);
+    assert.equal(receipt.origin, origin);
+    assert.equal(receipt.digestVersion, 2);
+    current.close();
+    current = setup(t, { filename, clock: () => timestamp + 86_400_000 });
+    assert.deepEqual(approve(current, proposal), receipt, 'v2 receipt retry is exact after restart and expiry');
+    current.close();
+    current = setup(t, { filename, clock: () => timestamp });
+  }
+  assert.deepEqual(current.receipts(context).map(({ origin, digestVersion }) => ({ origin, digestVersion })), [
+    { origin: 'AGENT_MODEL', digestVersion: 2 }, { origin: 'LOCAL_OPERATOR', digestVersion: 2 },
+  ]);
+  assert.equal(current.read(context).revision, 2);
+});
+
+test('forged stored origin or digest version cannot change household state or create a receipt', (t) => {
+  const filename = fileSetup(t);
+  const store = setup(t, { filename });
+  const editor = inspectFile(filename);
+  const proposal = store.propose(context, add(), { origin: 'LOCAL_OPERATOR' });
+  for (const [origin, digestVersion] of [
+    ['AGENT_MODEL', 2], ['LEGACY_UNSPECIFIED', 1], ['LOCAL_OPERATOR', 1],
+    ['LEGACY_UNSPECIFIED', 2], ['LOCAL_OPERATOR', 3], ['UNKNOWN', 2],
+  ]) {
+    editor.prepare('UPDATE proposals SET origin = ?, digest_version = ? WHERE id = ?').run(origin, digestVersion, proposal.id);
+    assert.throws(() => approve(store, proposal), code('NOT_ALLOWED'));
+    assert.equal(store.read(context).revision, 0);
+    assert.deepEqual(store.read(context).items, []);
+    assert.deepEqual(store.receipts(context), []);
+    assert.equal(editor.prepare('SELECT status FROM proposals WHERE id = ?').get(proposal.id).status, 'PENDING');
+    assert.equal(editor.prepare("SELECT COUNT(*) AS count FROM audit WHERE event = 'APPROVED'").get().count, 0);
+  }
+  editor.prepare('UPDATE proposals SET origin = ?, digest_version = 2 WHERE id = ?').run('LOCAL_OPERATOR', proposal.id);
+  const receipt = approve(store, proposal);
+  editor.prepare('UPDATE receipts SET origin = ? WHERE proposal_id = ?').run('AGENT_MODEL', proposal.id);
+  assert.throws(() => approve(store, proposal), code('NOT_ALLOWED'), 'idempotency cannot relabel the approved source');
+  assert.equal(store.read(context).revision, receipt.revision);
+  assert.equal(store.read(context).items.length, 1);
+});
+
+test('legacy origin cannot be promoted to a model or local origin after migration', (t) => {
+  const filename = fileSetup(t);
+  const fixture = legacyFixture(filename);
+  const store = setup(t, { filename, clock: () => Date.parse('2026-10-27T10:01:00.000Z') });
+  for (const id of ['legacy-approved', 'legacy-pending']) {
+    for (const origin of ['AGENT_MODEL', 'LOCAL_OPERATOR']) {
+      fixture.db.prepare('UPDATE proposals SET origin = ? WHERE id = ?').run(origin, id);
+      const digest = id === 'legacy-approved' ? fixture.approved.digest : fixture.pendingDigest;
+      assert.throws(() => approve(store, { id, digest }), code('NOT_ALLOWED'));
+      if (id === 'legacy-pending') assert.throws(() => store.pending(context), code('NOT_ALLOWED'));
+      fixture.db.prepare('UPDATE proposals SET origin = ? WHERE id = ?').run('LEGACY_UNSPECIFIED', id);
+    }
+  }
+  assert.equal(store.read(context).revision, 1);
+  assert.deepEqual(store.receipts(context), [fixture.receipt]);
+});
+
+test('origin options reject invalid values, hidden fields and getters before persistence', (t) => {
+  const store = setup(t);
+  let getterRead = false;
+  const getter = {};
+  Object.defineProperty(getter, 'origin', { enumerable: true, get() { getterRead = true; return 'AGENT_MODEL'; } });
+  for (const options of [null, [], {}, 'AGENT_MODEL', { origin: 'LEGACY_UNSPECIFIED' },
+    { origin: 'MODEL' }, { origin: 'local_operator' }, { origin: undefined },
+    { origin: 'LOCAL_OPERATOR', digestVersion: 2 }, { origin: 'AGENT_MODEL', source: 'client' },
+    { origin: 'LOCAL_OPERATOR', [Symbol('hidden')]: true }, Object.create({ origin: 'AGENT_MODEL' }), getter]) {
+    assert.throws(() => store.propose(context, add(), options), code('INVALID_INPUT'));
+  }
+  assert.equal(getterRead, false);
+  assert.equal(store.read(context).revision, 0);
+  assert.deepEqual(store.pending(context), []);
+  const legacy = store.propose(context, add());
+  assert.equal(legacy.origin, 'LEGACY_UNSPECIFIED');
+  assert.equal(legacy.digestVersion, 1);
+  assert.throws(() => store.propose(context, { ...add(), origin: 'AGENT_MODEL' }), code('INVALID_INPUT'));
 });
