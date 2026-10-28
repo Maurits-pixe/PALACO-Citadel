@@ -1,0 +1,9 @@
+node_modules/
+*.db
+*.db-shm
+*.db-wal
+*.pem
+.env
+.env.*
+!.env.example
+npm-debug.log*
