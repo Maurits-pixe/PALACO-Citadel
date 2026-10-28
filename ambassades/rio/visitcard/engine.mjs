@@ -13,9 +13,15 @@ const STOP_WORDS = new Set([
   "a", "am", "and", "are", "at", "how", "i", "in", "is", "my", "of", "on", "the", "to", "what", "when",
   "der", "die", "das", "ein", "eine", "ich", "ist", "mein", "meine", "und", "wann", "was", "wie",
   "de", "des", "est", "et", "je", "la", "le", "les", "ma", "mes", "mon", "quand", "que",
-  "como", "cuando", "de", "el", "es", "la", "mi", "mis", "que", "un", "una", "y"
+  "como", "cuando", "de", "el", "es", "la", "mi", "mis", "que", "un", "una", "y",
+  "mio", "miei", "mie", "tuo", "tua", "tuoi", "tue", "suo", "suoi", "sue", "sono", "sei", "siamo", "siete", "era", "erano", "sarà", "quale", "quali", "chi", "cosa", "come", "dove", "per", "con", "senza", "del", "della", "dello", "dei", "degli", "delle", "alla", "allo", "agli", "alle", "nel", "nella", "nello", "nei", "negli", "nelle", "che",
+  "minha", "minhas", "meu", "meus", "sua", "suas", "seu", "seus", "qual", "quais", "quem", "quando", "onde", "uma", "para", "por", "com", "sem", "dos", "das", "são", "sou", "está", "esta", "estão",
+  "моя", "мои", "мой", "моё", "мое", "твоя", "твой", "своя", "свой", "какая", "какой", "какое", "какие", "когда", "где", "что", "это", "эта", "этот", "эти", "для", "или", "есть", "был", "была", "будет", "как",
+  "mia", "miaj", "via", "viaj", "nia", "niaj", "estas", "estis", "estos", "kiu", "kio", "kiam", "kie", "kiel", "kies", "kiaj", "kiuj", "kaj", "por", "kun", "sen", "unu",
+  "moje", "moja", "mój", "moi", "twoje", "twoja", "twój", "swoje", "swoja", "jest", "są", "był", "była", "będzie", "jaki", "jaka", "jakie", "kiedy", "gdzie", "czy", "oraz", "dla", "jak", "ten", "tego", "tej", "też", "się", "nie"
 ]);
 const runtimeStates = new Map();
+const DISPOSED_STATE = Symbol("disposed local session dossier");
 
 const clone = (value) => structuredClone(value);
 const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -246,6 +252,26 @@ function activeConsent(dossier, scope, purpose, at) {
     && consent.purpose === purpose
     && timestamp >= Date.parse(consent.valid_from)
     && (consent.valid_until === null || timestamp <= Date.parse(consent.valid_until)));
+}
+
+// Local runtime cleanup only. Keep the opaque ID reserved to prevent replay,
+// while replacing the serialized private snapshot with a content-free marker.
+// Caller-held copies, browser memory reclamation and formal consent revocation
+// are outside this operation; it produces no dossier or authority receipt.
+export function disposeSessionDossier(dossier) {
+  try {
+    const errors = validateDossier(dossier);
+    if (errors.length > 0) return { ok: false, errors };
+    const current = runtimeStates.get(dossier.dossier_id);
+    if (current === DISPOSED_STATE) return { ok: true, authority_effect: "NONE" };
+    if (current !== serializeState(dossier)) {
+      return { ok: false, errors: ["dossier snapshot is stale, altered, or not registered in this session"] };
+    }
+    runtimeStates.set(dossier.dossier_id, DISPOSED_STATE);
+    return { ok: true, authority_effect: "NONE" };
+  } catch {
+    return { ok: false, errors: ["dossier must be a valid local session snapshot"] };
+  }
 }
 
 export function createDossier(input) {

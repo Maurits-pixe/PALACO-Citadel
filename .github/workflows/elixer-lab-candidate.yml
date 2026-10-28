@@ -1,0 +1,36 @@
+name: ELIXER laboratory candidate
+on:
+  pull_request:
+    paths:
+      - 'elixer-engine/lab/**'
+      - 'elixer-engine/src/**'
+      - 'elixer-engine/schemas/**'
+      - 'elixer-engine/test/**'
+      - 'elixer-engine/candidate-evidence.mjs'
+      - '.github/workflows/elixer-lab-candidate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  candidate-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify candidate contract and existing kernel boundaries
+        run: node --test elixer-engine/test/*.test.mjs
+      - name: Record reproducible candidate package without issuance or activation
+        env:
+          ELIXER_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node elixer-engine/candidate-evidence.mjs > elixer-candidate-evidence.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: elixer-candidate-${{ github.event.pull_request.head.sha || github.sha }}
+          path: elixer-candidate-evidence.json
+          if-no-files-found: error

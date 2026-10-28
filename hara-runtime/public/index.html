@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="nl" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f2efe8">
+  <meta name="description" content="HARAM helpt je thuis overzicht te houden. Bespreek je plannen en keur wijzigingen in je lokale huishoudcontext zelf goed.">
+  <title>HARAM · Thuis, met overzicht</title>
+  <link rel="icon" href="/hara-icon.png" type="image/png">
+  <link rel="stylesheet" href="/app.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Direct naar je gesprek</a>
+  <div class="shell">
+    <header class="masthead">
+      <a class="brand" href="/" aria-label="HARAM startpagina">
+        <img src="/hara-icon.png" width="40" height="40" alt="">
+        <span><span class="brand-name">H∆R∆M</span><span class="brand-detail">HARA · Huishoudassistent</span></span>
+      </a>
+      <div class="environment"><span class="environment-dot" aria-hidden="true"></span>Lokale ontwikkelomgeving · Nederlands</div>
+      <div class="session-tools">
+        <button class="quiet-button" id="reset-conversation" type="button" disabled>Wis gesprek</button>
+        <button class="quiet-button" id="pause-runtime" type="button" disabled>Pauzeer en trek toestemming in</button>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="welcome" aria-labelledby="welcome-title">
+        <div class="portrait" aria-hidden="true"><img src="/reference.jpg" alt="" width="506" height="257"></div>
+        <div class="welcome-copy">
+          <p class="eyebrow">Je huishouden, in jouw handen</p>
+          <h1 id="welcome-title">Thuis, met overzicht.</h1>
+          <p>Ik ben HARAM. Ik denk met je mee over taken, boodschappen en wat je wilt onthouden. Jij beslist wat wordt vastgelegd.</p>
+        </div>
+        <div class="runtime-card" aria-label="Verbinding en toestemming">
+          <p class="eyebrow">HARA runtime</p>
+          <p class="runtime-status" id="runtime-status" role="status" aria-live="polite" aria-atomic="true">Verbinding controleren…</p>
+          <p class="runtime-connection" id="runtime-connection">De lokale omgeving wordt opgehaald.</p>
+          <p class="context-status" id="context-status">Er is nog geen toestemming gegeven.</p>
+          <button id="retry-connection" class="text-button" type="button" hidden>Probeer opnieuw te verbinden</button>
+        </div>
+      </section>
+
+      <details class="consent-panel" id="consent-panel" open>
+        <summary><span>Begin met jouw toestemming</span><span class="details-sign" aria-hidden="true">+</span></summary>
+        <div class="consent-content">
+          <div>
+            <h2>Eerst even afspreken.</h2>
+            <p>HARAM gebruikt OpenAI om te antwoorden. Na je toestemming worden je berichten en de gesprekscontext naar OpenAI gestuurd. Je kunt dit op ieder moment stoppen.</p>
+            <p class="fine">Je werkt als lokale gebruiker van dit apparaat. Dit is geen aanmelding met een PALACO-ID. HARAM doet geen aankopen, verstuurt geen berichten en verbindt geen externe accounts.</p>
+          </div>
+          <form id="consent-form">
+            <label class="check-option" for="chat-consent"><input id="chat-consent" name="chat" type="checkbox" required><span>Ik geef toestemming om mijn berichten en gesprekscontext naar OpenAI te sturen.</span></label>
+            <label class="check-option" for="household-consent"><input id="household-consent" name="household" type="checkbox"><span>Mijn huishoudcontext gebruiken<small>Optioneel. Taken, boodschappen en geheugen worden dan meegestuurd voor een passend antwoord.</small></span></label>
+            <button class="primary-button" id="start-session" type="submit" disabled>Start met HARAM <span aria-hidden="true">→</span></button>
+            <p class="fine">Wijzigingen in je lokale huishouden worden eerst een voorstel. Je keurt elke wijziging apart goed. Intrekken stopt volgende verwerking; al verzonden berichten worden daarmee niet teruggehaald.</p>
+          </form>
+        </div>
+      </details>
+
+      <p id="feedback" class="feedback" role="status" aria-live="polite" aria-atomic="true"></p>
+      <noscript><p class="noscript-note">Deze lokale assistent heeft JavaScript nodig om met de runtime te praten. Er zijn geen berichten verstuurd en er is geen toestemming gegeven.</p></noscript>
+
+      <div class="workspace">
+        <section class="conversation-panel" aria-labelledby="conversation-title">
+          <div class="panel-heading">
+            <div><p class="eyebrow">Samen nadenken</p><h2 id="conversation-title">Je gesprek met HARAM</h2></div>
+            <span class="session-tag" id="session-tag">Gepauzeerd</span>
+          </div>
+          <div class="conversation-space">
+            <div id="conversation-empty" class="conversation-empty">
+              <span class="empty-mark" aria-hidden="true">H</span>
+              <h3>Waar kan ik je bij helpen?</h3>
+              <p>Maak ruimte in je hoofd. Begin met iets kleins, zoals je avond plannen of een boodschappenlijst maken.</p>
+              <div class="starter-options" aria-label="Ideeën voor je eerste bericht">
+                <button type="button" data-prompt="Help me een rustig plan voor vandaag te maken." disabled>Mijn dag plannen <span aria-hidden="true">↗</span></button>
+                <button type="button" data-prompt="Help me een boodschappenlijst voor deze week te maken." disabled>Boodschappen bedenken <span aria-hidden="true">↗</span></button>
+                <button type="button" data-prompt="Help me overzicht te krijgen in mijn huishoudelijke taken." disabled>Taken ordenen <span aria-hidden="true">↗</span></button>
+              </div>
+              <p class="fine">Een idee kiezen vult alleen je bericht in. Jij verstuurt het zelf.</p>
+            </div>
+            <div id="conversation" class="conversation" role="log" aria-label="Gesprek met HARAM" aria-live="polite" aria-relevant="additions text" aria-atomic="false"></div>
+            <p class="thinking" id="thinking" role="status" hidden><span class="thinking-dot" aria-hidden="true"></span>HARAM denkt met je mee…</p>
+          </div>
+          <form id="chat-form" class="composer">
+            <label for="message-input">Je bericht aan HARAM</label>
+            <textarea id="message-input" name="message" rows="3" maxlength="4000" placeholder="Vertel wat je wilt regelen…" aria-describedby="message-help" disabled required></textarea>
+            <div class="composer-bottom"><p id="message-help">Geef eerst toestemming. Daarna kun je een bericht sturen.</p><button class="primary-button" id="send-message" type="submit" disabled>Verstuur <span aria-hidden="true">↑</span></button></div>
+          </form>
+          <p class="conversation-note">HARAM kan zich vergissen. Controleer voorstellen voordat je ze goedkeurt.</p>
+        </section>
+
+        <aside class="household-panel" aria-labelledby="household-title">
+          <div class="panel-heading"><div><p class="eyebrow">Wat je wilt bijhouden</p><h2 id="household-title">Je huishouden</h2></div></div>
+          <p class="household-summary" id="household-summary">Lokaal overzicht laden…</p>
+          <details class="local-entry-panel" id="local-entry-panel">
+            <summary><span>Zelf iets toevoegen</span><span class="details-sign" aria-hidden="true">+</span></summary>
+            <div class="local-entry-content">
+              <p id="local-entry-help">Voer zelf een taak, boodschap of notitie in. Deze handeling blijft op deze computer en stuurt niets naar OpenAI. Je bekijkt eerst een voorstel en keurt dat apart goed.</p>
+              <p class="fine">Geef je later toestemming voor huishoudcontext in een AI-gesprek? Dan kunnen opgeslagen gegevens wel worden meegestuurd.</p>
+              <form id="local-entry-form" aria-describedby="local-entry-help">
+                <label for="local-kind">Wat wil je bijhouden?</label>
+                <select id="local-kind" name="kind" disabled><option value="task">Taak</option><option value="shopping">Boodschap</option><option value="memory">Notitie</option></select>
+                <label for="local-title">Titel</label>
+                <input id="local-title" name="title" type="text" maxlength="240" required disabled>
+                <label for="local-details">Toelichting <span class="optional">optioneel</span></label>
+                <textarea id="local-details" name="details" rows="3" maxlength="800" disabled></textarea>
+                <label for="local-date">Datum <span class="optional">optioneel</span></label>
+                <input id="local-date" name="dueDate" type="date" min="0001-01-01" max="9999-12-31" disabled>
+                <button id="local-preview" class="primary-button" type="submit" disabled>Voorstel bekijken <span aria-hidden="true">→</span></button>
+              </form>
+            </div>
+          </details>
+          <section class="proposal-section" aria-labelledby="proposals-title">
+            <div class="section-heading"><h3 id="proposals-title" tabindex="-1">Voorstellen</h3><span id="proposal-count" class="count">0</span></div>
+            <p class="section-description">Bekijk de precieze wijziging. Alleen jouw goedkeuring past het lokale overzicht aan.</p>
+            <p class="proposal-consent-help" id="proposal-consent-help" hidden>Geef toestemming voor je huishoudcontext om voorstellen te beoordelen. <button class="text-button" id="review-consent" type="button">Toestemming bekijken</button></p>
+            <div id="proposals-list" class="proposals-list"><p class="empty-list">Er zijn nog geen voorstellen.</p></div>
+          </section>
+          <section class="list-section" aria-labelledby="tasks-title"><div class="section-heading"><h3 id="tasks-title">Taken</h3><span id="tasks-count" class="count">0</span></div><ul id="tasks-list" class="household-list"><li class="empty-list">Nog geen taken vastgelegd.</li></ul></section>
+          <section class="list-section" aria-labelledby="shopping-title"><div class="section-heading"><h3 id="shopping-title">Boodschappen</h3><span id="shopping-count" class="count">0</span></div><ul id="shopping-list" class="household-list"><li class="empty-list">Je boodschappenlijst is nog leeg.</li></ul></section>
+          <section class="list-section" aria-labelledby="memory-title"><div class="section-heading"><h3 id="memory-title">Geheugen</h3><span id="memory-count" class="count">0</span></div><ul id="memory-list" class="household-list"><li class="empty-list">Nog niets om te onthouden vastgelegd.</li></ul><p class="fine">Vergeten verwijdert een notitie uit het actieve geheugen. Eerdere voorstellen blijven bewaard in de lokale historie.</p></section>
+          <details class="receipts-panel"><summary>Uitgevoerde lokale wijzigingen <span class="details-sign" aria-hidden="true">+</span></summary><p class="fine">Dit overzicht toont wat na jouw goedkeuring is vastgelegd.</p><ol id="receipts-list" class="receipts-list"><li class="empty-list">Er zijn nog geen wijzigingen uitgevoerd.</li></ol></details>
+        </aside>
+      </div>
+    </main>
+    <footer><p>H∆R∆M · HARA household runtime</p><p>Lokale ontwikkeling · Wijzigingen met jouw goedkeuring · Geen externe acties</p></footer>
+  </div>
+</body>
+</html>

@@ -7,14 +7,16 @@ import {fileURLToPath} from 'node:url';
 
 // Standalone on purpose: this exact file also runs beside a portable public/ folder.
 export const REVIEW_FILES = Object.freeze(['index.html', 'styles.css', 'app.js', 'sw.js',
-  'manifest.webmanifest', 'icon-192.svg', 'icon-512.svg', 'rio-engine-web.mjs', 'engine.mjs',
+  'manifest.webmanifest', 'icon-192.svg', 'icon-512.svg', 'citadel-icon.png', 'hara-icon.png', 'mundo-icon.png', 'rio-engine-web.mjs', 'engine.mjs',
   'chat-preview.mjs', 'integration.mjs', 'rio/index.html', 'rio/start.js', 'rio/download',
   'rio/sw.js', 'rio/manifest.webmanifest', 'rio/icon-192.png', 'rio/icon-512.png',
-  'rio/reception/index.html', 'rio/reception/app.css', 'rio/reception/app.js', 'rio/reception/nova.png']);
+  'rio/reception/index.html', 'rio/reception/app.css', 'rio/reception/app.js', 'rio/reception/nova.png',
+  'hara/index.html', 'hara/app.css', 'hara/app.js', 'hara/reference.jpg',
+  'rio/account/index.html', 'rio/account/app.css', 'rio/account/app.js']);
 export const REVIEW_CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'";
 const TYPES = {'.html':'text/html; charset=utf-8', '.css':'text/css; charset=utf-8',
   '.js':'text/javascript; charset=utf-8', '.mjs':'text/javascript; charset=utf-8',
-  '.svg':'image/svg+xml', '.png':'image/png', '.webmanifest':'application/manifest+json'};
+  '.svg':'image/svg+xml', '.png':'image/png', '.jpg':'image/jpeg', '.webmanifest':'application/manifest+json'};
 const here = dirname(fileURLToPath(import.meta.url));
 export function defaultReviewPaths() {
   return existsSync(resolve(here, 'build-manifest.json'))
@@ -64,9 +66,12 @@ export async function startReviewServer({port = 4173, ...paths} = defaultReviewP
         || (request.headers.origin && request.headers.origin !== origin)) return end(403);
     if (request.method !== 'GET' && request.method !== 'HEAD') return end(405, {Allow:'GET, HEAD'});
     // Exact raw paths deliberately avoid URL normalisation and encoded traversal aliases.
-    const path = request.url;
+    let path = request.url;
+    // The standalone app already accepts these public language codes. Permit
+    // only this exact raw query, without decoding or accepting other fields.
+    if (/^\/rio\/\?lang=(nl|en|de|fr|es|it|pt|ru|pl|zh|ar|eo)$/.test(path)) path = '/rio/';
     if (typeof path !== 'string' || !path.startsWith('/') || /[%?\\\x00-\x20]/.test(path)) return end(400);
-    const route = {'/':'/index.html', '/rio/':'/rio/index.html', '/rio/reception/':'/rio/reception/index.html'}[path] || path;
+    const route = {'/':'/index.html', '/rio/':'/rio/index.html', '/rio/reception/':'/rio/reception/index.html', '/hara/':'/hara/index.html', '/rio/account/':'/rio/account/index.html'}[path] || path;
     if (!snapshot.has(route)) return end(404);
     if (route === '/rio/download') {
       headers['Content-Type'] = 'application/octet-stream';

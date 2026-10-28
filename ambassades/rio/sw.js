@@ -1,5 +1,5 @@
 'use strict';
-const CACHE='palaco-rio-start-v0.1-3';
+const CACHE='palaco-rio-start-v0.1-4';
 const PREFIX='palaco-rio-start-';
 const ASSETS=['/rio/','/rio/manifest.webmanifest','/rio/icon-192.png','/rio/icon-512.png'];
 self.addEventListener('install',event=>{

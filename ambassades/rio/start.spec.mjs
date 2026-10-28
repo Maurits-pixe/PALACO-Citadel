@@ -110,7 +110,7 @@ test('service worker installs only public RIO assets and genuinely reloads offli
   await open(page);
   await installed(page);
   const paths = ['/rio/', '/rio/manifest.webmanifest', '/rio/icon-192.png', '/rio/icon-512.png'].sort();
-  expect(await cachedPaths(page)).toEqual([{ name: 'palaco-rio-start-v0.1-3', paths }]);
+  expect(await cachedPaths(page)).toEqual([{ name: 'palaco-rio-start-v0.1-4', paths }]);
   const privateResults = await page.evaluate(async () => {
     const values = [];
     for (const path of ['/api/me', '/api/seats/PALACO-AMB-01', '/auth/server.mjs', '/rio/download', '/rio/manifest.webmanifest?probe=1']) {
@@ -123,7 +123,7 @@ test('service worker installs only public RIO assets and genuinely reloads offli
     ['/api/me', 503], ['/api/seats/PALACO-AMB-01', 503], ['/auth/server.mjs', 404],
     ['/rio/download', 200], ['/rio/manifest.webmanifest?probe=1', 200],
   ]);
-  expect(await cachedPaths(page)).toEqual([{ name: 'palaco-rio-start-v0.1-3', paths }]);
+  expect(await cachedPaths(page)).toEqual([{ name: 'palaco-rio-start-v0.1-4', paths }]);
   await addContact(page, 'Fictieve offline bezoeker');
   await context.setOffline(true);
   const response = await page.reload();
@@ -319,12 +319,24 @@ test('unavailable storage uses explicit memory fallback without breaking the flo
   await expect(page.locator('#storage-status')).toHaveClass(/memory/);
 });
 
-test('eleven languages switch the whole interface with RTL and no horizontal overflow', async ({ page }, testInfo) => {
+test('twelve languages switch the whole interface with RTL and no horizontal overflow', async ({ page }, testInfo) => {
   await open(page);
-  const languages = ['nl','en','de','fr','es','it','pt','ru','zh','ar','eo'];
+  const languages = ['nl','en','de','fr','es','it','pt','ru','zh','ar','eo','pl'];
+  const source = await readFile(new URL('./palaco-rio-start-v0.1.html', import.meta.url), 'utf8');
+  const keys = JSON.parse(source.match(/const keys=(.+);/)[1]);
+  const translations = JSON.parse(source.match(/const translations=(.+);/)[1]);
+  const guards = JSON.parse(source.match(/const guardNames=(.+);/)[1]);
+  const placeholders = value => [...value.matchAll(/\{[^}]+\}/g)].map(match => match[0]).sort();
+  expect(keys).toHaveLength(83);
   expect(await page.locator('#language option').evaluateAll(options => options.map(option => option.value))).toEqual(languages);
   const titles = new Set();
   for (const language of languages) {
+    expect(translations[language], language).toHaveLength(keys.length);
+    expect(guards[language], language).toHaveLength(9);
+    translations[language].forEach((value, index) => {
+      expect(value.trim(), language + '/' + keys[index]).not.toBe('');
+      expect(placeholders(value), language + '/' + keys[index]).toEqual(placeholders(translations.en[index]));
+    });
     await page.locator('#language').selectOption(language);
     await expect(page.locator('html')).toHaveAttribute('lang', language === 'zh' ? 'zh-Hans' : language);
     await expect(page.locator('html')).toHaveAttribute('dir', language === 'ar' ? 'rtl' : 'ltr');
@@ -335,7 +347,27 @@ test('eleven languages switch the whole interface with RTL and no horizontal ove
     }
     expect(await page.locator('[data-i18n]').evaluateAll(elements => elements.every(element => element.textContent.trim().length > 0))).toBe(true);
   }
-  expect(titles.size).toBe(11);
+  expect(titles.size).toBe(12);
+  await expect(page.locator('#language option[value="pl"]')).toHaveText('Polski');
+  await expect(page.locator('#language option[value="pl"]')).toHaveAttribute('lang', 'pl');
+  await expect(page.locator('h1')).toHaveText('Wizytówka PALACO.');
+  await page.locator('#tab-trial').click();
+  await expect(page.locator('#trial-message')).toHaveValue('Cześć! To lokalna wiadomość próbna RIO.');
+  const polishMessage = 'Fikcyjna wiadomość: zażółć gęślą jaźń.';
+  await page.locator('#trial-message').fill(polishMessage);
+  await page.locator('#language').selectOption('en');
+  await expect(page.locator('#trial-message')).toHaveValue(polishMessage);
+  await page.locator('#language').selectOption('pl');
+  await expect(page.locator('#trial-message')).toHaveValue(polishMessage);
+  await reviewTrial(page, polishMessage);
+  await expect(page.locator('#guard-list .guard-title')).toHaveText(guards.pl);
+  await expect(page.locator('#open-contact')).toBeDisabled();
+  await page.locator('#sender-accept').click();
+  await page.locator('#receiver-accept').click();
+  await page.locator('#open-contact').click();
+  await expect(page.locator('#message-content')).toHaveText(polishMessage);
+  await expect(page.locator('#trial-status')).toHaveText('Kontakt próbny otwarty. Wiadomość jest widoczna lokalnie dla odbiorcy testowego.');
+  await page.locator('#revoke-trial').click();
   await page.locator('#language').selectOption('nl');
   await page.locator('#tab-contacts').click();
   await addContact(page, 'Fictieve bezoeker');
@@ -401,7 +433,7 @@ test('invalid stored lists never become active contacts or executable markup', a
   await expect(page.locator('#contact-list .name')).toHaveText('Fictief contact uit geheugen');
 });
 
-test('the PP guide is keyboard accessible, translated in all eleven languages and does not change consent', async ({ page }) => {
+test('the PP guide is keyboard accessible, translated in all twelve languages and does not change consent', async ({ page }) => {
   await open(page);
   const guide = page.locator('#pp-identity-guide');
   await guide.locator('summary').focus();
@@ -409,7 +441,7 @@ test('the PP guide is keyboard accessible, translated in all eleven languages an
   await expect(guide).toHaveAttribute('open', '');
   await expect(guide.locator('input, button, select, textarea')).toHaveCount(0);
   const titles = new Set(); const policies = new Set();
-  for (const language of ['nl', 'en', 'de', 'fr', 'es', 'it', 'pt', 'ru', 'zh', 'ar', 'eo']) {
+  for (const language of ['nl', 'en', 'de', 'fr', 'es', 'it', 'pt', 'ru', 'zh', 'ar', 'eo', 'pl']) {
     await page.locator('#language').selectOption(language);
     titles.add((await guide.locator('[data-i18n="ppGuideTitle"]').textContent()).trim());
     policies.add((await guide.locator('[data-i18n="ppGuidePolicy"]').textContent()).trim());
@@ -419,7 +451,7 @@ test('the PP guide is keyboard accessible, translated in all eleven languages an
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
     await expect(page.locator('#notification-badge')).toHaveText('0');
   }
-  expect(titles.size).toBe(11); expect(policies.size).toBe(11);
+  expect(titles.size).toBe(12); expect(policies.size).toBe(12);
   await page.locator('#language').selectOption('nl');
   await page.setViewportSize({ width: 320, height: 900 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
@@ -428,13 +460,13 @@ test('the PP guide is keyboard accessible, translated in all eleven languages an
 
 test('the new offline cache waits for existing clients and preserves contacts and unrelated caches', async ({ browser }) => {
   const currentSW = await readFile(new URL('./sw.js', import.meta.url), 'utf8');
-  expect(currentSW).toContain("const CACHE='palaco-rio-start-v0.1-3';");
+  expect(currentSW).toContain("const CACHE='palaco-rio-start-v0.1-4';");
   let legacy = true;
   const app = buildApp({ env: {} });
   const listener = createServer((req, res) => {
     if (req.url === '/rio/sw.js') {
       res.writeHead(200, { 'Content-Type': 'text/javascript', 'Cache-Control': 'no-store' });
-      res.end(legacy ? currentSW.replace('palaco-rio-start-v0.1-3', 'palaco-rio-start-v0.1-2') : currentSW);
+      res.end(legacy ? currentSW.replace('palaco-rio-start-v0.1-4', 'palaco-rio-start-v0.1-2') : currentSW);
     } else app(req, res);
   });
   listener.listen(0, '127.0.0.1'); await once(listener, 'listening');
@@ -464,7 +496,7 @@ test('the new offline cache waits for existing clients and preserves contacts an
     await expect.poll(() => updated.evaluate(async () => (await caches.keys()).includes('palaco-rio-start-v0.1-2'))).toBe(false);
     expect(await cachedPaths(updated)).toEqual([
       { name: 'unrelated-app-public', paths: ['/unrelated-public'] },
-      { name: 'palaco-rio-start-v0.1-3', paths: ['/rio/', '/rio/icon-192.png', '/rio/icon-512.png', '/rio/manifest.webmanifest'].sort() },
+      { name: 'palaco-rio-start-v0.1-4', paths: ['/rio/', '/rio/icon-192.png', '/rio/icon-512.png', '/rio/manifest.webmanifest'].sort() },
     ]);
     await context.setOffline(true);
     const response = await updated.reload();

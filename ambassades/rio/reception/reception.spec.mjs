@@ -224,6 +224,39 @@ test('both chosen routes open the existing local applications through same-origi
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 });
 
+test('translated NOVA choices keep local runtime destinations and create no extra traffic on language changes', async ({ page, context }) => {
+  const api = [], foreign = [];
+  page.on('request', request => {
+    const url = new URL(request.url());
+    if (url.pathname.startsWith('/api/')) api.push([request.method(), url.pathname]);
+    if (url.origin !== fixture.origin) foreign.push(request.url());
+  });
+  await open(page);
+  await settled(page);
+  await expect(page.locator('#nova-trial-destination')).toBeHidden();
+  for (const language of ['ar', 'fr', 'nl']) {
+    await page.locator('#nova-language').selectOption(language);
+    for (const [id, path] of [['nova-guide-device', 'device-test'], ['nova-guide-reception', 'nova']]) {
+      const link = page.locator('#' + id);
+      await expect(link).toHaveAttribute('href', '/rio/' + path + '/');
+      await expect(link).toHaveAttribute('hreflang', 'nl');
+      await expect(link).toHaveAttribute('target', '_blank');
+      await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+    }
+    await expect(page.locator('[aria-live="polite"]')).toHaveCount(1);
+    await noConnectionClaim(page);
+  }
+  await page.evaluate(() => { location.hash = '#nova-explained:ar'; });
+  await expect(page.locator('#nova-language')).toHaveValue('ar');
+  await expect(page.locator('#nova-explained')).toBeFocused();
+  await expect(page.locator('#runtime-nova')).toHaveAttribute('data-state', 'available');
+  await noConnectionClaim(page);
+  expect(api.sort()).toEqual([['GET', DEVICE], ['GET', NOVA]].sort());
+  expect(foreign).toEqual([]);
+  expect(await context.cookies()).toEqual([]);
+  expect(await page.evaluate(() => [localStorage.length, sessionStorage.length])).toEqual([0, 0]);
+});
+
 test('the PP guide explains PHONE or EMAIL over any transport without creating registration or traffic', async ({ page, context }) => {
   const api = [];
   page.on('request', request => {
@@ -336,15 +369,30 @@ test('a real offline transition clears previous availability and reconnecting re
 
 test('simulated persisted pagehide/pageshow abort a partial check and keep restored labels unconfirmed without new traffic', async ({ page, context }) => {
   // These events exercise the lifecycle handlers; this does not assert actual BFCache admission.
-  await page.addInitScript(({ devicePath }) => {
+  await page.addInitScript(({ novaPath, devicePath }) => {
     const nativeFetch = window.fetch.bind(window);
     window.__deviceLifecycleSignals = [];
+    window.__novaLifecycleReads = 0;
     window.fetch = (input, options) => {
       const url = new URL(typeof input === 'string' ? input : input.url, location.href);
       if (url.pathname === devicePath) window.__deviceLifecycleSignals.push(options.signal);
-      return nativeFetch(input, options);
+      return nativeFetch(input, options).then(response => {
+        if (url.pathname === novaPath) {
+          const getReader = response.body.getReader.bind(response.body);
+          response.body.getReader = (...args) => {
+            const reader = getReader(...args), read = reader.read.bind(reader);
+            reader.read = async (...readArgs) => {
+              const result = await read(...readArgs);
+              if (result.done) window.__novaLifecycleReads++;
+              return result;
+            };
+            return reader;
+          };
+        }
+        return response;
+      });
     };
-  }, { devicePath: DEVICE });
+  }, { novaPath: NOVA, devicePath: DEVICE });
   const requests = recordApiRequests(page);
   await open(page);
   await expect(page.locator('#runtime-device')).toHaveAttribute('data-state', 'available');
@@ -358,10 +406,10 @@ test('simulated persisted pagehide/pageshow abort a partial check and keep resto
     await route.fulfill({ json: validDevice }).catch(() => {});
     finished();
   });
-  const novaResponse = page.waitForResponse(response => new URL(response.url()).pathname === NOVA);
   await page.locator('#refresh-availability').click();
-  await (await novaResponse).finished();
-  await page.waitForFunction(() => window.__deviceLifecycleSignals.length === 2);
+  // Observe the actual native reader reaching EOF. The app then aborts its controller
+  // in finally; waiting for separate browser-network bookkeeping can race that abort.
+  await page.waitForFunction(() => window.__novaLifecycleReads === 2 && window.__deviceLifecycleSignals.length === 2);
   await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 0)));
 
   await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true })));

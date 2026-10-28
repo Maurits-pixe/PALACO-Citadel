@@ -1,0 +1,37 @@
+{
+  "matriarch_relation": {
+    "statement": "H∆R∆M is the Matriarch of H∆R∆",
+    "relation_type": "MATRIARCH",
+    "source": "H∆R∆M",
+    "target": "H∆R∆",
+    "status": "CONFIRMED",
+    "basis": "PERSONAL_DECLARATION",
+    "declared_by": "Maurits",
+    "declared_on": "2026-10-26",
+    "scope": [
+      "lineage",
+      "hierarchy",
+      "family_structure"
+    ],
+    "provenance_level": "DIRECT_USER_DECLARATION",
+    "independent_verification": "NOT_PERFORMED",
+    "registry_record": "DRAFT_RECORD"
+  },
+  "previous_r3c_result": {
+    "statement": "H∆R∆M is the Matriarch of H∆R∆",
+    "explicit_evidence": "NOT_FOUND",
+    "provenance_level": "INSUFFICIENT",
+    "registry_record": "NOT_FOUND",
+    "status": "NOT_ESTABLISHED"
+  },
+  "effects": {
+    "identity_merge": false,
+    "capability_inheritance": false,
+    "authority_inheritance": false,
+    "namespace_inheritance": false,
+    "issuer_inheritance": false,
+    "signer_inheritance": false,
+    "runtime_execution": false,
+    "activation": "INACTIVE"
+  }
+}

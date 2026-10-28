@@ -7,9 +7,9 @@ import { CSP } from '../../scripts/build-rio-unified-preview.mjs';
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8',
-  '.svg': 'image/svg+xml', '.png': 'image/png', '.webmanifest': 'application/manifest+json',
+  '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webmanifest': 'application/manifest+json',
 };
-export async function startStaticFixture(directory, { rootWorker, csp = CSP, allowCrossOrigin = false } = {}) {
+export async function startStaticFixture(directory, { rootWorker, appWorker, csp = CSP, allowCrossOrigin = false } = {}) {
   const root = await realpath(directory);
   const requests = [];
   const server = createServer(async (request, response) => {
@@ -26,11 +26,15 @@ export async function startStaticFixture(directory, { rootWorker, csp = CSP, all
       if (request.method !== 'GET' && request.method !== 'HEAD') {
         response.writeHead(405, headers); response.end(); return;
       }
-      // The optional fixed legacy worker is the only fixture override. Every page/asset
+      // Optional fixed legacy workers are the only fixture overrides. Every page/asset
       // is read from the generated public directory, never from repository sources.
       if (url.pathname === '/sw.js' && rootWorker) {
         response.writeHead(200, { ...headers, 'Content-Type': TYPES['.js'], 'Service-Worker-Allowed': '/' });
         response.end(request.method === 'HEAD' ? undefined : await rootWorker()); return;
+      }
+      if (url.pathname === '/rio/sw.js' && appWorker) {
+        response.writeHead(200, { ...headers, 'Content-Type': TYPES['.js'], 'Service-Worker-Allowed': '/rio/' });
+        response.end(request.method === 'HEAD' ? undefined : await appWorker()); return;
       }
       let path = resolve(root, '.' + decodeURIComponent(url.pathname));
       if (path !== root && !path.startsWith(root + sep)) throw new Error('OUTSIDE_PUBLIC_ROOT');

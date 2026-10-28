@@ -1,0 +1,45 @@
+name: RIO Supabase private workspace
+on:
+  pull_request:
+    paths:
+      - 'rio/backend/**'
+      - 'ambassades/rio/visitcard/**'
+      - 'scripts/build-rio-unified-preview*'
+      - 'scripts/serve-rio-unified-preview*'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/rio-supabase.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  private-workspace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: rio_fixture
+          POSTGRES_PASSWORD: synthetic_test_only
+          POSTGRES_DB: rio_backend_test_ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U rio_fixture -d rio_backend_test_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      RIO_TEST_DATABASE_URL: postgresql://rio_fixture:synthetic_test_only@127.0.0.1:5432/rio_backend_test_ci
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --include=dev --ignore-scripts --no-audit --no-fund
+      - name: Verify real PostgreSQL isolation and client/HTTP boundaries
+        run: node --test --test-concurrency=1 rio/backend/client.test.mjs rio/backend/server.test.mjs rio/backend/test/database.test.mjs
+      - run: npx playwright install --with-deps chromium
+      - name: Verify bundled SDK and mobile/desktop workspace with an explicit synthetic provider
+        run: npx playwright test --config rio/backend/playwright.config.mjs

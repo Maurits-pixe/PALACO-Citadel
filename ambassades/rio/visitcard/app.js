@@ -117,6 +117,91 @@ const contactRouteTranslations = {
     boundary: 'HOLD · 此页面不授予准入、不执行安全检查，也不建立联系。点击步骤仅展示说明。',
     mascot: '吉祥物和文字属于内容，并非准入关卡。来源中未找到独立的吉祥物路径。BRI9ADE/6RI9ADE 在此仍是设计参考；与 BRIGADE 的历史别名关系尚未证实。',
     sources: '来源与缺失的连接'
+  },
+  pt: {
+    "entry": "Ver o percurso de contacto",
+    "overviewTitle": "Ir para uma explicação",
+    "backToOverview": "Voltar à visão geral do percurso",
+    "explanationLink": "Ligação para esta explicação",
+    "startReading": "Ler o percurso passo a passo",
+    "previousExplanation": "Explicação anterior",
+    "nextExplanation": "Explicação seguinte",
+    "readSources": "Ler as fontes e as ligações em falta",
+    "openSteps": "Abrir as sete explicações",
+    "closeSteps": "Fechar as sete explicações",
+    "title": "O caminho para um contacto delimitado.",
+    "intro": "Percurso de referência reproduzido, sem serviço de contacto ligado. Abra um passo para ler os seus limites. As citações das fontes permanecem no neerlandês original.",
+    "boundary": "HOLD · Esta página não concede admissão, não realiza verificações de segurança nem abre contacto. Premir um passo apenas revela uma explicação.",
+    "mascot": "A mascote e o texto são conteúdo, não uma porta de admissão. Não foi encontrado um percurso separado para a mascote na fonte. BRI9ADE/6RI9ADE permanece aqui uma referência de desenho; o alias histórico para BRIGADE não está estabelecido.",
+    "sources": "Fontes e ligações em falta"
+  },
+  ru: {
+    "entry": "Посмотреть путь к контакту",
+    "overviewTitle": "Перейти к пояснению",
+    "backToOverview": "Вернуться к обзору пути",
+    "explanationLink": "Ссылка на это пояснение",
+    "startReading": "Читать путь шаг за шагом",
+    "previousExplanation": "Предыдущее пояснение",
+    "nextExplanation": "Следующее пояснение",
+    "readSources": "Прочитать об источниках и отсутствующих связях",
+    "openSteps": "Открыть все семь пояснений",
+    "closeSteps": "Закрыть все семь пояснений",
+    "title": "Путь к контакту в установленных границах.",
+    "intro": "Воспроизведённый справочный путь без подключённой службы связи. Откройте шаг, чтобы прочитать его ограничения. Цитаты из источников остаются на исходном нидерландском языке.",
+    "boundary": "HOLD · Эта страница не предоставляет допуск, не выполняет проверки безопасности и не устанавливает контакт. Нажатие на шаг только открывает пояснение.",
+    "mascot": "Маскот и текст являются содержимым, а не шлюзом допуска. Отдельный путь для маскота в источнике не найден. BRI9ADE/6RI9ADE остаётся здесь ссылкой на проект; историческое соответствие имени BRIGADE не установлено.",
+    "sources": "Источники и отсутствующие связи"
+  },
+  eo: {
+    "entry": "Vidi la kontaktovojon",
+    "overviewTitle": "Salti al klarigo",
+    "backToOverview": "Reen al la vojresumo",
+    "explanationLink": "Ligilo al ĉi tiu klarigo",
+    "startReading": "Legi la vojon paŝon post paŝo",
+    "previousExplanation": "Antaŭa klarigo",
+    "nextExplanation": "Sekva klarigo",
+    "readSources": "Legi la fontojn kaj mankantajn ligojn",
+    "openSteps": "Malfermi ĉiujn sep klarigojn",
+    "closeSteps": "Fermi ĉiujn sep klarigojn",
+    "title": "La vojo al kontakto kun difinitaj limoj.",
+    "intro": "Reproduktita referenca vojo, sen konektita kontaktoservo. Malfermu paŝon por legi ĝiajn limojn. La fontaj citaĵoj restas en la originala nederlanda lingvo.",
+    "boundary": "HOLD · Ĉi tiu paĝo donas neniun enirpermeson, faras neniujn sekurecajn kontrolojn kaj malfermas neniun kontakton. Alklako al paŝo nur montras klarigon.",
+    "mascot": "Maskoto kaj teksto estas enhavo, ne enirpermesa pordego. Aparta maskota vojo ne troviĝis en la fonto. BRI9ADE/6RI9ADE restas ĉi tie projektoreferenco; la historia kromnomo BRIGADE ne estas konfirmita.",
+    "sources": "Fontoj kaj mankantaj ligoj"
+  },
+  pl: {
+    "entry": "Zobacz ścieżkę kontaktu",
+    "overviewTitle": "Przejdź do objaśnienia",
+    "backToOverview": "Wróć do przeglądu ścieżki",
+    "explanationLink": "Link do tego objaśnienia",
+    "startReading": "Czytaj ścieżkę krok po kroku",
+    "previousExplanation": "Poprzednie objaśnienie",
+    "nextExplanation": "Następne objaśnienie",
+    "readSources": "Przeczytaj źródła i brakujące powiązania",
+    "openSteps": "Otwórz wszystkie siedem objaśnień",
+    "closeSteps": "Zamknij wszystkie siedem objaśnień",
+    "title": "Droga do kontaktu w określonych granicach.",
+    "intro": "Odtworzona ścieżka referencyjna, bez podłączonej usługi kontaktowej. Otwórz krok, aby przeczytać o jego granicach. Cytaty ze źródeł pozostają w oryginalnym języku niderlandzkim.",
+    "boundary": "HOLD · Ta strona nie przyznaje dopuszczenia, nie przeprowadza kontroli bezpieczeństwa i nie nawiązuje kontaktu. Kliknięcie kroku pokazuje jedynie objaśnienie.",
+    "mascot": "Maskotka i tekst są treścią, a nie bramą dopuszczenia. W źródle nie znaleziono osobnej ścieżki dla maskotki. BRI9ADE/6RI9ADE pozostaje tu odniesieniem do projektu; historyczny alias BRIGADE nie został potwierdzony.",
+    "sources": "Źródła i brakujące powiązania"
+  },
+  it: {
+    "entry": "Esplora il percorso di contatto",
+    "overviewTitle": "Vai a una spiegazione",
+    "backToOverview": "Torna alla panoramica del percorso",
+    "explanationLink": "Link a questa spiegazione",
+    "startReading": "Leggi il percorso passo dopo passo",
+    "previousExplanation": "Spiegazione precedente",
+    "nextExplanation": "Spiegazione successiva",
+    "readSources": "Leggi le fonti e i collegamenti mancanti",
+    "openSteps": "Apri tutte e sette le spiegazioni",
+    "closeSteps": "Chiudi tutte e sette le spiegazioni",
+    "title": "Il percorso verso un contatto entro limiti definiti.",
+    "intro": "Percorso di riferimento riprodotto, senza un servizio di contatto collegato. Apri un passaggio per leggerne i limiti. Le citazioni delle fonti restano in olandese, la loro lingua originale.",
+    "boundary": "HOLD · Questa pagina non concede accesso, non esegue controlli di sicurezza e non avvia alcun contatto. Un clic su un passaggio mostra soltanto una spiegazione.",
+    "mascot": "La mascotte e il testo sono contenuti, non una porta di accesso. Nella fonte non è stato trovato un percorso separato per la mascotte. BRI9ADE/6RI9ADE resta qui un riferimento progettuale; il legame storico con l’alias BRIGADE non è accertato.",
+    "sources": "Fonti e collegamenti mancanti"
   }
 };
 
@@ -207,25 +292,302 @@ document.querySelector('#contact-route-overview').hidden = false;
 
 const translations = {
   nl: {
-    navMeet: 'Ontmoet RIO', navEverywhere: 'Overal', navTrust: 'Vertrouwen', eyebrow: 'PALACO stelt voor', tagline: 'Het visitekaartje van PALACO.', intro: 'RIO zegt hallo. RIO helpt je mensen en ideeën te vinden. Jij kiest altijd wat je deelt.', meetButton: 'Maak kennis', shareButton: 'Deel RIO', shareReady: 'De link naar RIO is klaar om te delen.', shareUnavailable: 'Delen lukt nu niet.', live: 'Klaar om te verbinden', cardIntro: 'Hallo, ik ben RIO.', cardBody: 'Ik breng je veilig naar de juiste plek in PALACO.', identityLabel: 'Identiteit', verified: 'Nog niet geverifieerd', consentLabel: 'Jouw keuze', consentValue: 'Altijd eerst', authorityLabel: 'Macht', authorityValue: 'Geen', addressLabel: 'RIO-adres', openCard: 'Open kaart', closeCard: 'Sluit kaart', cardReveal: 'Eerst ontmoeten. Dan kiezen. Pas daarna verbinden.', everywhereTitle: 'Eén begroeting. Overal.', everywhereBody: 'Je gesprek reist met je mee. De betekenis blijft hetzelfde.', flowLabel: 'Zo werkt RIO', flowTitle: 'Van hallo naar een echt gesprek.', stepOneTitle: 'Kijk', stepOneBody: 'RIO laat zien wie of wat je ontmoet.', stepTwoTitle: 'Kies', stepTwoBody: 'Jij beslist of je verder wilt gaan.', stepThreeTitle: 'Praat', stepThreeBody: 'RIO bewaart de weg en het gesprek.', helloTitle: 'Zeg hallo tegen RIO.', helloBody: 'Begin klein. Alleen je naam is genoeg.', nameLabel: 'Hoe mogen we je noemen?', namePlaceholder: 'Jouw naam', startButton: 'Start', helloPrefix: 'Hallo', helloSuffix: 'RIO is er. Jij kiest wat je deelt.', trustTitle: 'Helder over vertrouwen.', trustBody: 'RIO verbindt. Jij houdt de regie. PALACO bewaakt de grenzen.', trustIdentity: 'Wie is dit?', trustIdentityBody: 'De identiteit is zichtbaar; verificatie vereist apart bewijs.', trustConsent: 'Mag dit?', trustConsentBody: 'Niets gaat verder zonder jouw keuze.', trustHistory: 'Wat gebeurde er?', trustHistoryBody: 'Belangrijke stappen blijven terug te vinden.', installButton: 'Installeer RIO', footer: 'PALACO · Een plek voor mensen en ideeën.'
+    mainNavLabel: "Hoofdnavigatie", languageSwitchLabel: "Taal",
+    navMeet: 'Ontmoet RIO', navEverywhere: 'Overal', navTrust: 'Vertrouwen', eyebrow: 'PALACO stelt voor', tagline: 'Het visitekaartje van PALACO.', intro: 'RIO zegt hallo. RIO helpt je mensen en ideeën te vinden. Jij kiest altijd wat je deelt.', meetButton: 'Maak kennis', shareButton: 'Deel RIO', shareReady: 'De link naar RIO is klaar om te delen.', shareUnavailable: 'Delen lukt nu niet.', live: 'Klaar om te verbinden', cardIntro: 'Hallo, ik ben RIO.', cardBody: 'Ik breng je veilig naar de juiste plek in PALACO.', identityLabel: 'Identiteit', verified: 'Nog niet geverifieerd', consentLabel: 'Jouw keuze', consentValue: 'Altijd eerst', authorityLabel: 'Macht', authorityValue: 'Geen', addressLabel: 'RIO-adres', openCard: 'Open kaart', closeCard: 'Sluit kaart', cardReveal: 'Eerst ontmoeten. Dan kiezen. Pas daarna verbinden.', everywhereTitle: 'Eén begroeting. Overal.', everywhereBody: 'Bekijk de lokale proef op je eigen apparaat. Chat en Engine-inhoud blijven op de geopende pagina.', flowLabel: 'Zo werkt RIO', flowTitle: 'Van hallo naar een echt gesprek.', stepOneTitle: 'Kijk', stepOneBody: 'RIO laat zien wie of wat je ontmoet.', stepTwoTitle: 'Kies', stepTwoBody: 'Jij beslist of je verder wilt gaan.', stepThreeTitle: 'Praat', stepThreeBody: 'Probeer de tijdelijke chat op deze pagina. Je berichten worden niet bewaard.', helloTitle: 'Zeg hallo tegen RIO.', helloBody: 'Begin klein. Alleen je naam is genoeg.', nameLabel: 'Hoe mogen we je noemen?', namePlaceholder: 'Jouw naam', startButton: 'Start', helloPrefix: 'Hallo', helloSuffix: 'RIO is er. Jij kiest wat je deelt.', trustTitle: 'Helder over vertrouwen.', trustBody: 'RIO verbindt. Jij houdt de regie. PALACO bewaakt de grenzen.', trustIdentity: 'Wie is dit?', trustIdentityBody: 'De identiteit is zichtbaar; verificatie vereist apart bewijs.', trustConsent: 'Mag dit?', trustConsentBody: 'Niets gaat verder zonder jouw keuze.', trustHistory: 'Wat gebeurde er?', trustHistoryBody: 'Belangrijke stappen blijven terug te vinden.', installButton: 'Installeer RIO', footer: 'PALACO · Een plek voor mensen en ideeën.'
   },
   en: {
-    navMeet: 'Meet RIO', navEverywhere: 'Everywhere', navTrust: 'Trust', eyebrow: 'PALACO presents', tagline: "PALACO's calling card.", intro: 'RIO says hello. RIO helps you find people and ideas. You always choose what you share.', meetButton: 'Meet RIO', shareButton: 'Share RIO', shareReady: 'The RIO link is ready to share.', shareUnavailable: 'Sharing is not available now.', live: 'Ready to connect', cardIntro: 'Hello, I am RIO.', cardBody: 'I take you safely to the right place in PALACO.', identityLabel: 'Identity', verified: 'Not yet verified', consentLabel: 'Your choice', consentValue: 'Always first', authorityLabel: 'Authority', authorityValue: 'None', addressLabel: 'RIO address', openCard: 'Open card', closeCard: 'Close card', cardReveal: 'Meet first. Then choose. Only then connect.', everywhereTitle: 'One hello. Everywhere.', everywhereBody: 'Your conversation travels with you. Its meaning stays the same.', flowLabel: 'How RIO works', flowTitle: 'From hello to a real conversation.', stepOneTitle: 'Look', stepOneBody: 'RIO shows who or what you meet.', stepTwoTitle: 'Choose', stepTwoBody: 'You decide if you want to continue.', stepThreeTitle: 'Talk', stepThreeBody: 'RIO remembers the path and the conversation.', helloTitle: 'Say hello to RIO.', helloBody: 'Start small. Your name is enough.', nameLabel: 'What may we call you?', namePlaceholder: 'Your name', startButton: 'Start', helloPrefix: 'Hello', helloSuffix: 'RIO is here. You choose what you share.', trustTitle: 'Clear about trust.', trustBody: 'RIO connects. You stay in control. PALACO guards the boundaries.', trustIdentity: 'Who is this?', trustIdentityBody: 'Identity is visible; verification requires separate evidence.', trustConsent: 'Is this allowed?', trustConsentBody: 'Nothing continues without your choice.', trustHistory: 'What happened?', trustHistoryBody: 'Important steps remain traceable.', installButton: 'Install RIO', footer: 'PALACO · A place for people and ideas.'
+    mainNavLabel: "Main navigation", languageSwitchLabel: "Language",
+    navMeet: 'Meet RIO', navEverywhere: 'Everywhere', navTrust: 'Trust', eyebrow: 'PALACO presents', tagline: "PALACO's calling card.", intro: 'RIO says hello. RIO helps you find people and ideas. You always choose what you share.', meetButton: 'Meet RIO', shareButton: 'Share RIO', shareReady: 'The RIO link is ready to share.', shareUnavailable: 'Sharing is not available now.', live: 'Ready to connect', cardIntro: 'Hello, I am RIO.', cardBody: 'I take you safely to the right place in PALACO.', identityLabel: 'Identity', verified: 'Not yet verified', consentLabel: 'Your choice', consentValue: 'Always first', authorityLabel: 'Authority', authorityValue: 'None', addressLabel: 'RIO address', openCard: 'Open card', closeCard: 'Close card', cardReveal: 'Meet first. Then choose. Only then connect.', everywhereTitle: 'One hello. Everywhere.', everywhereBody: 'Explore the local trial on your own device. Chat and Engine content stay on the open page.', flowLabel: 'How RIO works', flowTitle: 'From hello to a real conversation.', stepOneTitle: 'Look', stepOneBody: 'RIO shows who or what you meet.', stepTwoTitle: 'Choose', stepTwoBody: 'You decide if you want to continue.', stepThreeTitle: 'Talk', stepThreeBody: 'Try the temporary chat on this page. Your messages are not saved.', helloTitle: 'Say hello to RIO.', helloBody: 'Start small. Your name is enough.', nameLabel: 'What may we call you?', namePlaceholder: 'Your name', startButton: 'Start', helloPrefix: 'Hello', helloSuffix: 'RIO is here. You choose what you share.', trustTitle: 'Clear about trust.', trustBody: 'RIO connects. You stay in control. PALACO guards the boundaries.', trustIdentity: 'Who is this?', trustIdentityBody: 'Identity is visible; verification requires separate evidence.', trustConsent: 'Is this allowed?', trustConsentBody: 'Nothing continues without your choice.', trustHistory: 'What happened?', trustHistoryBody: 'Important steps remain traceable.', installButton: 'Install RIO', footer: 'PALACO · A place for people and ideas.'
   },
   de: {
-    navMeet: 'RIO treffen', navEverywhere: 'Überall', navTrust: 'Vertrauen', eyebrow: 'PALACO stellt vor', tagline: 'Die Visitenkarte von PALACO.', intro: 'RIO sagt Hallo. RIO hilft dir, Menschen und Ideen zu finden. Du bestimmst immer, was du teilst.', meetButton: 'Kennenlernen', shareButton: 'RIO teilen', shareReady: 'Der RIO-Link kann geteilt werden.', shareUnavailable: 'Teilen ist gerade nicht möglich.', live: 'Bereit zum Verbinden', cardIntro: 'Hallo, ich bin RIO.', cardBody: 'Ich bringe dich sicher zum richtigen Ort in PALACO.', identityLabel: 'Identität', verified: 'Noch nicht verifiziert', consentLabel: 'Deine Wahl', consentValue: 'Immer zuerst', authorityLabel: 'Befugnis', authorityValue: 'Keine', addressLabel: 'RIO-Adresse', openCard: 'Karte öffnen', closeCard: 'Karte schließen', cardReveal: 'Erst treffen. Dann wählen. Erst danach verbinden.', everywhereTitle: 'Ein Hallo. Überall.', everywhereBody: 'Dein Gespräch reist mit dir. Die Bedeutung bleibt gleich.', flowLabel: 'So funktioniert RIO', flowTitle: 'Vom Hallo zum echten Gespräch.', stepOneTitle: 'Schauen', stepOneBody: 'RIO zeigt, wen oder was du triffst.', stepTwoTitle: 'Wählen', stepTwoBody: 'Du entscheidest, ob es weitergeht.', stepThreeTitle: 'Reden', stepThreeBody: 'RIO bewahrt den Weg und das Gespräch.', helloTitle: 'Sag RIO Hallo.', helloBody: 'Fang klein an. Dein Name genügt.', nameLabel: 'Wie dürfen wir dich nennen?', namePlaceholder: 'Dein Name', startButton: 'Start', helloPrefix: 'Hallo', helloSuffix: 'RIO ist da. Du wählst, was du teilst.', trustTitle: 'Vertrauen, klar erklärt.', trustBody: 'RIO verbindet. Du behältst die Kontrolle. PALACO schützt die Grenzen.', trustIdentity: 'Wer ist das?', trustIdentityBody: 'Die Identität ist sichtbar; die Verifizierung braucht eigene Nachweise.', trustConsent: 'Ist das erlaubt?', trustConsentBody: 'Ohne deine Wahl geht nichts weiter.', trustHistory: 'Was geschah?', trustHistoryBody: 'Wichtige Schritte bleiben auffindbar.', installButton: 'RIO installieren', footer: 'PALACO · Ein Ort für Menschen und Ideen.'
+    mainNavLabel: "Hauptnavigation", languageSwitchLabel: "Sprache",
+    navMeet: 'RIO treffen', navEverywhere: 'Überall', navTrust: 'Vertrauen', eyebrow: 'PALACO stellt vor', tagline: 'Die Visitenkarte von PALACO.', intro: 'RIO sagt Hallo. RIO hilft dir, Menschen und Ideen zu finden. Du bestimmst immer, was du teilst.', meetButton: 'Kennenlernen', shareButton: 'RIO teilen', shareReady: 'Der RIO-Link kann geteilt werden.', shareUnavailable: 'Teilen ist gerade nicht möglich.', live: 'Bereit zum Verbinden', cardIntro: 'Hallo, ich bin RIO.', cardBody: 'Ich bringe dich sicher zum richtigen Ort in PALACO.', identityLabel: 'Identität', verified: 'Noch nicht verifiziert', consentLabel: 'Deine Wahl', consentValue: 'Immer zuerst', authorityLabel: 'Befugnis', authorityValue: 'Keine', addressLabel: 'RIO-Adresse', openCard: 'Karte öffnen', closeCard: 'Karte schließen', cardReveal: 'Erst treffen. Dann wählen. Erst danach verbinden.', everywhereTitle: 'Ein Hallo. Überall.', everywhereBody: 'Entdecke den lokalen Test auf deinem Gerät. Chat und Engine-Inhalte bleiben auf der geöffneten Seite.', flowLabel: 'So funktioniert RIO', flowTitle: 'Vom Hallo zum echten Gespräch.', stepOneTitle: 'Schauen', stepOneBody: 'RIO zeigt, wen oder was du triffst.', stepTwoTitle: 'Wählen', stepTwoBody: 'Du entscheidest, ob es weitergeht.', stepThreeTitle: 'Reden', stepThreeBody: 'Probiere den temporären Chat auf dieser Seite. Deine Nachrichten werden nicht gespeichert.', helloTitle: 'Sag RIO Hallo.', helloBody: 'Fang klein an. Dein Name genügt.', nameLabel: 'Wie dürfen wir dich nennen?', namePlaceholder: 'Dein Name', startButton: 'Start', helloPrefix: 'Hallo', helloSuffix: 'RIO ist da. Du wählst, was du teilst.', trustTitle: 'Vertrauen, klar erklärt.', trustBody: 'RIO verbindet. Du behältst die Kontrolle. PALACO schützt die Grenzen.', trustIdentity: 'Wer ist das?', trustIdentityBody: 'Die Identität ist sichtbar; die Verifizierung braucht eigene Nachweise.', trustConsent: 'Ist das erlaubt?', trustConsentBody: 'Ohne deine Wahl geht nichts weiter.', trustHistory: 'Was geschah?', trustHistoryBody: 'Wichtige Schritte bleiben auffindbar.', installButton: 'RIO installieren', footer: 'PALACO · Ein Ort für Menschen und Ideen.'
   },
   fr: {
-    navMeet: 'Rencontrer RIO', navEverywhere: 'Partout', navTrust: 'Confiance', eyebrow: 'PALACO présente', tagline: 'La carte de visite de PALACO.', intro: 'RIO dit bonjour. RIO vous aide à trouver des personnes et des idées. Vous choisissez toujours ce que vous partagez.', meetButton: 'Faire connaissance', shareButton: 'Partager RIO', shareReady: 'Le lien RIO est prêt à être partagé.', shareUnavailable: "Le partage n'est pas disponible.", live: 'Prêt à connecter', cardIntro: 'Bonjour, je suis RIO.', cardBody: 'Je vous guide en sécurité au bon endroit dans PALACO.', identityLabel: 'Identité', verified: 'Pas encore vérifiée', consentLabel: 'Votre choix', consentValue: "Toujours d'abord", authorityLabel: 'Autorité', authorityValue: 'Aucune', addressLabel: 'Adresse RIO', openCard: 'Ouvrir la carte', closeCard: 'Fermer la carte', cardReveal: "D'abord se rencontrer. Puis choisir. Ensuite seulement se connecter.", everywhereTitle: 'Un bonjour. Partout.', everywhereBody: 'Votre conversation voyage avec vous. Son sens reste le même.', flowLabel: 'Comment marche RIO', flowTitle: "Du bonjour à une vraie conversation.", stepOneTitle: 'Regarder', stepOneBody: 'RIO montre qui ou quoi vous rencontrez.', stepTwoTitle: 'Choisir', stepTwoBody: 'Vous décidez si vous voulez continuer.', stepThreeTitle: 'Parler', stepThreeBody: 'RIO garde le chemin et la conversation.', helloTitle: 'Dites bonjour à RIO.', helloBody: 'Commencez simplement. Votre nom suffit.', nameLabel: 'Comment pouvons-nous vous appeler ?', namePlaceholder: 'Votre nom', startButton: 'Commencer', helloPrefix: 'Bonjour', helloSuffix: 'RIO est là. Vous choisissez ce que vous partagez.', trustTitle: 'La confiance, clairement.', trustBody: 'RIO connecte. Vous gardez le contrôle. PALACO protège les limites.', trustIdentity: 'Qui est-ce ?', trustIdentityBody: "L'identité est visible ; sa vérification exige des preuves distinctes.", trustConsent: 'Est-ce permis ?', trustConsentBody: 'Rien ne continue sans votre choix.', trustHistory: "Que s'est-il passé ?", trustHistoryBody: 'Les étapes importantes restent traçables.', installButton: 'Installer RIO', footer: 'PALACO · Un lieu pour les personnes et les idées.'
+    mainNavLabel: "Navigation principale", languageSwitchLabel: "Langue",
+    navMeet: 'Rencontrer RIO', navEverywhere: 'Partout', navTrust: 'Confiance', eyebrow: 'PALACO présente', tagline: 'La carte de visite de PALACO.', intro: 'RIO dit bonjour. RIO vous aide à trouver des personnes et des idées. Vous choisissez toujours ce que vous partagez.', meetButton: 'Faire connaissance', shareButton: 'Partager RIO', shareReady: 'Le lien RIO est prêt à être partagé.', shareUnavailable: "Le partage n'est pas disponible.", live: 'Prêt à connecter', cardIntro: 'Bonjour, je suis RIO.', cardBody: 'Je vous guide en sécurité au bon endroit dans PALACO.', identityLabel: 'Identité', verified: 'Pas encore vérifiée', consentLabel: 'Votre choix', consentValue: "Toujours d'abord", authorityLabel: 'Autorité', authorityValue: 'Aucune', addressLabel: 'Adresse RIO', openCard: 'Ouvrir la carte', closeCard: 'Fermer la carte', cardReveal: "D'abord se rencontrer. Puis choisir. Ensuite seulement se connecter.", everywhereTitle: 'Un bonjour. Partout.', everywhereBody: 'Découvrez le test local sur votre appareil. Le chat et le contenu Engine restent sur la page ouverte.', flowLabel: 'Comment marche RIO', flowTitle: "Du bonjour à une vraie conversation.", stepOneTitle: 'Regarder', stepOneBody: 'RIO montre qui ou quoi vous rencontrez.', stepTwoTitle: 'Choisir', stepTwoBody: 'Vous décidez si vous voulez continuer.', stepThreeTitle: 'Parler', stepThreeBody: 'Essayez le chat temporaire sur cette page. Vos messages ne sont pas enregistrés.', helloTitle: 'Dites bonjour à RIO.', helloBody: 'Commencez simplement. Votre nom suffit.', nameLabel: 'Comment pouvons-nous vous appeler ?', namePlaceholder: 'Votre nom', startButton: 'Commencer', helloPrefix: 'Bonjour', helloSuffix: 'RIO est là. Vous choisissez ce que vous partagez.', trustTitle: 'La confiance, clairement.', trustBody: 'RIO connecte. Vous gardez le contrôle. PALACO protège les limites.', trustIdentity: 'Qui est-ce ?', trustIdentityBody: "L'identité est visible ; sa vérification exige des preuves distinctes.", trustConsent: 'Est-ce permis ?', trustConsentBody: 'Rien ne continue sans votre choix.', trustHistory: "Que s'est-il passé ?", trustHistoryBody: 'Les étapes importantes restent traçables.', installButton: 'Installer RIO', footer: 'PALACO · Un lieu pour les personnes et les idées.'
   },
   es: {
-    navMeet: 'Conoce a RIO', navEverywhere: 'En todas partes', navTrust: 'Confianza', eyebrow: 'PALACO presenta', tagline: 'La tarjeta de presentación de PALACO.', intro: 'RIO dice hola. RIO te ayuda a encontrar personas e ideas. Tú siempre eliges qué compartes.', meetButton: 'Conocer', shareButton: 'Compartir RIO', shareReady: 'El enlace de RIO está listo para compartir.', shareUnavailable: 'No se puede compartir ahora.', live: 'Listo para conectar', cardIntro: 'Hola, soy RIO.', cardBody: 'Te llevo de forma segura al lugar correcto en PALACO.', identityLabel: 'Identidad', verified: 'Aún no verificada', consentLabel: 'Tu elección', consentValue: 'Siempre primero', authorityLabel: 'Autoridad', authorityValue: 'Ninguna', addressLabel: 'Dirección RIO', openCard: 'Abrir tarjeta', closeCard: 'Cerrar tarjeta', cardReveal: 'Primero conocer. Luego elegir. Solo después conectar.', everywhereTitle: 'Un hola. En todas partes.', everywhereBody: 'Tu conversación viaja contigo. El significado sigue igual.', flowLabel: 'Así funciona RIO', flowTitle: 'De hola a una conversación real.', stepOneTitle: 'Mira', stepOneBody: 'RIO muestra a quién o qué encuentras.', stepTwoTitle: 'Elige', stepTwoBody: 'Tú decides si quieres continuar.', stepThreeTitle: 'Habla', stepThreeBody: 'RIO guarda el camino y la conversación.', helloTitle: 'Saluda a RIO.', helloBody: 'Empieza con poco. Tu nombre basta.', nameLabel: '¿Cómo podemos llamarte?', namePlaceholder: 'Tu nombre', startButton: 'Empezar', helloPrefix: 'Hola', helloSuffix: 'RIO está aquí. Tú eliges qué compartes.', trustTitle: 'Confianza clara.', trustBody: 'RIO conecta. Tú tienes el control. PALACO protege los límites.', trustIdentity: '¿Quién es?', trustIdentityBody: 'La identidad es visible; verificarla requiere pruebas separadas.', trustConsent: '¿Está permitido?', trustConsentBody: 'Nada sigue sin tu elección.', trustHistory: '¿Qué pasó?', trustHistoryBody: 'Los pasos importantes se pueden consultar.', installButton: 'Instalar RIO', footer: 'PALACO · Un lugar para personas e ideas.'
+    mainNavLabel: "Navegación principal", languageSwitchLabel: "Idioma",
+    navMeet: 'Conoce a RIO', navEverywhere: 'En todas partes', navTrust: 'Confianza', eyebrow: 'PALACO presenta', tagline: 'La tarjeta de presentación de PALACO.', intro: 'RIO dice hola. RIO te ayuda a encontrar personas e ideas. Tú siempre eliges qué compartes.', meetButton: 'Conocer', shareButton: 'Compartir RIO', shareReady: 'El enlace de RIO está listo para compartir.', shareUnavailable: 'No se puede compartir ahora.', live: 'Listo para conectar', cardIntro: 'Hola, soy RIO.', cardBody: 'Te llevo de forma segura al lugar correcto en PALACO.', identityLabel: 'Identidad', verified: 'Aún no verificada', consentLabel: 'Tu elección', consentValue: 'Siempre primero', authorityLabel: 'Autoridad', authorityValue: 'Ninguna', addressLabel: 'Dirección RIO', openCard: 'Abrir tarjeta', closeCard: 'Cerrar tarjeta', cardReveal: 'Primero conocer. Luego elegir. Solo después conectar.', everywhereTitle: 'Un hola. En todas partes.', everywhereBody: 'Explora la prueba local en tu dispositivo. El chat y el contenido de Engine permanecen en la página abierta.', flowLabel: 'Así funciona RIO', flowTitle: 'De hola a una conversación real.', stepOneTitle: 'Mira', stepOneBody: 'RIO muestra a quién o qué encuentras.', stepTwoTitle: 'Elige', stepTwoBody: 'Tú decides si quieres continuar.', stepThreeTitle: 'Habla', stepThreeBody: 'Prueba el chat temporal en esta página. Tus mensajes no se guardan.', helloTitle: 'Saluda a RIO.', helloBody: 'Empieza con poco. Tu nombre basta.', nameLabel: '¿Cómo podemos llamarte?', namePlaceholder: 'Tu nombre', startButton: 'Empezar', helloPrefix: 'Hola', helloSuffix: 'RIO está aquí. Tú eliges qué compartes.', trustTitle: 'Confianza clara.', trustBody: 'RIO conecta. Tú tienes el control. PALACO protege los límites.', trustIdentity: '¿Quién es?', trustIdentityBody: 'La identidad es visible; verificarla requiere pruebas separadas.', trustConsent: '¿Está permitido?', trustConsentBody: 'Nada sigue sin tu elección.', trustHistory: '¿Qué pasó?', trustHistoryBody: 'Los pasos importantes se pueden consultar.', installButton: 'Instalar RIO', footer: 'PALACO · Un lugar para personas e ideas.'
   },
   ar: {
-    navMeet: 'تعرّف إلى RIO', navEverywhere: 'في كل مكان', navTrust: 'الثقة', eyebrow: 'تقدّم PALACO', tagline: 'بطاقة PALACO التعريفية.', intro: 'يقول RIO مرحباً. يساعدك RIO في العثور على الناس والأفكار. أنت تختار دائماً ما تشاركه.', meetButton: 'تعرّف إليه', shareButton: 'شارك RIO', shareReady: 'رابط RIO جاهز للمشاركة.', shareUnavailable: 'المشاركة غير متاحة الآن.', live: 'جاهز للاتصال', cardIntro: 'مرحباً، أنا RIO.', cardBody: 'أوصلك بأمان إلى المكان الصحيح في PALACO.', identityLabel: 'الهوية', verified: 'غير موثقة بعد', consentLabel: 'اختيارك', consentValue: 'أولاً دائماً', authorityLabel: 'السلطة', authorityValue: 'لا توجد', addressLabel: 'عنوان RIO', openCard: 'افتح البطاقة', closeCard: 'أغلق البطاقة', cardReveal: 'نتعارف أولاً. ثم تختار. وبعدها فقط نتصل.', everywhereTitle: 'تحية واحدة. في كل مكان.', everywhereBody: 'تنتقل محادثتك معك. ويبقى معناها كما هو.', flowLabel: 'هكذا يعمل RIO', flowTitle: 'من مرحباً إلى محادثة حقيقية.', stepOneTitle: 'انظر', stepOneBody: 'يعرض RIO من أو ما تقابله.', stepTwoTitle: 'اختر', stepTwoBody: 'أنت تقرر إن كنت تريد المتابعة.', stepThreeTitle: 'تحدث', stepThreeBody: 'يحفظ RIO الطريق والمحادثة.', helloTitle: 'قل مرحباً لـ RIO.', helloBody: 'ابدأ ببساطة. اسمك يكفي.', nameLabel: 'ماذا نسمّيك؟', namePlaceholder: 'اسمك', startButton: 'ابدأ', helloPrefix: 'مرحباً', helloSuffix: 'RIO هنا. أنت تختار ما تشاركه.', trustTitle: 'ثقة واضحة.', trustBody: 'RIO يصل. أنت صاحب القرار. وتحمي PALACO الحدود.', trustIdentity: 'من هذا؟', trustIdentityBody: 'الهوية ظاهرة، ويحتاج توثيقها إلى دليل مستقل.', trustConsent: 'هل هذا مسموح؟', trustConsentBody: 'لا شيء يستمر دون اختيارك.', trustHistory: 'ماذا حدث؟', trustHistoryBody: 'يمكن الرجوع إلى الخطوات المهمة.', installButton: 'ثبّت RIO', footer: 'PALACO · مكان للناس والأفكار.'
+    mainNavLabel: "التنقل الرئيسي", languageSwitchLabel: "اللغة",
+    navMeet: 'تعرّف إلى RIO', navEverywhere: 'في كل مكان', navTrust: 'الثقة', eyebrow: 'تقدّم PALACO', tagline: 'بطاقة PALACO التعريفية.', intro: 'يقول RIO مرحباً. يساعدك RIO في العثور على الناس والأفكار. أنت تختار دائماً ما تشاركه.', meetButton: 'تعرّف إليه', shareButton: 'شارك RIO', shareReady: 'رابط RIO جاهز للمشاركة.', shareUnavailable: 'المشاركة غير متاحة الآن.', live: 'جاهز للاتصال', cardIntro: 'مرحباً، أنا RIO.', cardBody: 'أوصلك بأمان إلى المكان الصحيح في PALACO.', identityLabel: 'الهوية', verified: 'غير موثقة بعد', consentLabel: 'اختيارك', consentValue: 'أولاً دائماً', authorityLabel: 'السلطة', authorityValue: 'لا توجد', addressLabel: 'عنوان RIO', openCard: 'افتح البطاقة', closeCard: 'أغلق البطاقة', cardReveal: 'نتعارف أولاً. ثم تختار. وبعدها فقط نتصل.', everywhereTitle: 'تحية واحدة. في كل مكان.', everywhereBody: 'استكشف التجربة المحلية على جهازك. تبقى الدردشة ومحتويات Engine في الصفحة المفتوحة.', flowLabel: 'هكذا يعمل RIO', flowTitle: 'من مرحباً إلى محادثة حقيقية.', stepOneTitle: 'انظر', stepOneBody: 'يعرض RIO من أو ما تقابله.', stepTwoTitle: 'اختر', stepTwoBody: 'أنت تقرر إن كنت تريد المتابعة.', stepThreeTitle: 'تحدث', stepThreeBody: 'جرّب الدردشة المؤقتة في هذه الصفحة. لا تُحفظ رسائلك.', helloTitle: 'قل مرحباً لـ RIO.', helloBody: 'ابدأ ببساطة. اسمك يكفي.', nameLabel: 'ماذا نسمّيك؟', namePlaceholder: 'اسمك', startButton: 'ابدأ', helloPrefix: 'مرحباً', helloSuffix: 'RIO هنا. أنت تختار ما تشاركه.', trustTitle: 'ثقة واضحة.', trustBody: 'RIO يصل. أنت صاحب القرار. وتحمي PALACO الحدود.', trustIdentity: 'من هذا؟', trustIdentityBody: 'الهوية ظاهرة، ويحتاج توثيقها إلى دليل مستقل.', trustConsent: 'هل هذا مسموح؟', trustConsentBody: 'لا شيء يستمر دون اختيارك.', trustHistory: 'ماذا حدث؟', trustHistoryBody: 'يمكن الرجوع إلى الخطوات المهمة.', installButton: 'ثبّت RIO', footer: 'PALACO · مكان للناس والأفكار.'
   },
   zh: {
-    navMeet: '认识 RIO', navEverywhere: '无处不在', navTrust: '信任', eyebrow: 'PALACO 为你介绍', tagline: 'PALACO 的数字名片。', intro: 'RIO 向你问好。RIO 帮你找到人和想法。分享什么，始终由你决定。', meetButton: '认识 RIO', shareButton: '分享 RIO', shareReady: 'RIO 链接已准备好分享。', shareUnavailable: '现在无法分享。', live: '可以连接', cardIntro: '你好，我是 RIO。', cardBody: '我会安全地带你到 PALACO 中正确的地方。', identityLabel: '身份', verified: '尚未验证', consentLabel: '你的选择', consentValue: '永远优先', authorityLabel: '权限', authorityValue: '无', addressLabel: 'RIO 地址', openCard: '打开名片', closeCard: '关闭名片', cardReveal: '先认识，再选择，然后才连接。', everywhereTitle: '一次问候，无处不在。', everywhereBody: '对话跟着你走，意思始终不变。', flowLabel: 'RIO 如何工作', flowTitle: '从问候到真正的对话。', stepOneTitle: '看', stepOneBody: 'RIO 告诉你遇见的是谁或什么。', stepTwoTitle: '选择', stepTwoBody: '由你决定是否继续。', stepThreeTitle: '交谈', stepThreeBody: 'RIO 记住路径和对话。', helloTitle: '向 RIO 问好。', helloBody: '从简单开始，只要你的名字。', nameLabel: '我们怎么称呼你？', namePlaceholder: '你的名字', startButton: '开始', helloPrefix: '你好', helloSuffix: 'RIO 在这里。分享什么，由你决定。', trustTitle: '清楚地说明信任。', trustBody: 'RIO 负责连接。你掌握控制权。PALACO 守护边界。', trustIdentity: '这是谁？', trustIdentityBody: '身份可见；验证需要独立证据。', trustConsent: '允许吗？', trustConsentBody: '没有你的选择，什么都不会继续。', trustHistory: '发生了什么？', trustHistoryBody: '重要步骤始终可以追溯。', installButton: '安装 RIO', footer: 'PALACO · 人与想法相聚之地。'
+    mainNavLabel: "主导航", languageSwitchLabel: "语言",
+    navMeet: '认识 RIO', navEverywhere: '无处不在', navTrust: '信任', eyebrow: 'PALACO 为你介绍', tagline: 'PALACO 的数字名片。', intro: 'RIO 向你问好。RIO 帮你找到人和想法。分享什么，始终由你决定。', meetButton: '认识 RIO', shareButton: '分享 RIO', shareReady: 'RIO 链接已准备好分享。', shareUnavailable: '现在无法分享。', live: '可以连接', cardIntro: '你好，我是 RIO。', cardBody: '我会安全地带你到 PALACO 中正确的地方。', identityLabel: '身份', verified: '尚未验证', consentLabel: '你的选择', consentValue: '永远优先', authorityLabel: '权限', authorityValue: '无', addressLabel: 'RIO 地址', openCard: '打开名片', closeCard: '关闭名片', cardReveal: '先认识，再选择，然后才连接。', everywhereTitle: '一次问候，无处不在。', everywhereBody: '在自己的设备上探索本地试验。聊天和 Engine 内容保留在打开的页面中。', flowLabel: 'RIO 如何工作', flowTitle: '从问候到真正的对话。', stepOneTitle: '看', stepOneBody: 'RIO 告诉你遇见的是谁或什么。', stepTwoTitle: '选择', stepTwoBody: '由你决定是否继续。', stepThreeTitle: '交谈', stepThreeBody: '试用本页面的临时聊天。你的消息不会被保存。', helloTitle: '向 RIO 问好。', helloBody: '从简单开始，只要你的名字。', nameLabel: '我们怎么称呼你？', namePlaceholder: '你的名字', startButton: '开始', helloPrefix: '你好', helloSuffix: 'RIO 在这里。分享什么，由你决定。', trustTitle: '清楚地说明信任。', trustBody: 'RIO 负责连接。你掌握控制权。PALACO 守护边界。', trustIdentity: '这是谁？', trustIdentityBody: '身份可见；验证需要独立证据。', trustConsent: '允许吗？', trustConsentBody: '没有你的选择，什么都不会继续。', trustHistory: '发生了什么？', trustHistoryBody: '重要步骤始终可以追溯。', installButton: '安装 RIO', footer: 'PALACO · 人与想法相聚之地。'
+  },
+  pt: {
+    "mainNavLabel": "Navegação principal",
+    "languageSwitchLabel": "Idioma",
+    "navMeet": "Conhecer o RIO",
+    "navEverywhere": "Em todo o lado",
+    "navTrust": "Confiança",
+    "eyebrow": "A PALACO apresenta",
+    "tagline": "O cartão de visita da PALACO.",
+    "intro": "O RIO diz olá. O RIO ajuda a encontrar pessoas e ideias. É sempre você que escolhe o que partilha.",
+    "meetButton": "Conhecer o RIO",
+    "shareButton": "Partilhar o RIO",
+    "shareReady": "A ligação para o RIO está pronta para partilhar.",
+    "shareUnavailable": "Não é possível partilhar neste momento.",
+    "live": "Pronto para ligar",
+    "cardIntro": "Olá, sou o RIO.",
+    "cardBody": "Levo-o em segurança ao lugar certo na PALACO.",
+    "identityLabel": "Identidade",
+    "verified": "Ainda não verificada",
+    "consentLabel": "A sua escolha",
+    "consentValue": "Sempre primeiro",
+    "authorityLabel": "Autoridade",
+    "authorityValue": "Nenhuma",
+    "addressLabel": "Endereço do RIO",
+    "openCard": "Abrir cartão",
+    "closeCard": "Fechar cartão",
+    "cardReveal": "Primeiro conhecer. Depois escolher. Só então ligar.",
+    "everywhereTitle": "Uma saudação. Em todo o lado.",
+    "everywhereBody": "Explore a experiência local no seu dispositivo. A conversa e o conteúdo do Engine ficam na página aberta.",
+    "flowLabel": "Como funciona o RIO",
+    "flowTitle": "De um olá a uma conversa de verdade.",
+    "stepOneTitle": "Observar",
+    "stepOneBody": "O RIO mostra quem ou o que vai conhecer.",
+    "stepTwoTitle": "Escolher",
+    "stepTwoBody": "Você decide se quer continuar.",
+    "stepThreeTitle": "Conversar",
+    "stepThreeBody": "Experimente a conversa temporária nesta página. As suas mensagens não são guardadas.",
+    "helloTitle": "Diga olá ao RIO.",
+    "helloBody": "Comece por pouco. O seu nome basta.",
+    "nameLabel": "Como podemos chamar-lhe?",
+    "namePlaceholder": "O seu nome",
+    "startButton": "Começar",
+    "helloPrefix": "Olá",
+    "helloSuffix": "O RIO está aqui. Você escolhe o que partilha.",
+    "trustTitle": "Clareza sobre a confiança.",
+    "trustBody": "O RIO liga. Você mantém o controlo. A PALACO protege os limites.",
+    "trustIdentity": "Quem é?",
+    "trustIdentityBody": "A identidade é visível; a verificação exige provas separadas.",
+    "trustConsent": "É permitido?",
+    "trustConsentBody": "Nada avança sem a sua escolha.",
+    "trustHistory": "O que aconteceu?",
+    "trustHistoryBody": "Os passos importantes continuam a poder ser rastreados.",
+    "installButton": "Instalar o RIO",
+    "footer": "PALACO · Um lugar para pessoas e ideias."
+  },
+  ru: {
+    "mainNavLabel": "Основная навигация",
+    "languageSwitchLabel": "Язык",
+    "navMeet": "Знакомство с RIO",
+    "navEverywhere": "Везде",
+    "navTrust": "Доверие",
+    "eyebrow": "PALACO представляет",
+    "tagline": "Визитная карточка PALACO.",
+    "intro": "RIO говорит «привет». RIO помогает находить людей и идеи. Вы всегда сами выбираете, чем делиться.",
+    "meetButton": "Познакомиться с RIO",
+    "shareButton": "Поделиться RIO",
+    "shareReady": "Ссылка на RIO готова к отправке.",
+    "shareUnavailable": "Сейчас поделиться не удаётся.",
+    "live": "Готов к подключению",
+    "cardIntro": "Привет, я RIO.",
+    "cardBody": "Я безопасно направлю вас в нужное место в PALACO.",
+    "identityLabel": "Идентичность",
+    "verified": "Пока не проверена",
+    "consentLabel": "Ваш выбор",
+    "consentValue": "Всегда сначала",
+    "authorityLabel": "Полномочия",
+    "authorityValue": "Отсутствуют",
+    "addressLabel": "Адрес RIO",
+    "openCard": "Открыть карточку",
+    "closeCard": "Закрыть карточку",
+    "cardReveal": "Сначала знакомство. Затем выбор. Только потом подключение.",
+    "everywhereTitle": "Одно приветствие. Везде.",
+    "everywhereBody": "Откройте локальную пробную версию на своём устройстве. Чат и содержимое Engine остаются на открытой странице.",
+    "flowLabel": "Как работает RIO",
+    "flowTitle": "От приветствия к настоящему разговору.",
+    "stepOneTitle": "Посмотреть",
+    "stepOneBody": "RIO показывает, с кем или с чем вы знакомитесь.",
+    "stepTwoTitle": "Выбрать",
+    "stepTwoBody": "Вы решаете, продолжать ли дальше.",
+    "stepThreeTitle": "Поговорить",
+    "stepThreeBody": "Попробуйте временный чат на этой странице. Ваши сообщения не сохраняются.",
+    "helloTitle": "Поздоровайтесь с RIO.",
+    "helloBody": "Начните с малого. Достаточно имени.",
+    "nameLabel": "Как к вам обращаться?",
+    "namePlaceholder": "Ваше имя",
+    "startButton": "Начать",
+    "helloPrefix": "Привет",
+    "helloSuffix": "RIO здесь. Вы выбираете, чем делиться.",
+    "trustTitle": "Ясно о доверии.",
+    "trustBody": "RIO соединяет. Вы сохраняете контроль. PALACO следит за границами.",
+    "trustIdentity": "Кто это?",
+    "trustIdentityBody": "Идентичность видима; для её проверки нужны отдельные доказательства.",
+    "trustConsent": "Это разрешено?",
+    "trustConsentBody": "Ничто не продолжается без вашего выбора.",
+    "trustHistory": "Что произошло?",
+    "trustHistoryBody": "Важные шаги остаются прослеживаемыми.",
+    "installButton": "Установить RIO",
+    "footer": "PALACO · Место для людей и идей."
+  },
+  eo: {
+    "mainNavLabel": "Ĉefa navigado",
+    "languageSwitchLabel": "Lingvo",
+    "navMeet": "Renkontu RIO",
+    "navEverywhere": "Ĉie",
+    "navTrust": "Fido",
+    "eyebrow": "PALACO prezentas",
+    "tagline": "La vizitkarto de PALACO.",
+    "intro": "RIO diras saluton. RIO helpas vin trovi homojn kaj ideojn. Vi ĉiam elektas, kion vi dividas.",
+    "meetButton": "Ekkoni RIO",
+    "shareButton": "Dividi RIO",
+    "shareReady": "La ligilo al RIO estas preta por dividi.",
+    "shareUnavailable": "Dividado nun ne eblas.",
+    "live": "Preta por konekti",
+    "cardIntro": "Saluton, mi estas RIO.",
+    "cardBody": "Mi sekure gvidas vin al la ĝusta loko en PALACO.",
+    "identityLabel": "Identeco",
+    "verified": "Ankoraŭ ne kontrolita",
+    "consentLabel": "Via elekto",
+    "consentValue": "Ĉiam unue",
+    "authorityLabel": "Aŭtoritato",
+    "authorityValue": "Neniu",
+    "addressLabel": "RIO-adreso",
+    "openCard": "Malfermi karton",
+    "closeCard": "Fermi karton",
+    "cardReveal": "Unue renkontiĝi. Poste elekti. Nur tiam konekti.",
+    "everywhereTitle": "Unu saluto. Ĉie.",
+    "everywhereBody": "Esploru la lokan provon per via propra aparato. La babilado kaj la enhavo de Engine restas en la malfermita paĝo.",
+    "flowLabel": "Kiel RIO funkcias",
+    "flowTitle": "De saluto al vera interparolo.",
+    "stepOneTitle": "Rigardi",
+    "stepOneBody": "RIO montras, kiun aŭ kion vi renkontas.",
+    "stepTwoTitle": "Elekti",
+    "stepTwoBody": "Vi decidas, ĉu vi volas daŭrigi.",
+    "stepThreeTitle": "Babili",
+    "stepThreeBody": "Provu la provizoran babiladon sur ĉi tiu paĝo. Viaj mesaĝoj ne estas konservataj.",
+    "helloTitle": "Diru saluton al RIO.",
+    "helloBody": "Komencu per malmulto. Via nomo sufiĉas.",
+    "nameLabel": "Kiel ni nomu vin?",
+    "namePlaceholder": "Via nomo",
+    "startButton": "Komenci",
+    "helloPrefix": "Saluton",
+    "helloSuffix": "RIO ĉeestas. Vi elektas, kion vi dividas.",
+    "trustTitle": "Klare pri fido.",
+    "trustBody": "RIO konektas. Vi restas ĉe la regado. PALACO gardas la limojn.",
+    "trustIdentity": "Kiu estas tio?",
+    "trustIdentityBody": "La identeco estas videbla; kontrolado postulas apartajn pruvojn.",
+    "trustConsent": "Ĉu tio estas permesita?",
+    "trustConsentBody": "Nenio daŭras sen via elekto.",
+    "trustHistory": "Kio okazis?",
+    "trustHistoryBody": "Gravaj paŝoj restas spureblaj.",
+    "installButton": "Instali RIO",
+    "footer": "PALACO · Loko por homoj kaj ideoj."
+  },
+  pl: {
+    "mainNavLabel": "Nawigacja główna",
+    "languageSwitchLabel": "Język",
+    "navMeet": "Poznaj RIO",
+    "navEverywhere": "Wszędzie",
+    "navTrust": "Zaufanie",
+    "eyebrow": "PALACO przedstawia",
+    "tagline": "Wizytówka PALACO.",
+    "intro": "RIO mówi cześć. RIO pomaga znajdować ludzi i pomysły. Zawsze wybierasz, czym się dzielisz.",
+    "meetButton": "Poznaj RIO",
+    "shareButton": "Udostępnij RIO",
+    "shareReady": "Link do RIO jest gotowy do udostępnienia.",
+    "shareUnavailable": "Udostępnianie jest teraz niedostępne.",
+    "live": "Gotowy do połączenia",
+    "cardIntro": "Cześć, jestem RIO.",
+    "cardBody": "Bezpiecznie zaprowadzę cię we właściwe miejsce w PALACO.",
+    "identityLabel": "Tożsamość",
+    "verified": "Jeszcze niezweryfikowana",
+    "consentLabel": "Twój wybór",
+    "consentValue": "Zawsze najpierw",
+    "authorityLabel": "Uprawnienia",
+    "authorityValue": "Brak",
+    "addressLabel": "Adres RIO",
+    "openCard": "Otwórz kartę",
+    "closeCard": "Zamknij kartę",
+    "cardReveal": "Najpierw poznanie. Potem wybór. Dopiero wtedy połączenie.",
+    "everywhereTitle": "Jedno powitanie. Wszędzie.",
+    "everywhereBody": "Poznaj lokalną wersję próbną na swoim urządzeniu. Czat i treść Engine pozostają na otwartej stronie.",
+    "flowLabel": "Jak działa RIO",
+    "flowTitle": "Od powitania do prawdziwej rozmowy.",
+    "stepOneTitle": "Zobacz",
+    "stepOneBody": "RIO pokazuje, kogo lub co poznajesz.",
+    "stepTwoTitle": "Wybierz",
+    "stepTwoBody": "Ty decydujesz, czy chcesz kontynuować.",
+    "stepThreeTitle": "Porozmawiaj",
+    "stepThreeBody": "Wypróbuj tymczasowy czat na tej stronie. Twoje wiadomości nie są zapisywane.",
+    "helloTitle": "Przywitaj się z RIO.",
+    "helloBody": "Zacznij od małego kroku. Wystarczy twoje imię.",
+    "nameLabel": "Jak mamy się do ciebie zwracać?",
+    "namePlaceholder": "Twoje imię",
+    "startButton": "Zacznij",
+    "helloPrefix": "Cześć",
+    "helloSuffix": "RIO jest tutaj. Ty wybierasz, czym się dzielisz.",
+    "trustTitle": "Jasno o zaufaniu.",
+    "trustBody": "RIO łączy. Ty zachowujesz kontrolę. PALACO pilnuje granic.",
+    "trustIdentity": "Kto to jest?",
+    "trustIdentityBody": "Tożsamość jest widoczna; jej weryfikacja wymaga osobnych dowodów.",
+    "trustConsent": "Czy to dozwolone?",
+    "trustConsentBody": "Nic nie postępuje dalej bez twojego wyboru.",
+    "trustHistory": "Co się wydarzyło?",
+    "trustHistoryBody": "Ważne kroki pozostają możliwe do prześledzenia.",
+    "installButton": "Zainstaluj RIO",
+    "footer": "PALACO · Miejsce dla ludzi i pomysłów."
+  },
+  it: {
+    "mainNavLabel": "Navigazione principale",
+    "languageSwitchLabel": "Lingua",
+    "navMeet": "Incontra RIO",
+    "navEverywhere": "Ovunque",
+    "navTrust": "Fiducia",
+    "eyebrow": "PALACO presenta",
+    "tagline": "Il biglietto da visita di PALACO.",
+    "intro": "RIO ti saluta. RIO ti aiuta a trovare persone e idee. Scegli sempre tu cosa condividere.",
+    "meetButton": "Conosci RIO",
+    "shareButton": "Condividi RIO",
+    "shareReady": "Il link di RIO è pronto da condividere.",
+    "shareUnavailable": "La condivisione non è disponibile al momento.",
+    "live": "Pronto per connettersi",
+    "cardIntro": "Ciao, sono RIO.",
+    "cardBody": "Ti accompagno in sicurezza al posto giusto in PALACO.",
+    "identityLabel": "Identità",
+    "verified": "Non ancora verificata",
+    "consentLabel": "La tua scelta",
+    "consentValue": "Sempre al primo posto",
+    "authorityLabel": "Autorità",
+    "authorityValue": "Nessuna",
+    "addressLabel": "Indirizzo RIO",
+    "openCard": "Apri il biglietto",
+    "closeCard": "Chiudi il biglietto",
+    "cardReveal": "Prima incontrarsi. Poi scegliere. Solo dopo connettersi.",
+    "everywhereTitle": "Un saluto. Ovunque.",
+    "everywhereBody": "Esplora la prova locale sul tuo dispositivo. La chat e i contenuti di Engine restano nella pagina aperta.",
+    "flowLabel": "Come funziona RIO",
+    "flowTitle": "Da un saluto a una vera conversazione.",
+    "stepOneTitle": "Guarda",
+    "stepOneBody": "RIO mostra chi o cosa incontri.",
+    "stepTwoTitle": "Scegli",
+    "stepTwoBody": "Decidi tu se vuoi continuare.",
+    "stepThreeTitle": "Parla",
+    "stepThreeBody": "Prova la chat temporanea in questa pagina. I tuoi messaggi non vengono salvati.",
+    "helloTitle": "Saluta RIO.",
+    "helloBody": "Inizia con poco. Basta il tuo nome.",
+    "nameLabel": "Come possiamo chiamarti?",
+    "namePlaceholder": "Il tuo nome",
+    "startButton": "Inizia",
+    "helloPrefix": "Ciao",
+    "helloSuffix": "RIO è qui. Scegli tu cosa condividere.",
+    "trustTitle": "Chiarezza sulla fiducia.",
+    "trustBody": "RIO connette. Tu mantieni il controllo. PALACO tutela i limiti.",
+    "trustIdentity": "Chi è?",
+    "trustIdentityBody": "L’identità è visibile; per verificarla servono prove separate.",
+    "trustConsent": "È consentito?",
+    "trustConsentBody": "Nulla prosegue senza la tua scelta.",
+    "trustHistory": "Cosa è successo?",
+    "trustHistoryBody": "I passaggi importanti restano tracciabili.",
+    "installButton": "Installa RIO",
+    "footer": "PALACO · Un luogo per persone e idee."
   }
 };
 
@@ -236,7 +598,147 @@ const subjectTranslations = {
   fr: { subjectsLabel: 'Touchez et découvrez', subjectsTitle: 'Chaque sujet peut vivre dans RIO.', subjectsBody: "Un signe, une image, un dessin ou un ELIXER complet. Touchez pour regarder. Vous choisissez la suite.", subjectsAria: 'Balayer les sujets RIO', symbolType: 'Symbole', symbolTitle: 'Un signe qui a du sens', symbolDescription: 'Un petit signe peut rendre une grande idée facile à reconnaître.', imageType: 'Image', imageTitle: 'Le visage de RIO', imageDescription: 'Une image aide à voir tout de suite où vous êtes.', photoType: "Dessin local", photoTitle: "Un lieu dessiné localement", photoAlt: "Paysage fictif avec des collines et un soleil, dessiné localement avec des aplats de couleur", photoDescription: "Ce paysage est dessiné sur cette page avec des aplats de couleur. Ce n’est pas une photographie d’un lieu réel.", photoSource: "Dessiné localement sur cette page", photoStatus: "Illustration · aucune preuve de lieu", elixerTitle: 'Un monde complet', elixerDescription: 'Un ELIXER peut s’ouvrir comme sujet complet, avec son contenu et ses limites.', tapHint: 'Touchez pour ouvrir', closeSubject: 'Fermer le sujet', subjectSource: 'Origine', subjectState: 'Statut', subjectVerified: 'Visible et vérifiable', subjectBoundary: 'Regarder ne donne aucun accès. Vous choisissez toujours la prochaine étape.', subjectContinue: 'Continuer avec ce sujet', subjectChosen: 'Ce sujet est prêt pour votre conversation.' },
   es: { subjectsLabel: 'Toca y descubre', subjectsTitle: 'Cada tema puede vivir en RIO.', subjectsBody: "Un símbolo, imagen, dibujo o ELIXER completo. Toca para mirar. Tú eliges si continúas.", subjectsAria: 'Desliza por los temas de RIO', symbolType: 'Símbolo', symbolTitle: 'Un signo con significado', symbolDescription: 'Un pequeño signo puede hacer reconocible una gran idea.', imageType: 'Imagen', imageTitle: 'La cara de RIO', imageDescription: 'Una imagen te ayuda a ver enseguida dónde estás.', photoType: "Ilustración local", photoTitle: "Un lugar dibujado localmente", photoAlt: "Paisaje ficticio con colinas y sol, dibujado localmente con bloques de color", photoDescription: "Este paisaje se dibuja en esta página con bloques de color. No es una fotografía de un lugar real.", photoSource: "Dibujado localmente en esta página", photoStatus: "Ilustración · no demuestra una ubicación", elixerTitle: 'Un mundo completo', elixerDescription: 'Un ELIXER puede abrirse como tema completo, con contenido y límites propios.', tapHint: 'Toca para abrir', closeSubject: 'Cerrar tema', subjectSource: 'Origen', subjectState: 'Estado', subjectVerified: 'Visible y verificable', subjectBoundary: 'Mirar no da acceso. Tú siempre eliges el siguiente paso.', subjectContinue: 'Seguir con este tema', subjectChosen: 'Este tema está listo para tu conversación.' },
   ar: { subjectsLabel: 'المس واكتشف', subjectsTitle: 'يمكن لكل موضوع أن يعيش في RIO.', subjectsBody: "رمز أو صورة أو رسم أو ELIXER كامل. المس لترى. وأنت تختار المتابعة.", subjectsAria: 'مرّر بين موضوعات RIO', symbolType: 'رمز', symbolTitle: 'إشارة لها معنى', symbolDescription: 'يمكن لإشارة صغيرة أن تجعل فكرة كبيرة سهلة التعرّف.', imageType: 'صورة', imageTitle: 'وجه RIO', imageDescription: 'تساعدك الصورة على معرفة مكانك بسرعة.', photoType: "رسم محلي", photoTitle: "مكان مرسوم محليًا", photoAlt: "منظر خيالي بتلال وشمس، مرسوم محليًا بمساحات لونية", photoDescription: "هذا المنظر مرسوم في هذه الصفحة بمساحات لونية. ليس صورة فوتوغرافية لمكان حقيقي.", photoSource: "مرسوم محليًا في هذه الصفحة", photoStatus: "رسم توضيحي · ليس دليلًا على موقع", elixerTitle: 'عالم كامل', elixerDescription: 'يمكن فتح ELIXER كموضوع كامل له محتواه وحدوده.', tapHint: 'المس للفتح', closeSubject: 'أغلق الموضوع', subjectSource: 'المصدر', subjectState: 'الحالة', subjectVerified: 'ظاهر وقابل للتحقق', subjectBoundary: 'المشاهدة لا تمنح الوصول. أنت تختار دائماً الخطوة التالية.', subjectContinue: 'تابع مع هذا الموضوع', subjectChosen: 'هذا الموضوع جاهز لمحادثتك.' },
-  zh: { subjectsLabel: '触摸并发现', subjectsTitle: '每个主题都能在 RIO 中鲜活呈现。', subjectsBody: "符号、图片、绘制的场景或完整的 ELIXER。轻触查看，由你决定是否继续。", subjectsAria: '滑动浏览 RIO 主题', symbolType: '符号', symbolTitle: '有意义的标志', symbolDescription: '一个小标志能让一个大想法容易辨认。', imageType: '图片', imageTitle: 'RIO 的面孔', imageDescription: '图片能让你马上知道自己在哪里。', photoType: "本地绘制", photoTitle: "本地绘制的地方", photoAlt: "用色块在本地绘制的虚构景观，包含山丘和太阳", photoDescription: "这个景观用色块绘制在本页面上，不是真实地点的照片。", photoSource: "在本页面本地绘制", photoStatus: "示例插图 · 不是地点证明", elixerTitle: '一个完整世界', elixerDescription: 'ELIXER 可以作为完整主题打开，并保留自己的内容和边界。', tapHint: '轻触打开', closeSubject: '关闭主题', subjectSource: '来源', subjectState: '状态', subjectVerified: '可见且可验证', subjectBoundary: '查看并不授予访问权。下一步始终由你选择。', subjectContinue: '继续这个主题', subjectChosen: '这个主题已准备好进入你的对话。' }
+  zh: { subjectsLabel: '触摸并发现', subjectsTitle: '每个主题都能在 RIO 中鲜活呈现。', subjectsBody: "符号、图片、绘制的场景或完整的 ELIXER。轻触查看，由你决定是否继续。", subjectsAria: '滑动浏览 RIO 主题', symbolType: '符号', symbolTitle: '有意义的标志', symbolDescription: '一个小标志能让一个大想法容易辨认。', imageType: '图片', imageTitle: 'RIO 的面孔', imageDescription: '图片能让你马上知道自己在哪里。', photoType: "本地绘制", photoTitle: "本地绘制的地方", photoAlt: "用色块在本地绘制的虚构景观，包含山丘和太阳", photoDescription: "这个景观用色块绘制在本页面上，不是真实地点的照片。", photoSource: "在本页面本地绘制", photoStatus: "示例插图 · 不是地点证明", elixerTitle: '一个完整世界', elixerDescription: 'ELIXER 可以作为完整主题打开，并保留自己的内容和边界。', tapHint: '轻触打开', closeSubject: '关闭主题', subjectSource: '来源', subjectState: '状态', subjectVerified: '可见且可验证', subjectBoundary: '查看并不授予访问权。下一步始终由你选择。', subjectContinue: '继续这个主题', subjectChosen: '这个主题已准备好进入你的对话。' },
+  pt: {
+    "subjectsLabel": "Toque e descubra",
+    "subjectsTitle": "Todos os temas podem ganhar vida no RIO.",
+    "subjectsBody": "Um sinal, uma imagem, uma cena desenhada ou um ELIXER completo. Toque para ver. Você decide se quer continuar.",
+    "subjectsAria": "Deslize pelos temas do RIO",
+    "symbolType": "Símbolo",
+    "symbolTitle": "Um sinal com significado",
+    "symbolDescription": "Um pequeno sinal pode tornar uma grande ideia fácil de reconhecer.",
+    "imageType": "Imagem",
+    "imageTitle": "O rosto do RIO",
+    "imageDescription": "Uma imagem ajuda a perceber de imediato onde está.",
+    "photoType": "Cena desenhada",
+    "photoTitle": "Um lugar, desenhado localmente",
+    "photoAlt": "Paisagem fictícia com colinas e sol, desenhada localmente com blocos de cor",
+    "photoDescription": "Esta paisagem é desenhada nesta página com blocos de cor. Não é uma fotografia de um lugar real.",
+    "photoSource": "Desenhada localmente nesta página",
+    "photoStatus": "Ilustração · não comprova uma localização",
+    "elixerTitle": "Um mundo completo",
+    "elixerDescription": "Um ELIXER pode abrir como um tema completo, com conteúdo e limites próprios.",
+    "tapHint": "Toque para abrir",
+    "closeSubject": "Fechar tema",
+    "subjectSource": "Fonte",
+    "subjectState": "Estado",
+    "subjectVerified": "Visível e verificável",
+    "subjectBoundary": "Observar não concede acesso. É sempre você que escolhe o próximo passo.",
+    "subjectContinue": "Continuar com este tema",
+    "subjectChosen": "Este tema está pronto para a sua conversa."
+  },
+  ru: {
+    "subjectsLabel": "Коснитесь и откройте",
+    "subjectsTitle": "Любая тема может ожить в RIO.",
+    "subjectsBody": "Знак, изображение, нарисованная сцена или целый ELIXER. Нажмите, чтобы посмотреть. Вы решаете, продолжать ли дальше.",
+    "subjectsAria": "Листайте темы RIO",
+    "symbolType": "Символ",
+    "symbolTitle": "Знак со смыслом",
+    "symbolDescription": "Небольшой знак помогает легко узнать большую идею.",
+    "imageType": "Изображение",
+    "imageTitle": "Лицо RIO",
+    "imageDescription": "Изображение помогает сразу понять, где вы находитесь.",
+    "photoType": "Нарисованная сцена",
+    "photoTitle": "Место, нарисованное локально",
+    "photoAlt": "Вымышленный пейзаж с холмами и солнцем, нарисованный локально цветовыми блоками",
+    "photoDescription": "Этот пейзаж нарисован на этой странице цветовыми блоками. Это не фотография реального места.",
+    "photoSource": "Нарисовано локально на этой странице",
+    "photoStatus": "Иллюстрация · не доказывает местоположение",
+    "elixerTitle": "Целый мир",
+    "elixerDescription": "ELIXER может открыться как полноценная тема со своим содержимым и границами.",
+    "tapHint": "Нажмите, чтобы открыть",
+    "closeSubject": "Закрыть тему",
+    "subjectSource": "Источник",
+    "subjectState": "Статус",
+    "subjectVerified": "Видимо и проверяемо",
+    "subjectBoundary": "Просмотр не предоставляет доступ. Следующий шаг всегда выбираете вы.",
+    "subjectContinue": "Продолжить с этой темой",
+    "subjectChosen": "Эта тема готова к вашему разговору."
+  },
+  eo: {
+    "subjectsLabel": "Tuŝu kaj malkovru",
+    "subjectsTitle": "Ĉiu temo povas vivi en RIO.",
+    "subjectsBody": "Signo, bildo, desegnita sceno aŭ plena ELIXER. Tuŝu por rigardi. Vi elektas, ĉu daŭrigi.",
+    "subjectsAria": "Glitu tra la temoj de RIO",
+    "symbolType": "Simbolo",
+    "symbolTitle": "Signo kun signifo",
+    "symbolDescription": "Malgranda signo povas igi grandan ideon facile rekonebla.",
+    "imageType": "Bildo",
+    "imageTitle": "La vizaĝo de RIO",
+    "imageDescription": "Bildo helpas vin tuj vidi, kie vi estas.",
+    "photoType": "Desegnita sceno",
+    "photoTitle": "Loko, loke desegnita",
+    "photoAlt": "Fikcia pejzaĝo kun montetoj kaj suno, loke desegnita per koloraj blokoj",
+    "photoDescription": "Ĉi tiu pejzaĝo estas desegnita sur ĉi tiu paĝo per koloraj blokoj. Ĝi ne estas foto de vera loko.",
+    "photoSource": "Loke desegnita sur ĉi tiu paĝo",
+    "photoStatus": "Ilustraĵo · ne pruvas lokon",
+    "elixerTitle": "Plena mondo",
+    "elixerDescription": "ELIXER povas malfermiĝi kiel plena temo, kun propraj enhavo kaj limoj.",
+    "tapHint": "Tuŝu por malfermi",
+    "closeSubject": "Fermi temon",
+    "subjectSource": "Fonto",
+    "subjectState": "Stato",
+    "subjectVerified": "Videbla kaj kontrolebla",
+    "subjectBoundary": "Rigardado ne donas aliron. Vi ĉiam elektas la sekvan paŝon.",
+    "subjectContinue": "Daŭrigi kun ĉi tiu temo",
+    "subjectChosen": "Ĉi tiu temo estas preta por via interparolo."
+  },
+  pl: {
+    "subjectsLabel": "Dotknij i odkryj",
+    "subjectsTitle": "Każdy temat może ożyć w RIO.",
+    "subjectsBody": "Znak, obraz, narysowana scena lub pełny ELIXER. Dotknij, aby obejrzeć. Ty decydujesz, czy kontynuować.",
+    "subjectsAria": "Przewijaj tematy RIO",
+    "symbolType": "Symbol",
+    "symbolTitle": "Znak ze znaczeniem",
+    "symbolDescription": "Mały znak może ułatwić rozpoznanie wielkiej idei.",
+    "imageType": "Obraz",
+    "imageTitle": "Twarz RIO",
+    "imageDescription": "Obraz pomaga od razu zrozumieć, gdzie jesteś.",
+    "photoType": "Narysowana scena",
+    "photoTitle": "Miejsce narysowane lokalnie",
+    "photoAlt": "Fikcyjny krajobraz ze wzgórzami i słońcem, narysowany lokalnie za pomocą kolorowych bloków",
+    "photoDescription": "Ten krajobraz jest narysowany na tej stronie za pomocą kolorowych bloków. To nie jest zdjęcie rzeczywistego miejsca.",
+    "photoSource": "Narysowane lokalnie na tej stronie",
+    "photoStatus": "Ilustracja · nie stanowi dowodu lokalizacji",
+    "elixerTitle": "Cały świat",
+    "elixerDescription": "ELIXER może otworzyć się jako pełny temat, z własną treścią i granicami.",
+    "tapHint": "Dotknij, aby otworzyć",
+    "closeSubject": "Zamknij temat",
+    "subjectSource": "Źródło",
+    "subjectState": "Stan",
+    "subjectVerified": "Widoczne i weryfikowalne",
+    "subjectBoundary": "Oglądanie nie przyznaje dostępu. Zawsze samodzielnie wybierasz następny krok.",
+    "subjectContinue": "Kontynuuj z tym tematem",
+    "subjectChosen": "Ten temat jest gotowy do twojej rozmowy."
+  },
+  it: {
+    "subjectsLabel": "Tocca e scopri",
+    "subjectsTitle": "Ogni argomento può vivere in RIO.",
+    "subjectsBody": "Un segno, un’immagine, una scena disegnata o un ELIXER completo. Tocca per guardare. Decidi tu se continuare.",
+    "subjectsAria": "Scorri gli argomenti di RIO",
+    "symbolType": "Simbolo",
+    "symbolTitle": "Un segno con un significato",
+    "symbolDescription": "Un piccolo segno può rendere riconoscibile una grande idea.",
+    "imageType": "Immagine",
+    "imageTitle": "Il volto di RIO",
+    "imageDescription": "Un’immagine ti aiuta a capire subito dove ti trovi.",
+    "photoType": "Scena disegnata",
+    "photoTitle": "Un luogo disegnato localmente",
+    "photoAlt": "Paesaggio immaginario con colline e sole, disegnato localmente con campiture di colore",
+    "photoDescription": "Questo paesaggio è disegnato su questa pagina con campiture di colore. Non è una fotografia di un luogo reale.",
+    "photoSource": "Disegnato localmente su questa pagina",
+    "photoStatus": "Illustrazione · nessuna prova di un luogo",
+    "elixerTitle": "Un mondo completo",
+    "elixerDescription": "Un ELIXER può aprirsi come argomento completo, con contenuti e limiti propri.",
+    "tapHint": "Tocca per aprire",
+    "closeSubject": "Chiudi argomento",
+    "subjectSource": "Fonte",
+    "subjectState": "Stato",
+    "subjectVerified": "Visibile e verificabile",
+    "subjectBoundary": "Guardare non concede accesso. Scegli sempre tu il passo successivo.",
+    "subjectContinue": "Continua con questo argomento",
+    "subjectChosen": "Questo argomento è pronto per la tua conversazione."
+  }
 };
 
 const elixerContentTranslations = {
@@ -281,6 +783,36 @@ const elixerContentTranslations = {
     elixerDescription: 'ELIXER 按情境展示能力及选择的影响。示例：Holder、Steward 和 Operations。没有实时目录；可见不代表获得访问权。',
     elixerStatus: '参考示例；实时状态未确认',
     elixerSource: 'PALACO-Citadel · 所提供的摘要'
+  },
+  pt: {
+    "elixerTitle": "Capacidades por contexto",
+    "elixerDescription": "O ELIXER mostra capacidades por contexto e o efeito das escolhas. Exemplos: Holder, Steward e Operations. Não há catálogo em tempo real; a visibilidade não concede acesso.",
+    "elixerStatus": "Exemplo de referência; estado em tempo real não confirmado",
+    "elixerSource": "PALACO-Citadel · resumo fornecido"
+  },
+  ru: {
+    "elixerTitle": "Возможности по контексту",
+    "elixerDescription": "ELIXER показывает возможности по контексту и значение выбора. Примеры: Holder, Steward и Operations. Каталог в реальном времени отсутствует; видимость не предоставляет доступ.",
+    "elixerStatus": "Справочный пример; текущий статус не подтверждён",
+    "elixerSource": "PALACO-Citadel · предоставленное резюме"
+  },
+  eo: {
+    "elixerTitle": "Kapabloj laŭ kunteksto",
+    "elixerDescription": "ELIXER montras kapablojn laŭ kunteksto kaj la efikon de elektoj. Ekzemploj: Holder, Steward kaj Operations. Ne estas viva katalogo; videbleco ne donas aliron.",
+    "elixerStatus": "Referenca ekzemplo; aktuala stato ne konfirmita",
+    "elixerSource": "PALACO-Citadel · liverita resumo"
+  },
+  pl: {
+    "elixerTitle": "Możliwości według kontekstu",
+    "elixerDescription": "ELIXER pokazuje możliwości według kontekstu oraz znaczenie wyborów. Przykłady: Holder, Steward i Operations. Nie ma katalogu na żywo; widoczność nie przyznaje dostępu.",
+    "elixerStatus": "Przykład referencyjny; aktualny stan niepotwierdzony",
+    "elixerSource": "PALACO-Citadel · dostarczone podsumowanie"
+  },
+  it: {
+    "elixerTitle": "Capacità per contesto",
+    "elixerDescription": "ELIXER mostra le capacità per contesto e gli effetti delle scelte. Esempi: Holder, Steward e Operations. Non è un catalogo in tempo reale; la visibilità non concede accesso.",
+    "elixerStatus": "Esempio di riferimento; stato in tempo reale non confermato",
+    "elixerSource": "PALACO-Citadel · riepilogo fornito"
   }
 };
 
@@ -375,6 +907,71 @@ const elixerDossierTranslations = {
     elixerDossierInfrastructureBody: 'ELIXER 实验室支持构建、测试、证据与打包；ELIXER Engine 是运行、验证与编排层。两者本身都不是 ELIXER，也不会授予权限。',
     elixerDossierBoundaries: '能力 ≠ 许可 · 访问 ≠ 授权 · 分发 ≠ 启用 · AI 输出 ≠ 证据。',
     elixerDossierNextGate: '测试通过或预览展示都不能证明已正式发布。注册、审查、发布和生产启用是不同关卡；本预览不会执行其中任何一项。'
+  },
+  pt: {
+    "elixerDossierSummary": "Mais sobre o ELIXER",
+    "elixerDossierDefinition": "Um ELIXER é um pacote de inteligência com limites e versão definidos, mais do que um assistente de conversa ou um ecrã.",
+    "elixerDossierManifest": "O registo de um pacote deve descrever identidade e versão, finalidade e âmbito, personas e capacidades, permissões e ações proibidas, políticas de consentimento, memória, privacidade e revogação, resumo criptográfico e proveniência, provas de testes e revisão, e estados de distribuição e ativação.",
+    "elixerDossierCandidateTitle": "Estado do candidato (resumo fornecido)",
+    "elixerDossierCandidateBody": "O resumo fornecido identifica H∆R∆-ELIXER como candidato e indica LAB-CANDIDATE, sintético, só de leitura, sem emissão nem ativação oficiais. A descrição do MVP exclui dados de produção, pagamentos, sincronização de calendário e alterações externas. Esta página não tem um registo em tempo real e não pode confirmar esse estado.",
+    "elixerDossierPersonasTitle": "Personas dentro de H∆R∆",
+    "elixerDossierPersonasBody": "H∆R∆M (coordenação e conversa), Ching Ching (aconselhamento financeiro e social com consentimento prévio) e Hannie (contexto de calendário e casa sem alterações silenciosas) são descritos como personas dentro de H∆R∆, não como ELIXERS separados.",
+    "elixerDossierInfrastructureTitle": "Laboratório e Engine",
+    "elixerDossierInfrastructureBody": "O Laboratório ELIXER apoia a construção, os testes, as provas e o empacotamento; o ELIXER Engine é a camada de execução, validação e orquestração. Nenhum deles é um ELIXER nem concede autoridade.",
+    "elixerDossierBoundaries": "Capacidade ≠ permissão · Acesso ≠ autorização · Distribuição ≠ ativação · Resposta de IA ≠ prova.",
+    "elixerDossierNextGate": "Um teste aprovado ou uma pré-visualização não comprova emissão oficial. Registo, revisão, emissão e ativação em produção são etapas separadas; esta pré-visualização não realiza nenhuma delas."
+  },
+  ru: {
+    "elixerDossierSummary": "Подробнее об ELIXER",
+    "elixerDossierDefinition": "ELIXER — это пакет интеллекта с заданными границами и версией, который представляет собой больше, чем чат-бот или экран.",
+    "elixerDossierManifest": "Запись пакета должна описывать идентичность и версию, цель и область применения, персоны и возможности, разрешения и запрещённые действия, политики согласия, памяти, конфиденциальности и отзыва, хеш и происхождение, доказательства тестирования и рецензирования, а также статусы распространения и активации.",
+    "elixerDossierCandidateTitle": "Статус кандидата (предоставленное резюме)",
+    "elixerDossierCandidateBody": "Предоставленное резюме называет H∆R∆-ELIXER кандидатом со статусом LAB-CANDIDATE, синтетическим и доступным только для чтения; официальная выдача и активация не выполнены. Описание MVP исключает производственные данные, платежи, синхронизацию календаря и внешние изменения. На этой странице нет подключения к актуальному реестру, и она не может подтвердить этот статус.",
+    "elixerDossierPersonasTitle": "Персоны внутри H∆R∆",
+    "elixerDossierPersonasBody": "H∆R∆M (координация и общение), Ching Ching (финансовые и общественные советы с предварительным согласием) и Hannie (календарь и домашний контекст без скрытых изменений) описаны как персоны внутри H∆R∆, а не отдельные ELIXERS.",
+    "elixerDossierInfrastructureTitle": "Лаборатория и Engine",
+    "elixerDossierInfrastructureBody": "Лаборатория ELIXER поддерживает создание, тестирование, сбор доказательств и упаковку; ELIXER Engine является уровнем выполнения, валидации и оркестрации. Ни один из них сам по себе не является ELIXER и не предоставляет полномочий.",
+    "elixerDossierBoundaries": "Возможность ≠ разрешение · Доступ ≠ авторизация · Распространение ≠ активация · Ответ ИИ ≠ доказательство.",
+    "elixerDossierNextGate": "Успешный тест или предпросмотр не доказывает официальную выдачу. Реестр, рецензирование, выдача и производственная активация — отдельные этапы; этот предпросмотр не выполняет ни одного из них."
+  },
+  eo: {
+    "elixerDossierSummary": "Pli pri ELIXER",
+    "elixerDossierDefinition": "ELIXER estas limigita, versinumerita pakaĵo de inteligenteco, pli ol nur babilroboto aŭ ekrano.",
+    "elixerDossierManifest": "Pakaĵa registro priskribu identecon kaj version, celon kaj amplekson, personaojn kaj kapablojn, permesojn kaj malpermesitajn agojn, politikojn pri konsento, memoro, privateco kaj revoko, haketan resumon kaj devenon, testajn kaj reviziajn pruvojn, kaj statojn de distribuado kaj aktivigo.",
+    "elixerDossierCandidateTitle": "Kandidata stato (liverita resumo)",
+    "elixerDossierCandidateBody": "La liverita resumo nomas H∆R∆-ELIXER kandidato kaj indikas LAB-CANDIDATE, sintezan, nurlegan, kaj nek oficiale eldonitan nek aktivigitan. La priskribo de la MVP ekskludas produktadajn datumojn, pagojn, kalendaran sinkronigon kaj eksterajn ŝanĝojn. Ĉi tiu paĝo ne havas vivan registron kaj ne povas konfirmi tiun staton.",
+    "elixerDossierPersonasTitle": "Personaoj ene de H∆R∆",
+    "elixerDossierPersonasBody": "H∆R∆M (kunordigo kaj interparolo), Ching Ching (financaj kaj sociaj konsiloj kun antaŭa konsento) kaj Hannie (kalendaro kaj hejma kunteksto sen kaŝaj ŝanĝoj) estas priskribitaj kiel personaoj ene de H∆R∆, ne kiel apartaj ELIXERS.",
+    "elixerDossierInfrastructureTitle": "Laboratorio kaj Engine",
+    "elixerDossierInfrastructureBody": "La Laboratorio ELIXER subtenas konstruadon, testadon, pruvojn kaj pakadon; ELIXER Engine estas la tavolo por rulado, validigo kaj kunordigo. Nek unu nek la alia mem estas ELIXER aŭ donas aŭtoritaton.",
+    "elixerDossierBoundaries": "Kapablo ≠ permeso · Aliro ≠ rajtigo · Distribuado ≠ aktivigo · AI-eligo ≠ pruvo.",
+    "elixerDossierNextGate": "Sukcesa testo aŭ antaŭrigardo ne pruvas oficialan eldonon. Registro, revizio, eldono kaj produktada aktivigo estas apartaj pordegoj; ĉi tiu antaŭrigardo plenumas neniun el ili."
+  },
+  pl: {
+    "elixerDossierSummary": "Więcej o ELIXER",
+    "elixerDossierDefinition": "ELIXER to pakiet inteligencji o określonych granicach i wersji, obejmujący więcej niż sam czatbot lub ekran.",
+    "elixerDossierManifest": "Rekord pakietu powinien opisywać tożsamość i wersję, cel i zakres, persony i możliwości, pozwolenia i zabronione działania, zasady zgody, pamięci, prywatności i odwoływania, skrót kryptograficzny i pochodzenie, dowody testów i przeglądu oraz stany dystrybucji i aktywacji.",
+    "elixerDossierCandidateTitle": "Stan kandydata (dostarczone podsumowanie)",
+    "elixerDossierCandidateBody": "Dostarczone podsumowanie wskazuje H∆R∆-ELIXER jako kandydata i podaje LAB-CANDIDATE, syntetyczny, tylko do odczytu, bez oficjalnego wydania ani aktywacji. Opis MVP wyklucza dane produkcyjne, płatności, synchronizację kalendarza i zmiany zewnętrzne. Ta strona nie ma połączenia z aktualnym rejestrem i nie może potwierdzić tego stanu.",
+    "elixerDossierPersonasTitle": "Persony w H∆R∆",
+    "elixerDossierPersonasBody": "H∆R∆M (koordynacja i rozmowa), Ching Ching (porady finansowe i społeczne po uzyskaniu zgody) oraz Hannie (kontekst kalendarza i domu bez ukrytych zmian) są opisane jako persony w H∆R∆, a nie osobne ELIXERS.",
+    "elixerDossierInfrastructureTitle": "Laboratorium i Engine",
+    "elixerDossierInfrastructureBody": "Laboratorium ELIXER wspiera budowanie, testowanie, dowody i pakowanie; ELIXER Engine jest warstwą wykonywania, walidacji i koordynacji. Żadne z nich samo w sobie nie jest ELIXER ani nie nadaje uprawnień.",
+    "elixerDossierBoundaries": "Możliwość ≠ pozwolenie · Dostęp ≠ autoryzacja · Dystrybucja ≠ aktywacja · Odpowiedź AI ≠ dowód.",
+    "elixerDossierNextGate": "Udany test lub podgląd nie dowodzi oficjalnego wydania. Rejestr, przegląd, wydanie i aktywacja produkcyjna to osobne etapy; ten podgląd nie wykonuje żadnego z nich."
+  },
+  it: {
+    "elixerDossierSummary": "Scopri di più su ELIXER",
+    "elixerDossierDefinition": "Un ELIXER è un pacchetto di intelligenza con limiti e versione definiti, più di un chatbot o di una schermata.",
+    "elixerDossierManifest": "La scheda di un pacchetto dovrebbe descrivere identità e versione, scopo e ambito, personas e capacità, permessi e azioni vietate, regole per consenso, memoria, privacy e revoca, digest e provenienza, prove di test e revisione, e stato di distribuzione e attivazione.",
+    "elixerDossierCandidateTitle": "Stato del candidato (riepilogo fornito)",
+    "elixerDossierCandidateBody": "Il riepilogo fornito indica H∆R∆-ELIXER come candidato e riporta LAB-CANDIDATE, sintetico, in sola lettura, non ufficialmente emesso né attivato. La descrizione dell’MVP esclude dati di produzione, pagamenti, sincronizzazione del calendario e modifiche esterne. Questa pagina non ha un registro in tempo reale e non può confermare tale stato.",
+    "elixerDossierPersonasTitle": "Personas all’interno di H∆R∆",
+    "elixerDossierPersonasBody": "H∆R∆M (coordinamento e conversazione), Ching Ching (consulenza finanziaria e sociale con consenso preventivo) e Hannie (contesto di calendario e casa senza modifiche silenziose) sono descritte come personas all’interno di H∆R∆, non come ELIXER separati.",
+    "elixerDossierInfrastructureTitle": "Laboratorio ed Engine",
+    "elixerDossierInfrastructureBody": "Il Laboratorio ELIXER supporta sviluppo, test, prove e creazione dei pacchetti; ELIXER Engine è il livello di esecuzione, validazione e orchestrazione. Nessuno dei due è un ELIXER o conferisce autorità.",
+    "elixerDossierBoundaries": "Capacità ≠ permesso · Accesso ≠ autorizzazione · Distribuzione ≠ attivazione · Risultato IA ≠ prova.",
+    "elixerDossierNextGate": "Un test superato o un’anteprima non dimostra l’emissione ufficiale. Registro, revisione, emissione e attivazione in produzione sono passaggi separati; questa anteprima non li esegue."
   }
 };
 
@@ -777,6 +1374,311 @@ const elixerDigestTranslations = {
     elixerGateIssuance: '正式发布',
     elixerGateActivation: '生产启用',
     elixerGateStatus: '此预览中未确认'
+  },
+  pt: {
+    "elixerDossierSummary": "ELIXER em poucas palavras",
+    "elixerDossierDefinition": "Um ELIXER é um pacote com limites e versão definidos, composto por inteligência, personas, capacidades e regras.",
+    "elixerDossierRolesTitle": "Três funções, em resumo",
+    "elixerRolePackage": "O pacote com versão definida",
+    "elixerRoleLabTerm": "Laboratório",
+    "elixerRoleLab": "Constrói e testa pacotes",
+    "elixerRoleEngineTerm": "Engine",
+    "elixerRoleEngine": "Executa-os sob controlo",
+    "elixerContextExamplesTitle": "Exemplos de contexto",
+    "elixerContextExamplesNote": "Estes são apenas nomes de contextos de um exemplo de engenharia; esta pré-visualização não mostra aqui ofertas, capacidades nem direitos.",
+    "elixerContextExampleLabel": "Exemplo de referência",
+    "elixerDossierCandidateTitle": "H∆R∆-ELIXER · candidato",
+    "elixerCandidatePlainLabel": "Em linguagem simples",
+    "elixerCandidatePlain": "Um candidato de teste, sem emissão nem ativação oficiais.",
+    "elixerCandidateTagsLabel": "Atributos do candidato",
+    "elixerCandidateSynthetic": "Sintético",
+    "elixerCandidateReadOnly": "Só de leitura",
+    "elixerCandidateSyntheticMeaning": "Destinado a um contexto de teste, não a dados reais de produção.",
+    "elixerCandidateReadOnlyMeaning": "Destinado a consultar informação sem a alterar.",
+    "elixerCandidateMeaningNote": "Estes significados seguem o resumo fornecido; o comportamento não foi testado aqui.",
+    "elixerCandidateSourceLabel": "Fonte destes atributos",
+    "elixerCandidateSource": "Resumo fornecido",
+    "elixerCandidateVerificationLabel": "Verificado em tempo real?",
+    "elixerCandidateVerification": "Não, nesta pré-visualização não",
+    "elixerDossierCandidateBody": "Segundo o seu resumo: sem emissão nem ativação oficiais. O estado atual não está confirmado aqui.",
+    "elixerDossierPersonasTitle": "Três personas dentro de H∆R∆",
+    "elixerPersonaHaram": "H∆R∆M · coordenação e conversa",
+    "elixerPersonaChing": "Ching Ching · aconselhamento financeiro e social com consentimento prévio",
+    "elixerPersonaHannie": "Hannie · calendário e casa, sem alterações silenciosas",
+    "elixerDossierPersonasNote": "São personas dentro de H∆R∆, não ELIXERS separados.",
+    "elixerTechnicalSummary": "Pormenores técnicos e limites",
+    "elixerDossierEvidenceTitle": "O que está comprovado nesta pré-visualização?",
+    "elixerDossierEvidenceNote": "Esta pré-visualização não está ligada a um registo em tempo real. Os testes deste sítio verificam apenas a interface; não comprovam que o próprio pacote ELIXER tenha sido testado nem que esteja conforme. A informação em falta permanece desconhecida.",
+    "elixerEvidenceVersion": "Versão do pacote",
+    "elixerEvidenceDigest": "Resumo criptográfico do pacote",
+    "elixerEvidenceRegistry": "Entrada no registo",
+    "elixerEvidenceTest": "Provas de testes do pacote ELIXER",
+    "elixerEvidenceUnavailable": "Não disponível nesta pré-visualização",
+    "elixerDossierManifestTitle": "O que deve constar do registo de um pacote?",
+    "elixerDossierManifest": "Identidade e versão; finalidade e âmbito; personas, capacidades e ações proibidas; políticas de consentimento, memória, privacidade e revogação; resumo criptográfico, proveniência e provas de testes; estados de distribuição e ativação.",
+    "elixerDossierInfrastructureTitle": "Laboratório ≠ Engine ≠ ELIXER",
+    "elixerDossierInfrastructureBody": "O Laboratório constrói e testa pacotes. O Engine executa-os sob controlo. Nenhum deles concede autoridade.",
+    "elixerBoundaryCapability": "Capacidade",
+    "elixerBoundaryPermission": "permissão",
+    "elixerBoundaryAccess": "Acesso",
+    "elixerBoundaryAuthorization": "autorização",
+    "elixerBoundaryDistribution": "Distribuição",
+    "elixerBoundaryActivation": "ativação",
+    "elixerBoundaryOutput": "Resposta de IA",
+    "elixerBoundaryEvidence": "prova",
+    "elixerDossierNextGateTitle": "O que falta?",
+    "elixerDossierNextGate": "Um teste aprovado ou uma pré-visualização não comprova emissão oficial nem substitui estas etapas.",
+    "elixerDossierGatesTitle": "Próximas etapas separadas",
+    "elixerDossierGatesNote": "Estas etapas são distintas. Esta pré-visualização não confirma que alguma delas esteja concluída.",
+    "elixerGateRegistry": "Entrada no registo ELIXER",
+    "elixerGateReview": "Revisão independente",
+    "elixerGateIssuance": "Emissão oficial",
+    "elixerGateActivation": "Ativação em produção",
+    "elixerGateStatus": "Não confirmado nesta pré-visualização"
+  },
+  ru: {
+    "elixerDossierSummary": "Кратко об ELIXER",
+    "elixerDossierDefinition": "ELIXER — пакет с заданными границами и версией, включающий интеллект, персоны, возможности и правила.",
+    "elixerDossierRolesTitle": "Кратко о трёх ролях",
+    "elixerRolePackage": "Пакет с заданной версией",
+    "elixerRoleLabTerm": "Лаборатория",
+    "elixerRoleLab": "Создаёт и тестирует пакеты",
+    "elixerRoleEngineTerm": "Engine",
+    "elixerRoleEngine": "Запускает их под контролем",
+    "elixerContextExamplesTitle": "Примеры контекстов",
+    "elixerContextExamplesNote": "Это только названия контекстов из инженерного примера; здесь предпросмотр не показывает предложений, возможностей или прав.",
+    "elixerContextExampleLabel": "Справочный пример",
+    "elixerDossierCandidateTitle": "H∆R∆-ELIXER · кандидат",
+    "elixerCandidatePlainLabel": "Простыми словами",
+    "elixerCandidatePlain": "Тестовый кандидат без официальной выдачи или активации.",
+    "elixerCandidateTagsLabel": "Свойства кандидата",
+    "elixerCandidateSynthetic": "Синтетический",
+    "elixerCandidateReadOnly": "Только для чтения",
+    "elixerCandidateSyntheticMeaning": "Предназначен для тестового контекста, а не для реальных производственных данных.",
+    "elixerCandidateReadOnlyMeaning": "Предназначен для просмотра информации без её изменения.",
+    "elixerCandidateMeaningNote": "Эти значения соответствуют предоставленному резюме; поведение здесь не тестировалось.",
+    "elixerCandidateSourceLabel": "Источник этих свойств",
+    "elixerCandidateSource": "Предоставленное резюме",
+    "elixerCandidateVerificationLabel": "Проверено в реальном времени?",
+    "elixerCandidateVerification": "Нет, не в этом предпросмотре",
+    "elixerDossierCandidateBody": "Согласно вашему резюме: официальная выдача и активация не выполнены. Текущий статус здесь не подтверждён.",
+    "elixerDossierPersonasTitle": "Три персоны внутри H∆R∆",
+    "elixerPersonaHaram": "H∆R∆M · координация и общение",
+    "elixerPersonaChing": "Ching Ching · финансовые и общественные советы с предварительным согласием",
+    "elixerPersonaHannie": "Hannie · календарь и дом, без скрытых изменений",
+    "elixerDossierPersonasNote": "Это персоны внутри H∆R∆, а не отдельные ELIXERS.",
+    "elixerTechnicalSummary": "Технические сведения и границы",
+    "elixerDossierEvidenceTitle": "Что подтверждено в этом предпросмотре?",
+    "elixerDossierEvidenceNote": "Этот предпросмотр не подключён к актуальному реестру. Тесты этого сайта проверяют только интерфейс; они не доказывают, что сам пакет ELIXER был протестирован или соответствует требованиям. Отсутствующие сведения остаются неизвестными.",
+    "elixerEvidenceVersion": "Версия пакета",
+    "elixerEvidenceDigest": "Хеш пакета",
+    "elixerEvidenceRegistry": "Запись в реестре",
+    "elixerEvidenceTest": "Доказательства тестирования пакета ELIXER",
+    "elixerEvidenceUnavailable": "Недоступно в этом предпросмотре",
+    "elixerDossierManifestTitle": "Что входит в запись пакета?",
+    "elixerDossierManifest": "Идентичность и версия; цель и область применения; персоны, возможности и запрещённые действия; политики согласия, памяти, конфиденциальности и отзыва; хеш, происхождение и доказательства тестирования; статусы распространения и активации.",
+    "elixerDossierInfrastructureTitle": "Лаборатория ≠ Engine ≠ ELIXER",
+    "elixerDossierInfrastructureBody": "Лаборатория создаёт и тестирует пакеты. Engine запускает их под контролем. Ни один из них не предоставляет полномочий.",
+    "elixerBoundaryCapability": "Возможность",
+    "elixerBoundaryPermission": "разрешение",
+    "elixerBoundaryAccess": "Доступ",
+    "elixerBoundaryAuthorization": "авторизация",
+    "elixerBoundaryDistribution": "Распространение",
+    "elixerBoundaryActivation": "активация",
+    "elixerBoundaryOutput": "Ответ ИИ",
+    "elixerBoundaryEvidence": "доказательство",
+    "elixerDossierNextGateTitle": "Что остаётся?",
+    "elixerDossierNextGate": "Успешный тест или предпросмотр не доказывает официальную выдачу и не заменяет эти этапы.",
+    "elixerDossierGatesTitle": "Отдельные следующие этапы",
+    "elixerDossierGatesNote": "Это разные этапы. Этот предпросмотр не подтверждает завершение ни одного из них.",
+    "elixerGateRegistry": "Запись в реестре ELIXER",
+    "elixerGateReview": "Независимое рецензирование",
+    "elixerGateIssuance": "Официальная выдача",
+    "elixerGateActivation": "Производственная активация",
+    "elixerGateStatus": "Не подтверждено в этом предпросмотре"
+  },
+  eo: {
+    "elixerDossierSummary": "ELIXER mallonge klarigita",
+    "elixerDossierDefinition": "ELIXER estas limigita, versinumerita pakaĵo de inteligenteco, personaoj, kapabloj kaj reguloj.",
+    "elixerDossierRolesTitle": "Tri roloj, mallonge",
+    "elixerRolePackage": "La versinumerita pakaĵo",
+    "elixerRoleLabTerm": "Laboratorio",
+    "elixerRoleLab": "Konstruas kaj testas pakaĵojn",
+    "elixerRoleEngineTerm": "Engine",
+    "elixerRoleEngine": "Rulas ilin sub kontroloj",
+    "elixerContextExamplesTitle": "Ekzemplaj kuntekstoj",
+    "elixerContextExamplesNote": "Ĉi tiuj estas nur kuntekstonomoj el inĝeniera ekzemplo; ĉi tiu antaŭrigardo montras ĉi tie neniujn ofertojn, kapablojn aŭ rajtojn.",
+    "elixerContextExampleLabel": "Referenca ekzemplo",
+    "elixerDossierCandidateTitle": "H∆R∆-ELIXER · kandidato",
+    "elixerCandidatePlainLabel": "Per simplaj vortoj",
+    "elixerCandidatePlain": "Testa kandidato, nek oficiale eldonita nek aktivigita.",
+    "elixerCandidateTagsLabel": "Kandidataj ecoj",
+    "elixerCandidateSynthetic": "Sinteza",
+    "elixerCandidateReadOnly": "Nurlega",
+    "elixerCandidateSyntheticMeaning": "Destinita por testa kunteksto, ne por veraj produktadaj datumoj.",
+    "elixerCandidateReadOnlyMeaning": "Destinita por rigardi informojn sen fari ŝanĝojn.",
+    "elixerCandidateMeaningNote": "Ĉi tiuj signifoj sekvas la liveritan resumon; la konduto ne estis testita ĉi tie.",
+    "elixerCandidateSourceLabel": "Fonto de ĉi tiuj ecoj",
+    "elixerCandidateSource": "Liverita resumo",
+    "elixerCandidateVerificationLabel": "Ĉu aktuale kontrolita?",
+    "elixerCandidateVerification": "Ne, ne en ĉi tiu antaŭrigardo",
+    "elixerDossierCandidateBody": "Laŭ via resumo: nek oficiale eldonita nek aktivigita. La aktuala stato ne estas konfirmita ĉi tie.",
+    "elixerDossierPersonasTitle": "Tri personaoj ene de H∆R∆",
+    "elixerPersonaHaram": "H∆R∆M · kunordigo kaj interparolo",
+    "elixerPersonaChing": "Ching Ching · financaj kaj sociaj konsiloj kun antaŭa konsento",
+    "elixerPersonaHannie": "Hannie · kalendaro kaj hejmo, sen kaŝaj ŝanĝoj",
+    "elixerDossierPersonasNote": "Ĉi tiuj estas personaoj ene de H∆R∆, ne apartaj ELIXERS.",
+    "elixerTechnicalSummary": "Teknikaj detaloj kaj limoj",
+    "elixerDossierEvidenceTitle": "Kio estas pruvita en ĉi tiu antaŭrigardo?",
+    "elixerDossierEvidenceNote": "Ĉi tiu antaŭrigardo ne estas konektita al viva registro. La testoj de ĉi tiu retejo kontrolas nur la interfacon; ili ne pruvas, ke la pakaĵo ELIXER mem estis testita aŭ konformas. Mankantaj informoj restas nekonataj.",
+    "elixerEvidenceVersion": "Pakaĵa versio",
+    "elixerEvidenceDigest": "Pakaĵa haketa resumo",
+    "elixerEvidenceRegistry": "Registra enskribo",
+    "elixerEvidenceTest": "Testaj pruvoj de la pakaĵo ELIXER",
+    "elixerEvidenceUnavailable": "Ne havebla en ĉi tiu antaŭrigardo",
+    "elixerDossierManifestTitle": "Kio apartenas al pakaĵa registro?",
+    "elixerDossierManifest": "Identeco kaj versio; celo kaj amplekso; personaoj, kapabloj kaj malpermesitaj agoj; politikoj pri konsento, memoro, privateco kaj revoko; haketa resumo, deveno kaj testaj pruvoj; statoj de distribuado kaj aktivigo.",
+    "elixerDossierInfrastructureTitle": "Laboratorio ≠ Engine ≠ ELIXER",
+    "elixerDossierInfrastructureBody": "La Laboratorio konstruas kaj testas pakaĵojn. Engine rulas ilin sub kontroloj. Nek unu nek la alia donas aŭtoritaton.",
+    "elixerBoundaryCapability": "Kapablo",
+    "elixerBoundaryPermission": "permeso",
+    "elixerBoundaryAccess": "Aliro",
+    "elixerBoundaryAuthorization": "rajtigo",
+    "elixerBoundaryDistribution": "Distribuado",
+    "elixerBoundaryActivation": "aktivigo",
+    "elixerBoundaryOutput": "AI-eligo",
+    "elixerBoundaryEvidence": "pruvo",
+    "elixerDossierNextGateTitle": "Kio restas?",
+    "elixerDossierNextGate": "Sukcesa testo aŭ antaŭrigardo ne pruvas oficialan eldonon kaj ne anstataŭas ĉi tiujn pordegojn.",
+    "elixerDossierGatesTitle": "Apartaj sekvaj pordegoj",
+    "elixerDossierGatesNote": "Ĉi tiuj estas apartaj pordegoj. Ĉi tiu antaŭrigardo ne konfirmas, ke iu el ili estas plenumita.",
+    "elixerGateRegistry": "Enskribo en la registro ELIXER",
+    "elixerGateReview": "Sendependa revizio",
+    "elixerGateIssuance": "Oficiala eldono",
+    "elixerGateActivation": "Produktada aktivigo",
+    "elixerGateStatus": "Ne konfirmita en ĉi tiu antaŭrigardo"
+  },
+  pl: {
+    "elixerDossierSummary": "ELIXER w skrócie",
+    "elixerDossierDefinition": "ELIXER to pakiet o określonych granicach i wersji, obejmujący inteligencję, persony, możliwości i zasady.",
+    "elixerDossierRolesTitle": "Trzy role w skrócie",
+    "elixerRolePackage": "Pakiet z określoną wersją",
+    "elixerRoleLabTerm": "Laboratorium",
+    "elixerRoleLab": "Buduje i testuje pakiety",
+    "elixerRoleEngineTerm": "Engine",
+    "elixerRoleEngine": "Uruchamia je pod kontrolą",
+    "elixerContextExamplesTitle": "Przykładowe konteksty",
+    "elixerContextExamplesNote": "To jedynie nazwy kontekstów z przykładu inżynierskiego; ten podgląd nie pokazuje tu ofert, możliwości ani praw.",
+    "elixerContextExampleLabel": "Przykład referencyjny",
+    "elixerDossierCandidateTitle": "H∆R∆-ELIXER · kandydat",
+    "elixerCandidatePlainLabel": "Prostymi słowami",
+    "elixerCandidatePlain": "Kandydat testowy, bez oficjalnego wydania ani aktywacji.",
+    "elixerCandidateTagsLabel": "Cechy kandydata",
+    "elixerCandidateSynthetic": "Syntetyczny",
+    "elixerCandidateReadOnly": "Tylko do odczytu",
+    "elixerCandidateSyntheticMeaning": "Przeznaczony do kontekstu testowego, a nie do rzeczywistych danych produkcyjnych.",
+    "elixerCandidateReadOnlyMeaning": "Przeznaczony do przeglądania informacji bez wprowadzania zmian.",
+    "elixerCandidateMeaningNote": "Te znaczenia wynikają z dostarczonego podsumowania; zachowanie nie zostało tutaj przetestowane.",
+    "elixerCandidateSourceLabel": "Źródło tych cech",
+    "elixerCandidateSource": "Dostarczone podsumowanie",
+    "elixerCandidateVerificationLabel": "Zweryfikowany na żywo?",
+    "elixerCandidateVerification": "Nie, nie w tym podglądzie",
+    "elixerDossierCandidateBody": "Według twojego podsumowania: bez oficjalnego wydania ani aktywacji. Aktualny stan nie jest tutaj potwierdzony.",
+    "elixerDossierPersonasTitle": "Trzy persony w H∆R∆",
+    "elixerPersonaHaram": "H∆R∆M · koordynacja i rozmowa",
+    "elixerPersonaChing": "Ching Ching · porady finansowe i społeczne po uzyskaniu zgody",
+    "elixerPersonaHannie": "Hannie · kalendarz i dom, bez ukrytych zmian",
+    "elixerDossierPersonasNote": "To persony w H∆R∆, a nie osobne ELIXERS.",
+    "elixerTechnicalSummary": "Szczegóły techniczne i granice",
+    "elixerDossierEvidenceTitle": "Co jest potwierdzone w tym podglądzie?",
+    "elixerDossierEvidenceNote": "Ten podgląd nie jest połączony z aktualnym rejestrem. Testy tej witryny sprawdzają tylko interfejs; nie dowodzą, że sam pakiet ELIXER został przetestowany lub spełnia wymagania. Brakujące informacje pozostają nieznane.",
+    "elixerEvidenceVersion": "Wersja pakietu",
+    "elixerEvidenceDigest": "Skrót kryptograficzny pakietu",
+    "elixerEvidenceRegistry": "Wpis w rejestrze",
+    "elixerEvidenceTest": "Dowody testów pakietu ELIXER",
+    "elixerEvidenceUnavailable": "Niedostępne w tym podglądzie",
+    "elixerDossierManifestTitle": "Co powinien zawierać rekord pakietu?",
+    "elixerDossierManifest": "Tożsamość i wersja; cel i zakres; persony, możliwości i zabronione działania; zasady zgody, pamięci, prywatności i odwoływania; skrót kryptograficzny, pochodzenie i dowody testów; stany dystrybucji i aktywacji.",
+    "elixerDossierInfrastructureTitle": "Laboratorium ≠ Engine ≠ ELIXER",
+    "elixerDossierInfrastructureBody": "Laboratorium buduje i testuje pakiety. Engine uruchamia je pod kontrolą. Żadne z nich nie nadaje uprawnień.",
+    "elixerBoundaryCapability": "Możliwość",
+    "elixerBoundaryPermission": "pozwolenie",
+    "elixerBoundaryAccess": "Dostęp",
+    "elixerBoundaryAuthorization": "autoryzacja",
+    "elixerBoundaryDistribution": "Dystrybucja",
+    "elixerBoundaryActivation": "aktywacja",
+    "elixerBoundaryOutput": "Odpowiedź AI",
+    "elixerBoundaryEvidence": "dowód",
+    "elixerDossierNextGateTitle": "Co pozostaje?",
+    "elixerDossierNextGate": "Udany test lub podgląd nie dowodzi oficjalnego wydania ani nie zastępuje tych etapów.",
+    "elixerDossierGatesTitle": "Osobne kolejne etapy",
+    "elixerDossierGatesNote": "To odrębne etapy. Ten podgląd nie potwierdza ukończenia żadnego z nich.",
+    "elixerGateRegistry": "Wpis w rejestrze ELIXER",
+    "elixerGateReview": "Niezależny przegląd",
+    "elixerGateIssuance": "Oficjalne wydanie",
+    "elixerGateActivation": "Aktywacja produkcyjna",
+    "elixerGateStatus": "Niepotwierdzone w tym podglądzie"
+  },
+  it: {
+    "elixerDossierSummary": "ELIXER in breve",
+    "elixerDossierDefinition": "Un ELIXER è un pacchetto con limiti e versione definiti, composto da intelligenza, personas, capacità e regole.",
+    "elixerDossierRolesTitle": "Tre ruoli, in breve",
+    "elixerRolePackage": "Il pacchetto con una versione definita",
+    "elixerRoleLabTerm": "Laboratorio",
+    "elixerRoleLab": "Crea e testa i pacchetti",
+    "elixerRoleEngineTerm": "Engine",
+    "elixerRoleEngine": "Li esegue con controlli",
+    "elixerContextExamplesTitle": "Esempi di contesto",
+    "elixerContextExamplesNote": "Sono soltanto nomi di contesto tratti da un esempio ingegneristico; questa anteprima non mostra offerte, capacità o diritti in questa sezione.",
+    "elixerContextExampleLabel": "Esempio di riferimento",
+    "elixerDossierCandidateTitle": "H∆R∆-ELIXER · candidato",
+    "elixerCandidatePlainLabel": "In parole semplici",
+    "elixerCandidatePlain": "Un candidato di prova, non ufficialmente emesso né attivato.",
+    "elixerCandidateTagsLabel": "Caratteristiche del candidato",
+    "elixerCandidateSynthetic": "Sintetico",
+    "elixerCandidateReadOnly": "Sola lettura",
+    "elixerCandidateSyntheticMeaning": "Pensato come contesto di prova, non come dati reali di produzione.",
+    "elixerCandidateReadOnlyMeaning": "Pensato per consultare informazioni senza apportare modifiche.",
+    "elixerCandidateMeaningNote": "Questi significati seguono il riepilogo fornito; il comportamento non è stato testato qui.",
+    "elixerCandidateSourceLabel": "Fonte di queste caratteristiche",
+    "elixerCandidateSource": "Riepilogo fornito",
+    "elixerCandidateVerificationLabel": "Verificato in tempo reale?",
+    "elixerCandidateVerification": "No, non in questa anteprima",
+    "elixerDossierCandidateBody": "Secondo il tuo riepilogo: non ufficialmente emesso né attivato. Lo stato attuale non è confermato qui.",
+    "elixerDossierPersonasTitle": "Tre personas all’interno di H∆R∆",
+    "elixerPersonaHaram": "H∆R∆M · coordinamento e conversazione",
+    "elixerPersonaChing": "Ching Ching · consulenza finanziaria e sociale con consenso preventivo",
+    "elixerPersonaHannie": "Hannie · calendario e casa, senza modifiche silenziose",
+    "elixerDossierPersonasNote": "Sono personas all’interno di H∆R∆, non ELIXER separati.",
+    "elixerTechnicalSummary": "Dettagli tecnici e limiti",
+    "elixerDossierEvidenceTitle": "Cosa è dimostrato in questa anteprima?",
+    "elixerDossierEvidenceNote": "Questa anteprima non è collegata a un registro in tempo reale. I test di questo sito verificano soltanto l’interfaccia; non dimostrano che il pacchetto ELIXER stesso sia stato testato o sia conforme. Le informazioni mancanti restano sconosciute.",
+    "elixerEvidenceVersion": "Versione del pacchetto",
+    "elixerEvidenceDigest": "Digest del pacchetto",
+    "elixerEvidenceRegistry": "Voce del registro",
+    "elixerEvidenceTest": "Prove dei test del pacchetto ELIXER",
+    "elixerEvidenceUnavailable": "Non disponibile in questa anteprima",
+    "elixerDossierManifestTitle": "Cosa comprende la scheda di un pacchetto?",
+    "elixerDossierManifest": "Identità e versione; scopo e ambito; personas, capacità e azioni vietate; regole per consenso, memoria, privacy e revoca; digest, provenienza e prove dei test; stato di distribuzione e attivazione.",
+    "elixerDossierInfrastructureTitle": "Laboratorio ≠ Engine ≠ ELIXER",
+    "elixerDossierInfrastructureBody": "Il Laboratorio crea e testa i pacchetti. Engine li esegue con controlli. Nessuno dei due conferisce autorità.",
+    "elixerBoundaryCapability": "Capacità",
+    "elixerBoundaryPermission": "permesso",
+    "elixerBoundaryAccess": "Accesso",
+    "elixerBoundaryAuthorization": "autorizzazione",
+    "elixerBoundaryDistribution": "Distribuzione",
+    "elixerBoundaryActivation": "attivazione",
+    "elixerBoundaryOutput": "Risultato IA",
+    "elixerBoundaryEvidence": "prova",
+    "elixerDossierNextGateTitle": "Cosa resta da fare?",
+    "elixerDossierNextGate": "Un test superato o un’anteprima non dimostra l’emissione ufficiale e non sostituisce questi passaggi.",
+    "elixerDossierGatesTitle": "Prossimi passaggi separati",
+    "elixerDossierGatesNote": "Sono passaggi distinti. Questa anteprima non conferma che alcuno di essi sia completo.",
+    "elixerGateRegistry": "Voce nel registro ELIXER",
+    "elixerGateReview": "Revisione indipendente",
+    "elixerGateIssuance": "Emissione ufficiale",
+    "elixerGateActivation": "Attivazione in produzione",
+    "elixerGateStatus": "Non confermato in questa anteprima"
   }
 };
 
@@ -787,7 +1689,27 @@ const mobileNavTranslations = {
   fr: { navExplore: 'Explorer', mobileNavLabel: 'Navigation principale mobile' },
   es: { navExplore: 'Explorar', mobileNavLabel: 'Navegación principal móvil' },
   ar: { navExplore: 'استكشف', mobileNavLabel: 'التنقل الرئيسي للجوال' },
-  zh: { navExplore: '探索', mobileNavLabel: '移动主导航' }
+  zh: { navExplore: '探索', mobileNavLabel: '移动主导航' },
+  pt: {
+    "navExplore": "Descobrir",
+    "mobileNavLabel": "Navegação principal móvel"
+  },
+  ru: {
+    "navExplore": "Обзор",
+    "mobileNavLabel": "Основная мобильная навигация"
+  },
+  eo: {
+    "navExplore": "Esplori",
+    "mobileNavLabel": "Ĉefa poŝtelefona navigado"
+  },
+  pl: {
+    "navExplore": "Odkrywaj",
+    "mobileNavLabel": "Główna nawigacja mobilna"
+  },
+  it: {
+    "navExplore": "Esplora",
+    "mobileNavLabel": "Navigazione principale mobile"
+  }
 };
 
 const supportedLanguages = Object.keys(translations);
@@ -798,21 +1720,280 @@ const releasePanelTranslations = {
   fr: { label: 'FENÊTRES DE CONTACT RIO · SOURCE PUBLIQUE · MAIN BCF2684', title: 'Une référence de contact aux limites claires.', summary: 'La référence publique RIO teste le parcours de contact dans deux navigateurs distincts, avec une boîte d’envoi SQLite durable de démonstration et une boîte de réception synthétique.', boundaryTitle: 'Référence uniquement — non reliée à cette page', boundary: 'Données de test synthétiques uniquement. Aucun compte réel, relais hébergé, envoi E2EE, activation en production ou connexion.', source: 'Lire la source publique (main · bcf2684)' },
   es: { label: 'VENTANAS DE CONTACTO RIO · FUENTE PÚBLICA · MAIN BCF2684', title: 'Una referencia de contacto con límites claros.', summary: 'La referencia pública de RIO prueba el flujo de contacto en dos navegadores de prueba separados, con una bandeja de salida SQLite duradera y una bandeja de entrada sintética.', boundaryTitle: 'Solo referencia; no está conectada a esta página', boundary: 'Solo datos de prueba sintéticos. Sin cuentas reales, retransmisión alojada, entrega E2EE, activación en producción ni inicio de sesión.', source: 'Leer la fuente pública (main · bcf2684)' },
   ar: { label: 'نوافذ اتصال RIO · مصدر عام · MAIN BCF2684', title: 'مرجع اتصال بحدود واضحة.', summary: 'يختبر مرجع RIO العام مسار الاتصال في متصفحين منفصلين للاختبار، مع صندوق إرسال SQLite تجريبي دائم وصندوق وارد اصطناعي.', boundaryTitle: 'مرجع فقط — غير متصل بهذه الصفحة', boundary: 'بيانات اختبار اصطناعية فقط. لا حسابات حقيقية أو وسيط مستضاف أو تسليم E2EE أو تفعيل إنتاجي أو تسجيل دخول.', source: 'اقرأ المصدر العام (main · bcf2684)' },
-  zh: { label: 'RIO 联系窗口 · 公开来源 · MAIN BCF2684', title: '边界清晰的联系人参考预览。', summary: 'RIO 公开参考实现通过两个隔离的测试浏览器演示联系人流程，使用持久化的 SQLite 示例发件箱和合成收件箱。', boundaryTitle: '仅供参考，未连接到此页面', boundary: '仅使用合成测试数据。没有真实账户、托管中继、E2EE 消息投递、生产启用或登录功能。', source: '查看公开源码（main · bcf2684）' }
+  zh: { label: 'RIO 联系窗口 · 公开来源 · MAIN BCF2684', title: '边界清晰的联系人参考预览。', summary: 'RIO 公开参考实现通过两个隔离的测试浏览器演示联系人流程，使用持久化的 SQLite 示例发件箱和合成收件箱。', boundaryTitle: '仅供参考，未连接到此页面', boundary: '仅使用合成测试数据。没有真实账户、托管中继、E2EE 消息投递、生产启用或登录功能。', source: '查看公开源码（main · bcf2684）' },
+  pt: {
+    "label": "JANELAS DE CONTACTO RIO · FONTE PÚBLICA · MAIN BCF2684",
+    "title": "Uma referência de contacto com limites claros.",
+    "summary": "A referência pública do RIO exercita o percurso de contacto em dois navegadores de teste separados, com uma caixa de saída de exemplo duradoura em SQLite e uma caixa de entrada sintética.",
+    "boundaryTitle": "Apenas referência; não está ligada a esta página",
+    "boundary": "Apenas dados de teste sintéticos. Sem contas reais, relay alojado, entrega E2EE, ativação em produção ou início de sessão.",
+    "source": "Ler a fonte pública (main · bcf2684)"
+  },
+  ru: {
+    "label": "КОНТАКТНЫЕ ОКНА RIO · ОТКРЫТЫЙ ИСТОЧНИК · MAIN BCF2684",
+    "title": "Справочный контакт с чёткими границами.",
+    "summary": "Открытая справочная версия RIO отрабатывает путь контакта в двух отдельных тестовых браузерах с долговечным демонстрационным исходящим ящиком SQLite и синтетическим входящим ящиком.",
+    "boundaryTitle": "Только справочная версия; к этой странице не подключена",
+    "boundary": "Только синтетические тестовые данные. Без реальных аккаунтов, размещённого ретранслятора, доставки E2EE, производственной активации или входа в аккаунт.",
+    "source": "Открыть публичный источник (main · bcf2684)"
+  },
+  eo: {
+    "label": "KONTAKTAJ FENESTROJ DE RIO · PUBLIKA FONTO · MAIN BCF2684",
+    "title": "Kontakta referenco kun klaraj limoj.",
+    "summary": "La publika referenco de RIO ekzercas la kontaktovojon en du apartaj testaj retumiloj, kun daŭrema ekzempla elirkesto en SQLite kaj sinteza enirkesto.",
+    "boundaryTitle": "Nur referenco; ne konektita al ĉi tiu paĝo",
+    "boundary": "Nur sintezaj testdatumoj. Neniuj veraj kontoj, gastigita relajso, E2EE-liverado, produktada aktivigo aŭ ensaluto.",
+    "source": "Legi la publikan fonton (main · bcf2684)"
+  },
+  pl: {
+    "label": "OKNA KONTAKTU RIO · PUBLICZNE ŹRÓDŁO · MAIN BCF2684",
+    "title": "Referencja kontaktowa z jasnymi granicami.",
+    "summary": "Publiczna referencja RIO ćwiczy przebieg kontaktu w dwóch osobnych przeglądarkach testowych, z trwałą przykładową skrzynką nadawczą SQLite i syntetyczną skrzynką odbiorczą.",
+    "boundaryTitle": "Tylko referencja; bez połączenia z tą stroną",
+    "boundary": "Wyłącznie syntetyczne dane testowe. Bez prawdziwych kont, hostowanego przekaźnika, dostarczania E2EE, aktywacji produkcyjnej ani logowania.",
+    "source": "Przeczytaj publiczne źródło (main · bcf2684)"
+  },
+  it: {
+    "label": "FINESTRE DI CONTATTO RIO · FONTE PUBBLICA · MAIN BCF2684",
+    "title": "Un riferimento per il contatto con limiti chiari.",
+    "summary": "Il riferimento pubblico di RIO prova il percorso di contatto in due browser di test separati, con una casella di uscita dimostrativa persistente in SQLite e una casella di entrata sintetica.",
+    "boundaryTitle": "Solo riferimento — non collegato a questa pagina",
+    "boundary": "Solo dati di test sintetici. Nessun account reale, relay ospitato, consegna E2EE, attivazione in produzione o accesso con credenziali.",
+    "source": "Leggi la fonte pubblica (main · bcf2684)"
+  }
 };
 const taskbarTranslations = {
-  nl: { taskbarLabel: 'PALACO hoofdnavigatie', unavailable: 'Niet beschikbaar', here: 'Hier', consumer: 'Consument', personalAccount: 'Persoonlijk account', navigationBoundary: 'Kies een plek. HARA en MUNDO zijn nog niet beschikbaar. Externe links verlaten deze pagina en wissen je tijdelijke gesprek. De accountlink meldt je niet aan en bevestigt niet wie je bent.' },
-  en: { taskbarLabel: 'PALACO main navigation', unavailable: 'Unavailable', here: 'Here', consumer: 'Consumer', personalAccount: 'Personal account', navigationBoundary: 'Choose a place. HARA and MUNDO are not available yet. External links leave this page and clear your temporary conversation. The account link does not sign you in or verify your identity.' },
-  de: { taskbarLabel: 'PALACO Hauptnavigation', unavailable: 'Nicht verfügbar', here: 'Hier', consumer: 'Verbraucher', personalAccount: 'Persönliches Konto', navigationBoundary: 'Wähle einen Ort. HARA und MUNDO sind noch nicht verfügbar. Externe Links verlassen diese Seite und löschen dein vorübergehendes Gespräch. Der Kontolink meldet dich nicht an und bestätigt nicht deine Identität.' },
-  fr: { taskbarLabel: 'Navigation principale PALACO', unavailable: 'Indisponible', here: 'Ici', consumer: 'Consommateur', personalAccount: 'Compte personnel', navigationBoundary: 'Choisissez un lieu. HARA et MUNDO ne sont pas encore disponibles. Les liens externes quittent cette page et effacent votre conversation temporaire. Le lien du compte ne vous connecte pas et ne vérifie pas votre identité.' },
-  es: { taskbarLabel: 'Navegación principal PALACO', unavailable: 'No disponible', here: 'Aquí', consumer: 'Consumidor', personalAccount: 'Cuenta personal', navigationBoundary: 'Elige un lugar. HARA y MUNDO aún no están disponibles. Los enlaces externos salen de esta página y borran tu conversación temporal. El enlace de cuenta no inicia sesión ni verifica tu identidad.' },
-  ar: { taskbarLabel: 'التنقل الرئيسي في PALACO', unavailable: 'غير متاح', here: 'هنا', consumer: 'مستهلك', personalAccount: 'حساب شخصي', navigationBoundary: 'اختر مكانًا. HARA وMUNDO غير متاحين بعد. الروابط الخارجية تغادر هذه الصفحة وتمسح محادثتك المؤقتة. رابط الحساب لا يسجل دخولك ولا يتحقق من هويتك.' },
-  zh: { taskbarLabel: 'PALACO 主导航', unavailable: '暂不可用', here: '当前页面', consumer: '消费者', personalAccount: '个人账户', navigationBoundary: '选择一个地方。HARA 和 MUNDO 暂不可用。外部链接会离开此页面并清除临时对话。账户链接不会登录或验证你的身份。' }
+  "nl": {
+    "taskbarLabel": "PALACO hoofdnavigatie",
+    "unavailable": "Niet beschikbaar",
+    "here": "Hier",
+    "consumer": "Consument",
+    "personalAccount": "Persoonlijk account",
+    "haraPreview": "HARAM · deze computer",
+    "navigationBoundary": "Het HARA-icoon opent HARAM in een nieuw tabblad op deze computer. De lokale runtime moet draaien; de interface is Nederlands. Je RIO-inhoud gaat niet mee. MUNDO is niet beschikbaar. Sluiten of herladen kan tijdelijke inhoud wissen. De accountlink meldt je niet aan en bevestigt niet wie je bent.",
+    "haraInfo": "Over HARA · Nederlands",
+    "rioAccount": "Mijn RIO · Nederlands"
+  },
+  "en": {
+    "taskbarLabel": "PALACO main navigation",
+    "unavailable": "Unavailable",
+    "here": "Here",
+    "consumer": "Consumer",
+    "personalAccount": "Personal account",
+    "haraPreview": "HARAM · this computer",
+    "navigationBoundary": "The HARA icon opens HARAM in a new tab on this computer. The local runtime must be running; its interface is Dutch. Your RIO content is not transferred. MUNDO is unavailable. Closing or reloading may clear temporary content. The account link does not sign you in or verify your identity.",
+    "haraInfo": "About HARA · Dutch",
+    "rioAccount": "My RIO · Dutch"
+  },
+  "de": {
+    "taskbarLabel": "PALACO Hauptnavigation",
+    "unavailable": "Nicht verfügbar",
+    "here": "Hier",
+    "consumer": "Verbraucher",
+    "personalAccount": "Persönliches Konto",
+    "haraPreview": "HARAM · dieser Computer",
+    "navigationBoundary": "Das HARA-Symbol öffnet HARAM in einem neuen Tab auf diesem Computer. Die lokale Laufzeit muss laufen; die Oberfläche ist auf Niederländisch. Deine RIO-Inhalte werden nicht übertragen. MUNDO ist nicht verfügbar. Schließen oder Neuladen kann vorübergehende Inhalte löschen. Der Kontolink meldet dich nicht an und bestätigt nicht deine Identität.",
+    "haraInfo": "Über HARA · Niederländisch",
+    "rioAccount": "Mein RIO · Niederländisch"
+  },
+  "fr": {
+    "taskbarLabel": "Navigation principale PALACO",
+    "unavailable": "Indisponible",
+    "here": "Ici",
+    "consumer": "Consommateur",
+    "personalAccount": "Compte personnel",
+    "haraPreview": "HARAM · cet ordinateur",
+    "navigationBoundary": "L’icône HARA ouvre HARAM dans un nouvel onglet sur cet ordinateur. Le moteur local doit fonctionner ; son interface est en néerlandais. Votre contenu RIO n’est pas transféré. MUNDO est indisponible. Fermer ou recharger peut effacer le contenu temporaire. Le lien du compte ne vous connecte pas et ne vérifie pas votre identité.",
+    "haraInfo": "À propos de HARA · néerlandais",
+    "rioAccount": "Mon RIO · néerlandais"
+  },
+  "es": {
+    "taskbarLabel": "Navegación principal PALACO",
+    "unavailable": "No disponible",
+    "here": "Aquí",
+    "consumer": "Consumidor",
+    "personalAccount": "Cuenta personal",
+    "haraPreview": "HARAM · este ordenador",
+    "navigationBoundary": "El icono HARA abre HARAM en una pestaña nueva en este ordenador. El motor local debe estar en ejecución; su interfaz está en neerlandés. Tu contenido de RIO no se transfiere. MUNDO no está disponible. Cerrar o recargar puede borrar el contenido temporal. El enlace de cuenta no inicia sesión ni verifica tu identidad.",
+    "haraInfo": "Acerca de HARA · neerlandés",
+    "rioAccount": "Mi RIO · neerlandés"
+  },
+  "ar": {
+    "taskbarLabel": "التنقل الرئيسي في PALACO",
+    "unavailable": "غير متاح",
+    "here": "هنا",
+    "consumer": "مستهلك",
+    "personalAccount": "حساب شخصي",
+    "haraPreview": "HARAM · هذا الكمبيوتر",
+    "navigationBoundary": "تفتح أيقونة HARA تطبيق HARAM في علامة تبويب جديدة على هذا الكمبيوتر. يجب تشغيل البيئة المحلية؛ الواجهة باللغة الهولندية. لا يتم نقل محتوى RIO. خدمة MUNDO غير متاحة. قد يؤدي الإغلاق أو إعادة التحميل إلى مسح المحتوى المؤقت. رابط الحساب لا يسجل دخولك ولا يتحقق من هويتك.",
+    "haraInfo": "عن HARA · بالهولندية",
+    "rioAccount": "RIO الخاص بي · بالهولندية"
+  },
+  "zh": {
+    "taskbarLabel": "PALACO 主导航",
+    "unavailable": "暂不可用",
+    "here": "当前页面",
+    "consumer": "消费者",
+    "personalAccount": "个人账户",
+    "haraPreview": "HARAM · 此电脑",
+    "navigationBoundary": "HARA 图标在此电脑的新标签页中打开 HARAM。本地运行环境必须已启动；界面为荷兰语。RIO 内容不会随之传输。MUNDO 暂不可用。关闭或重新加载可能清除临时内容。账户链接不会登录或验证你的身份。",
+    "haraInfo": "关于 HARA · 荷兰语",
+    "rioAccount": "我的 RIO · 荷兰语"
+  },
+  "pt": {
+    "taskbarLabel": "Navegação principal da PALACO",
+    "unavailable": "Indisponível",
+    "here": "Aqui",
+    "consumer": "Consumidor",
+    "personalAccount": "Conta pessoal",
+    "haraPreview": "HARAM · este computador",
+    "navigationBoundary": "O ícone HARA abre HARAM num novo separador neste computador. O motor local tem de estar em execução; a interface é em neerlandês. O conteúdo do RIO não é transferido. MUNDO está indisponível. Fechar ou recarregar pode apagar o conteúdo temporário. A ligação para a conta não inicia sessão nem confirma a sua identidade.",
+    "haraInfo": "Sobre HARA · neerlandês",
+    "rioAccount": "O meu RIO · neerlandês"
+  },
+  "ru": {
+    "taskbarLabel": "Основная навигация PALACO",
+    "unavailable": "Недоступно",
+    "here": "Здесь",
+    "consumer": "Потребитель",
+    "personalAccount": "Личный аккаунт",
+    "haraPreview": "HARAM · этот компьютер",
+    "navigationBoundary": "Значок HARA открывает HARAM в новой вкладке на этом компьютере. Локальная среда выполнения должна быть запущена; интерфейс на нидерландском языке. Содержимое RIO не передаётся. MUNDO недоступно. Закрытие или перезагрузка может удалить временное содержимое. Ссылка на аккаунт не выполняет вход и не подтверждает вашу личность.",
+    "haraInfo": "О HARA · нидерландский",
+    "rioAccount": "Мой RIO · нидерландский"
+  },
+  "eo": {
+    "taskbarLabel": "Ĉefa navigado de PALACO",
+    "unavailable": "Nedisponebla",
+    "here": "Ĉi tie",
+    "consumer": "Konsumanto",
+    "personalAccount": "Persona konto",
+    "haraPreview": "HARAM · ĉi tiu komputilo",
+    "navigationBoundary": "La HARA-piktogramo malfermas HARAM en nova langeto sur ĉi tiu komputilo. La loka rultempa medio devas funkcii; la interfaco estas en la nederlanda. Via RIO-enhavo ne estas transdonata. MUNDO ne estas havebla. Fermo aŭ reŝargo povas forviŝi provizoran enhavon. La kontoligilo ne ensalutigas vin kaj ne konfirmas vian identecon.",
+    "haraInfo": "Pri HARA · nederlanda",
+    "rioAccount": "Mia RIO · nederlanda"
+  },
+  "pl": {
+    "taskbarLabel": "Nawigacja główna PALACO",
+    "unavailable": "Niedostępne",
+    "here": "Tutaj",
+    "consumer": "Konsument",
+    "personalAccount": "Konto osobiste",
+    "haraPreview": "HARAM · ten komputer",
+    "navigationBoundary": "Ikona HARA otwiera HARAM w nowej karcie na tym komputerze. Lokalne środowisko wykonawcze musi działać; interfejs jest w języku niderlandzkim. Treść RIO nie jest przenoszona. MUNDO jest niedostępne. Zamknięcie lub ponowne załadowanie może usunąć tymczasową treść. Link do konta nie loguje cię ani nie potwierdza twojej tożsamości.",
+    "haraInfo": "O HARA · niderlandzki",
+    "rioAccount": "Moje RIO · niderlandzki"
+  },
+  "it": {
+    "taskbarLabel": "Navigazione principale PALACO",
+    "unavailable": "Non disponibile",
+    "here": "Qui",
+    "consumer": "Consumatore",
+    "personalAccount": "Account personale",
+    "haraPreview": "HARAM · questo computer",
+    "navigationBoundary": "L’icona HARA apre HARAM in una nuova scheda su questo computer. Il motore locale deve essere in esecuzione; l’interfaccia è in neerlandese. I contenuti di RIO non vengono trasferiti. MUNDO non è disponibile. Chiudere o ricaricare può cancellare i contenuti temporanei. Il link dell’account non effettua l’accesso e non verifica la tua identità.",
+    "haraInfo": "Informazioni su HARA · neerlandese",
+    "rioAccount": "Il mio RIO · neerlandese"
+  }
+};
+const shareTranslations = {
+  nl: { shareTitle: 'Neem RIO mee.', shareBoundary: 'Deel alleen de link naar deze preview. Je naam, chat en Engine-oefening gaan niet mee. Een tijdelijke link kan later stoppen.', shareLinkLabel: 'Link naar RIO', shareHelp: 'Je kunt de link ook selecteren en zelf kopiëren.', shareCopy: 'Kopieer link', shareNative: 'Open deelmenu', shareClose: 'Sluiten', shareCopying: 'Link kopiëren…', shareCopied: 'Link gekopieerd.', shareSharing: 'Deelmenu open…', shareShared: 'Link doorgegeven aan het deelmenu.', shareCancelled: 'Delen geannuleerd.', shareManual: 'Selecteer de link en kopieer hem zelf. Automatisch kopiëren lukt hier niet.', shareUnavailable: 'Het deelmenu werkt nu niet. Je kunt de link kopiëren.' },
+  en: { shareTitle: 'Take RIO with you.', shareBoundary: 'Share only the link to this preview. Your name, chat and Engine exercise stay here. A temporary link may stop working later.', shareLinkLabel: 'Link to RIO', shareHelp: 'You can also select the link and copy it yourself.', shareCopy: 'Copy link', shareNative: 'Open share menu', shareClose: 'Close', shareCopying: 'Copying link…', shareCopied: 'Link copied.', shareSharing: 'Share menu open…', shareShared: 'Link passed to the share menu.', shareCancelled: 'Sharing cancelled.', shareManual: 'Select the link and copy it yourself. Automatic copying is unavailable here.', shareUnavailable: 'The share menu is unavailable now. You can copy the link.' },
+  de: { shareTitle: 'Nimm RIO mit.', shareBoundary: 'Teile nur den Link zu dieser Vorschau. Dein Name, Chat und die Engine-Übung bleiben hier. Ein temporärer Link kann später nicht mehr funktionieren.', shareLinkLabel: 'Link zu RIO', shareHelp: 'Du kannst den Link auch auswählen und selbst kopieren.', shareCopy: 'Link kopieren', shareNative: 'Teilen-Menü öffnen', shareClose: 'Schließen', shareCopying: 'Link wird kopiert…', shareCopied: 'Link kopiert.', shareSharing: 'Teilen-Menü geöffnet…', shareShared: 'Link an das Teilen-Menü übergeben.', shareCancelled: 'Teilen abgebrochen.', shareManual: 'Wähle den Link aus und kopiere ihn selbst. Automatisches Kopieren ist hier nicht möglich.', shareUnavailable: 'Das Teilen-Menü ist gerade nicht verfügbar. Du kannst den Link kopieren.' },
+  fr: { shareTitle: 'Emportez RIO avec vous.', shareBoundary: 'Partagez uniquement le lien vers cet aperçu. Votre nom, le chat et l’exercice Engine restent ici. Un lien temporaire peut cesser de fonctionner.', shareLinkLabel: 'Lien vers RIO', shareHelp: 'Vous pouvez aussi sélectionner le lien et le copier vous-même.', shareCopy: 'Copier le lien', shareNative: 'Ouvrir le menu de partage', shareClose: 'Fermer', shareCopying: 'Copie du lien…', shareCopied: 'Lien copié.', shareSharing: 'Menu de partage ouvert…', shareShared: 'Lien transmis au menu de partage.', shareCancelled: 'Partage annulé.', shareManual: 'Sélectionnez le lien et copiez-le vous-même. La copie automatique est indisponible ici.', shareUnavailable: 'Le menu de partage est indisponible. Vous pouvez copier le lien.' },
+  es: { shareTitle: 'Lleva RIO contigo.', shareBoundary: 'Comparte solo el enlace a esta vista previa. Tu nombre, el chat y el ejercicio Engine se quedan aquí. Un enlace temporal puede dejar de funcionar.', shareLinkLabel: 'Enlace a RIO', shareHelp: 'También puedes seleccionar el enlace y copiarlo tú mismo.', shareCopy: 'Copiar enlace', shareNative: 'Abrir menú para compartir', shareClose: 'Cerrar', shareCopying: 'Copiando enlace…', shareCopied: 'Enlace copiado.', shareSharing: 'Menú para compartir abierto…', shareShared: 'Enlace enviado al menú para compartir.', shareCancelled: 'Se canceló compartir.', shareManual: 'Selecciona el enlace y cópialo tú mismo. La copia automática no está disponible aquí.', shareUnavailable: 'El menú para compartir no está disponible. Puedes copiar el enlace.' },
+  ar: { shareTitle: 'خذ RIO معك.', shareBoundary: 'شارك رابط هذه المعاينة فقط. يبقى اسمك والدردشة وتمرين Engine هنا. قد يتوقف الرابط المؤقت عن العمل لاحقاً.', shareLinkLabel: 'رابط RIO', shareHelp: 'يمكنك أيضاً تحديد الرابط ونسخه بنفسك.', shareCopy: 'نسخ الرابط', shareNative: 'فتح قائمة المشاركة', shareClose: 'إغلاق', shareCopying: 'جارٍ نسخ الرابط…', shareCopied: 'تم نسخ الرابط.', shareSharing: 'قائمة المشاركة مفتوحة…', shareShared: 'تم تمرير الرابط إلى قائمة المشاركة.', shareCancelled: 'أُلغيت المشاركة.', shareManual: 'حدد الرابط وانسخه بنفسك. النسخ التلقائي غير متاح هنا.', shareUnavailable: 'قائمة المشاركة غير متاحة الآن. يمكنك نسخ الرابط.' },
+  zh: { shareTitle: '带上 RIO。', shareBoundary: '只分享此预览的链接。你的名字、聊天和 Engine 练习留在这里。临时链接可能稍后失效。', shareLinkLabel: 'RIO 链接', shareHelp: '你也可以选中链接并自行复制。', shareCopy: '复制链接', shareNative: '打开分享菜单', shareClose: '关闭', shareCopying: '正在复制链接…', shareCopied: '链接已复制。', shareSharing: '分享菜单已打开…', shareShared: '链接已传给分享菜单。', shareCancelled: '已取消分享。', shareManual: '请选中链接并自行复制。此处无法自动复制。', shareUnavailable: '分享菜单暂不可用。你可以复制链接。' },
+  pt: {
+    "shareTitle": "Leve o RIO consigo.",
+    "shareBoundary": "Partilhe apenas a ligação para esta pré-visualização. O seu nome, a conversa e o exercício Engine ficam aqui. Uma ligação temporária pode deixar de funcionar mais tarde.",
+    "shareLinkLabel": "Ligação para o RIO",
+    "shareHelp": "Também pode selecionar a ligação e copiá-la manualmente.",
+    "shareCopy": "Copiar ligação",
+    "shareNative": "Abrir menu de partilha",
+    "shareClose": "Fechar",
+    "shareCopying": "A copiar a ligação…",
+    "shareCopied": "Ligação copiada.",
+    "shareSharing": "Menu de partilha aberto…",
+    "shareShared": "Ligação entregue ao menu de partilha.",
+    "shareCancelled": "Partilha cancelada.",
+    "shareManual": "Selecione a ligação e copie-a manualmente. A cópia automática não está disponível aqui.",
+    "shareUnavailable": "O menu de partilha não está disponível agora. Pode copiar a ligação."
+  },
+  ru: {
+    "shareTitle": "Возьмите RIO с собой.",
+    "shareBoundary": "Поделитесь только ссылкой на этот предпросмотр. Ваше имя, чат и упражнение Engine остаются здесь. Временная ссылка может позже перестать работать.",
+    "shareLinkLabel": "Ссылка на RIO",
+    "shareHelp": "Вы также можете выделить ссылку и скопировать её вручную.",
+    "shareCopy": "Копировать ссылку",
+    "shareNative": "Открыть меню отправки",
+    "shareClose": "Закрыть",
+    "shareCopying": "Копирование ссылки…",
+    "shareCopied": "Ссылка скопирована.",
+    "shareSharing": "Меню отправки открыто…",
+    "shareShared": "Ссылка передана в меню отправки.",
+    "shareCancelled": "Отправка отменена.",
+    "shareManual": "Выделите ссылку и скопируйте её вручную. Автоматическое копирование здесь недоступно.",
+    "shareUnavailable": "Меню отправки сейчас недоступно. Вы можете скопировать ссылку."
+  },
+  eo: {
+    "shareTitle": "Kunportu RIO.",
+    "shareBoundary": "Dividu nur la ligilon al ĉi tiu antaŭrigardo. Via nomo, babilado kaj ekzerco de Engine restas ĉi tie. Provizora ligilo povas poste ĉesi funkcii.",
+    "shareLinkLabel": "Ligilo al RIO",
+    "shareHelp": "Vi ankaŭ povas elekti la ligilon kaj kopii ĝin mem.",
+    "shareCopy": "Kopii ligilon",
+    "shareNative": "Malfermi dividan menuon",
+    "shareClose": "Fermi",
+    "shareCopying": "Kopiante ligilon…",
+    "shareCopied": "Ligilo kopiita.",
+    "shareSharing": "Divida menuo malfermita…",
+    "shareShared": "Ligilo transdonita al la divida menuo.",
+    "shareCancelled": "Dividado nuligita.",
+    "shareManual": "Elektu la ligilon kaj kopiu ĝin mem. Aŭtomata kopiado ne haveblas ĉi tie.",
+    "shareUnavailable": "La divida menuo nun ne haveblas. Vi povas kopii la ligilon."
+  },
+  pl: {
+    "shareTitle": "Zabierz RIO ze sobą.",
+    "shareBoundary": "Udostępnij tylko link do tego podglądu. Twoje imię, czat i ćwiczenie Engine pozostają tutaj. Tymczasowy link może później przestać działać.",
+    "shareLinkLabel": "Link do RIO",
+    "shareHelp": "Możesz też zaznaczyć link i skopiować go samodzielnie.",
+    "shareCopy": "Kopiuj link",
+    "shareNative": "Otwórz menu udostępniania",
+    "shareClose": "Zamknij",
+    "shareCopying": "Kopiowanie linku…",
+    "shareCopied": "Link skopiowany.",
+    "shareSharing": "Menu udostępniania otwarte…",
+    "shareShared": "Link przekazany do menu udostępniania.",
+    "shareCancelled": "Udostępnianie anulowane.",
+    "shareManual": "Zaznacz link i skopiuj go samodzielnie. Automatyczne kopiowanie jest tutaj niedostępne.",
+    "shareUnavailable": "Menu udostępniania jest teraz niedostępne. Możesz skopiować link."
+  },
+  it: {
+    "shareTitle": "Porta RIO con te.",
+    "shareBoundary": "Condividi soltanto il link a questa anteprima. Il tuo nome, la chat e l’esercizio Engine restano qui. Un link temporaneo potrebbe smettere di funzionare.",
+    "shareLinkLabel": "Link a RIO",
+    "shareHelp": "Puoi anche selezionare il link e copiarlo manualmente.",
+    "shareCopy": "Copia link",
+    "shareNative": "Apri il menu di condivisione",
+    "shareClose": "Chiudi",
+    "shareCopying": "Copia del link…",
+    "shareCopied": "Link copiato.",
+    "shareSharing": "Menu di condivisione aperto…",
+    "shareShared": "Link passato al menu di condivisione.",
+    "shareCancelled": "Condivisione annullata.",
+    "shareManual": "Seleziona il link e copialo manualmente. La copia automatica non è disponibile qui.",
+    "shareUnavailable": "Il menu di condivisione non è disponibile al momento. Puoi copiare il link."
+  }
 };
 const languageButtons = document.querySelectorAll('.lang-btn');
 const meetButton = document.querySelector('#meet-btn');
 const shareButton = document.querySelector('#share-btn');
-const shareOutput = document.querySelector('#share-output');
+const shareDialog = document.querySelector('#share-dialog');
+const shareLink = document.querySelector('#share-link');
+const shareCopy = document.querySelector('#share-copy');
+const shareNative = document.querySelector('#share-native');
+const shareClose = document.querySelector('#share-close');
+const shareStatus = document.querySelector('#share-status');
 const cardToggle = document.querySelector('#card-toggle');
 const cardReveal = document.querySelector('#card-reveal');
 const helloForm = document.querySelector('#hello-form');
@@ -834,22 +2015,29 @@ const elixerDossier = document.querySelector('#elixer-dossier');
 const mobileNavLinks = document.querySelectorAll('.mobile-nav a');
 
 const browserLanguage = navigator.language?.split('-')[0];
-localStorage.removeItem('rio-visitor-name');
-let currentLanguage = sessionStorage.getItem('palaco-language') || (supportedLanguages.includes(browserLanguage) ? browserLanguage : 'nl');
+try { localStorage.removeItem('rio-visitor-name'); } catch { /* Storage may be unavailable. */ }
+let savedLanguage;
+try { savedLanguage = sessionStorage.getItem('palaco-language'); } catch { /* A language choice still works in this page. */ }
+let currentLanguage = supportedLanguages.includes(savedLanguage) ? savedLanguage
+  : (supportedLanguages.includes(browserLanguage) ? browserLanguage : 'nl');
 let deferredPrompt;
 let activeSubject;
 let selectedSubject;
-let continuingSubject = false;
 let lastSubjectTrigger;
 let touchStart;
 
-const text = (key) => translations[currentLanguage][key] ?? elixerContentTranslations[currentLanguage]?.[key] ?? elixerDigestTranslations[currentLanguage]?.[key] ?? elixerDossierTranslations[currentLanguage]?.[key] ?? subjectTranslations[currentLanguage]?.[key] ?? mobileNavTranslations[currentLanguage]?.[key] ?? taskbarTranslations[currentLanguage]?.[key];
+const text = (key) => shareTranslations[currentLanguage]?.[key] ?? translations[currentLanguage][key] ?? elixerContentTranslations[currentLanguage]?.[key] ?? elixerDigestTranslations[currentLanguage]?.[key] ?? elixerDossierTranslations[currentLanguage]?.[key] ?? subjectTranslations[currentLanguage]?.[key] ?? mobileNavTranslations[currentLanguage]?.[key] ?? taskbarTranslations[currentLanguage]?.[key];
 
 const taskbar = document.querySelector('.taskbar');
-const updateTaskbarHeight = () => document.documentElement.style.setProperty('--taskbar-height', `${taskbar.getBoundingClientRect().height}px`);
-updateTaskbarHeight();
-const taskbarObserver = new ResizeObserver(updateTaskbarHeight);
-taskbarObserver.observe(taskbar);
+const chatToggle = document.querySelector('#chat-preview-toggle');
+const updateDockHeights = () => {
+  document.documentElement.style.setProperty('--taskbar-height', `${taskbar.getBoundingClientRect().height}px`);
+  document.documentElement.style.setProperty('--chat-toggle-height', `${chatToggle.getBoundingClientRect().height}px`);
+};
+updateDockHeights();
+const dockObserver = new ResizeObserver(updateDockHeights);
+dockObserver.observe(taskbar);
+dockObserver.observe(chatToggle);
 
 const subjects = {
   symbol: { subject_id: 'rio:subject:palaco-symbol', type: 'SYMBOL', name: 'symbolTitle', preview_reference: 'asset:palaco-symbol', meaning: 'symbolDescription', provenance_reference: 'rio-web-subject-catalog-v1', state: 'CURRENT', boundary: 'subjectBoundary', next_action: 'subjectContinue', presentation_effect: 'NONE', kind: 'symbolType', preview: '∆' },
@@ -947,14 +2135,19 @@ const renderSubject = (subjectId) => {
   }
 };
 
-const closeSubjectDialog = () => {
-  if (subjectDialog?.open) subjectDialog.close();
+const closeSubjectDialog = ({ restoreFocus = true } = {}) => {
+  if (!subjectDialog?.open) return;
+  const trigger = lastSubjectTrigger;
+  lastSubjectTrigger = undefined;
+  subjectDialog.close();
+  // Finish focus with this action; a later native close must not move it again.
+  if (restoreFocus) trigger?.focus();
 };
 
-const setLanguage = (language) => {
+const setLanguage = (language, { remember = true } = {}) => {
   if (!supportedLanguages.includes(language)) return;
   currentLanguage = language;
-  sessionStorage.setItem('palaco-language', language);
+  if (remember) try { sessionStorage.setItem('palaco-language', language); } catch { /* Keep the current page usable. */ }
   document.documentElement.lang = language;
   document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
   document.querySelectorAll('.contact-route-reading').forEach((controls) => {
@@ -990,6 +2183,7 @@ const setLanguage = (language) => {
   if (cardToggle?.getAttribute('aria-expanded') === 'true') cardToggle.textContent = text('closeCard');
   if (activeSubject) renderSubject(activeSubject);
   document.title = `RIO · ${text('tagline')}`;
+  renderShareStatus();
   window.dispatchEvent(new CustomEvent('rio:languagechange', { detail: { language } }));
   publishSelectedSubject();
 };
@@ -1011,13 +2205,13 @@ subjectTiles.forEach((tile) => tile.addEventListener('click', () => {
   subjectDialog.showModal();
 }));
 
-subjectClose?.addEventListener('click', closeSubjectDialog);
+subjectClose?.addEventListener('click', () => closeSubjectDialog());
 subjectDialog?.addEventListener('click', (event) => {
   if (event.target === subjectDialog) closeSubjectDialog();
 });
-subjectDialog?.addEventListener('close', () => {
-  if (!continuingSubject) lastSubjectTrigger?.focus();
-  continuingSubject = false;
+subjectDialog?.addEventListener('cancel', (event) => {
+  event.preventDefault();
+  closeSubjectDialog();
 });
 
 subjectSheet?.addEventListener('pointerdown', (event) => {
@@ -1034,8 +2228,7 @@ subjectSheet?.addEventListener('pointerup', (event) => {
 subjectContinue?.addEventListener('click', () => {
   if (!activeSubject) return;
   selectedSubject = activeSubject;
-  continuingSubject = true;
-  closeSubjectDialog();
+  closeSubjectDialog({ restoreFocus: false });
   publishSelectedSubject(true);
 });
 
@@ -1059,17 +2252,64 @@ if ('IntersectionObserver' in window) {
   mobileSections.forEach((section) => sectionObserver.observe(section));
 }
 
-shareButton?.addEventListener('click', async () => {
-  const shareData = { title: document.title, text: text('tagline'), url: window.location.href };
-  try {
-    if (navigator.share) await navigator.share(shareData);
-    else if (navigator.clipboard) await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
-    else throw new Error('Sharing unavailable');
-    shareOutput.textContent = text('shareReady');
-  } catch (error) {
-    if (error.name !== 'AbortError') shareOutput.textContent = text('shareUnavailable');
-  }
+let shareAttempt = 0;
+let shareBusy = false;
+let shareState = 'idle';
+const shareData = () => ({ title: document.title, text: text('tagline'), url: new URL('/', location.origin).href });
+const renderShareStatus = () => {
+  shareStatus.dataset.state = shareState;
+  shareStatus.textContent = shareState === 'idle' ? '' : text('share' + shareState[0].toUpperCase() + shareState.slice(1));
+  shareCopy.disabled = shareNative.disabled = shareBusy;
+};
+const selectShareLink = () => { shareLink.focus(); shareLink.select(); };
+const closeShareDialog = () => {
+  ++shareAttempt;
+  shareBusy = false;
+  shareState = 'idle';
+  renderShareStatus();
+  shareDialog.close();
+  shareButton.focus();
+};
+shareButton?.addEventListener('click', () => {
+  if (shareDialog.open) return;
+  ++shareAttempt;
+  shareBusy = false;
+  shareState = 'idle';
+  shareLink.value = shareData().url;
+  let nativeAvailable = typeof navigator.share === 'function';
+  try { if (nativeAvailable && typeof navigator.canShare === 'function') nativeAvailable = navigator.canShare(shareData()); }
+  catch { nativeAvailable = false; }
+  shareNative.hidden = !nativeAvailable;
+  renderShareStatus();
+  shareDialog.showModal();
+  selectShareLink();
 });
+shareClose?.addEventListener('click', closeShareDialog);
+shareDialog?.addEventListener('cancel', (event) => {
+  event.preventDefault();
+  closeShareDialog();
+});
+const runShareAction = async (kind) => {
+  if (shareBusy || !shareDialog.open) return;
+  const attempt = ++shareAttempt;
+  shareBusy = true;
+  shareState = kind === 'copy' ? 'copying' : 'sharing';
+  renderShareStatus();
+  try {
+    if (kind === 'copy') await navigator.clipboard.writeText(shareLink.value);
+    else await navigator.share(shareData());
+    if (attempt !== shareAttempt || !shareDialog.open) return;
+    shareState = kind === 'copy' ? 'copied' : 'shared';
+  } catch (error) {
+    if (attempt !== shareAttempt || !shareDialog.open) return;
+    shareState = kind === 'copy' ? 'manual' : error?.name === 'AbortError' ? 'cancelled' : 'unavailable';
+    if (kind === 'copy') selectShareLink();
+  } finally {
+    if (attempt === shareAttempt && shareDialog.open) { shareBusy = false; renderShareStatus(); }
+  }
+};
+shareCopy?.addEventListener('click', () => runShareAction('copy'));
+shareNative?.addEventListener('click', () => runShareAction('native'));
 
 helloForm?.addEventListener('submit', (event) => {
   event.preventDefault();
@@ -1094,5 +2334,6 @@ installButton?.addEventListener('click', async () => {
 
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
 
-setLanguage(currentLanguage);
+// A display fallback must not erase an app-only language chosen in this tab.
+setLanguage(currentLanguage, { remember: false });
 revealLinkedRouteExplanation();
