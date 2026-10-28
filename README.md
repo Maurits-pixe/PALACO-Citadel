@@ -13,8 +13,9 @@ PALACO-Citadel is now organized as a canonical layered system: read from top to 
 6. [06-INTELLIGENCE](06-INTELLIGENCE/README.md) — governed intelligence en decision frameworks
 7. [07-IMMORTALITY](07-IMMORTALITY/README.md) — duurzaamheid, certificatie en OMEGA
 8. [08-IMPLEMENTATION](08-IMPLEMENTATION/README.md) — code, schemas, tests, examples en praktische implementatie
-9. [DOCS](DOCS/README.md) — referentie, glossary, FAQ en status
-10. [CANONIEKE_FORMULE](CANONIEKE_FORMULE.md) — de synthesis van het geheel
+9. [emerald/README.md](emerald/README.md) — geconsolideerde Emerald-canon, source map, workspace, schemas en releases
+10. [DOCS](DOCS/README.md) — referentie, glossary, FAQ en status
+11. [CANONIEKE_FORMULE](CANONIEKE_FORMULE.md) — de synthesis van het geheel
 
 ## GitHub links
 
@@ -47,6 +48,12 @@ Implementation references:
 
 - [PALACO-GITHUB-001 — Foundation Repository Assembly Manifest v1.0.0](PALACO-GITHUB-001.md)
 
+## Automatic update flow
+
+- GitHub Pages deploys automatically on every push to `main` via `.github/workflows/pages.yml`.
+- The PALACO PWA shell revalidates explicit shell assets from the network so website and app changes propagate automatically.
+- Open clients reload onto the newest shell and sync timestamps refresh when the app regains focus and at periodic intervals.
+
 ## Migratie-overzicht
 
 - De vroegere losse consolidatiebestanden zijn bewaard onder [ARCHIVE/legacy-sources/](ARCHIVE/legacy-sources/).
@@ -54,6 +61,7 @@ Implementation references:
 - De aanvullende thematische ordening van die grote bronbestanden staat in [CANON/README.md](CANON/README.md).
 - Verborgen repository-infrastructuur zoals `.github/` is behouden; historisch bootstrapmateriaal is canoniek geplaatst onder `08-IMPLEMENTATION/examples/setup/`.
 - Nieuwe website-, RIO-, VisitCard- en Emerald-documentatie van `main` blijft behouden naast de canonieke laagstructuur.
+- Emerald-specifieke source documents zijn geconsolideerd via [emerald/README.md](emerald/README.md), inclusief de genormaliseerde standalone `GO-EMERALD-011.md` tot en met `GO-EMERALD-036.md`.
 
 ## Snelle oriëntatie
 
