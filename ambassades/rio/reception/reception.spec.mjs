@@ -276,3 +276,167 @@ test('changing an example neutralizes its old result and PP controls remain acce
     }
   }
 });
+
+function recordApiRequests(page) {
+  const requests = [];
+  page.on('request', request => {
+    const path = new URL(request.url()).pathname;
+    if (path.startsWith('/api/')) requests.push([request.method(), path]);
+  });
+  return requests;
+}
+
+async function expectUnconfirmedAvailability(page) {
+  for (const id of ['runtime-nova', 'runtime-device']) {
+    await expect(page.locator('#' + id)).toHaveText('Niet bevestigd');
+    await expect(page.locator('#' + id)).toHaveAttribute('data-state', 'unconfirmed');
+  }
+  await expect(page.locator('#build-version')).toHaveText('Onbekend');
+  await expect(page.locator('#refresh-availability')).toBeEnabled();
+}
+
+async function expectReadOnlyLifecycle(page, context, requests, pairs) {
+  expect(requests.filter(([, path]) => path === NOVA)).toEqual(Array.from({ length: pairs }, () => ['GET', NOVA]));
+  expect(requests.filter(([, path]) => path === DEVICE)).toEqual(Array.from({ length: pairs }, () => ['GET', DEVICE]));
+  expect(requests).toHaveLength(pairs * 2);
+  expect(await context.cookies()).toEqual([]);
+  expect(await page.evaluate(() => [localStorage.length, sessionStorage.length])).toEqual([0, 0]);
+  await noConnectionClaim(page);
+}
+
+test('a real offline transition clears previous availability and reconnecting requires a fresh manual check', async ({ page, context }) => {
+  const requests = recordApiRequests(page);
+  await open(page);
+  await expect(page.locator('#runtime-nova')).toHaveAttribute('data-state', 'available');
+  await expect(page.locator('#runtime-device')).toHaveAttribute('data-state', 'available');
+  await page.locator('summary').click();
+  await expect(page.locator('#build-version')).toHaveText('a'.repeat(12));
+
+  await context.setOffline(true);
+  await page.waitForFunction(() => navigator.onLine === false);
+  await expectUnconfirmedAvailability(page);
+  await expect(page.locator('#availability-feedback')).toContainText(/offline/i);
+  await page.locator('#refresh-availability').click();
+  await expectUnconfirmedAvailability(page);
+  await page.clock.install();
+  await page.clock.fastForward(60000);
+  expect(requests).toHaveLength(2);
+
+  await context.setOffline(false);
+  await page.waitForFunction(() => navigator.onLine === true);
+  await expectUnconfirmedAvailability(page);
+  await page.clock.fastForward(60000);
+  expect(requests).toHaveLength(2);
+  await page.locator('#refresh-availability').click();
+  await expect(page.locator('#runtime-nova')).toHaveAttribute('data-state', 'available');
+  await expect(page.locator('#runtime-device')).toHaveAttribute('data-state', 'available');
+  await expect(page.locator('#build-version')).toHaveText('a'.repeat(12));
+  await expectReadOnlyLifecycle(page, context, requests, 2);
+});
+
+test('simulated persisted pagehide/pageshow abort a partial check and keep restored labels unconfirmed without new traffic', async ({ page, context }) => {
+  // These events exercise the lifecycle handlers; this does not assert actual BFCache admission.
+  await page.addInitScript(({ devicePath }) => {
+    const nativeFetch = window.fetch.bind(window);
+    window.__deviceLifecycleSignals = [];
+    window.fetch = (input, options) => {
+      const url = new URL(typeof input === 'string' ? input : input.url, location.href);
+      if (url.pathname === devicePath) window.__deviceLifecycleSignals.push(options.signal);
+      return nativeFetch(input, options);
+    };
+  }, { devicePath: DEVICE });
+  const requests = recordApiRequests(page);
+  await open(page);
+  await expect(page.locator('#runtime-device')).toHaveAttribute('data-state', 'available');
+  await page.locator('summary').click();
+  let release;
+  let finished;
+  const gate = new Promise(resolve => { release = resolve; });
+  const routeFinished = new Promise(resolve => { finished = resolve; });
+  await page.route('**' + DEVICE, async route => {
+    await gate;
+    await route.fulfill({ json: validDevice }).catch(() => {});
+    finished();
+  });
+  const novaResponse = page.waitForResponse(response => new URL(response.url()).pathname === NOVA);
+  await page.locator('#refresh-availability').click();
+  await (await novaResponse).finished();
+  await page.waitForFunction(() => window.__deviceLifecycleSignals.length === 2);
+  await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 0)));
+
+  await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true })));
+  expect(await page.evaluate(() => window.__deviceLifecycleSignals.at(-1).aborted)).toBe(true);
+  await expectUnconfirmedAvailability(page);
+  await page.locator('#refresh-availability').dispatchEvent('click');
+  expect(requests).toHaveLength(4);
+  await expectUnconfirmedAvailability(page);
+  await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })));
+  await expectUnconfirmedAvailability(page);
+  release();
+  await routeFinished;
+  await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 0)));
+  await expectUnconfirmedAvailability(page);
+  await expectReadOnlyLifecycle(page, context, requests, 2);
+});
+
+test('late results from an invalidated run cannot finish or overwrite a newer manual check', async ({ page, context }) => {
+  // Only response delivery is held here. Both generations still make real, local HTTP GETs.
+  // Fully read response bytes deliberately outlive abort to exercise the generation guard.
+  await page.addInitScript(({ novaPath, devicePath }) => {
+    const nativeFetch = window.fetch.bind(window);
+    const resolvers = [];
+    const gates = [0, 1].map(index => new Promise(resolve => { resolvers[index] = resolve; }));
+    const signals = [[], []];
+    let reads = 0;
+    window.__lateLifecycleFixture = {
+      completed: [0, 0], delivered: [0, 0], signals,
+      release: index => resolvers[index](),
+    };
+    window.fetch = async (input, options) => {
+      const url = new URL(typeof input === 'string' ? input : input.url, location.href);
+      if (![novaPath, devicePath].includes(url.pathname)) return nativeFetch(input, options);
+      const generation = Math.floor(reads++ / 2);
+      const response = await nativeFetch(input, options);
+      if (generation > 1) return response;
+      const bytes = await response.arrayBuffer();
+      signals[generation].push(options.signal);
+      window.__lateLifecycleFixture.completed[generation]++;
+      await gates[generation];
+      window.__lateLifecycleFixture.delivered[generation]++;
+      return new Response(bytes, { status: response.status, headers: response.headers });
+    };
+  }, { novaPath: NOVA, devicePath: DEVICE });
+  const requests = recordApiRequests(page);
+  await open(page);
+  await page.waitForFunction(() => window.__lateLifecycleFixture.completed[0] === 2);
+  await expect(page.locator('#refresh-availability')).toBeDisabled();
+  await page.evaluate(() => {
+    window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true }));
+    window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
+  });
+  expect(await page.evaluate(() => window.__lateLifecycleFixture.signals[0].every(signal => signal.aborted))).toBe(true);
+  await expectUnconfirmedAvailability(page);
+  expect(requests).toHaveLength(2);
+  await page.locator('#refresh-availability').click();
+  await page.waitForFunction(() => window.__lateLifecycleFixture.completed[1] === 2);
+  await page.evaluate(async () => {
+    window.__lateLifecycleFixture.release(0);
+    await new Promise(resolve => setTimeout(resolve, 0));
+  });
+  await page.waitForFunction(() => window.__lateLifecycleFixture.delivered[0] === 2);
+  for (const id of ['runtime-nova', 'runtime-device']) {
+    await expect(page.locator('#' + id)).toHaveAttribute('data-state', 'checking');
+  }
+  await expect(page.locator('#build-version')).toHaveText('Onbekend');
+  await expect(page.locator('#refresh-availability')).toBeDisabled();
+  await expect(page.locator('#availability-feedback')).toContainText('NOVA kijkt');
+  await page.locator('#refresh-availability').dispatchEvent('click');
+  expect(requests).toHaveLength(4);
+  await page.evaluate(() => window.__lateLifecycleFixture.release(1));
+  await expect(page.locator('#runtime-nova')).toHaveAttribute('data-state', 'available');
+  await expect(page.locator('#runtime-device')).toHaveAttribute('data-state', 'available');
+  await settled(page);
+  await page.locator('summary').click();
+  await expect(page.locator('#build-version')).toHaveText('a'.repeat(12));
+  await expectReadOnlyLifecycle(page, context, requests, 2);
+});

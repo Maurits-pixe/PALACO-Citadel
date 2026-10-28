@@ -6,3 +6,5 @@ ambassades/index.html text eol=lf
 ambassades/toegang.html text eol=lf
 ambassades/rio/palaco-rio-start-v0.1.html text eol=lf
 ambassades/rio/nova/index.html text eol=lf
+# Pinned preview sources are explicitly normalized to LF; keep build bytes stable.
+ambassades/rio/visitcard/* text eol=lf

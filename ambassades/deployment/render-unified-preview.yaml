@@ -1,0 +1,22 @@
+{
+  "services": [{
+    "type": "web",
+    "name": "palaco-rio-preview-temporary",
+    "runtime": "static",
+    "repo": "https://github.com/Maurits-pixe/PALACO-Citadel",
+    "branch": "codex/rio-unified-preview-draft",
+    "buildCommand": "node scripts/build-rio-unified-preview.mjs",
+    "staticPublishPath": "render-dist",
+    "autoDeployTrigger": "off",
+    "envVars": [{"key": "SKIP_INSTALL_DEPS", "value": "true"}, {"key": "NODE_VERSION", "value": "24"}],
+    "headers": [
+      {"path": "/*", "name": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'"},
+      {"path": "/*", "name": "X-Content-Type-Options", "value": "nosniff"},
+      {"path": "/*", "name": "Referrer-Policy", "value": "no-referrer"},
+      {"path": "/sw.js", "name": "Cache-Control", "value": "no-cache"},
+      {"path": "/rio/sw.js", "name": "Cache-Control", "value": "no-cache"},
+      {"path": "/rio/download", "name": "Content-Type", "value": "application/octet-stream"},
+      {"path": "/rio/download", "name": "Content-Disposition", "value": "attachment; filename=\"PALACO-RIO-v0.1.html\""}
+    ]
+  }]
+}

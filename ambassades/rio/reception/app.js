@@ -13,7 +13,13 @@
   const exampleShow = byId('pp-example-show');
   const exampleResult = byId('pp-example-result');
   const pending = new Set();
+  const staticPreview = document.documentElement.dataset.runtimeMode === 'static-preview';
+  const previewCopy = 'Deze preview meet de bereikbaarheid niet. Open een proef op de beveiligde proefserver om zelf verder te gaan.';
   let checking = false;
+  let generation = 0;
+  let pageActive = true;
+  const unconfirmedCopy = 'De bereikbaarheid is niet bevestigd. Kies Opnieuw controleren om opnieuw te kijken.';
+  const offlineCopy = 'Je bent offline. Maak verbinding en kies daarna Opnieuw controleren.';
 
   const exampleCopy = {
     UNCONFIRMED: 'Voorbeeld: er is nog geen telefoonnummer of e-mailadres bevestigd. Daarmee is er nog geen chattoelating in het ontwerp.',
@@ -89,8 +95,28 @@
     element.dataset.state = available ? 'available' : 'unconfirmed';
   }
 
+  function invalidateAvailability() {
+    generation++;
+    for (const controller of pending) controller.abort();
+    state(nova, false);
+    state(device, false);
+    version.textContent = 'Onbekend';
+    feedback.textContent = staticPreview ? previewCopy : navigator.onLine === false ? offlineCopy : unconfirmedCopy;
+    checking = false;
+    refresh.disabled = staticPreview;
+  }
+
   async function checkAvailability() {
+    if (staticPreview) {
+      invalidateAvailability();
+      return;
+    }
     if (checking) return;
+    if (!pageActive || navigator.onLine === false) {
+      invalidateAvailability();
+      return;
+    }
+    const run = ++generation;
     checking = true;
     refresh.disabled = true;
     for (const element of [nova, device]) {
@@ -103,6 +129,13 @@
       runtime('/api/rio/nova/runtime', validNova),
       runtime('/api/rio/device-test/runtime', validDevice),
     ]);
+    // A departed/offline page invalidates the whole pair, including already fulfilled reads.
+    // An older round must also leave a newer round's busy/button state untouched.
+    if (run !== generation) return;
+    if (!pageActive || navigator.onLine === false) {
+      invalidateAvailability();
+      return;
+    }
     const novaAvailable = results[0].status === 'fulfilled';
     const deviceAvailable = results[1].status === 'fulfilled';
     state(nova, novaAvailable);
@@ -124,6 +157,18 @@
   exampleContact.addEventListener('change', resetExample);
   exampleTransport.addEventListener('change', resetExample);
   exampleShow.addEventListener('click', showExample);
-  window.addEventListener('pagehide', () => { for (const controller of pending) controller.abort(); });
+  window.addEventListener('offline', invalidateAvailability);
+  window.addEventListener('online', () => {
+    if (!checking) invalidateAvailability();
+  });
+  window.addEventListener('pagehide', () => {
+    pageActive = false;
+    invalidateAvailability();
+  });
+  window.addEventListener('pageshow', event => {
+    const restored = !pageActive || event.persisted;
+    pageActive = true;
+    if (restored) invalidateAvailability();
+  });
   void checkAvailability();
 })();

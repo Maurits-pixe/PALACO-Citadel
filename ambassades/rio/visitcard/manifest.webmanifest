@@ -1,0 +1,22 @@
+{
+  "name": "RIO · PALACO",
+  "short_name": "RIO",
+  "description": "RIO is het privacy-first visitekaartje en de bewijsgebonden vraag-en-antwoordlaag van PALACO.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fffdf4",
+  "theme_color": "#fff45c",
+  "lang": "nl",
+  "icons": [
+    {
+      "src": "/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
