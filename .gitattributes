@@ -1,0 +1,4 @@
+
+# Cross-repository source bytes are checked against pinned Git blobs.
+ecosystem/** text eol=lf
+rio/vendor/local-qa.mjs -text
