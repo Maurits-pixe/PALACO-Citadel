@@ -12,6 +12,19 @@ const surfaces = [
   { path: '/citadel/', title: 'PALACO NEO · Launcher', heading: 'PALACO NEO' }
 ];
 
+test('offers a safe external ChatGPT link', async ({ page }) => {
+  await page.goto('/');
+  const link = page.locator('.hero-preview a[data-i18n="previewChatGPT"]');
+  await expect(link).toHaveAttribute('href', 'https://chatgpt.com/');
+  await expect(link).toHaveAttribute('target', '_blank');
+  await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+
+  await page.locator('.language-switch [data-lang="nl"]').click();
+  await expect(link).toHaveText('Open ChatGPT');
+  await page.locator('.language-switch [data-lang="eo"]').click();
+  await expect(link).toHaveText('Malfermi ChatGPT');
+});
+
 async function waitForWorker(page) {
   await page.evaluate(() => navigator.serviceWorker.ready.then(() => undefined));
   await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
