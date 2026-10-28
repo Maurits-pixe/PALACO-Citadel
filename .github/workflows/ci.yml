@@ -54,6 +54,8 @@ jobs:
           test "$status" = "healthy"
           curl --fail --silent http://127.0.0.1:8080/ | grep -q '<title>PALACO Citadel</title>'
           curl --fail --silent http://127.0.0.1:8080/citadel/ | grep -q 'PALACO NEO'
+          curl --fail --silent http://127.0.0.1:8080/citadel/react/ | grep -q 'React launcher'
+          curl --fail --silent http://127.0.0.1:8080/citadel/bastion-app/ | grep -q 'Citadel Bastion'
       - name: Install Bastion demo API dependencies
         run: npm ci --prefix bastion-backend
       - name: Test Bastion demo API

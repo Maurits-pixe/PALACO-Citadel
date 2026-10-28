@@ -59,9 +59,23 @@ sensitive data to the existing demo backend. A safe integration requires an expl
 data flow, caller authentication/authorization, retention and deletion rules, a decryption
 custody model, and a review of the network exposure before implementation.
 
-The repository already has `.github/workflows/ci.yml`; it was a placeholder, not a missing file.
-It runs the root `npm test` suite (including Playwright Chromium), validates and builds the
-existing root `citadel` Docker Compose service, smoke-tests its health plus `/` and `/citadel/`
-routes, and runs the separate `bastion-backend/` tests. It deliberately does not pretend to build
-absent Rust or frontend projects. Node 22 is the CI runtime; the proposed Node 18/Rust 1.70 values
-are not adopted as repository requirements.
+The repository already has `.github/workflows/ci.yml`. It runs on pushes to all branches, executes
+the root `npm test` suite (including builds for the Vue launcher, React launcher, Vue Bastion
+client, and Playwright Chromium), tests the existing Rust reference library with Rust 1.90, builds
+the Docker images, smoke-tests the static routes, and separately tests `bastion-backend/`. The
+multi-stage Citadel image builds the existing frontend artifacts before serving them with Nginx.
+The Rust crate is not an operational service, and Compose does not claim to run it.
+
+## Supabase backend requirement recorded (2026-10-28)
+
+The latest request identifies Supabase as the intended backend for AETHER-to-Bastion task
+creation. No Supabase project configuration, SDK dependency, migrations, or environment contract
+is present in the repository. The existing authenticated Node/PostgreSQL prototype is a separate
+service, not Supabase; the SQLite demo API remains unauthenticated and synthetic-data-only.
+
+The Supabase destination is therefore not yet integrated or started by Compose. Before adding a
+send action, establish whether this means a hosted project or a local Supabase stack, provide the
+project URL and public client key through deployment configuration (never a service-role key in
+the browser or repository), and define/test Auth, deny-by-default RLS, task/team authorization,
+task defaults, retention/deletion, and explicit user consent. Until those boundaries are verified,
+AETHER remains local-only and must not send ciphertext to either existing demo backend.
