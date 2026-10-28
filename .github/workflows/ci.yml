@@ -2,7 +2,6 @@ name: PALACO CI
 
 "on":
   push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
@@ -28,6 +27,12 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Run repository test suite
         run: npm test
+      - name: Test Rust reference crate
+        run: |
+          docker run --rm \
+            --volume "$PWD/08-IMPLEMENTATION/office-automation/rust-reference:/workspace" \
+            --workdir /workspace \
+            rust:1.90-slim cargo test
       - name: Validate and build Docker Compose service
         run: |
           docker compose config --quiet

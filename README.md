@@ -109,10 +109,11 @@ intended operator.
 
 ## Run the static site with Docker
 
-Docker packages the existing static PALACO-Citadel site; it does not add the proposed Rust
-AETHER service, missing frontend trees, or a live Bastion integration. The Bastion demo API is
-intentionally not included in Compose because it has no authentication and its documentation
-prohibits network exposure.
+Docker builds the existing Vue PALACO launcher, React launcher, and Vue Bastion client, then
+serves their static output and the existing site with Nginx. It does not create a Rust runtime
+service; `08-IMPLEMENTATION/office-automation/rust-reference/` is a reference library. The
+unauthenticated SQLite Bastion demo API remains an opt-in Compose profile and is not integrated
+with AETHER.
 
 With Docker Engine and the Compose plugin installed, run from the repository root:
 
@@ -120,9 +121,8 @@ With Docker Engine and the Compose plugin installed, run from the repository roo
 docker compose up --build -d
 ```
 
-Open `http://localhost:8080`. The container serves the static site only, binds to loopback by
-default, runs Nginx as an unprivileged user, and has a read-only root filesystem. Stop it with
-`docker compose down`.
+Open `http://localhost:8080`. The static site binds to loopback by default, runs Nginx as an
+unprivileged user, and has a read-only root filesystem. Stop it with `docker compose down`.
 
 To publish the static image to an account you control, authenticate with Docker Hub and tag the
 image using your own namespace:
