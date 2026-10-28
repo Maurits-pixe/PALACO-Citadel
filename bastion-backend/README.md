@@ -52,3 +52,26 @@ not abuse protection for an exposed service.
 The fixed `local-demo` ticket owner is not a real user identity. The backend is not wired to the
 launcher metadata endpoint, and the static Bastion frontend remains local-only until separately
 integrated and reviewed.
+
+## Optional Docker container
+
+The API can be packaged as an isolated, local-only demo container. It remains unauthenticated and
+must contain synthetic data only. It is not connected to AETHER or the Bastion frontend.
+
+Generate the local TLS certificate files as described above, then from the repository root run:
+
+```sh
+docker compose --profile bastion-demo up --build -d bastion-demo-api
+```
+
+The API is published only on `127.0.0.1:3005`; its Compose network is isolated and its SQLite data
+is kept in the `bastion-demo-data` named volume. It requires the host certificate and key at
+`bastion-backend/localhost.pem` and `bastion-backend/localhost-key.pem`. Override their paths with
+`BASTION_TLS_CERT_PATH` and `BASTION_TLS_KEY_PATH` if needed. Stop it with:
+
+```sh
+docker compose --profile bastion-demo down
+```
+
+Removing the named volume is destructive to its demo database. This local container does not make
+the API suitable for network exposure, real data, authentication, authorization, or production use.

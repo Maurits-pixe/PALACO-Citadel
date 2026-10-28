@@ -44,6 +44,10 @@ For the numbered PALACO source hierarchy, follow the [root README](../README.md)
 - Root `docker-compose.yml` packages only the existing static site in Nginx. It binds to
   `127.0.0.1:8080`, uses a read-only container filesystem, and drops Linux capabilities. Start it
   with `docker compose up --build -d`; it does not start Rust AETHER or a live Bastion service.
+- The Compose file also includes an opt-in `bastion-demo` profile for the existing standalone
+  SQLite API. It publishes only to host loopback, uses an isolated internal network, mounts
+  host-provided TLS files read-only, and stores synthetic SQLite data in a named volume. It is
+  still unauthenticated and is not production-ready or connected to the Bastion UI/AETHER.
 
 ## Proposals are not implementation
 

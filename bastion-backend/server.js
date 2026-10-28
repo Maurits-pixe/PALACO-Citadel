@@ -183,9 +183,9 @@ export function createBastionDemoApp({
 
 export function startBastionDemoServer({
   db,
-  databasePath = resolve(directory, 'bastion.db'),
+  databasePath = process.env.DATABASE_PATH || resolve(directory, 'bastion.db'),
   port = Number(process.env.PORT || 3005),
-  host = '127.0.0.1',
+  host = process.env.HOST || '127.0.0.1',
   certPath = process.env.TLS_CERT_PATH || resolve(directory, 'localhost.pem'),
   keyPath = process.env.TLS_KEY_PATH || resolve(directory, 'localhost-key.pem'),
   allowedOrigins = parseOrigins(process.env.ALLOWED_ORIGINS)

@@ -31,7 +31,7 @@ jobs:
       - name: Validate and build Docker Compose service
         run: |
           docker compose config --quiet
-          docker compose build citadel
+          docker compose build citadel bastion-demo-api
       - name: Smoke-test Docker Compose service
         run: |
           set -euo pipefail
