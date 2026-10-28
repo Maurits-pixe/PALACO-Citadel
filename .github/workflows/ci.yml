@@ -30,9 +30,9 @@ jobs:
       - name: Test Rust reference crate
         run: |
           docker run --rm \
-            --volume "$PWD/08-IMPLEMENTATION/office-automation/rust-reference:/workspace" \
-            --workdir /workspace \
-            rust:1.90-slim cargo test
+            --volume "$PWD/08-IMPLEMENTATION/office-automation/rust-reference:/input:ro" \
+            rust:1.90-slim \
+            sh -c 'mkdir -p /tmp/workspace && cp -R /input/. /tmp/workspace/ && cd /tmp/workspace && cargo test'
       - name: Validate and build Docker Compose service
         run: |
           docker compose config --quiet
