@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "palaco-identity-design/0.1",
+  "mode": "DESIGN_ONLY",
+  "decisionStatus": "ADVISORY_HUMAN_DECISION_REQUIRED",
+  "oauthEnabled": false,
+  "accountActive": false,
+  "canOpenContact": false,
+  "operativeAuthority": "NONE",
+  "persons": [
+    { "person_id": "TST-PERSON-ALPHA", "identity_status": "UNVERIFIED_FIXTURE" },
+    { "person_id": "TST-PERSON-BETA", "identity_status": "UNVERIFIED_FIXTURE" }
+  ],
+  "groups": [
+    { "shared_palaco_id": "TST-PROJECT-PALACO", "kind": "PROJECT", "status": "DESIGN_ONLY" }
+  ],
+  "providerBindings": [
+    { "person_id": "TST-PERSON-ALPHA", "provider": "TST-PROVIDER-LOCAL", "provider_user_ref": "TST-PROVIDER-USER-ALPHA", "status": "UNVERIFIED_FIXTURE" },
+    { "person_id": "TST-PERSON-BETA", "provider": "TST-PROVIDER-LOCAL", "provider_user_ref": "TST-PROVIDER-USER-BETA", "status": "UNVERIFIED_FIXTURE" }
+  ],
+  "sessions": [
+    { "session_ref": "TST-SESSION-ALPHA", "person_id": "TST-PERSON-ALPHA", "provider": "TST-PROVIDER-LOCAL", "provider_user_ref": "TST-PROVIDER-USER-ALPHA", "status": "ACTIVE" },
+    { "session_ref": "TST-SESSION-BETA", "person_id": "TST-PERSON-BETA", "provider": "TST-PROVIDER-LOCAL", "provider_user_ref": "TST-PROVIDER-USER-BETA", "status": "ACTIVE" }
+  ],
+  "memberships": [
+    {
+      "membership_id": "TST-MEMBERSHIP-ALPHA",
+      "person_id": "TST-PERSON-ALPHA",
+      "shared_palaco_id": "TST-PROJECT-PALACO",
+      "status": "ACTIVE",
+      "permissions": [
+        { "action": "TST-ACTION-REVIEW", "scope": "TST-SCOPE-PROJECT-DRAFT" },
+        { "action": "TST-ACTION-COMMENT", "scope": "TST-SCOPE-PROJECT-DRAFT" }
+      ]
+    },
+    {
+      "membership_id": "TST-MEMBERSHIP-BETA",
+      "person_id": "TST-PERSON-BETA",
+      "shared_palaco_id": "TST-PROJECT-PALACO",
+      "status": "ACTIVE",
+      "permissions": [
+        { "action": "TST-ACTION-REVIEW", "scope": "TST-SCOPE-PROJECT-DRAFT" },
+        { "action": "TST-ACTION-COMMENT", "scope": "TST-SCOPE-PROJECT-DRAFT" }
+      ]
+    }
+  ],
+  "historicalReceipts": [
+    {
+      "mode": "DESIGN_ONLY",
+      "decisionStatus": "ADVISORY_HUMAN_DECISION_REQUIRED",
+      "canAuthorize": false,
+      "session_ref": "TST-SESSION-ALPHA",
+      "action": "TST-ACTION-REVIEW",
+      "scope": "TST-SCOPE-PROJECT-DRAFT",
+      "at_ms": 1800000000000,
+      "audit_ref": "TST-AUDIT-HISTORY-ALPHA",
+      "actor_person_id": "TST-PERSON-ALPHA",
+      "shared_palaco_id": "TST-PROJECT-PALACO",
+      "provider": "TST-PROVIDER-LOCAL",
+      "provider_user_ref": "TST-PROVIDER-USER-ALPHA"
+    }
+  ]
+}

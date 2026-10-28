@@ -13,14 +13,14 @@
 * { box-sizing: border-box; }
 html { scroll-padding-top: 1rem; }
 body { margin: 0; background: var(--paper); color: var(--ink); font: 1rem/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; overflow-wrap: anywhere; }
-button, input { font: inherit; }
+button, input, select { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 a { color: inherit; text-underline-offset: .2em; }
 button { color: inherit; }
 button:disabled { cursor: wait; opacity: .65; }
 img { display: block; max-width: 100%; }
 h1, h2, h3, p, figure { margin: 0; }
-button, a, summary { touch-action: manipulation; }
+button, a, summary, select { touch-action: manipulation; }
 :focus-visible { outline: 3px solid var(--ink); outline-offset: 5px; }
 [hidden] { display: none !important; }
 .page-width { width: min(1120px, calc(100% - 3rem)); margin-inline: auto; }
@@ -53,6 +53,25 @@ h1 span { color: var(--ink); }
 .section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; margin-bottom: 1.5rem; }
 h2 { margin-top: .45rem; font: 750 clamp(1.8rem, 3vw, 2.55rem)/1.15 Georgia, "Times New Roman", serif; letter-spacing: -.035em; }
 .section-heading > p { font-size: .85rem; color: var(--muted); }
+.pp-identity { margin-bottom: 3.5rem; }
+.pp-identity .section-heading { align-items: center; }
+.pp-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; padding: 0; margin: 0; list-style: none; }
+.pp-steps li { min-width: 0; padding: 1.5rem; border: 1px solid var(--line); border-radius: .8rem; background: var(--white); }
+.pp-steps .step-number { margin-bottom: 1rem; background: var(--pale-cyan); }
+.pp-steps li:nth-child(2) .step-number { background: var(--yellow); }
+.pp-steps h3 { margin-bottom: .7rem; font: 750 1.18rem/1.3 Georgia, "Times New Roman", serif; letter-spacing: -.02em; }
+.pp-steps p { font-size: .88rem; color: var(--muted); }
+.pp-example { margin-top: 1.2rem; padding: 1.7rem; border: 1.5px solid var(--ink); border-radius: .9rem; background: var(--white); }
+.example-label { display: inline-block; margin-bottom: .5rem; color: var(--muted); font-size: .7rem; font-weight: 750; letter-spacing: .04em; }
+.pp-example-heading h3 { font-size: 1.15rem; line-height: 1.35; }
+.pp-example-heading p { margin-top: .5rem; color: var(--muted); font-size: .85rem; }
+.pp-example-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; align-items: end; gap: 1rem; margin-top: 1.3rem; }
+.pp-example-field { min-width: 0; }
+.pp-example-field label { display: block; margin-bottom: .5rem; font-size: .8rem; font-weight: 750; }
+.pp-example-field select { display: block; width: 100%; max-width: 100%; min-width: 0; min-height: 48px; padding: .65rem .75rem; border: 1.5px solid var(--ink); border-radius: .5rem; background: var(--white); color: var(--ink); }
+.pp-example-result { margin-top: 1.3rem; padding: 1rem; border: 1px solid var(--line); border-left: 4px solid var(--ink); border-radius: .3rem; font-size: .9rem; }
+.pp-example-result[data-state="eligible"] { background: var(--pale-cyan); }
+.pp-example-boundary { max-width: 85ch; margin-top: .8rem; color: var(--muted); font-size: .78rem; }
 .journey-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.4rem; }
 .journey-card { display: flex; flex-direction: column; min-width: 0; padding: 2rem; border: 1.5px solid var(--ink); border-radius: 1rem; background: var(--white); }
 .device-card { background: var(--yellow); box-shadow: 5px 5px 0 var(--ink); }
@@ -118,6 +137,9 @@ h2 { margin-top: .45rem; font: 750 clamp(1.8rem, 3vw, 2.55rem)/1.15 Georgia, "Ti
 @media (max-width: 960px) {
   .hero { gap: 2rem; padding-block: 3.5rem; }
   .brand-name span { max-width: 15ch; }
+  .pp-steps { grid-template-columns: minmax(0, 1fr); }
+  .pp-example-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pp-example-fields > .button { grid-column: 1 / -1; justify-self: start; }
   .availability-panel { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .availability-panel > .button { justify-self: start; }
   .availability-feedback { grid-column: 1 / -1; }
@@ -139,6 +161,13 @@ h2 { margin-top: .45rem; font: 750 clamp(1.8rem, 3vw, 2.55rem)/1.15 Georgia, "Ti
   .nova-figure figcaption { font-size: .75rem; }
   .section-heading { display: block; margin-bottom: 1.25rem; }
   .section-heading > p { margin-top: .8rem; }
+  .pp-identity { margin-bottom: 2.8rem; }
+  .pp-identity .design-label { display: inline-block; margin-top: 1rem; }
+  .pp-steps { gap: .75rem; }
+  .pp-steps li { padding: 1.25rem; }
+  .pp-example { padding: 1.25rem; }
+  .pp-example-fields { grid-template-columns: minmax(0, 1fr); }
+  .pp-example-fields > .button { grid-column: auto; justify-self: stretch; width: 100%; }
   h2 { font-size: 1.9rem; }
   .journey-grid { grid-template-columns: 1fr; gap: 1.3rem; }
   .journey-card { padding: 1.5rem; }

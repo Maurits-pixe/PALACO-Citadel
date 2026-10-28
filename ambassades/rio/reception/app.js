@@ -8,8 +8,31 @@
   const feedback = byId('availability-feedback');
   const refresh = byId('refresh-availability');
   const version = byId('build-version');
+  const exampleContact = byId('pp-example-contact');
+  const exampleTransport = byId('pp-example-transport');
+  const exampleShow = byId('pp-example-show');
+  const exampleResult = byId('pp-example-result');
   const pending = new Set();
   let checking = false;
+
+  const exampleCopy = {
+    UNCONFIRMED: 'Voorbeeld: er is nog geen telefoonnummer of e-mailadres bevestigd. Daarmee is er nog geen chattoelating in het ontwerp.',
+    PHONE: 'Voorbeeld: een bevestigd telefoonnummer is via je P.P. gekoppeld aan je eigen persoons-ID. Daarmee krijg je chattoelating in het ontwerp. Wifi, mobiele data of een andere verbinding verandert dit niet.',
+    EMAIL: 'Voorbeeld: een bevestigd e-mailadres is via je P.P. gekoppeld aan je eigen persoons-ID. Daarmee krijg je chattoelating in het ontwerp. Wifi, mobiele data of een andere verbinding verandert dit niet.',
+  };
+
+  function resetExample() {
+    exampleResult.dataset.state = 'not-confirmed';
+    exampleResult.textContent = 'De voorbeeldkeuze is gewijzigd. Kies Toon voorbeeld om de uitleg te bekijken.';
+  }
+
+  function showExample() {
+    const confirmed = exampleContact.value === 'PHONE' || exampleContact.value === 'EMAIL';
+    const knownTransport = ['WIFI', 'MOBILE', 'OTHER'].includes(exampleTransport.value);
+    exampleResult.dataset.state = confirmed && knownTransport ? 'eligible' : 'not-confirmed';
+    exampleResult.textContent = confirmed && knownTransport ? exampleCopy[exampleContact.value] : exampleCopy.UNCONFIRMED;
+    exampleResult.focus();
+  }
 
   const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
   const validNova = value => object(value)
@@ -98,6 +121,9 @@
   }
 
   refresh.addEventListener('click', () => { void checkAvailability(); });
+  exampleContact.addEventListener('change', resetExample);
+  exampleTransport.addEventListener('change', resetExample);
+  exampleShow.addEventListener('click', showExample);
   window.addEventListener('pagehide', () => { for (const controller of pending) controller.abort(); });
   void checkAvailability();
 })();

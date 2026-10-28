@@ -4,6 +4,8 @@ import { readFile, mkdtemp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
+import { createServer } from 'node:http';
+import { once } from 'node:events';
 
 let server;
 let origin;
@@ -108,7 +110,7 @@ test('service worker installs only public RIO assets and genuinely reloads offli
   await open(page);
   await installed(page);
   const paths = ['/rio/', '/rio/manifest.webmanifest', '/rio/icon-192.png', '/rio/icon-512.png'].sort();
-  expect(await cachedPaths(page)).toEqual([{ name: 'palaco-rio-start-v0.1-2', paths }]);
+  expect(await cachedPaths(page)).toEqual([{ name: 'palaco-rio-start-v0.1-3', paths }]);
   const privateResults = await page.evaluate(async () => {
     const values = [];
     for (const path of ['/api/me', '/api/seats/PALACO-AMB-01', '/auth/server.mjs', '/rio/download', '/rio/manifest.webmanifest?probe=1']) {
@@ -121,7 +123,7 @@ test('service worker installs only public RIO assets and genuinely reloads offli
     ['/api/me', 503], ['/api/seats/PALACO-AMB-01', 503], ['/auth/server.mjs', 404],
     ['/rio/download', 200], ['/rio/manifest.webmanifest?probe=1', 200],
   ]);
-  expect(await cachedPaths(page)).toEqual([{ name: 'palaco-rio-start-v0.1-2', paths }]);
+  expect(await cachedPaths(page)).toEqual([{ name: 'palaco-rio-start-v0.1-3', paths }]);
   await addContact(page, 'Fictieve offline bezoeker');
   await context.setOffline(true);
   const response = await page.reload();
@@ -365,6 +367,9 @@ test('download saves the exact small app and genuinely runs as an offline file',
     local.on('request', request => { if (/^https?:/.test(request.url())) webRequests.push(request.url()); });
     await local.goto(pathToFileURL(filename).href);
     await expect(local.locator('.brand strong')).toHaveText('PALACO RIO');
+    await local.locator('#pp-identity-guide summary').click();
+    await expect(local.locator('#pp-identity-guide')).toContainText('P.P.');
+    await expect(local.locator('#pp-identity-guide [data-i18n="ppGuidePolicy"]')).toBeVisible();
     await local.locator('#tab-install').click();
     await expect(local.locator('#download-app')).toBeHidden();
     await expect(local.locator('#ambassador-link')).toBeHidden();
@@ -394,4 +399,82 @@ test('invalid stored lists never become active contacts or executable markup', a
   expect(await page.evaluate(() => window.STORED_XSS)).toBeUndefined();
   await addContact(page, 'Fictief contact uit geheugen');
   await expect(page.locator('#contact-list .name')).toHaveText('Fictief contact uit geheugen');
+});
+
+test('the PP guide is keyboard accessible, translated in all eleven languages and does not change consent', async ({ page }) => {
+  await open(page);
+  const guide = page.locator('#pp-identity-guide');
+  await guide.locator('summary').focus();
+  await page.keyboard.press('Enter');
+  await expect(guide).toHaveAttribute('open', '');
+  await expect(guide.locator('input, button, select, textarea')).toHaveCount(0);
+  const titles = new Set(); const policies = new Set();
+  for (const language of ['nl', 'en', 'de', 'fr', 'es', 'it', 'pt', 'ru', 'zh', 'ar', 'eo']) {
+    await page.locator('#language').selectOption(language);
+    titles.add((await guide.locator('[data-i18n="ppGuideTitle"]').textContent()).trim());
+    policies.add((await guide.locator('[data-i18n="ppGuidePolicy"]').textContent()).trim());
+    await expect(guide.locator('[data-i18n="ppGuideBoundary"]')).not.toBeEmpty();
+    const box = await guide.locator('summary').boundingBox();
+    expect(box.height).toBeGreaterThanOrEqual(44);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+    await expect(page.locator('#notification-badge')).toHaveText('0');
+  }
+  expect(titles.size).toBe(11); expect(policies.size).toBe(11);
+  await page.locator('#language').selectOption('nl');
+  await page.setViewportSize({ width: 320, height: 900 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  await expect(guide).toContainText('P.P.');
+});
+
+test('the new offline cache waits for existing clients and preserves contacts and unrelated caches', async ({ browser }) => {
+  const currentSW = await readFile(new URL('./sw.js', import.meta.url), 'utf8');
+  expect(currentSW).toContain("const CACHE='palaco-rio-start-v0.1-3';");
+  let legacy = true;
+  const app = buildApp({ env: {} });
+  const listener = createServer((req, res) => {
+    if (req.url === '/rio/sw.js') {
+      res.writeHead(200, { 'Content-Type': 'text/javascript', 'Cache-Control': 'no-store' });
+      res.end(legacy ? currentSW.replace('palaco-rio-start-v0.1-3', 'palaco-rio-start-v0.1-2') : currentSW);
+    } else app(req, res);
+  });
+  listener.listen(0, '127.0.0.1'); await once(listener, 'listening');
+  const testOrigin = 'http://127.0.0.1:' + listener.address().port;
+  const context = await browser.newContext();
+  try {
+    const page = await context.newPage();
+    await page.goto(testOrigin + '/rio/');
+    await page.evaluate(async () => {
+      await navigator.serviceWorker.ready;
+      if (!navigator.serviceWorker.controller) await new Promise(resolve => navigator.serviceWorker.addEventListener('controllerchange', resolve, { once: true }));
+      const unrelated = await caches.open('unrelated-app-public');
+      await unrelated.put('/unrelated-public', new Response('preserve'));
+    });
+    await addContact(page, 'Fictieve updatebezoeker');
+    expect((await cachedPaths(page)).some(item => item.name === 'palaco-rio-start-v0.1-2')).toBe(true);
+    let navigations = 0;
+    page.on('framenavigated', frame => { if (frame === page.mainFrame()) navigations++; });
+    legacy = false;
+    await page.evaluate(async () => { await (await navigator.serviceWorker.getRegistration()).update(); });
+    await expect.poll(() => page.evaluate(async () => Boolean((await navigator.serviceWorker.getRegistration()).waiting))).toBe(true);
+    expect(navigations).toBe(0);
+    await expect(page.locator('#contact-list .name')).toHaveText('Fictieve updatebezoeker');
+    await page.close();
+    const updated = await context.newPage();
+    await updated.goto(testOrigin + '/rio/');
+    await expect.poll(() => updated.evaluate(async () => (await caches.keys()).includes('palaco-rio-start-v0.1-2'))).toBe(false);
+    expect(await cachedPaths(updated)).toEqual([
+      { name: 'unrelated-app-public', paths: ['/unrelated-public'] },
+      { name: 'palaco-rio-start-v0.1-3', paths: ['/rio/', '/rio/icon-192.png', '/rio/icon-512.png', '/rio/manifest.webmanifest'].sort() },
+    ]);
+    await context.setOffline(true);
+    const response = await updated.reload();
+    expect(response.fromServiceWorker()).toBe(true);
+    await updated.locator('#pp-identity-guide summary').click();
+    await expect(updated.locator('#pp-identity-guide [data-i18n="ppGuidePolicy"]')).toBeVisible();
+    await expect(updated.locator('#contact-list .name')).toHaveText('Fictieve updatebezoeker');
+  } finally {
+    await context.close();
+    for (const key of ['novaReception', 'deviceTest', 'authSafetyApproval', 'authSafetyProvider']) app.locals[key]?.close();
+    listener.closeAllConnections(); await new Promise(resolve => listener.close(resolve));
+  }
 });
