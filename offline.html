@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b1f3a">
+  <title>PALACO · Offline</title>
+  <style>
+    :root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif;background:#071422;color:#f4f4ea}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 70% 20%,#1b483e 0%,transparent 46%),#071422}
+    main{width:min(100%,690px);border:1px solid #6bbd9a55;border-radius:28px;padding:clamp(24px,6vw,56px);background:#0c1d2cde;box-shadow:0 26px 100px #0006}
+    .eyebrow{letter-spacing:.19em;font-size:.76rem;font-weight:700;color:#9de8b9}.orb{font-size:4rem;line-height:1.5;color:#d9f7b0}h1{font-size:clamp(2.1rem,7vw,3.3rem);line-height:1.08;margin:8px 0 20px}
+    p{color:#c8d4d4;line-height:1.75}.links{display:flex;flex-wrap:wrap;gap:12px;margin:28px 0}.links a{display:inline-flex;min-height:48px;align-items:center;text-decoration:none;color:#081922;background:#b4e9b5;border-radius:14px;padding:10px 16px;font-weight:700}
+    .links a:focus-visible{outline:3px solid #ffe09a;outline-offset:3px}.note{border-top:1px solid #abc8bb33;padding-top:20px;font-size:.89rem}
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">PALACO INDUSTRIE · OFFLINE-001</div>
+  <div class="orb" aria-hidden="true">✦</div>
+  <h1 id="title">Je bent even offline.</h1>
+  <p id="description">De internetverbinding ontbreekt. Eerder geladen publieke onderdelen van de Citadel kun je blijven gebruiken.</p>
+  <nav class="links" aria-label="Offline pagina's">
+    <a href="/" id="citadel">Citadel openen</a>
+    <a href="/atelier/wizard.html" id="atelier">Atelier openen</a>
+    <a href="/DOCS/levensader-readonly/" id="levensader">Levensader openen</a>
+  </nav>
+  <p class="note" id="warning">Deze pagina verleent geen toegang of bevoegdheid. Serververificatie, aanmelden en synchroniseren vereisen opnieuw verbinding. Offline werken kan pas nadat deze app eerder online is geladen.</p>
+</main>
+<script>
+  (()=>{'use strict';
+    const strings={
+      nl:['Je bent even offline.','De internetverbinding ontbreekt. Eerder geladen publieke onderdelen van de Citadel kun je blijven gebruiken.','Citadel openen','Atelier openen','Levensader openen','Deze pagina verleent geen toegang of bevoegdheid. Serververificatie, aanmelden en synchroniseren vereisen opnieuw verbinding. Offline werken kan pas nadat deze app eerder online is geladen.'],
+      en:['You are offline for now.','Your internet connection is unavailable. Previously loaded public Citadel features can still work.','Open Citadel','Open Atelier','Open Levensader','This page grants no access or authority. Server verification, sign-in and syncing require a connection. The app must have loaded online before offline use.'],
+      de:['Du bist gerade offline.','Keine Internetverbindung. Zuvor geladene öffentliche Citadel-Bereiche können weiter funktionieren.','Citadel öffnen','Atelier öffnen','Levensader öffnen','Diese Seite erteilt keine Zugriffsrechte. Serverprüfung, Anmeldung und Abgleich brauchen Internet. Die App muss zuvor online geladen worden sein.'],
+      fr:['Vous êtes hors ligne.','Pas de connexion Internet. Les parties publiques de Citadel déjà chargées peuvent rester accessibles.','Ouvrir Citadel','Ouvrir Atelier','Ouvrir Levensader','Cette page ne donne aucun droit. Vérification, connexion et synchronisation nécessitent Internet. Ouvrez d’abord cette application en ligne.'],
+      es:['Ahora estás sin conexión.','No hay Internet. Los espacios públicos de Citadel cargados antes pueden seguir funcionando.','Abrir Citadel','Abrir Atelier','Abrir Levensader','Esta página no concede permisos. Verificación, acceso y sincronización requieren Internet. Primero debes cargar la aplicación con conexión.'],
+      it:['Sei offline.','Internet non è disponibile. Le sezioni pubbliche di Citadel già caricate possono continuare a funzionare.','Apri Citadel','Apri Atelier','Apri Levensader','Questa pagina non concede autorizzazioni. Verifica, accesso e sincronizzazione richiedono Internet. Carica prima l’app online.'],
+      pt:['Está sem ligação.','A Internet está indisponível. As áreas públicas já carregadas de Citadel podem continuar a funcionar.','Abrir Citadel','Abrir Atelier','Abrir Levensader','Esta página não concede autorização. Verificação, login e sincronização exigem Internet. Abra primeiro a aplicação online.'],
+      ru:['Сейчас нет сети.','Интернет недоступен. Ранее загруженные общедоступные разделы Citadel могут работать.','Открыть Citadel','Открыть Atelier','Открыть Levensader','Эта страница не предоставляет доступ или полномочия. Проверка, вход и синхронизация требуют подключения. Сначала откройте приложение онлайн.'],
+      eo:['Vi estas senrete.','La interreto ne disponeblas. Antaŭe ŝargitaj publikaj partoj de Citadel povas plu funkcii.','Malfermi Citadel','Malfermi Atelier','Malfermi Levensader','Ĉi tiu paĝo ne donas aŭtoritaton. Kontrolo, ensaluto kaj sinkronigo bezonas reton. La aplikaĵo devas esti ŝargita rete unue.'],
+      pl:['Nie masz połączenia.','Internet jest niedostępny. Wcześniej otwarte publiczne części Citadel mogą nadal działać.','Otwórz Citadel','Otwórz Atelier','Otwórz Levensader','Ta strona nie nadaje uprawnień. Weryfikacja, logowanie i synchronizacja wymagają Internetu. Najpierw uruchom aplikację online.'],
+      ar:['أنت غير متصل الآن.','الإنترنت غير متاح. قد تظل الأقسام العامة المحمّلة سابقًا من Citadel قابلة للاستخدام.','افتح Citadel','افتح Atelier','افتح Levensader','هذه الصفحة لا تمنح صلاحيات. يتطلب التحقق وتسجيل الدخول والمزامنة اتصالاً بالإنترنت. يجب فتح التطبيق عبر الإنترنت أولاً.'],
+      zh:['当前处于离线状态。','网络连接不可用。此前加载的 Citadel 公共页面仍可能可用。','打开 Citadel','打开 Atelier','打开 Levensader','此页面不授予访问或操作权限。服务器验证、登录和同步需要网络。离线使用前须先联网打开应用。']
+    };
+    let stored='';try{stored=localStorage.getItem('palaco-language')||''}catch{}
+    const candidate=new URLSearchParams(location.search).get('lang')||stored;
+    const language=Object.hasOwn(strings,candidate)?candidate:'nl';
+    document.documentElement.lang=language;document.documentElement.dir=language==='ar'?'rtl':'ltr';
+    ['title','description','citadel','atelier','levensader','warning'].forEach((id,index)=>{document.getElementById(id).textContent=strings[language][index]});
+  })();
+</script>
+</body>
+</html>

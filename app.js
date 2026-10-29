@@ -8,6 +8,7 @@ const industryStatus = document.querySelector('#industry-status');
 const citadelStatus = document.querySelector('#citadel-status');
 const syncBtn = document.querySelector('#sync-btn');
 const syncOutput = document.querySelector('#sync-output');
+const connectivityStatus = document.querySelector('#connectivity-status');
 const compassBackTopBtn = document.querySelector('#compass-back-top');
 
 const translations = {
@@ -42,7 +43,7 @@ const translations = {
     statusStandby: 'Standby',
     activate: 'Activate',
     deactivate: 'Deactivate',
-    syncNow: 'Sync now',
+    syncNow: 'Check synchronization',
     lastSync: 'Last sync:',
     githubTitle: 'GitHub hubs',
     githubSubtitle: 'Direct access to PALACO, PALACO Industrie, and PALACO Genesis on GitHub.',
@@ -355,7 +356,7 @@ const translations = {
     statusStandby: 'Stand-by',
     activate: 'Activeren',
     deactivate: 'Deactiveren',
-    syncNow: 'Nu synchroniseren',
+    syncNow: 'Controleer synchronisatie',
     lastSync: 'Laatste sync:',
     githubTitle: 'GitHub hubs',
     githubSubtitle: 'Directe toegang tot PALACO, PALACO Industrie en PALACO Genesis op GitHub.',
@@ -668,7 +669,7 @@ const translations = {
     statusStandby: 'Atenda',
     activate: 'Aktivigi',
     deactivate: 'Malaktivigi',
-    syncNow: 'Sinkronigi nun',
+    syncNow: 'Kontrolu sinkronigon',
     lastSync: 'Lasta sinkronigo:',
     githubTitle: 'GitHub nodoj',
     githubSubtitle: 'Rekta aliro al PALACO, PALACO Industrie kaj PALACO Genesis en GitHub.',
@@ -1107,23 +1108,36 @@ const getLocale = () => {
   return getLanguageMeta(currentLanguage).locale;
 };
 
-const updateSyncOutput = () => {
-  const lastSync = localStorage.getItem('palaco-last-sync');
-  if (!syncOutput) return;
-  if (!lastSync) {
-    syncOutput.textContent = '';
-    return;
+const connectivityCopy = {
+  en: {
+    online: 'Connection available · public Citadel pages can be saved for offline use.',
+    offline: 'Offline · local designs remain available. No remote action or verification is performed.',
+    sync: 'No server synchronization is connected in this prototype. No data was sent.',
+    wait: 'Offline: no synchronization attempted. Reconnect and review pending actions first.'
+  },
+  nl: {
+    online: 'Verbinding beschikbaar · publieke Citadel-pagina’s kunnen offline worden bewaard.',
+    offline: 'Offline · lokale ontwerpen blijven beschikbaar. Geen externe actie of verificatie uitgevoerd.',
+    sync: 'Er is nog geen serversynchronisatie gekoppeld in dit prototype. Niets verzonden.',
+    wait: 'Offline: geen synchronisatie geprobeerd. Verbind opnieuw en beoordeel wachtende acties eerst.'
+  },
+  eo: {
+    online: 'Konekto disponeblas · publikaj Citadel-paĝoj povas esti konservitaj por senreta uzo.',
+    offline: 'Senrete · lokaj desegnoj restas disponeblaj. Neniu ekstera ago aŭ kontrolo okazas.',
+    sync: 'Servila sinkronigo ankoraŭ ne estas konektita. Neniu datumo estis sendita.',
+    wait: 'Senrete: neniu sinkronigo provita. Rekonektiĝu kaj unue reviziu atendajn agojn.'
   }
-
-  const formatter = new Intl.DateTimeFormat(getLocale(), {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  });
-  syncOutput.textContent = `${getTranslation(currentLanguage, 'lastSync')} ${formatter.format(new Date(lastSync))}`;
+};
+const connectionCopy = (key) => (connectivityCopy[currentLanguage] || connectivityCopy.en)[key];
+const updateSyncOutput = () => {
+  if (syncOutput) syncOutput.textContent = connectionCopy(navigator.onLine ? 'sync' : 'wait');
+};
+const updateConnectivity = () => {
+  if (connectivityStatus) {
+    connectivityStatus.dataset.state = navigator.onLine ? 'online' : 'offline';
+    connectivityStatus.textContent = connectionCopy(navigator.onLine ? 'online' : 'offline');
+  }
+  updateSyncOutput();
 };
 
 const updateControlUI = () => {
@@ -1176,6 +1190,7 @@ const setLanguage = (lang) => {
   }
 
   updateControlUI();
+  updateConnectivity();
 };
 
 form?.addEventListener('submit', (event) => {
@@ -1199,9 +1214,11 @@ controlButtons.forEach((button) => {
 });
 
 syncBtn?.addEventListener('click', () => {
-  localStorage.setItem('palaco-last-sync', new Date().toISOString());
+  // A connectivity check is not a server acknowledgment or authoritative sync receipt.
   updateSyncOutput();
 });
+window.addEventListener('online', updateConnectivity);
+window.addEventListener('offline', updateConnectivity);
 
 compassBackTopBtn?.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });

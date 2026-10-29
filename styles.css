@@ -999,3 +999,6 @@ footer {
     animation-iteration-count: 1 !important;
   }
 }
+/* OFFLINE-001: honest connectivity state, never a proof of synchronization. */
+.connectivity-status{width:min(92%,1100px);margin:16px auto;padding:13px 18px;border-radius:14px;border:1px solid #4a9d84;background:#e7f7ee;color:#154b38;font-weight:650;line-height:1.5}
+.connectivity-status[data-state="offline"]{border-color:#b68b4a;background:#fff1d8;color:#663a0e}
