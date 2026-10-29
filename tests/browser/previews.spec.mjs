@@ -93,3 +93,19 @@ test('replaces stale previews online, preserves them offline and retires only ow
     return Boolean(await cache.match('/registration/not-a-static-preview'));
   })).toBe(false);
 });
+
+test('shows a truthful public fallback in airplane mode with Arabic RTL', async ({ page, context }) => {
+  await page.goto('/');
+  await waitForWorker(page);
+
+  await context.setOffline(true);
+  try {
+    await page.goto('/not-yet-published?lang=ar');
+    await expect(page).toHaveTitle('PALACO · Offline');
+    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+    await expect(page.locator('#warning')).toContainText('لا تمنح صلاحيات');
+    await expect(page.locator('a[href="/"]')).toBeVisible();
+  } finally {
+    await context.setOffline(false);
+  }
+});
