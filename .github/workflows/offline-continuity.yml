@@ -1,0 +1,40 @@
+name: Citadel offline continuity candidate
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "sw.js"
+      - "offline.html"
+      - "app.js"
+      - "index.html"
+      - "styles.css"
+      - "package.json"
+      - "tests/offline-shell.test.mjs"
+      - "tests/browser/previews.spec.mjs"
+      - ".github/workflows/offline-continuity.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install exact test dependencies
+        run: npm ci
+      - name: Verify public-shell and RIO contracts
+        run: |
+          npm run test:offline
+          npm run test:rio
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify browser reload without network, on mobile and desktop
+        run: npx playwright test tests/browser/previews.spec.mjs
