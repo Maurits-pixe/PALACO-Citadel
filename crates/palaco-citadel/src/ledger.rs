@@ -58,29 +58,33 @@ mod tests {
     #[test] fn empty_genesis_is_rejected() {
         assert!(matches!(Ledger::new(" ".into()), Err(LedgerError::EmptyField)));
     }
-    #[test] fn replay_begins_at_genesis_not_current_state() {
-        let mut ledger = Ledger::new("A".into()).expect("valid genesis");
-        ledger.append(event("1", "A", "B")).expect("first");
-        ledger.append(event("2", "B", "C")).expect("second");
+    #[test] fn replay_begins_at_genesis_not_current_state() -> Result<(), LedgerError> {
+        let mut ledger = Ledger::new("A".into())?;
+        ledger.append(event("1", "A", "B"))?;
+        ledger.append(event("2", "B", "C"))?;
         assert_eq!(ledger.replay(), Ok("C"));
+        Ok(())
     }
-    #[test] fn wrong_parent_cannot_change_state() {
-        let mut ledger = Ledger::new("A".into()).expect("valid genesis");
+    #[test] fn wrong_parent_cannot_change_state() -> Result<(), LedgerError> {
+        let mut ledger = Ledger::new("A".into())?;
         assert_eq!(ledger.append(event("1", "X", "B")), Err(LedgerError::WrongParent));
         assert_eq!(ledger.current_state(), "A");
         assert!(ledger.is_empty());
+        Ok(())
     }
-    #[test] fn duplicate_event_is_rejected() {
-        let mut ledger = Ledger::new("A".into()).expect("valid genesis");
-        ledger.append(event("1", "A", "B")).expect("first");
+    #[test] fn duplicate_event_is_rejected() -> Result<(), LedgerError> {
+        let mut ledger = Ledger::new("A".into())?;
+        ledger.append(event("1", "A", "B"))?;
         assert_eq!(ledger.append(event("1", "B", "C")), Err(LedgerError::DuplicateEvent));
         assert_eq!(ledger.current_state(), "B");
+        Ok(())
     }
-    #[test] fn missing_evidence_cannot_be_appended() {
-        let mut ledger = Ledger::new("A".into()).expect("valid genesis");
+    #[test] fn missing_evidence_cannot_be_appended() -> Result<(), LedgerError> {
+        let mut ledger = Ledger::new("A".into())?;
         let mut candidate = event("1", "A", "B");
         candidate.evidence_ref.clear();
         assert_eq!(ledger.append(candidate), Err(LedgerError::MissingEvidence));
         assert_eq!(ledger.current_state(), "A");
+        Ok(())
     }
 }
