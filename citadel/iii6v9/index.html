@@ -28,7 +28,7 @@
 
       <section class="notice" aria-labelledby="notice-title">
         <h2 id="notice-title" data-i18n="noticeTitle">LOCAL ENCRYPTION · SECURITY LIMITATIONS APPLY</h2>
-        <p data-i18n="noticeBody">Text is encrypted in this browser with AES-GCM-256 and a passphrase-derived key. Text and passphrases remain in this page's memory until cleared and are not uploaded or persistently stored. This demo is not an audited vault; browser/device compromise, weak passphrases, or lost passphrases can expose or permanently lose data. Avoid highly sensitive information.</p>
+        <p data-i18n="noticeBody">Text is encrypted in this browser with AES-GCM-256 and a passphrase-derived key. Text and passphrases remain in this page's memory until cleared; nothing is uploaded or saved in the app. You can manually download encrypted output to this device. This demo is not an audited vault; browser/device compromise, weak passphrases, or lost passphrases can expose or permanently lose data. Avoid highly sensitive information.</p>
       </section>
 
       <section class="crypto-panel" aria-labelledby="crypto-title">
@@ -49,14 +49,18 @@
         <textarea id="crypto-output" rows="6" readonly spellcheck="false" data-i18n-placeholder="outputPlaceholder" placeholder="Your output appears here…"></textarea>
         <div class="output-actions">
           <button id="copy-output" type="button" disabled data-i18n="copyButton">Copy result</button>
+          <button id="download-output" type="button" disabled data-i18n="downloadButton">Download encrypted file</button>
+          <button id="import-file-button" type="button" data-i18n="importButton">Open encrypted file</button>
+          <input id="import-file" type="file" accept=".aether,text/plain" hidden />
           <button id="clear-fields" type="button" data-i18n="clearButton">Clear fields</button>
         </div>
         <p id="crypto-status" role="status" aria-live="polite"></p>
+        <p class="crypto-method" data-i18n="fileNote">Local file transfer only: up to 4 MiB of plaintext and 6 MiB per encrypted file. The file contains ciphertext only; keep your passphrase separately.</p>
         <p class="format-note" data-i18n="formatNote">Encrypted output starts with AETHER1. Keep it together with your passphrase stored separately. Losing either can make recovery impossible.</p>
       </section>
 
       <footer>
-        <p data-i18n="footer">Encryption runs locally through the browser Web Crypto API. This page has no account, key recovery, persistent storage, or independent security audit. Verify the code and protect your passphrase before relying on it.</p>
+        <p data-i18n="footer">Encryption runs locally through the browser Web Crypto API. This page has no account, key recovery, automatic storage or sync, or independent security audit. Exported files remain under your device's file-handling and backup controls. Verify the code and protect your passphrase before relying on it.</p>
       </footer>
     </main>
   </body>
