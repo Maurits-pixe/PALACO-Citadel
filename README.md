@@ -38,7 +38,7 @@ The PALACO 2040 Compass section now includes the following dashboard layers in C
 - RIO Conversation Dashboard — conversations as access to actions with context/consequence panels
 - ELIXER Dashboard — available apps/capabilities per context with clear choice impact
 - Aether homepage widget — reversible Base64 visual demo; it is not encryption
-- [AETHER](citadel/iii6v9/) — local AES-GCM-256 text encryption using PBKDF2-SHA-256; not an audited vault or production security claim
+- [AETHER](citadel/iii6v9/) — local AES-GCM-256 text encryption using PBKDF2-SHA-256, with explicit ciphertext-only file import/export; not an audited vault or production security claim
 - [Bastion static preview](citadel/bastion/) — fictional command-center simulation; local-only messages, no secure comms or live roster
 - [5CRIPTIE](citadel/aegis/) — synthetic code-integrity dashboard; no source scan, live monitoring, detection, or defensive actions
 - [PALACO NEO](citadel/) — temporary Vue launcher with administrator-configured HTTPS links and bounded metadata checks

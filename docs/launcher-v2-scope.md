@@ -79,3 +79,15 @@ project URL and public client key through deployment configuration (never a serv
 the browser or repository), and define/test Auth, deny-by-default RLS, task/team authorization,
 task defaults, retention/deletion, and explicit user consent. Until those boundaries are verified,
 AETHER remains local-only and must not send ciphertext to either existing demo backend.
+
+## AETHER local encrypted file transfer (2026-10-30)
+
+AETHER now supports user-triggered download and selection of `.aether` files. Files contain only
+the existing AETHER1 encrypted envelope; import validates the envelope before placing it in the
+decrypt input. Plaintext is limited to 4 MiB and imported envelopes to 6 MiB. The page does not
+automatically save, upload, or synchronize data. Downloaded files are under the user's device,
+filesystem, and backup controls; the passphrase is never included and must be kept separately.
+
+This is a local file workflow, not a persistent in-app vault, backup guarantee, or AETHER-to-Bastion
+dispatch. It does not configure or connect Supabase. The existing authentication, RLS,
+authorization, retention, deletion, and consent gates remain open before any backend transfer.
