@@ -11,7 +11,7 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await expect(page.locator('#notice-title')).toHaveText('LOCAL ENCRYPTION · SECURITY LIMITATIONS APPLY');
   await expect(page.locator('[data-i18n="noticeBody"]')).toContainText('AES-GCM-256');
   await expect(page.locator('[data-i18n="noticeBody"]')).toContainText('nothing is uploaded or saved in the app');
-  await expect(page.locator('.crypto-method')).toContainText('600,000 iterations');
+  await expect(page.locator('[data-i18n="methodNote"]')).toContainText('600,000 iterations');
   await expect(page.locator('[data-i18n="fileNote"]')).toContainText('4 MiB of plaintext and 6 MiB per encrypted file');
 
   const navigation = page.getByRole('link', { name: '← PALACO home' });
