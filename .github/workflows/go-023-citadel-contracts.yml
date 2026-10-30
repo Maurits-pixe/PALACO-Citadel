@@ -1,0 +1,27 @@
+name: GO-023 Citadel Contract Verification
+on:
+  push:
+    branches:
+      - setup/initial-structure
+    paths:
+      - 'crates/palaco-citadel/**'
+      - '.github/workflows/go-023-citadel-contracts.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: Compile isolated Citadel contract tests
+        run: rustc --edition=2021 --test crates/palaco-citadel/src/lib.rs -o /tmp/palaco-citadel-contract-tests
+      - name: Execute isolated Citadel contract tests
+        run: /tmp/palaco-citadel-contract-tests
+      - name: Report workspace hold
+        run: |
+          echo "Isolated contract tests do not prove workspace cargo build, Clippy, or constitutional authorization."
+          echo "GO-023 workspace gate remains HOLD until Foundation/Kernel dependency reconciliation."
