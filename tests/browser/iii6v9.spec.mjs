@@ -165,6 +165,7 @@ test('encrypts and decrypts locally while offline after the shell is cached', as
   expect(encryptedFile.toString('utf8')).toBe(ciphertext);
 
   await page.locator('#clear-fields').click();
+  await page.locator('#passphrase').fill('stale previous passphrase');
   await page.locator('#import-file').setInputFiles({
     name: 'aether-encrypted.aether',
     mimeType: 'text/plain',
@@ -172,6 +173,8 @@ test('encrypts and decrypts locally while offline after the shell is cached', as
   });
   await expect(page.locator('#crypto-status')).toHaveText('Encrypted file opened locally. Enter its passphrase to decrypt.');
   await expect(page.locator('#crypto-input')).toHaveValue(ciphertext);
+  await expect(page.locator('#passphrase')).toHaveValue('');
+  await expect(page.locator('#passphrase')).toBeFocused();
   await page.locator('#passphrase').fill('correct horse battery staple');
   await page.locator('#crypto-form button[type="submit"]').click();
   await expect(page.locator('#crypto-output')).toHaveValue('offline local secret');

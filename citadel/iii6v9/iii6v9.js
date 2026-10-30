@@ -346,7 +346,9 @@ importFileInput.addEventListener('change', async () => {
     const envelope = (await file.text()).trim();
     decodeEnvelope(envelope);
     setMode('decrypt');
+    passphrase.value = '';
     input.value = envelope;
+    passphrase.focus();
     status.textContent = t('statusFileOpened');
   } catch {
     status.textContent = t('errorFile');
