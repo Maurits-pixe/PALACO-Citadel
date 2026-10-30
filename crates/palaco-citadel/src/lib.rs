@@ -2,6 +2,7 @@
 pub mod authority;
 pub mod evidence;
 pub mod identity;
+pub mod ledger;
 pub mod provenance;
 pub mod telemetry;
 pub mod verification;
