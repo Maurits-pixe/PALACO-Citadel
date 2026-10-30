@@ -98,3 +98,32 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   expect(await page.evaluate(() => Object.keys(localStorage).filter(key => key !== 'palaco-language'))).toEqual([]);
   expect(externalRequests).toEqual([]);
 });
+
+test('encrypts and decrypts locally while offline after the shell is cached', async ({ page, context }) => {
+  const externalRequests = [];
+  page.on('request', request => {
+    if (!request.url().startsWith('http://127.0.0.1:4173/')) externalRequests.push(request.url());
+  });
+
+  await page.goto('/');
+  await page.evaluate(() => navigator.serviceWorker.ready.then(() => undefined));
+  await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
+  await page.goto('/citadel/iii6v9/');
+  await context.setOffline(true);
+  await page.reload();
+
+  await expect(page).toHaveTitle('AETHER · Local encryption');
+  await page.locator('#crypto-input').fill('offline local secret');
+  await page.locator('#passphrase').fill('correct horse battery staple');
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Encryption complete. Copy or download the ciphertext; it is not saved in the app.');
+  const ciphertext = await page.locator('#crypto-output').inputValue();
+  expect(ciphertext).toMatch(/^AETHER1\./);
+
+  await page.locator('#decrypt-mode').click();
+  await page.locator('#crypto-input').fill(ciphertext);
+  await page.locator('#passphrase').fill('correct horse battery staple');
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-output')).toHaveValue('offline local secret');
+  expect(externalRequests).toEqual([]);
+});
