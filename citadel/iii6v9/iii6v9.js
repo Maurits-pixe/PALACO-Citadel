@@ -270,14 +270,15 @@ async function processText(event) {
     status.textContent = t('errorInput');
     return;
   }
-  const inputBytes = encoder.encode(text);
-  const inputSize = inputBytes.byteLength;
-  if (mode === 'encrypt' && inputSize > MAX_PLAINTEXT_BYTES) {
-    status.textContent = t('errorPlaintextSize');
+  const maxInputBytes = mode === 'encrypt' ? MAX_PLAINTEXT_BYTES : MAX_ENVELOPE_BYTES;
+  if (text.length > maxInputBytes) {
+    status.textContent = t(mode === 'encrypt' ? 'errorPlaintextSize' : 'errorEnvelopeSize');
     return;
   }
-  if (mode === 'decrypt' && inputSize > MAX_ENVELOPE_BYTES) {
-    status.textContent = t('errorEnvelopeSize');
+  const inputBytes = encoder.encode(text);
+  const inputSize = inputBytes.byteLength;
+  if (inputSize > maxInputBytes) {
+    status.textContent = t(mode === 'encrypt' ? 'errorPlaintextSize' : 'errorEnvelopeSize');
     return;
   }
   if (!secret) {

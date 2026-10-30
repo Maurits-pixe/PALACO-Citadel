@@ -84,6 +84,13 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await page.locator('#crypto-form button[type="submit"]').click();
   await expect(page.locator('#crypto-status')).toHaveText('Plaintext must be 4 MiB or smaller.');
 
+  await page.locator('#decrypt-mode').click();
+  await page.evaluate(() => {
+    document.querySelector('#crypto-input').value = 'x'.repeat(6 * 1024 * 1024 + 1);
+  });
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Encrypted input must be 6 MiB or smaller.');
+
   const oversizedEnvelope = await page.evaluate(async passphrase => {
     const encoder = new TextEncoder();
     const salt = new Uint8Array(16).fill(1);
