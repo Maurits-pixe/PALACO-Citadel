@@ -38,6 +38,7 @@ const copy = {
     errorPassphrase: 'Enter a passphrase.',
     errorPassphraseLength: 'Use at least 12 characters for new encryption.',
     errorPlaintextSize: 'Plaintext must be 4 MiB or smaller.',
+    errorDecryptedSize: 'Decrypted plaintext exceeds the 4 MiB limit.',
     errorEnvelopeSize: 'Encrypted input must be 6 MiB or smaller.',
     errorFile: 'Choose a valid AETHER1 encrypted file no larger than 6 MiB.',
     errorFormat: 'Invalid AETHER1 data format.',
@@ -86,6 +87,7 @@ const copy = {
     errorPassphrase: 'Voer een wachtzin in.',
     errorPassphraseLength: 'Gebruik minimaal 12 tekens voor nieuwe versleuteling.',
     errorPlaintextSize: 'Platte tekst mag maximaal 4 MiB groot zijn.',
+    errorDecryptedSize: 'Ontcijferde platte tekst overschrijdt de limiet van 4 MiB.',
     errorEnvelopeSize: 'Versleutelde invoer mag maximaal 6 MiB groot zijn.',
     errorFile: 'Kies een geldig versleuteld AETHER1-bestand van maximaal 6 MiB.',
     errorFormat: 'Ongeldig AETHER1-gegevensformaat.',
@@ -134,6 +136,7 @@ const copy = {
     errorPassphrase: 'Enigu pasfrazon.',
     errorPassphraseLength: 'Uzu minimume 12 signojn por nova ĉifrado.',
     errorPlaintextSize: 'Klara teksto devas esti maksimume 4 MiB.',
+    errorDecryptedSize: 'Malĉifrita klara teksto superas la limon de 4 MiB.',
     errorEnvelopeSize: 'Ĉifrita enigo devas esti maksimume 6 MiB.',
     errorFile: 'Elektu validan ĉifritan AETHER1-dosieron de maksimume 6 MiB.',
     errorFormat: 'Nevalida formato de AETHER1-datumoj.',
@@ -200,14 +203,22 @@ function applyLanguage() {
 
 function bytesToBase64(bytes) {
   let binary = '';
-  for (let start = 0; start < bytes.length; start += 0x8000) {
-    binary += String.fromCharCode(...bytes.subarray(start, start + 0x8000));
+  for (let start = 0; start < bytes.length; start += 0x2000) {
+    binary += String.fromCharCode(...bytes.subarray(start, start + 0x2000));
   }
   return btoa(binary);
 }
 
 function base64ToBytes(value) {
-  if (!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value)) {
+  const paddingStart = value.indexOf('=');
+  const data = paddingStart === -1 ? value : value.slice(0, paddingStart);
+  const padding = value.length - data.length;
+  const expectedRemainder = padding === 2 ? 2 : padding === 1 ? 3 : 0;
+  if (value.length % 4 !== 0
+    || padding > 2
+    || (padding > 0 && !/^={1,2}$/.test(value.slice(paddingStart)))
+    || data.length % 4 !== expectedRemainder
+    || !/^[A-Za-z0-9+/]*$/.test(data)) {
     throw new TypeError('format');
   }
   const binary = atob(value);
@@ -247,6 +258,7 @@ async function decryptText(envelope, secret) {
   const { salt, iv, ciphertext } = decodeEnvelope(envelope);
   const key = await deriveKey(secret, salt);
   const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
+  if (plaintext.byteLength > MAX_PLAINTEXT_BYTES) throw new RangeError('size');
   return decoder.decode(plaintext);
 }
 
@@ -295,7 +307,9 @@ async function processText(event) {
     downloadButton.disabled = true;
     status.textContent = error instanceof TypeError && error.message === 'format'
       ? t('errorFormat')
-      : mode === 'decrypt' ? t('errorDecrypt') : t('errorGeneral');
+      : error instanceof RangeError && error.message === 'size'
+        ? t('errorDecryptedSize')
+        : mode === 'decrypt' ? t('errorDecrypt') : t('errorGeneral');
   } finally {
     processButton.disabled = false;
   }

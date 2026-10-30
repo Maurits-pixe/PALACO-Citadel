@@ -84,6 +84,40 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await page.locator('#crypto-form button[type="submit"]').click();
   await expect(page.locator('#crypto-status')).toHaveText('Plaintext must be 4 MiB or smaller.');
 
+  const oversizedEnvelope = await page.evaluate(async passphrase => {
+    const encoder = new TextEncoder();
+    const salt = new Uint8Array(16).fill(1);
+    const iv = new Uint8Array(12).fill(2);
+    const material = await crypto.subtle.importKey('raw', encoder.encode(passphrase), 'PBKDF2', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', hash: 'SHA-256', salt, iterations: 600_000 },
+      material,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt']
+    );
+    const ciphertext = new Uint8Array(await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      new Uint8Array(4 * 1024 * 1024 + 1)
+    ));
+    const toBase64 = bytes => {
+      let binary = '';
+      for (let offset = 0; offset < bytes.length; offset += 0x2000) {
+        binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x2000));
+      }
+      return btoa(binary);
+    };
+    return `AETHER1.${toBase64(salt)}.${toBase64(iv)}.${toBase64(ciphertext)}`;
+  }, passphrase);
+  expect(Buffer.byteLength(oversizedEnvelope)).toBeLessThan(6 * 1024 * 1024);
+  await page.locator('#decrypt-mode').click();
+  await page.locator('#crypto-input').fill(oversizedEnvelope);
+  await page.locator('#passphrase').fill(passphrase);
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Decrypted plaintext exceeds the 4 MiB limit.');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+
   await page.locator('#language-select').selectOption('nl');
   await expect(page.locator('html')).toHaveAttribute('lang', 'nl');
   await expect(page.locator('#notice-title')).toHaveText('LOKALE VERSLEUTELING · BEVEILIGINGSBEPERKINGEN GELDEN');
