@@ -46,6 +46,18 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   expect(downloadedEnvelope).not.toContain(plaintext);
   expect(downloadedEnvelope).not.toContain(passphrase);
 
+  await page.locator('#crypto-input').fill('clear during encryption');
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Processing locally…');
+  await page.locator('#clear-fields').click();
+  await expect(page.locator('#crypto-form button[type="submit"]')).toBeEnabled();
+  await expect(page.locator('#crypto-input')).toHaveValue('');
+  await expect(page.locator('#passphrase')).toHaveValue('');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#crypto-status')).toHaveText('Input, passphrase, and output cleared from the page.');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+
   await page.evaluate(() => {
     document.querySelector('#crypto-input').value = 'x'.repeat(4 * 1024 * 1024 + 1);
   });

@@ -168,12 +168,14 @@ const importFileButton = document.querySelector('#import-file-button');
 const importFileInput = document.querySelector('#import-file');
 let language = 'en';
 let mode = 'encrypt';
+let operationId = 0;
 
 function t(key) {
   return copy[language][key] || copy.en[key] || key;
 }
 
 function setMode(nextMode) {
+  operationId += 1;
   mode = nextMode;
   const encrypting = mode === 'encrypt';
   encryptModeButton.setAttribute('aria-pressed', String(encrypting));
@@ -264,6 +266,8 @@ async function decryptText(envelope, secret) {
 
 async function processText(event) {
   event.preventDefault();
+  const currentOperationId = ++operationId;
+  const currentMode = mode;
   output.value = '';
   copyButton.disabled = true;
   downloadButton.disabled = true;
@@ -273,22 +277,22 @@ async function processText(event) {
     status.textContent = t('errorInput');
     return;
   }
-  const maxInputBytes = mode === 'encrypt' ? MAX_PLAINTEXT_BYTES : MAX_ENVELOPE_BYTES;
+  const maxInputBytes = currentMode === 'encrypt' ? MAX_PLAINTEXT_BYTES : MAX_ENVELOPE_BYTES;
   if (text.length > maxInputBytes) {
-    status.textContent = t(mode === 'encrypt' ? 'errorPlaintextSize' : 'errorEnvelopeSize');
+    status.textContent = t(currentMode === 'encrypt' ? 'errorPlaintextSize' : 'errorEnvelopeSize');
     return;
   }
   const inputBytes = encoder.encode(text);
   const inputSize = inputBytes.byteLength;
   if (inputSize > maxInputBytes) {
-    status.textContent = t(mode === 'encrypt' ? 'errorPlaintextSize' : 'errorEnvelopeSize');
+    status.textContent = t(currentMode === 'encrypt' ? 'errorPlaintextSize' : 'errorEnvelopeSize');
     return;
   }
   if (!secret) {
     status.textContent = t('errorPassphrase');
     return;
   }
-  if (mode === 'encrypt' && [...secret].length < 12) {
+  if (currentMode === 'encrypt' && [...secret].length < 12) {
     status.textContent = t('errorPassphraseLength');
     return;
   }
@@ -300,13 +304,16 @@ async function processText(event) {
   processButton.disabled = true;
   status.textContent = t('processing');
   try {
-    output.value = mode === 'encrypt'
+    const result = currentMode === 'encrypt'
       ? await encryptText(inputBytes, secret)
       : await decryptText(text, secret);
-    status.textContent = t(mode === 'encrypt' ? 'statusEncrypted' : 'statusDecrypted');
+    if (currentOperationId !== operationId) return;
+    output.value = result;
+    status.textContent = t(currentMode === 'encrypt' ? 'statusEncrypted' : 'statusDecrypted');
     copyButton.disabled = false;
-    downloadButton.disabled = mode !== 'encrypt';
+    downloadButton.disabled = currentMode !== 'encrypt';
   } catch (error) {
+    if (currentOperationId !== operationId) return;
     output.value = '';
     copyButton.disabled = true;
     downloadButton.disabled = true;
@@ -314,7 +321,7 @@ async function processText(event) {
       ? t('errorFormat')
       : error instanceof RangeError && error.message === 'size'
         ? t('errorDecryptedSize')
-        : mode === 'decrypt' ? t('errorDecrypt') : t('errorGeneral');
+        : currentMode === 'decrypt' ? t('errorDecrypt') : t('errorGeneral');
   } finally {
     processButton.disabled = false;
   }
@@ -362,6 +369,7 @@ importFileInput.addEventListener('change', async () => {
   }
 });
 document.querySelector('#clear-fields').addEventListener('click', () => {
+  operationId += 1;
   input.value = '';
   passphrase.value = '';
   output.value = '';
