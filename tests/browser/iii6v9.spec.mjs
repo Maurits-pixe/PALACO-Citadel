@@ -120,10 +120,28 @@ test('encrypts and decrypts locally while offline after the shell is cached', as
   const ciphertext = await page.locator('#crypto-output').inputValue();
   expect(ciphertext).toMatch(/^AETHER1\./);
 
-  await page.locator('#decrypt-mode').click();
-  await page.locator('#crypto-input').fill(ciphertext);
+  const downloadPromise = page.waitForEvent('download');
+  await page.locator('#download-output').click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe('aether-encrypted.aether');
+  const fileStream = await download.createReadStream();
+  const fileChunks = [];
+  for await (const chunk of fileStream) fileChunks.push(chunk);
+  const encryptedFile = Buffer.concat(fileChunks);
+  expect(encryptedFile.toString('utf8')).toBe(ciphertext);
+
+  await page.locator('#clear-fields').click();
+  await page.locator('#import-file').setInputFiles({
+    name: 'aether-encrypted.aether',
+    mimeType: 'text/plain',
+    buffer: encryptedFile
+  });
+  await expect(page.locator('#crypto-status')).toHaveText('Encrypted file opened locally. Enter its passphrase to decrypt.');
+  await expect(page.locator('#crypto-input')).toHaveValue(ciphertext);
   await page.locator('#passphrase').fill('correct horse battery staple');
   await page.locator('#crypto-form button[type="submit"]').click();
   await expect(page.locator('#crypto-output')).toHaveValue('offline local secret');
+  expect(encryptedFile.toString('utf8')).not.toContain('offline local secret');
+  expect(encryptedFile.toString('utf8')).not.toContain('correct horse battery staple');
   expect(externalRequests).toEqual([]);
 });
