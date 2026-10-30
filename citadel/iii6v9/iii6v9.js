@@ -264,6 +264,9 @@ async function decryptText(envelope, secret) {
 
 async function processText(event) {
   event.preventDefault();
+  output.value = '';
+  copyButton.disabled = true;
+  downloadButton.disabled = true;
   const text = input.value;
   const secret = passphrase.value;
   if (!text) {

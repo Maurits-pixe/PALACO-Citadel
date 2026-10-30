@@ -46,6 +46,15 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   expect(downloadedEnvelope).not.toContain(plaintext);
   expect(downloadedEnvelope).not.toContain(passphrase);
 
+  await page.evaluate(() => {
+    document.querySelector('#crypto-input').value = 'x'.repeat(4 * 1024 * 1024 + 1);
+  });
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Plaintext must be 4 MiB or smaller.');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+
   await page.locator('#import-file').setInputFiles({
     name: 'aether-encrypted.aether',
     mimeType: 'text/plain',
