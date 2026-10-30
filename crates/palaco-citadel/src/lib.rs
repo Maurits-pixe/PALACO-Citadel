@@ -32,6 +32,20 @@ mod tests {
         Ok(())
     }
     #[test]
+    fn cross_citadel_hologram_is_rejected() -> Result<(), crate::identity::IdentifierError> {
+        let id = IdentityId::new("ID-001")?;
+        let citadel = CitadelId::new("LA-001")?;
+        let other_citadel = CitadelId::new("LA-002")?;
+        let record = IdentityRecord {
+            identity_id: id.clone(),
+            citadel_id: citadel.clone(),
+            hologram: HologramAsset { identity_id: id.clone(), citadel_id: other_citadel },
+            watermerk: WatermerkAsset { identity_id: id, citadel_id: citadel },
+        };
+        assert_eq!(record.validate_binding(), Err(crate::identity::IdentifierError::BindingMismatch));
+        Ok(())
+    }
+    #[test]
     fn missing_seal_cannot_be_valid() {
         assert_eq!(evaluate(&[true, true, true, true, true, true, false, true, true]), VerificationStatus::Incomplete);
     }
