@@ -236,11 +236,11 @@ async function deriveKey(secret, salt) {
   );
 }
 
-async function encryptText(plainText, secret) {
+async function encryptText(plainBytes, secret) {
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const key = await deriveKey(secret, salt);
-  const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, encoder.encode(plainText));
+  const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plainBytes);
   return `${FORMAT_VERSION}.${bytesToBase64(salt)}.${bytesToBase64(iv)}.${bytesToBase64(new Uint8Array(encrypted))}`;
 }
 
@@ -270,7 +270,8 @@ async function processText(event) {
     status.textContent = t('errorInput');
     return;
   }
-  const inputSize = encoder.encode(text).byteLength;
+  const inputBytes = encoder.encode(text);
+  const inputSize = inputBytes.byteLength;
   if (mode === 'encrypt' && inputSize > MAX_PLAINTEXT_BYTES) {
     status.textContent = t('errorPlaintextSize');
     return;
@@ -296,7 +297,7 @@ async function processText(event) {
   status.textContent = t('processing');
   try {
     output.value = mode === 'encrypt'
-      ? await encryptText(text, secret)
+      ? await encryptText(inputBytes, secret)
       : await decryptText(text, secret);
     status.textContent = t(mode === 'encrypt' ? 'statusEncrypted' : 'statusDecrypted');
     copyButton.disabled = false;
