@@ -35,4 +35,28 @@ mod tests {
     #[test] fn rollback_holds() { assert_eq!(decide(AuthorityInput { temporal_uncertain: true, ..candidate() }), AuthorityDecision::Hold); }
     #[test] fn missing_evidence_holds() { assert_eq!(decide(AuthorityInput { evidence_verified: false, ..candidate() }), AuthorityDecision::Hold); }
     #[test] fn live_mode_not_granted() { assert_eq!(decide(AuthorityInput { preview_only: false, ..candidate() }), AuthorityDecision::Hold); }
+
+    #[test]
+    fn all_128_boolean_combinations_are_fail_closed() {
+        for bits in 0u16..128 {
+            let input = AuthorityInput {
+                authenticated: bits & 1 != 0,
+                scoped: bits & 2 != 0,
+                revoked: bits & 4 != 0,
+                expired: bits & 8 != 0,
+                temporal_uncertain: bits & 16 != 0,
+                evidence_verified: bits & 32 != 0,
+                preview_only: bits & 64 != 0,
+            };
+            let decision = decide(input);
+            let permitted = input.authenticated && input.scoped && !input.revoked
+                && !input.expired && !input.temporal_uncertain
+                && input.evidence_verified && input.preview_only;
+            if permitted {
+                assert_eq!(decision, AuthorityDecision::AllowForPreviewOnly);
+            } else {
+                assert_ne!(decision, AuthorityDecision::AllowForPreviewOnly);
+            }
+        }
+    }
 }
