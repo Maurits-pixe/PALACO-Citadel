@@ -176,6 +176,7 @@ function t(key) {
 
 function setMode(nextMode) {
   operationId += 1;
+  processButton.disabled = false;
   mode = nextMode;
   const encrypting = mode === 'encrypt';
   encryptModeButton.setAttribute('aria-pressed', String(encrypting));
@@ -323,7 +324,7 @@ async function processText(event) {
         ? t('errorDecryptedSize')
         : currentMode === 'decrypt' ? t('errorDecrypt') : t('errorGeneral');
   } finally {
-    processButton.disabled = false;
+    if (currentOperationId === operationId) processButton.disabled = false;
   }
 }
 
@@ -370,6 +371,7 @@ importFileInput.addEventListener('change', async () => {
 });
 document.querySelector('#clear-fields').addEventListener('click', () => {
   operationId += 1;
+  processButton.disabled = false;
   input.value = '';
   passphrase.value = '';
   output.value = '';
