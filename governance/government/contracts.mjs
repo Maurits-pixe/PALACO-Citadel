@@ -87,8 +87,11 @@ export function validateRatificationRecord(record) {
   if (!Array.isArray(record.dissent_refs) || record.dissent_refs.some(ref => !nonEmpty(ref))) throw new TypeError('invalid dissent_refs');
   if (typeof record.in_doubt_status !== 'boolean') throw new TypeError('in_doubt_status must be boolean');
   if (!['RATIFIED_NOT_ACTIVE','REJECTED','IN_DOUBT'].includes(record.decision)) throw new TypeError('invalid ratification decision');
-  if (parseTime(record.effective_recorded_at) === null) throw new TypeError('invalid effective_recorded_at');
-  if (record.expires_at !== null && parseTime(record.expires_at) === null) throw new TypeError('invalid expires_at');
+  const effective = parseTime(record.effective_recorded_at);
+  const expires = record.expires_at === null ? null : parseTime(record.expires_at);
+  if (effective === null) throw new TypeError('invalid effective_recorded_at');
+  if (record.expires_at !== null && expires === null) throw new TypeError('invalid expires_at');
+  if (expires !== null && expires <= effective) throw new TypeError('expires_at must be later than effective_recorded_at');
   return Object.freeze({ ...record, dissent_refs: Object.freeze([...record.dissent_refs]) });
 }
 
@@ -97,6 +100,10 @@ export function evaluateRatification(record, evidence = {}) {
   if (!nonEmpty(evidence.instrument_digest) || evidence.instrument_digest !== ratification.instrument_digest) return output('HOLD', 'INSTRUMENT_DIGEST_MISMATCH');
   if (ratification.decision === 'IN_DOUBT' || ratification.in_doubt_status === true) return output('IN_DOUBT', 'RECORDED_IN_DOUBT');
   if (ratification.decision === 'REJECTED') return output('REJECTED', 'RECORDED_REJECTION');
+  const evaluatedAt = parseTime(evidence.evaluated_at);
+  if (evaluatedAt === null) return output('IN_DOUBT', 'INVALID_EVALUATION_TIME');
+  if (evaluatedAt < parseTime(ratification.effective_recorded_at)) return output('HOLD', 'RATIFICATION_NOT_YET_EFFECTIVE');
+  if (ratification.expires_at !== null && evaluatedAt >= parseTime(ratification.expires_at)) return output('HOLD', 'RATIFICATION_EXPIRED');
   const required = ['independent_review_complete','reviewer_eligible','conflicts_complete','dissent_preserved','constitutional_objections_dispositioned','ratifying_identity_valid','ratification_mandate_valid','revocation_checked','provenance_complete'];
   for (const key of required) if (evidence[key] !== true) return output('HOLD', 'MISSING_' + key.toUpperCase());
   if (evidence.unresolved_material_objection === true) return output('IN_DOUBT', 'UNRESOLVED_MATERIAL_OBJECTION');
@@ -120,11 +127,19 @@ export function validateAppealPanel(panel) {
     return Object.freeze({ ...member });
   });
   if (!unique(members.map(m => m.member_id))) throw new TypeError('duplicate appeal member');
+  if (!unique(members.map(m => m.identity_ref))) throw new TypeError('duplicate appeal identity');
   return Object.freeze({ ...panel, members: Object.freeze(members) });
 }
 
 export function evaluateAppealPanelEligibility(panel, challenge = {}) {
   const value = validateAppealPanel(panel);
+  for (const key of ['original_reviewer_ids','original_tally_verifier_ids']) {
+    const list = challenge[key];
+    if (list !== undefined && (!Array.isArray(list) || list.some(v => !nonEmpty(v)) || !unique(list))) return output('IN_DOUBT', 'INVALID_CHALLENGE_CONTEXT');
+  }
+  for (const key of ['original_author_id','challenged_decision_maker_id']) {
+    if (challenge[key] !== undefined && !nonEmpty(challenge[key])) return output('IN_DOUBT', 'INVALID_CHALLENGE_CONTEXT');
+  }
   const excluded = new Set([challenge.original_author_id, challenge.challenged_decision_maker_id, ...(challenge.original_reviewer_ids || []), ...(challenge.original_tally_verifier_ids || [])].filter(nonEmpty));
   const eligible = value.members.filter(m => m.status === 'ACTIVE' && m.conflict_status === 'CLEAR' && !excluded.has(m.member_id));
   const blocked = value.members.filter(m => !eligible.includes(m));
