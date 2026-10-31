@@ -36,9 +36,9 @@ const evidence = (overrides = {}) => ({
 const panel = (overrides = {}) => ({
   panel_id:'PANEL-1', role:APPEAL_ROLE, policy_version:'GO-GOV-12-004-v0.1', provenance:'fixture',
   members:[
-    {member_id:'A',identity_ref:'identity:A',status:'ACTIVE',conflict_status:'CLEAR'},
-    {member_id:'B',identity_ref:'identity:B',status:'ACTIVE',conflict_status:'CLEAR'},
-    {member_id:'C',identity_ref:'identity:C',status:'ACTIVE',conflict_status:'CLEAR'}
+    {member_id:'A',identity_ref:'identity:A',status:'ACTIVE',conflict_status:'CLEAR',institutional_conflict_status:'CLEAR',independence_evidence_ref:'independence:A'},
+    {member_id:'B',identity_ref:'identity:B',status:'ACTIVE',conflict_status:'CLEAR',institutional_conflict_status:'CLEAR',independence_evidence_ref:'independence:B'},
+    {member_id:'C',identity_ref:'identity:C',status:'ACTIVE',conflict_status:'CLEAR',institutional_conflict_status:'CLEAR',independence_evidence_ref:'independence:C'}
   ], ...overrides
 });
 
@@ -101,8 +101,14 @@ test('appeal eligibility excludes original actors and preserves unknown conflict
   const excluded = evaluateAppealPanelEligibility(panel(),{original_author_id:'A'});
   assert.equal(excluded.decision,'INELIGIBLE');
   assert.deepEqual(excluded.eligible_member_ids,['B','C']);
-  const unknownPanel = panel({members:[...panel().members,{member_id:'D',identity_ref:'identity:D',status:'ACTIVE',conflict_status:'UNKNOWN'}]});
+  const unknownPanel = panel({members:[...panel().members,{member_id:'D',identity_ref:'identity:D',status:'ACTIVE',conflict_status:'UNKNOWN',institutional_conflict_status:'CLEAR',independence_evidence_ref:'independence:D'}]});
   assert.equal(evaluateAppealPanelEligibility(unknownPanel).decision,'IN_DOUBT');
+  const institutional = panel({members:[
+    panel().members[0],
+    panel().members[1],
+    {...panel().members[2],institutional_conflict_status:'CONFLICT'}
+  ]});
+  assert.equal(evaluateAppealPanelEligibility(institutional).decision,'INELIGIBLE');
   assert.equal(evaluateAppealPanelEligibility(panel(),{original_reviewer_ids:'A'}).decision,'IN_DOUBT');
 });
 
