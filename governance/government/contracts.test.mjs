@@ -104,3 +104,17 @@ test('eligible appeal panel still creates no authority', () => {
   assert.equal(r.authority_created,false);
   assert.equal(r.government_active,false);
 });
+
+
+test('machine-readable schemas define every required field under additionalProperties false', async () => {
+  const { readFileSync } = await import('node:fs');
+  const schema = JSON.parse(readFileSync(new URL('./government-contracts.schema.json', import.meta.url), 'utf8'));
+  for (const name of ['appointmentMandate','mandateRegistry','ratificationRecord','appealPanel']) {
+    const def = schema.$defs[name];
+    assert.equal(def.additionalProperties, false, name);
+    for (const key of def.required) assert.ok(def.properties[key], name + ' missing property ' + key);
+  }
+  const member = schema.$defs.appealPanel.properties.members.items;
+  assert.equal(member.additionalProperties, false);
+  for (const key of member.required) assert.ok(member.properties[key], 'appeal member missing property ' + key);
+});
