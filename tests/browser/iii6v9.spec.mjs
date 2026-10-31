@@ -46,6 +46,22 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   expect(downloadedEnvelope).not.toContain(plaintext);
   expect(downloadedEnvelope).not.toContain(passphrase);
 
+  await page.locator('#crypto-input').fill('superseded by file picker');
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Processing locally…');
+  await expect(page.locator('#crypto-form button[type="submit"]')).toBeDisabled();
+  await page.locator('#import-file-button').click();
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+  await expect(page.locator('#crypto-status')).toHaveText('');
+  await page.locator('#import-file').setInputFiles([]);
+  await expect(page.locator('#crypto-form button[type="submit"]')).toBeEnabled({ timeout: 10000 });
+  await expect(page.locator('#crypto-input')).toHaveValue('superseded by file picker');
+  await expect(page.locator('#passphrase')).toHaveValue(passphrase);
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#crypto-status')).toHaveText('');
+
   await page.locator('#import-file').setInputFiles({
     name: 'invalid.aether',
     mimeType: 'text/plain',

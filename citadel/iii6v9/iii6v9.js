@@ -354,14 +354,17 @@ downloadButton.addEventListener('click', () => {
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   status.textContent = t('statusDownloaded');
 });
-importFileButton.addEventListener('click', () => importFileInput.click());
-importFileInput.addEventListener('change', async () => {
-  const file = importFileInput.files?.[0];
-  if (!file) return;
+importFileButton.addEventListener('click', () => {
   operationId += 1;
   output.value = '';
   copyButton.disabled = true;
   downloadButton.disabled = true;
+  status.textContent = '';
+  importFileInput.click();
+});
+importFileInput.addEventListener('change', async () => {
+  const file = importFileInput.files?.[0];
+  if (!file) return;
   try {
     if (file.size > MAX_ENVELOPE_BYTES) throw new TypeError('format');
     const envelope = (await file.text()).trim();
