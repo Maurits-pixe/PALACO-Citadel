@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://palaco.example/schemas/government/go-gov-12-004.json",
+  "title": "PALACO Government Governance Contracts v0.1",
+  "$defs": {
+    "appointmentMandate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mandate_id","mandate_holder","holder_identity_ref","function","seat_scope","constitutional_basis_ref","policy_version","valid_from","valid_until","appointment_constraints","eligibility_requirements_ref","conflict_policy_ref","revocation_ref","audit_ref","provenance","status"],
+      "properties": {
+        "mandate_id":{"type":"string","minLength":1},
+        "mandate_holder":{"const":"HOOFDKANTOOR"},
+        "holder_identity_ref":{"type":"string","minLength":1},
+        "function":{"const":"APPOINT_AMBASSADOR_SEATS"},
+        "seat_scope":{"type":"array","minItems":1,"uniqueItems":true,"items":{"type":"string","pattern":"^PALACO-AMB-(0[1-9]|1[0-2])$"}},
+        "constitutional_basis_ref":{"type":"string","minLength":1},
+        "policy_version":{"type":"string","minLength":1},
+        "valid_from":{"type":"string","format":"date-time"},
+        "valid_until":{"type":"string","format":"date-time"},
+        "appointment_constraints":{"type":"string","minLength":1},
+        "eligibility_requirements_ref":{"type":"string","minLength":1},
+        "conflict_policy_ref":{"type":"string","minLength":1},
+        "revocation_ref":{"type":["string","null"]},
+        "audit_ref":{"type":"string","minLength":1},
+        "provenance":{"type":"string","minLength":1},
+        "status":{"enum":["DRAFT","ACTIVE","SUSPENDED","REVOKED","EXPIRED"]}
+      }
+    },
+    "mandateRegistry": {
+      "type":"object","additionalProperties":false,
+      "required":["registry_id","schema_version","provenance","records"],
+      "properties":{
+        "registry_id":{"type":"string","minLength":1},
+        "schema_version":{"const":"PALACO-GOV-MANDATE-REGISTRY-0.1"},
+        "provenance":{"type":"string","minLength":1},
+        "records":{"type":"array","items":{"$ref":"#/$defs/appointmentMandate"}}
+      }
+    },
+    "ratificationRecord": {
+      "type":"object","additionalProperties":false,
+      "required":["ratification_id","ratifying_subject","ratifying_identity_ref","ratification_mandate_ref","government_id","competence_id","instrument_version","instrument_digest","constitutional_basis_ref","independent_review_ref","conflict_review_ref","dissent_refs","in_doubt_status","decision","effective_recorded_at","expires_at","revocation_ref","appeal_ref","audit_ref","provenance","signature_or_attestation_ref"],
+      "properties":{
+        "ratifying_subject":{"const":"PALACO-HOOFDKANTOOR-CONSTITUTIONAL-RATIFICATION"},
+        "government_id":{"const":"PALACO-GOVERNMENT-12"},
+        "instrument_digest":{"type":"string","pattern":"^[a-f0-9]{64}$"},
+        "decision":{"enum":["RATIFIED_NOT_ACTIVE","REJECTED","IN_DOUBT"]},
+        "in_doubt_status":{"type":"boolean"},
+        "dissent_refs":{"type":"array","items":{"type":"string","minLength":1}}
+      }
+    },
+    "appealPanel": {
+      "type":"object","additionalProperties":false,
+      "required":["panel_id","role","members","policy_version","provenance"],
+      "properties":{
+        "panel_id":{"type":"string","minLength":1},
+        "role":{"const":"PALACO-CONSTITUTIONAL-APPEAL-PANEL"},
+        "policy_version":{"type":"string","minLength":1},
+        "provenance":{"type":"string","minLength":1},
+        "members":{"type":"array","minItems":3}
+      }
+    }
+  }
+}
