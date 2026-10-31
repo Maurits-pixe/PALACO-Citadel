@@ -169,6 +169,7 @@ const importFileInput = document.querySelector('#import-file');
 let language = 'en';
 let mode = 'encrypt';
 let operationId = 0;
+let processing = false;
 
 function t(key) {
   return copy[language][key] || copy.en[key] || key;
@@ -176,7 +177,7 @@ function t(key) {
 
 function setMode(nextMode) {
   operationId += 1;
-  processButton.disabled = false;
+  processButton.disabled = processing;
   mode = nextMode;
   const encrypting = mode === 'encrypt';
   encryptModeButton.setAttribute('aria-pressed', String(encrypting));
@@ -267,6 +268,7 @@ async function decryptText(envelope, secret) {
 
 async function processText(event) {
   event.preventDefault();
+  if (processing) return;
   const currentOperationId = ++operationId;
   const currentMode = mode;
   output.value = '';
@@ -302,6 +304,7 @@ async function processText(event) {
     return;
   }
 
+  processing = true;
   processButton.disabled = true;
   status.textContent = t('processing');
   try {
@@ -324,7 +327,8 @@ async function processText(event) {
         ? t('errorDecryptedSize')
         : currentMode === 'decrypt' ? t('errorDecrypt') : t('errorGeneral');
   } finally {
-    if (currentOperationId === operationId) processButton.disabled = false;
+    processing = false;
+    processButton.disabled = false;
   }
 }
 
@@ -371,7 +375,7 @@ importFileInput.addEventListener('change', async () => {
 });
 document.querySelector('#clear-fields').addEventListener('click', () => {
   operationId += 1;
-  processButton.disabled = false;
+  processButton.disabled = processing;
   input.value = '';
   passphrase.value = '';
   output.value = '';
