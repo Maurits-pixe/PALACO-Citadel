@@ -24,3 +24,8 @@ The registry implemented here is only a validated snapshot. There is no durable 
 Run the scoped harness with:
 
 node --test governance/government/contracts.test.mjs
+
+
+## Remaining boundary
+
+Appeal eligibility requires an attributable independence-evidence reference plus person-level and institutional conflict status. This candidate validates those claims structurally; it does not itself authenticate the evidence source or establish a live institutional identity registry. Operative independence therefore remains a future integration gate.
