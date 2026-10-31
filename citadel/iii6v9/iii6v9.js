@@ -358,6 +358,10 @@ importFileButton.addEventListener('click', () => importFileInput.click());
 importFileInput.addEventListener('change', async () => {
   const file = importFileInput.files?.[0];
   if (!file) return;
+  operationId += 1;
+  output.value = '';
+  copyButton.disabled = true;
+  downloadButton.disabled = true;
   try {
     if (file.size > MAX_ENVELOPE_BYTES) throw new TypeError('format');
     const envelope = (await file.text()).trim();

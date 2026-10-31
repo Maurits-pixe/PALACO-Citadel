@@ -46,6 +46,16 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   expect(downloadedEnvelope).not.toContain(plaintext);
   expect(downloadedEnvelope).not.toContain(passphrase);
 
+  await page.locator('#import-file').setInputFiles({
+    name: 'invalid.aether',
+    mimeType: 'text/plain',
+    buffer: Buffer.from('not-an-envelope')
+  });
+  await expect(page.locator('#crypto-status')).toHaveText('Choose a valid AETHER1 encrypted file no larger than 6 MiB.');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+
   await page.locator('#crypto-input').fill('clear during encryption');
   await page.locator('#crypto-form button[type="submit"]').click();
   await expect(page.locator('#crypto-status')).toHaveText('Processing locally…');
