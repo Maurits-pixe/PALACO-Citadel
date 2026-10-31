@@ -30,7 +30,7 @@ const evidence = (overrides = {}) => ({
   instrument_digest:'a'.repeat(64), independent_review_complete:true, reviewer_eligible:true,
   conflicts_complete:true, dissent_preserved:true, constitutional_objections_dispositioned:true,
   ratifying_identity_valid:true, ratification_mandate_valid:true, revocation_checked:true,
-  provenance_complete:true, unresolved_material_objection:false, ...overrides
+  provenance_complete:true, unresolved_material_objection:false, evaluated_at:'2026-11-03T00:00:00Z', ...overrides
 });
 
 const panel = (overrides = {}) => ({
@@ -77,6 +77,8 @@ test('ratification fails closed on digest drift, missing independent review and 
   assert.equal(evaluateRatification(ratification(), evidence({instrument_digest:'b'.repeat(64)})).decision, 'HOLD');
   assert.match(evaluateRatification(ratification(), evidence({independent_review_complete:false})).reason, /INDEPENDENT_REVIEW/);
   assert.equal(evaluateRatification(ratification(), evidence({unresolved_material_objection:true})).decision, 'IN_DOUBT');
+  assert.equal(evaluateRatification(ratification({expires_at:'2026-11-04T00:00:00Z'}), evidence({evaluated_at:'2026-11-04T00:00:00Z'})).reason, 'RATIFICATION_EXPIRED');
+  assert.throws(() => validateRatificationRecord(ratification({expires_at:'2026-11-01T00:00:00Z'})), /later than effective/);
 });
 
 test('ratification rejects Government self-ratifier identity and schema drift', () => {
@@ -88,6 +90,11 @@ test('appeal panel requires at least three unique attributable members', () => {
   assert.equal(validateAppealPanel(panel()).members.length,3);
   assert.throws(() => validateAppealPanel(panel({members:panel().members.slice(0,2)})), /at least three/);
   assert.throws(() => validateAppealPanel(panel({members:[panel().members[0],panel().members[0],panel().members[2]]})), /duplicate/);
+  assert.throws(() => validateAppealPanel(panel({members:[
+    panel().members[0],
+    {...panel().members[1],identity_ref:'identity:A'},
+    panel().members[2]
+  ]})), /duplicate appeal identity/);
 });
 
 test('appeal eligibility excludes original actors and preserves unknown conflict as IN_DOUBT', () => {
@@ -96,6 +103,7 @@ test('appeal eligibility excludes original actors and preserves unknown conflict
   assert.deepEqual(excluded.eligible_member_ids,['B','C']);
   const unknownPanel = panel({members:[...panel().members,{member_id:'D',identity_ref:'identity:D',status:'ACTIVE',conflict_status:'UNKNOWN'}]});
   assert.equal(evaluateAppealPanelEligibility(unknownPanel).decision,'IN_DOUBT');
+  assert.equal(evaluateAppealPanelEligibility(panel(),{original_reviewer_ids:'A'}).decision,'IN_DOUBT');
 });
 
 test('eligible appeal panel still creates no authority', () => {
