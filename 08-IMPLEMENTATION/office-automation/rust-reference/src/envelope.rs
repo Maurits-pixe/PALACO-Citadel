@@ -23,10 +23,6 @@ pub struct EventEnvelope {
     pub provenance: Provenance, pub trace_id: TraceId, pub idempotency_key: String,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-pub enum ExecutionState { NotStarted, Started, Completed, Failed, Blocked }
-
 impl EventEnvelope {
     pub fn validate(&self) -> Result<(), &'static str> {
         if self.event_version != "1.0.0" { return Err("unsupported event contract version"); }

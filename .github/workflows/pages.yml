@@ -52,6 +52,31 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Vue PALACO launcher
+        run: npm run build:launcher
+        env:
+          VITE_AETHER_ORIGIN: ${{ vars.PALACO_AETHER_ORIGIN }}
+          VITE_BASTION_ORIGIN: ${{ vars.PALACO_BASTION_ORIGIN }}
+          VITE_SCRIPTIE_ORIGIN: ${{ vars.PALACO_SCRIPTIE_ORIGIN }}
+
+      - name: Build React launcher
+        run: npm run build
+
+      - name: Build Bastion Vue client
+        run: npm run build:bastion
+        env:
+          VITE_BASTION_API_URL: ${{ vars.BASTION_API_URL }}
+          VITE_BASTION_SOCKET_URL: ${{ vars.BASTION_SOCKET_URL }}
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
