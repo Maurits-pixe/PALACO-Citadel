@@ -119,11 +119,13 @@ export function validateAppealPanel(panel) {
   if (panel.role !== APPEAL_ROLE) throw new TypeError('invalid appeal role');
   if (!Array.isArray(panel.members) || panel.members.length < 3) throw new TypeError('appeal panel requires at least three members');
   const members = panel.members.map(member => {
-    exactKeys(member, ['member_id','identity_ref','status','conflict_status'], 'appeal member');
+    exactKeys(member, ['member_id','identity_ref','status','conflict_status','institutional_conflict_status','independence_evidence_ref'], 'appeal member');
     string(member, 'member_id');
     string(member, 'identity_ref');
+    string(member, 'independence_evidence_ref');
     if (!['ACTIVE','SUSPENDED','REVOKED','EXPIRED'].includes(member.status)) throw new TypeError('invalid appeal member status');
     if (!['CLEAR','CONFLICT','UNKNOWN'].includes(member.conflict_status)) throw new TypeError('invalid conflict status');
+    if (!['CLEAR','CONFLICT','UNKNOWN'].includes(member.institutional_conflict_status)) throw new TypeError('invalid institutional conflict status');
     return Object.freeze({ ...member });
   });
   if (!unique(members.map(m => m.member_id))) throw new TypeError('duplicate appeal member');
@@ -141,10 +143,10 @@ export function evaluateAppealPanelEligibility(panel, challenge = {}) {
     if (challenge[key] !== undefined && !nonEmpty(challenge[key])) return output('IN_DOUBT', 'INVALID_CHALLENGE_CONTEXT');
   }
   const excluded = new Set([challenge.original_author_id, challenge.challenged_decision_maker_id, ...(challenge.original_reviewer_ids || []), ...(challenge.original_tally_verifier_ids || [])].filter(nonEmpty));
-  const eligible = value.members.filter(m => m.status === 'ACTIVE' && m.conflict_status === 'CLEAR' && !excluded.has(m.member_id));
+  const eligible = value.members.filter(m => m.status === 'ACTIVE' && m.conflict_status === 'CLEAR' && m.institutional_conflict_status === 'CLEAR' && !excluded.has(m.member_id));
   const blocked = value.members.filter(m => !eligible.includes(m));
   const extra = { eligible_member_ids: eligible.map(m => m.member_id), blocked_member_ids: blocked.map(m => m.member_id) };
-  if (value.members.some(m => m.conflict_status === 'UNKNOWN')) return output('IN_DOUBT', 'UNKNOWN_MEMBER_CONFLICT', extra);
+  if (value.members.some(m => m.conflict_status === 'UNKNOWN' || m.institutional_conflict_status === 'UNKNOWN')) return output('IN_DOUBT', 'UNKNOWN_MEMBER_CONFLICT', extra);
   if (eligible.length < 3) return output('INELIGIBLE', 'FEWER_THAN_THREE_ELIGIBLE_MEMBERS', extra);
-  return output('ELIGIBLE', 'THREE_OR_MORE_INDEPENDENT_MEMBERS', extra);
+  return output('ELIGIBLE', 'THREE_OR_MORE_IDENTITY_AND_INSTITUTION_CONFLICT_CLEAR_MEMBERS', extra);
 }
