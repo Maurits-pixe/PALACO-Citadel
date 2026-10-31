@@ -20,14 +20,15 @@
         "appointment_constraints":{"type":"string","minLength":1},
         "eligibility_requirements_ref":{"type":"string","minLength":1},
         "conflict_policy_ref":{"type":"string","minLength":1},
-        "revocation_ref":{"type":["string","null"]},
+        "revocation_ref":{"anyOf":[{"type":"string","minLength":1},{"type":"null"}]},
         "audit_ref":{"type":"string","minLength":1},
         "provenance":{"type":"string","minLength":1},
         "status":{"enum":["DRAFT","ACTIVE","SUSPENDED","REVOKED","EXPIRED"]}
       }
     },
     "mandateRegistry": {
-      "type":"object","additionalProperties":false,
+      "type":"object",
+      "additionalProperties":false,
       "required":["registry_id","schema_version","provenance","records"],
       "properties":{
         "registry_id":{"type":"string","minLength":1},
@@ -37,26 +38,57 @@
       }
     },
     "ratificationRecord": {
-      "type":"object","additionalProperties":false,
+      "type":"object",
+      "additionalProperties":false,
       "required":["ratification_id","ratifying_subject","ratifying_identity_ref","ratification_mandate_ref","government_id","competence_id","instrument_version","instrument_digest","constitutional_basis_ref","independent_review_ref","conflict_review_ref","dissent_refs","in_doubt_status","decision","effective_recorded_at","expires_at","revocation_ref","appeal_ref","audit_ref","provenance","signature_or_attestation_ref"],
       "properties":{
+        "ratification_id":{"type":"string","minLength":1},
         "ratifying_subject":{"const":"PALACO-HOOFDKANTOOR-CONSTITUTIONAL-RATIFICATION"},
+        "ratifying_identity_ref":{"type":"string","minLength":1},
+        "ratification_mandate_ref":{"type":"string","minLength":1},
         "government_id":{"const":"PALACO-GOVERNMENT-12"},
+        "competence_id":{"type":"string","minLength":1},
+        "instrument_version":{"type":"string","minLength":1},
         "instrument_digest":{"type":"string","pattern":"^[a-f0-9]{64}$"},
-        "decision":{"enum":["RATIFIED_NOT_ACTIVE","REJECTED","IN_DOUBT"]},
+        "constitutional_basis_ref":{"type":"string","minLength":1},
+        "independent_review_ref":{"type":"string","minLength":1},
+        "conflict_review_ref":{"type":"string","minLength":1},
+        "dissent_refs":{"type":"array","items":{"type":"string","minLength":1}},
         "in_doubt_status":{"type":"boolean"},
-        "dissent_refs":{"type":"array","items":{"type":"string","minLength":1}}
+        "decision":{"enum":["RATIFIED_NOT_ACTIVE","REJECTED","IN_DOUBT"]},
+        "effective_recorded_at":{"type":"string","format":"date-time"},
+        "expires_at":{"anyOf":[{"type":"string","minLength":1,"format":"date-time"},{"type":"null"}]},
+        "revocation_ref":{"anyOf":[{"type":"string","minLength":1},{"type":"null"}]},
+        "appeal_ref":{"anyOf":[{"type":"string","minLength":1},{"type":"null"}]},
+        "audit_ref":{"type":"string","minLength":1},
+        "provenance":{"type":"string","minLength":1},
+        "signature_or_attestation_ref":{"type":"string","minLength":1}
       }
     },
     "appealPanel": {
-      "type":"object","additionalProperties":false,
+      "type":"object",
+      "additionalProperties":false,
       "required":["panel_id","role","members","policy_version","provenance"],
       "properties":{
         "panel_id":{"type":"string","minLength":1},
         "role":{"const":"PALACO-CONSTITUTIONAL-APPEAL-PANEL"},
         "policy_version":{"type":"string","minLength":1},
         "provenance":{"type":"string","minLength":1},
-        "members":{"type":"array","minItems":3}
+        "members":{
+          "type":"array",
+          "minItems":3,
+          "items":{
+            "type":"object",
+            "additionalProperties":false,
+            "required":["member_id","identity_ref","status","conflict_status"],
+            "properties":{
+              "member_id":{"type":"string","minLength":1},
+              "identity_ref":{"type":"string","minLength":1},
+              "status":{"enum":["ACTIVE","SUSPENDED","REVOKED","EXPIRED"]},
+              "conflict_status":{"enum":["CLEAR","CONFLICT","UNKNOWN"]}
+            }
+          }
+        }
       }
     }
   }
