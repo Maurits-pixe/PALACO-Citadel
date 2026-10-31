@@ -80,12 +80,14 @@
           "items":{
             "type":"object",
             "additionalProperties":false,
-            "required":["member_id","identity_ref","status","conflict_status"],
+            "required":["member_id","identity_ref","status","conflict_status","institutional_conflict_status","independence_evidence_ref"],
             "properties":{
               "member_id":{"type":"string","minLength":1},
               "identity_ref":{"type":"string","minLength":1},
               "status":{"enum":["ACTIVE","SUSPENDED","REVOKED","EXPIRED"]},
-              "conflict_status":{"enum":["CLEAR","CONFLICT","UNKNOWN"]}
+              "conflict_status":{"enum":["CLEAR","CONFLICT","UNKNOWN"]},
+              "institutional_conflict_status":{"enum":["CLEAR","CONFLICT","UNKNOWN"]},
+              "independence_evidence_ref":{"type":"string","minLength":1}
             }
           }
         }
