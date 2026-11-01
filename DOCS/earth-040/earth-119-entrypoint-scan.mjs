@@ -13,7 +13,7 @@ function walk(dir){
   if(entry.isDirectory()){if(!['node_modules','.git','target','dist'].includes(entry.name))walk(path);continue;}
   if(!entry.isFile()||!/[.](mjs|js|cjs|ts|tsx)$/.test(entry.name)||allowed.has(path))continue;
   const source=readFileSync(join(root,path),'utf8');
-  if(/(?:import|require\\s*\\(|from\\s*['"])[^\\n]*earth-108-signed-evidence/.test(source)||/\\bverifySignedAuditEvidence\\s*\\(/.test(source))failures.push(path);
+  if(/(?:import|require\s*\(|from\s*['"])[^\n]*earth-108-signed-evidence/.test(source)||/\bverifySignedAuditEvidence\s*\(/.test(source))failures.push(path);
  }
 }
 for(const dir of scanDirs)walk(dir);
