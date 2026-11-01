@@ -11,3 +11,18 @@ test('missing manifest is rejected',()=>assert.throws(()=>preparePhysicalDataset
 test('tampered transformed bytes are rejected',()=>assert.throws(()=>preparePhysicalDataset({manifest:manifest(),rawBytes:raw,transformedBytes:new TextEncoder().encode('{}')}),/SOURCE_NOT_ADMITTED/));
 test('unapproved source is rejected',()=>{const m=manifest();m.acceptanceDecision='PENDING';assert.throws(()=>preparePhysicalDataset({manifest:m,rawBytes:raw,transformedBytes:transformed}),/SOURCE_NOT_ADMITTED/)});
 test('missing bytes are rejected',()=>assert.throws(()=>preparePhysicalDataset({manifest:manifest(),rawBytes:raw}),/MISSING_SOURCE_BYTES/));
+
+test('rejects oversized raw archive before hashing',()=>{
+ const oversized=new Uint8Array(20*1024*1024+1);
+ assert.throws(()=>preparePhysicalDataset({manifest:manifest(),rawBytes:oversized,transformedBytes:transformed}),/DATASET_SIZE_LIMIT/);
+});
+test('rejects oversized GeoJSON before parsing',()=>{
+ const oversized=new Uint8Array(20*1024*1024+1);
+ assert.throws(()=>preparePhysicalDataset({manifest:manifest(),rawBytes:raw,transformedBytes:oversized}),/DATASET_SIZE_LIMIT/);
+});
+test('rejects excessive feature count after valid hash',()=>{
+ const many={type:'FeatureCollection',features:Array.from({length:20001},()=>data.features[0])};
+ const bytes=new TextEncoder().encode(JSON.stringify(many));
+ const m=manifest();m.transformedSHA256=sha256(bytes);
+ assert.throws(()=>preparePhysicalDataset({manifest:m,rawBytes:raw,transformedBytes:bytes}),/FEATURE_COUNT_LIMIT/);
+});
