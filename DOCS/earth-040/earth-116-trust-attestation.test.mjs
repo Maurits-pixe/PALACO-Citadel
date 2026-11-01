@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {generateKeyPairSync,sign} from 'node:crypto';
+import {trustSnapshotMessage,verifyTrustSnapshotAttestation} from './earth-116-trust-attestation.mjs';
+const {privateKey,publicKey}=generateKeyPairSync('ed25519');
+const snapshot={epoch:5,expiresAtEpoch:7,checkpoint:{length:1,headHash:'a'.repeat(64)}};
+const attestation={protocol:'EARTH-116-v1',signature:sign(null,trustSnapshotMessage(snapshot),privateKey).toString('base64')};
+const base={snapshot,attestation,pinnedAuthorityKey:publicKey.export({type:'spki',format:'pem'}),nowEpoch:6};
+assert.equal(verifyTrustSnapshotAttestation(base).status,'ATTESTATION_MATCH');
+assert.equal(verifyTrustSnapshotAttestation({...base,snapshot:{...snapshot,epoch:6}}).status,'HOLD');
+assert.equal(verifyTrustSnapshotAttestation({...base,snapshot:{...snapshot,checkpoint:{...snapshot.checkpoint,headHash:'b'.repeat(64)}}}).status,'HOLD');
+assert.equal(verifyTrustSnapshotAttestation({...base,nowEpoch:8}).status,'HOLD');
+assert.equal(verifyTrustSnapshotAttestation({...base,pinnedAuthorityKey:undefined}).status,'HOLD');
+assert.equal(verifyTrustSnapshotAttestation({...base,attestation:{...attestation,protocol:'OTHER'}}).status,'HOLD');
+console.log('EARTH-116 pinned trust attestation PASS');
