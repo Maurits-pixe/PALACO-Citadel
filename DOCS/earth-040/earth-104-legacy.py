@@ -5,7 +5,7 @@ import hashlib
 import json
 import re
 
-HEX = re.compile(r'^[0-9a-f]{64}
+HEX = re.compile('^[0-9a-f]{64}$')
 FIELDS_RECEIPT = ("protocol","sourceSHA256","outputSHA256","reviewerId","trustedEpoch","minimumAcceptedEpoch","status","stage","reasons")
 FIELDS_RECORD = ("index","previousHash","receiptSHA256","status","stage")
 MAX_SAFE = 9007199254740991
