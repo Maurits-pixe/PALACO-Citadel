@@ -7,6 +7,8 @@ export function sha256(bytes) { return createHash('sha256').update(bytes).digest
 export function admitSource(manifest, raw, transformed) {
   if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) return { admitted:false, reason:'INVALID_MANIFEST' };
   for (const key of REQUIRED) if (typeof manifest[key] !== 'string' || !manifest[key].trim()) return { admitted:false, reason:'MISSING_'+key };
+  for (const key of ['sourceURL','licenseEvidenceURL']) { try { const u=new URL(manifest[key]); if(u.protocol!=='https:' || !u.hostname || u.username || u.password) return {admitted:false,reason:'UNTRUSTED_'+key}; } catch {return {admitted:false,reason:'INVALID_'+key};} }
+  for (const key of ['retrievedAt','reviewDate']) { if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(manifest[key]) || Number.isNaN(Date.parse(manifest[key]+'T00:00:00Z'))) return {admitted:false,reason:'INVALID_'+key}; }
   if (manifest.coordinateReferenceSystem !== 'EPSG:4326') return { admitted:false, reason:'UNSUPPORTED_CRS' };
   if (manifest.provenanceStatus !== 'VERIFIED' || manifest.acceptanceDecision !== 'APPROVED') return { admitted:false, reason:'NOT_APPROVED' };
   if (!SHA256.test(manifest.rawSHA256) || !SHA256.test(manifest.transformedSHA256)) return { admitted:false, reason:'INVALID_CHECKSUM' };
