@@ -74,6 +74,7 @@ def main():
         "coordinate_pairs": coordinate_pairs,
         "dateline_crossing_rings": dateline_crossing_rings,
         "renderer_compatible": dateline_crossing_rings == 0,
+        "render_admission": "ELIGIBLE_FOR_REVIEW" if dateline_crossing_rings == 0 else "BLOCKED_DATELINE_TOPOLOGY",
         "converter": "EARTH-066 pyshp",
         "pyshp_version": shapefile.__version__,
         "source_archive": archive_path.name,
