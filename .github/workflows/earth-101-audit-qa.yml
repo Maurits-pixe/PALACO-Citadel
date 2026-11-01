@@ -1,0 +1,17 @@
+name: EARTH-101 Audit Digest QA
+on:
+  pull_request:
+    paths:
+      - 'DOCS/earth-040/earth-101-*.py'
+      - '.github/workflows/earth-101-audit-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify tampering and chain denial
+        run: python3 DOCS/earth-040/earth-101-test.py
