@@ -1,0 +1,49 @@
+name: EARTH-064 Source Acquisition Evidence
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download and fingerprint official Natural Earth archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          url='https://naturalearth.s3.amazonaws.com/110m_physical/ne_110m_land.zip'
+          curl --fail --location --retry 2 --connect-timeout 15 --max-time 90 --proto '=https' --tlsv1.2 --output ne_110m_land.zip "$url"
+          test -s ne_110m_land.zip
+          test "$(stat -c %s ne_110m_land.zip)" -le 20971520
+          python3 - <<'PY'
+          from zipfile import ZipFile, BadZipFile
+          expected = {'ne_110m_land.shp','ne_110m_land.shx','ne_110m_land.dbf','ne_110m_land.prj'}
+          try:
+              with ZipFile('ne_110m_land.zip') as archive:
+                  names = archive.namelist()
+                  assert len(names) <= 32, 'EXCESSIVE_ARCHIVE_ENTRIES'
+                  assert len(names) == len(set(names)), 'DUPLICATE_ARCHIVE_ENTRIES'
+                  assert all('/' not in n and '\\\\' not in n and n not in ('.','..') for n in names), 'UNSAFE_ARCHIVE_PATH'
+                  assert expected.issubset(set(names)), 'MISSING_SHAPEFILE_COMPONENTS'
+                  assert all(i.file_size <= 20971520 for i in archive.infolist()), 'OVERSIZED_MEMBER'
+                  assert sum(i.file_size for i in archive.infolist()) <= 41943040, 'EXPANSION_LIMIT'
+                  assert archive.testzip() is None, 'ZIP_CRC_FAILURE'
+          except (BadZipFile, AssertionError) as e:
+              raise SystemExit(f'ARCHIVE_REJECTED: {e}')
+          print('ARCHIVE_STRUCTURE_CHECK=PASS; SOURCE_ADMISSION=NOT_GRANTED')
+          PY
+          file ne_110m_land.zip
+          sha256sum ne_110m_land.zip | tee SHA256SUMS.txt
+          printf 'source_url=%s\n' "$url" > acquisition.txt
+          printf 'retrieved_utc=%s\n' "$(date -u +%FT%TZ)" >> acquisition.txt
+          printf 'commit=%s\n' "$GITHUB_SHA" >> acquisition.txt
+      - name: Upload evidence for human review (not admission)
+        uses: actions/upload-artifact@v4
+        with:
+          name: earth-064-unreviewed-source
+          path: |
+            ne_110m_land.zip
+            SHA256SUMS.txt
+            acquisition.txt
+          retention-days: 14
