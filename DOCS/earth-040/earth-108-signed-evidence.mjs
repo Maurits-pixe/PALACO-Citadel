@@ -15,6 +15,7 @@ export function verifySignedAuditEvidence({chain,receipts,signatures,trustAnchor
  for(let i=0;i<chain.length;i++){
   const receipt=receipts[i],sig=signatures[i],record=chain[i];
   if(!receipt||typeof receipt!=='object'||Array.isArray(receipt)||!HEX.test(receipt.receiptSHA256??'')||receipt.receiptSHA256!==record.receiptSHA256||receipt.status!==record.status||receipt.stage!==record.stage) return fail('RECEIPT_MISMATCH');
+  if(receipt.protocol!=='EARTH-084-v1'||!Number.isSafeInteger(receipt.trustedEpoch)||receipt.trustedEpoch<minimumAcceptedEpoch||receipt.trustedEpoch>trustedEpoch||!Number.isSafeInteger(receipt.minimumAcceptedEpoch)||receipt.minimumAcceptedEpoch<0||receipt.minimumAcceptedEpoch>receipt.trustedEpoch) return fail('RECEIPT_EPOCH_UNTRUSTED');
   const reviewer=receipt.reviewerId;
   if(typeof reviewer!=='string'||!reviewer||revokedReviewers.has(reviewer)) return fail('REVIEWER_UNTRUSTED');
   const pem=trustAnchors.get(reviewer);
