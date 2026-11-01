@@ -4,10 +4,13 @@ import {createPublicKey, verify, createHash} from 'node:crypto';
 import {verifyReviewChain} from './earth-085-review-chain.mjs';
 import {verifyMonotoneCheckpoint} from './earth-087-monotone-checkpoint.mjs';
 import {verifySignatureEnvelope} from './earth-110-signature-envelope.mjs';
+import {validateTrustContext} from './earth-114-trust-context.mjs';
 const HEX=/^[0-9a-f]{64}$/;
 const B64=/^[A-Za-z0-9+/]{86}==$/;
 const fail=reason=>Object.freeze({status:'HOLD',reason});
-export function verifySignedAuditEvidence({chain,receipts,signatures,trustAnchors,revokedReviewers,checkpoint,trustedFloor,trustedEpoch,minimumAcceptedEpoch,signatureProtocol,revokedKeys}={}) {
+export function verifySignedAuditEvidence({chain,receipts,signatures,trustAnchors,revokedReviewers,checkpoint,trustedFloor,trustedEpoch,minimumAcceptedEpoch,signatureProtocol,revokedKeys,trustSnapshot,nowEpoch}={}) {
+ if(validateTrustContext({snapshot:trustSnapshot,nowEpoch,minimumAcceptedEpoch}).status!=='TRUST_CONTEXT_STRUCTURALLY_VALID') return fail('TRUST_SNAPSHOT_UNVERIFIED');
+ if(trustSnapshot.trustAnchors!==trustAnchors||trustSnapshot.revokedReviewers!==revokedReviewers||trustSnapshot.revokedKeys!==revokedKeys||trustSnapshot.checkpoint.length!==trustedFloor?.length||trustSnapshot.checkpoint.headHash!==trustedFloor?.headHash||trustSnapshot.epoch!==trustedEpoch) return fail('TRUST_SNAPSHOT_MISMATCH');
  if(!Array.isArray(chain)||!Array.isArray(receipts)||!Array.isArray(signatures)||chain.length===0||chain.length!==receipts.length||chain.length!==signatures.length) return fail('EVIDENCE_MISSING');
  if(!Number.isSafeInteger(trustedEpoch)||trustedEpoch<0||!Number.isSafeInteger(minimumAcceptedEpoch)||minimumAcceptedEpoch<0||trustedEpoch<minimumAcceptedEpoch) return fail('EPOCH_UNTRUSTED');
  if(!(trustAnchors instanceof Map)||!(revokedReviewers instanceof Set)) return fail('TRUST_CONTEXT_MISSING');
