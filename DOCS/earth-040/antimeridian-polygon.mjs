@@ -7,6 +7,13 @@ export function splitSimpleDateLinePolygon(rings) {
  if(!Array.isArray(rings)||rings.length!==1) throw Error('UNSUPPORTED_HOLES');
  const ring=rings[0];
  if(!Array.isArray(ring)||ring.length<4||!ring.every(valid)||!same(ring[0],ring.at(-1))) throw Error('INVALID_RING');
+ // Limit this prototype to axis-aligned four-corner rectangles adjacent to the dateline.
+ // More complex rings require a topology-preserving polygon clipping library.
+ if(ring.length!==5 || ring.some(p=>Math.abs(p[0])<170)) throw Error('UNSUPPORTED_TOPOLOGY');
+ const lons=[...new Set(ring.slice(0,-1).map(p=>p[0]))];
+ const lats=[...new Set(ring.slice(0,-1).map(p=>p[1]))];
+ if(lons.length!==2 || lats.length!==2 || !ring.slice(0,-1).every(p=>lons.includes(p[0])&&lats.includes(p[1])) ||
+    new Set(ring.slice(0,-1).map(p=>p.join(','))).size!==4) throw Error('UNSUPPORTED_TOPOLOGY');
  const crossings=[];
  for(let i=1;i<ring.length;i++) {
   const a=ring[i-1],b=ring[i],d=b[0]-a[0];
