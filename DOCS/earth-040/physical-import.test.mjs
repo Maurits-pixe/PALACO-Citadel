@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {sha256} from './gis-admission.mjs';
+import {preparePhysicalDataset} from './physical-import.mjs';
+const raw=new TextEncoder().encode('source fixture');
+const data={type:'FeatureCollection',features:[{type:'Feature',properties:{},geometry:{type:'Polygon',coordinates:[[[0,0],[1,0],[1,1],[0,0]]]}}]};
+const transformed=new TextEncoder().encode(JSON.stringify(data));
+const manifest=()=>({sourceName:'Fixture',sourceURL:'https://example.org/raw',publisher:'Fixture',license:'Test',licenseEvidenceURL:'https://example.org/license',sourceVersion:'1',retrievedAt:'2026-11-01',rawSHA256:sha256(raw),transformedSHA256:sha256(transformed),transformationTool:'fixture',transformationVersion:'1',transformationCommand:'fixture',coordinateReferenceSystem:'EPSG:4326',geographicAccuracy:'TEST',provenanceStatus:'VERIFIED',reviewer:'Fixture',reviewDate:'2026-11-01',acceptanceDecision:'APPROVED'});
+test('admitted fixture loads one physical feature',()=>assert.equal(preparePhysicalDataset({manifest:manifest(),rawBytes:raw,transformedBytes:transformed}).featureCount,1));
+test('missing manifest is rejected',()=>assert.throws(()=>preparePhysicalDataset({rawBytes:raw,transformedBytes:transformed}),/SOURCE_NOT_ADMITTED/));
+test('tampered transformed bytes are rejected',()=>assert.throws(()=>preparePhysicalDataset({manifest:manifest(),rawBytes:raw,transformedBytes:new TextEncoder().encode('{}')}),/SOURCE_NOT_ADMITTED/));
+test('unapproved source is rejected',()=>{const m=manifest();m.acceptanceDecision='PENDING';assert.throws(()=>preparePhysicalDataset({manifest:m,rawBytes:raw,transformedBytes:transformed}),/SOURCE_NOT_ADMITTED/)});
+test('missing bytes are rejected',()=>assert.throws(()=>preparePhysicalDataset({manifest:manifest(),rawBytes:raw}),/MISSING_SOURCE_BYTES/));
