@@ -43,7 +43,7 @@ def _ordered(src,fields):
 def verify_receipt(receipt):
     if not isinstance(receipt,dict) or set(receipt)!=set(FIELDS_RECEIPT)|{"receiptSHA256"}:
         raise LegacyError("RECEIPT_SCHEMA")
-    payload=_ordered(receipt,FIELDS_RECEIPT)
+    payload=_ordered({k:receipt[k] for k in FIELDS_RECEIPT},FIELDS_RECEIPT)
     if receipt["receiptSHA256"]!=sha(payload):
         raise LegacyError("RECEIPT_DIGEST")
     return receipt["receiptSHA256"]
@@ -54,7 +54,7 @@ def verify_chain(records):
     for i,record in enumerate(records):
         if not isinstance(record,dict) or set(record)!=set(FIELDS_RECORD)|{"recordHash"}:
             raise LegacyError("RECORD_SCHEMA")
-        payload=_ordered(record,FIELDS_RECORD)
+        payload=_ordered({k:record[k] for k in FIELDS_RECORD},FIELDS_RECORD)
         if type(record["index"]) is not int or record["index"]!=i or record["previousHash"]!=previous:
             raise LegacyError("BROKEN_LINK")
         if not isinstance(record["receiptSHA256"],str) or len(record["receiptSHA256"])!=64:
