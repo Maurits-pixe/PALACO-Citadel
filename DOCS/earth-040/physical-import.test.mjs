@@ -26,3 +26,12 @@ test('rejects excessive feature count after valid hash',()=>{
  const m=manifest();m.transformedSHA256=sha256(bytes);
  assert.throws(()=>preparePhysicalDataset({manifest:m,rawBytes:raw,transformedBytes:bytes}),/FEATURE_COUNT_LIMIT/);
 });
+
+test('rejects excessive coordinate count with matching checksum',()=>{
+ const points=Array.from({length:250001},(_,i)=>[i%100,Math.floor(i/100)%80]);
+ points.push(points[0]);
+ const huge={type:'FeatureCollection',features:[{type:'Feature',properties:{},geometry:{type:'Polygon',coordinates:[points]}}]};
+ const bytes=new TextEncoder().encode(JSON.stringify(huge));
+ const m=manifest();m.transformedSHA256=sha256(bytes);
+ assert.throws(()=>preparePhysicalDataset({manifest:m,rawBytes:raw,transformedBytes:bytes}),/COORDINATE_LIMIT/);
+});
