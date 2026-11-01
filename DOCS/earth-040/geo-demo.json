@@ -1,0 +1,252 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "status": "ILLUSTRATIVE_ONLY",
+    "source": "PALACO EARTH-043 manually authored schematic polygons",
+    "license": "Project-authored demonstration geometry",
+    "geographicAccuracy": "NOT_VERIFIED",
+    "lastUpdated": "2026-11-01"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "north-america",
+        "name": "Noord-Amerika"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -168,
+              70
+            ],
+            [
+              -125,
+              72
+            ],
+            [
+              -95,
+              55
+            ],
+            [
+              -82,
+              25
+            ],
+            [
+              -105,
+              15
+            ],
+            [
+              -130,
+              40
+            ],
+            [
+              -168,
+              70
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "south-america",
+        "name": "Zuid-Amerika"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -80,
+              12
+            ],
+            [
+              -48,
+              8
+            ],
+            [
+              -35,
+              -12
+            ],
+            [
+              -70,
+              -55
+            ],
+            [
+              -81,
+              -20
+            ],
+            [
+              -80,
+              12
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "europe",
+        "name": "Europa"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -12,
+              36
+            ],
+            [
+              5,
+              70
+            ],
+            [
+              36,
+              68
+            ],
+            [
+              45,
+              42
+            ],
+            [
+              25,
+              35
+            ],
+            [
+              -12,
+              36
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "africa",
+        "name": "Afrika"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -18,
+              35
+            ],
+            [
+              35,
+              37
+            ],
+            [
+              50,
+              10
+            ],
+            [
+              18,
+              -35
+            ],
+            [
+              -2,
+              -33
+            ],
+            [
+              -18,
+              8
+            ],
+            [
+              -18,
+              35
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "asia",
+        "name": "Azië"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              40,
+              40
+            ],
+            [
+              55,
+              73
+            ],
+            [
+              150,
+              72
+            ],
+            [
+              180,
+              50
+            ],
+            [
+              135,
+              0
+            ],
+            [
+              100,
+              -10
+            ],
+            [
+              65,
+              15
+            ],
+            [
+              40,
+              40
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "oceania",
+        "name": "Oceanië"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              112,
+              -11
+            ],
+            [
+              155,
+              -10
+            ],
+            [
+              155,
+              -44
+            ],
+            [
+              115,
+              -42
+            ],
+            [
+              112,
+              -11
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
