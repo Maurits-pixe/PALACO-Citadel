@@ -29,6 +29,9 @@ with tempfile.TemporaryDirectory() as td:
     data = json.loads(geojson)
     assert evidence["admission"] == "NOT_ADMITTED"
     assert evidence["feature_count"] == 1
+    assert evidence["coordinate_pairs"] == 5
+    assert evidence["dateline_crossing_rings"] == 0
+    assert evidence["renderer_compatible"] is True
     assert evidence["geojson_sha256"] == hashlib.sha256(geojson).hexdigest()
     assert evidence["raw_sha256"] == hashlib.sha256(archive.read_bytes()).hexdigest()
     assert data["type"] == "FeatureCollection"
