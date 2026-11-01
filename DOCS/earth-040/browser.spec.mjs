@@ -42,3 +42,15 @@ test('EARTH-073 atlas blocks unadmitted physical GIS layer while retaining demo'
   await expect(page.locator('#physical-paths path')).toHaveCount(0);
   await expect(page.locator('.land')).toHaveCount(6);
 });
+
+test('EARTH-075 browser globals cannot authorize physical rendering', async ({page}) => {
+  await page.addInitScript(() => {
+    window.sourceApproved=true;
+    window.renderAdmission='APPROVED_FOR_RENDER';
+    window.physicalEvidence={admission:'VERIFIED_SOURCE',render_admission:'APPROVED_FOR_RENDER',renderer_compatible:true};
+  });
+  await page.goto('/atlas.html');
+  await expect(page.locator('#physical-status')).toContainText('niet toegelaten');
+  await expect(page.locator('#physical-preview')).toBeHidden();
+  await expect(page.locator('#physical-paths path')).toHaveCount(0);
+});
