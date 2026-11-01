@@ -1,0 +1,21 @@
+name: EARTH-119 Entrypoint QA
+on:
+  pull_request:
+    paths:
+      - 'DOCS/earth-040/earth-119-*'
+      - 'src/**'
+      - 'server/**'
+      - 'api/**'
+      - 'apps/**'
+      - 'crates/**'
+      - '.github/workflows/earth-119-entrypoint-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: node DOCS/earth-040/earth-119-entrypoint-scan.mjs
