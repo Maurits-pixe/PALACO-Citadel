@@ -1,0 +1,16 @@
+name: EARTH-118 Attested Audit QA
+on:
+  pull_request:
+    paths:
+      - 'DOCS/earth-040/earth-118-*'
+      - '.github/workflows/earth-118-attested-audit-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: node DOCS/earth-040/earth-118-attested-audit.test.mjs
