@@ -1,0 +1,16 @@
+name: EARTH-108 Signed Evidence QA
+on:
+  pull_request:
+    paths:
+      - 'DOCS/earth-040/earth-108-*'
+      - '.github/workflows/earth-108-signed-evidence-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: node DOCS/earth-040/earth-108-signed-evidence.test.mjs
