@@ -11,9 +11,21 @@ BEGIN
 END $$;
 -- The function must be reviewed and installed by the dedicated function owner,
 -- not by postgres/supabase_admin, before enabling EXECUTE.
-REVOKE ALL ON SCHEMA earth_audit FROM PUBLIC,anon,authenticated,service_role;
-REVOKE ALL ON ALL TABLES IN SCHEMA earth_audit FROM PUBLIC,anon,authenticated,service_role,earth_audit_executor;
-REVOKE ALL ON ALL FUNCTIONS IN SCHEMA earth_audit FROM PUBLIC,anon,authenticated,service_role,earth_audit_executor;
+REVOKE ALL ON SCHEMA earth_audit FROM PUBLIC,earth_audit_executor;
+REVOKE ALL ON ALL TABLES IN SCHEMA earth_audit FROM PUBLIC,earth_audit_executor;
+REVOKE ALL ON ALL FUNCTIONS IN SCHEMA earth_audit FROM PUBLIC,earth_audit_executor;
+-- Supabase roles are absent in vanilla PostgreSQL CI. Revoke only when present.
+DO $
+DECLARE role_name text;
+BEGIN
+ FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname=role_name) THEN
+   EXECUTE format('REVOKE ALL ON SCHEMA earth_audit FROM %I',role_name);
+   EXECUTE format('REVOKE ALL ON ALL TABLES IN SCHEMA earth_audit FROM %I',role_name);
+   EXECUTE format('REVOKE ALL ON ALL FUNCTIONS IN SCHEMA earth_audit FROM %I',role_name);
+  END IF;
+ END LOOP;
+END $;
 -- Deliberately no EXECUTE grant until a separately reviewed owner-bound function
 -- has been installed and its full cryptographic input validation is tested.
 COMMIT;
