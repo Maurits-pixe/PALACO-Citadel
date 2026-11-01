@@ -40,10 +40,23 @@ def main():
             dbf=io.BytesIO(z.read("ne_110m_land.dbf")),
         )
         features = []
+        dateline_crossing_rings = 0
+        coordinate_pairs = 0
+        def inspect_ring(ring):
+            nonlocal dateline_crossing_rings, coordinate_pairs
+            coordinate_pairs += len(ring)
+            if coordinate_pairs > 250000:
+                raise SystemExit('COORDINATE_LIMIT')
+            if any(abs(ring[i][0] - ring[i-1][0]) > 180 for i in range(1, len(ring))):
+                dateline_crossing_rings += 1
         for shape in reader.shapes():
             geom = shape.__geo_interface__
             if geom["type"] not in ("Polygon", "MultiPolygon"):
                 raise SystemExit("UNSUPPORTED_GEOMETRY")
+            polygons = [geom['coordinates']] if geom['type'] == 'Polygon' else geom['coordinates']
+            for polygon in polygons:
+                for ring in polygon:
+                    inspect_ring(ring)
             features.append({"type": "Feature", "properties": {}, "geometry": geom})
         if len(features) > 20000:
             raise SystemExit("FEATURE_COUNT_LIMIT")
@@ -58,6 +71,9 @@ def main():
         "raw_sha256": hashlib.sha256(raw).hexdigest(),
         "geojson_sha256": hashlib.sha256(encoded).hexdigest(),
         "feature_count": len(features),
+        "coordinate_pairs": coordinate_pairs,
+        "dateline_crossing_rings": dateline_crossing_rings,
+        "renderer_compatible": dateline_crossing_rings == 0,
         "converter": "EARTH-066 pyshp",
         "pyshp_version": shapefile.__version__,
         "source_archive": archive_path.name,
