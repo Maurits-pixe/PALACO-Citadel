@@ -11,6 +11,7 @@
 <path class="land" tabindex="0" role="button" aria-label="Oceanië" data-id="oceania" d="M627 288 L694 275 748 314 720 355 658 347 624 319Z"/>
 </g></svg><label for="scale">Kaartindeling</label><select id="scale"><option value="4">4×4</option><option value="12" selected>12×8</option><option value="4444">4444×4444 (virtuele schaal)</option></select><p id="scale-note" class="muted">12×8 overlay; geen echte geografische tegels.</p></section>
 <aside class="panel"><h2 id="region">Selecteer een regio</h2><p id="details" aria-live="polite">Kies een continent op de kaart met muis, aanraking of toetsenbord.</p><p class="muted">Objectstatus: demonstratiegegevens, niet canoniek.</p><button id="clear">Selectie wissen</button><h3>Wereldgeheugen</h3><p id="memory" class="chip">Sessiegebonden selectie; geen serveropslag.</p></aside></div>
+<section class="panel" id="physical-layer"><h2>Fysieke kaartlaag · broncontrole</h2><p id="physical-status" role="status" aria-live="polite">Controle wordt uitgevoerd…</p><svg id="physical-preview" viewBox="0 0 900 450" aria-label="Fysieke kaartlaag alleen na onafhankelijke toelating" hidden><g id="physical-paths"></g></svg><p class="muted">Deze laag is afzonderlijk van de schematische demonstratiekaart. Een conversierapport is geen bronautorisatie.</p></section>
 <section class="panel" id="worlds"><h2>Universe Navigation</h2><p>Bekende PALACO-wereldlabels, zonder veronderstelde actieve bestemmingen:</p><div id="world-buttons"></div><p id="world-detail" aria-live="polite" class="muted">Selecteer een wereld voor de registerinformatie.</p></section>
 <section class="panel"><h2>Verificatiegrens</h2><p>Alle interacties zijn uitsluitend lokale UI-state. Geen accounttoegang, wereldmutatie, Supabase-koppeling, geolocatie, auditreceipt of OR6IT-runtime. De W-0001-bronbinding blijft UNKNOWN totdat bewijs is bevestigd.</p></section></main><footer class="muted">EARTH-041 · Ontwikkelcandidate · Geen productieomgeving</footer>
 <script>
@@ -39,5 +40,20 @@ try {
 } catch(error) {
  const note=document.createElement("p");note.setAttribute("role","alert");note.textContent="GeoJSON niet beschikbaar; bestaande schematische kaart blijft zichtbaar.";
  document.getElementById("atlas").append(note);
+}
+</script>
+<script type="module">
+import {physicalLayerMarkup} from './earth-072-layer-controller.mjs';
+// No physical dataset is shipped with this preview. Absence must fail closed.
+const result=physicalLayerMarkup({dataset:null,evidence:null,sourceApproved:false});
+const status=document.getElementById('physical-status');
+const svg=document.getElementById('physical-preview');
+if(result.state.status==='READY'){
+ document.getElementById('physical-paths').innerHTML=result.markup;
+ svg.hidden=false;
+ status.textContent='Fysieke kaartlaag toegelaten.';
+}else{
+ svg.hidden=true;
+ status.textContent=result.state.message;
 }
 </script></body></html>
