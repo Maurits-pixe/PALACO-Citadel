@@ -13,3 +13,9 @@ test('rejects unclosed ring',()=>assert.throws(()=>physicalPaths({...polygon,geo
 test('rejects empty collection',()=>assert.throws(()=>validatePhysicalGeoJSON({type:'FeatureCollection',features:[]})));
 
 test('SVG uses evenodd for interior rings',()=>assert.match(physicalSvgPath(polygon),/fill-rule="evenodd"/));
+
+test('rejects antimeridian crossings rather than drawing a world-spanning edge',()=>{
+ const feature={type:'Feature',geometry:{type:'Polygon',coordinates:[[[179,10],[-179,10],[-179,11],[179,10]]]},properties:{}};
+ assert.throws(()=>physicalPaths(feature),/INVALID_GEOMETRY/);
+ assert.throws(()=>validatePhysicalGeoJSON({type:'FeatureCollection',features:[feature]}),/INVALID_OR_DATELINE_GEOMETRY/);
+});
