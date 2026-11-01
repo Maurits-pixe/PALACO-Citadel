@@ -1,0 +1,32 @@
+name: EARTH-064 Source Acquisition Evidence
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download and fingerprint official Natural Earth archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          url='https://naturalearth.s3.amazonaws.com/110m_physical/ne_110m_land.zip'
+          curl --fail --location --retry 2 --connect-timeout 15 --max-time 90 --proto '=https' --tlsv1.2 --output ne_110m_land.zip "$url"
+          test -s ne_110m_land.zip
+          test "$(stat -c %s ne_110m_land.zip)" -le 20971520
+          file ne_110m_land.zip
+          sha256sum ne_110m_land.zip | tee SHA256SUMS.txt
+          printf 'source_url=%s\n' "$url" > acquisition.txt
+          printf 'retrieved_utc=%s\n' "$(date -u +%FT%TZ)" >> acquisition.txt
+          printf 'commit=%s\n' "$GITHUB_SHA" >> acquisition.txt
+      - name: Upload evidence for human review (not admission)
+        uses: actions/upload-artifact@v4
+        with:
+          name: earth-064-unreviewed-source
+          path: |
+            ne_110m_land.zip
+            SHA256SUMS.txt
+            acquisition.txt
+          retention-days: 14
