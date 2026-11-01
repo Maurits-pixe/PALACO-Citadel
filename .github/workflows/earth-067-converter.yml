@@ -1,0 +1,23 @@
+name: EARTH-067 Converter QA
+on:
+  pull_request:
+    paths:
+      - 'DOCS/earth-040/earth-066-convert.py'
+      - 'DOCS/earth-040/earth-067-converter-test.py'
+      - '.github/workflows/earth-067-converter.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  converter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned shapefile dependency
+        run: python -m pip install --disable-pip-version-check 'pyshp==2.3.1'
+      - name: Exercise synthetic Shapefile conversion
+        run: python DOCS/earth-040/earth-067-converter-test.py
