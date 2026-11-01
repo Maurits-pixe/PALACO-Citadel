@@ -11,7 +11,12 @@ const record=appendReviewRecord([],receipt),checkpoint={length:1,headHash:record
 const signature=sign(null,signatureMessage(receipt.receiptSHA256),privateKey).toString('base64');
 const envelope={protocol:EARTH110_PROTOCOL,keyId:reviewerId,signature};
 const base={chain:[record],receipts:[receipt],signatures:[envelope],trustAnchors:new Map([[reviewerId,publicKey.export({type:'spki',format:'pem'})]]),revokedReviewers:new Set(),revokedKeys:new Set(),checkpoint,trustedFloor:checkpoint,trustedEpoch:1,minimumAcceptedEpoch:1,signatureProtocol:'EARTH_110_V1'};
+base.revokedKeys ??= new Set();
+base.nowEpoch=2;
+base.trustSnapshot={authenticated:true,epoch:base.trustedEpoch,expiresAtEpoch:3,trustAnchors:base.trustAnchors,revokedReviewers:base.revokedReviewers,revokedKeys:base.revokedKeys,checkpoint:base.trustedFloor};
 assert.equal(verifySignedAuditEvidence(base).status,'CRYPTOGRAPHIC_EVIDENCE_MATCH');
+assert.equal(verifySignedAuditEvidence({...base,trustSnapshot:undefined}).status,'HOLD');
+assert.equal(verifySignedAuditEvidence({...base,nowEpoch:4}).status,'HOLD');
 assert.equal(verifySignedAuditEvidence({...base,signatureProtocol:'LEGACY_V1'}).status,'HOLD');
 assert.equal(verifySignedAuditEvidence({...base,revokedKeys:new Set([reviewerId])}).status,'HOLD');
 assert.equal(verifySignedAuditEvidence({...base,signatures:[{...envelope,keyId:'other'}]}).status,'HOLD');
