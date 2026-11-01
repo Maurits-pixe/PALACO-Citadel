@@ -19,3 +19,10 @@ export function physicalPaths(feature,width=900,height=450) {
   if(!polygons || !polygons.every(polygon)) throw Error('INVALID_GEOMETRY');
   return polygons.map(p=>p.map(r=>r.map((pt,i)=>{const [x,y]=project(pt,width,height);return (i?'L':'M')+x.toFixed(2)+' '+y.toFixed(2)}).join(' ')+' Z').join(' ')).join(' ');
 }
+
+// Explicit SVG evenodd fill rule is required to display interior rings as holes.
+// This helper returns markup for already validated geometry only; never inject untrusted attributes.
+export function physicalSvgPath(feature,width=900,height=450) {
+  const d=physicalPaths(feature,width,height);
+  return '<path d="'+d+'" fill-rule="evenodd" />';
+}
