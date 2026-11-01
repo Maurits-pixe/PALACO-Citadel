@@ -11,3 +11,7 @@ test('unapproved source fails closed',()=>{const m=manifest();m.acceptanceDecisi
 test('modified raw data fails closed',()=>assert.equal(admitSource(manifest(),Buffer.from('tampered'),converted).admitted,false));
 test('modified transformed data fails closed',()=>assert.equal(admitSource(manifest(),raw,Buffer.from('tampered')).admitted,false));
 test('unsupported CRS fails closed',()=>{const m=manifest();m.coordinateReferenceSystem='EPSG:3857';assert.equal(admitSource(m,raw,converted).admitted,false)});
+
+test('rejects insecure source URLs',()=>{const m=manifest();m.sourceURL='http://example.org/data';assert.equal(admitSource(m,raw,converted).admitted,false)});
+test('rejects credentials embedded in provenance URL',()=>{const m=manifest();m.licenseEvidenceURL='https://user:pass@example.org/license';assert.equal(admitSource(m,raw,converted).admitted,false)});
+test('rejects malformed review dates',()=>{const m=manifest();m.reviewDate='not-a-date';assert.equal(admitSource(m,raw,converted).admitted,false)});
