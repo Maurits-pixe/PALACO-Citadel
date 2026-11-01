@@ -34,3 +34,11 @@ test('GeoJSON failure preserves fallback and exposes alert', async ({ page }) =>
   await expect(page.getByRole('alert')).toContainText('GeoJSON niet beschikbaar');
   await expect(page.locator('.land').first()).toHaveAttribute('d', /.+/);
 });
+
+test('EARTH-073 atlas blocks unadmitted physical GIS layer while retaining demo', async ({page}) => {
+  await page.goto('/atlas.html');
+  await expect(page.locator('#physical-status')).toContainText('niet toegelaten');
+  await expect(page.locator('#physical-preview')).toBeHidden();
+  await expect(page.locator('#physical-paths path')).toHaveCount(0);
+  await expect(page.locator('.land')).toHaveCount(6);
+});
