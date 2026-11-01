@@ -23,4 +23,21 @@ document.getElementById("clear").addEventListener("click",()=>choose(null));
 const grid=document.getElementById("grid");const ns="http://www.w3.org/2000/svg";function drawGrid(v){grid.replaceChildren();let cols=v==="4"?4:v==="12"?12:24,rows=v==="4"?4:v==="12"?8:16;for(let i=1;i<cols;i++){let l=document.createElementNS(ns,"line");l.setAttribute("x1",800*i/cols);l.setAttribute("x2",800*i/cols);l.setAttribute("y1",0);l.setAttribute("y2",440);grid.append(l)}for(let j=1;j<rows;j++){let l=document.createElementNS(ns,"line");l.setAttribute("x1",0);l.setAttribute("x2",800);l.setAttribute("y1",440*j/rows);l.setAttribute("y2",440*j/rows);grid.append(l)}document.getElementById("scale-note").textContent=v==="4444"?"4444×4444 is virtueel; vereenvoudigde 24×16 overlay voor prestaties.":v==="4"?"4×4 overlay; geen echte geografische tegels.":"12×8 overlay; geen echte geografische tegels."}
 document.getElementById("scale").addEventListener("change",e=>drawGrid(e.target.value));drawGrid("12");
 const box=document.getElementById("world-buttons");worlds.forEach(([id,name])=>{let b=document.createElement("button");b.textContent=id+" · "+name;b.addEventListener("click",()=>{document.getElementById("world-detail").textContent=id+" · "+name+" — registerlabel, geen geverifieerde navigatiebestemming."});box.append(b)});
+</script>
+<script type="module">
+import {loadDemoGeoJSON,polygonPath} from "./geo-engine.mjs";
+try {
+ const collection=await loadDemoGeoJSON("./geo-demo.json");
+ const shapes=new Map(collection.features.map(f=>[f.properties.id,f]));
+ for(const element of document.querySelectorAll(".land")){
+  const feature=shapes.get(element.dataset.id);
+  if(!feature)throw new Error("missing region");
+  element.setAttribute("d",polygonPath(feature));
+ }
+ const note=document.createElement("p");note.className="muted";note.textContent="EARTH-043: SVG-regio's geladen uit gevalideerde demonstratie-GeoJSON. Geen officiële kustlijnen.";
+ document.getElementById("atlas").append(note);
+} catch(error) {
+ const note=document.createElement("p");note.setAttribute("role","alert");note.textContent="GeoJSON niet beschikbaar; bestaande schematische kaart blijft zichtbaar.";
+ document.getElementById("atlas").append(note);
+}
 </script></body></html>
