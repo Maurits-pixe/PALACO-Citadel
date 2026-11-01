@@ -1,0 +1,18 @@
+import {generateKeyPairSync,sign,createHash} from 'node:crypto';
+import {appendReviewRecord} from './earth-085-review-chain.mjs';
+import {verifySignedAuditEvidence} from './earth-108-signed-evidence.mjs';
+import assert from 'node:assert/strict';
+const {privateKey,publicKey}=generateKeyPairSync('ed25519');
+const payload={protocol:'EARTH-084-v1',sourceSHA256:null,outputSHA256:null,reviewerId:'reviewer-1',trustedEpoch:1,minimumAcceptedEpoch:1,status:'HOLD',stage:'REVIEW',reasons:['NOT_ADMITTED']};
+const receipt={...payload,receiptSHA256:createHash('sha256').update(JSON.stringify(payload)).digest('hex')};
+const record=appendReviewRecord([],receipt);
+const chain=[record],checkpoint={length:1,headHash:record.recordHash};
+const signature=sign(null,Buffer.from(receipt.receiptSHA256,'hex'),privateKey).toString('base64');
+const base={chain,receipts:[receipt],signatures:[signature],trustAnchors:new Map([['reviewer-1',publicKey.export({type:'spki',format:'pem'})]]),revokedReviewers:new Set(),checkpoint,trustedFloor:checkpoint,trustedEpoch:1,minimumAcceptedEpoch:1};
+assert.equal(verifySignedAuditEvidence(base).status,'CRYPTOGRAPHIC_EVIDENCE_MATCH');
+assert.equal(verifySignedAuditEvidence({...base,revokedReviewers:new Set(['reviewer-1'])}).status,'HOLD');
+assert.equal(verifySignedAuditEvidence({...base,signatures:['A'.repeat(86)+'==']}).status,'HOLD');
+assert.equal(verifySignedAuditEvidence({...base,trustedFloor:{length:1,headHash:'0'.repeat(64)}}).status,'HOLD');
+assert.equal(verifySignedAuditEvidence({...base,trustedEpoch:0}).status,'HOLD');
+assert.equal(verifySignedAuditEvidence({...base,receipts:[{...receipt,status:'PASS'}]}).status,'HOLD');
+console.log('EARTH-108 read-only evidence checks PASS');
