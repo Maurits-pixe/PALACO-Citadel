@@ -18,7 +18,7 @@ class SourceGateTests(unittest.TestCase):
         self.archive = self.root / "ne_110m_land.zip"
         self.archive.write_bytes(b"synthetic test bytes")
         self.manifest = self.root / "manifest.json"
-        self.record = {"source":"Natural Earth 1:110m land","archive":"ne_110m_land.zip","status":"REVIEWED_PIN","sha256":hashlib.sha256(self.archive.read_bytes()).hexdigest()}
+        self.record = {"source":"Natural Earth 1:110m land","archive":"ne_110m_land.zip","status":"REVIEWED_PIN","sha256":hashlib.sha256(self.archive.read_bytes()).hexdigest(),"reviewer":"independent-test-reviewer","reviewEvidence":"https://example.org/review/test-only"}
     def check(self, record=None):
         self.manifest.write_text(json.dumps(self.record if record is None else record),encoding="utf-8")
         return mod.verify(self.archive,self.manifest)
@@ -36,7 +36,7 @@ class SourceGateTests(unittest.TestCase):
     def test_wrong_source(self):
         with self.assertRaisesRegex(ValueError,"SOURCE_PIN_NOT_APPROVED"):
             self.check({**self.record,"source":"untrusted"})
-    def test_real_manifest_pending(self):
+    def test_missing_review_evidence(self):\n        with self.assertRaisesRegex(ValueError,"INDEPENDENT_REVIEW_EVIDENCE_MISSING"):\n            self.check({**self.record,"reviewEvidence":None})\n    def test_missing_reviewer(self):\n        with self.assertRaisesRegex(ValueError,"INDEPENDENT_REVIEW_EVIDENCE_MISSING"):\n            self.check({**self.record,"reviewer":""})\n    def test_real_manifest_pending(self):
         real=pathlib.Path(__file__).with_name("earth-120-source-manifest.json")
         with self.assertRaisesRegex(ValueError,"SOURCE_PIN_NOT_APPROVED"):
             mod.verify(self.archive,real)
