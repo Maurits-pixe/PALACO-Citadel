@@ -36,7 +36,13 @@ class SourceGateTests(unittest.TestCase):
     def test_wrong_source(self):
         with self.assertRaisesRegex(ValueError,"SOURCE_PIN_NOT_APPROVED"):
             self.check({**self.record,"source":"untrusted"})
-    def test_missing_review_evidence(self):\n        with self.assertRaisesRegex(ValueError,"INDEPENDENT_REVIEW_EVIDENCE_MISSING"):\n            self.check({**self.record,"reviewEvidence":None})\n    def test_missing_reviewer(self):\n        with self.assertRaisesRegex(ValueError,"INDEPENDENT_REVIEW_EVIDENCE_MISSING"):\n            self.check({**self.record,"reviewer":""})\n    def test_real_manifest_pending(self):
+    def test_missing_review_evidence(self):
+        with self.assertRaisesRegex(ValueError,"INDEPENDENT_REVIEW_EVIDENCE_MISSING"):
+            self.check({**self.record,"reviewEvidence":None})
+    def test_missing_reviewer(self):
+        with self.assertRaisesRegex(ValueError,"INDEPENDENT_REVIEW_EVIDENCE_MISSING"):
+            self.check({**self.record,"reviewer":""})
+    def test_real_manifest_pending(self):
         real=pathlib.Path(__file__).with_name("earth-120-source-manifest.json")
         with self.assertRaisesRegex(ValueError,"SOURCE_PIN_NOT_APPROVED"):
             mod.verify(self.archive,real)
