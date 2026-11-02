@@ -42,6 +42,9 @@ class SourceGateTests(unittest.TestCase):
     def test_missing_reviewer(self):
         with self.assertRaisesRegex(ValueError,"INDEPENDENT_REVIEW_EVIDENCE_MISSING"):
             self.check({**self.record,"reviewer":""})
+    def test_malformed_evidence_url(self):
+        with self.assertRaisesRegex(ValueError,"INDEPENDENT_REVIEW_EVIDENCE_MISSING"):
+            self.check({**self.record,"reviewEvidence":"https://trusted.example@evil.example/review"})
     def test_real_manifest_pending(self):
         real=pathlib.Path(__file__).with_name("earth-120-source-manifest.json")
         with self.assertRaisesRegex(ValueError,"SOURCE_PIN_NOT_APPROVED"):
