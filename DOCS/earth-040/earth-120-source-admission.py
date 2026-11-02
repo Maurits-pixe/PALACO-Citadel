@@ -10,7 +10,7 @@ def verify(archive, manifest):
     record = json.loads(pathlib.Path(manifest).read_text(encoding="utf-8"))
     if record.get("status") != "REVIEWED_PIN" or record.get("source") != "Natural Earth 1:110m land" or record.get("archive") != "ne_110m_land.zip":
         raise ValueError("SOURCE_PIN_NOT_APPROVED")
-    digest = record.get("sha256")
+    if not isinstance(record.get("reviewer"), str) or not record["reviewer"].strip() or not isinstance(record.get("reviewEvidence"), str) or not record["reviewEvidence"].startswith("https://"):\n        raise ValueError("INDEPENDENT_REVIEW_EVIDENCE_MISSING")\n    digest = record.get("sha256")
     if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
         raise ValueError("INVALID_PIN")
     if hashlib.sha256(pathlib.Path(archive).read_bytes()).hexdigest() != digest:
