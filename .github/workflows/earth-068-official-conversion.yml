@@ -22,7 +22,8 @@ jobs:
           test -s ne_110m_land.zip
           test "$(stat -c %s ne_110m_land.zip)" -le 20971520
           sha256sum ne_110m_land.zip > source-SHA256SUMS.txt
-      - name: Verify independent source manifest (fail closed)\n        run: python DOCS/earth-040/earth-120-source-admission.py ne_110m_land.zip DOCS/earth-040/earth-120-source-manifest.json\n      - name: Convert with reproducible evidence (NOT ADMITTED)
+      - name: Verify independent source manifest (fail closed)
+        run: python DOCS/earth-040/earth-120-source-admission.py ne_110m_land.zip DOCS/earth-040/earth-120-source-manifest.json\n      - name: Convert with reproducible evidence (NOT ADMITTED)
         run: python DOCS/earth-040/earth-066-convert.py ne_110m_land.zip earth-068-output
       - name: Verify deterministic conversion
         shell: bash
