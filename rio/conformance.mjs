@@ -405,6 +405,16 @@ for (const locale of localeProfile.supported_locales) {
   assert.ok(translation.text.length > 0, `RIO_READY translation must be non-empty for ${locale}`);
 }
 assert.equal(translate("RIO_UNKNOWN_STATUS", "nl").ok, false, "unknown message ID must fail closed");
+for (const messageId of ["constructor", "toString", "__proto__", "hasOwnProperty"]) {
+  for (const locale of localeProfile.supported_locales) {
+    assert.equal(translate(messageId, locale).ok, false, "inherited object keys must not become translated statuses");
+  }
+}
+for (const messageId of [null, undefined, 42, {}, ["RIO_READY"], Symbol("RIO_READY"), Object.create(null)]) {
+  const result = translate(messageId, "nl");
+  assert.equal(result.ok, false, "non-string message IDs must fail without coercion or exceptions");
+  assert.equal(Object.hasOwn(result, "text"), false, "rejected message IDs must not expose translated text");
+}
 
 const localeRecord = {
   record_id: "prov-locale-2",
@@ -790,4 +800,4 @@ assert.equal(advanceMessageDelivery(createdMessageConversation, "message-1", "CR
 assert.equal(advanceMessageDelivery(createdMessageConversation, "missing-message", "DELIVERED", deliveryRecord).ok, false, "unknown message must fail closed");
 assert.equal(advanceMessageDelivery(createdMessageConversation, "message-1", "DELIVERED", { ...deliveryRecord, record_id: "prov-1" }).ok, false, "duplicate provenance ID must fail closed");
 
-console.log(`RIO conformance PASS: ${cases.length} conversation fixtures, 20 creation assertions, 23 consent assertions, 24 consent-expiration assertions, 19 localization assertions, 29 locale-mutation assertions, 4 VisitCard-policy assertions, 38 VisitCard-transition assertions, 34 VisitCard-invalidation assertions, 31 message-creation assertions, 6 policy assertions, 11 conversation-transition assertions, and 9 delivery-transition assertions`);
+console.log(`RIO conformance PASS: ${cases.length} conversation fixtures, 20 creation assertions, 23 consent assertions, 24 consent-expiration assertions, 61 localization assertions, 29 locale-mutation assertions, 4 VisitCard-policy assertions, 38 VisitCard-transition assertions, 34 VisitCard-invalidation assertions, 31 message-creation assertions, 6 policy assertions, 11 conversation-transition assertions, and 9 delivery-transition assertions`);
