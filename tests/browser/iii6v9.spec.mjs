@@ -85,10 +85,12 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
 
   await page.evaluate(() => {
     window.resolveFileTexts = {};
+    window.rejectFileTexts = {};
     File.prototype.text = function () {
       const name = this.name;
-      return new Promise(resolve => {
+      return new Promise((resolve, reject) => {
         window.resolveFileTexts[name] = resolve;
+        window.rejectFileTexts[name] = reject;
       });
     };
   });
@@ -98,6 +100,12 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
     buffer: Buffer.from(downloadedEnvelope)
   });
   await expect.poll(() => page.evaluate(() => typeof window.resolveFileTexts['delayed.aether'])).toBe('function');
+  await page.locator('#import-file').setInputFiles({
+    name: 'rejected.aether',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(downloadedEnvelope)
+  });
+  await expect.poll(() => page.evaluate(() => typeof window.rejectFileTexts['rejected.aether'])).toBe('function');
   await page.locator('#clear-fields').click();
   await expect(page.locator('#import-file')).toHaveValue('');
   await page.locator('#import-file').setInputFiles({
@@ -113,6 +121,7 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await page.evaluate(() => window.resolveFileTexts['delayed.aether'](
     `AETHER1.${btoa('s'.repeat(16))}.${btoa('i'.repeat(12))}.${btoa('c'.repeat(16))}`
   ));
+  await page.evaluate(() => window.rejectFileTexts['rejected.aether'](new Error('superseded read')));
   await expect(page.locator('#crypto-status')).toHaveText('Encrypted file opened locally. Enter its passphrase to decrypt.');
   await expect(page.locator('#crypto-input')).toHaveValue(ciphertext);
   await expect(page.locator('#passphrase')).toHaveValue('');
