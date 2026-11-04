@@ -128,6 +128,21 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await expect(page.locator('#copy-output')).toBeDisabled();
   await expect(page.locator('#download-output')).toBeDisabled();
   await page.locator('#import-file').setInputFiles({
+    name: 'cancelled-picker.aether',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(downloadedEnvelope)
+  });
+  await expect.poll(() => page.evaluate(() => window.fileReads['cancelled-picker.aether']?.length)).toBe(1);
+  await page.locator('#import-file-button').click();
+  await page.locator('#import-file').setInputFiles([]);
+  await page.evaluate(() => window.fileReads['cancelled-picker.aether'][0].resolve(
+    `AETHER1.${btoa('x'.repeat(16))}.${btoa('y'.repeat(12))}.${btoa('z'.repeat(16))}`
+  ));
+  await expect(page.locator('#crypto-status')).toHaveText('');
+  await expect(page.locator('#crypto-input')).toHaveValue(ciphertext);
+  await expect(page.locator('#passphrase')).toHaveValue('');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await page.locator('#import-file').setInputFiles({
     name: 'clear.aether',
     mimeType: 'text/plain',
     buffer: Buffer.from(downloadedEnvelope)
