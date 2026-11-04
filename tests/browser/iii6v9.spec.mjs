@@ -83,6 +83,32 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await expect(page.locator('#crypto-output')).toHaveValue('');
   await expect(page.locator('#crypto-status')).toHaveText('');
 
+  await page.evaluate(() => {
+    window.resolveFileText = null;
+    File.prototype.text = function () {
+      return new Promise(resolve => {
+        window.resolveFileText = resolve;
+      });
+    };
+  });
+  await page.locator('#import-file').setInputFiles({
+    name: 'delayed.aether',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(downloadedEnvelope)
+  });
+  await expect.poll(() => page.evaluate(() => typeof window.resolveFileText)).toBe('function');
+  await page.locator('#clear-fields').click();
+  await page.evaluate(() => window.resolveFileText('AETHER1.invalid'));
+  await expect(page.locator('#crypto-status')).toHaveText('Input, passphrase, and output cleared from the page.');
+  await expect(page.locator('#crypto-input')).toHaveValue('');
+  await expect(page.locator('#passphrase')).toHaveValue('');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+  await page.evaluate(() => {
+    delete File.prototype.text;
+  });
+
   await page.locator('#import-file').setInputFiles({
     name: 'invalid.aether',
     mimeType: 'text/plain',

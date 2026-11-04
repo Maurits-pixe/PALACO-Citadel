@@ -368,9 +368,11 @@ importFileButton.addEventListener('click', () => {
 importFileInput.addEventListener('change', async () => {
   const file = importFileInput.files?.[0];
   if (!file) return;
+  const currentOperationId = operationId;
   try {
     if (file.size > MAX_ENVELOPE_BYTES) throw new TypeError('format');
     const envelope = (await file.text()).trim();
+    if (currentOperationId !== operationId) return;
     decodeEnvelope(envelope);
     setMode('decrypt');
     passphrase.value = '';
@@ -378,9 +380,10 @@ importFileInput.addEventListener('change', async () => {
     passphrase.focus();
     status.textContent = t('statusFileOpened');
   } catch {
+    if (currentOperationId !== operationId) return;
     status.textContent = t('errorFile');
   } finally {
-    importFileInput.value = '';
+    if (currentOperationId === operationId) importFileInput.value = '';
   }
 });
 document.querySelector('#clear-fields').addEventListener('click', () => {
