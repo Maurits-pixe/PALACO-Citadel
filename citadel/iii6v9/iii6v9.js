@@ -370,7 +370,7 @@ importFileButton.addEventListener('click', () => {
 importFileInput.addEventListener('change', async () => {
   const file = importFileInput.files?.[0];
   if (!file) return;
-  let currentOperationId = operationId;
+  let currentOperationId = ++operationId;
   try {
     if (file.size > MAX_ENVELOPE_BYTES) throw new TypeError('format');
     const envelope = (await file.text()).trim();

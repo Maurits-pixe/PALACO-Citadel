@@ -105,6 +105,25 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
     buffer: Buffer.from(downloadedEnvelope)
   });
   await expect.poll(() => page.evaluate(() => window.fileReads['rejected.aether']?.length)).toBe(1);
+  await page.evaluate(envelope => window.fileReads['rejected.aether'][0].resolve(envelope), downloadedEnvelope);
+  await expect(page.locator('#crypto-status')).toHaveText('Encrypted file opened locally. Enter its passphrase to decrypt.');
+  await expect(page.locator('#crypto-input')).toHaveValue(ciphertext);
+  await expect(page.locator('#import-file')).toHaveValue('');
+  await page.evaluate(() => window.fileReads['delayed.aether'][0].resolve(
+    `AETHER1.${btoa('s'.repeat(16))}.${btoa('i'.repeat(12))}.${btoa('c'.repeat(16))}`
+  ));
+  await expect(page.locator('#crypto-status')).toHaveText('Encrypted file opened locally. Enter its passphrase to decrypt.');
+  await expect(page.locator('#crypto-input')).toHaveValue(ciphertext);
+  await expect(page.locator('#passphrase')).toHaveValue('');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+  await page.locator('#import-file').setInputFiles({
+    name: 'rejected.aether',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(downloadedEnvelope)
+  });
+  await expect.poll(() => page.evaluate(() => window.fileReads['rejected.aether']?.length)).toBe(2);
   await page.locator('#import-file-button').click();
   await expect(page.locator('#import-file')).toHaveValue('');
   await page.locator('#import-file').setInputFiles({
@@ -112,21 +131,12 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
     mimeType: 'text/plain',
     buffer: Buffer.from(downloadedEnvelope)
   });
-  await expect.poll(() => page.evaluate(() => window.fileReads['rejected.aether']?.length)).toBe(2);
-  await page.evaluate(envelope => window.fileReads['rejected.aether'][1].resolve(envelope), downloadedEnvelope);
+  await expect.poll(() => page.evaluate(() => window.fileReads['rejected.aether']?.length)).toBe(3);
+  await page.evaluate(envelope => window.fileReads['rejected.aether'][2].resolve(envelope), downloadedEnvelope);
+  await expect(page.locator('#crypto-status')).toHaveText('Encrypted file opened locally. Enter its passphrase to decrypt.');
+  await page.evaluate(() => window.fileReads['rejected.aether'][1].reject(new Error('superseded read')));
   await expect(page.locator('#crypto-status')).toHaveText('Encrypted file opened locally. Enter its passphrase to decrypt.');
   await expect(page.locator('#crypto-input')).toHaveValue(ciphertext);
-  await expect(page.locator('#import-file')).toHaveValue('');
-  await page.evaluate(() => window.fileReads['delayed.aether'][0].resolve(
-    `AETHER1.${btoa('s'.repeat(16))}.${btoa('i'.repeat(12))}.${btoa('c'.repeat(16))}`
-  ));
-  await page.evaluate(() => window.fileReads['rejected.aether'][0].reject(new Error('superseded read')));
-  await expect(page.locator('#crypto-status')).toHaveText('Encrypted file opened locally. Enter its passphrase to decrypt.');
-  await expect(page.locator('#crypto-input')).toHaveValue(ciphertext);
-  await expect(page.locator('#passphrase')).toHaveValue('');
-  await expect(page.locator('#crypto-output')).toHaveValue('');
-  await expect(page.locator('#copy-output')).toBeDisabled();
-  await expect(page.locator('#download-output')).toBeDisabled();
   await page.locator('#import-file').setInputFiles({
     name: 'cancelled-picker.aether',
     mimeType: 'text/plain',
