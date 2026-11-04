@@ -30,7 +30,7 @@ function requireKeys(value, required, allowed, path, errors) {
     return false;
   }
   for (const key of required) {
-    if (!(key in value)) errors.push(`${path}.${key} is required`);
+    if (!Object.hasOwn(value, key)) errors.push(`${path}.${key} is required`);
   }
   for (const key of Object.keys(value)) {
     if (!allowed.includes(key)) errors.push(`${path}.${key} is unknown`);

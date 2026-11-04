@@ -76,6 +76,31 @@ const expectInvalid = (name, value) => cases.push({ name, expected: false, error
 
 expectValid("canonical active conversation", clone());
 
+const inheritedFieldCases = [
+  ["root consent context", value => value, "permissions", "$.permissions"],
+  ["conversation identity", value => value, "conversation_id", "$.conversation_id"],
+  ["participant identity", value => value.participants[0], "identity_ref", "$.participants[0].identity_ref"],
+  ["endpoint status", value => value.participants[0].endpoints[0], "status", "$.participants[0].endpoints[0].status"],
+  ["consent state", value => value.permissions, "consent_state", "$.permissions.consent_state"],
+  ["authority boundary", value => value.permissions, "authority_effect", "$.permissions.authority_effect"],
+  ["provenance event", value => value.provenance[0], "event", "$.provenance[0].event"],
+  ["locale direction", value => value.locale, "direction", "$.locale.direction"]
+];
+for (const [name, select, key, path] of inheritedFieldCases) {
+  const value = clone();
+  const target = select(value);
+  Object.setPrototypeOf(target, { [key]: target[key] });
+  delete target[key];
+  expectInvalid(`inherited ${name}`, value);
+  assert.ok(validateConversation(value).includes(`${path} is required`), `${name} must be present on the record itself`);
+}
+
+const nullPrototypeConversation = clone();
+Object.setPrototypeOf(nullPrototypeConversation, null);
+Object.setPrototypeOf(nullPrototypeConversation.permissions, null);
+expectValid("own fields on null-prototype records", nullPrototypeConversation);
+expectValid("JSON round-trip conversation", JSON.parse(JSON.stringify(validConversation)));
+
 const missingProvenance = clone();
 missingProvenance.provenance = [];
 expectInvalid("missing provenance", missingProvenance);

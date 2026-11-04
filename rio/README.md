@@ -27,6 +27,11 @@ Where this implementation profile and a higher active source conflict, the highe
 - `runtime.mjs` exports conversation validation and fail-closed transition checks.
 - `conformance.mjs` tests the runtime with positive and negative fixtures without external dependencies.
 
+Required record fields must be own properties; inherited prototype values cannot
+satisfy the conversation contract. Ordinary JSON records and null-prototype
+records with their own required fields remain supported. Status translation also
+accepts only string identifiers found directly in the locale dictionaries.
+
 ## Boundaries
 
 - Communication, presence, membership, connectivity, delivery, and acknowledgement do not create authority.
