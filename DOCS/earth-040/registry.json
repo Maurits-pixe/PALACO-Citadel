@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "earth-042.1",
+  "worldId": "W-0001",
+  "status": "DEMONSTRATION_ONLY",
+  "sourceStatus": "UNKNOWN",
+  "features": [
+    {
+      "id": "nature",
+      "title": "Nature",
+      "description": "Natuurlijke systemen en ecologie"
+    },
+    {
+      "id": "humanity",
+      "title": "Humanity",
+      "description": "Menselijke gemeenschappen"
+    },
+    {
+      "id": "knowledge",
+      "title": "Knowledge",
+      "description": "Onderzoek en leren"
+    },
+    {
+      "id": "peace",
+      "title": "Peace",
+      "description": "Vrede op Aarde"
+    }
+  ],
+  "regions": [
+    {
+      "id": "north-america",
+      "name": "Noord-Amerika"
+    },
+    {
+      "id": "south-america",
+      "name": "Zuid-Amerika"
+    },
+    {
+      "id": "europe",
+      "name": "Europa"
+    },
+    {
+      "id": "africa",
+      "name": "Afrika"
+    },
+    {
+      "id": "asia",
+      "name": "Azië"
+    },
+    {
+      "id": "oceania",
+      "name": "Oceanië"
+    }
+  ],
+  "worlds": [
+    {
+      "id": "W-0001",
+      "name": "EARTH"
+    },
+    {
+      "id": "W-0002",
+      "name": "PLUTO"
+    },
+    {
+      "id": "W-0003",
+      "name": "EVA"
+    },
+    {
+      "id": "W-0004",
+      "name": "RIO"
+    },
+    {
+      "id": "W-0005",
+      "name": "PALACO"
+    },
+    {
+      "id": "W-0006",
+      "name": "6IO"
+    },
+    {
+      "id": "W-0007",
+      "name": "E9O"
+    }
+  ]
+}

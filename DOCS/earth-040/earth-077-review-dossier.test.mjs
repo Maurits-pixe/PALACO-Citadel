@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {assessGISReviewDossier} from './earth-077-review-dossier.mjs';
+const hash='a'.repeat(64), other='b'.repeat(64);
+const complete={source:{sha256:hash},conversion:{sourceSHA256:hash,outputSHA256:other,rendererCompatible:true},review:{decision:'ACCEPT',reviewerId:'reviewer-1',evidenceRef:'review-001'}};
+test('missing dossier is HOLD',()=>assert.deepEqual(assessGISReviewDossier(null),{status:'HOLD',reasons:['DOSSIER_MISSING']}));
+test('mismatched source digest is HOLD',()=>assert.ok(assessGISReviewDossier({...complete,conversion:{...complete.conversion,sourceSHA256:other}}).reasons.includes('SOURCE_HASH_MISMATCH')));
+test('incompatible topology is HOLD',()=>assert.ok(assessGISReviewDossier({...complete,conversion:{...complete.conversion,rendererCompatible:false}}).reasons.includes('TOPOLOGY_NOT_CONFIRMED')));
+test('missing reviewer is HOLD',()=>assert.ok(assessGISReviewDossier({...complete,review:null}).reasons.includes('REVIEW_NOT_DOCUMENTED')));
+test('fabricated complete metadata never constitutes cryptographic authorization',()=>assert.deepEqual(assessGISReviewDossier(complete),{status:'HOLD',reasons:['INDEPENDENT_SIGNATURE_VERIFICATION_REQUIRED']}));

@@ -1,0 +1,42 @@
+name: EARTH-093 Concurrent PostgreSQL QA
+on:
+  pull_request:
+    paths:
+      - 'DOCS/earth-040/earth-089-audit-schema.sql'
+      - 'DOCS/earth-040/earth-090-atomic-append.sql'
+      - 'DOCS/earth-040/earth-093-concurrency.py'
+      - '.github/workflows/earth-093-concurrency.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  concurrent-writers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: earth_ci
+          POSTGRES_PASSWORD: earth_ci_ephemeral
+          POSTGRES_DB: earth_audit_ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U earth_ci -d earth_audit_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: earth_ci
+      PGPASSWORD: earth_ci_ephemeral
+      PGDATABASE: earth_audit_ci
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install schema and function
+        run: |
+          psql -X -v ON_ERROR_STOP=1 -f DOCS/earth-040/earth-089-audit-schema.sql
+          psql -X -v ON_ERROR_STOP=1 -f DOCS/earth-040/earth-090-atomic-append.sql
+      - name: Two independent connections race for one checkpoint
+        run: python3 DOCS/earth-040/earth-093-concurrency.py

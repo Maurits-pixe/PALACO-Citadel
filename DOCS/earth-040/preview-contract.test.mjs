@@ -1,0 +1,10 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync,existsSync} from "node:fs";
+const read=p=>readFileSync(new URL(p,import.meta.url),"utf8");
+test("living globe links to atlas",()=>assert.match(read("./index.html"),/href="atlas\.html"/));
+test("atlas imports geo engine and data",()=>{const s=read("./atlas.html");assert.match(s,/geo-engine\.mjs/);assert.match(s,/geo-demo\.json/);assert.match(s,/setAttribute\("role","alert"\)/)});
+test("geo assets exist",()=>{for(const p of ["./geo-engine.mjs","./geo-demo.json","./registry.json","./atlas.html"])assert.equal(existsSync(new URL(p,import.meta.url)),true)});
+test("no runtime credentials in preview files",()=>{for(const p of ["./index.html","./atlas.html","./geo-engine.mjs"]){const s=read(p);assert.doesNotMatch(s,/service_role|SUPABASE_SERVICE_ROLE_KEY|sk_live_/i)}});
+test("read-only preview claims visible",()=>{assert.match(read("./index.html"),/READ ONLY/);assert.match(read("./atlas.html"),/READ ONLY/)});
+test("atlas has keyboard selection handlers",()=>assert.match(read("./atlas.html"),/keydown/));

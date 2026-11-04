@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {generateKeyPairSync} from 'node:crypto';
+import {evaluateKeyBoundPromotion,reviewerKeyFingerprint} from './earth-082-reviewer-key-binding.mjs';
+const key=()=>generateKeyPairSync('ed25519').publicKey.export({type:'spki',format:'pem'});
+const pem=key(),different=key();
+const registry=new Map([['alice',{active:true,revoked:false,validFromEpoch:2,roles:['GIS_SOURCE_REVIEWER'],keyFingerprint:reviewerKeyFingerprint(pem)}],['bob',{active:true,revoked:false,validFromEpoch:2,roles:['GIS_RELEASE_APPROVER']}]]);
+const valid={cryptographicResult:{status:'CRYPTOGRAPHICALLY_VERIFIED'},sourceReview:{decision:'ACCEPT',independent:true,recordId:'SRC-1',reviewerId:'alice'},releaseReview:{decision:'APPROVE',authorized:true,recordId:'REL-1',reviewerId:'bob'},registry,trustedEpoch:3,minimumAcceptedEpoch:3,trustAnchors:new Map([['alice',pem]])};
+test('matching trusted key and registered fingerprint permits manual review',()=>assert.equal(evaluateKeyBoundPromotion(valid).status,'ELIGIBLE_FOR_MANUAL_PROMOTION'));
+test('different key for same reviewer name is blocked',()=>assert.ok(evaluateKeyBoundPromotion({...valid,trustAnchors:new Map([['alice',different]])}).reasons.includes('SOURCE_REVIEWER_KEY_BINDING_INVALID')));
+test('missing trust anchor is blocked',()=>assert.equal(evaluateKeyBoundPromotion({...valid,trustAnchors:new Map()}).status,'HOLD'));
+test('missing registered fingerprint is blocked',()=>{const r=new Map(registry);r.set('alice',{...r.get('alice'),keyFingerprint:undefined});assert.equal(evaluateKeyBoundPromotion({...valid,registry:r}).status,'HOLD')});
+test('revoked reviewer stays blocked even with valid key binding',()=>{const r=new Map(registry);r.set('alice',{...r.get('alice'),revoked:true});assert.ok(evaluateKeyBoundPromotion({...valid,registry:r}).reasons.includes('REVIEWER_REVOKED'))});

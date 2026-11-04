@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {generateKeyPairSync,sign} from 'node:crypto';
+import {signatureMessage,verifySignatureEnvelope,EARTH110_PROTOCOL} from './earth-110-signature-envelope.mjs';
+const {publicKey,privateKey}=generateKeyPairSync('ed25519');
+const digest='a'.repeat(64),keyId='reviewer-key-1';
+const signature=sign(null,signatureMessage(digest),privateKey).toString('base64');
+const envelope={protocol:EARTH110_PROTOCOL,keyId,signature};
+const base={receiptHash:digest,envelope,trustAnchors:new Map([[keyId,publicKey.export({type:'spki',format:'pem'})]]),revokedKeys:new Set()};
+assert.equal(verifySignatureEnvelope(base).status,'SIGNATURE_MATCH');
+assert.equal(verifySignatureEnvelope({...base,revokedKeys:new Set([keyId])}).status,'HOLD');
+assert.equal(verifySignatureEnvelope({...base,receiptHash:'b'.repeat(64)}).status,'HOLD');
+assert.equal(verifySignatureEnvelope({...base,envelope:{...envelope,protocol:'OTHER'}}).status,'HOLD');
+assert.equal(verifySignatureEnvelope({...base,envelope:{...envelope,keyId:'other'}}).status,'HOLD');
+assert.equal(verifySignatureEnvelope({...base,envelope:{...envelope,signature:'A'.repeat(86)+'=='}}).status,'HOLD');
+assert.notDeepEqual(signatureMessage(digest),Buffer.from(digest,'hex'));
+console.log('EARTH-110 domain-separated signature envelope PASS');

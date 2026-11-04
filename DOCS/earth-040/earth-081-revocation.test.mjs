@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {evaluateCurrentPromotion} from './earth-081-revocation.mjs';
+const registry=new Map([['alice',{active:true,revoked:false,validFromEpoch:2,roles:['GIS_SOURCE_REVIEWER']}],['bob',{active:true,revoked:false,validFromEpoch:2,roles:['GIS_RELEASE_APPROVER']}]]);
+const valid={cryptographicResult:{status:'CRYPTOGRAPHICALLY_VERIFIED'},sourceReview:{decision:'ACCEPT',independent:true,recordId:'SRC-1',reviewerId:'alice'},releaseReview:{decision:'APPROVE',authorized:true,recordId:'REL-1',reviewerId:'bob'},registry,trustedEpoch:3,minimumAcceptedEpoch:3};
+test('current epoch and reviewers only permit manual promotion',()=>assert.equal(evaluateCurrentPromotion(valid).status,'ELIGIBLE_FOR_MANUAL_PROMOTION'));
+test('rollback epoch is rejected',()=>assert.ok(evaluateCurrentPromotion({...valid,trustedEpoch:2}).reasons.includes('STALE_OR_UNTRUSTED_REGISTRY_EPOCH')));
+test('revoked reviewer is rejected even if active flag remains true',()=>{const x=new Map(registry);x.set('alice',{...registry.get('alice'),revoked:true});assert.ok(evaluateCurrentPromotion({...valid,registry:x}).reasons.includes('REVIEWER_REVOKED'))});
+test('future registration cannot authorize earlier epoch',()=>{const x=new Map(registry);x.set('bob',{...registry.get('bob'),validFromEpoch:4});assert.ok(evaluateCurrentPromotion({...valid,registry:x}).reasons.includes('REVIEWER_EPOCH_INVALID'))});
+test('missing independent epoch floor is rejected',()=>assert.equal(evaluateCurrentPromotion({...valid,minimumAcceptedEpoch:undefined}).status,'HOLD'));

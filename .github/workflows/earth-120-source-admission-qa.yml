@@ -1,0 +1,19 @@
+name: EARTH-120 Source Admission QA
+on:
+  pull_request:
+  push:
+    branches:
+      - feature/earth-040-world-registry
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python DOCS/earth-040/earth-120-source-admission.test.py

@@ -1,0 +1,59 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EARTH-041 · Atlas</title><style>
+:root{font-family:system-ui,sans-serif;color-scheme:dark;background:#061524;color:#e8f7ff}body{margin:0}header,main,footer{max-width:1120px;margin:auto;padding:20px}header{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}a{color:#8de7f3}button,select{background:#123950;color:white;border:1px solid #71b4ca;border-radius:9px;padding:10px;margin:3px;cursor:pointer}button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid #ffdd88;outline-offset:2px}.panel{border:1px solid #36586a;background:#0c2639;border-radius:18px;padding:18px;margin:15px 0}.layout{display:grid;grid-template-columns:minmax(0,2fr) minmax(230px,1fr);gap:18px}svg{width:100%;height:auto;background:#0b3551;border-radius:15px}svg[hidden]{display:none!important}.land{fill:#439b7d;stroke:#a7dcc0;stroke-width:1;cursor:pointer}.land:focus{outline:none;stroke:#fff2a8;stroke-width:4}.land[aria-selected=true]{fill:#e4b65d}.muted{color:#a9c5d4}.chip{font-size:.85rem;color:#9de6d7}#grid{pointer-events:none}#grid line{stroke:#e6faff;stroke-opacity:.15;stroke-width:.6}@media(max-width:750px){.layout{grid-template-columns:1fr}}</style></head><body>
+<header><strong>PALACO · EARTH / W-0001</strong><nav><a href="./index.html">Living Globe</a> · <a href="#atlas">Atlas</a> · <a href="#worlds">Werelden</a></nav></header>
+<main><p class="chip">EARTH-041 · LOCAL PREVIEW · READ ONLY · NO ACCOUNT</p><h1>World Atlas</h1><p class="muted">Schematische vectorwereldkaart voor navigatieproeven. Geen geografisch nauwkeurige landgrenzen of operationele GIS-data.</p>
+<div class="layout"><section class="panel" id="atlas"><h2>Interactieve wereldkaart</h2><svg viewBox="0 0 800 440" role="group" aria-label="Schematische wereldkaart met zes selecteerbare regio's"><defs><pattern id="ocean" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M0 40L40 0" stroke="#1c6685" stroke-width=".5"/></pattern></defs><rect width="800" height="440" fill="url(#ocean)"/><g id="grid"></g><g id="continents">
+<path class="land" tabindex="0" role="button" aria-label="Noord-Amerika" data-id="north-america" d="M65 82 L140 43 227 63 256 104 220 138 198 193 154 218 117 166 83 155Z"/>
+<path class="land" tabindex="0" role="button" aria-label="Zuid-Amerika" data-id="south-america" d="M206 225 L268 236 291 281 273 330 239 402 210 370 193 303Z"/>
+<path class="land" tabindex="0" role="button" aria-label="Europa" data-id="europe" d="M367 95 L420 77 460 112 434 148 391 148 365 128Z"/>
+<path class="land" tabindex="0" role="button" aria-label="Afrika" data-id="africa" d="M365 162 L438 158 476 214 452 292 410 338 376 281 348 214Z"/>
+<path class="land" tabindex="0" role="button" aria-label="Azië" data-id="asia" d="M453 73 L565 41 691 77 731 131 669 169 630 216 566 183 514 147 464 157Z"/>
+<path class="land" tabindex="0" role="button" aria-label="Oceanië" data-id="oceania" d="M627 288 L694 275 748 314 720 355 658 347 624 319Z"/>
+</g></svg><label for="scale">Kaartindeling</label><select id="scale"><option value="4">4×4</option><option value="12" selected>12×8</option><option value="4444">4444×4444 (virtuele schaal)</option></select><p id="scale-note" class="muted">12×8 overlay; geen echte geografische tegels.</p></section>
+<aside class="panel"><h2 id="region">Selecteer een regio</h2><p id="details" aria-live="polite">Kies een continent op de kaart met muis, aanraking of toetsenbord.</p><p class="muted">Objectstatus: demonstratiegegevens, niet canoniek.</p><button id="clear">Selectie wissen</button><h3>Wereldgeheugen</h3><p id="memory" class="chip">Sessiegebonden selectie; geen serveropslag.</p></aside></div>
+<section class="panel" id="physical-layer"><h2>Fysieke kaartlaag · broncontrole</h2><p id="physical-status" role="status" aria-live="polite">Controle wordt uitgevoerd…</p><svg id="physical-preview" viewBox="0 0 900 450" aria-label="Fysieke kaartlaag alleen na onafhankelijke toelating" hidden><g id="physical-paths"></g></svg><p class="muted">Deze laag is afzonderlijk van de schematische demonstratiekaart. Een conversierapport is geen bronautorisatie.</p></section>
+<section class="panel" id="worlds"><h2>Universe Navigation</h2><p>Bekende PALACO-wereldlabels, zonder veronderstelde actieve bestemmingen:</p><div id="world-buttons"></div><p id="world-detail" aria-live="polite" class="muted">Selecteer een wereld voor de registerinformatie.</p></section>
+<section class="panel"><h2>Verificatiegrens</h2><p>Alle interacties zijn uitsluitend lokale UI-state. Geen accounttoegang, wereldmutatie, Supabase-koppeling, geolocatie, auditreceipt of OR6IT-runtime. De W-0001-bronbinding blijft UNKNOWN totdat bewijs is bevestigd.</p></section></main><footer class="muted">EARTH-041 · Ontwikkelcandidate · Geen productieomgeving</footer>
+<script>
+"use strict";
+const regions={"north-america":"Noord-Amerika","south-america":"Zuid-Amerika",europe:"Europa",africa:"Afrika",asia:"Azië",oceania:"Oceanië"};
+const worlds=[["W-0001","EARTH"],["W-0002","PLUTO 🦆"],["W-0003","EVA"],["W-0004","RIO"],["W-0005","PALACO"],["W-0006","6IO"],["W-0007","E9O"]];
+function choose(id){document.querySelectorAll(".land").forEach(x=>x.setAttribute("aria-selected",String(x.dataset.id===id)));document.getElementById("region").textContent=id?regions[id]:"Selecteer een regio";document.getElementById("details").textContent=id?"Atlasobject: "+regions[id]+". Geen onderliggende geverifieerde objectdata.":"Kies een continent op de kaart met muis, aanraking of toetsenbord.";document.getElementById("memory").textContent=id?"Actieve sessieselectie: "+regions[id]:"Geen actieve selectie. Geen serveropslag."}
+document.querySelectorAll(".land").forEach(x=>{x.setAttribute("aria-selected","false");x.addEventListener("click",()=>choose(x.dataset.id));x.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();choose(x.dataset.id)}})});
+document.getElementById("clear").addEventListener("click",()=>choose(null));
+const grid=document.getElementById("grid");const ns="http://www.w3.org/2000/svg";function drawGrid(v){grid.replaceChildren();let cols=v==="4"?4:v==="12"?12:24,rows=v==="4"?4:v==="12"?8:16;for(let i=1;i<cols;i++){let l=document.createElementNS(ns,"line");l.setAttribute("x1",800*i/cols);l.setAttribute("x2",800*i/cols);l.setAttribute("y1",0);l.setAttribute("y2",440);grid.append(l)}for(let j=1;j<rows;j++){let l=document.createElementNS(ns,"line");l.setAttribute("x1",0);l.setAttribute("x2",800);l.setAttribute("y1",440*j/rows);l.setAttribute("y2",440*j/rows);grid.append(l)}document.getElementById("scale-note").textContent=v==="4444"?"4444×4444 is virtueel; vereenvoudigde 24×16 overlay voor prestaties.":v==="4"?"4×4 overlay; geen echte geografische tegels.":"12×8 overlay; geen echte geografische tegels."}
+document.getElementById("scale").addEventListener("change",e=>drawGrid(e.target.value));drawGrid("12");
+const box=document.getElementById("world-buttons");worlds.forEach(([id,name])=>{let b=document.createElement("button");b.textContent=id+" · "+name;b.addEventListener("click",()=>{document.getElementById("world-detail").textContent=id+" · "+name+" — registerlabel, geen geverifieerde navigatiebestemming."});box.append(b)});
+</script>
+<script type="module">
+import {loadDemoGeoJSON,polygonPath} from "./geo-engine.mjs";
+try {
+ const collection=await loadDemoGeoJSON("./geo-demo.json");
+ const shapes=new Map(collection.features.map(f=>[f.properties.id,f]));
+ for(const element of document.querySelectorAll(".land")){
+  const feature=shapes.get(element.dataset.id);
+  if(!feature)throw new Error("missing region");
+  element.setAttribute("d",polygonPath(feature));
+ }
+ const note=document.createElement("p");note.className="muted";note.textContent="EARTH-043: SVG-regio's geladen uit gevalideerde demonstratie-GeoJSON. Geen officiële kustlijnen.";
+ document.getElementById("atlas").append(note);
+} catch(error) {
+ const note=document.createElement("p");note.setAttribute("role","alert");note.textContent="GeoJSON niet beschikbaar; bestaande schematische kaart blijft zichtbaar.";
+ document.getElementById("atlas").append(note);
+}
+</script>
+<script type="module">
+import {physicalLayerMarkup} from './earth-072-layer-controller.mjs';
+// No physical dataset is shipped with this preview. Absence must fail closed.
+const result=physicalLayerMarkup({dataset:null,evidence:null,sourceApproved:false});
+const status=document.getElementById('physical-status');
+const svg=document.getElementById('physical-preview');
+if(result.state.status==='READY'){
+ document.getElementById('physical-paths').innerHTML=result.markup;
+ svg.hidden=false;
+ status.textContent='Fysieke kaartlaag toegelaten.';
+}else{
+ svg.hidden=true;
+ status.textContent=result.state.message;
+}
+</script></body></html>

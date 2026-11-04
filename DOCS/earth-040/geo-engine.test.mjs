@@ -1,0 +1,13 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import {validateCollection,projectPoint,polygonPath,loadDemoGeoJSON} from "./geo-engine.mjs";
+const data=JSON.parse(readFileSync(new URL("./geo-demo.json",import.meta.url),"utf8"));
+test("six valid demonstration regions",()=>assert.equal(validateCollection(data).features.length,6));
+test("reject duplicate region",()=>{const d=structuredClone(data);d.features[1].properties.id=d.features[0].properties.id;assert.throws(()=>validateCollection(d))});
+test("reject unsupported provenance",()=>{const d=structuredClone(data);d.metadata.geographicAccuracy="VERIFIED";assert.throws(()=>validateCollection(d))});
+test("reject out of range coordinates",()=>{const d=structuredClone(data);d.features[0].geometry.coordinates[0][0][0]=200;assert.throws(()=>validateCollection(d))});
+test("project endpoints",()=>{assert.deepEqual(projectPoint([-180,90]),[0,0]);assert.deepEqual(projectPoint([180,-90]),[800,440])});
+test("generate safe svg path",()=>assert.match(polygonPath(data.features[0]),/^M[\d.]+ [\d.]+/));
+test("reject failed fetch",async()=>await assert.rejects(loadDemoGeoJSON("x",async()=>({ok:false}))));
+test("load valid demo collection",async()=>assert.equal((await loadDemoGeoJSON("x",async()=>({ok:true,json:async()=>data}))).features.length,6));

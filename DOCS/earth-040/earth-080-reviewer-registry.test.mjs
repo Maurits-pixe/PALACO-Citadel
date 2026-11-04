@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {evaluateRegisteredPromotion} from './earth-080-reviewer-registry.mjs';
+const valid={cryptographicResult:{status:'CRYPTOGRAPHICALLY_VERIFIED'},sourceReview:{decision:'ACCEPT',independent:true,recordId:'SRC-1',reviewerId:'alice'},releaseReview:{decision:'APPROVE',authorized:true,recordId:'REL-1',reviewerId:'bob'}};
+const registry=new Map([['alice',{active:true,roles:['GIS_SOURCE_REVIEWER']}],['bob',{active:true,roles:['GIS_RELEASE_APPROVER']}]]);
+test('unregistered reviewers cannot promote',()=>assert.equal(evaluateRegisteredPromotion({...valid,registry:new Map()}).status,'HOLD'));
+test('inactive reviewer cannot promote',()=>assert.ok(evaluateRegisteredPromotion({...valid,registry:new Map([['alice',{active:false,roles:['GIS_SOURCE_REVIEWER']}],['bob',{active:true,roles:['GIS_RELEASE_APPROVER']}]])}).reasons.includes('SOURCE_REVIEWER_NOT_AUTHORIZED')));
+test('wrong role cannot promote',()=>assert.ok(evaluateRegisteredPromotion({...valid,registry:new Map([['alice',{active:true,roles:['GIS_RELEASE_APPROVER']}],['bob',{active:true,roles:['GIS_RELEASE_APPROVER']}]])}).reasons.includes('SOURCE_REVIEWER_NOT_AUTHORIZED')));
+test('missing trusted registry cannot promote',()=>assert.ok(evaluateRegisteredPromotion(valid).reasons.includes('TRUSTED_REGISTRY_REQUIRED')));
+test('registered distinct reviewers only qualify for manual promotion',()=>assert.equal(evaluateRegisteredPromotion({...valid,registry}).status,'ELIGIBLE_FOR_MANUAL_PROMOTION'));

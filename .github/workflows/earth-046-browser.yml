@@ -1,0 +1,26 @@
+name: EARTH-046 Browser QA
+on:
+  pull_request:
+    paths:
+      - 'DOCS/earth-040/**'
+      - '.github/workflows/earth-046-browser.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright browser
+        run: |
+          npm install --no-save @playwright/test@1.58.2
+          npx playwright install --with-deps chromium
+      - name: Run local HTTP preview and browser tests
+        run: |
+          python3 -m http.server 8765 --directory DOCS/earth-040 > /tmp/earth-http.log 2>&1 &
+          npx playwright test DOCS/earth-040/browser.spec.mjs --config=DOCS/earth-040/playwright.config.mjs

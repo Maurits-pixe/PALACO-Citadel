@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {canonicalTrustRegistry} from './earth-117-canonical-registry.mjs';
+const pem='-----BEGIN PUBLIC KEY-----\\nplaceholder\\n-----END PUBLIC KEY-----';
+const s={epoch:3,expiresAtEpoch:5,checkpoint:{length:1,headHash:'a'.repeat(64)},trustAnchors:new Map([['key-b',pem],['key-a',pem]]),revokedReviewers:new Set(['reviewer-z','reviewer-a']),revokedKeys:new Set(['key-z','key-a'])};
+const t={...s,trustAnchors:new Map([...s.trustAnchors].reverse()),revokedReviewers:new Set([...s.revokedReviewers].reverse()),revokedKeys:new Set([...s.revokedKeys].reverse())};
+assert.equal(canonicalTrustRegistry(s),canonicalTrustRegistry(t));
+assert.notEqual(canonicalTrustRegistry(s),canonicalTrustRegistry({...s,revokedKeys:new Set()}));
+assert.notEqual(canonicalTrustRegistry(s),canonicalTrustRegistry({...s,trustAnchors:new Map([['key-a',pem]])}));
+assert.throws(()=>canonicalTrustRegistry({...s,trustAnchors:new Map([['0',pem]])}));
+assert.throws(()=>canonicalTrustRegistry({...s,revokedReviewers:new Set(['bad key'])}));
+console.log('EARTH-117 registry canonicalization PASS');
