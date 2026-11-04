@@ -336,10 +336,13 @@ document.querySelector('#crypto-form').addEventListener('submit', processText);
 encryptModeButton.addEventListener('click', () => setMode('encrypt'));
 decryptModeButton.addEventListener('click', () => setMode('decrypt'));
 copyButton.addEventListener('click', async () => {
+  const currentOperationId = operationId;
   try {
     await navigator.clipboard.writeText(output.value);
+    if (currentOperationId !== operationId) return;
     status.textContent = t('statusCopied');
   } catch {
+    if (currentOperationId !== operationId) return;
     status.textContent = t('errorCopy');
   }
 });

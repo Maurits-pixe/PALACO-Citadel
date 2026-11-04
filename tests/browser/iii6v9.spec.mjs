@@ -46,7 +46,28 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   expect(downloadedEnvelope).not.toContain(plaintext);
   expect(downloadedEnvelope).not.toContain(passphrase);
 
+  await page.evaluate(() => {
+    window.resolveClipboardWrite = null;
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: {
+        writeText: () => new Promise(resolve => {
+          window.resolveClipboardWrite = resolve;
+        })
+      }
+    });
+  });
+  await page.locator('#copy-output').click();
+  await expect.poll(() => page.evaluate(() => typeof window.resolveClipboardWrite)).toBe('function');
+  await page.locator('#clear-fields').click();
+  await page.evaluate(() => window.resolveClipboardWrite());
+  await expect(page.locator('#crypto-status')).toHaveText('Input, passphrase, and output cleared from the page.');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+
   await page.locator('#crypto-input').fill('superseded by file picker');
+  await page.locator('#passphrase').fill(passphrase);
   await page.locator('#crypto-form button[type="submit"]').click();
   await expect(page.locator('#crypto-status')).toHaveText('Processing locally…');
   await expect(page.locator('#crypto-form button[type="submit"]')).toBeDisabled();
