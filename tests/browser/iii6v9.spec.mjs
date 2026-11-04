@@ -84,10 +84,10 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await expect(page.locator('#crypto-status')).toHaveText('');
 
   await page.evaluate(() => {
-    window.resolveFileText = null;
+    window.resolveFileTexts = {};
     File.prototype.text = function () {
       return new Promise(resolve => {
-        window.resolveFileText = resolve;
+        window.resolveFileTexts[this.name] = resolve;
       });
     };
   });
@@ -96,12 +96,23 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
     mimeType: 'text/plain',
     buffer: Buffer.from(downloadedEnvelope)
   });
-  await expect.poll(() => page.evaluate(() => typeof window.resolveFileText)).toBe('function');
+  await expect.poll(() => page.evaluate(() => typeof window.resolveFileTexts['delayed.aether'])).toBe('function');
   await page.locator('#clear-fields').click();
   await expect(page.locator('#import-file')).toHaveValue('');
-  await page.evaluate(() => window.resolveFileText('AETHER1.invalid'));
-  await expect(page.locator('#crypto-status')).toHaveText('Input, passphrase, and output cleared from the page.');
-  await expect(page.locator('#crypto-input')).toHaveValue('');
+  await page.locator('#import-file').setInputFiles({
+    name: 'current.aether',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(downloadedEnvelope)
+  });
+  await expect.poll(() => page.evaluate(() => typeof window.resolveFileTexts['current.aether'])).toBe('function');
+  await page.evaluate(envelope => window.resolveFileTexts['current.aether'](envelope), downloadedEnvelope);
+  await expect(page.locator('#crypto-status')).toHaveText('Encrypted file opened locally. Enter its passphrase to decrypt.');
+  await expect(page.locator('#crypto-input')).toHaveValue(ciphertext);
+  await page.evaluate(() => window.resolveFileTexts['delayed.aether'](
+    `AETHER1.${btoa('s'.repeat(16))}.${btoa('i'.repeat(12))}.${btoa('c'.repeat(16))}`
+  ));
+  await expect(page.locator('#crypto-status')).toHaveText('Encrypted file opened locally. Enter its passphrase to decrypt.');
+  await expect(page.locator('#crypto-input')).toHaveValue(ciphertext);
   await expect(page.locator('#passphrase')).toHaveValue('');
   await expect(page.locator('#crypto-output')).toHaveValue('');
   await expect(page.locator('#copy-output')).toBeDisabled();
