@@ -368,13 +368,14 @@ importFileButton.addEventListener('click', () => {
 importFileInput.addEventListener('change', async () => {
   const file = importFileInput.files?.[0];
   if (!file) return;
-  const currentOperationId = operationId;
+  let currentOperationId = operationId;
   try {
     if (file.size > MAX_ENVELOPE_BYTES) throw new TypeError('format');
     const envelope = (await file.text()).trim();
     if (currentOperationId !== operationId) return;
     decodeEnvelope(envelope);
     setMode('decrypt');
+    currentOperationId = operationId;
     passphrase.value = '';
     input.value = envelope;
     passphrase.focus();

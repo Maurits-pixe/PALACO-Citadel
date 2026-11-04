@@ -86,8 +86,9 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await page.evaluate(() => {
     window.resolveFileTexts = {};
     File.prototype.text = function () {
+      const name = this.name;
       return new Promise(resolve => {
-        window.resolveFileTexts[this.name] = resolve;
+        window.resolveFileTexts[name] = resolve;
       });
     };
   });
@@ -108,6 +109,7 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await page.evaluate(envelope => window.resolveFileTexts['current.aether'](envelope), downloadedEnvelope);
   await expect(page.locator('#crypto-status')).toHaveText('Encrypted file opened locally. Enter its passphrase to decrypt.');
   await expect(page.locator('#crypto-input')).toHaveValue(ciphertext);
+  await expect(page.locator('#import-file')).toHaveValue('');
   await page.evaluate(() => window.resolveFileTexts['delayed.aether'](
     `AETHER1.${btoa('s'.repeat(16))}.${btoa('i'.repeat(12))}.${btoa('c'.repeat(16))}`
   ));
