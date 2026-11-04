@@ -363,6 +363,7 @@ importFileButton.addEventListener('click', () => {
   copyButton.disabled = true;
   downloadButton.disabled = true;
   status.textContent = '';
+  importFileInput.value = '';
   importFileInput.click();
 });
 importFileInput.addEventListener('change', async () => {
