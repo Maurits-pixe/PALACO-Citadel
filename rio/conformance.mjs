@@ -101,6 +101,33 @@ Object.setPrototypeOf(nullPrototypeConversation.permissions, null);
 expectValid("own fields on null-prototype records", nullPrototypeConversation);
 expectValid("JSON round-trip conversation", JSON.parse(JSON.stringify(validConversation)));
 
+for (const state of ["CONNECTED", "ACTIVE", "RESUMED"]) {
+  for (const malformed of [null, 42, "invalid", {}, []]) {
+    for (const field of ["participants", "participant", "endpoints", "endpoint"]) {
+      const value = clone();
+      value.current_state = state;
+      if (field === "participants") value.participants = malformed;
+      if (field === "participant") value.participants[0] = malformed;
+      if (field === "endpoints") value.participants[0].endpoints = malformed;
+      if (field === "endpoint") value.participants[0].endpoints[0] = malformed;
+      const snapshot = structuredClone(value);
+      expectInvalid(`malformed ${field} in ${state}: ${JSON.stringify(malformed)}`, value);
+      assert.equal(transitionConversation(value, "PAUSED", null).ok, false, "malformed source cannot transition");
+      assert.equal(setConversationLocale(value, "en", null).ok, false, "malformed source cannot change locale");
+      assert.equal(sendMessage(value, null, null).ok, false, "malformed source cannot send a message");
+      assert.deepEqual(value, snapshot, "invalid source must not be mutated");
+    }
+  }
+}
+for (const kind of ["BRIDGE", "HANDOFF"]) {
+  for (const malformed of [null, 42, "invalid", {}]) {
+    const value = clone();
+    value.context.kind = kind;
+    value.permissions.allowed_actions = malformed;
+    expectInvalid(`malformed permissions for ${kind}: ${JSON.stringify(malformed)}`, value);
+  }
+}
+
 const missingProvenance = clone();
 missingProvenance.provenance = [];
 expectInvalid("missing provenance", missingProvenance);

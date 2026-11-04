@@ -166,6 +166,10 @@ export function validateConversation(conversation) {
     });
   }
 
+  // Relational checks below require the field shapes validated above.
+  // Reject malformed records before dereferencing participants or permissions.
+  if (errors.length > 0) return errors;
+
   if (["CONNECTED", "ACTIVE", "RESUMED"].includes(conversation.current_state)) {
     if (conversation.permissions?.consent_state !== "GRANTED") errors.push("connected state requires granted consent");
     for (const participant of conversation.participants ?? []) {

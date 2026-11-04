@@ -31,6 +31,9 @@ Required record fields must be own properties; inherited prototype values cannot
 satisfy the conversation contract. Ordinary JSON records and null-prototype
 records with their own required fields remain supported. Status translation also
 accepts only string identifiers found directly in the locale dictionaries.
+Malformed record shapes are rejected before connected-state and routing checks;
+validation returns errors rather than dereferencing invalid participants or
+permissions. Mutations reject these invalid sources without changing them.
 
 ## Boundaries
 
