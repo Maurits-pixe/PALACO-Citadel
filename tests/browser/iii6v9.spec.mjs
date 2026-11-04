@@ -168,6 +168,20 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
     delete File.prototype.text;
   });
 
+  await page.evaluate(() => {
+    File.prototype.text = () => Promise.reject(new Error('file read failed'));
+  });
+  await page.locator('#import-file').setInputFiles({
+    name: 'unreadable.aether',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(downloadedEnvelope)
+  });
+  await expect(page.locator('#crypto-status')).toHaveText('Choose a valid AETHER1 encrypted file no larger than 6 MiB.');
+  await expect(page.locator('#import-file')).toHaveValue('');
+  await page.evaluate(() => {
+    delete File.prototype.text;
+  });
+
   await page.locator('#import-file').setInputFiles({
     name: 'invalid.aether',
     mimeType: 'text/plain',
