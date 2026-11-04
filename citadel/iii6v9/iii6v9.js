@@ -392,6 +392,7 @@ document.querySelector('#clear-fields').addEventListener('click', () => {
   input.value = '';
   passphrase.value = '';
   output.value = '';
+  importFileInput.value = '';
   status.textContent = t('statusCleared');
   copyButton.disabled = true;
   downloadButton.disabled = true;

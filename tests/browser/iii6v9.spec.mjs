@@ -98,6 +98,7 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   });
   await expect.poll(() => page.evaluate(() => typeof window.resolveFileText)).toBe('function');
   await page.locator('#clear-fields').click();
+  await expect(page.locator('#import-file')).toHaveValue('');
   await page.evaluate(() => window.resolveFileText('AETHER1.invalid'));
   await expect(page.locator('#crypto-status')).toHaveText('Input, passphrase, and output cleared from the page.');
   await expect(page.locator('#crypto-input')).toHaveValue('');
