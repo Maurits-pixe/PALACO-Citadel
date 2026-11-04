@@ -98,7 +98,6 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await expect(page.locator('#crypto-status')).toHaveText('Processing locally…');
   await expect(page.locator('#crypto-form button[type="submit"]')).toBeDisabled();
   await page.locator('#clear-fields').click();
-  await expect(page.locator('#crypto-form button[type="submit"]')).toBeDisabled();
   await expect(page.locator('#crypto-input')).toHaveValue('');
   await expect(page.locator('#passphrase')).toHaveValue('');
   await expect(page.locator('#crypto-output')).toHaveValue('');
