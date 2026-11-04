@@ -178,6 +178,7 @@ function t(key) {
 function setMode(nextMode) {
   operationId += 1;
   processButton.disabled = processing;
+  importFileInput.value = '';
   mode = nextMode;
   const encrypting = mode === 'encrypt';
   encryptModeButton.setAttribute('aria-pressed', String(encrypting));

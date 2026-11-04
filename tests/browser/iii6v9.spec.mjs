@@ -137,10 +137,21 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await expect(page.locator('#import-file')).toHaveValue('');
   await page.evaluate(() => window.fileReads['clear.aether'][0].resolve('AETHER1.invalid'));
   await expect(page.locator('#crypto-status')).toHaveText('Input, passphrase, and output cleared from the page.');
+  await page.locator('#import-file').setInputFiles({
+    name: 'mode-change.aether',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(downloadedEnvelope)
+  });
+  await expect.poll(() => page.evaluate(() => window.fileReads['mode-change.aether']?.length)).toBe(1);
+  await page.locator('#encrypt-mode').click();
+  await expect(page.locator('#import-file')).toHaveValue('');
+  await expect(page.locator('#crypto-status')).toHaveText('');
+  await page.evaluate(() => window.fileReads['mode-change.aether'][0].reject(new Error('superseded by mode change')));
+  await expect(page.locator('#crypto-status')).toHaveText('');
+  await expect(page.locator('#encrypt-mode')).toHaveAttribute('aria-pressed', 'true');
   await page.evaluate(() => {
     delete File.prototype.text;
   });
-  await page.locator('#encrypt-mode').click();
 
   await page.locator('#import-file').setInputFiles({
     name: 'invalid.aether',
