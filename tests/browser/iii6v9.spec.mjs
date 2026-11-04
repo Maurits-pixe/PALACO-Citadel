@@ -122,6 +122,7 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await page.evaluate(() => {
     delete File.prototype.text;
   });
+  await page.locator('#encrypt-mode').click();
 
   await page.locator('#import-file').setInputFiles({
     name: 'invalid.aether',
