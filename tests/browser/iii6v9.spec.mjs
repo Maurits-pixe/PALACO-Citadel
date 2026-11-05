@@ -315,6 +315,33 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await page.evaluate(() => {
     const subtle = crypto.subtle;
     window.originalDeriveKey = subtle.deriveKey.bind(subtle);
+    window.resolvePassphraseEditDeriveKey = null;
+    subtle.deriveKey = (...args) => new Promise(resolve => {
+      window.resolvePassphraseEditDeriveKey = () => resolve(window.originalDeriveKey(...args));
+    });
+  });
+  await page.locator('#crypto-input').fill('plaintext before passphrase edit');
+  await page.locator('#passphrase').fill(passphrase);
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Processing locally…');
+  await expect.poll(() => page.evaluate(() => typeof window.resolvePassphraseEditDeriveKey)).toBe('function');
+  await page.locator('#passphrase').fill('changed passphrase');
+  await expect(page.locator('#crypto-status')).toHaveText('');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+  await page.evaluate(() => window.resolvePassphraseEditDeriveKey());
+  await expect(page.locator('#crypto-form button[type="submit"]')).toBeEnabled({ timeout: 10000 });
+  await expect(page.locator('#crypto-status')).toHaveText('');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await page.evaluate(() => {
+    crypto.subtle.deriveKey = window.originalDeriveKey;
+    delete window.originalDeriveKey;
+  });
+
+  await page.evaluate(() => {
+    const subtle = crypto.subtle;
+    window.originalDeriveKey = subtle.deriveKey.bind(subtle);
     window.resolveLocalizedDeriveKey = null;
     subtle.deriveKey = (...args) => new Promise(resolve => {
       window.resolveLocalizedDeriveKey = () => resolve(window.originalDeriveKey(...args));
