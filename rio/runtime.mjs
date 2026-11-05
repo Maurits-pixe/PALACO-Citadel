@@ -53,7 +53,7 @@ export function validateConversation(conversation) {
   const rootKeys = schema.required;
   if (!requireKeys(conversation, rootKeys, rootKeys, "$", errors)) return errors;
 
-  if (!/^rio:conversation:[A-Za-z0-9._~-]+$/.test(conversation.conversation_id ?? "")) {
+  if (typeof conversation.conversation_id !== "string" || !/^rio:conversation:[A-Za-z0-9._~-]+$/.test(conversation.conversation_id)) {
     errors.push("$.conversation_id is invalid");
   }
   if (!isDateTimeOrNull(conversation.created_at) || conversation.created_at === null) {
@@ -260,7 +260,7 @@ function validateSubject(subject, index, subjectIds, provenanceReferences, error
   const requiredKeys = ["subject_id", "type", "name", "preview_reference", "meaning", "provenance_reference", "state", "boundary", "next_action", "presentation_effect"];
   const allowedKeys = [...requiredKeys, "object_reference"];
   if (!requireKeys(subject, requiredKeys, allowedKeys, path, errors)) return;
-  if (!/^rio:subject:[A-Za-z0-9._~-]+$/.test(subject.subject_id ?? "")) errors.push(`${path}.subject_id is invalid`);
+  if (typeof subject.subject_id !== "string" || !/^rio:subject:[A-Za-z0-9._~-]+$/.test(subject.subject_id)) errors.push(`${path}.subject_id is invalid`);
   if (subjectIds.has(subject.subject_id)) errors.push(`${path}.subject_id must be unique`);
   subjectIds.add(subject.subject_id);
   requireEnum(subject.type, subjectTypes, `${path}.type`, errors);

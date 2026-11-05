@@ -45,6 +45,9 @@ Locale validation preserves the resolver's distinction between an omitted locale
 (Dutch default) and an explicit null or blank locale (English fallback). Stored
 `locale.requested` values must be strings or null. Creation and locale changes
 retain these semantics without changing permissions.
+Conversation and subject identifiers must be primitive strings matching their
+existing patterns. Validation does not coerce arrays, boxed strings or objects
+into identities; malformed identities cannot produce mutation candidates.
 
 ## Boundaries
 

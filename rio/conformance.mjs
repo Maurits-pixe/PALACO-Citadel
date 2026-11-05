@@ -256,6 +256,30 @@ subjectConversation.context.subjects = [{
 }];
 expectValid("conversation with symbol and complete ELIXER subjects", subjectConversation);
 
+for (const field of ["conversation_id", "subject_id"]) {
+  const id = field === "conversation_id" ? "rio:conversation:typed-id" : "rio:subject:typed-id";
+  const malformedIds = [null, undefined, true, 42, [id], new String(id),
+    { toString: () => id }, Object.create(null), Symbol(id),
+    { [Symbol.toPrimitive]() { throw new Error("identifiers must not be coerced"); } }];
+  for (const malformed of malformedIds) {
+    const value = structuredClone(subjectConversation);
+    const target = field === "conversation_id" ? value : value.context.subjects[0];
+    target[field] = malformed;
+    expectInvalid(`non-string ${field}`, value);
+    for (const result of [transitionConversation(value, "PAUSED", null), sendMessage(value, null, null)]) {
+      assert.equal(result.ok, false, "non-string identifiers cannot enter mutation paths");
+      assert.equal(Object.hasOwn(result, "conversation"), false, "invalid identifiers must not produce a candidate");
+    }
+    assert.equal(target[field], malformed, "identifier validation must not rewrite source input");
+  }
+  for (const suffix of ["A0", "a._~-", "0001"]) {
+    const value = structuredClone(subjectConversation);
+    const target = field === "conversation_id" ? value : value.context.subjects[0];
+    target[field] = `${field === "conversation_id" ? "rio:conversation:" : "rio:subject:"}${suffix}`;
+    expectValid(`valid string ${field}`, value);
+  }
+}
+
 const unknownSubjectType = structuredClone(subjectConversation);
 unknownSubjectType.context.subjects[0].type = "AUTHORITY";
 expectInvalid("subject with unknown type", unknownSubjectType);
