@@ -303,10 +303,13 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await expect(page.locator('#crypto-output')).toHaveValue('');
   await expect(page.locator('#copy-output')).toBeDisabled();
   await expect(page.locator('#download-output')).toBeDisabled();
+  await page.locator('#language-select').selectOption('nl');
+  await expect(page.locator('#crypto-status')).toHaveText('');
   await page.evaluate(() => window.resolveDelayedDeriveKey());
   await expect(page.locator('#crypto-form button[type="submit"]')).toBeEnabled({ timeout: 10000 });
   await expect(page.locator('#crypto-status')).toHaveText('');
   await expect(page.locator('#crypto-output')).toHaveValue('');
+  await page.locator('#language-select').selectOption('en');
   await page.evaluate(() => {
     crypto.subtle.deriveKey = window.originalDeriveKey;
     delete window.originalDeriveKey;
