@@ -94,6 +94,14 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
     };
   });
   await page.locator('#import-file').setInputFiles({
+    name: 'oversized.aether',
+    mimeType: 'text/plain',
+    buffer: Buffer.alloc(6 * 1024 * 1024 + 1)
+  });
+  await expect(page.locator('#crypto-status')).toHaveText('Choose a valid AETHER1 encrypted file no larger than 6 MiB.');
+  await expect(page.locator('#import-file')).toHaveValue('');
+  expect(await page.evaluate(() => window.fileReads['oversized.aether'])).toBeUndefined();
+  await page.locator('#import-file').setInputFiles({
     name: 'delayed.aether',
     mimeType: 'text/plain',
     buffer: Buffer.from(downloadedEnvelope)
