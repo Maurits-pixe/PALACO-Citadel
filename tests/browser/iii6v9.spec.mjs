@@ -379,6 +379,10 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await expect(page.locator('#crypto-status')).toHaveText('');
   await page.locator('#crypto-form button[type="submit"]').click();
   await expect(page.locator('#crypto-status')).toHaveText('Invalid AETHER1 data format.');
+  await page.locator('#language-select').selectOption('nl');
+  await expect(page.locator('#crypto-status')).toHaveText('Ongeldig AETHER1-gegevensformaat.');
+  await page.locator('#language-select').selectOption('en');
+  await expect(page.locator('#crypto-status')).toHaveText('Invalid AETHER1 data format.');
   await expect(page.locator('#download-output')).toBeDisabled();
 
   await page.locator('#import-file').setInputFiles({

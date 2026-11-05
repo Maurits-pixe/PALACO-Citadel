@@ -175,9 +175,15 @@ let operationId = 0;
 let fileReadOperationId = null;
 let processingOperationId = null;
 let processing = false;
+let statusKey = null;
 
 function t(key) {
   return copy[language][key] || copy.en[key] || key;
+}
+
+function setStatus(key) {
+  statusKey = key;
+  status.textContent = key ? t(key) : '';
 }
 
 function invalidateInputResults() {
@@ -188,7 +194,7 @@ function invalidateInputResults() {
   output.value = '';
   copyButton.disabled = true;
   downloadButton.disabled = true;
-  status.textContent = '';
+  setStatus(null);
 }
 
 function setMode(nextMode) {
@@ -206,7 +212,7 @@ function setMode(nextMode) {
   processButton.textContent = t(encrypting ? 'processButtonEncrypt' : 'processButtonDecrypt');
   input.autocomplete = 'off';
   output.value = '';
-  status.textContent = '';
+  setStatus(null);
   copyButton.disabled = true;
   downloadButton.disabled = true;
 }
@@ -221,8 +227,9 @@ function applyLanguage() {
   document.querySelector('label[for="crypto-input"]').textContent = t(mode === 'encrypt' ? 'inputLabelEncrypt' : 'inputLabelDecrypt');
   input.placeholder = t(mode === 'encrypt' ? 'inputPlaceholderEncrypt' : 'inputPlaceholderDecrypt');
   processButton.textContent = t(mode === 'encrypt' ? 'processButtonEncrypt' : 'processButtonDecrypt');
-  if (fileReadOperationId === operationId) status.textContent = t('statusFileReading');
-  else if (processingOperationId === operationId) status.textContent = t('processing');
+  if (fileReadOperationId === operationId) setStatus('statusFileReading');
+  else if (processingOperationId === operationId) setStatus('processing');
+  else setStatus(statusKey);
 }
 
 function bytesToBase64(bytes) {
@@ -298,44 +305,44 @@ async function processText(event) {
   const text = input.value;
   const secret = passphrase.value;
   if (!text) {
-    status.textContent = t('errorInput');
+    setStatus('errorInput');
     return;
   }
   const maxInputBytes = currentMode === 'encrypt' ? MAX_PLAINTEXT_BYTES : MAX_ENVELOPE_BYTES;
   if (text.length > maxInputBytes) {
-    status.textContent = t(currentMode === 'encrypt' ? 'errorPlaintextSize' : 'errorEnvelopeSize');
+    setStatus(currentMode === 'encrypt' ? 'errorPlaintextSize' : 'errorEnvelopeSize');
     return;
   }
   const inputBytes = encoder.encode(text);
   const inputSize = inputBytes.byteLength;
   if (inputSize > maxInputBytes) {
-    status.textContent = t(currentMode === 'encrypt' ? 'errorPlaintextSize' : 'errorEnvelopeSize');
+    setStatus(currentMode === 'encrypt' ? 'errorPlaintextSize' : 'errorEnvelopeSize');
     return;
   }
   if (!secret) {
-    status.textContent = t('errorPassphrase');
+    setStatus('errorPassphrase');
     return;
   }
   if (currentMode === 'encrypt' && [...secret].length < 12) {
-    status.textContent = t('errorPassphraseLength');
+    setStatus('errorPassphraseLength');
     return;
   }
   if (!globalThis.crypto?.subtle || !globalThis.crypto?.getRandomValues) {
-    status.textContent = t('errorCrypto');
+    setStatus('errorCrypto');
     return;
   }
 
   processingOperationId = currentOperationId;
   processing = true;
   processButton.disabled = true;
-  status.textContent = t('processing');
+  setStatus('processing');
   try {
     const result = currentMode === 'encrypt'
       ? await encryptText(inputBytes, secret)
       : await decryptText(text, secret);
     if (currentOperationId !== operationId) return;
     output.value = result;
-    status.textContent = t(currentMode === 'encrypt' ? 'statusEncrypted' : 'statusDecrypted');
+    setStatus(currentMode === 'encrypt' ? 'statusEncrypted' : 'statusDecrypted');
     copyButton.disabled = false;
     downloadButton.disabled = currentMode !== 'encrypt';
   } catch (error) {
@@ -343,11 +350,11 @@ async function processText(event) {
     output.value = '';
     copyButton.disabled = true;
     downloadButton.disabled = true;
-    status.textContent = error instanceof TypeError && error.message === 'format'
-      ? t('errorFormat')
+    setStatus(error instanceof TypeError && error.message === 'format'
+      ? 'errorFormat'
       : error instanceof RangeError && error.message === 'size'
-        ? t('errorDecryptedSize')
-        : currentMode === 'decrypt' ? t('errorDecrypt') : t('errorGeneral');
+        ? 'errorDecryptedSize'
+        : currentMode === 'decrypt' ? 'errorDecrypt' : 'errorGeneral');
   } finally {
     processing = false;
     processingOperationId = null;
@@ -365,10 +372,10 @@ copyButton.addEventListener('click', async () => {
   try {
     await navigator.clipboard.writeText(output.value);
     if (currentOperationId !== operationId) return;
-    status.textContent = t('statusCopied');
+    setStatus('statusCopied');
   } catch {
     if (currentOperationId !== operationId) return;
-    status.textContent = t('errorCopy');
+    setStatus('errorCopy');
   }
 });
 downloadButton.addEventListener('click', () => {
@@ -380,7 +387,7 @@ downloadButton.addEventListener('click', () => {
   link.download = 'aether-encrypted.aether';
   link.click();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-  status.textContent = t('statusDownloaded');
+  setStatus('statusDownloaded');
 });
 importFileButton.addEventListener('click', () => {
   operationId += 1;
@@ -388,7 +395,7 @@ importFileButton.addEventListener('click', () => {
   output.value = '';
   copyButton.disabled = true;
   downloadButton.disabled = true;
-  status.textContent = '';
+  setStatus(null);
   importFileInput.value = '';
   importFileInput.click();
 });
@@ -397,7 +404,7 @@ importFileInput.addEventListener('change', async () => {
   if (!file) return;
   let currentOperationId = ++operationId;
   fileReadOperationId = currentOperationId;
-  status.textContent = t('statusFileReading');
+  setStatus('statusFileReading');
   try {
     if (file.size > MAX_ENVELOPE_BYTES) throw new TypeError('format');
     const envelope = (await file.text()).trim();
@@ -408,10 +415,10 @@ importFileInput.addEventListener('change', async () => {
     passphrase.value = '';
     input.value = envelope;
     passphrase.focus();
-    status.textContent = t('statusFileOpened');
+    setStatus('statusFileOpened');
   } catch {
     if (currentOperationId !== operationId) return;
-    status.textContent = t('errorFile');
+    setStatus('errorFile');
   } finally {
     if (currentOperationId === operationId) {
       importFileInput.value = '';
@@ -427,7 +434,7 @@ document.querySelector('#clear-fields').addEventListener('click', () => {
   passphrase.value = '';
   output.value = '';
   importFileInput.value = '';
-  status.textContent = t('statusCleared');
+  setStatus('statusCleared');
   copyButton.disabled = true;
   downloadButton.disabled = true;
 });
