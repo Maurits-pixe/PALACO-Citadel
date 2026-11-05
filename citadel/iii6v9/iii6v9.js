@@ -179,11 +179,14 @@ function t(key) {
   return copy[language][key] || copy.en[key] || key;
 }
 
-function invalidatePendingFileRead() {
-  if (fileReadOperationId !== operationId) return;
+function invalidateInputResults() {
+  const pendingFileRead = fileReadOperationId === operationId;
   operationId += 1;
   fileReadOperationId = null;
-  importFileInput.value = '';
+  if (pendingFileRead) importFileInput.value = '';
+  output.value = '';
+  copyButton.disabled = true;
+  downloadButton.disabled = true;
   status.textContent = '';
 }
 
@@ -349,8 +352,8 @@ async function processText(event) {
 }
 
 document.querySelector('#crypto-form').addEventListener('submit', processText);
-input.addEventListener('input', invalidatePendingFileRead);
-passphrase.addEventListener('input', invalidatePendingFileRead);
+input.addEventListener('input', invalidateInputResults);
+passphrase.addEventListener('input', invalidateInputResults);
 encryptModeButton.addEventListener('click', () => setMode('encrypt'));
 decryptModeButton.addEventListener('click', () => setMode('decrypt'));
 copyButton.addEventListener('click', async () => {

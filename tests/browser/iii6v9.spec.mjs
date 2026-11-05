@@ -286,6 +286,33 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await expect(page.locator('#crypto-status')).toHaveText('Input, passphrase, and output cleared from the page.');
 
   await page.evaluate(() => {
+    const subtle = crypto.subtle;
+    window.originalDeriveKey = subtle.deriveKey.bind(subtle);
+    window.resolveDelayedDeriveKey = null;
+    subtle.deriveKey = (...args) => new Promise(resolve => {
+      window.resolveDelayedDeriveKey = () => resolve(window.originalDeriveKey(...args));
+    });
+  });
+  await page.locator('#crypto-input').fill('plaintext before edit');
+  await page.locator('#passphrase').fill(passphrase);
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Processing locally…');
+  await expect.poll(() => page.evaluate(() => typeof window.resolveDelayedDeriveKey)).toBe('function');
+  await page.locator('#crypto-input').fill('plaintext after edit');
+  await expect(page.locator('#crypto-status')).toHaveText('');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+  await page.evaluate(() => window.resolveDelayedDeriveKey());
+  await expect(page.locator('#crypto-form button[type="submit"]')).toBeEnabled({ timeout: 10000 });
+  await expect(page.locator('#crypto-status')).toHaveText('');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await page.evaluate(() => {
+    crypto.subtle.deriveKey = window.originalDeriveKey;
+    delete window.originalDeriveKey;
+  });
+
+  await page.evaluate(() => {
     document.querySelector('#crypto-input').value = 'x'.repeat(4 * 1024 * 1024 + 1);
   });
   await page.locator('#passphrase').fill(passphrase);
@@ -312,7 +339,19 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await expect(page.locator('#crypto-output')).toHaveValue(plaintext);
   await expect(page.locator('#crypto-status')).toContainText('Decryption complete');
 
+  await page.locator('#passphrase').fill('edited passphrase');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#crypto-status')).toHaveText('');
+  await page.locator('#passphrase').fill(passphrase);
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-output')).toHaveValue(plaintext);
+
   await page.locator('#crypto-input').fill('not-an-envelope');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+  await expect(page.locator('#crypto-status')).toHaveText('');
   await page.locator('#crypto-form button[type="submit"]').click();
   await expect(page.locator('#crypto-status')).toHaveText('Invalid AETHER1 data format.');
   await expect(page.locator('#download-output')).toBeDisabled();
