@@ -48,6 +48,9 @@ retain these semantics without changing permissions.
 Conversation and subject identifiers must be primitive strings matching their
 existing patterns. Validation does not coerce arrays, boxed strings or objects
 into identities; malformed identities cannot produce mutation candidates.
+Conversation arrays must own every position: sparse arrays and inherited index
+values are rejected before traversal. Empty arrays remain supported wherever the
+existing schema permits them; validation never fills missing positions.
 
 ## Boundaries
 

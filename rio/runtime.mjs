@@ -24,6 +24,14 @@ const isObject = (value) => value !== null && typeof value === "object" && !Arra
 const isNonEmptyString = (value) => typeof value === "string" && value.length > 0;
 const isDateTimeOrNull = (value) => value === null || (isNonEmptyString(value) && !Number.isNaN(Date.parse(value)));
 
+function isDenseArray(value) {
+  if (!Array.isArray(value)) return false;
+  for (let index = 0; index < value.length; index += 1) {
+    if (!Object.hasOwn(value, index)) return false;
+  }
+  return true;
+}
+
 function requireUniqueItems(value, path, errors) {
   if (Array.isArray(value) && new Set(value).size !== value.length) {
     errors.push(`${path} must contain unique items`);
@@ -74,8 +82,8 @@ export function validateConversation(conversation) {
   }
 
   const participantIds = new Set();
-  if (!Array.isArray(conversation.participants) || conversation.participants.length === 0) {
-    errors.push("$.participants must contain at least one participant");
+  if (!isDenseArray(conversation.participants) || conversation.participants.length === 0) {
+    errors.push("$.participants must be a dense array containing at least one participant");
   } else {
     conversation.participants.forEach((participant, index) => {
       const path = `$.participants[${index}]`;
@@ -87,8 +95,8 @@ export function validateConversation(conversation) {
       if (!isNonEmptyString(participant.identity_ref)) errors.push(`${path}.identity_ref is required`);
       requireEnum(participant.identity_type, identityTypes, `${path}.identity_type`, errors);
       requireEnum(participant.trust_indicator, trustIndicators, `${path}.trust_indicator`, errors);
-      if (!Array.isArray(participant.endpoints) || participant.endpoints.length === 0) {
-        errors.push(`${path}.endpoints must contain at least one endpoint`);
+      if (!isDenseArray(participant.endpoints) || participant.endpoints.length === 0) {
+        errors.push(`${path}.endpoints must be a dense array containing at least one endpoint`);
       } else {
         participant.endpoints.forEach((endpoint, endpointIndex) => {
           const endpointPath = `${path}.endpoints[${endpointIndex}]`;
@@ -106,8 +114,8 @@ export function validateConversation(conversation) {
   const contextKeys = ["kind", "surfaces", "parent_conversation_id", "visitcard", "subjects"];
   if (requireKeys(conversation.context, ["kind", "surfaces"], contextKeys, "$.context", errors)) {
     requireEnum(conversation.context.kind, contextKinds, "$.context.kind", errors);
-    if (!Array.isArray(conversation.context.surfaces) || conversation.context.surfaces.length === 0) {
-      errors.push("$.context.surfaces must contain at least one surface");
+    if (!isDenseArray(conversation.context.surfaces) || conversation.context.surfaces.length === 0) {
+      errors.push("$.context.surfaces must be a dense array containing at least one surface");
     } else {
       conversation.context.surfaces.forEach((surface, index) => requireEnum(surface, surfaces, `$.context.surfaces[${index}]`, errors));
       requireUniqueItems(conversation.context.surfaces, "$.context.surfaces", errors);
@@ -120,8 +128,8 @@ export function validateConversation(conversation) {
     }
     if (conversation.context.visitcard !== undefined) validateVisitcard(conversation.context.visitcard, errors);
     if (conversation.context.subjects !== undefined) {
-      if (!Array.isArray(conversation.context.subjects)) {
-        errors.push("$.context.subjects must be an array");
+      if (!isDenseArray(conversation.context.subjects)) {
+        errors.push("$.context.subjects must be a dense array");
       } else {
         const subjectIds = new Set();
         conversation.context.subjects.forEach((subject, index) => {
@@ -132,8 +140,8 @@ export function validateConversation(conversation) {
   }
 
   const provenanceIds = new Set();
-  if (!Array.isArray(conversation.provenance) || conversation.provenance.length === 0) {
-    errors.push("$.provenance must contain at least one record");
+  if (!isDenseArray(conversation.provenance) || conversation.provenance.length === 0) {
+    errors.push("$.provenance must be a dense array containing at least one record");
   } else {
     conversation.provenance.forEach((record, index) => {
       const path = `$.provenance[${index}]`;
@@ -166,8 +174,8 @@ export function validateConversation(conversation) {
   validatePermissions(conversation.permissions, participantIds, errors);
 
   const messageIds = new Set();
-  if (!Array.isArray(conversation.message_history)) {
-    errors.push("$.message_history must be an array");
+  if (!isDenseArray(conversation.message_history)) {
+    errors.push("$.message_history must be a dense array");
   } else {
     conversation.message_history.forEach((message, index) => {
       const path = `$.message_history[${index}]`;
@@ -206,8 +214,8 @@ function validatePermissions(permissions, participantIds, errors) {
   const keys = ["consent_state", "allowed_actions", "visibility", "valid_from", "valid_until", "revoked_at", "authority_effect"];
   if (!requireKeys(permissions, keys, keys, "$.permissions", errors)) return;
   requireEnum(permissions.consent_state, consentStates, "$.permissions.consent_state", errors);
-  if (!Array.isArray(permissions.allowed_actions)) {
-    errors.push("$.permissions.allowed_actions must be an array");
+  if (!isDenseArray(permissions.allowed_actions)) {
+    errors.push("$.permissions.allowed_actions must be a dense array");
   } else {
     permissions.allowed_actions.forEach((action, index) => requireEnum(action, allowedActions, `$.permissions.allowed_actions[${index}]`, errors));
     requireUniqueItems(permissions.allowed_actions, "$.permissions.allowed_actions", errors);
@@ -230,13 +238,13 @@ function validatePermissions(permissions, participantIds, errors) {
   }
   const visibilityKeys = ["audience_participant_ids", "purpose", "shared_with_participant_ids", "retention_until"];
   if (requireKeys(permissions.visibility, visibilityKeys, visibilityKeys, "$.permissions.visibility", errors)) {
-    if (!Array.isArray(permissions.visibility.audience_participant_ids)) errors.push("$.permissions.visibility.audience_participant_ids must be an array");
-    if (!Array.isArray(permissions.visibility.shared_with_participant_ids)) errors.push("$.permissions.visibility.shared_with_participant_ids must be an array");
+    if (!isDenseArray(permissions.visibility.audience_participant_ids)) errors.push("$.permissions.visibility.audience_participant_ids must be a dense array");
+    if (!isDenseArray(permissions.visibility.shared_with_participant_ids)) errors.push("$.permissions.visibility.shared_with_participant_ids must be a dense array");
     if (!isNonEmptyString(permissions.visibility.purpose)) errors.push("$.permissions.visibility.purpose is required");
     if (!isDateTimeOrNull(permissions.visibility.retention_until)) errors.push("$.permissions.visibility.retention_until must be null or a date-time");
     for (const key of ["audience_participant_ids", "shared_with_participant_ids"]) {
       requireUniqueItems(permissions.visibility[key], `$.permissions.visibility.${key}`, errors);
-      const participantIdsToCheck = Array.isArray(permissions.visibility[key]) ? permissions.visibility[key] : [];
+      const participantIdsToCheck = isDenseArray(permissions.visibility[key]) ? permissions.visibility[key] : [];
       for (const participantId of participantIdsToCheck) {
         if (!participantIds.has(participantId)) errors.push(`$.permissions.visibility.${key} must reference participants`);
       }

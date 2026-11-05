@@ -256,6 +256,40 @@ subjectConversation.context.subjects = [{
 }];
 expectValid("conversation with symbol and complete ELIXER subjects", subjectConversation);
 
+for (const [select, key] of [
+  [value => value, "participants"],
+  [value => value.participants[0], "endpoints"],
+  [value => value.context, "surfaces"],
+  [value => value.context, "subjects"],
+  [value => value, "provenance"],
+  [value => value, "message_history"],
+  [value => value.permissions, "allowed_actions"],
+  [value => value.permissions.visibility, "audience_participant_ids"],
+  [value => value.permissions.visibility, "shared_with_participant_ids"]
+]) {
+  for (const mode of ["hole", "inherited"]) {
+    const value = structuredClone(subjectConversation);
+    const target = select(value);
+    if (key === "shared_with_participant_ids") target[key] = ["participant-1"];
+    const items = target[key];
+    if (mode === "hole") {
+      items.length += 1;
+    } else {
+      const inherited = Object.create(Array.prototype);
+      inherited[0] = items[0];
+      delete items[0];
+      Object.setPrototypeOf(items, inherited);
+    }
+    const keysBefore = Reflect.ownKeys(items);
+    expectInvalid(`${mode} in ${key}`, value);
+    for (const result of [transitionConversation(value, "PAUSED", null), sendMessage(value, null, null)]) {
+      assert.equal(result.ok, false, "non-dense arrays cannot enter mutations");
+      assert.equal(Object.hasOwn(result, "conversation"), false, "non-dense arrays cannot produce candidates");
+    }
+    assert.deepEqual(Reflect.ownKeys(items), keysBefore, "validation must not fill or remove array positions");
+  }
+}
+
 for (const field of ["conversation_id", "subject_id"]) {
   const id = field === "conversation_id" ? "rio:conversation:typed-id" : "rio:subject:typed-id";
   const malformedIds = [null, undefined, true, 42, [id], new String(id),
