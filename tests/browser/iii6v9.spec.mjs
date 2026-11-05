@@ -316,6 +316,33 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   });
 
   await page.evaluate(() => {
+    window.resolveDelayedFileFailure = null;
+    File.prototype.text = () => new Promise((resolve, reject) => {
+      window.resolveDelayedFileFailure = () => reject(new Error('delayed file read failure'));
+    });
+  });
+  await page.locator('#import-file').setInputFiles({
+    name: 'delayed-failure.aether',
+    mimeType: 'text/plain',
+    buffer: Buffer.from('placeholder')
+  });
+  await expect(page.locator('#crypto-status')).toHaveText('Reading encrypted file locally…');
+  await expect.poll(() => page.evaluate(() => typeof window.resolveDelayedFileFailure)).toBe('function');
+  await page.locator('#language-select').selectOption('nl');
+  await expect(page.locator('#crypto-status')).toHaveText('Versleuteld bestand lokaal lezen…');
+  await page.evaluate(() => window.resolveDelayedFileFailure());
+  await expect(page.locator('#crypto-status')).toHaveText('Kies een geldig versleuteld AETHER1-bestand van maximaal 6 MiB.');
+  await expect(page.locator('#import-file')).toHaveValue('');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+  await page.evaluate(() => {
+    delete File.prototype.text;
+    delete window.resolveDelayedFileFailure;
+  });
+  await page.locator('#language-select').selectOption('en');
+
+  await page.evaluate(() => {
     const subtle = crypto.subtle;
     window.originalDeriveKey = subtle.deriveKey.bind(subtle);
     window.rejectClearedOperationDeriveKey = null;
