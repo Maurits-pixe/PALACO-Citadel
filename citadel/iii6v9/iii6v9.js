@@ -179,6 +179,14 @@ function t(key) {
   return copy[language][key] || copy.en[key] || key;
 }
 
+function invalidatePendingFileRead() {
+  if (fileReadOperationId !== operationId) return;
+  operationId += 1;
+  fileReadOperationId = null;
+  importFileInput.value = '';
+  status.textContent = '';
+}
+
 function setMode(nextMode) {
   operationId += 1;
   fileReadOperationId = null;
@@ -341,6 +349,8 @@ async function processText(event) {
 }
 
 document.querySelector('#crypto-form').addEventListener('submit', processText);
+input.addEventListener('input', invalidatePendingFileRead);
+passphrase.addEventListener('input', invalidatePendingFileRead);
 encryptModeButton.addEventListener('click', () => setMode('encrypt'));
 decryptModeButton.addEventListener('click', () => setMode('decrypt'));
 copyButton.addEventListener('click', async () => {

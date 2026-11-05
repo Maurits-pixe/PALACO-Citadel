@@ -182,6 +182,47 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
 
   await page.evaluate(() => {
     File.prototype.text = () => new Promise(resolve => {
+      window.resolveEditedPassphraseFileRead = resolve;
+    });
+  });
+  await page.locator('#import-file').setInputFiles({
+    name: 'superseded-by-passphrase-edit.aether',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(downloadedEnvelope)
+  });
+  await expect.poll(() => page.evaluate(() => typeof window.resolveEditedPassphraseFileRead)).toBe('function');
+  await page.locator('#passphrase').fill('user selected passphrase');
+  await expect(page.locator('#crypto-status')).toHaveText('');
+  await page.evaluate(envelope => window.resolveEditedPassphraseFileRead(envelope), downloadedEnvelope);
+  await expect(page.locator('#crypto-status')).toHaveText('');
+  await expect(page.locator('#passphrase')).toHaveValue('user selected passphrase');
+  await expect(page.locator('#crypto-input')).toHaveValue('');
+
+  await page.evaluate(() => {
+    window.resolveEditedTextFileRead = null;
+    File.prototype.text = () => new Promise(resolve => {
+      window.resolveEditedTextFileRead = resolve;
+    });
+  });
+  await page.locator('#import-file').setInputFiles({
+    name: 'superseded-by-text-edit.aether',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(downloadedEnvelope)
+  });
+  await expect.poll(() => page.evaluate(() => typeof window.resolveEditedTextFileRead)).toBe('function');
+  await page.locator('#crypto-input').fill('user entered text');
+  await expect(page.locator('#crypto-status')).toHaveText('');
+  await page.evaluate(envelope => window.resolveEditedTextFileRead(envelope), downloadedEnvelope);
+  await expect(page.locator('#crypto-status')).toHaveText('');
+  await expect(page.locator('#passphrase')).toHaveValue('user selected passphrase');
+  await expect(page.locator('#crypto-input')).toHaveValue('user entered text');
+  await page.evaluate(() => {
+    delete File.prototype.text;
+  });
+
+  await page.locator('#clear-fields').click();
+  await page.evaluate(() => {
+    File.prototype.text = () => new Promise(resolve => {
       window.resolveSupersededFileRead = resolve;
     });
   });
