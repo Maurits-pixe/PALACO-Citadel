@@ -351,6 +351,39 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await page.evaluate(() => {
     const subtle = crypto.subtle;
     window.originalDeriveKey = subtle.deriveKey.bind(subtle);
+    window.deriveKeyCallCount = 0;
+    window.resolveSingleDeriveKey = null;
+    subtle.deriveKey = (...args) => {
+      window.deriveKeyCallCount += 1;
+      return new Promise(resolve => {
+        window.resolveSingleDeriveKey = () => resolve(window.originalDeriveKey(...args));
+      });
+    };
+  });
+  await page.locator('#crypto-input').fill('only one crypto operation');
+  await page.locator('#passphrase').fill(passphrase);
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Processing locally…');
+  await expect.poll(() => page.evaluate(() => window.deriveKeyCallCount)).toBe(1);
+  await page.evaluate(() => {
+    document.querySelector('#crypto-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+  });
+  await expect(page.locator('#crypto-form button[type="submit"]')).toBeDisabled();
+  expect(await page.evaluate(() => window.deriveKeyCallCount)).toBe(1);
+  await page.evaluate(() => window.resolveSingleDeriveKey());
+  await expect(page.locator('#crypto-status')).toContainText('Encryption complete');
+  await expect(page.locator('#crypto-output')).not.toHaveValue('');
+  await page.evaluate(() => {
+    crypto.subtle.deriveKey = window.originalDeriveKey;
+    delete window.originalDeriveKey;
+    delete window.deriveKeyCallCount;
+    delete window.resolveSingleDeriveKey;
+  });
+  await page.locator('#clear-fields').click();
+
+  await page.evaluate(() => {
+    const subtle = crypto.subtle;
+    window.originalDeriveKey = subtle.deriveKey.bind(subtle);
     window.rejectEditedInputDeriveKey = null;
     subtle.deriveKey = () => new Promise((resolve, reject) => {
       window.rejectEditedInputDeriveKey = () => reject(new Error('superseded crypto operation'));
