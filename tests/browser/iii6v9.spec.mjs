@@ -329,6 +329,10 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   });
   await expect.poll(() => page.evaluate(() => typeof window.resolveLocalizedFileRead)).toBe('function');
   await expect(page.locator('#crypto-status')).toHaveText('Legante ĉifritan dosieron loke…');
+  await page.locator('#language-select').selectOption('nl');
+  await expect(page.locator('#crypto-status')).toHaveText('Versleuteld bestand lokaal lezen…');
+  await page.locator('#language-select').selectOption('eo');
+  await expect(page.locator('#crypto-status')).toHaveText('Legante ĉifritan dosieron loke…');
   await page.locator('#clear-fields').click();
   await page.evaluate(() => window.resolveLocalizedFileRead('AETHER1.invalid'));
   await expect(page.locator('#crypto-status')).toHaveText('Enigo, pasfrazo kaj eligo viŝitaj el la paĝo.');

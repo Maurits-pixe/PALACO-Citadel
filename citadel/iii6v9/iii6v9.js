@@ -172,6 +172,7 @@ const importFileInput = document.querySelector('#import-file');
 let language = 'en';
 let mode = 'encrypt';
 let operationId = 0;
+let fileReadOperationId = null;
 let processing = false;
 
 function t(key) {
@@ -207,6 +208,7 @@ function applyLanguage() {
   document.querySelector('label[for="crypto-input"]').textContent = t(mode === 'encrypt' ? 'inputLabelEncrypt' : 'inputLabelDecrypt');
   input.placeholder = t(mode === 'encrypt' ? 'inputPlaceholderEncrypt' : 'inputPlaceholderDecrypt');
   processButton.textContent = t(mode === 'encrypt' ? 'processButtonEncrypt' : 'processButtonDecrypt');
+  if (fileReadOperationId === operationId) status.textContent = t('statusFileReading');
 }
 
 function bytesToBase64(bytes) {
@@ -374,6 +376,7 @@ importFileInput.addEventListener('change', async () => {
   const file = importFileInput.files?.[0];
   if (!file) return;
   let currentOperationId = ++operationId;
+  fileReadOperationId = currentOperationId;
   status.textContent = t('statusFileReading');
   try {
     if (file.size > MAX_ENVELOPE_BYTES) throw new TypeError('format');
@@ -390,7 +393,10 @@ importFileInput.addEventListener('change', async () => {
     if (currentOperationId !== operationId) return;
     status.textContent = t('errorFile');
   } finally {
-    if (currentOperationId === operationId) importFileInput.value = '';
+    if (currentOperationId === operationId) {
+      importFileInput.value = '';
+      fileReadOperationId = null;
+    }
   }
 });
 document.querySelector('#clear-fields').addEventListener('click', () => {
