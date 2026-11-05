@@ -710,6 +710,21 @@ visitcardSource.context.visitcard = {
   encounter_state: "ENCOUNTERED"
 };
 const visitcardSourceSnapshot = structuredClone(visitcardSource);
+for (const malformed of malformedPolicyStates) {
+  for (const [source, invoke] of [
+    [validConversation, value => transitionConversation(value, malformed, null)],
+    [visitcardSource, value => transitionVisitcardEncounter(value, malformed, null)],
+    [validConversation, value => advanceMessageDelivery(value, "message-1", malformed, null)],
+    [validConversation, value => advanceMessageDelivery(value, malformed, "READ", null)]
+  ]) {
+    const snapshot = structuredClone(source);
+    const result = invoke(source);
+    assert.equal(result.ok, false, "invalid transition inputs must be rejected without formatting exceptions");
+    assert.equal(Object.hasOwn(result, "conversation"), false, "invalid transition inputs must not produce a candidate");
+    assert.ok(result.errors.length > 0 && result.errors.every(error => typeof error === "string"), "rejection must expose textual validation errors");
+    assert.deepEqual(source, snapshot, "invalid transition inputs must preserve source and provenance");
+  }
+}
 const visitcardRecord = {
   record_id: "prov-visitcard-2",
   source: "conformance-fixture",

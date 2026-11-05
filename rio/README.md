@@ -54,6 +54,9 @@ existing schema permits them; validation never fills missing positions.
 Permission validity windows are compared only after both boundaries validate as
 timestamps. Invalid timestamp types return validation errors without object
 coercion, mutation candidates or changes to the supplied source.
+Transition APIs validate target-state types and delivery message identifiers
+before formatting errors. Malformed inputs return textual validation errors,
+without invoking object coercion or changing source state and provenance.
 
 ## Boundaries
 

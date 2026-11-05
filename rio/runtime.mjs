@@ -557,6 +557,9 @@ export function transitionVisitcardEncounter(conversation, to, record) {
   if (sourceErrors.length > 0) {
     return { ok: false, errors: sourceErrors };
   }
+  if (typeof to !== "string") {
+    return { ok: false, errors: ["VisitCard target state must be a string"] };
+  }
 
   const visitcard = conversation.context.visitcard;
   if (visitcard === undefined) {
@@ -653,6 +656,9 @@ export function transitionConversation(conversation, to, record) {
   const sourceErrors = validateConversation(conversation);
   if (sourceErrors.length > 0) {
     return { ok: false, errors: sourceErrors };
+  }
+  if (typeof to !== "string") {
+    return { ok: false, errors: ["conversation target state must be a string"] };
   }
 
   if (!canTransition(conversation.current_state, to)) {
@@ -753,6 +759,12 @@ export function advanceMessageDelivery(conversation, messageId, to, record) {
   const sourceErrors = validateConversation(conversation);
   if (sourceErrors.length > 0) {
     return { ok: false, errors: sourceErrors };
+  }
+  if (!isNonEmptyString(messageId)) {
+    return { ok: false, errors: ["delivery message ID must be a non-empty string"] };
+  }
+  if (typeof to !== "string") {
+    return { ok: false, errors: ["delivery target state must be a string"] };
   }
 
   const messageIndex = conversation.message_history.findIndex((message) => message.message_id === messageId);
