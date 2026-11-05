@@ -318,6 +318,39 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await page.evaluate(() => {
     const subtle = crypto.subtle;
     window.originalDeriveKey = subtle.deriveKey.bind(subtle);
+    window.rejectClearedOperationDeriveKey = null;
+    subtle.deriveKey = () => new Promise((resolve, reject) => {
+      window.rejectClearedOperationDeriveKey = () => reject(new Error('cleared crypto operation'));
+    });
+  });
+  await page.locator('#crypto-input').fill('plaintext before clearing');
+  await page.locator('#passphrase').fill(passphrase);
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Processing locally…');
+  await expect.poll(() => page.evaluate(() => typeof window.rejectClearedOperationDeriveKey)).toBe('function');
+  await page.locator('#clear-fields').click();
+  await expect(page.locator('#crypto-input')).toHaveValue('');
+  await expect(page.locator('#passphrase')).toHaveValue('');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#crypto-form button[type="submit"]')).toBeDisabled();
+  await expect(page.locator('#crypto-status')).toHaveText('Input, passphrase, and output cleared from the page.');
+  await page.locator('#language-select').selectOption('nl');
+  await expect(page.locator('#crypto-status')).toHaveText('Invoer, wachtzin en resultaat van de pagina gewist.');
+  await page.evaluate(() => window.rejectClearedOperationDeriveKey());
+  await expect(page.locator('#crypto-form button[type="submit"]')).toBeEnabled({ timeout: 10000 });
+  await expect(page.locator('#crypto-status')).toHaveText('Invoer, wachtzin en resultaat van de pagina gewist.');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+  await page.evaluate(() => {
+    crypto.subtle.deriveKey = window.originalDeriveKey;
+    delete window.originalDeriveKey;
+  });
+  await page.locator('#language-select').selectOption('en');
+
+  await page.evaluate(() => {
+    const subtle = crypto.subtle;
+    window.originalDeriveKey = subtle.deriveKey.bind(subtle);
     window.rejectEditedInputDeriveKey = null;
     subtle.deriveKey = () => new Promise((resolve, reject) => {
       window.rejectEditedInputDeriveKey = () => reject(new Error('superseded crypto operation'));
