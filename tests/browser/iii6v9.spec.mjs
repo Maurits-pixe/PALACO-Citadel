@@ -140,6 +140,30 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await expect(page.locator('#crypto-status')).toHaveText('Encrypted file opened locally. Enter its passphrase to decrypt.');
   await expect(page.locator('#crypto-input')).toHaveValue(ciphertext);
   await page.locator('#import-file').setInputFiles({
+    name: 'stale-failure-old.aether',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(downloadedEnvelope)
+  });
+  await expect.poll(() => page.evaluate(() => window.fileReads['stale-failure-old.aether']?.length)).toBe(1);
+  await page.locator('#import-file').setInputFiles({
+    name: 'stale-failure-new.aether',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(downloadedEnvelope)
+  });
+  await expect.poll(() => page.evaluate(() => window.fileReads['stale-failure-new.aether']?.length)).toBe(1);
+  await page.evaluate(() => window.fileReads['stale-failure-new.aether'][0].reject(new Error('current read failed')));
+  await expect(page.locator('#crypto-status')).toHaveText('Choose a valid AETHER1 encrypted file no larger than 6 MiB.');
+  await expect(page.locator('#import-file')).toHaveValue('');
+  await page.locator('#language-select').selectOption('nl');
+  await expect(page.locator('#crypto-status')).toHaveText('Kies een geldig versleuteld AETHER1-bestand van maximaal 6 MiB.');
+  await page.evaluate(() => window.fileReads['stale-failure-old.aether'][0].reject(new Error('superseded read failed')));
+  await expect(page.locator('#crypto-status')).toHaveText('Kies een geldig versleuteld AETHER1-bestand van maximaal 6 MiB.');
+  await expect(page.locator('#crypto-input')).toHaveValue(ciphertext);
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+  await page.locator('#language-select').selectOption('en');
+  await page.locator('#import-file').setInputFiles({
     name: 'cancelled-picker.aether',
     mimeType: 'text/plain',
     buffer: Buffer.from(downloadedEnvelope)
