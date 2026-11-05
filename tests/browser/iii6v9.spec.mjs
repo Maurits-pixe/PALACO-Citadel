@@ -99,12 +99,14 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
     buffer: Buffer.from(downloadedEnvelope)
   });
   await expect.poll(() => page.evaluate(() => window.fileReads['delayed.aether']?.length)).toBe(1);
+  await expect(page.locator('#crypto-status')).toHaveText('Reading encrypted file locally…');
   await page.locator('#import-file').setInputFiles({
     name: 'rejected.aether',
     mimeType: 'text/plain',
     buffer: Buffer.from(downloadedEnvelope)
   });
   await expect.poll(() => page.evaluate(() => window.fileReads['rejected.aether']?.length)).toBe(1);
+  await expect(page.locator('#crypto-status')).toHaveText('Reading encrypted file locally…');
   await page.evaluate(envelope => window.fileReads['rejected.aether'][0].resolve(envelope), downloadedEnvelope);
   await expect(page.locator('#crypto-status')).toHaveText('Encrypted file opened locally. Enter its passphrase to decrypt.');
   await expect(page.locator('#crypto-input')).toHaveValue(ciphertext);
@@ -315,6 +317,24 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await page.locator('#language-select').selectOption('eo');
   await expect(page.locator('html')).toHaveAttribute('lang', 'eo');
   await expect(page.locator('#notice-title')).toHaveText('LOKA ĈIFRADO · SEKURECAJ LIMIGOJ VALIDAS');
+  await page.evaluate(() => {
+    File.prototype.text = () => new Promise(resolve => {
+      window.resolveLocalizedFileRead = resolve;
+    });
+  });
+  await page.locator('#import-file').setInputFiles({
+    name: 'esperanto-reading.aether',
+    mimeType: 'text/plain',
+    buffer: Buffer.from('pending')
+  });
+  await expect.poll(() => page.evaluate(() => typeof window.resolveLocalizedFileRead)).toBe('function');
+  await expect(page.locator('#crypto-status')).toHaveText('Legante ĉifritan dosieron loke…');
+  await page.locator('#clear-fields').click();
+  await page.evaluate(() => window.resolveLocalizedFileRead('AETHER1.invalid'));
+  await expect(page.locator('#crypto-status')).toHaveText('Enigo, pasfrazo kaj eligo viŝitaj el la paĝo.');
+  await page.evaluate(() => {
+    delete File.prototype.text;
+  });
 
   await page.locator('#clear-fields').click();
   await expect(page.locator('#crypto-input')).toHaveValue('');

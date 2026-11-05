@@ -33,6 +33,7 @@ const copy = {
     statusCopied: 'Result copied to the clipboard.',
     statusDownloaded: 'Encrypted file download started. Store the file and passphrase separately.',
     statusFileOpened: 'Encrypted file opened locally. Enter its passphrase to decrypt.',
+    statusFileReading: 'Reading encrypted file locally…',
     statusCleared: 'Input, passphrase, and output cleared from the page.',
     errorInput: 'Enter text to process.',
     errorPassphrase: 'Enter a passphrase.',
@@ -82,6 +83,7 @@ const copy = {
     statusCopied: 'Resultaat naar het klembord gekopieerd.',
     statusDownloaded: 'Download van versleuteld bestand gestart. Bewaar bestand en wachtzin apart.',
     statusFileOpened: 'Versleuteld bestand lokaal geopend. Voer de wachtzin in om te ontcijferen.',
+    statusFileReading: 'Versleuteld bestand lokaal lezen…',
     statusCleared: 'Invoer, wachtzin en resultaat van de pagina gewist.',
     errorInput: 'Voer tekst in om te verwerken.',
     errorPassphrase: 'Voer een wachtzin in.',
@@ -131,6 +133,7 @@ const copy = {
     statusCopied: 'Rezulto kopiita al tondujo.',
     statusDownloaded: 'Elŝuto de ĉifrita dosiero komenciĝis. Konservu dosieron kaj pasfrazon aparte.',
     statusFileOpened: 'Ĉifrita dosiero malfermita loke. Enigu la pasfrazon por malĉifri.',
+    statusFileReading: 'Legante ĉifritan dosieron loke…',
     statusCleared: 'Enigo, pasfrazo kaj eligo viŝitaj el la paĝo.',
     errorInput: 'Enigu tekston por prilabori.',
     errorPassphrase: 'Enigu pasfrazon.',
@@ -371,6 +374,7 @@ importFileInput.addEventListener('change', async () => {
   const file = importFileInput.files?.[0];
   if (!file) return;
   let currentOperationId = ++operationId;
+  status.textContent = t('statusFileReading');
   try {
     if (file.size > MAX_ENVELOPE_BYTES) throw new TypeError('format');
     const envelope = (await file.text()).trim();
