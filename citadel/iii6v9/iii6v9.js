@@ -181,6 +181,7 @@ function t(key) {
 
 function setMode(nextMode) {
   operationId += 1;
+  fileReadOperationId = null;
   processButton.disabled = processing;
   importFileInput.value = '';
   mode = nextMode;
@@ -365,6 +366,7 @@ downloadButton.addEventListener('click', () => {
 });
 importFileButton.addEventListener('click', () => {
   operationId += 1;
+  fileReadOperationId = null;
   output.value = '';
   copyButton.disabled = true;
   downloadButton.disabled = true;
@@ -401,6 +403,7 @@ importFileInput.addEventListener('change', async () => {
 });
 document.querySelector('#clear-fields').addEventListener('click', () => {
   operationId += 1;
+  fileReadOperationId = null;
   processButton.disabled = processing;
   input.value = '';
   passphrase.value = '';
