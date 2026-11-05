@@ -101,6 +101,35 @@ Object.setPrototypeOf(nullPrototypeConversation.permissions, null);
 expectValid("own fields on null-prototype records", nullPrototypeConversation);
 expectValid("JSON round-trip conversation", JSON.parse(JSON.stringify(validConversation)));
 
+for (const parent of ["rio:conversation:parent-001", "rio:conversation:a._~-"]) {
+  const value = clone();
+  value.context.parent_conversation_id = parent;
+  expectValid("valid parent conversation reference", value);
+}
+for (const parent of [null, undefined, true, 42, "", "parent", "rio:conversation:", "rio:conversation:a/b", ["rio:conversation:parent"], {}, Symbol("parent")]) {
+  const value = clone();
+  value.context.parent_conversation_id = parent;
+  expectInvalid("invalid parent conversation reference", value);
+}
+for (const [select, key] of [
+  [value => value.context, "surfaces"],
+  [value => value.permissions, "allowed_actions"],
+  [value => value.permissions.visibility, "audience_participant_ids"],
+  [value => value.permissions.visibility, "shared_with_participant_ids"]
+]) {
+  const value = clone();
+  const target = select(value);
+  const item = key === "shared_with_participant_ids" ? "participant-1" : target[key][0];
+  target[key] = [item, item];
+  expectInvalid(`duplicate ${key}`, value);
+}
+const distinctSurfaceConversation = clone();
+distinctSurfaceConversation.context.surfaces = ["WEB", "MOBILE"];
+expectValid("distinct surfaces", distinctSurfaceConversation);
+const sharedAudienceConversation = clone();
+sharedAudienceConversation.permissions.visibility.shared_with_participant_ids = ["participant-1"];
+expectValid("same participant in separate visibility lists", sharedAudienceConversation);
+
 for (const state of ["CONNECTED", "ACTIVE", "RESUMED"]) {
   for (const malformed of [null, 42, "invalid", {}, []]) {
     for (const field of ["participants", "participant", "endpoints", "endpoint"]) {

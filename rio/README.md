@@ -38,6 +38,9 @@ Conversation and VisitCard transition checks require string state names and own
 policy entries; arrays, objects and inherited names are rejected without coercion.
 The existing transition tables and consent requirements remain authoritative for
 this implementation profile.
+The runtime also enforces the schema's optional parent-conversation reference and
+unique entries within surfaces, allowed actions and each visibility list. A
+participant may still appear once in each of the two separate visibility lists.
 
 ## Boundaries
 

@@ -24,6 +24,12 @@ const isObject = (value) => value !== null && typeof value === "object" && !Arra
 const isNonEmptyString = (value) => typeof value === "string" && value.length > 0;
 const isDateTimeOrNull = (value) => value === null || (isNonEmptyString(value) && !Number.isNaN(Date.parse(value)));
 
+function requireUniqueItems(value, path, errors) {
+  if (Array.isArray(value) && new Set(value).size !== value.length) {
+    errors.push(`${path} must contain unique items`);
+  }
+}
+
 function requireKeys(value, required, allowed, path, errors) {
   if (!isObject(value)) {
     errors.push(`${path} must be an object`);
@@ -101,6 +107,13 @@ export function validateConversation(conversation) {
       errors.push("$.context.surfaces must contain at least one surface");
     } else {
       conversation.context.surfaces.forEach((surface, index) => requireEnum(surface, surfaces, `$.context.surfaces[${index}]`, errors));
+      requireUniqueItems(conversation.context.surfaces, "$.context.surfaces", errors);
+    }
+    if (Object.hasOwn(conversation.context, "parent_conversation_id")) {
+      const parent = conversation.context.parent_conversation_id;
+      if (typeof parent !== "string" || !/^rio:conversation:[A-Za-z0-9._~-]+$/.test(parent)) {
+        errors.push("$.context.parent_conversation_id is invalid");
+      }
     }
     if (conversation.context.visitcard !== undefined) validateVisitcard(conversation.context.visitcard, errors);
     if (conversation.context.subjects !== undefined) {
@@ -194,6 +207,7 @@ function validatePermissions(permissions, participantIds, errors) {
     errors.push("$.permissions.allowed_actions must be an array");
   } else {
     permissions.allowed_actions.forEach((action, index) => requireEnum(action, allowedActions, `$.permissions.allowed_actions[${index}]`, errors));
+    requireUniqueItems(permissions.allowed_actions, "$.permissions.allowed_actions", errors);
   }
   if (permissions.authority_effect !== "NONE") errors.push("$.permissions.authority_effect must be NONE");
   for (const key of ["valid_from", "valid_until", "revoked_at"]) {
@@ -218,6 +232,7 @@ function validatePermissions(permissions, participantIds, errors) {
     if (!isNonEmptyString(permissions.visibility.purpose)) errors.push("$.permissions.visibility.purpose is required");
     if (!isDateTimeOrNull(permissions.visibility.retention_until)) errors.push("$.permissions.visibility.retention_until must be null or a date-time");
     for (const key of ["audience_participant_ids", "shared_with_participant_ids"]) {
+      requireUniqueItems(permissions.visibility[key], `$.permissions.visibility.${key}`, errors);
       const participantIdsToCheck = Array.isArray(permissions.visibility[key]) ? permissions.visibility[key] : [];
       for (const participantId of participantIdsToCheck) {
         if (!participantIds.has(participantId)) errors.push(`$.permissions.visibility.${key} must reference participants`);
