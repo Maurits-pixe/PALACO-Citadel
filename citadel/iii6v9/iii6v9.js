@@ -173,6 +173,7 @@ let language = 'en';
 let mode = 'encrypt';
 let operationId = 0;
 let fileReadOperationId = null;
+let processingOperationId = null;
 let processing = false;
 
 function t(key) {
@@ -221,6 +222,7 @@ function applyLanguage() {
   input.placeholder = t(mode === 'encrypt' ? 'inputPlaceholderEncrypt' : 'inputPlaceholderDecrypt');
   processButton.textContent = t(mode === 'encrypt' ? 'processButtonEncrypt' : 'processButtonDecrypt');
   if (fileReadOperationId === operationId) status.textContent = t('statusFileReading');
+  else if (processingOperationId === operationId) status.textContent = t('processing');
 }
 
 function bytesToBase64(bytes) {
@@ -323,6 +325,7 @@ async function processText(event) {
     return;
   }
 
+  processingOperationId = currentOperationId;
   processing = true;
   processButton.disabled = true;
   status.textContent = t('processing');
@@ -347,6 +350,7 @@ async function processText(event) {
         : currentMode === 'decrypt' ? t('errorDecrypt') : t('errorGeneral');
   } finally {
     processing = false;
+    processingOperationId = null;
     processButton.disabled = false;
   }
 }

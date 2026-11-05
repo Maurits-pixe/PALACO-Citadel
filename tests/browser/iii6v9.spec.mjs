@@ -313,6 +313,31 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   });
 
   await page.evaluate(() => {
+    const subtle = crypto.subtle;
+    window.originalDeriveKey = subtle.deriveKey.bind(subtle);
+    window.resolveLocalizedDeriveKey = null;
+    subtle.deriveKey = (...args) => new Promise(resolve => {
+      window.resolveLocalizedDeriveKey = () => resolve(window.originalDeriveKey(...args));
+    });
+  });
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Processing locally…');
+  await expect.poll(() => page.evaluate(() => typeof window.resolveLocalizedDeriveKey)).toBe('function');
+  await page.locator('#language-select').selectOption('nl');
+  await expect(page.locator('#crypto-status')).toHaveText('Lokaal verwerken…');
+  await page.locator('#language-select').selectOption('eo');
+  await expect(page.locator('#crypto-status')).toHaveText('Loka prilaborado…');
+  await page.evaluate(() => window.resolveLocalizedDeriveKey());
+  await expect(page.locator('#crypto-status')).toHaveText(
+    'Ĉifrado finita. Kopiu aŭ elŝutu la ĉifrotekston; ĝi ne estas konservata en la aplikaĵo.'
+  );
+  await page.evaluate(() => {
+    crypto.subtle.deriveKey = window.originalDeriveKey;
+    delete window.originalDeriveKey;
+  });
+  await page.locator('#language-select').selectOption('en');
+
+  await page.evaluate(() => {
     document.querySelector('#crypto-input').value = 'x'.repeat(4 * 1024 * 1024 + 1);
   });
   await page.locator('#passphrase').fill(passphrase);
