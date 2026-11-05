@@ -76,6 +76,21 @@ const expectInvalid = (name, value) => cases.push({ name, expected: false, error
 
 expectValid("canonical active conversation", clone());
 
+for (const key of ["valid_from", "valid_until", "revoked_at"]) {
+  for (const malformed of [undefined, true, 42, [], {}, Object.create(null), Symbol("timestamp"), new Date("2026-09-12T00:00:00Z"),
+    { toString() { throw new Error("invalid timestamps must not be coerced"); } }]) {
+    const value = clone();
+    value.permissions.valid_until = "2026-09-13T00:00:00Z";
+    value.permissions[key] = malformed;
+    expectInvalid(`invalid permission timestamp ${key}`, value);
+    for (const result of [transitionConversation(value, "PAUSED", null), sendMessage(value, null, null)]) {
+      assert.equal(result.ok, false, "invalid timestamp sources cannot enter mutation paths");
+      assert.equal(Object.hasOwn(result, "conversation"), false, "invalid timestamps cannot produce a candidate");
+    }
+    assert.equal(value.permissions[key], malformed, "validation must not coerce or replace permission timestamps");
+  }
+}
+
 const inheritedFieldCases = [
   ["root consent context", value => value, "permissions", "$.permissions"],
   ["conversation identity", value => value, "conversation_id", "$.conversation_id"],
@@ -453,6 +468,19 @@ assert.deepEqual(grantedConsent.conversation.permissions.allowed_actions, consen
 assert.equal(grantedConsent.conversation.permissions.authority_effect, "NONE", "consent must not create authority");
 assert.equal(grantedConsent.conversation.provenance[1].event, "CONSENT_GRANTED", "consent grant must record provenance");
 assert.equal(grantedConsent.conversation.provenance[1].previous_record_id, "prov-consent-1", "consent provenance must link backward");
+
+const timestampGrantSourceSnapshot = structuredClone(verifiedCreatedConversation.conversation);
+for (const key of ["valid_from", "valid_until"]) {
+  for (const malformed of [undefined, true, 42, [], {}, Object.create(null), Symbol("timestamp"), new Date("2026-09-12T00:00:00Z"),
+    { toString() { throw new Error("grant timestamps must not be coerced"); } }]) {
+    const grant = { ...consentGrant, valid_until: "2026-09-13T00:00:00Z", [key]: malformed };
+    const result = grantConsent(verifiedCreatedConversation.conversation, grant, consentRecord);
+    assert.equal(result.ok, false, "invalid grant boundaries must be rejected without exceptions");
+    assert.equal(Object.hasOwn(result, "conversation"), false, "invalid grant must not produce a candidate");
+    assert.equal(grant[key], malformed, "grant validation must not replace invalid timestamps");
+    assert.deepEqual(verifiedCreatedConversation.conversation, timestampGrantSourceSnapshot, "invalid grant must preserve source consent and provenance");
+  }
+}
 
 const requestedAfterGrant = transitionConversation(grantedConsent.conversation, "REQUESTED", {
   ...consentRecord,

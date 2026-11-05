@@ -233,7 +233,9 @@ function validatePermissions(permissions, participantIds, errors) {
   if (permissions.consent_state !== "GRANTED" && Array.isArray(permissions.allowed_actions) && permissions.allowed_actions.length > 0) {
     errors.push("allowed actions require granted consent");
   }
-  if (permissions.valid_from !== null && permissions.valid_until !== null && Date.parse(permissions.valid_from) > Date.parse(permissions.valid_until)) {
+  if (permissions.valid_from !== null && permissions.valid_until !== null
+    && isDateTimeOrNull(permissions.valid_from) && isDateTimeOrNull(permissions.valid_until)
+    && Date.parse(permissions.valid_from) > Date.parse(permissions.valid_until)) {
     errors.push("permission validity window is reversed");
   }
   const visibilityKeys = ["audience_participant_ids", "purpose", "shared_with_participant_ids", "retention_until"];

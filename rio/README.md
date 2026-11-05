@@ -51,6 +51,9 @@ into identities; malformed identities cannot produce mutation candidates.
 Conversation arrays must own every position: sparse arrays and inherited index
 values are rejected before traversal. Empty arrays remain supported wherever the
 existing schema permits them; validation never fills missing positions.
+Permission validity windows are compared only after both boundaries validate as
+timestamps. Invalid timestamp types return validation errors without object
+coercion, mutation candidates or changes to the supplied source.
 
 ## Boundaries
 
