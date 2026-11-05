@@ -164,6 +164,22 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await expect(page.locator('#download-output')).toBeDisabled();
   await page.locator('#language-select').selectOption('en');
   await page.locator('#import-file').setInputFiles({
+    name: 'malformed-after-read.aether',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(downloadedEnvelope)
+  });
+  await expect.poll(() => page.evaluate(() => window.fileReads['malformed-after-read.aether']?.length)).toBe(1);
+  await page.locator('#language-select').selectOption('eo');
+  await expect(page.locator('#crypto-status')).toHaveText('Legante ĉifritan dosieron loke…');
+  await page.evaluate(() => window.fileReads['malformed-after-read.aether'][0].resolve('AETHER1.invalid'));
+  await expect(page.locator('#crypto-status')).toHaveText('Elektu validan ĉifritan AETHER1-dosieron de maksimume 6 MiB.');
+  await expect(page.locator('#import-file')).toHaveValue('');
+  await expect(page.locator('#crypto-input')).toHaveValue(ciphertext);
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+  await page.locator('#language-select').selectOption('en');
+  await page.locator('#import-file').setInputFiles({
     name: 'cancelled-picker.aether',
     mimeType: 'text/plain',
     buffer: Buffer.from(downloadedEnvelope)
