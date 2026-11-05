@@ -328,6 +328,7 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await expect.poll(() => page.evaluate(() => typeof window.resolveModeChangeDeriveKey)).toBe('function');
   await page.locator('#decrypt-mode').click();
   await expect(page.locator('#crypto-status')).toHaveText('');
+  await expect(page.locator('#crypto-form button[type="submit"]')).toBeDisabled();
   await expect(page.locator('#crypto-output')).toHaveValue('');
   await expect(page.locator('#copy-output')).toBeDisabled();
   await expect(page.locator('#download-output')).toBeDisabled();
