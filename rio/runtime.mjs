@@ -256,8 +256,13 @@ function validateSubject(subject, index, subjectIds, provenanceReferences, error
   if (isNonEmptyString(subject.provenance_reference)) provenanceReferences.push({ path, reference: subject.provenance_reference });
 }
 
+function permitsTransition(transitions, from, to) {
+  return typeof from === "string" && typeof to === "string"
+    && Object.hasOwn(transitions, from) && transitions[from].includes(to);
+}
+
 export function canTransition(from, to) {
-  return policy.conversation_transitions[from]?.includes(to) ?? false;
+  return permitsTransition(policy.conversation_transitions, from, to);
 }
 
 export function canAdvanceDelivery(from, to) {
@@ -267,7 +272,7 @@ export function canAdvanceDelivery(from, to) {
 }
 
 export function canTransitionVisitcardEncounter(from, to) {
-  return policy.visitcard_encounter_transitions[from]?.includes(to) ?? false;
+  return permitsTransition(policy.visitcard_encounter_transitions, from, to);
 }
 
 function validateTransitionRecord(conversation, record) {

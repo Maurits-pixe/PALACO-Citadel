@@ -34,6 +34,10 @@ accepts only string identifiers found directly in the locale dictionaries.
 Malformed record shapes are rejected before connected-state and routing checks;
 validation returns errors rather than dereferencing invalid participants or
 permissions. Mutations reject these invalid sources without changing them.
+Conversation and VisitCard transition checks require string state names and own
+policy entries; arrays, objects and inherited names are rejected without coercion.
+The existing transition tables and consent requirements remain authoritative for
+this implementation profile.
 
 ## Boundaries
 

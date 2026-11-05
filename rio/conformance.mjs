@@ -544,6 +544,21 @@ assert.equal(canTransitionVisitcardEncounter("RECOGNIZED", "ACCEPTED"), true, "V
 assert.equal(canTransitionVisitcardEncounter("ENCOUNTERED", "RECOGNIZED"), false, "skipped VisitCard transition must fail");
 assert.equal(canTransitionVisitcardEncounter("CONNECTED", "ACCEPTED"), false, "transition from connected VisitCard must fail");
 
+const malformedPolicyStates = [
+  ["ACTIVE"], ["ENCOUNTERED"], null, undefined, true, 42, "", "UNKNOWN",
+  "constructor", "toString", "__proto__", {}, Object.create(null), Symbol("ACTIVE"),
+  { [Symbol.toPrimitive]() { throw new Error("policy inputs must not be coerced"); } }
+];
+for (const [check, from, to] of [
+  [canTransition, "ACTIVE", "PAUSED"],
+  [canTransitionVisitcardEncounter, "ENCOUNTERED", "INTRODUCED"]
+]) {
+  for (const malformed of malformedPolicyStates) {
+    assert.equal(check(malformed, to), false, "malformed policy source must be rejected without coercion or exceptions");
+    assert.equal(check(from, malformed), false, "malformed policy target must be rejected without coercion or exceptions");
+  }
+}
+
 const visitcardSource = clone();
 visitcardSource.context.visitcard = {
   object_reference: "identity:participant-1",
