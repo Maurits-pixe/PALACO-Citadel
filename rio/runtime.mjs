@@ -22,7 +22,20 @@ const subjectStates = new Set(schema.$defs.subject.properties.state.enum);
 
 const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const isNonEmptyString = (value) => typeof value === "string" && value.length > 0;
-const isDateTimeOrNull = (value) => value === null || (isNonEmptyString(value) && !Number.isNaN(Date.parse(value)));
+const isDateTimeOrNull = (value) => value === null || isDateTime(value);
+
+function isDateTime(value) {
+  if (typeof value !== "string") return false;
+  const match = /^(\d{4})-(\d{2})-(\d{2})[Tt](\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:[Zz]|[+-](\d{2}):(\d{2}))$/.exec(value);
+  if (!match || match[0] !== value) return false;
+  const [year, month, day, hour, minute, second] = match.slice(1, 7).map(Number);
+  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const daysInMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (month < 1 || month > 12 || day < 1 || day > daysInMonth[month - 1]
+    || hour > 23 || minute > 59 || second > 59
+    || Number(match[7] ?? 0) > 23 || Number(match[8] ?? 0) > 59) return false;
+  return !Number.isNaN(Date.parse(value));
+}
 
 function isDenseArray(value) {
   if (!Array.isArray(value)) return false;

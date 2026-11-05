@@ -76,6 +76,45 @@ const expectInvalid = (name, value) => cases.push({ name, expected: false, error
 
 expectValid("canonical active conversation", clone());
 
+const invalidDateTimes = [
+  "2026-09-12", "09/12/2026", "2026-09-12T00:00:00",
+  "2026-02-30T00:00:00Z", "2025-02-29T00:00:00Z", "2026-04-31T00:00:00Z",
+  "1900-02-29T00:00:00Z", "2100-02-29T00:00:00Z",
+  "2026-00-12T00:00:00Z", "2026-13-12T00:00:00Z", "2026-09-00T00:00:00Z",
+  "2026-09-12T24:00:00Z", "2026-09-12T00:60:00Z", "2026-09-12T00:00:60Z",
+  "2026-09-12T00:00:00+24:00", "2026-09-12T00:00:00+01:60",
+  "2026-09-12T00:00:00Z\n", " 2026-09-12T00:00:00Z"
+];
+const timestampFields = [
+  [value => value, "created_at", "$.created_at"],
+  [value => value.provenance[0], "recorded_at", "$.provenance[0].recorded_at"],
+  [value => value.permissions, "valid_from", "$.permissions.valid_from"],
+  [value => value.permissions, "valid_until", "$.permissions.valid_until"],
+  [value => value.permissions, "revoked_at", "$.permissions.revoked_at"],
+  [value => value.permissions.visibility, "retention_until", "$.permissions.visibility.retention_until"],
+  [value => value.message_history[0], "created_at", "$.message_history[0].created_at"]
+];
+for (const [select, key, path] of timestampFields) {
+  for (const timestamp of invalidDateTimes) {
+    const value = clone();
+    select(value)[key] = timestamp;
+    assert.ok(validateConversation(value).some(error => error.startsWith(path)), "invalid timestamp must be rejected at its own field");
+    expectInvalid(`invalid date-time at ${path}`, value);
+    assert.equal(select(value)[key], timestamp, "date validation must not normalize supplied time");
+  }
+}
+for (const timestamp of [
+  "2026-09-12T00:00:00Z", "2024-02-29T23:59:59Z", "2000-02-29T00:00:00Z",
+  "2400-02-29T00:00:00Z", "2026-09-12T08:15:30+05:45",
+  "2026-09-12T08:15:30-03:30", "2026-09-12T00:00:00.123456Z", "2026-09-12t00:00:00z"
+]) {
+  const value = clone();
+  for (const [select, key] of timestampFields) {
+    if (key !== "revoked_at") select(value)[key] = timestamp;
+  }
+  expectValid("valid calendar date-time with explicit zone", value);
+}
+
 for (const key of ["valid_from", "valid_until", "revoked_at"]) {
   for (const malformed of [undefined, true, 42, [], {}, Object.create(null), Symbol("timestamp"), new Date("2026-09-12T00:00:00Z"),
     { toString() { throw new Error("invalid timestamps must not be coerced"); } }]) {

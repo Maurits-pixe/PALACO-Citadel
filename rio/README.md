@@ -57,6 +57,11 @@ coercion, mutation candidates or changes to the supplied source.
 Transition APIs validate target-state types and delivery message identifiers
 before formatting errors. Malformed inputs return textual validation errors,
 without invoking object coercion or changing source state and provenance.
+Non-null timestamps require a full calendar-valid date and time with seconds and
+an explicit `Z` or numeric offset. Date-only, local-time and normalized impossible
+dates are rejected. Valid leap days, offsets and fractional seconds remain
+supported; source strings are never rewritten. Leap seconds remain unsupported
+by the underlying JavaScript timestamp parser.
 
 ## Boundaries
 
