@@ -318,6 +318,32 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await page.evaluate(() => {
     const subtle = crypto.subtle;
     window.originalDeriveKey = subtle.deriveKey.bind(subtle);
+    window.rejectEditedInputDeriveKey = null;
+    subtle.deriveKey = () => new Promise((resolve, reject) => {
+      window.rejectEditedInputDeriveKey = () => reject(new Error('superseded crypto operation'));
+    });
+  });
+  await page.locator('#crypto-input').fill('plaintext before rejected operation');
+  await page.locator('#passphrase').fill(passphrase);
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Processing locally…');
+  await expect.poll(() => page.evaluate(() => typeof window.rejectEditedInputDeriveKey)).toBe('function');
+  await page.locator('#crypto-input').fill('plaintext after rejected operation');
+  await expect(page.locator('#crypto-status')).toHaveText('');
+  await page.evaluate(() => window.rejectEditedInputDeriveKey());
+  await expect(page.locator('#crypto-form button[type="submit"]')).toBeEnabled({ timeout: 10000 });
+  await expect(page.locator('#crypto-status')).toHaveText('');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+  await page.evaluate(() => {
+    crypto.subtle.deriveKey = window.originalDeriveKey;
+    delete window.originalDeriveKey;
+  });
+
+  await page.evaluate(() => {
+    const subtle = crypto.subtle;
+    window.originalDeriveKey = subtle.deriveKey.bind(subtle);
     window.resolveModeChangeDeriveKey = null;
     subtle.deriveKey = (...args) => new Promise(resolve => {
       window.resolveModeChangeDeriveKey = () => resolve(window.originalDeriveKey(...args));
