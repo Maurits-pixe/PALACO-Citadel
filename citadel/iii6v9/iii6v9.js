@@ -277,6 +277,7 @@ async function processText(event) {
   event.preventDefault();
   if (processing) return;
   const currentOperationId = ++operationId;
+  fileReadOperationId = null;
   const currentMode = mode;
   output.value = '';
   copyButton.disabled = true;

@@ -181,6 +181,26 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   });
 
   await page.evaluate(() => {
+    File.prototype.text = () => new Promise(resolve => {
+      window.resolveSupersededFileRead = resolve;
+    });
+  });
+  await page.locator('#import-file').setInputFiles({
+    name: 'superseded-by-submit.aether',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(downloadedEnvelope)
+  });
+  await expect.poll(() => page.evaluate(() => typeof window.resolveSupersededFileRead)).toBe('function');
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Enter text or an AETHER1 encrypted envelope.');
+  await page.evaluate(envelope => window.resolveSupersededFileRead(envelope), downloadedEnvelope);
+  await expect(page.locator('#crypto-status')).toHaveText('Enter text or an AETHER1 encrypted envelope.');
+  await expect(page.locator('#crypto-input')).toHaveValue('');
+  await page.evaluate(() => {
+    delete File.prototype.text;
+  });
+
+  await page.evaluate(() => {
     File.prototype.text = () => Promise.reject(new Error('file read failed'));
   });
   await page.locator('#import-file').setInputFiles({
