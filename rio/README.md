@@ -41,6 +41,10 @@ this implementation profile.
 The runtime also enforces the schema's optional parent-conversation reference and
 unique entries within surfaces, allowed actions and each visibility list. A
 participant may still appear once in each of the two separate visibility lists.
+Locale validation preserves the resolver's distinction between an omitted locale
+(Dutch default) and an explicit null or blank locale (English fallback). Stored
+`locale.requested` values must be strings or null. Creation and locale changes
+retain these semantics without changing permissions.
 
 ## Boundaries
 

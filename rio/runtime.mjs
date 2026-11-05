@@ -63,7 +63,10 @@ export function validateConversation(conversation) {
 
   const localeKeys = ["requested", "resolved", "fallback_used", "direction", "name"];
   if (requireKeys(conversation.locale, localeKeys, localeKeys, "$.locale", errors)) {
-    const expectedLocale = resolveLocale(conversation.locale.requested ?? undefined);
+    if (conversation.locale.requested !== null && typeof conversation.locale.requested !== "string") {
+      errors.push("$.locale.requested must be a string or null");
+    }
+    const expectedLocale = resolveLocale(conversation.locale.requested);
     if (conversation.locale.resolved !== expectedLocale.resolved) errors.push("$.locale.resolved does not match requested locale");
     if (conversation.locale.fallback_used !== expectedLocale.fallback_used) errors.push("$.locale.fallback_used does not match requested locale");
     if (conversation.locale.direction !== expectedLocale.direction) errors.push("$.locale.direction does not match resolved locale");

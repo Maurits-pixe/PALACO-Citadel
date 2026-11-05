@@ -101,6 +101,17 @@ Object.setPrototypeOf(nullPrototypeConversation.permissions, null);
 expectValid("own fields on null-prototype records", nullPrototypeConversation);
 expectValid("JSON round-trip conversation", JSON.parse(JSON.stringify(validConversation)));
 
+for (const requested of [null, "", "   ", "ja-JP", "ar-SA", "de-DE"]) {
+  const value = clone();
+  value.locale = resolveLocale(requested);
+  expectValid("resolver-produced locale must validate", value);
+}
+for (const requested of [undefined, 42, true, {}, [], Symbol("nl"), Object.create(null)]) {
+  const value = clone();
+  value.locale = { ...resolveLocale(requested), requested };
+  expectInvalid("stored locale request must be string or null", value);
+}
+
 for (const parent of ["rio:conversation:parent-001", "rio:conversation:a._~-"]) {
   const value = clone();
   value.context.parent_conversation_id = parent;
@@ -506,6 +517,20 @@ const localeRecord = {
 };
 const localeSource = clone();
 const localeSourceSnapshot = structuredClone(localeSource);
+for (const requested of [undefined, null, "", "   ", "ja-JP", "ar-SA", "de-DE"]) {
+  const created = createConversation({ ...creationInput, locale: requested });
+  assert.equal(created.ok, true, "locale resolver output must be accepted during creation");
+  assert.deepEqual(created.conversation.locale, resolveLocale(requested), "creation must retain exact resolver semantics");
+  assert.deepEqual(validateConversation(created.conversation), [], "created locale must survive validation");
+  if (requested !== undefined) {
+    const changed = setConversationLocale(localeSource, requested, localeRecord);
+    assert.equal(changed.ok, true, "fallback and regional locales must be accepted during mutation");
+    assert.deepEqual(changed.conversation.locale, resolveLocale(requested), "mutation must retain resolver semantics");
+    assert.deepEqual(changed.conversation.permissions, localeSource.permissions, "locale fallback must not alter permissions");
+    assert.equal(changed.conversation.provenance.length, localeSource.provenance.length + 1, "locale fallback must append provenance");
+    assert.deepEqual(localeSource, localeSourceSnapshot, "locale fallback must not mutate its source");
+  }
+}
 const equalTimestampLocale = setConversationLocale(localeSource, "en", {
   ...localeRecord,
   record_id: "prov-locale-equal",
