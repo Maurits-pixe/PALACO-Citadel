@@ -185,6 +185,8 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
       window.resolveSupersededFileRead = resolve;
     });
   });
+  await page.locator('#crypto-input').fill('superseding text');
+  await page.locator('#passphrase').fill('short');
   await page.locator('#import-file').setInputFiles({
     name: 'superseded-by-submit.aether',
     mimeType: 'text/plain',
@@ -192,10 +194,10 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   });
   await expect.poll(() => page.evaluate(() => typeof window.resolveSupersededFileRead)).toBe('function');
   await page.locator('#crypto-form button[type="submit"]').click();
-  await expect(page.locator('#crypto-status')).toHaveText('Enter text or an AETHER1 encrypted envelope.');
+  await expect(page.locator('#crypto-status')).toHaveText('Use at least 12 characters for new encryption.');
   await page.evaluate(envelope => window.resolveSupersededFileRead(envelope), downloadedEnvelope);
-  await expect(page.locator('#crypto-status')).toHaveText('Enter text or an AETHER1 encrypted envelope.');
-  await expect(page.locator('#crypto-input')).toHaveValue('');
+  await expect(page.locator('#crypto-status')).toHaveText('Use at least 12 characters for new encryption.');
+  await expect(page.locator('#crypto-input')).toHaveValue('superseding text');
   await page.evaluate(() => {
     delete File.prototype.text;
   });
