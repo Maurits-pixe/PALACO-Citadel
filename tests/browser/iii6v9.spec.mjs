@@ -707,44 +707,6 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await expect(page.locator('#copy-output')).toBeDisabled();
   await expect(page.locator('#download-output')).toBeDisabled();
 
-  const createEnvelope = async (size, secret) => page.evaluate(async ({ size, secret }) => {
-    const encoder = new TextEncoder();
-    const salt = crypto.getRandomValues(new Uint8Array(16));
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-    const material = await crypto.subtle.importKey('raw', encoder.encode(secret), 'PBKDF2', false, ['deriveKey']);
-    const key = await crypto.subtle.deriveKey(
-      { name: 'PBKDF2', hash: 'SHA-256', salt, iterations: 600_000 },
-      material,
-      { name: 'AES-GCM', length: 256 },
-      false,
-      ['encrypt']
-    );
-    const encrypted = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new Uint8Array(size)));
-    const toBase64 = bytes => {
-      let binary = '';
-      for (let start = 0; start < bytes.length; start += 0x2000) {
-        binary += String.fromCharCode(...bytes.subarray(start, start + 0x2000));
-      }
-      return btoa(binary);
-    };
-    return `AETHER1.${toBase64(salt)}.${toBase64(iv)}.${toBase64(encrypted)}`;
-  }, { size, secret });
-  const maximumPlaintextEnvelope = await createEnvelope(4 * 1024 * 1024, passphrase);
-  await page.locator('#crypto-input').fill(maximumPlaintextEnvelope);
-  await page.locator('#crypto-form button[type="submit"]').click();
-  await expect(page.locator('#crypto-status')).toContainText('Decryption complete');
-  expect(await page.locator('#crypto-output').evaluate(element => element.value.length)).toBe(4 * 1024 * 1024);
-  await expect(page.locator('#copy-output')).toBeEnabled();
-  await expect(page.locator('#download-output')).toBeDisabled();
-
-  const oversizedPlaintextEnvelope = await createEnvelope(4 * 1024 * 1024 + 1, passphrase);
-  await page.locator('#crypto-input').fill(oversizedPlaintextEnvelope);
-  await page.locator('#crypto-form button[type="submit"]').click();
-  await expect(page.locator('#crypto-status')).toHaveText('Decrypted plaintext exceeds the 4 MiB limit.');
-  await expect(page.locator('#crypto-output')).toHaveValue('');
-  await expect(page.locator('#copy-output')).toBeDisabled();
-  await expect(page.locator('#download-output')).toBeDisabled();
-
   await page.locator('#import-file').setInputFiles({
     name: 'invalid.aether',
     mimeType: 'text/plain',
@@ -837,6 +799,51 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await expect(page.locator('#crypto-output')).toHaveValue('');
   expect(await page.evaluate(() => Object.keys(localStorage).filter(key => key !== 'palaco-language'))).toEqual([]);
   expect(externalRequests).toEqual([]);
+});
+
+test('decrypts plaintext at the 4 MiB limit and rejects one byte over', async ({ page }) => {
+  await page.goto('/citadel/iii6v9/');
+  const envelopes = await page.evaluate(async passphrase => {
+    const encoder = new TextEncoder();
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const material = await crypto.subtle.importKey('raw', encoder.encode(passphrase), 'PBKDF2', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', hash: 'SHA-256', salt, iterations: 600_000 },
+      material,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt']
+    );
+    const toBase64 = bytes => {
+      let binary = '';
+      for (let start = 0; start < bytes.length; start += 0x2000) {
+        binary += String.fromCharCode(...bytes.subarray(start, start + 0x2000));
+      }
+      return btoa(binary);
+    };
+    const createEnvelope = async size => {
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const encrypted = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new Uint8Array(size)));
+      return `AETHER1.${toBase64(salt)}.${toBase64(iv)}.${toBase64(encrypted)}`;
+    };
+    return [await createEnvelope(4 * 1024 * 1024), await createEnvelope(4 * 1024 * 1024 + 1)];
+  }, 'correct horse battery staple');
+
+  await page.locator('#decrypt-mode').click();
+  await page.locator('#passphrase').fill('correct horse battery staple');
+  await page.locator('#crypto-input').fill(envelopes[0]);
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toContainText('Decryption complete');
+  expect(await page.locator('#crypto-output').evaluate(element => element.value.length)).toBe(4 * 1024 * 1024);
+  await expect(page.locator('#copy-output')).toBeEnabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+
+  await page.locator('#crypto-input').fill(envelopes[1]);
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Decrypted plaintext exceeds the 4 MiB limit.');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
 });
 
 test('encrypts and decrypts locally while offline after the shell is cached', async ({ page, context }) => {
