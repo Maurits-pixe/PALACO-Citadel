@@ -24,8 +24,54 @@ Where this implementation profile and a higher active source conflict, the highe
 - `transition-policy.json` defines the local fail-closed transition profile and records its source binding.
 - `locales.json` defines the seven provisional language catalogs and text direction.
 - `localization.mjs` resolves locale tags and translates stable RIO status identifiers.
+- `profile-loader.mjs` loads JSON definitions and freezes their nested objects and arrays.
 - `runtime.mjs` exports conversation validation and fail-closed transition checks.
 - `conformance.mjs` tests the runtime with positive and negative fixtures without external dependencies.
+
+Required record fields must be own properties; inherited prototype values cannot
+satisfy the conversation contract. Ordinary JSON records and null-prototype
+records with their own required fields remain supported. Status translation also
+accepts only string identifiers found directly in the locale dictionaries.
+Malformed record shapes are rejected before connected-state and routing checks;
+validation returns errors rather than dereferencing invalid participants or
+permissions. Mutations reject these invalid sources without changing them.
+Conversation and VisitCard transition checks require string state names and own
+policy entries; arrays, objects and inherited names are rejected without coercion.
+The existing transition tables and consent requirements remain authoritative for
+this implementation profile.
+Exported schema, transition policy and locale profiles are deeply immutable after
+loading. Importing code cannot rewrite their rules or translations in place.
+Use `structuredClone` for an editable local copy; changing that copy does not
+reconfigure the runtime. This is an in-memory contract, not file integrity proof.
+The runtime also enforces the schema's optional parent-conversation reference and
+unique entries within surfaces, allowed actions and each visibility list. A
+participant may still appear once in each of the two separate visibility lists.
+Locale validation preserves the resolver's distinction between an omitted locale
+(Dutch default) and an explicit null or blank locale (English fallback). Stored
+`locale.requested` values must be strings or null. Creation and locale changes
+retain these semantics without changing permissions.
+Conversation and subject identifiers must be primitive strings matching their
+existing patterns. Validation does not coerce arrays, boxed strings or objects
+into identities; malformed identities cannot produce mutation candidates.
+Conversation arrays must own every position: sparse arrays and inherited index
+values are rejected before traversal. Empty arrays remain supported wherever the
+existing schema permits them; validation never fills missing positions.
+Permission validity windows are compared only after both boundaries validate as
+timestamps. Invalid timestamp types return validation errors without object
+coercion, mutation candidates or changes to the supplied source.
+Transition APIs validate target-state types and delivery message identifiers
+before formatting errors. Malformed inputs return textual validation errors,
+without invoking object coercion or changing source state and provenance.
+Non-null timestamps require a full calendar-valid date and time with seconds and
+an explicit `Z` or numeric offset. Date-only, local-time and normalized impossible
+dates are rejected. Valid leap days, offsets and fractional seconds remain
+supported; source strings are never rewritten. Leap seconds remain unsupported
+by the underlying JavaScript timestamp parser.
+Provenance order, consent windows, expiry and message admission compare the full
+supplied decimal fraction, including precision finer than milliseconds. Equivalent
+UTC offsets and trailing fractional zeros compare equally; source strings remain
+unchanged. Boundary inclusion rules are preserved, including for dates before
+1970. This compares supplied evidence times and does not establish clock trust.
 
 ## Boundaries
 

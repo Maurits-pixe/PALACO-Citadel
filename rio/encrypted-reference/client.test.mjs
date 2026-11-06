@@ -65,7 +65,8 @@ test('empty, oversized and invalid Unicode plaintext are rejected',async()=>{
   for(const text of ['', ' ', 'x'.repeat(513),String.fromCharCode(0xd800)])await rejected(()=>sender.seal(text,context()));
 });
 test('future, expired and long-lived contexts are rejected',async()=>{
-  for(const override of [{issuedAt:'2026-10-10T13:00:01.000Z'},{expiresAt:T},{expiresAt:'2026-10-10T14:00:00.000Z'}])
+  for(const override of [{issuedAt:'2026-10-10T13:00:01.000Z'},{expiresAt:T},
+    {expiresAt:'2026-10-10T13:05:00.001Z'},{expiresAt:'2026-10-10T14:00:00.000Z'}])
     await rejected(()=>sender.seal('Tijdvast',{...context(),...override}));
 });
 test('roles have no wrong-side decrypt/encrypt operation and export no private keys',async()=>{

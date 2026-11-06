@@ -1,7 +1,7 @@
-import { readFileSync } from "node:fs";
+import { readFrozenProfile } from "./profile-loader.mjs";
 import { resolveLocale } from "./localization.mjs";
 
-const loadJson = (name) => JSON.parse(readFileSync(new URL(name, import.meta.url), "utf8"));
+const loadJson = (name) => readFrozenProfile(new URL(name, import.meta.url));
 export const schema = loadJson("./conversation.schema.json");
 export const policy = loadJson("./transition-policy.json");
 
@@ -22,7 +22,47 @@ const subjectStates = new Set(schema.$defs.subject.properties.state.enum);
 
 const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const isNonEmptyString = (value) => typeof value === "string" && value.length > 0;
-const isDateTimeOrNull = (value) => value === null || (isNonEmptyString(value) && !Number.isNaN(Date.parse(value)));
+const isDateTimeOrNull = (value) => value === null || isDateTime(value);
+
+function isDateTime(value) {
+  if (typeof value !== "string") return false;
+  const match = /^(\d{4})-(\d{2})-(\d{2})[Tt](\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:[Zz]|[+-](\d{2}):(\d{2}))$/.exec(value);
+  if (!match || match[0] !== value) return false;
+  const [year, month, day, hour, minute, second] = match.slice(1, 7).map(Number);
+  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const daysInMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (month < 1 || month > 12 || day < 1 || day > daysInMonth[month - 1]
+    || hour > 23 || minute > 59 || second > 59
+    || Number(match[7] ?? 0) > 23 || Number(match[8] ?? 0) > 59) return false;
+  return !Number.isNaN(Date.parse(value));
+}
+
+// Call only with validated timestamps. Date.parse supplies the UTC second;
+// the original decimal fraction retains precision beyond milliseconds.
+function compareDateTimes(left, right) {
+  const leftSecond = Math.floor(Date.parse(left) / 1000);
+  const rightSecond = Math.floor(Date.parse(right) / 1000);
+  if (leftSecond !== rightSecond) return leftSecond < rightSecond ? -1 : 1;
+  const fraction = value => (/\.(\d+)/.exec(value)?.[1] ?? "").replace(/0+$/, "");
+  const leftFraction = fraction(left);
+  const rightFraction = fraction(right);
+  if (leftFraction === rightFraction) return 0;
+  return leftFraction < rightFraction ? -1 : 1;
+}
+
+function isDenseArray(value) {
+  if (!Array.isArray(value)) return false;
+  for (let index = 0; index < value.length; index += 1) {
+    if (!Object.hasOwn(value, index)) return false;
+  }
+  return true;
+}
+
+function requireUniqueItems(value, path, errors) {
+  if (Array.isArray(value) && new Set(value).size !== value.length) {
+    errors.push(`${path} must contain unique items`);
+  }
+}
 
 function requireKeys(value, required, allowed, path, errors) {
   if (!isObject(value)) {
@@ -30,7 +70,7 @@ function requireKeys(value, required, allowed, path, errors) {
     return false;
   }
   for (const key of required) {
-    if (!(key in value)) errors.push(`${path}.${key} is required`);
+    if (!Object.hasOwn(value, key)) errors.push(`${path}.${key} is required`);
   }
   for (const key of Object.keys(value)) {
     if (!allowed.includes(key)) errors.push(`${path}.${key} is unknown`);
@@ -47,7 +87,7 @@ export function validateConversation(conversation) {
   const rootKeys = schema.required;
   if (!requireKeys(conversation, rootKeys, rootKeys, "$", errors)) return errors;
 
-  if (!/^rio:conversation:[A-Za-z0-9._~-]+$/.test(conversation.conversation_id ?? "")) {
+  if (typeof conversation.conversation_id !== "string" || !/^rio:conversation:[A-Za-z0-9._~-]+$/.test(conversation.conversation_id)) {
     errors.push("$.conversation_id is invalid");
   }
   if (!isDateTimeOrNull(conversation.created_at) || conversation.created_at === null) {
@@ -57,7 +97,10 @@ export function validateConversation(conversation) {
 
   const localeKeys = ["requested", "resolved", "fallback_used", "direction", "name"];
   if (requireKeys(conversation.locale, localeKeys, localeKeys, "$.locale", errors)) {
-    const expectedLocale = resolveLocale(conversation.locale.requested ?? undefined);
+    if (conversation.locale.requested !== null && typeof conversation.locale.requested !== "string") {
+      errors.push("$.locale.requested must be a string or null");
+    }
+    const expectedLocale = resolveLocale(conversation.locale.requested);
     if (conversation.locale.resolved !== expectedLocale.resolved) errors.push("$.locale.resolved does not match requested locale");
     if (conversation.locale.fallback_used !== expectedLocale.fallback_used) errors.push("$.locale.fallback_used does not match requested locale");
     if (conversation.locale.direction !== expectedLocale.direction) errors.push("$.locale.direction does not match resolved locale");
@@ -65,8 +108,8 @@ export function validateConversation(conversation) {
   }
 
   const participantIds = new Set();
-  if (!Array.isArray(conversation.participants) || conversation.participants.length === 0) {
-    errors.push("$.participants must contain at least one participant");
+  if (!isDenseArray(conversation.participants) || conversation.participants.length === 0) {
+    errors.push("$.participants must be a dense array containing at least one participant");
   } else {
     conversation.participants.forEach((participant, index) => {
       const path = `$.participants[${index}]`;
@@ -78,8 +121,8 @@ export function validateConversation(conversation) {
       if (!isNonEmptyString(participant.identity_ref)) errors.push(`${path}.identity_ref is required`);
       requireEnum(participant.identity_type, identityTypes, `${path}.identity_type`, errors);
       requireEnum(participant.trust_indicator, trustIndicators, `${path}.trust_indicator`, errors);
-      if (!Array.isArray(participant.endpoints) || participant.endpoints.length === 0) {
-        errors.push(`${path}.endpoints must contain at least one endpoint`);
+      if (!isDenseArray(participant.endpoints) || participant.endpoints.length === 0) {
+        errors.push(`${path}.endpoints must be a dense array containing at least one endpoint`);
       } else {
         participant.endpoints.forEach((endpoint, endpointIndex) => {
           const endpointPath = `${path}.endpoints[${endpointIndex}]`;
@@ -97,15 +140,22 @@ export function validateConversation(conversation) {
   const contextKeys = ["kind", "surfaces", "parent_conversation_id", "visitcard", "subjects"];
   if (requireKeys(conversation.context, ["kind", "surfaces"], contextKeys, "$.context", errors)) {
     requireEnum(conversation.context.kind, contextKinds, "$.context.kind", errors);
-    if (!Array.isArray(conversation.context.surfaces) || conversation.context.surfaces.length === 0) {
-      errors.push("$.context.surfaces must contain at least one surface");
+    if (!isDenseArray(conversation.context.surfaces) || conversation.context.surfaces.length === 0) {
+      errors.push("$.context.surfaces must be a dense array containing at least one surface");
     } else {
       conversation.context.surfaces.forEach((surface, index) => requireEnum(surface, surfaces, `$.context.surfaces[${index}]`, errors));
+      requireUniqueItems(conversation.context.surfaces, "$.context.surfaces", errors);
+    }
+    if (Object.hasOwn(conversation.context, "parent_conversation_id")) {
+      const parent = conversation.context.parent_conversation_id;
+      if (typeof parent !== "string" || !/^rio:conversation:[A-Za-z0-9._~-]+$/.test(parent)) {
+        errors.push("$.context.parent_conversation_id is invalid");
+      }
     }
     if (conversation.context.visitcard !== undefined) validateVisitcard(conversation.context.visitcard, errors);
     if (conversation.context.subjects !== undefined) {
-      if (!Array.isArray(conversation.context.subjects)) {
-        errors.push("$.context.subjects must be an array");
+      if (!isDenseArray(conversation.context.subjects)) {
+        errors.push("$.context.subjects must be a dense array");
       } else {
         const subjectIds = new Set();
         conversation.context.subjects.forEach((subject, index) => {
@@ -116,8 +166,8 @@ export function validateConversation(conversation) {
   }
 
   const provenanceIds = new Set();
-  if (!Array.isArray(conversation.provenance) || conversation.provenance.length === 0) {
-    errors.push("$.provenance must contain at least one record");
+  if (!isDenseArray(conversation.provenance) || conversation.provenance.length === 0) {
+    errors.push("$.provenance must be a dense array containing at least one record");
   } else {
     conversation.provenance.forEach((record, index) => {
       const path = `$.provenance[${index}]`;
@@ -131,8 +181,8 @@ export function validateConversation(conversation) {
       if (!participantIds.has(record.actor_ref)) errors.push(`${path}.actor_ref must reference a participant`);
       if (index === 0 && record.previous_record_id !== null) errors.push(`${path}.previous_record_id must be null for the first record`);
       if (index > 0 && record.previous_record_id !== previousRecord?.record_id) errors.push(`${path}.previous_record_id must reference the immediately previous record`);
-      if (index > 0 && isDateTimeOrNull(record.recorded_at) && isDateTimeOrNull(previousRecord?.recorded_at)
-        && Date.parse(record.recorded_at) < Date.parse(previousRecord.recorded_at)) {
+      if (index > 0 && isDateTime(record.recorded_at) && isDateTime(previousRecord?.recorded_at)
+        && compareDateTimes(record.recorded_at, previousRecord.recorded_at) < 0) {
         errors.push(`${path}.recorded_at must not precede the previous record`);
       }
       if (provenanceIds.has(record.record_id)) errors.push(`${path}.record_id must be unique`);
@@ -150,8 +200,8 @@ export function validateConversation(conversation) {
   validatePermissions(conversation.permissions, participantIds, errors);
 
   const messageIds = new Set();
-  if (!Array.isArray(conversation.message_history)) {
-    errors.push("$.message_history must be an array");
+  if (!isDenseArray(conversation.message_history)) {
+    errors.push("$.message_history must be a dense array");
   } else {
     conversation.message_history.forEach((message, index) => {
       const path = `$.message_history[${index}]`;
@@ -165,6 +215,10 @@ export function validateConversation(conversation) {
       if (!isNonEmptyString(message.payload_reference)) errors.push(`${path}.payload_reference is required`);
     });
   }
+
+  // Relational checks below require the field shapes validated above.
+  // Reject malformed records before dereferencing participants or permissions.
+  if (errors.length > 0) return errors;
 
   if (["CONNECTED", "ACTIVE", "RESUMED"].includes(conversation.current_state)) {
     if (conversation.permissions?.consent_state !== "GRANTED") errors.push("connected state requires granted consent");
@@ -186,10 +240,11 @@ function validatePermissions(permissions, participantIds, errors) {
   const keys = ["consent_state", "allowed_actions", "visibility", "valid_from", "valid_until", "revoked_at", "authority_effect"];
   if (!requireKeys(permissions, keys, keys, "$.permissions", errors)) return;
   requireEnum(permissions.consent_state, consentStates, "$.permissions.consent_state", errors);
-  if (!Array.isArray(permissions.allowed_actions)) {
-    errors.push("$.permissions.allowed_actions must be an array");
+  if (!isDenseArray(permissions.allowed_actions)) {
+    errors.push("$.permissions.allowed_actions must be a dense array");
   } else {
     permissions.allowed_actions.forEach((action, index) => requireEnum(action, allowedActions, `$.permissions.allowed_actions[${index}]`, errors));
+    requireUniqueItems(permissions.allowed_actions, "$.permissions.allowed_actions", errors);
   }
   if (permissions.authority_effect !== "NONE") errors.push("$.permissions.authority_effect must be NONE");
   for (const key of ["valid_from", "valid_until", "revoked_at"]) {
@@ -204,17 +259,20 @@ function validatePermissions(permissions, participantIds, errors) {
   if (permissions.consent_state !== "GRANTED" && Array.isArray(permissions.allowed_actions) && permissions.allowed_actions.length > 0) {
     errors.push("allowed actions require granted consent");
   }
-  if (permissions.valid_from !== null && permissions.valid_until !== null && Date.parse(permissions.valid_from) > Date.parse(permissions.valid_until)) {
+  if (permissions.valid_from !== null && permissions.valid_until !== null
+    && isDateTimeOrNull(permissions.valid_from) && isDateTimeOrNull(permissions.valid_until)
+    && compareDateTimes(permissions.valid_from, permissions.valid_until) > 0) {
     errors.push("permission validity window is reversed");
   }
   const visibilityKeys = ["audience_participant_ids", "purpose", "shared_with_participant_ids", "retention_until"];
   if (requireKeys(permissions.visibility, visibilityKeys, visibilityKeys, "$.permissions.visibility", errors)) {
-    if (!Array.isArray(permissions.visibility.audience_participant_ids)) errors.push("$.permissions.visibility.audience_participant_ids must be an array");
-    if (!Array.isArray(permissions.visibility.shared_with_participant_ids)) errors.push("$.permissions.visibility.shared_with_participant_ids must be an array");
+    if (!isDenseArray(permissions.visibility.audience_participant_ids)) errors.push("$.permissions.visibility.audience_participant_ids must be a dense array");
+    if (!isDenseArray(permissions.visibility.shared_with_participant_ids)) errors.push("$.permissions.visibility.shared_with_participant_ids must be a dense array");
     if (!isNonEmptyString(permissions.visibility.purpose)) errors.push("$.permissions.visibility.purpose is required");
     if (!isDateTimeOrNull(permissions.visibility.retention_until)) errors.push("$.permissions.visibility.retention_until must be null or a date-time");
     for (const key of ["audience_participant_ids", "shared_with_participant_ids"]) {
-      const participantIdsToCheck = Array.isArray(permissions.visibility[key]) ? permissions.visibility[key] : [];
+      requireUniqueItems(permissions.visibility[key], `$.permissions.visibility.${key}`, errors);
+      const participantIdsToCheck = isDenseArray(permissions.visibility[key]) ? permissions.visibility[key] : [];
       for (const participantId of participantIdsToCheck) {
         if (!participantIds.has(participantId)) errors.push(`$.permissions.visibility.${key} must reference participants`);
       }
@@ -238,7 +296,7 @@ function validateSubject(subject, index, subjectIds, provenanceReferences, error
   const requiredKeys = ["subject_id", "type", "name", "preview_reference", "meaning", "provenance_reference", "state", "boundary", "next_action", "presentation_effect"];
   const allowedKeys = [...requiredKeys, "object_reference"];
   if (!requireKeys(subject, requiredKeys, allowedKeys, path, errors)) return;
-  if (!/^rio:subject:[A-Za-z0-9._~-]+$/.test(subject.subject_id ?? "")) errors.push(`${path}.subject_id is invalid`);
+  if (typeof subject.subject_id !== "string" || !/^rio:subject:[A-Za-z0-9._~-]+$/.test(subject.subject_id)) errors.push(`${path}.subject_id is invalid`);
   if (subjectIds.has(subject.subject_id)) errors.push(`${path}.subject_id must be unique`);
   subjectIds.add(subject.subject_id);
   requireEnum(subject.type, subjectTypes, `${path}.type`, errors);
@@ -252,8 +310,13 @@ function validateSubject(subject, index, subjectIds, provenanceReferences, error
   if (isNonEmptyString(subject.provenance_reference)) provenanceReferences.push({ path, reference: subject.provenance_reference });
 }
 
+function permitsTransition(transitions, from, to) {
+  return typeof from === "string" && typeof to === "string"
+    && Object.hasOwn(transitions, from) && transitions[from].includes(to);
+}
+
 export function canTransition(from, to) {
-  return policy.conversation_transitions[from]?.includes(to) ?? false;
+  return permitsTransition(policy.conversation_transitions, from, to);
 }
 
 export function canAdvanceDelivery(from, to) {
@@ -263,7 +326,7 @@ export function canAdvanceDelivery(from, to) {
 }
 
 export function canTransitionVisitcardEncounter(from, to) {
-  return policy.visitcard_encounter_transitions[from]?.includes(to) ?? false;
+  return permitsTransition(policy.visitcard_encounter_transitions, from, to);
 }
 
 function validateTransitionRecord(conversation, record) {
@@ -284,7 +347,7 @@ function validateTransitionRecord(conversation, record) {
   }
   const previousRecord = conversation.provenance.at(-1);
   if (isDateTimeOrNull(record.recorded_at) && record.recorded_at !== null && previousRecord !== undefined
-    && Date.parse(record.recorded_at) < Date.parse(previousRecord.recorded_at)) {
+    && compareDateTimes(record.recorded_at, previousRecord.recorded_at) < 0) {
     errors.push("$transition.recorded_at must not precede the latest provenance record");
   }
   return errors;
@@ -293,9 +356,8 @@ function validateTransitionRecord(conversation, record) {
 function isConsentValidAt(conversation, recordedAt) {
   const permissions = conversation.permissions;
   if (permissions.consent_state !== "GRANTED") return false;
-  const timestamp = Date.parse(recordedAt);
-  if (permissions.valid_from !== null && timestamp < Date.parse(permissions.valid_from)) return false;
-  if (permissions.valid_until !== null && timestamp > Date.parse(permissions.valid_until)) return false;
+  if (permissions.valid_from !== null && compareDateTimes(recordedAt, permissions.valid_from) < 0) return false;
+  if (permissions.valid_until !== null && compareDateTimes(recordedAt, permissions.valid_until) > 0) return false;
   return true;
 }
 
@@ -454,7 +516,7 @@ export function expireConsent(conversation, record) {
   if (recordErrors.length > 0) {
     return { ok: false, errors: recordErrors };
   }
-  if (Date.parse(record.recorded_at) < Date.parse(conversation.permissions.valid_until)) {
+  if (compareDateTimes(record.recorded_at, conversation.permissions.valid_until) < 0) {
     return { ok: false, errors: ["consent cannot expire before valid_until"] };
   }
 
@@ -519,6 +581,9 @@ export function transitionVisitcardEncounter(conversation, to, record) {
   const sourceErrors = validateConversation(conversation);
   if (sourceErrors.length > 0) {
     return { ok: false, errors: sourceErrors };
+  }
+  if (typeof to !== "string") {
+    return { ok: false, errors: ["VisitCard target state must be a string"] };
   }
 
   const visitcard = conversation.context.visitcard;
@@ -617,6 +682,9 @@ export function transitionConversation(conversation, to, record) {
   if (sourceErrors.length > 0) {
     return { ok: false, errors: sourceErrors };
   }
+  if (typeof to !== "string") {
+    return { ok: false, errors: ["conversation target state must be a string"] };
+  }
 
   if (!canTransition(conversation.current_state, to)) {
     return { ok: false, errors: [`transition ${conversation.current_state} -> ${to} is not allowed`] };
@@ -674,10 +742,7 @@ export function sendMessage(conversation, message, record) {
   if (conversation.permissions.consent_state !== "GRANTED" || !conversation.permissions.allowed_actions.includes("SEND_MESSAGE")) {
     return { ok: false, errors: ["sending a message requires granted SEND_MESSAGE permission"] };
   }
-  const messageTime = Date.parse(message.created_at);
-  const validFrom = Date.parse(conversation.permissions.valid_from);
-  const validUntil = conversation.permissions.valid_until === null ? null : Date.parse(conversation.permissions.valid_until);
-  if (messageTime < validFrom || (validUntil !== null && messageTime > validUntil)) {
+  if (!isConsentValidAt(conversation, message.created_at)) {
     return { ok: false, errors: ["message timestamp is outside the consent validity window"] };
   }
   if (!conversation.participants.some((participant) => participant.participant_id === message.sender_participant_id)) {
@@ -716,6 +781,12 @@ export function advanceMessageDelivery(conversation, messageId, to, record) {
   const sourceErrors = validateConversation(conversation);
   if (sourceErrors.length > 0) {
     return { ok: false, errors: sourceErrors };
+  }
+  if (!isNonEmptyString(messageId)) {
+    return { ok: false, errors: ["delivery message ID must be a non-empty string"] };
+  }
+  if (typeof to !== "string") {
+    return { ok: false, errors: ["delivery target state must be a string"] };
   }
 
   const messageIndex = conversation.message_history.findIndex((message) => message.message_id === messageId);

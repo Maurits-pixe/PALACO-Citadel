@@ -1,6 +1,6 @@
-import { readFileSync } from "node:fs";
+import { readFrozenProfile } from "./profile-loader.mjs";
 
-export const localeProfile = JSON.parse(readFileSync(new URL("./locales.json", import.meta.url), "utf8"));
+export const localeProfile = readFrozenProfile(new URL("./locales.json", import.meta.url));
 
 export function resolveLocale(requestedLocale = localeProfile.default_locale) {
   const requested = typeof requestedLocale === "string" ? requestedLocale.trim().toLowerCase() : "";
@@ -21,13 +21,16 @@ export function resolveLocale(requestedLocale = localeProfile.default_locale) {
 
 export function translate(messageId, requestedLocale) {
   const locale = resolveLocale(requestedLocale);
-  const localized = localeProfile.locales[locale.resolved].messages[messageId];
-  const fallback = localeProfile.locales[localeProfile.fallback_locale].messages[messageId];
+  const lookup = messages => typeof messageId === "string" && Object.hasOwn(messages, messageId)
+    ? messages[messageId]
+    : undefined;
+  const localized = lookup(localeProfile.locales[locale.resolved].messages);
+  const fallback = lookup(localeProfile.locales[localeProfile.fallback_locale].messages);
 
   if (localized === undefined && fallback === undefined) {
     return {
       ok: false,
-      errors: [`message ${messageId} is not defined`],
+      errors: [typeof messageId === "string" ? `message ${messageId} is not defined` : "message ID must be a string"],
       locale
     };
   }

@@ -46,8 +46,9 @@ test('separate persistent Chromium processes retain private keys and replay stat
     let sender=await boot('SENDER','ENROLL'),receiver=await boot('RECEIVER','ENROLL');
     const senderIdentity=sender.identity,receiverIdentity=receiver.identity;
     await connect(sender.page,receiver.identity);await connect(receiver.page,sender.identity);
+    const issuedAt=Date.now();
     const context={channelId:'process-contact',messageId:'process-message',senderId:'persistent-sender',receiverId:'persistent-receiver',
-      issuedAt:new Date().toISOString(),expiresAt:new Date(Date.now()+300000).toISOString()};
+      issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+300000).toISOString()};
     const opaquePayload=await sender.page.evaluate(async context=>{
       const envelope=await window.endpoint.seal('Procesherstart behoudt deze kunstmatige proeftekst.',context);
       return window.module.encodeEncryptedBytes(new TextEncoder().encode(window.module.canonicalEncrypted(envelope)));

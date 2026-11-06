@@ -11,12 +11,34 @@ import {
   invalidateVisitcard,
   policy,
   revokeConsent,
+  schema,
   sendMessage,
   setConversationLocale,
   transitionConversation,
   transitionVisitcardEncounter,
   validateConversation
 } from "./runtime.mjs";
+
+for (const mutate of [
+  () => policy.conversation_transitions.ACTIVE.push("CONNECTED"),
+  () => policy.delivery_order.reverse(),
+  () => { policy.gates.CONNECTED[0] = "bypassed"; },
+  () => { policy.constitutional_authority_created = true; },
+  () => { schema.required.length = 0; },
+  () => { schema.$defs.permissions.properties.authority_effect.const = "GRANTED"; },
+  () => { localeProfile.default_locale = "ar"; },
+  () => localeProfile.supported_locales.push("unknown"),
+  () => { localeProfile.locales.nl.messages.RIO_READY = "Replaced"; }
+]) {
+  assert.throws(mutate, TypeError, "imported profiles must reject mutations at every relevant depth");
+}
+const editablePolicy = structuredClone(policy);
+editablePolicy.conversation_transitions.ACTIVE.push("CONNECTED");
+assert.equal(canTransition("ACTIVE", "CONNECTED"), false, "editing a profile copy must not change runtime transitions");
+assert.equal(editablePolicy.conversation_transitions.ACTIVE.includes("CONNECTED"), true, "explicit profile copies remain editable");
+const editableLocale = structuredClone(localeProfile);
+editableLocale.locales.nl.messages.RIO_READY = "Local copy";
+assert.equal(translate("RIO_READY", "nl").text, "RIO is gereed.", "editing a locale copy must not replace runtime status text");
 
 const validConversation = {
   conversation_id: "rio:conversation:conformance-001",
@@ -75,6 +97,152 @@ const expectValid = (name, value) => cases.push({ name, expected: true, errors: 
 const expectInvalid = (name, value) => cases.push({ name, expected: false, errors: validateConversation(value) });
 
 expectValid("canonical active conversation", clone());
+
+const invalidDateTimes = [
+  "2026-09-12", "09/12/2026", "2026-09-12T00:00:00",
+  "2026-02-30T00:00:00Z", "2025-02-29T00:00:00Z", "2026-04-31T00:00:00Z",
+  "1900-02-29T00:00:00Z", "2100-02-29T00:00:00Z",
+  "2026-00-12T00:00:00Z", "2026-13-12T00:00:00Z", "2026-09-00T00:00:00Z",
+  "2026-09-12T24:00:00Z", "2026-09-12T00:60:00Z", "2026-09-12T00:00:60Z",
+  "2026-09-12T00:00:00+24:00", "2026-09-12T00:00:00+01:60",
+  "2026-09-12T00:00:00Z\n", " 2026-09-12T00:00:00Z"
+];
+const timestampFields = [
+  [value => value, "created_at", "$.created_at"],
+  [value => value.provenance[0], "recorded_at", "$.provenance[0].recorded_at"],
+  [value => value.permissions, "valid_from", "$.permissions.valid_from"],
+  [value => value.permissions, "valid_until", "$.permissions.valid_until"],
+  [value => value.permissions, "revoked_at", "$.permissions.revoked_at"],
+  [value => value.permissions.visibility, "retention_until", "$.permissions.visibility.retention_until"],
+  [value => value.message_history[0], "created_at", "$.message_history[0].created_at"]
+];
+for (const [select, key, path] of timestampFields) {
+  for (const timestamp of invalidDateTimes) {
+    const value = clone();
+    select(value)[key] = timestamp;
+    assert.ok(validateConversation(value).some(error => error.startsWith(path)), "invalid timestamp must be rejected at its own field");
+    expectInvalid(`invalid date-time at ${path}`, value);
+    assert.equal(select(value)[key], timestamp, "date validation must not normalize supplied time");
+  }
+}
+for (const timestamp of [
+  "2026-09-12T00:00:00Z", "2024-02-29T23:59:59Z", "2000-02-29T00:00:00Z",
+  "2400-02-29T00:00:00Z", "2026-09-12T08:15:30+05:45",
+  "2026-09-12T08:15:30-03:30", "2026-09-12T00:00:00.123456Z", "2026-09-12t00:00:00z"
+]) {
+  const value = clone();
+  for (const [select, key] of timestampFields) {
+    if (key !== "revoked_at") select(value)[key] = timestamp;
+  }
+  expectValid("valid calendar date-time with explicit zone", value);
+}
+
+for (const key of ["valid_from", "valid_until", "revoked_at"]) {
+  for (const malformed of [undefined, true, 42, [], {}, Object.create(null), Symbol("timestamp"), new Date("2026-09-12T00:00:00Z"),
+    { toString() { throw new Error("invalid timestamps must not be coerced"); } }]) {
+    const value = clone();
+    value.permissions.valid_until = "2026-09-13T00:00:00Z";
+    value.permissions[key] = malformed;
+    expectInvalid(`invalid permission timestamp ${key}`, value);
+    for (const result of [transitionConversation(value, "PAUSED", null), sendMessage(value, null, null)]) {
+      assert.equal(result.ok, false, "invalid timestamp sources cannot enter mutation paths");
+      assert.equal(Object.hasOwn(result, "conversation"), false, "invalid timestamps cannot produce a candidate");
+    }
+    assert.equal(value.permissions[key], malformed, "validation must not coerce or replace permission timestamps");
+  }
+}
+
+const inheritedFieldCases = [
+  ["root consent context", value => value, "permissions", "$.permissions"],
+  ["conversation identity", value => value, "conversation_id", "$.conversation_id"],
+  ["participant identity", value => value.participants[0], "identity_ref", "$.participants[0].identity_ref"],
+  ["endpoint status", value => value.participants[0].endpoints[0], "status", "$.participants[0].endpoints[0].status"],
+  ["consent state", value => value.permissions, "consent_state", "$.permissions.consent_state"],
+  ["authority boundary", value => value.permissions, "authority_effect", "$.permissions.authority_effect"],
+  ["provenance event", value => value.provenance[0], "event", "$.provenance[0].event"],
+  ["locale direction", value => value.locale, "direction", "$.locale.direction"]
+];
+for (const [name, select, key, path] of inheritedFieldCases) {
+  const value = clone();
+  const target = select(value);
+  Object.setPrototypeOf(target, { [key]: target[key] });
+  delete target[key];
+  expectInvalid(`inherited ${name}`, value);
+  assert.ok(validateConversation(value).includes(`${path} is required`), `${name} must be present on the record itself`);
+}
+
+const nullPrototypeConversation = clone();
+Object.setPrototypeOf(nullPrototypeConversation, null);
+Object.setPrototypeOf(nullPrototypeConversation.permissions, null);
+expectValid("own fields on null-prototype records", nullPrototypeConversation);
+expectValid("JSON round-trip conversation", JSON.parse(JSON.stringify(validConversation)));
+
+for (const requested of [null, "", "   ", "ja-JP", "ar-SA", "de-DE"]) {
+  const value = clone();
+  value.locale = resolveLocale(requested);
+  expectValid("resolver-produced locale must validate", value);
+}
+for (const requested of [undefined, 42, true, {}, [], Symbol("nl"), Object.create(null)]) {
+  const value = clone();
+  value.locale = { ...resolveLocale(requested), requested };
+  expectInvalid("stored locale request must be string or null", value);
+}
+
+for (const parent of ["rio:conversation:parent-001", "rio:conversation:a._~-"]) {
+  const value = clone();
+  value.context.parent_conversation_id = parent;
+  expectValid("valid parent conversation reference", value);
+}
+for (const parent of [null, undefined, true, 42, "", "parent", "rio:conversation:", "rio:conversation:a/b", ["rio:conversation:parent"], {}, Symbol("parent")]) {
+  const value = clone();
+  value.context.parent_conversation_id = parent;
+  expectInvalid("invalid parent conversation reference", value);
+}
+for (const [select, key] of [
+  [value => value.context, "surfaces"],
+  [value => value.permissions, "allowed_actions"],
+  [value => value.permissions.visibility, "audience_participant_ids"],
+  [value => value.permissions.visibility, "shared_with_participant_ids"]
+]) {
+  const value = clone();
+  const target = select(value);
+  const item = key === "shared_with_participant_ids" ? "participant-1" : target[key][0];
+  target[key] = [item, item];
+  expectInvalid(`duplicate ${key}`, value);
+}
+const distinctSurfaceConversation = clone();
+distinctSurfaceConversation.context.surfaces = ["WEB", "MOBILE"];
+expectValid("distinct surfaces", distinctSurfaceConversation);
+const sharedAudienceConversation = clone();
+sharedAudienceConversation.permissions.visibility.shared_with_participant_ids = ["participant-1"];
+expectValid("same participant in separate visibility lists", sharedAudienceConversation);
+
+for (const state of ["CONNECTED", "ACTIVE", "RESUMED"]) {
+  for (const malformed of [null, 42, "invalid", {}, []]) {
+    for (const field of ["participants", "participant", "endpoints", "endpoint"]) {
+      const value = clone();
+      value.current_state = state;
+      if (field === "participants") value.participants = malformed;
+      if (field === "participant") value.participants[0] = malformed;
+      if (field === "endpoints") value.participants[0].endpoints = malformed;
+      if (field === "endpoint") value.participants[0].endpoints[0] = malformed;
+      const snapshot = structuredClone(value);
+      expectInvalid(`malformed ${field} in ${state}: ${JSON.stringify(malformed)}`, value);
+      assert.equal(transitionConversation(value, "PAUSED", null).ok, false, "malformed source cannot transition");
+      assert.equal(setConversationLocale(value, "en", null).ok, false, "malformed source cannot change locale");
+      assert.equal(sendMessage(value, null, null).ok, false, "malformed source cannot send a message");
+      assert.deepEqual(value, snapshot, "invalid source must not be mutated");
+    }
+  }
+}
+for (const kind of ["BRIDGE", "HANDOFF"]) {
+  for (const malformed of [null, 42, "invalid", {}]) {
+    const value = clone();
+    value.context.kind = kind;
+    value.permissions.allowed_actions = malformed;
+    expectInvalid(`malformed permissions for ${kind}: ${JSON.stringify(malformed)}`, value);
+  }
+}
 
 const missingProvenance = clone();
 missingProvenance.provenance = [];
@@ -163,6 +331,64 @@ subjectConversation.context.subjects = [{
   presentation_effect: "NONE"
 }];
 expectValid("conversation with symbol and complete ELIXER subjects", subjectConversation);
+
+for (const [select, key] of [
+  [value => value, "participants"],
+  [value => value.participants[0], "endpoints"],
+  [value => value.context, "surfaces"],
+  [value => value.context, "subjects"],
+  [value => value, "provenance"],
+  [value => value, "message_history"],
+  [value => value.permissions, "allowed_actions"],
+  [value => value.permissions.visibility, "audience_participant_ids"],
+  [value => value.permissions.visibility, "shared_with_participant_ids"]
+]) {
+  for (const mode of ["hole", "inherited"]) {
+    const value = structuredClone(subjectConversation);
+    const target = select(value);
+    if (key === "shared_with_participant_ids") target[key] = ["participant-1"];
+    const items = target[key];
+    if (mode === "hole") {
+      items.length += 1;
+    } else {
+      const inherited = Object.create(Array.prototype);
+      inherited[0] = items[0];
+      delete items[0];
+      Object.setPrototypeOf(items, inherited);
+    }
+    const keysBefore = Reflect.ownKeys(items);
+    expectInvalid(`${mode} in ${key}`, value);
+    for (const result of [transitionConversation(value, "PAUSED", null), sendMessage(value, null, null)]) {
+      assert.equal(result.ok, false, "non-dense arrays cannot enter mutations");
+      assert.equal(Object.hasOwn(result, "conversation"), false, "non-dense arrays cannot produce candidates");
+    }
+    assert.deepEqual(Reflect.ownKeys(items), keysBefore, "validation must not fill or remove array positions");
+  }
+}
+
+for (const field of ["conversation_id", "subject_id"]) {
+  const id = field === "conversation_id" ? "rio:conversation:typed-id" : "rio:subject:typed-id";
+  const malformedIds = [null, undefined, true, 42, [id], new String(id),
+    { toString: () => id }, Object.create(null), Symbol(id),
+    { [Symbol.toPrimitive]() { throw new Error("identifiers must not be coerced"); } }];
+  for (const malformed of malformedIds) {
+    const value = structuredClone(subjectConversation);
+    const target = field === "conversation_id" ? value : value.context.subjects[0];
+    target[field] = malformed;
+    expectInvalid(`non-string ${field}`, value);
+    for (const result of [transitionConversation(value, "PAUSED", null), sendMessage(value, null, null)]) {
+      assert.equal(result.ok, false, "non-string identifiers cannot enter mutation paths");
+      assert.equal(Object.hasOwn(result, "conversation"), false, "invalid identifiers must not produce a candidate");
+    }
+    assert.equal(target[field], malformed, "identifier validation must not rewrite source input");
+  }
+  for (const suffix of ["A0", "a._~-", "0001"]) {
+    const value = structuredClone(subjectConversation);
+    const target = field === "conversation_id" ? value : value.context.subjects[0];
+    target[field] = `${field === "conversation_id" ? "rio:conversation:" : "rio:subject:"}${suffix}`;
+    expectValid(`valid string ${field}`, value);
+  }
+}
 
 const unknownSubjectType = structuredClone(subjectConversation);
 unknownSubjectType.context.subjects[0].type = "AUTHORITY";
@@ -304,6 +530,19 @@ assert.equal(grantedConsent.conversation.permissions.authority_effect, "NONE", "
 assert.equal(grantedConsent.conversation.provenance[1].event, "CONSENT_GRANTED", "consent grant must record provenance");
 assert.equal(grantedConsent.conversation.provenance[1].previous_record_id, "prov-consent-1", "consent provenance must link backward");
 
+const timestampGrantSourceSnapshot = structuredClone(verifiedCreatedConversation.conversation);
+for (const key of ["valid_from", "valid_until"]) {
+  for (const malformed of [undefined, true, 42, [], {}, Object.create(null), Symbol("timestamp"), new Date("2026-09-12T00:00:00Z"),
+    { toString() { throw new Error("grant timestamps must not be coerced"); } }]) {
+    const grant = { ...consentGrant, valid_until: "2026-09-13T00:00:00Z", [key]: malformed };
+    const result = grantConsent(verifiedCreatedConversation.conversation, grant, consentRecord);
+    assert.equal(result.ok, false, "invalid grant boundaries must be rejected without exceptions");
+    assert.equal(Object.hasOwn(result, "conversation"), false, "invalid grant must not produce a candidate");
+    assert.equal(grant[key], malformed, "grant validation must not replace invalid timestamps");
+    assert.deepEqual(verifiedCreatedConversation.conversation, timestampGrantSourceSnapshot, "invalid grant must preserve source consent and provenance");
+  }
+}
+
 const requestedAfterGrant = transitionConversation(grantedConsent.conversation, "REQUESTED", {
   ...consentRecord,
   record_id: "prov-requested-3",
@@ -405,6 +644,16 @@ for (const locale of localeProfile.supported_locales) {
   assert.ok(translation.text.length > 0, `RIO_READY translation must be non-empty for ${locale}`);
 }
 assert.equal(translate("RIO_UNKNOWN_STATUS", "nl").ok, false, "unknown message ID must fail closed");
+for (const messageId of ["constructor", "toString", "__proto__", "hasOwnProperty"]) {
+  for (const locale of localeProfile.supported_locales) {
+    assert.equal(translate(messageId, locale).ok, false, "inherited object keys must not become translated statuses");
+  }
+}
+for (const messageId of [null, undefined, 42, {}, ["RIO_READY"], Symbol("RIO_READY"), Object.create(null)]) {
+  const result = translate(messageId, "nl");
+  assert.equal(result.ok, false, "non-string message IDs must fail without coercion or exceptions");
+  assert.equal(Object.hasOwn(result, "text"), false, "rejected message IDs must not expose translated text");
+}
 
 const localeRecord = {
   record_id: "prov-locale-2",
@@ -415,6 +664,20 @@ const localeRecord = {
 };
 const localeSource = clone();
 const localeSourceSnapshot = structuredClone(localeSource);
+for (const requested of [undefined, null, "", "   ", "ja-JP", "ar-SA", "de-DE"]) {
+  const created = createConversation({ ...creationInput, locale: requested });
+  assert.equal(created.ok, true, "locale resolver output must be accepted during creation");
+  assert.deepEqual(created.conversation.locale, resolveLocale(requested), "creation must retain exact resolver semantics");
+  assert.deepEqual(validateConversation(created.conversation), [], "created locale must survive validation");
+  if (requested !== undefined) {
+    const changed = setConversationLocale(localeSource, requested, localeRecord);
+    assert.equal(changed.ok, true, "fallback and regional locales must be accepted during mutation");
+    assert.deepEqual(changed.conversation.locale, resolveLocale(requested), "mutation must retain resolver semantics");
+    assert.deepEqual(changed.conversation.permissions, localeSource.permissions, "locale fallback must not alter permissions");
+    assert.equal(changed.conversation.provenance.length, localeSource.provenance.length + 1, "locale fallback must append provenance");
+    assert.deepEqual(localeSource, localeSourceSnapshot, "locale fallback must not mutate its source");
+  }
+}
 const equalTimestampLocale = setConversationLocale(localeSource, "en", {
   ...localeRecord,
   record_id: "prov-locale-equal",
@@ -482,6 +745,21 @@ assert.equal(canTransitionVisitcardEncounter("RECOGNIZED", "ACCEPTED"), true, "V
 assert.equal(canTransitionVisitcardEncounter("ENCOUNTERED", "RECOGNIZED"), false, "skipped VisitCard transition must fail");
 assert.equal(canTransitionVisitcardEncounter("CONNECTED", "ACCEPTED"), false, "transition from connected VisitCard must fail");
 
+const malformedPolicyStates = [
+  ["ACTIVE"], ["ENCOUNTERED"], null, undefined, true, 42, "", "UNKNOWN",
+  "constructor", "toString", "__proto__", {}, Object.create(null), Symbol("ACTIVE"),
+  { [Symbol.toPrimitive]() { throw new Error("policy inputs must not be coerced"); } }
+];
+for (const [check, from, to] of [
+  [canTransition, "ACTIVE", "PAUSED"],
+  [canTransitionVisitcardEncounter, "ENCOUNTERED", "INTRODUCED"]
+]) {
+  for (const malformed of malformedPolicyStates) {
+    assert.equal(check(malformed, to), false, "malformed policy source must be rejected without coercion or exceptions");
+    assert.equal(check(from, malformed), false, "malformed policy target must be rejected without coercion or exceptions");
+  }
+}
+
 const visitcardSource = clone();
 visitcardSource.context.visitcard = {
   object_reference: "identity:participant-1",
@@ -493,6 +771,21 @@ visitcardSource.context.visitcard = {
   encounter_state: "ENCOUNTERED"
 };
 const visitcardSourceSnapshot = structuredClone(visitcardSource);
+for (const malformed of malformedPolicyStates) {
+  for (const [source, invoke] of [
+    [validConversation, value => transitionConversation(value, malformed, null)],
+    [visitcardSource, value => transitionVisitcardEncounter(value, malformed, null)],
+    [validConversation, value => advanceMessageDelivery(value, "message-1", malformed, null)],
+    [validConversation, value => advanceMessageDelivery(value, malformed, "READ", null)]
+  ]) {
+    const snapshot = structuredClone(source);
+    const result = invoke(source);
+    assert.equal(result.ok, false, "invalid transition inputs must be rejected without formatting exceptions");
+    assert.equal(Object.hasOwn(result, "conversation"), false, "invalid transition inputs must not produce a candidate");
+    assert.ok(result.errors.length > 0 && result.errors.every(error => typeof error === "string"), "rejection must expose textual validation errors");
+    assert.deepEqual(source, snapshot, "invalid transition inputs must preserve source and provenance");
+  }
+}
 const visitcardRecord = {
   record_id: "prov-visitcard-2",
   source: "conformance-fixture",
@@ -790,4 +1083,56 @@ assert.equal(advanceMessageDelivery(createdMessageConversation, "message-1", "CR
 assert.equal(advanceMessageDelivery(createdMessageConversation, "missing-message", "DELIVERED", deliveryRecord).ok, false, "unknown message must fail closed");
 assert.equal(advanceMessageDelivery(createdMessageConversation, "message-1", "DELIVERED", { ...deliveryRecord, record_id: "prov-1" }).ok, false, "duplicate provenance ID must fail closed");
 
-console.log(`RIO conformance PASS: ${cases.length} conversation fixtures, 20 creation assertions, 23 consent assertions, 24 consent-expiration assertions, 19 localization assertions, 29 locale-mutation assertions, 4 VisitCard-policy assertions, 38 VisitCard-transition assertions, 34 VisitCard-invalidation assertions, 31 message-creation assertions, 6 policy assertions, 11 conversation-transition assertions, and 9 delivery-transition assertions`);
+for (const [before, boundary, after, equivalent] of [
+  ["2026-09-12T00:00:01.0001Z", "2026-09-12T00:00:01.0002Z", "2026-09-12T00:00:01.0003Z", "2026-09-12T01:00:01.000200+01:00"],
+  ["2026-09-12T05:45:01.1234567890123451+05:45", "2026-09-12T05:45:01.1234567890123452+05:45", "2026-09-12T05:45:01.1234567890123453+05:45", "2026-09-12T00:00:01.123456789012345200Z"],
+  ["1969-12-31T23:59:59.9991Z", "1969-12-31T23:59:59.9992Z", "1969-12-31T23:59:59.9993Z", "1970-01-01T00:59:59.999200+01:00"],
+  ["2026-09-12T00:00:00.9999999999999999Z", "2026-09-12T00:00:01Z", "2026-09-12T00:00:01.0000000000000001Z", "2026-09-12T01:00:01.000+01:00"],
+  ["1969-12-31T23:59:59.999999999999Z", "1970-01-01T00:00:00Z", "1970-01-01T00:00:00.000000000001Z", "1969-12-31T19:00:00.000-05:00"],
+  ["2026-09-12T00:00:01.12Z", "2026-09-12T00:00:01.1201Z", "2026-09-12T00:00:01.121Z", "2026-09-12T01:00:01.120100+01:00"]
+]) {
+  const source = clone();
+  source.created_at = before;
+  source.provenance[0].recorded_at = before;
+  source.message_history[0].created_at = before;
+  source.permissions.valid_from = before;
+  source.permissions.valid_until = boundary;
+  const snapshot = structuredClone(source);
+  assert.deepEqual(validateConversation(source), [], "fractional source must be valid");
+
+  const reversed = structuredClone(source);
+  reversed.permissions.valid_from = after;
+  assert.ok(validateConversation(reversed).includes("permission validity window is reversed"), "sub-millisecond reversed window must be rejected");
+  const stale = structuredClone(source);
+  stale.provenance[0].recorded_at = boundary;
+  const recordAt = recorded_at => ({ ...transitionRecord, recorded_at });
+  assert.equal(transitionConversation(stale, "PAUSED", recordAt(before)).ok, false, "sub-millisecond provenance rollback must reject mutation");
+  stale.provenance.push({ ...stale.provenance[0], record_id: "prov-fraction-stale", previous_record_id: "prov-1", recorded_at: before });
+  assert.ok(validateConversation(stale).some(error => error.includes("must not precede the previous record")), "stored provenance must preserve fractional order");
+
+  const window = structuredClone(source);
+  window.permissions.valid_from = boundary;
+  const requested = structuredClone(window);
+  requested.current_state = "REQUESTED";
+  const card = structuredClone(window);
+  card.context.visitcard = structuredClone(visitcardSource.context.visitcard);
+  card.context.visitcard.encounter_state = "RECOGNIZED";
+  for (const [timestamp, allowed, expired] of [[before, false, false], [boundary, true, true], [after, false, true]]) {
+    const results = [
+      transitionConversation(requested, "CONNECTED", recordAt(timestamp)),
+      transitionVisitcardEncounter(card, "ACCEPTED", recordAt(timestamp)),
+      sendMessage(window, { ...messageInput, created_at: timestamp }, recordAt(timestamp))
+    ];
+    for (const result of results) {
+      assert.equal(result.ok, allowed, "fractional consent boundary must be exact and inclusive");
+      if (!allowed) assert.equal(Object.hasOwn(result, "conversation"), false, "out-of-window request must not produce candidate");
+    }
+    assert.equal(expireConsent(source, recordAt(timestamp)).ok, expired, "consent must not expire before the exact fractional boundary");
+  }
+  const equalInstant = transitionConversation(requested, "CONNECTED", recordAt(equivalent));
+  assert.equal(equalInstant.ok, true, "equivalent offsets and trailing fractional zeros must compare equal");
+  assert.equal(equalInstant.conversation.provenance.at(-1).recorded_at, equivalent, "time comparison must preserve supplied timestamp text");
+  assert.deepEqual(source, snapshot, "fractional boundary checks must not mutate their source");
+}
+
+console.log(`RIO conformance PASS: ${cases.length} conversation fixtures, 20 creation assertions, 23 consent assertions, 24 consent-expiration assertions, 61 localization assertions, 29 locale-mutation assertions, 4 VisitCard-policy assertions, 38 VisitCard-transition assertions, 34 VisitCard-invalidation assertions, 31 message-creation assertions, 6 policy assertions, 11 conversation-transition assertions, and 9 delivery-transition assertions`);
