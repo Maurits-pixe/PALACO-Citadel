@@ -641,7 +641,7 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await page.locator('#import-file').setInputFiles({
     name: 'aether-encrypted.aether',
     mimeType: 'text/plain',
-    buffer: Buffer.from(downloadedEnvelope)
+    buffer: Buffer.from(` \r\n${downloadedEnvelope}\r\n\t`)
   });
   await expect(page.locator('#crypto-status')).toHaveText('Encrypted file opened locally. Enter its passphrase to decrypt.');
   await expect(page.locator('#decrypt-mode')).toHaveAttribute('aria-pressed', 'true');
