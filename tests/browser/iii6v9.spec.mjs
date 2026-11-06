@@ -684,6 +684,29 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await expect(page.locator('#copy-output')).toBeDisabled();
   await expect(page.locator('#download-output')).toBeDisabled();
 
+  const invalidUtf8Envelope = await page.evaluate(async passphrase => {
+    const encoder = new TextEncoder();
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const material = await crypto.subtle.importKey('raw', encoder.encode(passphrase), 'PBKDF2', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', hash: 'SHA-256', salt, iterations: 600_000 },
+      material,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt']
+    );
+    const encrypted = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, Uint8Array.of(0xff, 0xfe)));
+    const toBase64 = bytes => btoa(String.fromCharCode(...bytes));
+    return `AETHER1.${toBase64(salt)}.${toBase64(iv)}.${toBase64(encrypted)}`;
+  }, passphrase);
+  await page.locator('#crypto-input').fill(invalidUtf8Envelope);
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Decryption failed. Check the passphrase and encrypted data.');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+
   await page.locator('#import-file').setInputFiles({
     name: 'invalid.aether',
     mimeType: 'text/plain',
