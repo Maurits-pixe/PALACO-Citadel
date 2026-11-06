@@ -11,12 +11,34 @@ import {
   invalidateVisitcard,
   policy,
   revokeConsent,
+  schema,
   sendMessage,
   setConversationLocale,
   transitionConversation,
   transitionVisitcardEncounter,
   validateConversation
 } from "./runtime.mjs";
+
+for (const mutate of [
+  () => policy.conversation_transitions.ACTIVE.push("CONNECTED"),
+  () => policy.delivery_order.reverse(),
+  () => { policy.gates.CONNECTED[0] = "bypassed"; },
+  () => { policy.constitutional_authority_created = true; },
+  () => { schema.required.length = 0; },
+  () => { schema.$defs.permissions.properties.authority_effect.const = "GRANTED"; },
+  () => { localeProfile.default_locale = "ar"; },
+  () => localeProfile.supported_locales.push("unknown"),
+  () => { localeProfile.locales.nl.messages.RIO_READY = "Replaced"; }
+]) {
+  assert.throws(mutate, TypeError, "imported profiles must reject mutations at every relevant depth");
+}
+const editablePolicy = structuredClone(policy);
+editablePolicy.conversation_transitions.ACTIVE.push("CONNECTED");
+assert.equal(canTransition("ACTIVE", "CONNECTED"), false, "editing a profile copy must not change runtime transitions");
+assert.equal(editablePolicy.conversation_transitions.ACTIVE.includes("CONNECTED"), true, "explicit profile copies remain editable");
+const editableLocale = structuredClone(localeProfile);
+editableLocale.locales.nl.messages.RIO_READY = "Local copy";
+assert.equal(translate("RIO_READY", "nl").text, "RIO is gereed.", "editing a locale copy must not replace runtime status text");
 
 const validConversation = {
   conversation_id: "rio:conversation:conformance-001",

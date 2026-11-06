@@ -1,7 +1,7 @@
-import { readFileSync } from "node:fs";
+import { readFrozenProfile } from "./profile-loader.mjs";
 import { resolveLocale } from "./localization.mjs";
 
-const loadJson = (name) => JSON.parse(readFileSync(new URL(name, import.meta.url), "utf8"));
+const loadJson = (name) => readFrozenProfile(new URL(name, import.meta.url));
 export const schema = loadJson("./conversation.schema.json");
 export const policy = loadJson("./transition-policy.json");
 

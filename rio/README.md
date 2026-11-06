@@ -24,6 +24,7 @@ Where this implementation profile and a higher active source conflict, the highe
 - `transition-policy.json` defines the local fail-closed transition profile and records its source binding.
 - `locales.json` defines the seven provisional language catalogs and text direction.
 - `localization.mjs` resolves locale tags and translates stable RIO status identifiers.
+- `profile-loader.mjs` loads JSON definitions and freezes their nested objects and arrays.
 - `runtime.mjs` exports conversation validation and fail-closed transition checks.
 - `conformance.mjs` tests the runtime with positive and negative fixtures without external dependencies.
 
@@ -38,6 +39,10 @@ Conversation and VisitCard transition checks require string state names and own
 policy entries; arrays, objects and inherited names are rejected without coercion.
 The existing transition tables and consent requirements remain authoritative for
 this implementation profile.
+Exported schema, transition policy and locale profiles are deeply immutable after
+loading. Importing code cannot rewrite their rules or translations in place.
+Use `structuredClone` for an editable local copy; changing that copy does not
+reconfigure the runtime. This is an in-memory contract, not file integrity proof.
 The runtime also enforces the schema's optional parent-conversation reference and
 unique entries within surfaces, allowed actions and each visibility list. A
 participant may still appear once in each of the two separate visibility lists.

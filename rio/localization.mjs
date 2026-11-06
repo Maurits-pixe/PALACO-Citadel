@@ -1,6 +1,6 @@
-import { readFileSync } from "node:fs";
+import { readFrozenProfile } from "./profile-loader.mjs";
 
-export const localeProfile = JSON.parse(readFileSync(new URL("./locales.json", import.meta.url), "utf8"));
+export const localeProfile = readFrozenProfile(new URL("./locales.json", import.meta.url));
 
 export function resolveLocale(requestedLocale = localeProfile.default_locale) {
   const requested = typeof requestedLocale === "string" ? requestedLocale.trim().toLowerCase() : "";
