@@ -676,6 +676,14 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await expect(page.locator('#crypto-status')).toHaveText('Invalid AETHER1 data format.');
   await expect(page.locator('#download-output')).toBeDisabled();
 
+  const [version, salt, iv, encrypted] = ciphertext.split('.');
+  await page.locator('#crypto-input').fill(`${version}.${salt.slice(0, 4)} ${salt.slice(4)}.${iv}.${encrypted}`);
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Invalid AETHER1 data format.');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+
   await page.locator('#import-file').setInputFiles({
     name: 'invalid.aether',
     mimeType: 'text/plain',
