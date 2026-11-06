@@ -801,7 +801,7 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   expect(externalRequests).toEqual([]);
 });
 
-test('decrypts plaintext at the 4 MiB limit and rejects one byte over', async ({ page }) => {
+test('decrypts multibyte plaintext at the 4 MiB limit and rejects one byte over', async ({ page }) => {
   await page.goto('/citadel/iii6v9/');
   const envelopes = await page.evaluate(async passphrase => {
     const encoder = new TextEncoder();
@@ -821,12 +821,16 @@ test('decrypts plaintext at the 4 MiB limit and rejects one byte over', async ({
       }
       return btoa(binary);
     };
-    const createEnvelope = async size => {
+    const createEnvelope = async plaintext => {
       const iv = crypto.getRandomValues(new Uint8Array(12));
-      const encrypted = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new Uint8Array(size)));
+      const encrypted = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plaintext));
       return `AETHER1.${toBase64(salt)}.${toBase64(iv)}.${toBase64(encrypted)}`;
     };
-    return [await createEnvelope(4 * 1024 * 1024), await createEnvelope(4 * 1024 * 1024 + 1)];
+    const maximumPlaintext = encoder.encode('é'.repeat(2 * 1024 * 1024));
+    const oversizedPlaintext = new Uint8Array(maximumPlaintext.length + 1);
+    oversizedPlaintext.set(maximumPlaintext);
+    oversizedPlaintext[oversizedPlaintext.length - 1] = 0x61;
+    return [await createEnvelope(maximumPlaintext), await createEnvelope(oversizedPlaintext)];
   }, 'correct horse battery staple');
 
   await page.locator('#decrypt-mode').click();
@@ -834,7 +838,17 @@ test('decrypts plaintext at the 4 MiB limit and rejects one byte over', async ({
   await page.locator('#crypto-input').fill(envelopes[0]);
   await page.locator('#crypto-form button[type="submit"]').click();
   await expect(page.locator('#crypto-status')).toContainText('Decryption complete');
-  expect(await page.locator('#crypto-output').evaluate(element => element.value.length)).toBe(4 * 1024 * 1024);
+  expect(await page.locator('#crypto-output').evaluate(element => ({
+    characters: element.value.length,
+    bytes: new TextEncoder().encode(element.value).byteLength,
+    startsWithExpectedText: element.value.startsWith('é'),
+    endsWithExpectedText: element.value.endsWith('é')
+  }))).toEqual({
+    characters: 2 * 1024 * 1024,
+    bytes: 4 * 1024 * 1024,
+    startsWithExpectedText: true,
+    endsWithExpectedText: true
+  });
   await expect(page.locator('#copy-output')).toBeEnabled();
   await expect(page.locator('#download-output')).toBeDisabled();
 
