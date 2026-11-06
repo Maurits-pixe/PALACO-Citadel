@@ -102,6 +102,17 @@ test('encrypts and decrypts text locally with authenticated AETHER envelopes', a
   await expect(page.locator('#import-file')).toHaveValue('');
   expect(await page.evaluate(() => window.fileReads['oversized.aether'])).toBeUndefined();
   await page.locator('#import-file').setInputFiles({
+    name: 'maximum-size.aether',
+    mimeType: 'text/plain',
+    buffer: Buffer.alloc(6 * 1024 * 1024)
+  });
+  await expect.poll(() => page.evaluate(() => window.fileReads['maximum-size.aether']?.length)).toBe(1);
+  await expect(page.locator('#crypto-status')).toHaveText('Reading encrypted file locally…');
+  await page.evaluate(envelope => window.fileReads['maximum-size.aether'][0].resolve(envelope), downloadedEnvelope);
+  await expect(page.locator('#crypto-status')).toHaveText('Encrypted file opened locally. Enter its passphrase to decrypt.');
+  await expect(page.locator('#crypto-input')).toHaveValue(ciphertext);
+  await expect(page.locator('#import-file')).toHaveValue('');
+  await page.locator('#import-file').setInputFiles({
     name: 'delayed.aether',
     mimeType: 'text/plain',
     buffer: Buffer.from(downloadedEnvelope)
