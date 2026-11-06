@@ -1061,4 +1061,56 @@ assert.equal(advanceMessageDelivery(createdMessageConversation, "message-1", "CR
 assert.equal(advanceMessageDelivery(createdMessageConversation, "missing-message", "DELIVERED", deliveryRecord).ok, false, "unknown message must fail closed");
 assert.equal(advanceMessageDelivery(createdMessageConversation, "message-1", "DELIVERED", { ...deliveryRecord, record_id: "prov-1" }).ok, false, "duplicate provenance ID must fail closed");
 
+for (const [before, boundary, after, equivalent] of [
+  ["2026-09-12T00:00:01.0001Z", "2026-09-12T00:00:01.0002Z", "2026-09-12T00:00:01.0003Z", "2026-09-12T01:00:01.000200+01:00"],
+  ["2026-09-12T05:45:01.1234567890123451+05:45", "2026-09-12T05:45:01.1234567890123452+05:45", "2026-09-12T05:45:01.1234567890123453+05:45", "2026-09-12T00:00:01.123456789012345200Z"],
+  ["1969-12-31T23:59:59.9991Z", "1969-12-31T23:59:59.9992Z", "1969-12-31T23:59:59.9993Z", "1970-01-01T00:59:59.999200+01:00"],
+  ["2026-09-12T00:00:00.9999999999999999Z", "2026-09-12T00:00:01Z", "2026-09-12T00:00:01.0000000000000001Z", "2026-09-12T01:00:01.000+01:00"],
+  ["1969-12-31T23:59:59.999999999999Z", "1970-01-01T00:00:00Z", "1970-01-01T00:00:00.000000000001Z", "1969-12-31T19:00:00.000-05:00"],
+  ["2026-09-12T00:00:01.12Z", "2026-09-12T00:00:01.1201Z", "2026-09-12T00:00:01.121Z", "2026-09-12T01:00:01.120100+01:00"]
+]) {
+  const source = clone();
+  source.created_at = before;
+  source.provenance[0].recorded_at = before;
+  source.message_history[0].created_at = before;
+  source.permissions.valid_from = before;
+  source.permissions.valid_until = boundary;
+  const snapshot = structuredClone(source);
+  assert.deepEqual(validateConversation(source), [], "fractional source must be valid");
+
+  const reversed = structuredClone(source);
+  reversed.permissions.valid_from = after;
+  assert.ok(validateConversation(reversed).includes("permission validity window is reversed"), "sub-millisecond reversed window must be rejected");
+  const stale = structuredClone(source);
+  stale.provenance[0].recorded_at = boundary;
+  const recordAt = recorded_at => ({ ...transitionRecord, recorded_at });
+  assert.equal(transitionConversation(stale, "PAUSED", recordAt(before)).ok, false, "sub-millisecond provenance rollback must reject mutation");
+  stale.provenance.push({ ...stale.provenance[0], record_id: "prov-fraction-stale", previous_record_id: "prov-1", recorded_at: before });
+  assert.ok(validateConversation(stale).some(error => error.includes("must not precede the previous record")), "stored provenance must preserve fractional order");
+
+  const window = structuredClone(source);
+  window.permissions.valid_from = boundary;
+  const requested = structuredClone(window);
+  requested.current_state = "REQUESTED";
+  const card = structuredClone(window);
+  card.context.visitcard = structuredClone(visitcardSource.context.visitcard);
+  card.context.visitcard.encounter_state = "RECOGNIZED";
+  for (const [timestamp, allowed, expired] of [[before, false, false], [boundary, true, true], [after, false, true]]) {
+    const results = [
+      transitionConversation(requested, "CONNECTED", recordAt(timestamp)),
+      transitionVisitcardEncounter(card, "ACCEPTED", recordAt(timestamp)),
+      sendMessage(window, { ...messageInput, created_at: timestamp }, recordAt(timestamp))
+    ];
+    for (const result of results) {
+      assert.equal(result.ok, allowed, "fractional consent boundary must be exact and inclusive");
+      if (!allowed) assert.equal(Object.hasOwn(result, "conversation"), false, "out-of-window request must not produce candidate");
+    }
+    assert.equal(expireConsent(source, recordAt(timestamp)).ok, expired, "consent must not expire before the exact fractional boundary");
+  }
+  const equalInstant = transitionConversation(requested, "CONNECTED", recordAt(equivalent));
+  assert.equal(equalInstant.ok, true, "equivalent offsets and trailing fractional zeros must compare equal");
+  assert.equal(equalInstant.conversation.provenance.at(-1).recorded_at, equivalent, "time comparison must preserve supplied timestamp text");
+  assert.deepEqual(source, snapshot, "fractional boundary checks must not mutate their source");
+}
+
 console.log(`RIO conformance PASS: ${cases.length} conversation fixtures, 20 creation assertions, 23 consent assertions, 24 consent-expiration assertions, 61 localization assertions, 29 locale-mutation assertions, 4 VisitCard-policy assertions, 38 VisitCard-transition assertions, 34 VisitCard-invalidation assertions, 31 message-creation assertions, 6 policy assertions, 11 conversation-transition assertions, and 9 delivery-transition assertions`);

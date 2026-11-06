@@ -37,6 +37,19 @@ function isDateTime(value) {
   return !Number.isNaN(Date.parse(value));
 }
 
+// Call only with validated timestamps. Date.parse supplies the UTC second;
+// the original decimal fraction retains precision beyond milliseconds.
+function compareDateTimes(left, right) {
+  const leftSecond = Math.floor(Date.parse(left) / 1000);
+  const rightSecond = Math.floor(Date.parse(right) / 1000);
+  if (leftSecond !== rightSecond) return leftSecond < rightSecond ? -1 : 1;
+  const fraction = value => (/\.(\d+)/.exec(value)?.[1] ?? "").replace(/0+$/, "");
+  const leftFraction = fraction(left);
+  const rightFraction = fraction(right);
+  if (leftFraction === rightFraction) return 0;
+  return leftFraction < rightFraction ? -1 : 1;
+}
+
 function isDenseArray(value) {
   if (!Array.isArray(value)) return false;
   for (let index = 0; index < value.length; index += 1) {
@@ -168,8 +181,8 @@ export function validateConversation(conversation) {
       if (!participantIds.has(record.actor_ref)) errors.push(`${path}.actor_ref must reference a participant`);
       if (index === 0 && record.previous_record_id !== null) errors.push(`${path}.previous_record_id must be null for the first record`);
       if (index > 0 && record.previous_record_id !== previousRecord?.record_id) errors.push(`${path}.previous_record_id must reference the immediately previous record`);
-      if (index > 0 && isDateTimeOrNull(record.recorded_at) && isDateTimeOrNull(previousRecord?.recorded_at)
-        && Date.parse(record.recorded_at) < Date.parse(previousRecord.recorded_at)) {
+      if (index > 0 && isDateTime(record.recorded_at) && isDateTime(previousRecord?.recorded_at)
+        && compareDateTimes(record.recorded_at, previousRecord.recorded_at) < 0) {
         errors.push(`${path}.recorded_at must not precede the previous record`);
       }
       if (provenanceIds.has(record.record_id)) errors.push(`${path}.record_id must be unique`);
@@ -248,7 +261,7 @@ function validatePermissions(permissions, participantIds, errors) {
   }
   if (permissions.valid_from !== null && permissions.valid_until !== null
     && isDateTimeOrNull(permissions.valid_from) && isDateTimeOrNull(permissions.valid_until)
-    && Date.parse(permissions.valid_from) > Date.parse(permissions.valid_until)) {
+    && compareDateTimes(permissions.valid_from, permissions.valid_until) > 0) {
     errors.push("permission validity window is reversed");
   }
   const visibilityKeys = ["audience_participant_ids", "purpose", "shared_with_participant_ids", "retention_until"];
@@ -334,7 +347,7 @@ function validateTransitionRecord(conversation, record) {
   }
   const previousRecord = conversation.provenance.at(-1);
   if (isDateTimeOrNull(record.recorded_at) && record.recorded_at !== null && previousRecord !== undefined
-    && Date.parse(record.recorded_at) < Date.parse(previousRecord.recorded_at)) {
+    && compareDateTimes(record.recorded_at, previousRecord.recorded_at) < 0) {
     errors.push("$transition.recorded_at must not precede the latest provenance record");
   }
   return errors;
@@ -343,9 +356,8 @@ function validateTransitionRecord(conversation, record) {
 function isConsentValidAt(conversation, recordedAt) {
   const permissions = conversation.permissions;
   if (permissions.consent_state !== "GRANTED") return false;
-  const timestamp = Date.parse(recordedAt);
-  if (permissions.valid_from !== null && timestamp < Date.parse(permissions.valid_from)) return false;
-  if (permissions.valid_until !== null && timestamp > Date.parse(permissions.valid_until)) return false;
+  if (permissions.valid_from !== null && compareDateTimes(recordedAt, permissions.valid_from) < 0) return false;
+  if (permissions.valid_until !== null && compareDateTimes(recordedAt, permissions.valid_until) > 0) return false;
   return true;
 }
 
@@ -504,7 +516,7 @@ export function expireConsent(conversation, record) {
   if (recordErrors.length > 0) {
     return { ok: false, errors: recordErrors };
   }
-  if (Date.parse(record.recorded_at) < Date.parse(conversation.permissions.valid_until)) {
+  if (compareDateTimes(record.recorded_at, conversation.permissions.valid_until) < 0) {
     return { ok: false, errors: ["consent cannot expire before valid_until"] };
   }
 
@@ -730,10 +742,7 @@ export function sendMessage(conversation, message, record) {
   if (conversation.permissions.consent_state !== "GRANTED" || !conversation.permissions.allowed_actions.includes("SEND_MESSAGE")) {
     return { ok: false, errors: ["sending a message requires granted SEND_MESSAGE permission"] };
   }
-  const messageTime = Date.parse(message.created_at);
-  const validFrom = Date.parse(conversation.permissions.valid_from);
-  const validUntil = conversation.permissions.valid_until === null ? null : Date.parse(conversation.permissions.valid_until);
-  if (messageTime < validFrom || (validUntil !== null && messageTime > validUntil)) {
+  if (!isConsentValidAt(conversation, message.created_at)) {
     return { ok: false, errors: ["message timestamp is outside the consent validity window"] };
   }
   if (!conversation.participants.some((participant) => participant.participant_id === message.sender_participant_id)) {

@@ -62,6 +62,11 @@ an explicit `Z` or numeric offset. Date-only, local-time and normalized impossib
 dates are rejected. Valid leap days, offsets and fractional seconds remain
 supported; source strings are never rewritten. Leap seconds remain unsupported
 by the underlying JavaScript timestamp parser.
+Provenance order, consent windows, expiry and message admission compare the full
+supplied decimal fraction, including precision finer than milliseconds. Equivalent
+UTC offsets and trailing fractional zeros compare equally; source strings remain
+unchanged. Boundary inclusion rules are preserved, including for dates before
+1970. This compares supplied evidence times and does not establish clock trust.
 
 ## Boundaries
 
