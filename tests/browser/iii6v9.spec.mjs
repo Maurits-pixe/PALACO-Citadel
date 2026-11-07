@@ -905,6 +905,7 @@ test('applies inclusive AETHER input byte limits', async ({ page }) => {
 test('fails closed when Web Crypto is unavailable', async ({ page }) => {
   await page.goto('/citadel/iii6v9/');
   await page.evaluate(() => {
+    window.originalCryptoSubtle = crypto.subtle;
     Object.defineProperty(crypto, 'subtle', { configurable: true, value: undefined });
   });
 
@@ -920,6 +921,21 @@ test('fails closed when Web Crypto is unavailable', async ({ page }) => {
 
   await page.locator('#decrypt-mode').click();
   await page.locator('#crypto-input').fill('AETHER1.invalid');
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText(
+    'Web Crypto is unavailable. Open this page in a secure browser context (HTTPS or localhost).'
+  );
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+
+  await page.evaluate(() => {
+    Object.defineProperty(crypto, 'subtle', { configurable: true, value: window.originalCryptoSubtle });
+    Object.defineProperty(crypto, 'getRandomValues', { configurable: true, value: undefined });
+    delete window.originalCryptoSubtle;
+  });
+  await page.locator('#encrypt-mode').click();
+  await page.locator('#crypto-input').fill('local plaintext');
   await page.locator('#crypto-form button[type="submit"]').click();
   await expect(page.locator('#crypto-status')).toHaveText(
     'Web Crypto is unavailable. Open this page in a secure browser context (HTTPS or localhost).'
