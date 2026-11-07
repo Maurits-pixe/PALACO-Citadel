@@ -902,6 +902,33 @@ test('applies inclusive AETHER input byte limits', async ({ page }) => {
   await expect(page.locator('#download-output')).toBeDisabled();
 });
 
+test('fails closed when Web Crypto is unavailable', async ({ page }) => {
+  await page.goto('/citadel/iii6v9/');
+  await page.evaluate(() => {
+    Object.defineProperty(crypto, 'subtle', { configurable: true, value: undefined });
+  });
+
+  await page.locator('#crypto-input').fill('local plaintext');
+  await page.locator('#passphrase').fill('correct horse battery staple');
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText(
+    'Web Crypto is unavailable. Open this page in a secure browser context (HTTPS or localhost).'
+  );
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+
+  await page.locator('#decrypt-mode').click();
+  await page.locator('#crypto-input').fill('AETHER1.invalid');
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText(
+    'Web Crypto is unavailable. Open this page in a secure browser context (HTTPS or localhost).'
+  );
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+});
+
 test('encrypts and decrypts locally while offline after the shell is cached', async ({ page, context }) => {
   const externalRequests = [];
   page.on('request', request => {
