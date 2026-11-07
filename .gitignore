@@ -1,3 +1,15 @@
 node_modules/
 playwright-report/
 test-results/
+/citadel/react/
+/citadel/bastion-app/
+.env
+.env.*
+!.env.example
+localhost+2.pem
+localhost+2-key.pem
+/bastion-backend/*.db
+/bastion-backend/*.db-shm
+/bastion-backend/*.db-wal
+/bastion-backend/localhost.pem
+/bastion-backend/localhost-key.pem

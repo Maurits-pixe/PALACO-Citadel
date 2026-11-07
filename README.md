@@ -16,6 +16,9 @@ PALACO-Citadel is now organized as a canonical layered system: read from top to 
 9. [DOCS](DOCS/README.md) — referentie, glossary, FAQ en status
 10. [CANONIEKE_FORMULE](CANONIEKE_FORMULE.md) — de synthesis van het geheel
 
+For a verified cross-repository maintenance overview, see the
+[repository maintenance handoff](docs/REPOSITORY-MAINTENANCE-HANDOFF.md).
+
 ## GitHub links
 
 - PALACO: `https://github.com/Maurits-pixe/PALACO`
@@ -34,6 +37,13 @@ The PALACO 2040 Compass section now includes the following dashboard layers in C
 - Citadel Health Dashboard — operational + semantic risk signals with per-signal explanation
 - RIO Conversation Dashboard — conversations as access to actions with context/consequence panels
 - ELIXER Dashboard — available apps/capabilities per context with clear choice impact
+- Aether homepage widget — reversible Base64 visual demo; it is not encryption
+- [AETHER](citadel/iii6v9/) — local AES-GCM-256 text encryption using PBKDF2-SHA-256, with explicit ciphertext-only file import/export; not an audited vault or production security claim
+- [Bastion static preview](citadel/bastion/) — fictional command-center simulation; local-only messages, no secure comms or live roster
+- [5CRIPTIE](citadel/aegis/) — synthetic code-integrity dashboard; no source scan, live monitoring, detection, or defensive actions
+- [PALACO NEO](citadel/) — temporary Vue launcher with administrator-configured HTTPS links and bounded metadata checks
+- [React launcher](citadel/react/) — separate React entry point for the same previews; source is in `src/`
+- [Bastion team prototype](citadel/bastion-app/) — Vue client for the separately hosted Node/PostgreSQL prototype
 - Evolution Dashboard — canon/system changes with “what changes for me?” summary
 - Public Gateway Dashboard — public orientation layer with core concepts and safe onboarding
 
@@ -42,6 +52,168 @@ Implementation references:
 - Structure/content: `/home/runner/work/PALACO-Citadel/PALACO-Citadel/index.html`
 - Localization keys: `/home/runner/work/PALACO-Citadel/PALACO-Citadel/app.js`
 - UI styling: `/home/runner/work/PALACO-Citadel/PALACO-Citadel/styles.css`
+
+The homepage Aether widget uses a fixed public sample to demonstrate reversible Base64
+encoding. It is not encryption, authentication, secure storage, or a production vault.
+
+AETHER encrypts text locally with the browser Web Crypto API using AES-GCM-256 and a key
+derived by PBKDF2-SHA-256 (600,000 iterations, per-message random salt and IV). Input and
+passphrase remain in the active page memory until cleared; encrypted output is not saved or
+uploaded. The page has no account, recovery, persistent storage, or independent security
+audit. It is not a production vault; use strong passphrases and do not rely on it for highly
+sensitive data.
+
+Bastion's static preview uses invented tasks and personnel. Task changes are tab-local; demo
+messages are held in memory and removed from the view after 30 seconds. Messages are not
+transmitted, persisted, or securely erased, and the preview does not implement access control.
+An isolated local SQLite API prototype is documented in `bastion-backend/README.md`; it is not
+connected to the static preview or the separate PostgreSQL prototype, and it does not establish
+authentication, authorization, or D-013 compliance.
+
+5CRIPTIE generates decorative code-log entries, metrics, and data streams in the browser. It
+does not inspect source code or network traffic, monitor system health, detect threats, or
+block activity, and must not be used for operational security decisions.
+
+The PALACO NEO launcher is a Vue app. It only runs metadata checks for exact HTTPS
+origins explicitly configured in `VITE_AETHER_ORIGIN`, `VITE_BASTION_ORIGIN`, and
+`VITE_SCRIPTIE_ORIGIN`. These values must be origins (scheme, host, and optional port only), not
+paths. They default to empty; no app destinations are assumed. For a Pages build, set the matching
+`PALACO_AETHER_ORIGIN`, `PALACO_BASTION_ORIGIN`, and `PALACO_SCRIPTIE_ORIGIN` repository
+variables only after approving those origins. For local development, set the VITE variables in
+an untracked `.env` file. An unapproved address is never fetched or opened.
+
+**Draft metadata contract (v1):** a check issues a CORS-readable `GET` to
+`/.well-known/palaco-app.json` on the approved origin, with `redirect: error`, omitted credentials,
+`no-store`, and a five-second limit that includes reading the response. Only HTTP 200 with JSON
+matching `launcher-vue/src/metadata-contract.schema.json` and the expected exact `appId` yields
+**“Module metadata confirmed.”** Any metadata `status` value is self-reported only; this check
+does not prove app ownership, feature availability, authentication, authorization, or security.
+Network, TLS, CORS, redirect, and timeout errors are **“Configured — check unavailable”** because
+the browser cannot reliably distinguish their causes. Evidence is held only in page memory,
+bound to the approved origin and expected/received app ID, timestamped, and expires after 60
+seconds. Editing or saving a different URL immediately invalidates it; old in-flight results are
+ignored. Opening the app is enabled only while the matching metadata result is current. Evidence
+is never restored on reload or in another tab; the destination URL may remain in this tab's session
+storage, but metadata must be checked again.
+
+The displayed request duration measures only the browser's one-time metadata request and response
+body read. It is not module latency, a health check, heartbeat, or uptime measurement. See
+[`docs/launcher-v2-scope.md`](docs/launcher-v2-scope.md) for the recorded NEO scope and the status
+of requested integrations.
+
+The endpoint must send an `Access-Control-Allow-Origin` permitting the launcher's exact origin.
+For local development that is `https://localhost:5173`; the deployed launcher needs its actual
+origin. Browser fetch does not expose certificate details; the browser itself must accept the
+TLS certificate. A self-declared `appId` is not proof that the server is controlled by the
+intended operator.
+
+## Run the static site with Docker
+
+Docker builds the existing Vue PALACO launcher, React launcher, and Vue Bastion client, then
+serves their static output and the existing site with Nginx. It does not create a Rust runtime
+service; `08-IMPLEMENTATION/office-automation/rust-reference/` is a reference library. The
+unauthenticated SQLite Bastion demo API remains an opt-in Compose profile and is not integrated
+with AETHER.
+
+With Docker Engine and the Compose plugin installed, run from the repository root:
+
+```sh
+docker compose up --build -d
+```
+
+Open `http://localhost:8080`. The static site binds to loopback by default, runs Nginx as an
+unprivileged user, and has a read-only root filesystem. Stop it with `docker compose down`.
+
+To publish the static image to an account you control, authenticate with Docker Hub and tag the
+image using your own namespace:
+
+```sh
+docker login
+docker build -t <dockerhub-username>/palaco-citadel:latest .
+docker push <dockerhub-username>/palaco-citadel:latest
+```
+
+Publishing is an explicit manual step; no registry credentials or image pushes are used by this
+repository's Compose setup.
+
+Run `npm run dev` to start the launcher at `https://localhost:5173`. For a locally trusted
+certificate, install mkcert for your operating system, then from the repository root run:
+
+```sh
+mkcert -install
+mkcert localhost 127.0.0.1 ::1
+```
+
+The generated `localhost+2.pem` and `localhost+2-key.pem` files are ignored by Git and the local
+development server requires both files; it will not start with a fallback certificate. Keep the
+mkcert CA private key on your machine; do not commit or share it. The CA must be trusted by the
+browser/OS used for testing. Neither local setup is a substitute for publicly trusted TLS in a
+hosted deployment.
+
+Enter only an HTTPS origin in the launcher, with no path, query, or fragment. A configured
+destination is not automatically trusted merely because its origin can be parsed.
+
+An app operator can serve a response such as the following from the well-known endpoint (use
+the exact module ID and a real app version; the example does not configure or approve a URL):
+
+```json
+{
+  "appId": "aether",
+  "version": "1.0.0",
+  "status": "operational"
+}
+```
+
+`status` describes only what that endpoint claims about itself. For example, `"operational"`
+does not establish that user-facing features work or that access controls are effective.
+
+The Pages workflow builds the Vue launcher into `/citadel/` and the separate React launcher into
+`/citadel/react/`. The static `/citadel/bastion/` preview and separately hosted Bastion prototype
+remain independent destinations and are not implicitly trusted or linked.
+
+### Bastion team prototype
+
+The Vue client and Node API are a bounded development prototype, not a production-secure
+service. GitHub Pages can host the client but cannot run the API; the Node service and PostgreSQL
+database must be operated separately. Configure `VITE_BASTION_API_URL` and
+`VITE_BASTION_SOCKET_URL` to the API origin before building for a remote API, and configure
+`ALLOWED_ORIGINS` on the API to the exact client origin.
+
+Copy `.env.example` to `.env`, set a PostgreSQL connection URL and a random `JWT_SECRET` of at
+least 32 bytes. Use a TLS-protected PostgreSQL connection for any remote database. Then run:
+
+```sh
+npm install
+npm run db:migrate:bastion
+export BOOTSTRAP_USERNAME=commander
+read -rsp 'Bootstrap password: ' BOOTSTRAP_PASSWORD; printf '\n'
+export BOOTSTRAP_PASSWORD
+export BOOTSTRAP_TEAM='Example team'
+export BOOTSTRAP_CHANNEL='General'
+npm run db:bootstrap:bastion
+```
+
+Run `npm run server:bastion` in one terminal and `npm run dev:bastion` in another. The API binds
+to localhost by default; remote deployments must use HTTPS through a correctly configured
+reverse proxy and set the API URL/origin configuration.
+
+Provision operatives out of band with `PROVISION_USERNAME`, `PROVISION_PASSWORD`,
+`PROVISION_TEAM_ID`, `PROVISION_CLEARANCE_LEVEL`, and explicit comma-separated
+`PROVISION_CHANNEL_IDS`, then run `npm run db:provision:bastion`. Provisioning does not expose a
+public account-creation or role-escalation endpoint. The access policy requires team membership,
+clearance and, for operatives, assignment/creation to see tasks; channel membership is explicit.
+Only commanders can create tasks, and operatives can update tasks assigned to them.
+
+The API uses password hashes and short-lived signed access tokens; it rejects the sample
+`x-user-id` identity header and requires authentication on both HTTP and Socket.IO. Messages are
+stored as server-readable plaintext, are not end-to-end encrypted, and their expiry only removes
+the active database row content. Backups, database logs, caches, clients, screenshots and memory
+may retain copies. Audit rows reject application-level updates/deletes but are not tamper-proof
+against a database owner. No independent security review, operational authorization policy,
+production deployment, recovery/rotation process, or assurance for sensitive plans is provided.
+Use synthetic data only until those gates are addressed.
+When deploying the client through Pages, set the repository variables `BASTION_API_URL` and
+`BASTION_SOCKET_URL`; without `BASTION_API_URL`, the login form remains disabled.
 
 ## GitHub preparation canon
 
@@ -70,6 +242,10 @@ De bestaande GitHub Pages-publicatie behoudt `CNAME` (`hoofdkantoor.info`) en de
 - Atelier-wizard, uitsluitend lokaal DRAFT-concept: `https://hoofdkantoor.info/atelier/wizard.html`
 - Levensader-objectinspectie, read-only fixture: `https://hoofdkantoor.info/DOCS/levensader-readonly/`
   (ook de bestaande route met `index.html` blijft werken).
+- AETHER, legacy route `/citadel/iii6v9/`: `https://hoofdkantoor.info/citadel/iii6v9/`.
+- Bastion, uitsluitend lokale commandocentrumsimulatie: `https://hoofdkantoor.info/citadel/bastion/`.
+- 5CRIPTIE, legacy route `/citadel/aegis/`: `https://hoofdkantoor.info/citadel/aegis/`.
+- PALACO Hoofdkantoor launcher: `https://hoofdkantoor.info/citadel/`.
 
 De homepage linkt naar de afzonderlijke statische previews. Online vraagt de service worker
 de actuele bestanden op dezelfde URL op; offline toont hij de laatst opgeslagen versie.

@@ -1,0 +1,63 @@
+services:
+  citadel:
+    image: palaco-citadel:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:8080:8080"
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+  bastion-demo-api:
+    profiles:
+      - bastion-demo
+    image: palaco-bastion-demo-api:local
+    build:
+      context: ./bastion-backend
+      dockerfile: Dockerfile
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3005
+      DATABASE_PATH: /app/data/bastion.db
+      TLS_CERT_PATH: /run/tls/localhost.pem
+      TLS_KEY_PATH: /run/tls/localhost-key.pem
+    ports:
+      - "127.0.0.1:3005:3005"
+    volumes:
+      - bastion-demo-data:/app/data
+      - type: bind
+        source: ${BASTION_TLS_CERT_PATH:-./bastion-backend/localhost.pem}
+        target: /run/tls/localhost.pem
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${BASTION_TLS_KEY_PATH:-./bastion-backend/localhost-key.pem}
+        target: /run/tls/localhost-key.pem
+        read_only: true
+        bind:
+          create_host_path: false
+    networks:
+      - bastion-demo-isolated
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  bastion-demo-data:
+
+networks:
+  bastion-demo-isolated:
+    internal: true

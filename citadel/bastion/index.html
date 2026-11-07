@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101c2a" />
+    <title>Bastion · Command center demo</title>
+    <link rel="stylesheet" href="./bastion.css" />
+    <script src="./bastion.js" defer></script>
+  </head>
+  <body>
+    <header class="bastion-header">
+      <a class="back-link" href="/" data-i18n="back">← Citadel home</a>
+      <div class="brand-block">
+        <span class="brand-mark" aria-hidden="true">B</span>
+        <div>
+          <p class="eyebrow" data-i18n="eyebrow">CITADEL SYSTEMS · TEAM CONCEPT</p>
+          <h1>BASTION</h1>
+        </div>
+      </div>
+      <label class="language-control">
+        <span data-i18n="language">Language</span>
+        <select id="language-select">
+          <option value="en">English</option>
+          <option value="nl">Nederlands</option>
+          <option value="eo">Esperanto</option>
+        </select>
+      </label>
+    </header>
+
+    <main class="command-center">
+      <section class="demo-notice" aria-labelledby="demo-notice-title">
+        <span class="notice-icon" aria-hidden="true">!</span>
+        <div>
+          <h2 id="demo-notice-title" data-i18n="noticeTitle">SIMULATION ONLY · NOT A SECURE SERVICE</h2>
+          <p data-i18n="noticeBody">Fictional tasks and personnel. Messages stay in this browser tab for 30 seconds; nothing is sent to a team or saved. This demo grants no access or authority. Do not enter sensitive information.</p>
+        </div>
+      </section>
+
+      <section class="overview" aria-label="Command center overview">
+        <div>
+          <p class="eyebrow" data-i18n="workspaceLabel">WORKSPACE</p>
+          <h2 data-i18n="workspaceTitle">Operation Northstar</h2>
+          <p class="muted" data-i18n="workspaceSub">Fictional coordination exercise · Demo data</p>
+        </div>
+        <div class="overview-stats">
+          <div><strong>04</strong><span data-i18n="statMissions">DEMO TASKS</span></div>
+          <div><strong>04</strong><span data-i18n="statPersonnel">FICTIONAL PERSONNEL</span></div>
+          <div class="readiness"><span class="status-dot" aria-hidden="true"></span><span data-i18n="statReadiness">SIMULATED</span></div>
+        </div>
+      </section>
+
+      <div class="dashboard-grid">
+        <section class="panel mission-panel" aria-labelledby="mission-title">
+          <header class="panel-header">
+            <div>
+              <p class="eyebrow" data-i18n="missionEyebrow">TASK TRACKING · LOCAL DEMO</p>
+              <h2 id="mission-title" data-i18n="missionTitle">Mission board</h2>
+            </div>
+            <span class="count-badge" id="task-count" aria-label="Tasks">04</span>
+          </header>
+          <div class="panel-content">
+            <div class="board-head" aria-hidden="true">
+              <span data-i18n="boardTask">TASK / ASSIGNEE</span>
+              <span data-i18n="boardStatus">STATUS</span>
+            </div>
+            <ul id="task-list" class="task-list" aria-label="Fictional demo tasks"></ul>
+          </div>
+          <p class="panel-foot" data-i18n="taskFoot">Changes are temporary and visible only in this tab.</p>
+        </section>
+
+        <div class="side-column">
+          <section class="panel comms-panel" aria-labelledby="comms-title">
+            <header class="panel-header">
+              <div>
+                <p class="eyebrow" data-i18n="commsEyebrow">LOCAL SIMULATION · NOT ENCRYPTED</p>
+                <h2 id="comms-title" data-i18n="commsTitle">Comms log</h2>
+              </div>
+              <span class="live-label"><span class="status-dot" aria-hidden="true"></span><span data-i18n="localOnly">LOCAL ONLY</span></span>
+            </header>
+            <div class="comms-body">
+              <p class="comms-note" data-i18n="commsNote">Demo messages appear only here and expire from this view after 30 seconds. They are not securely deleted.</p>
+              <ol id="message-list" class="message-list" aria-label="Local demo messages"></ol>
+              <p id="message-empty" class="empty-state" data-i18n="emptyMessages">No demo messages yet.</p>
+            </div>
+            <form id="message-form" class="message-form">
+              <label class="visually-hidden" for="message-input" data-i18n="messageLabel">Demo message</label>
+              <input id="message-input" name="message" maxlength="240" autocomplete="off" data-i18n-placeholder="messagePlaceholder" placeholder="Type a fictional demo message…" />
+              <button type="submit" data-i18n="sendButton">Send locally</button>
+            </form>
+            <p id="message-status" class="visually-hidden" aria-live="polite"></p>
+          </section>
+
+          <section class="panel personnel-panel" aria-labelledby="personnel-title">
+            <header class="panel-header">
+              <div>
+                <p class="eyebrow" data-i18n="personnelEyebrow">FICTIONAL DEMO ROSTER</p>
+                <h2 id="personnel-title" data-i18n="personnelTitle">Personnel roster</h2>
+              </div>
+              <span class="count-badge">04</span>
+            </header>
+            <ul id="personnel-list" class="personnel-list"></ul>
+            <p class="panel-foot" data-i18n="personnelFoot">Names and presence states are invented, not live.</p>
+          </section>
+        </div>
+      </div>
+      <footer class="bastion-footer" data-i18n="footer">Bastion is a visual simulation. No network connection, shared state, secure messaging, or authorization is implemented.</footer>
+    </main>
+  </body>
+</html>

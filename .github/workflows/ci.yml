@@ -1,8 +1,7 @@
-name: CI
+name: PALACO CI
 
 "on":
   push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
@@ -15,9 +14,49 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run a one-line script
-        run: echo Hello, world!
-      - name: Run a multi-line script
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            bastion-backend/package-lock.json
+      - name: Install repository dependencies
+        run: npm ci
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run repository test suite
+        run: npm test
+      - name: Test Rust reference crate
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          docker run --rm \
+            --volume "$PWD/08-IMPLEMENTATION/office-automation/rust-reference:/input:ro" \
+            rust:1.90-slim \
+            sh -c 'mkdir -p /tmp/workspace && cp -R /input/. /tmp/workspace/ && cd /tmp/workspace && cargo test'
+      - name: Validate and build Docker Compose service
+        run: |
+          docker compose config --quiet
+          docker compose build citadel bastion-demo-api
+      - name: Smoke-test Docker Compose service
+        run: |
+          set -euo pipefail
+          docker compose up -d
+          trap 'docker compose down' EXIT
+          status=""
+          for attempt in $(seq 1 15); do
+            container_id="$(docker compose ps -q citadel)"
+            if [ -n "$container_id" ]; then
+              status="$(docker inspect --format '{{.State.Health.Status}}' "$container_id" 2>/dev/null || true)"
+              [ "$status" = "healthy" ] && break
+            fi
+            sleep 2
+          done
+          test "$status" = "healthy"
+          curl --fail --silent http://127.0.0.1:8080/ | grep -q '<title>PALACO Citadel</title>'
+          curl --fail --silent http://127.0.0.1:8080/citadel/ | grep -q 'PALACO NEO'
+          curl --fail --silent http://127.0.0.1:8080/citadel/react/ | grep -q 'React launcher'
+          curl --fail --silent http://127.0.0.1:8080/citadel/bastion-app/ | grep -q 'Citadel Bastion'
+      - name: Install Bastion demo API dependencies
+        run: npm ci --prefix bastion-backend
+      - name: Test Bastion demo API
+        run: npm --prefix bastion-backend test

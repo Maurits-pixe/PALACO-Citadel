@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#090818" />
+    <title>5CRIPTIE · Integrity simulation</title>
+    <link rel="stylesheet" href="./aegis.css" />
+    <script src="./aegis.js" defer></script>
+  </head>
+  <body>
+    <header class="scriptie-header">
+      <a class="back-link" href="/" data-i18n="back">← PALACO home</a>
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">&lt;/&gt;</span>
+        <div>
+          <p class="eyebrow" data-i18n="eyebrow">PALACO HOOFDKANTOOR · VISUAL SIMULATION</p>
+          <h1>5CRIPTIE</h1>
+        </div>
+      </div>
+      <label class="language-control">
+        <span data-i18n="language">Language</span>
+        <select id="language-select">
+          <option value="en">English</option>
+          <option value="nl">Nederlands</option>
+          <option value="eo">Esperanto</option>
+        </select>
+      </label>
+    </header>
+
+    <main class="scriptie-shell">
+      <section class="simulation-notice" aria-labelledby="notice-title">
+        <span class="notice-mark" aria-hidden="true">SIM</span>
+        <div>
+          <h2 id="notice-title" data-i18n="noticeTitle">SIMULATION ONLY · NO CODE IS SCANNED</h2>
+          <p data-i18n="noticeBody">The scan log, integrity percentage, counters, and data streams are synthetic browser animations. 5CRIPTIE does not inspect source code, connect to a network, monitor a system, detect threats, or block activity. Do not use this display for security decisions.</p>
+        </div>
+      </section>
+
+      <section class="status-bar" aria-label="Simulation status">
+        <div>
+          <p class="eyebrow" data-i18n="workspace">DEMO ENVIRONMENT</p>
+          <h2 data-i18n="overviewTitle">Code integrity &amp; threat monitor</h2>
+        </div>
+        <p class="simulated-state"><span aria-hidden="true"></span><span data-i18n="simulated">SYNTHETIC FEED</span></p>
+      </section>
+
+      <div class="dashboard-grid">
+        <section class="panel scan-panel" aria-labelledby="scan-title">
+          <header class="panel-title">
+            <div>
+              <p class="eyebrow" data-i18n="scanEyebrow">FICTIONAL SAMPLE LOG</p>
+              <h2 id="scan-title" data-i18n="scanTitle">Script analysis simulation</h2>
+            </div>
+            <span id="scan-percent" class="panel-code">00% · SIM</span>
+          </header>
+          <div class="progress-track" role="progressbar" aria-label="Synthetic scan animation" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <span id="scan-progress"></span>
+          </div>
+          <ol id="code-log" class="code-log" role="log" aria-label="Synthetic sample log"></ol>
+          <p class="panel-note" data-i18n="logNote">Log entries are fictional text and are not analysis results.</p>
+        </section>
+
+        <section class="panel integrity-panel" aria-labelledby="integrity-title">
+          <header class="panel-title">
+            <div>
+              <p class="eyebrow" data-i18n="integrityEyebrow">GENERATED DEMO VALUE</p>
+              <h2 id="integrity-title" data-i18n="integrityTitle">Simulated integrity</h2>
+            </div>
+            <span class="panel-code">STATUS / SIM</span>
+          </header>
+          <div class="integrity-reading">
+            <strong id="integrity-value">88</strong><span>%</span>
+          </div>
+          <div class="integrity-track" aria-hidden="true"><span id="integrity-fill"></span></div>
+          <p id="integrity-label" class="integrity-label" aria-live="polite" data-i18n="integrityLabel">SIMULATED · NO ASSESSMENT</p>
+          <p class="panel-note" data-i18n="integrityNote">This changing percentage is not a security score or real integrity check.</p>
+        </section>
+
+        <section class="panel stats-panel" aria-labelledby="stats-title">
+          <header class="panel-title">
+            <div>
+              <p class="eyebrow" data-i18n="statsEyebrow">SYNTHETIC COUNTERS</p>
+              <h2 id="stats-title" data-i18n="statsTitle">Demo counters</h2>
+            </div>
+            <span class="panel-code">HOST / NONE</span>
+          </header>
+          <div class="stat-box">
+            <span data-i18n="threadsLabel">SIMULATED THREADS</span>
+            <strong id="thread-count">18</strong>
+          </div>
+          <div class="stat-box">
+            <span data-i18n="linesLabel">ILLUSTRATIVE LINES</span>
+            <strong id="line-count">000</strong>
+          </div>
+          <p class="panel-note" data-i18n="statsNote">No files, processes, or source code are accessed.</p>
+        </section>
+
+        <section class="panel stream-panel" aria-labelledby="stream-title">
+          <header class="panel-title">
+            <div>
+              <p class="eyebrow" data-i18n="streamEyebrow">DECORATIVE ANIMATION · NO NETWORK</p>
+              <h2 id="stream-title" data-i18n="streamTitle">Illustrative data streams</h2>
+            </div>
+            <span class="panel-code">STREAM / SIM</span>
+          </header>
+          <div id="stream-bars" class="stream-bars" role="img" aria-label="Synthetic animated data bars"></div>
+          <p class="stream-caption" data-i18n="streamCaption">Decorative data visualization · not packet traffic</p>
+          <p class="panel-note" data-i18n="streamNote">The animation is generated locally and does not represent real network activity.</p>
+        </section>
+      </div>
+      <footer class="scriptie-footer" data-i18n="footer">5CRIPTIE is a visual simulation. No source scan, code-integrity validation, live monitoring, threat detection, network connection, or defensive action is implemented.</footer>
+    </main>
+  </body>
+</html>
