@@ -832,23 +832,16 @@ test('decrypts multibyte plaintext at the 4 MiB limit and rejects one byte over'
     oversizedPlaintext[oversizedPlaintext.length - 1] = 0x61;
     return [await createEnvelope(maximumPlaintext), await createEnvelope(oversizedPlaintext)];
   }, 'correct horse battery staple');
+  const expectedPlaintext = 'é'.repeat(2 * 1024 * 1024);
 
   await page.locator('#decrypt-mode').click();
   await page.locator('#passphrase').fill('correct horse battery staple');
   await page.locator('#crypto-input').fill(envelopes[0]);
   await page.locator('#crypto-form button[type="submit"]').click();
   await expect(page.locator('#crypto-status')).toContainText('Decryption complete');
-  expect(await page.locator('#crypto-output').evaluate(element => ({
-    characters: element.value.length,
-    bytes: new TextEncoder().encode(element.value).byteLength,
-    startsWithExpectedText: element.value.startsWith('é'),
-    endsWithExpectedText: element.value.endsWith('é')
-  }))).toEqual({
-    characters: 2 * 1024 * 1024,
-    bytes: 4 * 1024 * 1024,
-    startsWithExpectedText: true,
-    endsWithExpectedText: true
-  });
+  const decryptedPlaintext = await page.locator('#crypto-output').inputValue();
+  expect(decryptedPlaintext).toBe(expectedPlaintext);
+  expect(new TextEncoder().encode(decryptedPlaintext).byteLength).toBe(4 * 1024 * 1024);
   await expect(page.locator('#copy-output')).toBeEnabled();
   await expect(page.locator('#download-output')).toBeDisabled();
 
