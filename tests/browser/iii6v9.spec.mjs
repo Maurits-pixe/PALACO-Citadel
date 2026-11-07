@@ -874,6 +874,34 @@ test('counts Unicode passphrase code points for the encryption minimum', async (
   await expect(page.locator('#crypto-output')).toHaveValue('Unicode passphrase round trip');
 });
 
+test('applies inclusive AETHER input byte limits', async ({ page }) => {
+  await page.goto('/citadel/iii6v9/');
+  await page.locator('#crypto-input').fill('é'.repeat(2 * 1024 * 1024));
+  await page.locator('#passphrase').fill('short');
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Use at least 12 characters for new encryption.');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+
+  await page.locator('#crypto-input').fill(`${'é'.repeat(2 * 1024 * 1024)}a`);
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Plaintext must be 4 MiB or smaller.');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+
+  await page.locator('#decrypt-mode').click();
+  await page.locator('#passphrase').fill('correct horse battery staple');
+  await page.locator('#crypto-input').fill('x'.repeat(6 * 1024 * 1024));
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Invalid AETHER1 data format.');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+
+  await page.locator('#crypto-input').fill(`${'x'.repeat(6 * 1024 * 1024)}x`);
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Encrypted input must be 6 MiB or smaller.');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+  await expect(page.locator('#copy-output')).toBeDisabled();
+  await expect(page.locator('#download-output')).toBeDisabled();
+});
+
 test('encrypts and decrypts locally while offline after the shell is cached', async ({ page, context }) => {
   const externalRequests = [];
   page.on('request', request => {
