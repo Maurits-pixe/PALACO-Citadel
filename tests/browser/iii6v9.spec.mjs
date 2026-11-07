@@ -853,6 +853,27 @@ test('decrypts multibyte plaintext at the 4 MiB limit and rejects one byte over'
   await expect(page.locator('#download-output')).toBeDisabled();
 });
 
+test('counts Unicode passphrase code points for the encryption minimum', async ({ page }) => {
+  await page.goto('/citadel/iii6v9/');
+  const passphrase = '🛰'.repeat(12);
+  await page.locator('#crypto-input').fill('Unicode passphrase round trip');
+  await page.locator('#passphrase').fill(passphrase.slice(0, 22));
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toHaveText('Use at least 12 characters for new encryption.');
+  await expect(page.locator('#crypto-output')).toHaveValue('');
+
+  await page.locator('#passphrase').fill(passphrase);
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toContainText('Encryption complete');
+  const ciphertext = await page.locator('#crypto-output').inputValue();
+  await page.locator('#decrypt-mode').click();
+  await page.locator('#crypto-input').fill(ciphertext);
+  await page.locator('#passphrase').fill(passphrase);
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toContainText('Decryption complete');
+  await expect(page.locator('#crypto-output')).toHaveValue('Unicode passphrase round trip');
+});
+
 test('encrypts and decrypts locally while offline after the shell is cached', async ({ page, context }) => {
   const externalRequests = [];
   page.on('request', request => {
