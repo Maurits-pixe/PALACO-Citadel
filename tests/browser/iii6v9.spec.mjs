@@ -945,6 +945,25 @@ test('fails closed when Web Crypto is unavailable', async ({ page }) => {
   await expect(page.locator('#download-output')).toBeDisabled();
 });
 
+test('decrypts without the random-values API', async ({ page }) => {
+  await page.goto('/citadel/iii6v9/');
+  await page.locator('#crypto-input').fill('Decryption uses no random values');
+  await page.locator('#passphrase').fill('correct horse battery staple');
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toContainText('Encryption complete');
+  const ciphertext = await page.locator('#crypto-output').inputValue();
+
+  await page.evaluate(() => {
+    Object.defineProperty(crypto, 'getRandomValues', { configurable: true, value: undefined });
+  });
+  await page.locator('#decrypt-mode').click();
+  await page.locator('#crypto-input').fill(ciphertext);
+  await page.locator('#passphrase').fill('correct horse battery staple');
+  await page.locator('#crypto-form button[type="submit"]').click();
+  await expect(page.locator('#crypto-status')).toContainText('Decryption complete');
+  await expect(page.locator('#crypto-output')).toHaveValue('Decryption uses no random values');
+});
+
 test('encrypts and decrypts locally while offline after the shell is cached', async ({ page, context }) => {
   const externalRequests = [];
   page.on('request', request => {

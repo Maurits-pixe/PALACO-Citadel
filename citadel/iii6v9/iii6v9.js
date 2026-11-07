@@ -327,7 +327,7 @@ async function processText(event) {
     setStatus('errorPassphraseLength');
     return;
   }
-  if (!globalThis.crypto?.subtle || !globalThis.crypto?.getRandomValues) {
+  if (!globalThis.crypto?.subtle || (currentMode === 'encrypt' && !globalThis.crypto?.getRandomValues)) {
     setStatus('errorCrypto');
     return;
   }
