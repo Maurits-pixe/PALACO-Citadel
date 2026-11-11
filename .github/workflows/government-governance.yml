@@ -1,0 +1,30 @@
+name: Government governance contracts
+
+"on":
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "governance/government/**"
+      - ".github/workflows/government-governance.yml"
+  push:
+    branches: [ "main" ]
+    paths:
+      - "governance/government/**"
+      - ".github/workflows/government-governance.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Syntax check
+        run: node --check governance/government/contracts.mjs
+      - name: Fail-closed contract tests
+        run: node --test governance/government/contracts.test.mjs
