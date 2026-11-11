@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "npm run test:rio && npm run test:browser",
+    "test": "npm run test:offline && npm run test:rio && npm run test:browser",
+    "test:offline": "node --test tests/offline-shell.test.mjs",
     "test:rio": "node rio/conformance.mjs",
     "test:browser": "playwright test",
     "test:incident-recovery": "node --test registration/recovery-inspector.test.mjs",

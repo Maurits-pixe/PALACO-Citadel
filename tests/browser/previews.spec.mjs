@@ -51,11 +51,11 @@ test('replaces stale previews online, preserves them offline and retires only ow
   });
   await page.goto('/');
   await waitForWorker(page);
-  expect(await page.evaluate(() => caches.keys())).toEqual(expect.arrayContaining(['palaco-rio-shell-v5', 'unrelated-app-cache']));
+  expect(await page.evaluate(() => caches.keys())).toEqual(expect.arrayContaining(['palaco-rio-shell-v6', 'unrelated-app-cache']));
   expect(await page.evaluate(() => caches.keys())).not.toContain('palaco-rio-shell-v4');
 
   await page.evaluate(async paths => {
-    const cache = await caches.open('palaco-rio-shell-v5');
+    const cache = await caches.open('palaco-rio-shell-v6');
     for (const path of paths) {
       await cache.put(path, new Response('<title>Stale preview</title><h1>Stale preview</h1>', {
         headers: { 'Content-Type': 'text/html' }
@@ -71,7 +71,7 @@ test('replaces stale previews online, preserves them offline and retires only ow
     await expect(page).toHaveTitle(surface.title);
     expect(await page.evaluate(() => window.stalePreview)).toBeUndefined();
     expect(await page.evaluate(async path => {
-      const cache = await caches.open('palaco-rio-shell-v5');
+      const cache = await caches.open('palaco-rio-shell-v6');
       return (await cache.match(path)).text();
     }, surface.path)).not.toContain('Stale preview');
   }
@@ -89,7 +89,23 @@ test('replaces stale previews online, preserves them offline and retires only ow
   await page.goto('/');
   await page.evaluate(() => fetch('/registration/not-a-static-preview'));
   expect(await page.evaluate(async () => {
-    const cache = await caches.open('palaco-rio-shell-v5');
+    const cache = await caches.open('palaco-rio-shell-v6');
     return Boolean(await cache.match('/registration/not-a-static-preview'));
   })).toBe(false);
+});
+
+test('shows a truthful public fallback in airplane mode with Arabic RTL', async ({ page, context }) => {
+  await page.goto('/');
+  await waitForWorker(page);
+
+  await context.setOffline(true);
+  try {
+    await page.goto('/not-yet-published?lang=ar');
+    await expect(page).toHaveTitle('PALACO · Offline');
+    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+    await expect(page.locator('#warning')).toContainText('لا تمنح صلاحيات');
+    await expect(page.locator('a[href="/"]')).toBeVisible();
+  } finally {
+    await context.setOffline(false);
+  }
 });
