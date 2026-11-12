@@ -4,7 +4,7 @@
 
 ## Scope
 
-De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert zeven geïsoleerde TypeScript-modules:
+De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert acht geïsoleerde TypeScript-modules:
 
 - `reading-state.ts`: bewaarbeleid en opslagfouten afschermen.
 - `reading-ui.ts`: zichtbare tekst en gebruikersgestuurde acties zonder browserafhankelijkheden.
@@ -13,6 +13,7 @@ De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert zeven ge
 - `reading-region-bridge.ts`: expliciete, controleerbare vertaling tussen oudere Leeskompas-regio-ID's en de nieuwe canonieke ID's.
 - `reading-navigation.ts`: gebruikersgestuurde, toegangsafhankelijke navigatieoverdracht met focusresultaat.
 - `reading-epoch.ts`: lokale aanvraagcoördinator die oudere hervataanvragen ongeldig maakt.
+- `reading-controller.ts`: integreert de aanvraagcoördinator met de navigatieadapter en de levenscyclus van de lezer.
 
 Het contract is uitsluitend voor **presentatievoortgang**. Het is geen PALACO ONE-identiteit, Citadel-toegangscontrole, ERA/EDTR-bewijs, watermerk, consensus of uitvoeringsmandaat.
 
@@ -130,3 +131,17 @@ De `NavigationPort` verlangt nu ook `isCurrent()`. De eigenaar-frontend moet dit
 De optionele helper `createResumeRequestCoordinator()` geeft per bewuste tik een nieuwe `ResumeRequest`. De volgende tik maakt vorige verzoeken ongeldig. Roep `invalidateAll()` aan bij logout, routewissel, wisseling van identiteit/toegangsrechten, sluiten van de lezer of het wissen van leesplekken. Elke `NavigationPort.isCurrent` dient zowel dit verzoek als de actuele geauthenticeerde sessie te controleren. Een verlopen aanvraag mag niet alsnog focus of een successtatus krijgen.
 
 **Belangrijke grens:** een al gestart `navigate()`-effect kan hiermee niet teruggedraaid worden. De host-router moet zelf vóór én tijdens het wijzigen van een beschermde route autorisatie afdwingen en waar nodig annulering ondersteunen. De adapter is geen beveiligingsgrens op zichzelf. Geen tests, merge of Sites-publicatie in deze ronde; DRAFT/HOLD blijft gehandhaafd.
+
+## CITADEL-READING-CONTROLLER-001 — levenscycluskoppeling
+
+`createReadingController(store, manifest, navigationPort)` retourneert `resume()`, `invalidate()` en `dispose()`. De frontend mag `resume()` uitsluitend starten naar aanleiding van een expliciete klik/tik op de knop Verder lezen. Een nieuwe aanvraag maakt de vorige ongeldig; oude resultaten worden geen succesmeldingen.
+
+**Verplichte hostverbindingen:**
+
+- `navigationPort.isCurrent()` controleert de daadwerkelijke huidige sessie én routecontext en faalt gesloten bij onzekerheid.
+- `navigationPort.canOpen(target)` levert de echte toegangstoets, vóór en na navigatie.
+- `navigationPort.navigate(path)` moet zélf de routeguard en eventuele annulering bij sessiewissel afdwingen; de controller draait een reeds begonnen routereffect niet terug.
+- `navigationPort.focusChapter(id)` en `focusRegion()` verplaatsen focus alleen na bevestigde navigatie en herbevestigde toegang. Het hoofdstuk-ID is geen CSS-selector.
+- Na uitloggen, sessie-/routewissel, leesgegevens wissen, of het sluiten van het Leeskompas: `controller.invalidate()`. Bij definitief verwijderen van de component: `controller.dispose()`.
+
+**Niet geleverd:** koppeling met de huidige Sites-runtime, DOM-implementatie, live autorisatie, deploy, functionele tests. De code is een voorstel voor integratie op een DRAFT-branch. GO-13/HOLD blijft gehandhaafd.
