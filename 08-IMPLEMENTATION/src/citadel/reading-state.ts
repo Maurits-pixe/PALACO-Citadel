@@ -97,6 +97,9 @@ export function saveReadingRegion(
 ): boolean {
   if (!isRegionId(region)) return false;
   if (readingStatus(store).kind !== "enabled") return false;
+  // A deliberate region selection supersedes any older chapter bookmark.
+  // If we cannot clear the stale chapter, do not report a successful save.
+  if (!safeRemove(store, CHAPTER_POSITION_KEY)) return false;
   return safeWrite(store, POSITION_KEY, region);
 }
 
