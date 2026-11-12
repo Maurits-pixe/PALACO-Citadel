@@ -34,7 +34,7 @@ export interface ReadingMountOptions {
 }
 
 export interface MountedReadingCompass {
-  /** Call before the real session/permission/route transition. */
+  /** Finalize this mount before session, permission or route transitions. */
   beforeChange(change: ReadingLifecycleChange): void;
   /** Call only after the existing UI has explicitly confirmed clearing. */
   clearAfterConfirmation(): void;
@@ -126,13 +126,12 @@ export function mountReadingCompass(
     elements.resumeButton.addEventListener("click", onResumeClick);
 
     return {
-      beforeChange(change: ReadingLifecycleChange): void {
-        if (disposed) return;
-        if (change === "reader-closed") {
-          closed = true;
-          removeListener();
-        }
-        presenter?.beforeChange(change);
+      beforeChange(_change: ReadingLifecycleChange): void {
+        // A route/session/permission epoch change makes the frozen manifest
+        // and captured DOM context obsolete. Invalidate immediately and
+        // require a fresh authorized mount, regardless of change type.
+        // dispose() also releases the button and suppresses late responses.
+        dispose();
       },
       clearAfterConfirmation(): void {
         if (!disposed && !closed) presenter?.onClearConfirmed();
