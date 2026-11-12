@@ -32,21 +32,28 @@ export function createReadingMountCoordinator(): ReadingMountCoordinator {
   let revision = 0;
   let disposed = false;
   let mounting = false;
+  let transitioning = false;
 
   const transition = (change: ReadingLifecycleChange): void => {
     if (disposed) return;
     ++revision;
     const previous = current;
     current = null;
-    // An exception cannot restore a potentially obsolete old reader.
-    previous?.beforeChange(change);
+    // No new view may mount while the former view is still tearing down.
+    const outerTransition = !transitioning;
+    transitioning = true;
+    try {
+      previous?.beforeChange(change);
+    } finally {
+      if (outerTransition) transitioning = false;
+    }
   };
 
   return {
     transition,
     mountAuthorized(options: ReadingMountOptions): MountedReadingCompass {
       if (disposed) throw new Error("CITADEL_READING_COORDINATOR_DISPOSED");
-      if (current !== null || mounting) {
+      if (current !== null || mounting || transitioning) {
         throw new Error("CITADEL_READING_CONTEXT_ALREADY_MOUNTED");
       }
       const expected = revision;
