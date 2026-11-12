@@ -4,7 +4,7 @@
 
 ## Scope
 
-De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert negentien geïsoleerde TypeScript-modules:
+De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert twintig geïsoleerde TypeScript-modules:
 
 - `reading-state.ts`: bewaarbeleid en opslagfouten afschermen.
 - `reading-ui.ts`: zichtbare tekst en gebruikersgestuurde acties zonder browserafhankelijkheden.
@@ -19,6 +19,7 @@ De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert negentie
 - `reading-dom.ts`: optionele, host-gekoppelde DOM-uitvoer en gecontroleerde focus op bestaande hoofdstuk- of regiokoppen.
 - `reading-route-port.ts`: host-gekoppelde navigatiepoort die daadwerkelijke route-rendering en juiste regiocontainer verifieert vóór focus.
 - `reading-mount.ts`: één gecontroleerd montagepunt voor bestaande opslag, router, Leeskompas-elementen en presentatieadapter.
+- `reading-mount-coordinator.ts`: hostgestuurde exclusieve montage en veilige beëindiging bij route-, sessie- en rechtenovergangen.
 - `reading-manifest-gate.ts`: fail-closed toelating van een compleet, uniek en geldig vijfregiomanifest voordat een leesweergave kan worden gemonteerd.
 - `reading-manifest-snapshot.ts`: neemt vóór de montage een onafhankelijke, onveranderbare kopie van geverifieerde regio- en hoofdstukgegevens.
 - `reading-preflight.ts`: read-only beoordeling van manifest, lokale toestemming en mogelijke hervatbestemming zonder autorisatie.
@@ -346,3 +347,13 @@ Vanaf deze versie beëindigt `MountedReadingCompass.beforeChange(change)` voor *
 Bij een bewuste routewisseling moet de host vóór de overgang `beforeChange('route-replaced')` aanroepen en **na** renderen en eigen toegangstoets een nieuwe `mountReadingCompass` uitvoeren. Hetzelfde geldt na sessie- of rechtenvervanging; na logout mag alleen opnieuw worden gemonteerd na nieuwe, onafhankelijk bevestigde toegang. `reader-closed` beëindigt definitief de instantie. `dispose()` blijft idempotent en mag na `beforeChange` nogmaals worden aangeroepen. Bevestigde wisacties op de beëindigde instantie hebben geen effect.
 
 **Beperking:** als de host geen `beforeChange` aanroept, kan deze bibliotheek niet zelfstandig iedere externe route-/sessiewissel waarnemen. De echte router moet bovendien zijn eigen asynchrone side-effects en autorisatie bewaken. De originele Citadel Sites-frontend is nog niet aangesloten en er zijn geen functionele tests uitgevoerd. **DRAFT/HOLD — geen merge of publicatie.**
+
+## CITADEL-READING-MOUNT-COORDINATOR-001 — één actieve montage per context
+
+`createReadingMountCoordinator()` biedt de host `transition(change)`, `mountAuthorized(options)`, `hasActiveMount()` en `dispose()`. De host roept `transition` **vóór** een route-, sessie- of rechtenwisseling aan. Daarna mag `mountAuthorized` uitsluitend plaatsvinden na nieuwe, onafhankelijk bevestigde toegang en nadat de werkelijk bedoelde pagina opnieuw is gerenderd. Een coördinator laat maximaal één gelijktijdige Leeskompas-montage toe; een tweede montage zonder overgang wordt geweigerd. Bij een tijdens montage veranderende context wordt de nieuwe instantie beëindigd; de oude instantie wordt niet hersteld. Een mislukte vervanging blijft zonder actief Leeskompas.
+
+Een door `mountAuthorized` teruggegeven handvat is aan precies zijn eigen instantie gebonden. Een vertraagde `dispose` of `beforeChange` op een ouder handvat mag een reeds nieuw gemonteerde instantie niet afsluiten. `dispose()` op de coördinator zelf beëindigt de instantie en sluit verdere montage definitief af.
+
+**Belangrijke afbakening:** `mountAuthorized` ontleent zijn naam aan de **verplichting van de aanroepende host** en voert zelf geen login-, eigenaar-, rol- of bevoegdhedencontrole uit. De coördinator registreert geen externe route-/sessie-events; de originele private Citadel-frontend moet `transition` altijd zelf tijdig aanroepen. `hasActiveMount` is slechts lokale diagnostiek, geen veiligheidsbewijs of claim dat de website actief is.
+
+De broncode is alleen aangepast op GitHub PR #58. Er zijn geen functionele tests, merge, autorisatievrijgave of Sites-publicatie uitgevoerd. **DRAFT/HOLD**.
