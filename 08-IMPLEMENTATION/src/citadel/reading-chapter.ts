@@ -31,7 +31,7 @@ function validChapterId(value: unknown): value is string {
     /^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(value);
 }
 
-function isKnownBookmark(
+export function isKnownBookmark(
   value: unknown,
   registry: ChapterRegistry,
 ): value is ChapterBookmark {
