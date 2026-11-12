@@ -47,7 +47,10 @@ export function createReadingController(
       const scopedPort: NavigationPort = {
         isCurrent: () => !disposed && request.isCurrent() && port.isCurrent(),
         canOpen: (target) => port.canOpen(target),
-        navigate: (path) => port.navigate(path),
+        navigate: (path, isRequestCurrent) => port.navigate(
+          path,
+          () => !disposed && request.isCurrent() && isRequestCurrent(),
+        ),
         focusChapter: (chapterId) => port.focusChapter(chapterId),
         focusRegion: () => port.focusRegion(),
       };
