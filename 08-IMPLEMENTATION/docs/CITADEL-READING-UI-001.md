@@ -228,3 +228,11 @@ Een door de focushelper tijdelijk toegevoegd `tabindex=-1` wordt bij mislukte fo
 De focushelpers worden pas aangeroepen als alle bovenstaande voorwaarden opnieuw slagen. Een pad dat wel bestaat maar nog geen gereed gerenderde container heeft, geeft geen navigatiesucces. De router moet sessie-/routewisselingen en in-flight navigatie zelfstandig kunnen blokkeren; deze poort implementeert **geen** beveiliging van de onderliggende route.
 
 **Integratiestatus:** code in GitHub DRAFT-PR, nog niet verbonden met de originele Citadel Sites-router of zijn werkelijke DOM. De eigenaar voert mobiele en functionele tests later uit. Geen merge, productiepublicatie of autorisatie; **HOLD**.
+
+## CITADEL-READING-ROUTE-EPOCH-002 — overlappende navigaties
+
+De gerenderde-routepoort houdt een **eigen monotone navigatierevisie** bij. Elke nieuwe `navigate(path)` maakt de voorgaande routeaanvraag en de eerder toegestane focusbestemming ongeldig. De host ontvangt nu bij `navigateAndRender(path, isRequestCurrent)` een verzoekgebonden controlefunctie en moet deze **vóór elke routerwijziging en na elke asynchrone stap** raadplegen.
+
+Een eerdere routeaanvraag die te laat gereed komt, mag de bestemming niet opnieuw instellen en mag geen focus geven. Alleen als het verzoek nog actueel is, het renderen bevestigd is, de actuele router exact hetzelfde pad rapporteert en de verbonden routecontainer bestaat, wordt de bestemming vrijgegeven. Bij een uitzondering of een gewijzigde sessie wordt de operatie geweigerd.
+
+**Beperking:** de adapter kan op zichzelf geen reeds uitgevoerde routermutatie ongedaan maken. Daarom is de controlefunctie in de host-router vereist; de host behoudt bovendien zijn eigen toegangsguards. Deze signature-wijziging moet door de integrator worden verwerkt bij het aansluiten op de originele Citadel Sites-code. DRAFT/HOLD; geen functionele tests, merge of websitepublicatie.
