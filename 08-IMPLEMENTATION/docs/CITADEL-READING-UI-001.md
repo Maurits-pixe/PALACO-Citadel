@@ -4,7 +4,7 @@
 
 ## Scope
 
-De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert eenentwintig geïsoleerde TypeScript-modules:
+De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert tweeëntwintig geïsoleerde TypeScript-modules:
 
 - `reading-state.ts`: bewaarbeleid en opslagfouten afschermen.
 - `reading-ui.ts`: zichtbare tekst en gebruikersgestuurde acties zonder browserafhankelijkheden.
@@ -374,3 +374,11 @@ De beschermingsgrens geldt voor één coördinatorinstantie en één synchrone J
 De asynchrone uitkomst wordt door de bridge aan de oorspronkelijke contextrevisie getoetst. Een antwoord dat na logout, routevervanging, rechtenwijziging of definitieve `dispose()` binnenkomt, leidt tot `stale` en nooit tot het publiceren van een nieuwe Leeskompas-montage. De resultaten zijn `mounted`, `denied`, `stale` en `mount-failed`; `mounted` betekent uitsluitend lokale montage, **niet** dat onafhankelijke authenticatie of echte Sites-integratie is aangetoond. Er wordt niet automatisch opnieuw geprobeerd en er wordt geen vorige instantie hersteld.
 
 **Noodzakelijk hostcontract:** de echte Citadel/PALACO ONE-runtime moet deze twee methoden bij zijn eigen gebeurtenisbronnen aanroepen. Deze module registreert geen fictieve events, leest geen accountgegevens, implementeert geen login, creëert geen Sites-project of verleent geen toegang. De huidige oorspronkelijke Sites-frontend is hiermee niet verbonden. Geen functionele tests, merge of publicatie uitgevoerd. **DRAFT/HOLD**.
+
+## CITADEL-READING-HOST-EVENTS-001 — expliciete hostevent-abonnementen
+
+`connectReadingHostEvents(source)` registreert **alleen op expliciete aanroep** een listener bij een door de host aangeboden `subscribeBeforeChange(handler)`. De host moet de gebeurtenis synchronisch uitsturen **vóór** een route-, sessie-, rechten- of afsluitwijziging. De adapter geeft deze gebeurtenis door aan de bestaande hostbridge, die uitstaande aanvragen ongeldig maakt en een oude Leeskompas-montage beëindigt. Bij een onbekend eventtype wordt de bestaande context conservatief ongeldig gemaakt als `session-changed`.
+
+Bij `dispose()` wordt de hostbridge eerst ongeldig gemaakt en daarna de door de host teruggegeven uitschrijffunctie aangeroepen. Een tweede `dispose()` heeft geen effect; late events worden genegeerd. Indien registratie geen uitschrijffunctie oplevert, wordt de bridge beëindigd en een fout gerapporteerd. De adapter leest geen identiteit en voert geen automatische montage uit. `activate(authorizeAndResolve)` blijft afhankelijk van een expliciete hostcontrole van account, rechten, route en actuele weergave.
+
+**Integratievoorwaarden:** de daadwerkelijke oorspronkelijke Citadel/PALACO ONE-runtime moet dit eventcontract nog leveren. Zonder betrouwbare *before*-events kan deze adapter een al uitgevoerde route- of sessiewisseling niet ongedaan maken. Deze wijziging bestaat uitsluitend in GitHub PR #58; geen functionele tests, merge of live Sites-deployment. **DRAFT/HOLD**.
