@@ -66,36 +66,36 @@ export function mountReadingCompass(
   };
 
   try {
-  const navigation = createRenderedRoutePort(router);
-  const presentation = createReadingDomPresentation(elements);
-  const presenter = createReadingPresenter(storage, manifest, navigation, presentation);
-  let disposed = false;
+    const navigation = createRenderedRoutePort(router);
+    const presentation = createReadingDomPresentation(elements);
+    const presenter = createReadingPresenter(storage, manifest, navigation, presentation);
+    let disposed = false;
 
-  const onResumeClick = (): void => {
-    if (disposed || elements.resumeButton.disabled) return;
-    // Deliberate click/tap, never called by hydration or automatic routing.
-    void presenter.onResumeClick();
-  };
-  elements.resumeButton.addEventListener("click", onResumeClick);
+    const onResumeClick = (): void => {
+      if (disposed || elements.resumeButton.disabled) return;
+      // Deliberate click/tap, never called by hydration or automatic routing.
+      void presenter.onResumeClick();
+    };
+    elements.resumeButton.addEventListener("click", onResumeClick);
 
-  return {
-    beforeChange(change: ReadingLifecycleChange): void {
-      if (disposed) return;
-      presenter.beforeChange(change);
-      if (change === "reader-closed") {
+    return {
+      beforeChange(change: ReadingLifecycleChange): void {
+        if (disposed) return;
+        presenter.beforeChange(change);
+        if (change === "reader-closed") {
+          elements.resumeButton.removeEventListener("click", onResumeClick);
+        }
+      },
+      clearAfterConfirmation(): void {
+        if (!disposed) presenter.onClearConfirmed();
+      },
+      dispose(): void {
+        if (disposed) return;
+        disposed = true;
         elements.resumeButton.removeEventListener("click", onResumeClick);
-      }
-    },
-    clearAfterConfirmation(): void {
-      if (!disposed) presenter.onClearConfirmed();
-    },
-    dispose(): void {
-      if (disposed) return;
-      disposed = true;
-      elements.resumeButton.removeEventListener("click", onResumeClick);
-      try { presenter.dispose(); } finally { release(); }
-    },
-  };
+        try { presenter.dispose(); } finally { release(); }
+      },
+    };
   } catch (error) {
     release();
     throw error;
