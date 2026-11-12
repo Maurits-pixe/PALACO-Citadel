@@ -69,9 +69,10 @@ export function createRenderedRoutePort(host: RenderedRouteHost): NavigationPort
       // Invalidate the last destination as well as any in-flight render.
       const requestRevision = ++navigationRevision;
       destination = null;
-      const requestCurrent = (): boolean =>
-        requestRevision === navigationRevision && current() &&
-        (() => { try { return isRequestCurrent(); } catch { return false; } })();
+      const requestCurrent = (): boolean => {
+        if (requestRevision !== navigationRevision || !current()) return false;
+        try { return isRequestCurrent(); } catch { return false; }
+      };
       if (!requestCurrent() || !isSafeSitePath(path)) return false;
       let rendered: boolean;
       try {
