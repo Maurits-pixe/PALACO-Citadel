@@ -26,9 +26,12 @@ export function connectReadingHostEvents(source: ReadingBeforeChangeSource): Con
   const bridge = createReadingHostBridge();
   let closed = false;
   let unsubscribe: (() => void) | null = null;
+  let subscribing = true;
+  let eventDuringSubscription = false;
 
   const onBeforeChange = (change: ReadingLifecycleChange): void => {
     if (closed) return;
+    if (subscribing) eventDuringSubscription = true;
     // Invalid event types also revoke this view's previous context.
     bridge.beforeHostChange(CHANGES.includes(change) ? change : "session-changed");
   };
@@ -37,8 +40,19 @@ export function connectReadingHostEvents(source: ReadingBeforeChangeSource): Con
     const release = source.subscribeBeforeChange(onBeforeChange);
     if (typeof release !== "function") throw new Error("CITADEL_READING_INVALID_UNSUBSCRIBE");
     unsubscribe = release;
+    subscribing = false;
+    if (eventDuringSubscription) {
+      // Subscription raced a trusted context change: a new host check and
+      // fresh registration are mandatory, never silently activate this view.
+      closed = true;
+      bridge.dispose();
+      unsubscribe = null;
+      release();
+      throw new Error("CITADEL_READING_SUBSCRIPTION_CONTEXT_CHANGED");
+    }
   } catch (error) {
     closed = true;
+    subscribing = false;
     bridge.dispose();
     throw error;
   }
