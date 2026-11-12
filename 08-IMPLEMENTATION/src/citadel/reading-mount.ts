@@ -14,6 +14,7 @@ import {
 } from "./reading-dom";
 import { createReadingPresenter } from "./reading-presenter";
 import { admitReadingManifest } from "./reading-manifest-gate";
+import { admitReadingDomElements } from "./reading-dom-admission";
 import type { ReadingLifecycleChange } from "./reading-lifecycle";
 import {
   createRenderedRoutePort,
@@ -58,6 +59,10 @@ export function mountReadingCompass(
   const admission = admitReadingManifest(manifest);
   if (!admission.ok) {
     throw new Error(`CITADEL_READING_MANIFEST_REJECTED:${admission.reason}`);
+  }
+  const domAdmission = admitReadingDomElements(elements);
+  if (!domAdmission.ok) {
+    throw new Error(`CITADEL_READING_DOM_REJECTED:${domAdmission.reason}`);
   }
   if (activeResumeButtons.has(elements.resumeButton)) {
     throw new Error("CITADEL_READING_ALREADY_MOUNTED");
