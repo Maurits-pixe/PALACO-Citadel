@@ -4,7 +4,7 @@
 
 ## Scope
 
-De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert tien geïsoleerde TypeScript-modules:
+De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert elf geïsoleerde TypeScript-modules:
 
 - `reading-state.ts`: bewaarbeleid en opslagfouten afschermen.
 - `reading-ui.ts`: zichtbare tekst en gebruikersgestuurde acties zonder browserafhankelijkheden.
@@ -16,6 +16,7 @@ De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert tien ge�
 - `reading-controller.ts`: integreert de aanvraagcoördinator met de navigatieadapter en de levenscyclus van de lezer.
 - `reading-lifecycle.ts`: verbindt expliciete UI-levenscyclusgebeurtenissen en bevestigd wissen aan het afbreken van lopende hervataanvragen.
 - `reading-presenter.ts`: presenteert mobiele hervatstatus, toegankelijke meldingen en laat late antwoorden vervallen.
+- `reading-dom.ts`: optionele, host-gekoppelde DOM-uitvoer en gecontroleerde focus op bestaande hoofdstuk- of regiokoppen.
 
 Het contract is uitsluitend voor **presentatievoortgang**. Het is geen PALACO ONE-identiteit, Citadel-toegangscontrole, ERA/EDTR-bewijs, watermerk, consensus of uitvoeringsmandaat.
 
@@ -190,3 +191,17 @@ De host initialiseert per zichtbare Leeskompas-weergave `createReadingPresenter(
 - Leesstatus is niet uitsluitend afhankelijk van kleur; toon korte Nederlandse teksten.
 
 **Status:** Dit is nog géén uitgevoerde mobiele acceptatietest en géén wijziging aan de live Citadel-site. De bestaande private toegang, routerautorisatie en HOLD blijven onveranderd.
+
+## CITADEL-READING-DOM-001 — concrete frontend-adapter (nog niet aangesloten)
+
+De bestaande Citadel-frontend moet vier eigen elementen leveren aan `createReadingDomPresentation({ resumeButton, statusText, liveStatus, memoryText })`. De adapter schrijft uitsluitend `textContent`, zet de `disabled`-status van de hervatknop, `aria-busy` en een vaste statusindicator. Hij maakt geen HTML aan, installeert geen listeners en accepteert geen bestemmings-URL uit opslag. Het host-element `liveStatus` moet vooraf `aria-live="polite"` of `role="status"` bezitten; gebruik een afzonderlijk zichtbaar statuselement om dubbele aankondigingen te beperken.
+
+De door de host na autorisatie en geslaagde navigatie aan te roepen helpers zijn:
+
+- `focusTrustedChapter(routeContainer, chapterId)`: zoekt alleen bestaande H1-H6-koppen binnen de vertrouwde routecontainer en vergelijkt de ID als ruwe string, zonder een door de bladwijzer samengestelde CSS-selector. Onbekende of dubbel aanwezige ID's geven `false`.
+- `focusTrustedRegion(routeContainer)`: gebruikt alleen de vooraf aanwezige H1-kop met `data-citadel-region-heading` in de vertrouwde regiocontainer.
+- De helpers zetten indien nodig `tabindex=-1`, proberen keyboardfocus en melden alleen succes als de bedoelde kop daadwerkelijk de actieve focus bezit. Ze nemen geen route- of autorisatiebeslissing.
+
+**Aansluitvolgorde:** controleer eerst de bestaande Sites-DOM-structuur en hoofdstuk-ID's; koppel daarna de echte router en toegangsguards aan `NavigationPort`; maak pas daarna de presenter en DOM-adapter aan in de actuele lezerweergave. De host registreert de klik/tik-events en roept op uitloggen, routewissel of ontkoppeling de levenscyclusfuncties aan. Houd rekening met CSS-aanraakvlakken van circa 44×44px, zichtbare focus en `prefers-reduced-motion`.
+
+Er zijn nog **geen** functionele, browser-, mobiele of toegankelijkheidstests uitgevoerd en deze module is niet op de privéwebsite ingezet. DRAFT/HOLD blijft gehandhaafd.
