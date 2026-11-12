@@ -83,3 +83,15 @@ De adapter is niet automatisch verbonden met de reeds bestaande localStorage-sle
 2. Bij afwijkende regio-ID's wordt het contract aangepast op basis van die bron; niet door onbekende waarden blind te accepteren.
 3. De bestaande private toegang en ERA/EDTR/ONE-beveiliging blijven ongewijzigd.
 4. De eigenaar voert functionele en mobiele acceptatietests pas uit wanneer de frontend-integratie expliciet ter beoordeling wordt aangeboden.
+
+## Route-hardening — CITADEL-ROUTE-GATE-002
+
+Een regio-entry wordt voortaan **geheel geweigerd** zodra pad of hoofdstuklijst ongeldig blijkt. Dit geldt bij het opbouwen van het manifest én bij het kiezen van een hervatbestemming. De toelatingsvoorwaarden zijn:
+
+- Een root-relatief Citadel-pad zonder URL-schema, query, fragment, procentcodering, dot-segment of backslash.
+- Maximaal 256 hoofdstukken per regio, ieder met een unieke ASCII-hoofdstuk-ID van maximaal 96 tekens.
+- Een niet-lege hoofdstuktitel van maximaal 120 tekens zonder controlekarakters.
+- Geen dubbele regio's of identieke paden binnen de aangeleverde regioverzameling.
+- Ongeldige regio's leveren geen hoofdstuk- of regiohervatting op; er wordt geen alternatieve URL bedacht.
+
+**Reviewgrens:** dit is statische bronverharding in een concept-PR. De werkelijke Sites-routes zijn niet ingelezen, er is niet gemerged, en er zijn geen functionele of mobiele tests uitgevoerd. De site-autorisatie blijft buiten deze presentatiemodule en moet onafhankelijk worden uitgevoerd.
