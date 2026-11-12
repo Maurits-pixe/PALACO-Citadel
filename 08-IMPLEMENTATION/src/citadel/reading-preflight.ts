@@ -8,16 +8,14 @@ import {
   admitReadingManifest,
   type ManifestAdmission,
 } from "./reading-manifest-gate";
-import { chapterRegistryFromManifest, resolveResumeTarget, type SiteRouteManifest } from "./reading-routes";
-import { readChapterBookmark } from "./reading-chapter";
+import { resolveResumeTarget, type SiteRouteManifest } from "./reading-routes";
 import { readingStatus, type StoragePort } from "./reading-state";
 
 export type PreflightIssue =
   | "manifest-invalid"
   | "storage-unavailable"
   | "consent-disabled"
-  | "no-saved-position"
-  | "chapter-fallback";
+  | "no-saved-position";
 
 export interface ReadingPreflight {
   readonly manifest: ManifestAdmission;
@@ -50,19 +48,6 @@ export function inspectReadingPreflight(
 
   if (admission.ok && state.kind === "enabled" && target.kind === "none") {
     issues.push("no-saved-position");
-  }
-
-  // A legacy region fallback is valid but might conceal a stale chapter.
-  // Report it as a review signal, not as a failure or automatic repair.
-  if (admission.ok && target.kind === "region") {
-    const savedChapter = readChapterBookmark(
-      storage,
-      chapterRegistryFromManifest(manifest),
-    );
-    if (savedChapter === null) {
-      // We cannot distinguish absent v2 data from an invalid v2 bookmark
-      // without reading private raw storage; do not claim corruption.
-    }
   }
 
   return {
