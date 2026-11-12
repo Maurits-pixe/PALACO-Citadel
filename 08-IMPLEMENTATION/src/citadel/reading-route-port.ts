@@ -23,8 +23,10 @@ export interface RenderedRouteHost {
   /**
    * Resolve only after the destination's authenticated route has rendered.
    * Must reject/return false if the session or route changed while navigating.
+   * The provided guard becomes false after a superseding port request.
+   * Check it before committing any route side effects and after awaits.
    */
-  navigateAndRender(path: string): Promise<boolean>;
+  navigateAndRender(path: string, isRequestCurrent: () => boolean): Promise<boolean>;
   /** The actual active route from the trusted router, not the bookmark. */
   activePath(): string | null;
   /**
@@ -43,6 +45,7 @@ export interface RenderedRouteHost {
  */
 export function createRenderedRoutePort(host: RenderedRouteHost): NavigationPort {
   let destination: string | null = null;
+  let navigationRevision = 0;
 
   const current = (): boolean => {
     try { return host.isCurrent() === true; } catch { return false; }
@@ -62,15 +65,19 @@ export function createRenderedRoutePort(host: RenderedRouteHost): NavigationPort
     isCurrent: current,
     canOpen: (target) => host.canOpen(target),
     async navigate(path: string): Promise<boolean> {
+      // Invalidate the last destination as well as any in-flight render.
+      const requestRevision = ++navigationRevision;
       destination = null;
-      if (!current() || !isSafeSitePath(path)) return false;
+      const requestCurrent = (): boolean =>
+        requestRevision === navigationRevision && current();
+      if (!requestCurrent() || !isSafeSitePath(path)) return false;
       let rendered: boolean;
       try {
-        rendered = await host.navigateAndRender(path);
+        rendered = await host.navigateAndRender(path, requestCurrent);
       } catch {
         return false;
       }
-      if (!rendered || !current()) return false;
+      if (!rendered || !requestCurrent()) return false;
       try {
         if (host.activePath() !== path) return false;
         const container = host.renderedContainer(path);
@@ -78,6 +85,7 @@ export function createRenderedRoutePort(host: RenderedRouteHost): NavigationPort
       } catch {
         return false;
       }
+      if (!requestCurrent()) return false;
       destination = path;
       return true;
     },
