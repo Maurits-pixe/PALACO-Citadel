@@ -4,7 +4,7 @@
 
 ## Scope
 
-De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert zestien geïsoleerde TypeScript-modules:
+De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert zeventien geïsoleerde TypeScript-modules:
 
 - `reading-state.ts`: bewaarbeleid en opslagfouten afschermen.
 - `reading-ui.ts`: zichtbare tekst en gebruikersgestuurde acties zonder browserafhankelijkheden.
@@ -22,6 +22,7 @@ De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert zestien 
 - `reading-manifest-gate.ts`: fail-closed toelating van een compleet, uniek en geldig vijfregiomanifest voordat een leesweergave kan worden gemonteerd.
 - `reading-preflight.ts`: read-only beoordeling van manifest, lokale toestemming en mogelijke hervatbestemming zonder autorisatie.
 - `reading-admin.ts`: privacy-minimalistisch, read-only beheerbeeld met generieke statuscontroles en vaste HOLD-vrijgave.
+- `reading-integration.ts`: expliciet, side-effect-vrij importoppervlak voor de toekomstige private frontend.
 
 Het contract is uitsluitend voor **presentatievoortgang**. Het is geen PALACO ONE-identiteit, Citadel-toegangscontrole, ERA/EDTR-bewijs, watermerk, consensus of uitvoeringsmandaat.
 
@@ -286,3 +287,11 @@ De functie schrijft geen opslag en geeft geen ruwe persoonsgegevens of opgeslage
 `renderReadingAdminSnapshot(container,snapshot)` kan het resultaat als statische tekstlijst in een reeds geautoriseerde beheerpagina zetten via `textContent` en DOM-creatie; geen `innerHTML`, verborgen sleutels, navigatie-effecten of opslagwijzigingen. De oorspronkelijke Sites-beheerpagina is nog niet met deze module verbonden. De host moet vóór iedere aanroep onafhankelijk vaststellen dat de gebruiker het beheerbeeld mag zien.
 
 **DRAFT/HOLD:** GitHub-broncode voorbereid; geen uitgevoerde tests, geen merge, geen privatesite-deployment, geen claim van werkelijk gecontroleerde hostintegratie.
+
+## CITADEL-READING-INTEGRATION-001 — beheersbare frontendimports
+
+De host kan in één plaats imports betrekken via `reading-integration.ts`: manifestvalidatie, read-only preflight, beheerweergave, Leeskompasmontage en uitsluitend de noodzakelijke TypeScript-contracten. De facade exporteert **geen automatische initialisatie**: import veroorzaakt geen opslagwijziging, eventregistratie, navigatie of DOM-mutatie. Montages vereisen nog steeds een expliciete `mountReadingCompass(...)`-aanroep na echte toegangscontrole.
+
+**Bewijsverharding:** in `reading-admin.ts` geeft de hostwaarde `reviewed` niet langer een `PRESENT`-status voor externe reviewpunten. `SITE_ROUTES`, `ACCESS`, `MOUNT` en `ACCEPTANCE` blijven **HOLD**, zowel bij `unverified` als `reviewed`; de detailtekst maakt duidelijk of de host een beoordeling heeft opgegeven. Dat voorkomt dat een onbewezen zelfrapportage als zelfstandig vastgesteld bewijs verschijnt. Dit beheerbeeld is geen uitgevoerde verificatie en geen vrijgavebesluit.
+
+**Aansluitvolgorde:** originele Sites-bron inspecteren; route- en hoofdstukmanifest aan de hand daarvan vastleggen; host-authenticatie en routebeleid verbinden; frontend-elementen identificeren; pas daarna expliciet monteren. Voorafgaand aan uitgifte blijven onafhankelijke review, eigenaarstesten en formele toestemming vereist. DRAFT/HOLD; geen tests, merge of site-deployment uitgevoerd.
