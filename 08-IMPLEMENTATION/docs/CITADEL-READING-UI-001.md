@@ -4,7 +4,7 @@
 
 ## Scope
 
-De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert zes geïsoleerde TypeScript-modules:
+De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert zeven geïsoleerde TypeScript-modules:
 
 - `reading-state.ts`: bewaarbeleid en opslagfouten afschermen.
 - `reading-ui.ts`: zichtbare tekst en gebruikersgestuurde acties zonder browserafhankelijkheden.
@@ -12,6 +12,7 @@ De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert zes geï
 - `reading-routes.ts`: vertrouwd routemanifest, hoofdstuk-allowlist en veilige hervatbestemmingen zonder automatische navigatie.
 - `reading-region-bridge.ts`: expliciete, controleerbare vertaling tussen oudere Leeskompas-regio-ID's en de nieuwe canonieke ID's.
 - `reading-navigation.ts`: gebruikersgestuurde, toegangsafhankelijke navigatieoverdracht met focusresultaat.
+- `reading-epoch.ts`: lokale aanvraagcoördinator die oudere hervataanvragen ongeldig maakt.
 
 Het contract is uitsluitend voor **presentatievoortgang**. Het is geen PALACO ONE-identiteit, Citadel-toegangscontrole, ERA/EDTR-bewijs, watermerk, consensus of uitvoeringsmandaat.
 
@@ -121,3 +122,11 @@ De frontend kan vanuit een **expliciete** klik op `Verder lezen` de methode `ope
 De adapter rapporteert `no-bookmark`, `blocked`, `navigation-failed`, `focus-failed` of `opened`. Een mislukte toegangscontrole leidt niet tot een andere bestemming; een focusfout wordt niet als volledig geslaagd gemeld. Deze module neemt geen eigen security-besluit, gebruikt geen browserglobale variabelen en verandert geen lokaal opgeslagen persoonsgegevens.
 
 **Aanvullende integratievoorwaarde:** de host dient sessieveranderingen tijdens asynchrone navigatie zelf opnieuw te toetsen. De adapter is geen vervanging voor route-guards, server-side autorisatie, CSP of toegangsbeleid. De huidige Sites-frontend is nog niet gekoppeld en niet op mobiel getest. Status blijft DRAFT / HOLD.
+
+## CITADEL-READING-SESSION-GATE-002 — sessie en gelijktijdige tikken
+
+De `NavigationPort` verlangt nu ook `isCurrent()`. De eigenaar-frontend moet dit koppelen aan een aanvraag- en sessiegeneratie; **niet** aan alleen de URL of de aanwezigheid van een cookie. `openSavedReadingPlace` controleert het token vóór en na asynchrone stappen en verifieert `canOpen` opnieuw ná de navigatie maar vóór focusverplaatsing. Nieuwe resultaatstatus: `stale`.
+
+De optionele helper `createResumeRequestCoordinator()` geeft per bewuste tik een nieuwe `ResumeRequest`. De volgende tik maakt vorige verzoeken ongeldig. Roep `invalidateAll()` aan bij logout, routewissel, wisseling van identiteit/toegangsrechten, sluiten van de lezer of het wissen van leesplekken. Elke `NavigationPort.isCurrent` dient zowel dit verzoek als de actuele geauthenticeerde sessie te controleren. Een verlopen aanvraag mag niet alsnog focus of een successtatus krijgen.
+
+**Belangrijke grens:** een al gestart `navigate()`-effect kan hiermee niet teruggedraaid worden. De host-router moet zelf vóór én tijdens het wijzigen van een beschermde route autorisatie afdwingen en waar nodig annulering ondersteunen. De adapter is geen beveiligingsgrens op zichzelf. Geen tests, merge of Sites-publicatie in deze ronde; DRAFT/HOLD blijft gehandhaafd.
