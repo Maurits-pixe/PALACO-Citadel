@@ -205,3 +205,11 @@ De door de host na autorisatie en geslaagde navigatie aan te roepen helpers zijn
 **Aansluitvolgorde:** controleer eerst de bestaande Sites-DOM-structuur en hoofdstuk-ID's; koppel daarna de echte router en toegangsguards aan `NavigationPort`; maak pas daarna de presenter en DOM-adapter aan in de actuele lezerweergave. De host registreert de klik/tik-events en roept op uitloggen, routewissel of ontkoppeling de levenscyclusfuncties aan. Houd rekening met CSS-aanraakvlakken van circa 44×44px, zichtbare focus en `prefers-reduced-motion`.
 
 Er zijn nog **geen** functionele, browser-, mobiele of toegankelijkheidstests uitgevoerd en deze module is niet op de privéwebsite ingezet. DRAFT/HOLD blijft gehandhaafd.
+
+## CITADEL-READING-FOCUS-GATE-002 — zichtbare hoofdstukfocus
+
+De optionele DOM-focushelpers controleren nu bij iedere expliciete hervatactie of de vertrouwde routecontainer en de bedoelde kop nog aan het document zijn gekoppeld. Koppen binnen verborgen of inactieve voorouders (inclusief `hidden`, `inert`, `aria-hidden=true`, `display:none` en `visibility:hidden/collapse`) worden niet gefocust. De kop moet een zichtbare layoutbox hebben. Er is uitsluitend focus naar **één** bestaande hoofdstuk- of regiokop mogelijk; dubbele ID's en meerdere gemarkeerde regiokoppen zijn ambigu en worden geweigerd.
+
+Een door de focushelper tijdelijk toegevoegd `tabindex=-1` wordt bij mislukte focus hersteld. Bij een geslaagde focus blijft het attribuut staan om toetsenbordnavigatie en ondersteunende technologie niet abrupt te verstoren. De host-router blijft eigenaar van toegangscontrole, routewisselingen en het wachten totdat de juiste regio volledig is gerenderd.
+
+**Open reviewpunt:** de daadwerkelijke Sites-DOM-structuur, eventuele overlays en mobiele schermlezer-interactie zijn nog niet in de originele site gecontroleerd. Geen tests of deployment uitgevoerd; DRAFT/HOLD blijft gelden.
