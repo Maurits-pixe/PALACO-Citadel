@@ -51,8 +51,13 @@ export function createReadingController(
           path,
           () => !disposed && request.isCurrent() && isRequestCurrent(),
         ),
-        focusChapter: (chapterId) => port.focusChapter(chapterId),
-        focusRegion: () => port.focusRegion(),
+        focusChapter: (chapterId, isRequestCurrent) => port.focusChapter(
+          chapterId,
+          () => !disposed && request.isCurrent() && isRequestCurrent(),
+        ),
+        focusRegion: (isRequestCurrent) => port.focusRegion(
+          () => !disposed && request.isCurrent() && isRequestCurrent(),
+        ),
       };
 
       try {
