@@ -13,7 +13,7 @@ import {
   type ReadingDomElements,
 } from "./reading-dom";
 import { createReadingPresenter } from "./reading-presenter";
-import { admitReadingManifest } from "./reading-manifest-gate";
+import { snapshotReadingManifest } from "./reading-manifest-snapshot";
 import { admitReadingDomElements } from "./reading-dom-admission";
 import type { ReadingLifecycleChange } from "./reading-lifecycle";
 import {
@@ -56,9 +56,9 @@ export function mountReadingCompass(
   const { elements, storage, manifest, router } = options;
   // Fail before claiming a button or attaching listeners. An incomplete
   // manifest must never present bookmarks as valid navigation targets.
-  const admission = admitReadingManifest(manifest);
-  if (!admission.ok) {
-    throw new Error(`CITADEL_READING_MANIFEST_REJECTED:${admission.reason}`);
+  const trustedManifest = snapshotReadingManifest(manifest);
+  if (trustedManifest === null) {
+    throw new Error("CITADEL_READING_MANIFEST_REJECTED");
   }
   const domAdmission = admitReadingDomElements(elements);
   if (!domAdmission.ok) {
@@ -107,7 +107,7 @@ export function mountReadingCompass(
   try {
     const navigation = createRenderedRoutePort(router);
     const presentation = createReadingDomPresentation(elements);
-    presenter = createReadingPresenter(storage, manifest, navigation, presentation);
+    presenter = createReadingPresenter(storage, trustedManifest, navigation, presentation);
 
     onResumeClick = (): void => {
       if (disposed || closed || elements.resumeButton.disabled) return;
