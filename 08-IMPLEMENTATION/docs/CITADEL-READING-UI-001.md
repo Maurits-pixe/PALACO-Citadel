@@ -416,3 +416,11 @@ Na `coordinator.mountAuthorized(options)` bewaart de hostbridge het teruggegeven
 Deze wijziging sluit aan op het bestaande contract van `reading-mount-coordinator.ts`: de `dispose` van een oud handvat doet niets wanneer een nieuwere instantie actief is. De host blijft verantwoordelijk voor het synchronisch aankondigen van sessie-, route- en rechtenwisselingen en voor onafhankelijke autorisatie vóór elke activatie. Geen toegangsrechten worden verstrekt of veranderd.
 
 **Status:** aangepaste GitHub-broncode in DRAFT PR #58. Niet functioneel getest, niet gemerged, niet gekoppeld aan de originele Citadel Sites-frontend. **HOLD**.
+
+## CITADEL-READING-AUTH-EPOCH-004 — autorisatieaanvraag per hostcontext
+
+De hostbridge gebruikt voortaan een uniek, instantiegebonden aanvraagtoken met de actuele contextrevisie in plaats van één globale `activating`-vlag. `beforeHostChange(change)` verhoogt de contextrevisie en ontkoppelt het oude token **vóór** het afsluiten van de oude montage. Daardoor mag de host na een correcte nieuwe route-/sessieautorisatie een nieuwe activatie starten, zelfs wanneer een autorisatiebelofte uit een vorige context nog niet is afgerond.
+
+Bij het terugkomen van een oude belofte wordt zowel de contextrevisie als de identiteit van het aanvraagtoken gecontroleerd. Oude resultaten leveren `stale` op en mogen niet monteren. Bij afronding mag alleen de aanvraag die nog het actieve token bezit, de bezetting vrijgeven. Daardoor kan een vertraagde `finally` van een oude aanvraag de opvolgende aanvraag niet onbedoeld ontgrendelen. Binnen dezelfde context blijft één activatie tegelijk toegestaan.
+
+**Afbakening:** de bibliotheek annuleert de hostbelofte niet fysiek en geeft geen authenticatiebevoegdheid. De host moet aan iedere nieuwe autorisatieaanvraag de huidige Citadel/PALACO ONE-sessie, rechten, route en rendering toetsen en zijn eigen netwerk-/routeracties veilig beëindigen. Geen functionele tests, live integratie, merge of publicatie uitgevoerd. **DRAFT/HOLD**.
