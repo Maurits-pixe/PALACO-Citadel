@@ -21,6 +21,9 @@ import {
 import type { SiteRouteManifest } from "./reading-routes";
 import type { StoragePort } from "./reading-state";
 
+/** One active mount per real button for this module instance. */
+const activeResumeButtons = new WeakSet<HTMLButtonElement>();
+
 export interface ReadingMountOptions {
   readonly storage: StoragePort;
   readonly manifest: SiteRouteManifest;
@@ -49,6 +52,20 @@ export function mountReadingCompass(
   options: ReadingMountOptions,
 ): MountedReadingCompass {
   const { elements, storage, manifest, router } = options;
+  if (activeResumeButtons.has(elements.resumeButton)) {
+    throw new Error("CITADEL_READING_ALREADY_MOUNTED");
+  }
+  // Claim before creating a presenter so duplicate mounts cannot install
+  // conflicting handlers or overwrite the currently rendered UI.
+  activeResumeButtons.add(elements.resumeButton);
+  let claimed = true;
+  const release = (): void => {
+    if (!claimed) return;
+    claimed = false;
+    activeResumeButtons.delete(elements.resumeButton);
+  };
+
+  try {
   const navigation = createRenderedRoutePort(router);
   const presentation = createReadingDomPresentation(elements);
   const presenter = createReadingPresenter(storage, manifest, navigation, presentation);
@@ -76,7 +93,11 @@ export function mountReadingCompass(
       if (disposed) return;
       disposed = true;
       elements.resumeButton.removeEventListener("click", onResumeClick);
-      presenter.dispose();
+      try { presenter.dispose(); } finally { release(); }
     },
   };
+  } catch (error) {
+    release();
+    throw error;
+  }
 }
