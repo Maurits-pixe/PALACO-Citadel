@@ -36,6 +36,12 @@ export {
 } from "./reading-admin";
 
 export {
+  connectReadingHostEvents,
+  type ConnectedReadingHost,
+  type ReadingBeforeChangeSource,
+} from "./reading-host-events";
+
+export {
   createReadingHostBridge,
   type ReadingHostBridge,
   type ReadingBridgeResult,
