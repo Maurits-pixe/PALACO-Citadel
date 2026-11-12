@@ -4,7 +4,7 @@
 
 ## Scope
 
-De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert achttien geïsoleerde TypeScript-modules:
+De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert negentien geïsoleerde TypeScript-modules:
 
 - `reading-state.ts`: bewaarbeleid en opslagfouten afschermen.
 - `reading-ui.ts`: zichtbare tekst en gebruikersgestuurde acties zonder browserafhankelijkheden.
@@ -20,6 +20,7 @@ De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert achttien
 - `reading-route-port.ts`: host-gekoppelde navigatiepoort die daadwerkelijke route-rendering en juiste regiocontainer verifieert vóór focus.
 - `reading-mount.ts`: één gecontroleerd montagepunt voor bestaande opslag, router, Leeskompas-elementen en presentatieadapter.
 - `reading-manifest-gate.ts`: fail-closed toelating van een compleet, uniek en geldig vijfregiomanifest voordat een leesweergave kan worden gemonteerd.
+- `reading-manifest-snapshot.ts`: neemt vóór de montage een onafhankelijke, onveranderbare kopie van geverifieerde regio- en hoofdstukgegevens.
 - `reading-preflight.ts`: read-only beoordeling van manifest, lokale toestemming en mogelijke hervatbestemming zonder autorisatie.
 - `reading-admin.ts`: privacy-minimalistisch, read-only beheerbeeld met generieke statuscontroles en vaste HOLD-vrijgave.
 - `reading-integration.ts`: expliciet, side-effect-vrij importoppervlak voor de toekomstige private frontend.
@@ -329,3 +330,11 @@ Het aanvraaggebonden annuleringscontract is uitgebreid naar de laatste toegankel
 Hiermee wordt de aanvraag na de asynchrone autorisatiehercontrole nogmaals bewaakt vóór de focusmutatie. Het voorkomt geen reeds uitgevoerde focusactie achteraf en is geen vervanging voor host-routerautorisatie.
 
 **Integratiebreuk:** bestaande implementaties van de `NavigationPort`-focusmethoden moeten de tweede parameter ondersteunen en vóór hun eigen eventuele asynchrone focusoperaties controleren. De echte private Sites-frontend is nog niet aangesloten. Geen functionele tests, merge, uitgifte of websitepublicatie. **DRAFT/HOLD**.
+
+## CITADEL-READING-MANIFEST-SNAPSHOT-001 — vastgezet routereferentiebeeld
+
+`snapshotReadingManifest(source)` valideert het door de host aangeleverde volledige vijfregiomanifest, kopieert per regio uitsluitend het pad en de lijst `{chapterId,label}`, bevriest de nieuwe routeobjecten en hoofdstuklijsten, en valideert daarna de afzonderlijke kopie opnieuw. Ontbrekende, ongeldige, tijdens het kopiëren gewijzigde of uitzonderingen veroorzakende objecten leveren `null` op. De oorspronkelijke bron wordt niet gewijzigd.
+
+`mountReadingCompass` gebruikt vanaf nu alleen deze onafhankelijke momentopname voor de lezercontroller en de hervatbestemming. Latere mutatie van de host-aangeleverde manifestobjecten of hoofdstuklijsten heeft geen invloed op de reeds gemonteerde Leeskompas-routekeuze. Om bewust een nieuwe routeconfiguratie toe te passen moet de host de oude lezer eerst met `beforeChange('route-replaced')` en `dispose()` afsluiten en daarna opnieuw monteren.
+
+**Veiligheidsgrens:** het bevriezen van een kopie bewijst niet dat de routes op de originele Sites-frontend bestaan, dat de koppen zichtbaar zijn, of dat toegang is verleend. De echte Citadel-router en sessiebeveiliging blijven verplicht. In deze ronde zijn geen functionele tests, merge of live websitewijzigingen uitgevoerd. **DRAFT/HOLD**.
