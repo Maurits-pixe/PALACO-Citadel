@@ -23,7 +23,8 @@ export interface RenderedRouteHost {
   /**
    * Resolve only after the destination's authenticated route has rendered.
    * Must reject/return false if the session or route changed while navigating.
-   * The provided guard becomes false after a superseding port request.
+   * The provided guard becomes false after a superseding port request,
+   * controller invalidation or lifecycle disposal.
    * Check it before committing any route side effects and after awaits.
    */
   navigateAndRender(path: string, isRequestCurrent: () => boolean): Promise<boolean>;
@@ -64,12 +65,13 @@ export function createRenderedRoutePort(host: RenderedRouteHost): NavigationPort
   return {
     isCurrent: current,
     canOpen: (target) => host.canOpen(target),
-    async navigate(path: string): Promise<boolean> {
+    async navigate(path: string, isRequestCurrent: () => boolean): Promise<boolean> {
       // Invalidate the last destination as well as any in-flight render.
       const requestRevision = ++navigationRevision;
       destination = null;
       const requestCurrent = (): boolean =>
-        requestRevision === navigationRevision && current();
+        requestRevision === navigationRevision && current() &&
+        (() => { try { return isRequestCurrent(); } catch { return false; } })();
       if (!requestCurrent() || !isSafeSitePath(path)) return false;
       let rendered: boolean;
       try {
