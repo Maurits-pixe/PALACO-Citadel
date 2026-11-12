@@ -357,3 +357,11 @@ Een door `mountAuthorized` teruggegeven handvat is aan precies zijn eigen instan
 **Belangrijke afbakening:** `mountAuthorized` ontleent zijn naam aan de **verplichting van de aanroepende host** en voert zelf geen login-, eigenaar-, rol- of bevoegdhedencontrole uit. De coördinator registreert geen externe route-/sessie-events; de originele private Citadel-frontend moet `transition` altijd zelf tijdig aanroepen. `hasActiveMount` is slechts lokale diagnostiek, geen veiligheidsbewijs of claim dat de website actief is.
 
 De broncode is alleen aangepast op GitHub PR #58. Er zijn geen functionele tests, merge, autorisatievrijgave of Sites-publicatie uitgevoerd. **DRAFT/HOLD**.
+
+## CITADEL-READING-TRANSITION-GUARD-002 — geen montage tijdens teardown
+
+De montagecoördinator bewaakt nu expliciet een `transitioning`-fase. Bij `transition(change)` wordt de vorige instantie eerst uit `current` verwijderd en krijgt de oude leesweergave gelegenheid `beforeChange` af te handelen. Tot het einde van deze synchronische opruimfase weigert `mountAuthorized` iedere nieuwe montage met `CITADEL_READING_CONTEXT_ALREADY_MOUNTED`. Daarmee voorkomt de coördinator dat een herintredende host-callback een nieuwe lezer monteert terwijl de oude nog wordt opgeruimd. De fase wordt in `finally` vrijgegeven; een mislukte teardown herstelt de oude instantie niet.
+
+De beschermingsgrens geldt voor één coördinatorinstantie en één synchrone JavaScript-aanroepketen. Het is geen globale lock, geen route-/sessie-autorisatie en geen bescherming tegen hosts die het overgangscontract overslaan. De host moet de routermutatie pas uitvoeren na `transition` en een nieuwe montage pas na eigen toegangstoetsing en actuele render.
+
+**Reviewstatus:** broncode in GitHub DRAFT PR #58. Geen functionele tests, site-integratie, merge, autorisatie of productiepublicatie uitgevoerd. **HOLD**.
