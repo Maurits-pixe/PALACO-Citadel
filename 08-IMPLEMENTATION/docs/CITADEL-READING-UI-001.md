@@ -4,13 +4,14 @@
 
 ## Scope
 
-De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert vijf geïsoleerde TypeScript-modules:
+De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert zes geïsoleerde TypeScript-modules:
 
 - `reading-state.ts`: bewaarbeleid en opslagfouten afschermen.
 - `reading-ui.ts`: zichtbare tekst en gebruikersgestuurde acties zonder browserafhankelijkheden.
 - `reading-chapter.ts`: versiegebonden hoofdstukbladwijzers, gevalideerd met de werkelijke hoofdstuk-ID's van de site.
 - `reading-routes.ts`: vertrouwd routemanifest, hoofdstuk-allowlist en veilige hervatbestemmingen zonder automatische navigatie.
 - `reading-region-bridge.ts`: expliciete, controleerbare vertaling tussen oudere Leeskompas-regio-ID's en de nieuwe canonieke ID's.
+- `reading-navigation.ts`: gebruikersgestuurde, toegangsafhankelijke navigatieoverdracht met focusresultaat.
 
 Het contract is uitsluitend voor **presentatievoortgang**. Het is geen PALACO ONE-identiteit, Citadel-toegangscontrole, ERA/EDTR-bewijs, watermerk, consensus of uitvoeringsmandaat.
 
@@ -107,3 +108,16 @@ De volgende invarianten gelden voor expliciete acties:
 5. Paginastart, hydration en automatische scroll-events voeren nooit een schrijfactie uit; alle wijzigingen vereisen een bewuste gebruikeractie.
 
 **Reviewstatus:** DRAFT / HOLD. Geen test-PASS, merge of Sites-publicatie. De werkelijke website-integratie en acceptatie blijven open.
+
+## CITADEL-READING-NAVIGATION-001 — veilige navigatieoverdracht
+
+De frontend kan vanuit een **expliciete** klik op `Verder lezen` de methode `openSavedReadingPlace(storage, manifest, port)` aanroepen. De host moet een `NavigationPort` aanbieden met:
+
+1. `canOpen(target)`: een verplichte, zelfstandige toegangsbeslissing op basis van de werkelijke Citadel-sessie, niet op basis van het bookmark of het manifest alleen. Bij weigering of fout: geen navigatie.
+2. `navigate(path)`: de bestaande router opent uitsluitend het eerder gevalideerde lokale pad en bevestigt voltooiing.
+3. `focusChapter(id)`: pas na succesvolle navigatie wordt de bestaande hoofdstukkop opgezocht en van keyboardfocus voorzien. De router moet een eigen DOM-allowlist hanteren; de waarde is nooit een CSS-selector of URL.
+4. `focusRegion()`: alternatief wanneer alleen de regio werd onthouden.
+
+De adapter rapporteert `no-bookmark`, `blocked`, `navigation-failed`, `focus-failed` of `opened`. Een mislukte toegangscontrole leidt niet tot een andere bestemming; een focusfout wordt niet als volledig geslaagd gemeld. Deze module neemt geen eigen security-besluit, gebruikt geen browserglobale variabelen en verandert geen lokaal opgeslagen persoonsgegevens.
+
+**Aanvullende integratievoorwaarde:** de host dient sessieveranderingen tijdens asynchrone navigatie zelf opnieuw te toetsen. De adapter is geen vervanging voor route-guards, server-side autorisatie, CSP of toegangsbeleid. De huidige Sites-frontend is nog niet gekoppeld en niet op mobiel getest. Status blijft DRAFT / HOLD.
