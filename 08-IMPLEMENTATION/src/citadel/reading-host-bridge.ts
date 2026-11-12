@@ -42,12 +42,15 @@ export function createReadingHostBridge(
 ): ReadingHostBridge {
   let epoch = 0;
   let disposed = false;
-  let activating = false;
+  let activeRequest: { readonly epoch: number } | null = null;
 
   return {
     beforeHostChange(change: ReadingLifecycleChange): void {
       if (disposed) return;
       ++epoch;
+      // A pending authorization belongs to the old context. Let a new
+      // context start its own request without waiting for the old promise.
+      activeRequest = null;
       try {
         coordinator.transition(change);
       } catch (error) {
@@ -55,6 +58,7 @@ export function createReadingHostBridge(
         // bridge permanently instead of allowing a later activation.
         disposed = true;
         ++epoch;
+        activeRequest = null;
         try { coordinator.dispose(); } catch { /* preserve transition error */ }
         throw error;
       }
@@ -63,30 +67,32 @@ export function createReadingHostBridge(
       authorizeAndResolve: () => Promise<ReadingMountOptions | null>,
     ): Promise<ReadingBridgeResult> {
       if (disposed) return { kind: "stale" };
-      if (activating || coordinator.hasActiveMount()) {
+      if (activeRequest !== null || coordinator.hasActiveMount()) {
         return { kind: "mount-failed" };
       }
 
-      const requestedEpoch = epoch;
-      activating = true;
+      const request = { epoch };
+      activeRequest = request;
+      const isStale = (): boolean =>
+        disposed || epoch !== request.epoch || activeRequest !== request;
       try {
         let options: ReadingMountOptions | null;
         try {
           options = await authorizeAndResolve();
         } catch {
-          return requestedEpoch !== epoch || disposed
+          return isStale()
             ? { kind: "stale" }
             : { kind: "denied" };
         }
 
-        if (disposed || requestedEpoch !== epoch) return { kind: "stale" };
+        if (isStale()) return { kind: "stale" };
         if (options === null) return { kind: "denied" };
 
         // The callback may synchronously trigger a host transition while
         // mount's presentation initializes. The coordinator catches it.
         try {
           const mounted = coordinator.mountAuthorized(options);
-          if (disposed || requestedEpoch !== epoch) {
+          if (isStale()) {
             // A host transition may already have installed a newer view.
             // Revoke only this activation's mount, never the coordinator's
             // current (potentially newer) view.
@@ -95,18 +101,19 @@ export function createReadingHostBridge(
           }
           return { kind: "mounted" };
         } catch {
-          return disposed || requestedEpoch !== epoch
+          return isStale()
             ? { kind: "stale" }
             : { kind: "mount-failed" };
         }
       } finally {
-        activating = false;
+        if (activeRequest === request) activeRequest = null;
       }
     },
     dispose(): void {
       if (disposed) return;
       disposed = true;
       ++epoch;
+      activeRequest = null;
       coordinator.dispose();
     },
   };
