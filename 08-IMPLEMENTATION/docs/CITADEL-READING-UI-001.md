@@ -4,7 +4,7 @@
 
 ## Scope
 
-De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert veertien geïsoleerde TypeScript-modules:
+De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert vijftien geïsoleerde TypeScript-modules:
 
 - `reading-state.ts`: bewaarbeleid en opslagfouten afschermen.
 - `reading-ui.ts`: zichtbare tekst en gebruikersgestuurde acties zonder browserafhankelijkheden.
@@ -20,6 +20,7 @@ De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert veertien
 - `reading-route-port.ts`: host-gekoppelde navigatiepoort die daadwerkelijke route-rendering en juiste regiocontainer verifieert vóór focus.
 - `reading-mount.ts`: één gecontroleerd montagepunt voor bestaande opslag, router, Leeskompas-elementen en presentatieadapter.
 - `reading-manifest-gate.ts`: fail-closed toelating van een compleet, uniek en geldig vijfregiomanifest voordat een leesweergave kan worden gemonteerd.
+- `reading-preflight.ts`: read-only beoordeling van manifest, lokale toestemming en mogelijke hervatbestemming zonder autorisatie.
 
 Het contract is uitsluitend voor **presentatievoortgang**. Het is geen PALACO ONE-identiteit, Citadel-toegangscontrole, ERA/EDTR-bewijs, watermerk, consensus of uitvoeringsmandaat.
 
@@ -264,3 +265,13 @@ De host moet de montagefout behandelen als een integratieprobleem en de bestaand
 `mountReadingCompass` voert deze controle uit **vóór** de knopreservering, presenterinitialisatie en eventlistenerregistratie. Bij afwijzing werpt de mount een `CITADEL_READING_MANIFEST_REJECTED`-fout op. De bestaande Site moet deze fout zonder privédetails aan de gebruiker kunnen tonen; de oorspronkelijke Citadel-toegangscontrole blijft ongewijzigd en krijgt geen autorisatie van deze check. Het manifest moet zijn samengesteld op basis van geverifieerde werkelijk bestaande frontend-routes, niet op basis van opslag, URL-parameters of fictieve slugs.
 
 **Integratiegrens:** omdat de werkelijke originele Sites-routes en hoofdstukken nog niet in deze PR zijn geverifieerd, is dit een strenge voorbereidende controle; hij bewijst niet dat de huidige privéwebsite hiermee kan worden gemonteerd. Geen functionele tests, merge of deployment uitgevoerd. **DRAFT/HOLD**.
+
+## CITADEL-READING-PREFLIGHT-001 — read-only integratiebeoordeling
+
+`inspectReadingPreflight(storage, manifest)` geeft een statische momentopname van manifesttoelating, lokaal geheugen (`enabled`, `disabled`, `unavailable`), beschikbare hervatbestemming (`chapter`, `region`, `none`) en generieke aandachtspunten. `canOfferResume` betekent uitsluitend dat een lokale hervatbestemming in de gegeven gegevens aanwezig is; **nooit** dat de site toegankelijk, geautoriseerd, aangesloten of getest is.
+
+De functie schrijft geen opslag en geeft geen ruwe persoonsgegevens of opgeslagen inhoud terug. Zij kan vóór een toekomstige integratie voor de beheerweergave worden gebruikt, maar is niet automatisch aangeroepen bij pagina-initialisatie en is niet verbonden met de live site. De bestaande host-router blijft verplicht eigen toegangscontroles uit te voeren.
+
+**Consistentiecorrectie:** een opgeslagen v2-hoofdstukbladwijzer wordt alleen gelezen of geschreven wanneer het hoofdstuk behoort tot dezelfde regio als de actuele, met toestemming bewaarde v1-regiopositie. Bij tegenspraak wordt de hoofdstukbladwijzer genegeerd; de route-resolver kan dan uitsluitend naar een geldige regio terugvallen. Er vindt geen stille migratie plaats.
+
+**Reviewstatus:** GitHub DRAFT / HOLD. Geen functionele tests, merge, live Sites-deploy of autorisatie.
