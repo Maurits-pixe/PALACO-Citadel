@@ -4,7 +4,7 @@
 
 ## Scope
 
-De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert negen geïsoleerde TypeScript-modules:
+De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert tien geïsoleerde TypeScript-modules:
 
 - `reading-state.ts`: bewaarbeleid en opslagfouten afschermen.
 - `reading-ui.ts`: zichtbare tekst en gebruikersgestuurde acties zonder browserafhankelijkheden.
@@ -15,6 +15,7 @@ De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert negen ge
 - `reading-epoch.ts`: lokale aanvraagcoördinator die oudere hervataanvragen ongeldig maakt.
 - `reading-controller.ts`: integreert de aanvraagcoördinator met de navigatieadapter en de levenscyclus van de lezer.
 - `reading-lifecycle.ts`: verbindt expliciete UI-levenscyclusgebeurtenissen en bevestigd wissen aan het afbreken van lopende hervataanvragen.
+- `reading-presenter.ts`: presenteert mobiele hervatstatus, toegankelijke meldingen en laat late antwoorden vervallen.
 
 Het contract is uitsluitend voor **presentatievoortgang**. Het is geen PALACO ONE-identiteit, Citadel-toegangscontrole, ERA/EDTR-bewijs, watermerk, consensus of uitvoeringsmandaat.
 
@@ -165,3 +166,27 @@ De integrator maakt **per actuele lezerweergave** één instantie via `createRea
 Bij niet-bevestigd wissen retourneert `clearReadingMemoryAfterConfirmation(false)` uitsluitend de geannuleerde actie zonder lopende navigatieaanvragen te wijzigen. Bij bevestigd wissen wordt de lopende aanvraag vóór de opslagwijziging ongeldig gemaakt.
 
 **Veiligheidsgrens:** deze module registreert geen browser-events en is niet gekoppeld aan de actuele ChatGPT Sites-frontend. De host moet lifecycle-events daadwerkelijk verbinden en toegang afdwingen in de router/backend. Een al lopend `navigate()`-effect kan niet uitsluitend door request-invalidation worden teruggedraaid. De echte frontendbron en hoofdstukroutes moeten vóór integratie gecontroleerd worden. Geen merge, tests, site-deploy of autorisatie; **DRAFT / HOLD**.
+
+## CITADEL-READING-PRESENTER-001 — mobiele status en toegankelijkheid
+
+De host initialiseert per zichtbare Leeskompas-weergave `createReadingPresenter(storage, trustedManifest, navigationPort, presentationPort)`. De presenter maakt alleen **gegevens voor UI-uitvoer**; hij wijzigt geen HTML, stuurt geen netwerkverzoeken en geeft geen autorisatie.
+
+### Verplichte frontend-verbinding
+
+- Alleen een expliciete klik of tik op de hervatknop roept `onResumeClick()` aan. Tijdens de aanvraag toont `presentation.render` de toestand `busy`; de host kan de knop tijdelijk als bezet markeren.
+- De host toont `kind`, `message` en `view` via tekstinhoud, **niet** via `innerHTML` of een uit een bookmark samengestelde URL.
+- `presentation.announce` gebruikt een vooraf bestaand, onopvallend `aria-live=polite`-statusgebied. Het mag geen modal, onverwachte focusverplaatsing of alarmvenster veroorzaken.
+- De echte hoofdstukfocus volgt uitsluitend na succesvolle, opnieuw geautoriseerde navigatie via `NavigationPort.focusChapter`. De presenter verricht zelf geen focusoperatie.
+- Bij route-, sessie- en rechtenwijzigingen roept de host eerst `beforeChange(...)` aan. Bij sluiting `beforeChange('reader-closed')`, daarna `dispose()` bij vernietiging van de component.
+- Na expliciete bevestiging van wissen roept de host `onClearConfirmed()` aan; de presenter meldt opslagfouten zonder een succesvolle verwijdering te suggereren.
+- Een late reactie van een eerder verzoek krijgt geen nieuwe zichtbare of gesproken status. Ontkoppelde componenten leveren geen meldingen meer.
+
+### Responsieve vormgeving (integratievereisten)
+
+- Aanraakvlakken: streef naar ten minste 44 × 44 CSS-pixels waar de vormgeving dit toelaat.
+- Bedienbare elementen blijven met toetsenbord bereikbaar, met duidelijke zichtbare focus.
+- De host voorkomt dat lange regio- of hoofdstuknamen buiten het mobiele scherm vallen.
+- Houd systeeminstellingen voor verminderde animatie (`prefers-reduced-motion`) aan.
+- Leesstatus is niet uitsluitend afhankelijk van kleur; toon korte Nederlandse teksten.
+
+**Status:** Dit is nog géén uitgevoerde mobiele acceptatietest en géén wijziging aan de live Citadel-site. De bestaande private toegang, routerautorisatie en HOLD blijven onveranderd.
