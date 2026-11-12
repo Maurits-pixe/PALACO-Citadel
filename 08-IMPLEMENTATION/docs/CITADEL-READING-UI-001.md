@@ -408,3 +408,11 @@ Tijdens een synchronische abonnementsregistratie blijft een contextwissel reden 
 Deze wijziging voorkomt dat een half mislukte contextovergang later via dezelfde bridge wordt hergebruikt. De host moet na herstel van de échte sessie- en routecontext een volledig nieuwe bridge met een nieuwe eventregistratie aanmaken. Een eenmalige mountbeoordeling, bestaand PP-nummer of lokale leespositie vormt nooit autorisatiebewijs.
 
 **Status:** alleen GitHub DRAFT PR #58. Geen functionele tests, geen Site-publicatie, geen bewezen koppeling aan de originele Citadel- of PALACO ONE-runtime. **HOLD**.
+
+## CITADEL-READING-STALE-HANDLE-003 — uitsluitend eigen montage opruimen
+
+Na `coordinator.mountAuthorized(options)` bewaart de hostbridge het teruggegeven, instantiegebonden `MountedReadingCompass`-handvat. Wordt de hostcontext tijdens of na die montage ongeldig, dan roept de bridge **alleen `mounted.dispose()`** op dit handvat aan. De vroegere generieke `coordinator.transition("session-changed")` in dit late foutpad is verwijderd: die kon een inmiddels nieuwere, afzonderlijk toegelaten montage beëindigen.
+
+Deze wijziging sluit aan op het bestaande contract van `reading-mount-coordinator.ts`: de `dispose` van een oud handvat doet niets wanneer een nieuwere instantie actief is. De host blijft verantwoordelijk voor het synchronisch aankondigen van sessie-, route- en rechtenwisselingen en voor onafhankelijke autorisatie vóór elke activatie. Geen toegangsrechten worden verstrekt of veranderd.
+
+**Status:** aangepaste GitHub-broncode in DRAFT PR #58. Niet functioneel getest, niet gemerged, niet gekoppeld aan de originele Citadel Sites-frontend. **HOLD**.
