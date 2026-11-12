@@ -12,6 +12,10 @@ export {
 } from "./reading-dom-admission";
 
 export {
+  snapshotReadingManifest,
+} from "./reading-manifest-snapshot";
+
+export {
   admitReadingManifest,
   isAdmittedReadingManifest,
   type ManifestAdmission,
