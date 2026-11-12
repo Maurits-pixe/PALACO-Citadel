@@ -27,6 +27,7 @@ export interface StoragePort {
 
 const CONSENT_KEY = "citadel.reading.v1.consent";
 const POSITION_KEY = "citadel.reading.v1.position";
+const CHAPTER_POSITION_KEY = "citadel.reading.v2.chapter";
 const MAX_STORED_BYTES = 2048;
 
 function isRegionId(value: unknown): value is RegionId {
@@ -114,8 +115,9 @@ export function resumeReadingRegion(store: StoragePort): RegionId | null {
  */
 export function disableAndClearReadingMemory(store: StoragePort): ReadStatus {
   const positionRemoved = safeRemove(store, POSITION_KEY);
+  const chapterRemoved = safeRemove(store, CHAPTER_POSITION_KEY);
   const consentRemoved = safeRemove(store, CONSENT_KEY);
-  if (!positionRemoved || !consentRemoved) {
+  if (!positionRemoved || !chapterRemoved || !consentRemoved) {
     return { kind: "unavailable" };
   }
   return { kind: "disabled" };
