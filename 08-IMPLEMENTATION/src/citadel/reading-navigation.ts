@@ -48,27 +48,43 @@ export async function openSavedReadingPlace(
     return { kind: "no-bookmark", message: "Er is geen geldige leesplek om te hervatten." };
   }
 
+  let allowed: boolean;
   try {
-    if (!(await port.canOpen(target))) {
-      return { kind: "blocked", message: "Deze leesplek is niet toegankelijk met de huidige sessie." };
-    }
-    if (!(await port.navigate(target.path))) {
-      return { kind: "navigation-failed", message: "Het openen van de leesplek is niet gelukt." };
-    }
-    const focused = target.kind === "chapter"
+    allowed = await port.canOpen(target);
+  } catch {
+    return { kind: "blocked", message: "Toegang kon niet worden vastgesteld; hervatten is geblokkeerd." };
+  }
+  if (!allowed) {
+    return { kind: "blocked", message: "Deze leesplek is niet toegankelijk met de huidige sessie." };
+  }
+
+  let navigated: boolean;
+  try {
+    navigated = await port.navigate(target.path);
+  } catch {
+    navigated = false;
+  }
+  if (!navigated) {
+    return { kind: "navigation-failed", message: "Het openen van de leesplek is niet gelukt." };
+  }
+
+  let focused: boolean;
+  try {
+    focused = target.kind === "chapter"
       ? await port.focusChapter(target.chapterId)
       : await port.focusRegion();
-    if (!focused) {
-      return { kind: "focus-failed", message: "De pagina is geopend, maar de focus kon niet worden geplaatst." };
-    }
-    return {
-      kind: "opened",
-      message: target.kind === "chapter"
-        ? `Verder lezen bij ${target.label}.`
-        : "Verder lezen in de gekozen regio.",
-      target,
-    };
   } catch {
-    return { kind: "navigation-failed", message: "Hervatten is onderbroken; probeer opnieuw." };
+    focused = false;
   }
+  if (!focused) {
+    return { kind: "focus-failed", message: "De pagina is geopend, maar de focus kon niet worden geplaatst." };
+  }
+
+  return {
+    kind: "opened",
+    message: target.kind === "chapter"
+      ? `Verder lezen bij ${target.label}.`
+      : "Verder lezen in de gekozen regio.",
+    target,
+  };
 }
