@@ -321,3 +321,11 @@ De expliciete hervatstroom draagt nu een aanvraaggebonden controlefunctie over d
 De controlefunctie wordt ongeldig na het starten van een nieuw verzoek, `invalidate()`, `dispose()`, wijziging van de host-sessie of routepoortrevisie. De host moet de functie **vóór een echte routermutatie en na iedere asynchrone fase** opnieuw aanroepen. Als de controle onwaar is, mag de host de navigatie niet verder uitvoeren of als gereed melden. De adapter kan reeds uitgevoerde side-effects niet automatisch terugdraaien.
 
 **Breekpunt voor integrators:** iedere bestaande implementatie van `NavigationPort.navigate(path)` moet de tweede parameter aannemen en doorgeven of implementeren. Een host die deze callback negeert, voldoet niet aan het nieuwe contract en mag niet worden vrijgegeven. De oorspronkelijke privéwebsite is niet verbonden en de code is niet functioneel getest. **DRAFT/HOLD**, geen merge of productiepublicatie.
+
+## CITADEL-READING-FOCUS-CANCEL-005 — aanvraaggrens tot de focusactie
+
+Het aanvraaggebonden annuleringscontract is uitgebreid naar de laatste toegankelijkheidsstap. `NavigationPort.focusChapter(chapterId, isRequestCurrent)` en `focusRegion(isRequestCurrent)` ontvangen nu hetzelfde type controlefunctie als `navigate(...)`. De `ReadingController` koppelt die functie aan de lokale request-revisie en de `dispose`-status; de routepoort weigert de focus wanneer de gecontroleerde container ontbreekt, de hoststatus is vervallen of de callback onwaar retourneert of een uitzondering veroorzaakt.
+
+Hiermee wordt de aanvraag na de asynchrone autorisatiehercontrole nogmaals bewaakt vóór de focusmutatie. Het voorkomt geen reeds uitgevoerde focusactie achteraf en is geen vervanging voor host-routerautorisatie.
+
+**Integratiebreuk:** bestaande implementaties van de `NavigationPort`-focusmethoden moeten de tweede parameter ondersteunen en vóór hun eigen eventuele asynchrone focusoperaties controleren. De echte private Sites-frontend is nog niet aangesloten. Geen functionele tests, merge, uitgifte of websitepublicatie. **DRAFT/HOLD**.
