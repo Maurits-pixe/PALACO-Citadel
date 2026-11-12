@@ -18,7 +18,7 @@ export interface NavigationPort {
   /** Mandatory site-owned access decision; this module does not authorize. */
   canOpen(target: Exclude<ResumeTarget, { kind: "none" }>): Promise<boolean>;
   /** Navigate only to a checked, local manifest path. */
-  navigate(path: string): Promise<boolean>;
+  navigate(path: string, isRequestCurrent: () => boolean): Promise<boolean>;
   /** Called only after successful navigation; the host locates its own heading. */
   focusChapter(chapterId: string): Promise<boolean>;
   /** Region-level focus fallback; never opens a different URL. */
@@ -73,7 +73,7 @@ export async function openSavedReadingPlace(
 
   let navigated: boolean;
   try {
-    navigated = await port.navigate(target.path);
+    navigated = await port.navigate(target.path, () => !stale());
   } catch {
     navigated = false;
   }
