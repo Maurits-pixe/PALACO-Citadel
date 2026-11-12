@@ -304,3 +304,11 @@ De host kan in één plaats imports betrekken via `reading-integration.ts`: mani
 De host moet de vier elementen bewust binnen de actuele, reeds geautoriseerde beheer- of lezersweergave selecteren. **Beperking:** DOM-verbondenheid en documentidentiteit bewijzen op zichzelf niet dat elementen bij de juiste route, sessie of gebruiker behoren. Die contextcontrole en echte autorisatie blijven de taak van de oorspronkelijke Citadel-frontend. De nieuwe export is beschikbaar via `reading-integration.ts`.
 
 Deze veiligheidscontrole is uitsluitend in de GitHub-DRAFT-PR gebouwd. Er zijn geen functionele tests, mobiele acceptatie, merge, site-integratie of productiepublicatie uitgevoerd. **HOLD**.
+
+## CITADEL-READING-MOUNT-UNWIND-003 — foutbestendig afsluiten
+
+`mountReadingCompass` houdt nu de aangemaakte presenter en de geregistreerde click-listener afzonderlijk bij. Bij een fout tijdens initialisatie probeert de module in deze volgorde op te ruimen: listener verwijderen, presenter beëindigen en de `WeakSet`-reservering van de knop vrijgeven. De oorspronkelijke initialisatiefout blijft het resultaat, ook wanneer een opruimactie zelf faalt. Herhaald `dispose()` is zonder nieuwe neveneffecten; na `reader-closed` wordt de listener verwijderd en blijven bevestigde wisacties via deze montage geblokkeerd.
+
+Vlak vóór een expliciete klikactie beoordeelt de adapter de reeds gemonteerde DOM-elementen opnieuw met `admitReadingDomElements`. Een verdwenen of ongeldig geworden weergave wordt ontkoppeld in plaats van alsnog een hervataanvraag te starten. Deze controle vervangt **niet** de verplichting van de host om vóór echte sessie- of routewisselingen `beforeChange` aan te roepen. De host moet eventuele asynchrone routereffecten nog altijd zelfstandig stoppen en toegang afdwingen.
+
+**Bouwstatus:** wijzigingen alleen in GitHub PR #58, DRAFT/HOLD. Geen functionele tests, merge, uitgifte of publicatie op de originele Citadel-website.
