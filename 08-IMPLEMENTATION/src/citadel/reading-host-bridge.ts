@@ -48,7 +48,16 @@ export function createReadingHostBridge(
     beforeHostChange(change: ReadingLifecycleChange): void {
       if (disposed) return;
       ++epoch;
-      coordinator.transition(change);
+      try {
+        coordinator.transition(change);
+      } catch (error) {
+        // A failed teardown leaves the host context uncertain. Revoke this
+        // bridge permanently instead of allowing a later activation.
+        disposed = true;
+        ++epoch;
+        try { coordinator.dispose(); } catch { /* preserve transition error */ }
+        throw error;
+      }
     },
     async activate(
       authorizeAndResolve: () => Promise<ReadingMountOptions | null>,
