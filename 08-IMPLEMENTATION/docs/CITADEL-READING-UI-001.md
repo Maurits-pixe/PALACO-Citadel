@@ -4,7 +4,7 @@
 
 ## Scope
 
-De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert twaalf geïsoleerde TypeScript-modules:
+De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert dertien geïsoleerde TypeScript-modules:
 
 - `reading-state.ts`: bewaarbeleid en opslagfouten afschermen.
 - `reading-ui.ts`: zichtbare tekst en gebruikersgestuurde acties zonder browserafhankelijkheden.
@@ -18,6 +18,7 @@ De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert twaalf g
 - `reading-presenter.ts`: presenteert mobiele hervatstatus, toegankelijke meldingen en laat late antwoorden vervallen.
 - `reading-dom.ts`: optionele, host-gekoppelde DOM-uitvoer en gecontroleerde focus op bestaande hoofdstuk- of regiokoppen.
 - `reading-route-port.ts`: host-gekoppelde navigatiepoort die daadwerkelijke route-rendering en juiste regiocontainer verifieert vóór focus.
+- `reading-mount.ts`: één gecontroleerd montagepunt voor bestaande opslag, router, Leeskompas-elementen en presentatieadapter.
 
 Het contract is uitsluitend voor **presentatievoortgang**. Het is geen PALACO ONE-identiteit, Citadel-toegangscontrole, ERA/EDTR-bewijs, watermerk, consensus of uitvoeringsmandaat.
 
@@ -236,3 +237,13 @@ De gerenderde-routepoort houdt een **eigen monotone navigatierevisie** bij. Elke
 Een eerdere routeaanvraag die te laat gereed komt, mag de bestemming niet opnieuw instellen en mag geen focus geven. Alleen als het verzoek nog actueel is, het renderen bevestigd is, de actuele router exact hetzelfde pad rapporteert en de verbonden routecontainer bestaat, wordt de bestemming vrijgegeven. Bij een uitzondering of een gewijzigde sessie wordt de operatie geweigerd.
 
 **Beperking:** de adapter kan op zichzelf geen reeds uitgevoerde routermutatie ongedaan maken. Daarom is de controlefunctie in de host-router vereist; de host behoudt bovendien zijn eigen toegangsguards. Deze signature-wijziging moet door de integrator worden verwerkt bij het aansluiten op de originele Citadel Sites-code. DRAFT/HOLD; geen functionele tests, merge of websitepublicatie.
+
+## CITADEL-READING-MOUNT-001 — één integratiepunt
+
+`mountReadingCompass({ storage, manifest, router, elements })` koppelt **uitsluitend na reeds vastgestelde private toegang** de bestaande bouwblokken: `createRenderedRoutePort`, `createReadingDomPresentation` en `createReadingPresenter`. De host moet de echte `ReadingDomElements`, de vertrouwde routes en hoofdstuk-ID's, en een geautoriseerde `RenderedRouteHost` leveren. Dit is geen PALACO ONE-login of nieuwe Citadel-toegangscontrole.
+
+De koppeling registreert precies één click-listener op de aangeleverde hervatknop; er wordt geen automatische hervatting tijdens mount gestart en geen toestemming gegeven of leesplek opgeslagen. De teruggegeven interface biedt `beforeChange(change)`, `clearAfterConfirmation()` en `dispose()`. De host moet de eerste functie aanroepen vóór uitloggen, sessie- of rechtenwijziging en routevervanging; bij het sluiten van de lezer moet hij `beforeChange('reader-closed')` gevolgd door `dispose()` gebruiken. De integrator mag `clearAfterConfirmation()` uitsluitend vanuit een reeds bevestigde wisactie aanroepen. `dispose()` verwijdert de eventlistener en maakt lopende opdrachten ongeldig.
+
+De montage mag maar eenmaal tegelijk per Leeskompas-weergave gebeuren. Dubbele montage kan anders dubbele eventlisteners en dubbele navigatieaanvragen opleveren; de host bezit de componentlevenscyclus. Bij routereffecten blijft onafhankelijke autorisatie én bewaking van de actuele aanvraag verplicht. De werkelijke ChatGPT Sites-code is nog niet aan deze adapter gekoppeld.
+
+**Reviewstatus:** DRAFT/HOLD. Geen functionele tests, mobiele acceptatie, merge of live publicatie uitgevoerd.
