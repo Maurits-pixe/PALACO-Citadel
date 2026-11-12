@@ -43,11 +43,32 @@ export function createReadingDomPresentation(
 }
 
 /**
- * Programmatically focus only an existing chapter heading inside the
- * trusted route container. No selector is built from a bookmark ID.
- *
- * The host must run its normal route authorization and session guard before
- * calling this helper. This helper cannot grant access to a heading.
+ * A focus candidate must belong to the currently connected, rendered route.
+ * Reject hidden/inert subtrees, including ancestors outside the route node.
+ * Visibility is checked at the moment of the explicit navigation handoff.
+ */
+function isAvailableHeading(
+  routeContainer: HTMLElement,
+  heading: HTMLElement,
+): boolean {
+  if (!routeContainer.isConnected || !heading.isConnected ||
+      !routeContainer.contains(heading)) return false;
+  let node: HTMLElement | null = heading;
+  while (node !== null) {
+    if (node.hidden || node.inert || node.getAttribute("aria-hidden") === "true") {
+      return false;
+    }
+    const style = node.ownerDocument.defaultView?.getComputedStyle(node);
+    if (!style || style.display === "none" || style.visibility === "hidden" ||
+        style.visibility === "collapse") return false;
+    node = node.parentElement;
+  }
+  return heading.getClientRects().length > 0;
+}
+
+/**
+ * Focus only a unique chapter heading inside the host-authorized region.
+ * No selector is assembled from a bookmarked ID.
  */
 export function focusTrustedChapter(
   routeContainer: HTMLElement,
@@ -60,34 +81,34 @@ export function focusTrustedChapter(
   let match: HTMLElement | null = null;
   for (const heading of headings) {
     if (heading.id !== chapterId) continue;
-    // Duplicate IDs are ambiguous: reject rather than focusing arbitrarily.
+    // Reject duplicates even when one is hidden: no ambiguous DOM target.
     if (match !== null) return false;
     match = heading;
   }
-  if (match === null) return false;
+  if (match === null || !isAvailableHeading(routeContainer, match)) return false;
   return focusHeading(match);
 }
 
-/** Fallback only to an existing, site-owned region heading. */
-export function focusTrustedRegion(
-  routeContainer: HTMLElement,
-): boolean {
-  const heading = routeContainer.querySelector<HTMLElement>(
+/** Focus exactly one accessible host-marked region heading. */
+export function focusTrustedRegion(routeContainer: HTMLElement): boolean {
+  const headings = routeContainer.querySelectorAll<HTMLElement>(
     "h1[data-citadel-region-heading]",
   );
-  return heading === null ? false : focusHeading(heading);
+  if (headings.length !== 1) return false;
+  const heading = headings.item(0);
+  return isAvailableHeading(routeContainer, heading) && focusHeading(heading);
 }
 
 function focusHeading(heading: HTMLElement): boolean {
-  // A heading without tabindex is made programmatically focusable.
-  // Keep the attribute after focus to avoid disrupting assistive tech.
-  if (!heading.hasAttribute("tabindex")) {
-    heading.setAttribute("tabindex", "-1");
-  }
+  const addedTabindex = !heading.hasAttribute("tabindex");
+  if (addedTabindex) heading.setAttribute("tabindex", "-1");
   try {
     heading.focus({ preventScroll: false });
-    return heading.ownerDocument.activeElement === heading;
+    const succeeded = heading.ownerDocument.activeElement === heading;
+    if (!succeeded && addedTabindex) heading.removeAttribute("tabindex");
+    return succeeded;
   } catch {
+    if (addedTabindex) heading.removeAttribute("tabindex");
     return false;
   }
 }
