@@ -4,7 +4,7 @@
 
 ## Scope
 
-De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert vijftien geïsoleerde TypeScript-modules:
+De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert zestien geïsoleerde TypeScript-modules:
 
 - `reading-state.ts`: bewaarbeleid en opslagfouten afschermen.
 - `reading-ui.ts`: zichtbare tekst en gebruikersgestuurde acties zonder browserafhankelijkheden.
@@ -21,6 +21,7 @@ De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert vijftien
 - `reading-mount.ts`: één gecontroleerd montagepunt voor bestaande opslag, router, Leeskompas-elementen en presentatieadapter.
 - `reading-manifest-gate.ts`: fail-closed toelating van een compleet, uniek en geldig vijfregiomanifest voordat een leesweergave kan worden gemonteerd.
 - `reading-preflight.ts`: read-only beoordeling van manifest, lokale toestemming en mogelijke hervatbestemming zonder autorisatie.
+- `reading-admin.ts`: privacy-minimalistisch, read-only beheerbeeld met generieke statuscontroles en vaste HOLD-vrijgave.
 
 Het contract is uitsluitend voor **presentatievoortgang**. Het is geen PALACO ONE-identiteit, Citadel-toegangscontrole, ERA/EDTR-bewijs, watermerk, consensus of uitvoeringsmandaat.
 
@@ -275,3 +276,13 @@ De functie schrijft geen opslag en geeft geen ruwe persoonsgegevens of opgeslage
 **Consistentiecorrectie:** een opgeslagen v2-hoofdstukbladwijzer wordt alleen gelezen of geschreven wanneer het hoofdstuk behoort tot dezelfde regio als de actuele, met toestemming bewaarde v1-regiopositie. Bij tegenspraak wordt de hoofdstukbladwijzer genegeerd; de route-resolver kan dan uitsluitend naar een geldige regio terugvallen. Er vindt geen stille migratie plaats.
 
 **Reviewstatus:** GitHub DRAFT / HOLD. Geen functionele tests, merge, live Sites-deploy of autorisatie.
+
+## CITADEL-READING-ADMIN-001 — read-only beheerstatus
+
+`createReadingAdminSnapshot(storage, manifest, evidence)` bouwt een momentopname met zeven controles: manifest, lokale opslag, eventuele hervatmogelijkheid, geverifieerde oorspronkelijke Sites-routes, host-toegangscontrole, daadwerkelijk aangesloten frontend en door de eigenaar uitgevoerde acceptatie. Het beeld geeft alleen **PRESENT**, **HOLD** of **BLOCKED** weer en bevat geen bewaarde hoofdstuk-ID's, routepaden, persoonsgegevens, sessie-identificatoren of ruwe opslagwaarden. `release` blijft in deze module altijd `HOLD`.
+
+`evidence` bevat uitsluitend door de host aangeleverde markeringen `unverified` / `reviewed`; `reviewed` betekent **niet** dat deze module zelfstandig documenten, autorisatie of gebruikersacceptatie heeft geverifieerd. Bewijsverwijzingen en ondertekening moeten via het bestaande, onafhankelijk beoordeelde Citadel/ERA-beheerproces worden geregeld. Dit is uitdrukkelijk **geen** autorisatiepoort.
+
+`renderReadingAdminSnapshot(container,snapshot)` kan het resultaat als statische tekstlijst in een reeds geautoriseerde beheerpagina zetten via `textContent` en DOM-creatie; geen `innerHTML`, verborgen sleutels, navigatie-effecten of opslagwijzigingen. De oorspronkelijke Sites-beheerpagina is nog niet met deze module verbonden. De host moet vóór iedere aanroep onafhankelijk vaststellen dat de gebruiker het beheerbeeld mag zien.
+
+**DRAFT/HOLD:** GitHub-broncode voorbereid; geen uitgevoerde tests, geen merge, geen privatesite-deployment, geen claim van werkelijk gecontroleerde hostintegratie.
