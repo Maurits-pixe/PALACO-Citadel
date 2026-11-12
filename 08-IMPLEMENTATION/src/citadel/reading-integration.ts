@@ -36,6 +36,11 @@ export {
 } from "./reading-admin";
 
 export {
+  createReadingMountCoordinator,
+  type ReadingMountCoordinator,
+} from "./reading-mount-coordinator";
+
+export {
   mountReadingCompass,
   type ReadingMountOptions,
   type MountedReadingCompass,
