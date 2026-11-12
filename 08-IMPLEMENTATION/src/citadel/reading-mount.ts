@@ -43,7 +43,7 @@ export interface MountedReadingCompass {
 }
 
 /**
- * Does not read or mutate stored consent during initialization.
+ * Reads consent for initial presentation, but never changes consent on mount.
  * Registers exactly one listener on the host-provided resume button.
  *
  * Authorization remains mandatory in the host's canOpen() and
