@@ -63,6 +63,7 @@ export function createReadingController(
         }
         return result;
       } catch {
+        if (disposed || !request.isCurrent()) return staleResult();
         return {
           kind: "navigation-failed",
           message: "Het hervatten is onverwacht onderbroken.",
