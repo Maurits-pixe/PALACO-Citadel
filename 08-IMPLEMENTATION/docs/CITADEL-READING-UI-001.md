@@ -247,3 +247,11 @@ De koppeling registreert precies één click-listener op de aangeleverde hervatk
 De montage mag maar eenmaal tegelijk per Leeskompas-weergave gebeuren. Dubbele montage kan anders dubbele eventlisteners en dubbele navigatieaanvragen opleveren; de host bezit de componentlevenscyclus. Bij routereffecten blijft onafhankelijke autorisatie én bewaking van de actuele aanvraag verplicht. De werkelijke ChatGPT Sites-code is nog niet aan deze adapter gekoppeld.
 
 **Reviewstatus:** DRAFT/HOLD. Geen functionele tests, mobiele acceptatie, merge of live publicatie uitgevoerd.
+
+## CITADEL-READING-MOUNT-GUARD-002 — dubbele montage voorkomen
+
+`mountReadingCompass` reserveert voortaan de reeds door de host aangeleverde hervatknop in een module-lokale `WeakSet`. Een tweede gelijktijdige montage op dezelfde knop faalt onmiddellijk met `CITADEL_READING_ALREADY_MOUNTED`; er wordt geen tweede kliklistener geregistreerd of extra presenter gecreëerd. De registratie wordt bij `dispose()` vrijgegeven, ook als het opruimen van de presenter zelf een fout veroorzaakt. Bij falende initialisatie wordt de reservering eveneens vrijgegeven.
+
+De host moet de montagefout behandelen als een integratieprobleem en de bestaande, al gemonteerde instantie in stand laten. Een nieuwe montage is alleen toegestaan nadat de vorige is ontkoppeld. Deze bewaking geldt per geladen module-instantie; zij vervangt geen componentlevenscyclusbeheer door de host en beschermt niet tegen dubbel ingeladen kopieën van dezelfde bundel.
+
+**Status:** uitsluitend een wijziging in de GitHub DRAFT-PR. Geen functionele tests, merge of Sites-publicatie. De private frontend en autorisatie blijven HOLD.
