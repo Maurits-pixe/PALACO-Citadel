@@ -73,7 +73,7 @@ export function isValidRegionRoute(value: unknown): value is RegionRoute {
     if (typeof chapter !== "object" || chapter === null || Array.isArray(chapter)) return false;
     const record = chapter as Record<string, unknown>;
     if (!isChapterId(record.chapterId) || ids.has(record.chapterId)) return false;
-    if (typeof record.label !== "string" || record.label.trim().length === 0 || record.label.length > 120 || /[\\x00-\\x1F\\x7F]/.test(record.label)) return false;
+    if (typeof record.label !== "string" || record.label.trim().length === 0 || record.label.length > 120 || record.label.split("").some(ch => ch.charCodeAt(0) < 32 || ch.charCodeAt(0) === 127)) return false;
     ids.add(record.chapterId);
   }
   return true;
