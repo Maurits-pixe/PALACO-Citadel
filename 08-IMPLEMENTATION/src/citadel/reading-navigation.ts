@@ -20,9 +20,9 @@ export interface NavigationPort {
   /** Navigate only to a checked, local manifest path. */
   navigate(path: string, isRequestCurrent: () => boolean): Promise<boolean>;
   /** Called only after successful navigation; the host locates its own heading. */
-  focusChapter(chapterId: string): Promise<boolean>;
+  focusChapter(chapterId: string, isRequestCurrent: () => boolean): Promise<boolean>;
   /** Region-level focus fallback; never opens a different URL. */
-  focusRegion(): Promise<boolean>;
+  focusRegion(isRequestCurrent: () => boolean): Promise<boolean>;
 }
 
 export type NavigationResult =
@@ -96,8 +96,8 @@ export async function openSavedReadingPlace(
   let focused: boolean;
   try {
     focused = target.kind === "chapter"
-      ? await port.focusChapter(target.chapterId)
-      : await port.focusRegion();
+      ? await port.focusChapter(target.chapterId, () => !stale())
+      : await port.focusRegion(() => !stale());
   } catch {
     focused = false;
   }
