@@ -91,8 +91,10 @@ export function createReadingAdminSnapshot(
     checks.push(check(
       code,
       label,
-      value === "reviewed" ? "PRESENT" : "HOLD",
-      value === "reviewed" ? "Door de host als beoordeeld opgegeven; bewijs extern controleren." : "Nog geen beoordeeld bewijs aangeleverd.",
+      "HOLD",
+      value === "reviewed"
+        ? "Beoordeling door host opgegeven; onafhankelijk bewijs en acceptatie nog vereist."
+        : "Geen externe beoordeling opgegeven; bewijs ontbreekt.",
     ));
   };
   addEvidence("SITE_ROUTES", "Originele Sites-routes", evidence.originalSiteRoutes);
