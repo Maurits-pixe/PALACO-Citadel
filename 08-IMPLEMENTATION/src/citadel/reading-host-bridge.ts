@@ -85,9 +85,12 @@ export function createReadingHostBridge(
         // The callback may synchronously trigger a host transition while
         // mount's presentation initializes. The coordinator catches it.
         try {
-          coordinator.mountAuthorized(options);
+          const mounted = coordinator.mountAuthorized(options);
           if (disposed || requestedEpoch !== epoch) {
-            coordinator.transition("session-changed");
+            // A host transition may already have installed a newer view.
+            // Revoke only this activation's mount, never the coordinator's
+            // current (potentially newer) view.
+            mounted.dispose();
             return { kind: "stale" };
           }
           return { kind: "mounted" };
