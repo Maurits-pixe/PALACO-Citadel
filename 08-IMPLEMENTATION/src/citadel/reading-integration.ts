@@ -7,6 +7,11 @@
  * Host must authenticate before rendering any admin or reader view.
  */
 export {
+  admitReadingDomElements,
+  type DomAdmission,
+} from "./reading-dom-admission";
+
+export {
   admitReadingManifest,
   isAdmittedReadingManifest,
   type ManifestAdmission,
