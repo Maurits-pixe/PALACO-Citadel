@@ -77,39 +77,74 @@ export function mountReadingCompass(
     activeResumeButtons.delete(elements.resumeButton);
   };
 
+  let presenter: ReturnType<typeof createReadingPresenter> | null = null;
+  let onResumeClick: (() => void) | null = null;
+  let listenerAttached = false;
+  let disposed = false;
+  let closed = false;
+
+  const removeListener = (): void => {
+    if (!listenerAttached || onResumeClick === null) return;
+    listenerAttached = false;
+    elements.resumeButton.removeEventListener("click", onResumeClick);
+  };
+
+  const dispose = (): void => {
+    if (disposed) return;
+    disposed = true;
+    closed = true;
+    try {
+      removeListener();
+    } finally {
+      try {
+        presenter?.dispose();
+      } finally {
+        release();
+      }
+    }
+  };
+
   try {
     const navigation = createRenderedRoutePort(router);
     const presentation = createReadingDomPresentation(elements);
-    const presenter = createReadingPresenter(storage, manifest, navigation, presentation);
-    let disposed = false;
+    presenter = createReadingPresenter(storage, manifest, navigation, presentation);
 
-    const onResumeClick = (): void => {
-      if (disposed || elements.resumeButton.disabled) return;
-      // Deliberate click/tap, never called by hydration or automatic routing.
-      void presenter.onResumeClick();
+    onResumeClick = (): void => {
+      if (disposed || closed || elements.resumeButton.disabled) return;
+      // DOM might have been replaced without the mandatory host lifecycle hook.
+      // Fail closed instead of navigating from a detached reader.
+      if (!admitReadingDomElements(elements).ok) {
+        dispose();
+        return;
+      }
+      // Deliberate click/tap; no automatic resume on mount or page hydration.
+      void presenter?.onResumeClick();
     };
+    // Mark as attached before registration; if an injected host throws after
+    // registering, the catch path still attempts listener removal.
+    listenerAttached = true;
     elements.resumeButton.addEventListener("click", onResumeClick);
 
     return {
       beforeChange(change: ReadingLifecycleChange): void {
         if (disposed) return;
-        presenter.beforeChange(change);
         if (change === "reader-closed") {
-          elements.resumeButton.removeEventListener("click", onResumeClick);
+          closed = true;
+          removeListener();
         }
+        presenter?.beforeChange(change);
       },
       clearAfterConfirmation(): void {
-        if (!disposed) presenter.onClearConfirmed();
+        if (!disposed && !closed) presenter?.onClearConfirmed();
       },
-      dispose(): void {
-        if (disposed) return;
-        disposed = true;
-        elements.resumeButton.removeEventListener("click", onResumeClick);
-        try { presenter.dispose(); } finally { release(); }
-      },
+      dispose,
     };
   } catch (error) {
-    release();
+    try {
+      dispose();
+    } catch {
+      // Preserve the original mounting failure; all cleanup was attempted.
+    }
     throw error;
   }
 }
