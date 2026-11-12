@@ -36,6 +36,12 @@ export {
 } from "./reading-admin";
 
 export {
+  createReadingHostBridge,
+  type ReadingHostBridge,
+  type ReadingBridgeResult,
+} from "./reading-host-bridge";
+
+export {
   createReadingMountCoordinator,
   type ReadingMountCoordinator,
 } from "./reading-mount-coordinator";
