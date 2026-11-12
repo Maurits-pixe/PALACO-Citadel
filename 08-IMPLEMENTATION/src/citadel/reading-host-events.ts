@@ -1,6 +1,8 @@
 /**
- * CITADEL-READING-HOST-EVENTS-001
- * Host-supplied synchronous BEFORE-change events; no guessed PALACO APIs.
+ * CITADEL-READING-HOST-EVENTS-003
+ *
+ * An explicit synchronous BEFORE-change subscription provided by Citadel.
+ * No inferred PALACO ONE event API or automatic authentication.
  */
 import { createReadingHostBridge, type ReadingBridgeResult } from "./reading-host-bridge";
 import type { ReadingLifecycleChange } from "./reading-lifecycle";
@@ -11,7 +13,11 @@ const CHANGES: readonly ReadingLifecycleChange[] = [
 ];
 
 export interface ReadingBeforeChangeSource {
-  /** Must notify BEFORE the real router/session/permission mutation. */
+  /**
+   * Emit before the host commits route/session/permission changes.
+   * Registration must be atomic: if this method throws, the source itself
+   * must remove any listener it installed before throwing.
+   */
   subscribeBeforeChange(handler: (change: ReadingLifecycleChange) => void): () => void;
 }
 
@@ -21,57 +27,76 @@ export interface ConnectedReadingHost {
   dispose(): void;
 }
 
-/** Connect only after the real host exposes an authenticated event source. */
 export function connectReadingHostEvents(source: ReadingBeforeChangeSource): ConnectedReadingHost {
   const bridge = createReadingHostBridge();
   let closed = false;
-  let unsubscribe: (() => void) | null = null;
   let subscribing = true;
   let eventDuringSubscription = false;
+  let unsubscribe: (() => void) | null = null;
+
+  // Release exactly once even if the host calls dispose recursively.
+  // Cleanup callbacks are untrusted: never restore the old reader on errors.
+  const close = (): void => {
+    if (closed) return;
+    closed = true;
+    const release = unsubscribe;
+    unsubscribe = null;
+    try {
+      bridge.dispose();
+    } finally {
+      release?.();
+    }
+  };
 
   const onBeforeChange = (change: ReadingLifecycleChange): void => {
     if (closed) return;
     if (subscribing) eventDuringSubscription = true;
-    // Invalid event types also revoke this view's previous context.
-    bridge.beforeHostChange(CHANGES.includes(change) ? change : "session-changed");
+    const safeChange = CHANGES.includes(change) ? change : "session-changed";
+    try {
+      bridge.beforeHostChange(safeChange);
+    } catch {
+      // If the host's transition handler fails, permanently revoke this
+      // bridge, rather than allowing a potentially stale session to resume.
+      // An event during registration is cleaned up after subscribe returns.
+      if (subscribing) {
+        eventDuringSubscription = true;
+        try { bridge.dispose(); } catch { /* already invalidated */ }
+      } else {
+        try { close(); } catch { /* already invalidated */ }
+      }
+    }
   };
 
+  let release: (() => void) | null = null;
   try {
-    const release = source.subscribeBeforeChange(onBeforeChange);
-    if (typeof release !== "function") throw new Error("CITADEL_READING_INVALID_UNSUBSCRIBE");
+    release = source.subscribeBeforeChange(onBeforeChange);
+    if (typeof release !== "function") {
+      throw new Error("CITADEL_READING_INVALID_UNSUBSCRIBE");
+    }
     unsubscribe = release;
     subscribing = false;
     if (eventDuringSubscription) {
-      // Subscription raced a trusted context change: a new host check and
-      // fresh registration are mandatory, never silently activate this view.
-      closed = true;
-      bridge.dispose();
-      unsubscribe = null;
-      release();
+      // One registration-time event means the captured context was unstable.
       throw new Error("CITADEL_READING_SUBSCRIPTION_CONTEXT_CHANGED");
     }
   } catch (error) {
-    closed = true;
     subscribing = false;
-    bridge.dispose();
+    // Do not mask the registration fault if teardown itself fails.
+    try { close(); } catch { /* cleanup best effort; source owns atomicity */ }
     throw error;
   }
 
   return {
     activate(callback): Promise<ReadingBridgeResult> {
-      return closed ? Promise.resolve({ kind: "stale" }) : bridge.activate(callback);
+      return closed
+        ? Promise.resolve({ kind: "stale" })
+        : bridge.activate(callback);
     },
-    beforeHostChange(change): void { onBeforeChange(change); },
+    beforeHostChange(change): void {
+      onBeforeChange(change);
+    },
     dispose(): void {
-      if (closed) return;
-      closed = true;
-      // Invalidate async authorization before invoking host unsubscribe.
-      try { bridge.dispose(); }
-      finally {
-        const release = unsubscribe;
-        unsubscribe = null;
-        release?.();
-      }
+      close();
     },
   };
 }
