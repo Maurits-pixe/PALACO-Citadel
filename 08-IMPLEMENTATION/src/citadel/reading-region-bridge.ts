@@ -10,6 +10,7 @@ import {
   type RegionId,
 } from "./reading-state";
 import {
+  isValidRegionRoute,
   type ChapterRoute,
   type SiteRouteManifest,
 } from "./reading-routes";
@@ -90,7 +91,7 @@ export function createCanonicalManifest(
       Object.prototype.hasOwnProperty.call(result, region) ||
       typeof entry.path !== "string" ||
       paths.has(entry.path) ||
-      !Array.isArray(entry.chapters)
+      !isValidRegionRoute({ path: entry.path, chapters: entry.chapters })
     ) return null;
     paths.add(entry.path);
     result[region] = {
