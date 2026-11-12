@@ -92,13 +92,21 @@ export function createRenderedRoutePort(host: RenderedRouteHost): NavigationPort
       destination = path;
       return true;
     },
-    async focusChapter(chapterId: string): Promise<boolean> {
+    async focusChapter(chapterId: string, isRequestCurrent: () => boolean): Promise<boolean> {
       const container = currentContainer();
-      return container === null ? false : focusTrustedChapter(container, chapterId);
+      if (container === null) return false;
+      try {
+        if (!isRequestCurrent()) return false;
+      } catch { return false; }
+      return focusTrustedChapter(container, chapterId);
     },
-    async focusRegion(): Promise<boolean> {
+    async focusRegion(isRequestCurrent: () => boolean): Promise<boolean> {
       const container = currentContainer();
-      return container === null ? false : focusTrustedRegion(container);
+      if (container === null) return false;
+      try {
+        if (!isRequestCurrent()) return false;
+      } catch { return false; }
+      return focusTrustedRegion(container);
     },
   };
 }
