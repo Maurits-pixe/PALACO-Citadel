@@ -4,7 +4,7 @@
 
 ## Scope
 
-De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert elf geïsoleerde TypeScript-modules:
+De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert twaalf geïsoleerde TypeScript-modules:
 
 - `reading-state.ts`: bewaarbeleid en opslagfouten afschermen.
 - `reading-ui.ts`: zichtbare tekst en gebruikersgestuurde acties zonder browserafhankelijkheden.
@@ -17,6 +17,7 @@ De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert elf geï
 - `reading-lifecycle.ts`: verbindt expliciete UI-levenscyclusgebeurtenissen en bevestigd wissen aan het afbreken van lopende hervataanvragen.
 - `reading-presenter.ts`: presenteert mobiele hervatstatus, toegankelijke meldingen en laat late antwoorden vervallen.
 - `reading-dom.ts`: optionele, host-gekoppelde DOM-uitvoer en gecontroleerde focus op bestaande hoofdstuk- of regiokoppen.
+- `reading-route-port.ts`: host-gekoppelde navigatiepoort die daadwerkelijke route-rendering en juiste regiocontainer verifieert vóór focus.
 
 Het contract is uitsluitend voor **presentatievoortgang**. Het is geen PALACO ONE-identiteit, Citadel-toegangscontrole, ERA/EDTR-bewijs, watermerk, consensus of uitvoeringsmandaat.
 
@@ -213,3 +214,17 @@ De optionele DOM-focushelpers controleren nu bij iedere expliciete hervatactie o
 Een door de focushelper tijdelijk toegevoegd `tabindex=-1` wordt bij mislukte focus hersteld. Bij een geslaagde focus blijft het attribuut staan om toetsenbordnavigatie en ondersteunende technologie niet abrupt te verstoren. De host-router blijft eigenaar van toegangscontrole, routewisselingen en het wachten totdat de juiste regio volledig is gerenderd.
 
 **Open reviewpunt:** de daadwerkelijke Sites-DOM-structuur, eventuele overlays en mobiele schermlezer-interactie zijn nog niet in de originele site gecontroleerd. Geen tests of deployment uitgevoerd; DRAFT/HOLD blijft gelden.
+
+## CITADEL-READING-ROUTE-PORT-001 — rendergereedheid vóór focus
+
+`createRenderedRoutePort(host)` verbindt een bestaande, door de site beveiligde router met de eerder gebouwde `NavigationPort`. Het contract `RenderedRouteHost` verlangt:
+
+- `isCurrent()`: onafhankelijke status van de actuele sessie/aanvraag. Bij false/exception weigert de poort verdere focus.
+- `canOpen(target)`: echte toegangstoets uit Citadel, vóór en na de routerovergang via de bestaande navigatieadapter.
+- `navigateAndRender(path)`: navigeren **en** pas true teruggeven wanneer de juiste geautoriseerde route klaar is. Dit is een hosttaak; de poort gebruikt geen polls, timers of giswerk.
+- `activePath()`: werkelijk actief pad uit de gecontroleerde router, niet uit een opgeslagen bookmark.
+- `renderedContainer(path)`: de actuele verbonden regio- of hoofdstukcontainer uit de eigen frontend. Nooit zoeken vanaf `document.body` of via een door gebruikersinvoer samengestelde selector.
+
+De focushelpers worden pas aangeroepen als alle bovenstaande voorwaarden opnieuw slagen. Een pad dat wel bestaat maar nog geen gereed gerenderde container heeft, geeft geen navigatiesucces. De router moet sessie-/routewisselingen en in-flight navigatie zelfstandig kunnen blokkeren; deze poort implementeert **geen** beveiliging van de onderliggende route.
+
+**Integratiestatus:** code in GitHub DRAFT-PR, nog niet verbonden met de originele Citadel Sites-router of zijn werkelijke DOM. De eigenaar voert mobiele en functionele tests later uit. Geen merge, productiepublicatie of autorisatie; **HOLD**.
