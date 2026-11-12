@@ -4,7 +4,7 @@
 
 ## Scope
 
-De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert zeventien geïsoleerde TypeScript-modules:
+De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert achttien geïsoleerde TypeScript-modules:
 
 - `reading-state.ts`: bewaarbeleid en opslagfouten afschermen.
 - `reading-ui.ts`: zichtbare tekst en gebruikersgestuurde acties zonder browserafhankelijkheden.
@@ -23,6 +23,7 @@ De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert zeventie
 - `reading-preflight.ts`: read-only beoordeling van manifest, lokale toestemming en mogelijke hervatbestemming zonder autorisatie.
 - `reading-admin.ts`: privacy-minimalistisch, read-only beheerbeeld met generieke statuscontroles en vaste HOLD-vrijgave.
 - `reading-integration.ts`: expliciet, side-effect-vrij importoppervlak voor de toekomstige private frontend.
+- `reading-dom-admission.ts`: controleert bestaande UI-elementen vóór de montage op verbondenheid, documentidentiteit, unieke rollen, knopgedrag en toegankelijke statusweergave.
 
 Het contract is uitsluitend voor **presentatievoortgang**. Het is geen PALACO ONE-identiteit, Citadel-toegangscontrole, ERA/EDTR-bewijs, watermerk, consensus of uitvoeringsmandaat.
 
@@ -295,3 +296,11 @@ De host kan in één plaats imports betrekken via `reading-integration.ts`: mani
 **Bewijsverharding:** in `reading-admin.ts` geeft de hostwaarde `reviewed` niet langer een `PRESENT`-status voor externe reviewpunten. `SITE_ROUTES`, `ACCESS`, `MOUNT` en `ACCEPTANCE` blijven **HOLD**, zowel bij `unverified` als `reviewed`; de detailtekst maakt duidelijk of de host een beoordeling heeft opgegeven. Dat voorkomt dat een onbewezen zelfrapportage als zelfstandig vastgesteld bewijs verschijnt. Dit beheerbeeld is geen uitgevoerde verificatie en geen vrijgavebesluit.
 
 **Aansluitvolgorde:** originele Sites-bron inspecteren; route- en hoofdstukmanifest aan de hand daarvan vastleggen; host-authenticatie en routebeleid verbinden; frontend-elementen identificeren; pas daarna expliciet monteren. Voorafgaand aan uitgifte blijven onafhankelijke review, eigenaarstesten en formele toestemming vereist. DRAFT/HOLD; geen tests, merge of site-deployment uitgevoerd.
+
+## CITADEL-READING-DOM-ADMISSION-001 — UI-toelating vóór montage
+
+`admitReadingDomElements(elements)` weigert ontbrekende, losgekoppelde of dubbel aangeleverde elementen, elementen uit verschillende documenten, een hervatknop die niet `<button type="button">` is, en een live-statusgebied zonder `aria-live="polite"` of `role="status"`. Deze controle wordt door `mountReadingCompass` uitgevoerd vóór knopreservering, presenterinitialisatie en listenerregistratie. Bij afwijzing wordt `CITADEL_READING_DOM_REJECTED:<reason>` geworpen en verandert de leesinterface niet door deze mount.
+
+De host moet de vier elementen bewust binnen de actuele, reeds geautoriseerde beheer- of lezersweergave selecteren. **Beperking:** DOM-verbondenheid en documentidentiteit bewijzen op zichzelf niet dat elementen bij de juiste route, sessie of gebruiker behoren. Die contextcontrole en echte autorisatie blijven de taak van de oorspronkelijke Citadel-frontend. De nieuwe export is beschikbaar via `reading-integration.ts`.
+
+Deze veiligheidscontrole is uitsluitend in de GitHub-DRAFT-PR gebouwd. Er zijn geen functionele tests, mobiele acceptatie, merge, site-integratie of productiepublicatie uitgevoerd. **HOLD**.
