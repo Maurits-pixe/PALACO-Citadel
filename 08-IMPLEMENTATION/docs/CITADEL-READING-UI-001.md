@@ -400,3 +400,11 @@ Tijdens een synchronische abonnementsregistratie blijft een contextwissel reden 
 **Verplicht contract voor de Citadel-host:** `subscribeBeforeChange` moet atomair zijn bij fouten: zodra registratie zelf een uitzondering veroorzaakt, moet de hostbron eventueel reeds toegevoegde listeners zelfstandig verwijderen. Een geldige succesvolle registratie levert altijd een werkende uitschrijffunctie op. De integratie blijft afhankelijk van echte, synchronische before-events vóór mutatie van route, rechten of sessie. Geen PALACO ONE-authenticatie wordt binnen deze adapter verondersteld of gecreëerd.
 
 **Status:** uitsluitend GitHub PR #58 (DRAFT/HOLD). Geen functionele tests, geverifieerde productie-integratie, merge of websitepublicatie.
+
+## CITADEL-READING-HOST-BRIDGE-TEARDOWN-002 — onherstelbare overgangsfout
+
+`createReadingHostBridge().beforeHostChange(change)` verhoogt de contextrevisie vóór het beëindigen van de oude montage. Wanneer `coordinator.transition(change)` een uitzondering veroorzaakt, markeert de bridge zichzelf nu onmiddellijk als `disposed`, verhoogt opnieuw de revisie en probeert de coördinator definitief te beëindigen. De oorspronkelijke overgangsfout wordt opnieuw geworpen; een eventuele secundaire cleanupfout maskeert deze niet. Alle latere `activate(...)`-aanroepen op deze bridge leveren `stale` op en worden niet naar de autorisatiecallback doorgestuurd.
+
+Deze wijziging voorkomt dat een half mislukte contextovergang later via dezelfde bridge wordt hergebruikt. De host moet na herstel van de échte sessie- en routecontext een volledig nieuwe bridge met een nieuwe eventregistratie aanmaken. Een eenmalige mountbeoordeling, bestaand PP-nummer of lokale leespositie vormt nooit autorisatiebewijs.
+
+**Status:** alleen GitHub DRAFT PR #58. Geen functionele tests, geen Site-publicatie, geen bewezen koppeling aan de originele Citadel- of PALACO ONE-runtime. **HOLD**.
