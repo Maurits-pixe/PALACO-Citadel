@@ -17,6 +17,12 @@ import {
   type ReadStatus,
   type StoragePort,
 } from "./reading-state";
+import {
+  readChapterBookmark,
+  saveChapterBookmark,
+  type ChapterBookmark,
+  type ChapterRegistry,
+} from "./reading-chapter";
 
 export interface ReadingViewModel {
   readonly state: ReadStatus["kind"];
@@ -124,5 +130,36 @@ export function requestClearMemory(
       status.kind === "disabled"
         ? "Leesposities en toestemming op dit apparaat gewist."
         : "Wissen kon niet worden bevestigd. Controleer de browserinstellingen.",
+  };
+}
+
+/**
+ * The integrator supplies the verified chapter registry for the displayed
+ * region. Caller must validate access, then navigate/scroll/focus.
+ * Legacy region-only bookmarks remain available through requestResume.
+ */
+export function requestResumeChapter(
+  store: StoragePort,
+  registry: ChapterRegistry,
+): ChapterBookmark | null {
+  return readChapterBookmark(store, registry);
+}
+
+/**
+ * Trigger only from a deliberate click on a known chapter.
+ * Saving does not navigate, authorize or emit events.
+ */
+export function recordChapterBookmark(
+  store: StoragePort,
+  registry: ChapterRegistry,
+  candidate: unknown,
+): ReadingActionResult {
+  const saved = saveChapterBookmark(store, registry, candidate);
+  return {
+    view: readingView(store),
+    succeeded: saved,
+    message: saved
+      ? "Hoofdstuk lokaal bewaard."
+      : "Hoofdstuk niet bewaard: toestemming, hoofdstukregistratie of opslag ontbreekt.",
   };
 }
