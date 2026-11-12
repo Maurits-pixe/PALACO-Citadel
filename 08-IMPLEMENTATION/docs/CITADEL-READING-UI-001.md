@@ -312,3 +312,12 @@ Deze veiligheidscontrole is uitsluitend in de GitHub-DRAFT-PR gebouwd. Er zijn g
 Vlak vóór een expliciete klikactie beoordeelt de adapter de reeds gemonteerde DOM-elementen opnieuw met `admitReadingDomElements`. Een verdwenen of ongeldig geworden weergave wordt ontkoppeld in plaats van alsnog een hervataanvraag te starten. Deze controle vervangt **niet** de verplichting van de host om vóór echte sessie- of routewisselingen `beforeChange` aan te roepen. De host moet eventuele asynchrone routereffecten nog altijd zelfstandig stoppen en toegang afdwingen.
 
 **Bouwstatus:** wijzigingen alleen in GitHub PR #58, DRAFT/HOLD. Geen functionele tests, merge, uitgifte of publicatie op de originele Citadel-website.
+
+## CITADEL-READING-CANCEL-CHAIN-004 — annulering tot in de router
+
+De expliciete hervatstroom draagt nu een aanvraaggebonden controlefunctie over de hele keten:
+`ReadingController.resume()` → `openSavedReadingPlace()` → `NavigationPort.navigate(path, isRequestCurrent)` → `createRenderedRoutePort()` → `RenderedRouteHost.navigateAndRender(path, isRequestCurrent)`.
+
+De controlefunctie wordt ongeldig na het starten van een nieuw verzoek, `invalidate()`, `dispose()`, wijziging van de host-sessie of routepoortrevisie. De host moet de functie **vóór een echte routermutatie en na iedere asynchrone fase** opnieuw aanroepen. Als de controle onwaar is, mag de host de navigatie niet verder uitvoeren of als gereed melden. De adapter kan reeds uitgevoerde side-effects niet automatisch terugdraaien.
+
+**Breekpunt voor integrators:** iedere bestaande implementatie van `NavigationPort.navigate(path)` moet de tweede parameter aannemen en doorgeven of implementeren. Een host die deze callback negeert, voldoet niet aan het nieuwe contract en mag niet worden vrijgegeven. De oorspronkelijke privéwebsite is niet verbonden en de code is niet functioneel getest. **DRAFT/HOLD**, geen merge of productiepublicatie.
