@@ -55,12 +55,13 @@ export function readChapterBookmark(
   store: StoragePort,
   registry: ChapterRegistry,
 ): ChapterBookmark | null {
-  if (readingStatus(store).kind !== "enabled") return null;
+  const state = readingStatus(store);
+  if (state.kind !== "enabled" || state.region === null) return null;
   try {
     const raw = store.getItem(CHAPTER_POSITION_KEY);
     if (raw === null || raw.length > MAX_RAW_LENGTH) return null;
     const value: unknown = JSON.parse(raw);
-    if (!isKnownBookmark(value, registry)) return null;
+    if (!isKnownBookmark(value, registry) || value.region !== state.region) return null;
     return { region: value.region, chapterId: value.chapterId };
   } catch {
     return null;
@@ -76,8 +77,9 @@ export function saveChapterBookmark(
   registry: ChapterRegistry,
   candidate: unknown,
 ): boolean {
-  if (readingStatus(store).kind !== "enabled") return false;
-  if (!isKnownBookmark(candidate, registry)) return false;
+  const state = readingStatus(store);
+  if (state.kind !== "enabled" || state.region === null) return false;
+  if (!isKnownBookmark(candidate, registry) || candidate.region !== state.region) return false;
   const value = JSON.stringify({
     region: candidate.region,
     chapterId: candidate.chapterId,
