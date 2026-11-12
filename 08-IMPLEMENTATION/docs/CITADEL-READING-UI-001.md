@@ -4,7 +4,7 @@
 
 ## Scope
 
-De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert twintig geïsoleerde TypeScript-modules:
+De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert eenentwintig geïsoleerde TypeScript-modules:
 
 - `reading-state.ts`: bewaarbeleid en opslagfouten afschermen.
 - `reading-ui.ts`: zichtbare tekst en gebruikersgestuurde acties zonder browserafhankelijkheden.
@@ -20,6 +20,7 @@ De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert twintig 
 - `reading-route-port.ts`: host-gekoppelde navigatiepoort die daadwerkelijke route-rendering en juiste regiocontainer verifieert vóór focus.
 - `reading-mount.ts`: één gecontroleerd montagepunt voor bestaande opslag, router, Leeskompas-elementen en presentatieadapter.
 - `reading-mount-coordinator.ts`: hostgestuurde exclusieve montage en veilige beëindiging bij route-, sessie- en rechtenovergangen.
+- `reading-host-bridge.ts`: expliciete hostkoppeling met contextrevisie en asynchrone autorisatie vóór montage.
 - `reading-manifest-gate.ts`: fail-closed toelating van een compleet, uniek en geldig vijfregiomanifest voordat een leesweergave kan worden gemonteerd.
 - `reading-manifest-snapshot.ts`: neemt vóór de montage een onafhankelijke, onveranderbare kopie van geverifieerde regio- en hoofdstukgegevens.
 - `reading-preflight.ts`: read-only beoordeling van manifest, lokale toestemming en mogelijke hervatbestemming zonder autorisatie.
@@ -365,3 +366,11 @@ De montagecoördinator bewaakt nu expliciet een `transitioning`-fase. Bij `trans
 De beschermingsgrens geldt voor één coördinatorinstantie en één synchrone JavaScript-aanroepketen. Het is geen globale lock, geen route-/sessie-autorisatie en geen bescherming tegen hosts die het overgangscontract overslaan. De host moet de routermutatie pas uitvoeren na `transition` en een nieuwe montage pas na eigen toegangstoetsing en actuele render.
 
 **Reviewstatus:** broncode in GitHub DRAFT PR #58. Geen functionele tests, site-integratie, merge, autorisatie of productiepublicatie uitgevoerd. **HOLD**.
+
+## CITADEL-READING-HOST-BRIDGE-001 — koppeling aan echte hostevents
+
+`createReadingHostBridge()` levert een kleine, handmatig aan te roepen interface. De Citadel-host roept synchronisch `beforeHostChange(change)` aan vóór een werkelijke route-, sessie- of rechtenwissel. Daardoor wordt de bestaande montage beëindigd en de contextrevisie verhoogd. Na het werkelijk renderen van de nieuwe route mag de host `activate(authorizeAndResolve)` aanroepen. De callback moet bij **iedere** aanroep onafhankelijk het actuele PALACO ONE/Citadel-account, de geldende rechten, de bedoelde route en de actuele view controleren. Bij weigering retourneert hij `null`, zonder de configuratie bloot te geven.
+
+De asynchrone uitkomst wordt door de bridge aan de oorspronkelijke contextrevisie getoetst. Een antwoord dat na logout, routevervanging, rechtenwijziging of definitieve `dispose()` binnenkomt, leidt tot `stale` en nooit tot het publiceren van een nieuwe Leeskompas-montage. De resultaten zijn `mounted`, `denied`, `stale` en `mount-failed`; `mounted` betekent uitsluitend lokale montage, **niet** dat onafhankelijke authenticatie of echte Sites-integratie is aangetoond. Er wordt niet automatisch opnieuw geprobeerd en er wordt geen vorige instantie hersteld.
+
+**Noodzakelijk hostcontract:** de echte Citadel/PALACO ONE-runtime moet deze twee methoden bij zijn eigen gebeurtenisbronnen aanroepen. Deze module registreert geen fictieve events, leest geen accountgegevens, implementeert geen login, creëert geen Sites-project of verleent geen toegang. De huidige oorspronkelijke Sites-frontend is hiermee niet verbonden. Geen functionele tests, merge of publicatie uitgevoerd. **DRAFT/HOLD**.
