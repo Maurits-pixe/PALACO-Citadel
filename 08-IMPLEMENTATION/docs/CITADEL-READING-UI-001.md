@@ -390,3 +390,13 @@ De host-eventadapter houdt nu expliciet bij of de bron zich nog in de synchronis
 Dit voorkomt dat een bron die onmiddellijk tijdens registreren een sessiewisseling meldt, stilzwijgend als stabiele nieuwe verbinding wordt behandeld. De adapter verandert de werkelijke Citadel- of PALACO ONE-sessie niet en veronderstelt geen eventnamen buiten het eigen, expliciete contract.
 
 **Grenzen:** als een abonnementsbron zelf faalt vóórdat zij een uitschrijffunctie teruggeeft, kan deze bibliotheek niet garanderen dat de bron een reeds geplaatste listener heeft teruggedraaid. De hostbron moet registratie bij fouten zelf atomair maken. Dit is alleen broncode in de GitHub-ontwikkelbranch: geen uitgevoerde functionele tests, integratie met de live privéwebsite, merge of vrijgave. **DRAFT/HOLD**.
+
+## CITADEL-READING-HOST-EVENTS-003 — fail-closed fouten en eenmalige uitschrijving
+
+De hosteventadapter gebruikt nu één centrale `close()`-route. Bij het beëindigen wordt de bridge eerst ongeldig gemaakt en wordt de laatst verkregen uitschrijffunctie precies één keer opgeroepen. Herhaalde `dispose()`-aanroepen of een herintredende host-callback leiden niet tot een tweede uitschrijfpoging. Als de host-callback die een contextwisseling moet afhandelen een fout veroorzaakt, sluit de adapter de bridge af en weigert hij verdere activatie; een onverwachte fout mag nooit een oude lezer heractiveren.
+
+Tijdens een synchronische abonnementsregistratie blijft een contextwissel reden om die registratie volledig af te wijzen met `CITADEL_READING_SUBSCRIPTION_CONTEXT_CHANGED`. Wanneer de bron een geldige uitschrijffunctie teruggeeft, wordt deze na afwijzing opgeroepen. Als uitschrijven zelf faalt, blijft de oorspronkelijke registratiefout de gerapporteerde fout; de bridge is dan wel gesloten, maar het daadwerkelijk verwijderen van een listener door de externe bron kan niet worden gegarandeerd.
+
+**Verplicht contract voor de Citadel-host:** `subscribeBeforeChange` moet atomair zijn bij fouten: zodra registratie zelf een uitzondering veroorzaakt, moet de hostbron eventueel reeds toegevoegde listeners zelfstandig verwijderen. Een geldige succesvolle registratie levert altijd een werkende uitschrijffunctie op. De integratie blijft afhankelijk van echte, synchronische before-events vóór mutatie van route, rechten of sessie. Geen PALACO ONE-authenticatie wordt binnen deze adapter verondersteld of gecreëerd.
+
+**Status:** uitsluitend GitHub PR #58 (DRAFT/HOLD). Geen functionele tests, geverifieerde productie-integratie, merge of websitepublicatie.
