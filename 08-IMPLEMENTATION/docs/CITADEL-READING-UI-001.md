@@ -4,7 +4,7 @@
 
 ## Scope
 
-De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert acht geïsoleerde TypeScript-modules:
+De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert negen geïsoleerde TypeScript-modules:
 
 - `reading-state.ts`: bewaarbeleid en opslagfouten afschermen.
 - `reading-ui.ts`: zichtbare tekst en gebruikersgestuurde acties zonder browserafhankelijkheden.
@@ -14,6 +14,7 @@ De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert acht ge�
 - `reading-navigation.ts`: gebruikersgestuurde, toegangsafhankelijke navigatieoverdracht met focusresultaat.
 - `reading-epoch.ts`: lokale aanvraagcoördinator die oudere hervataanvragen ongeldig maakt.
 - `reading-controller.ts`: integreert de aanvraagcoördinator met de navigatieadapter en de levenscyclus van de lezer.
+- `reading-lifecycle.ts`: verbindt expliciete UI-levenscyclusgebeurtenissen en bevestigd wissen aan het afbreken van lopende hervataanvragen.
 
 Het contract is uitsluitend voor **presentatievoortgang**. Het is geen PALACO ONE-identiteit, Citadel-toegangscontrole, ERA/EDTR-bewijs, watermerk, consensus of uitvoeringsmandaat.
 
@@ -145,3 +146,22 @@ De optionele helper `createResumeRequestCoordinator()` geeft per bewuste tik een
 - Na uitloggen, sessie-/routewissel, leesgegevens wissen, of het sluiten van het Leeskompas: `controller.invalidate()`. Bij definitief verwijderen van de component: `controller.dispose()`.
 
 **Niet geleverd:** koppeling met de huidige Sites-runtime, DOM-implementatie, live autorisatie, deploy, functionele tests. De code is een voorstel voor integratie op een DRAFT-branch. GO-13/HOLD blijft gehandhaafd.
+
+## CITADEL-READING-LIFECYCLE-001 — frontend-gebeurtenissen
+
+De integrator maakt **per actuele lezerweergave** één instantie via `createReadingLifecycle(storage, manifest, navigationPort)`. De integrator moet vervolgens onderstaande contracten afdwingen:
+
+| Hostgebeurtenis | Verplichte actie vóór effect |
+| --- | --- |
+| Klik/tik op Verder lezen | `resumeFromClick()` alleen op directe gebruikersinteractie |
+| Uitloggen | `beforeChange('logout')` vóór logout/route-effect |
+| Sessie gewijzigd | `beforeChange('session-changed')` vóór vervanging van sessiecontext |
+| Rechten gewijzigd | `beforeChange('permissions-changed')` vóór vervangen van toegangscontext |
+| Route vervangen | `beforeChange('route-replaced')` vóór de router van route verandert |
+| Lezer sluiten | `beforeChange('reader-closed')`; de instantie kan daarna niet meer hervatten |
+| Leesplekken wissen | Bevestiging tonen en daarna `clearReadingMemoryAfterConfirmation(true)` aanroepen |
+| Lezer ontkoppeld | `dispose()` oproepen en alle callbacks opruimen |
+
+Bij niet-bevestigd wissen retourneert `clearReadingMemoryAfterConfirmation(false)` uitsluitend de geannuleerde actie zonder lopende navigatieaanvragen te wijzigen. Bij bevestigd wissen wordt de lopende aanvraag vóór de opslagwijziging ongeldig gemaakt.
+
+**Veiligheidsgrens:** deze module registreert geen browser-events en is niet gekoppeld aan de actuele ChatGPT Sites-frontend. De host moet lifecycle-events daadwerkelijk verbinden en toegang afdwingen in de router/backend. Een al lopend `navigate()`-effect kan niet uitsluitend door request-invalidation worden teruggedraaid. De echte frontendbron en hoofdstukroutes moeten vóór integratie gecontroleerd worden. Geen merge, tests, site-deploy of autorisatie; **DRAFT / HOLD**.
