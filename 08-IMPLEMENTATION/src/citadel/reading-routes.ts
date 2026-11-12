@@ -43,7 +43,7 @@ export type ResumeTarget =
  * relative paths, encoded separators, dot-segments, URL queries/fragments,
  * backslashes and controls. Caller must additionally enforce route access.
  */
-function isSafeSitePath(path: unknown): path is string {
+export function isSafeSitePath(path: unknown): path is string {
   if (typeof path !== "string" || path.length < 2 || path.length > 240) return false;
   if (!path.startsWith("/") || path.startsWith("//")) return false;
   if (!/^\/[A-Za-z0-9/_-]+(?:\.html)?\/?$/.test(path)) return false;
@@ -51,11 +51,32 @@ function isSafeSitePath(path: unknown): path is string {
   return !path.split("/").some(part => part === "." || part === "..");
 }
 
-function isChapterId(value: unknown): value is string {
+export function isChapterId(value: unknown): value is string {
   return typeof value === "string" &&
     value.length > 0 &&
     value.length <= 96 &&
     /^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(value);
+}
+
+/**
+ * A route is valid only when all chapter IDs are uniquely identifiable and
+ * every label is bounded, printable, and non-empty. A malformed record must
+ * not leave a partially navigable route in the manifest.
+ */
+export function isValidRegionRoute(value: unknown): value is RegionRoute {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const route = value as Record<string, unknown>;
+  if (!isSafeSitePath(route.path) || !Array.isArray(route.chapters)) return false;
+  if (route.chapters.length > 256) return false;
+  const ids = new Set<string>();
+  for (const chapter of route.chapters) {
+    if (typeof chapter !== "object" || chapter === null || Array.isArray(chapter)) return false;
+    const record = chapter as Record<string, unknown>;
+    if (!isChapterId(record.chapterId) || ids.has(record.chapterId)) return false;
+    if (typeof record.label !== "string" || record.label.trim().length === 0 || record.label.length > 120 || /[\\x00-\\x1F\\x7F]/.test(record.label)) return false;
+    ids.add(record.chapterId);
+  }
+  return true;
 }
 
 /**
@@ -66,7 +87,7 @@ export function chapterRegistryFromManifest(manifest: SiteRouteManifest): Chapte
   const output: Partial<Record<RegionId, string[]>> = Object.create(null);
   for (const region of REGIONS) {
     const route = manifest[region];
-    if (!route || !isSafeSitePath(route.path) || !Array.isArray(route.chapters)) continue;
+    if (!isValidRegionRoute(route)) continue;
     const counts = new Map<string, number>();
     for (const chapter of route.chapters) {
       if (isChapterId(chapter?.chapterId)) {
@@ -83,7 +104,7 @@ function resolvedChapter(
   manifest: SiteRouteManifest,
 ): ResumeTarget | null {
   const route = manifest[bookmark.region];
-  if (!route || !isSafeSitePath(route.path) || !Array.isArray(route.chapters)) return null;
+  if (!isValidRegionRoute(route)) return null;
   const registry = chapterRegistryFromManifest(manifest);
   if (!registry[bookmark.region]?.includes(bookmark.chapterId)) return null;
   const entry = route.chapters.find(chapter => chapter.chapterId === bookmark.chapterId);
@@ -113,7 +134,7 @@ export function resolveResumeTarget(
   }
   const region = resumeReadingRegion(store);
   const path = region === null ? null : manifest[region]?.path;
-  if (region !== null && isSafeSitePath(path)) {
+  if (region !== null && isValidRegionRoute(manifest[region]) && isSafeSitePath(path)) {
     return { kind: "region", region, path };
   }
   return { kind: "none" };
