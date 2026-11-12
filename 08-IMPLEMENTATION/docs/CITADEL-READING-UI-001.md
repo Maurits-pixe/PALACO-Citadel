@@ -4,12 +4,13 @@
 
 ## Scope
 
-De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert vier geïsoleerde TypeScript-modules:
+De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert vijf geïsoleerde TypeScript-modules:
 
 - `reading-state.ts`: bewaarbeleid en opslagfouten afschermen.
 - `reading-ui.ts`: zichtbare tekst en gebruikersgestuurde acties zonder browserafhankelijkheden.
 - `reading-chapter.ts`: versiegebonden hoofdstukbladwijzers, gevalideerd met de werkelijke hoofdstuk-ID's van de site.
 - `reading-routes.ts`: vertrouwd routemanifest, hoofdstuk-allowlist en veilige hervatbestemmingen zonder automatische navigatie.
+- `reading-region-bridge.ts`: expliciete, controleerbare vertaling tussen oudere Leeskompas-regio-ID's en de nieuwe canonieke ID's.
 
 Het contract is uitsluitend voor **presentatievoortgang**. Het is geen PALACO ONE-identiteit, Citadel-toegangscontrole, ERA/EDTR-bewijs, watermerk, consensus of uitvoeringsmandaat.
 
@@ -59,3 +60,26 @@ Alle wijzigingen blijven DRAFT / HOLD totdat de integratie beoordeeld is. Geen P
 - De resolver voert zelf **geen** routing, scroll, focusverplaatsing, externe requests of authenticatie uit.
 - Routepaden moeten door de integrator uit eigen, vertrouwde Citadel-code komen; niet uit localStorage, queryparameters, imports of formulieren.
 - De echte routepaden en hoofdstuk-ID's zijn **nog niet** uit de Sites-bron geverifieerd. Vul dus geen vermoedelijke slugs in en claim geen actieve website-integratie.
+
+## Regio-ID-koppeling — CITADEL-REGION-BRIDGE-001
+
+De voorgestelde mapping is **geen runtime-waarneming** van de momenteel gepubliceerde Sites-bron. Controleer alle waarden tegen de bestaande `data-region`-attributen en de actuele routes voordat de module wordt gekoppeld:
+
+| Leeskompas-ID | Interne regio-ID |
+| --- | --- |
+| `samenleving` | `samenleving-natuur` |
+| `geheugen` | `geheugen-tijd` |
+| `proof` | `proof-bewijs` |
+| `atelier` | `atelier` |
+| `eva` | `eva` |
+
+Gebruik `toCanonicalRegion(id)` uitsluitend voor het normaliseren van vertrouwde regiogegevens. `createCanonicalManifest(entries)` accepteert alleen bekende unieke regio's en verschillende opgegeven paden. **De retourwaarde is geen autorisatie**; `chapterRegistryFromManifest` valideert de paden en hoofdstukken afzonderlijk en de router moet nogmaals toegangscontrole uitvoeren.
+
+De adapter is niet automatisch verbonden met de reeds bestaande localStorage-sleutels van de Sites-code. Er is nadrukkelijk **geen migratie** gedaan: dit voorkomt dat het toevoegen van een module oude leesplekken of toestemming overschrijft.
+
+### Integratieblokkades
+
+1. De werkelijke actuele Sites-bron, bestaande opslaglogica en regio-/hoofdstuk-ID's moeten naast dit manifest worden gelegd.
+2. Bij afwijkende regio-ID's wordt het contract aangepast op basis van die bron; niet door onbekende waarden blind te accepteren.
+3. De bestaande private toegang en ERA/EDTR/ONE-beveiliging blijven ongewijzigd.
+4. De eigenaar voert functionele en mobiele acceptatietests pas uit wanneer de frontend-integratie expliciet ter beoordeling wordt aangeboden.
