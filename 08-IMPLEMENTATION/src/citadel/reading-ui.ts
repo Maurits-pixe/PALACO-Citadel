@@ -18,6 +18,7 @@ import {
   type StoragePort,
 } from "./reading-state";
 import {
+  isKnownBookmark,
   readChapterBookmark,
   saveChapterBookmark,
   type ChapterBookmark,
@@ -154,12 +155,20 @@ export function recordChapterBookmark(
   registry: ChapterRegistry,
   candidate: unknown,
 ): ReadingActionResult {
-  const saved = saveChapterBookmark(store, registry, candidate);
+  // Validate before mutating either stored position. A confirmed chapter
+  // selection first replaces the legacy region (clearing stale v2 data),
+  // then writes the newly selected chapter. A partial write cannot leave
+  // an outdated chapter with priority over the new region.
+  const valid = isKnownBookmark(candidate, registry);
+  const regionSaved = valid && saveReadingRegion(store, candidate.region);
+  const chapterSaved = regionSaved && saveChapterBookmark(store, registry, candidate);
   return {
     view: readingView(store),
-    succeeded: saved,
-    message: saved
-      ? "Hoofdstuk lokaal bewaard."
-      : "Hoofdstuk niet bewaard: toestemming, hoofdstukregistratie of opslag ontbreekt.",
+    succeeded: chapterSaved,
+    message: chapterSaved
+      ? "Hoofdstuk en regio lokaal bewaard."
+      : regionSaved
+        ? "Regio bewaard; hoofdstuk kon niet worden opgeslagen."
+        : "Hoofdstuk niet bewaard: toestemming, hoofdstukregistratie of opslag ontbreekt.",
   };
 }
