@@ -95,3 +95,15 @@ Een regio-entry wordt voortaan **geheel geweigerd** zodra pad of hoofdstuklijst 
 - Ongeldige regio's leveren geen hoofdstuk- of regiohervatting op; er wordt geen alternatieve URL bedacht.
 
 **Reviewgrens:** dit is statische bronverharding in een concept-PR. De werkelijke Sites-routes zijn niet ingelezen, er is niet gemerged, en er zijn geen functionele of mobiele tests uitgevoerd. De site-autorisatie blijft buiten deze presentatiemodule en moet onafhankelijk worden uitgevoerd.
+
+## CITADEL-READING-CONSISTENCY-003 — Voorrang en gedeeltelijke opslag
+
+De volgende invarianten gelden voor expliciete acties:
+
+1. Een expliciete regiokeuze verwijdert eerst een mogelijk verouderde v2-hoofdstukbladwijzer, vóór het bewaren van de nieuwe v1-regio. Als het wissen mislukt, meldt de opslagfunctie geen succes.
+2. Een expliciete hoofdstukkeuze wordt vóór elke wijziging tegen het vertrouwde hoofdstukregister gevalideerd.
+3. Bij een geldige hoofdstukkeuze wordt eerst de regio opgeslagen (waarbij v2 wordt gewist), en daarna de nieuwe v2-bladwijzer. Zo kan de vorige hoofdstukbladwijzer niet ten onrechte voorrang blijven houden.
+4. Bij een gedeeltelijke opslag meldt de interface apart dat de regio is opgeslagen maar het hoofdstuk niet. Het is geen atomaire opslagtransactie; de integrator mag geen volledige bladwijzer claimen zonder bevestiging.
+5. Paginastart, hydration en automatische scroll-events voeren nooit een schrijfactie uit; alle wijzigingen vereisen een bewuste gebruikeractie.
+
+**Reviewstatus:** DRAFT / HOLD. Geen test-PASS, merge of Sites-publicatie. De werkelijke website-integratie en acceptatie blijven open.
