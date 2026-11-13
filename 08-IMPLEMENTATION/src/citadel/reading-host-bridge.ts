@@ -25,9 +25,12 @@ export interface ReadingHostBridge {
    * Call only after actual route rendering. The host must check its current
    * authenticated identity, permissions and view on every invocation.
    * A false result must not return any reader configuration.
+   * Revalidate the CURRENT host context immediately before mounting. The
+   * synchronous check must independently confirm route, session and access.
    */
   activate(
     authorizeAndResolve: () => Promise<ReadingMountOptions | null>,
+    isStillAuthorized: () => boolean,
   ): Promise<ReadingBridgeResult>;
   /** Permanently destroy this bridge; never revive an old reader. */
   dispose(): void;
@@ -65,6 +68,7 @@ export function createReadingHostBridge(
     },
     async activate(
       authorizeAndResolve: () => Promise<ReadingMountOptions | null>,
+      isStillAuthorized: () => boolean,
     ): Promise<ReadingBridgeResult> {
       if (disposed) return { kind: "stale" };
       if (activeRequest !== null || coordinator.hasActiveMount()) {
@@ -87,6 +91,17 @@ export function createReadingHostBridge(
 
         if (isStale()) return { kind: "stale" };
         if (options === null) return { kind: "denied" };
+
+        // Async authorization can outlive its session. Ask the trusted host
+        // again, synchronously, at the final handoff to the mount.
+        let authorized = false;
+        try {
+          authorized = isStillAuthorized() === true;
+        } catch {
+          authorized = false;
+        }
+        if (isStale()) return { kind: "stale" };
+        if (!authorized) return { kind: "denied" };
 
         // The callback may synchronously trigger a host transition while
         // mount's presentation initializes. The coordinator catches it.
