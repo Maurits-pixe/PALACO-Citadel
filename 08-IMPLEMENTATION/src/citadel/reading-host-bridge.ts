@@ -26,7 +26,7 @@ export interface ReadingHostBridge {
    * authenticated identity, permissions and view on every invocation.
    * A false result must not return any reader configuration.
    * Revalidate the CURRENT host context immediately before mounting. The
-   * synchronous check must independently confirm route, session and access.
+   * synchronous check must independently confirm route, session and access.\n   * It is repeated after mounting to reject synchronous host-side changes.
    */
   activate(
     authorizeAndResolve: () => Promise<ReadingMountOptions | null>,
@@ -107,12 +107,22 @@ export function createReadingHostBridge(
         // mount's presentation initializes. The coordinator catches it.
         try {
           const mounted = coordinator.mountAuthorized(options);
-          if (isStale()) {
-            // A host transition may already have installed a newer view.
-            // Revoke only this activation's mount, never the coordinator's
-            // current (potentially newer) view.
-            mounted.dispose();
-            return { kind: "stale" };
+          // Mounting can synchronously invoke host UI hooks. Such hooks may
+          // alter permissions without reporting a before-change event.
+          // Recheck actual authority after the DOM/presenter is installed.
+          let stillAuthorized = false;
+          if (!isStale()) {
+            try {
+              stillAuthorized = isStillAuthorized() === true;
+            } catch {
+              stillAuthorized = false;
+            }
+          }
+          if (isStale() || !stillAuthorized) {
+            // This scoped handle cannot close a newer authorized mount.
+            // Deny the just-created view before reporting success.
+            try { mounted.dispose(); } catch { /* already invalidated */ }
+            return isStale() ? { kind: "stale" } : { kind: "denied" };
           }
           return { kind: "mounted" };
         } catch {
