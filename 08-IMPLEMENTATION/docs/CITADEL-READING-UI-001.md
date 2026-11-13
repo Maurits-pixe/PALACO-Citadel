@@ -445,12 +445,23 @@ De tweede controle wordt uitsluitend uitgevoerd zolang het aanvraagtoken en de c
 
 ## CITADEL-READING-HOST-CONTRACT-001 — gecentraliseerd aansluitpunt
 
-`connectReadingHostContract(contract)` vormt één expliciete integratiepoort voor de toekomstige originele Citadel-frontend. Het vereiste hostcontract bestaat uit **drie werkelijk door de host geïmplementeerde functies**:
+`connectReadingHostContract(contract)` vormt één expliciete integratiepoort voor de toekomstige originele Citadel-frontend. Het vereiste hostcontract bestaat uit **vier werkelijk door de host geïmplementeerde functies**:
 
 1. `subscribeBeforeChange(handler)` meldt vertrouwde route-, sessie-, rechten- en sluitingsgebeurtenissen **synchronisch vóór** toepassing, en retourneert een unsubscribe-functie.
 2. `authorizeAndResolve()` voert per expliciete activatie zelfstandig de actuele toegangstoets uit, controleert de al gerenderde pagina en retourneert `ReadingMountOptions` of `null`.
 3. `isStillAuthorized()` beoordeelt **synchroon de actuele** sessie, rechten en route. De hostbridge roept deze functie zowel onmiddellijk vóór als direct ná montage aan; de letterlijke uitkomst `true` is vereist.
+4. `readContextVersion()` retourneert een niet-persoonsgebonden, ondoorzichtige contextrevisie, die verplicht verandert bij iedere sessie-, rechten- of routewijziging.
 
 De contractadapter controleert eerst of alle functies aanwezig zijn, registreert daarna de werkelijke eventbron via de bestaande adapter en biedt `activate()`, `beforeHostChange(change)` en `dispose()`. `activate()` voert geen impliciete login uit en start niet automatisch tijdens initialisatie. De methodes worden op het oorspronkelijke contractobject aangeroepen zodat een klassegebaseerde host zijn eigen `this` behoudt.
 
 **Grenzen en afhankelijkheden:** het valideren van aanwezige callbacks bewijst niet dat hun antwoorden juist, cryptografisch geverifieerd of afkomstig van PALACO ONE zijn. De oorspronkelijke frontendbron is niet in deze implementatiemap gevonden; er zijn daarom geen fictieve route-hooks of sessie-API's aangesloten. De host moet een echt, onafhankelijk gecontroleerd identity- en permissions-contract aanleveren. De broncode blijft in GitHub PR #58. Geen functionele tests, merge, Sites-publicatie of autorisatievrijgave. **DRAFT/HOLD**.
+
+## CITADEL-READING-CONTEXT-VERSION-007 — identiteit van de activatiecontext
+
+Het geconsolideerde `ReadingHostContract` vereist nu `readContextVersion(): string | null` als **vierde** hostfunctie. De teruggegeven waarde is een opaque technische revisie, **geen** account-ID, PP-nummer, sessietoken, gebruikersnaam, toegangsrecht of persoonsgegevens. De host moet een nieuwe unieke versie vastleggen bij iedere betekenisvolle route-, sessie- of rechtenwijziging, ook wanneer geen `beforeChange`-event wordt afgegeven. Een lege string, `null` of een uitzondering betekent dat de context niet betrouwbaar kon worden vastgesteld en de activatie wordt geweigerd (`denied`).
+
+De hostbridge neemt de contextversie bij de start van de activatie op en vergelijkt die na de asynchrone `authorizeAndResolve()`, na de synchronische controle vóór montage en opnieuw direct ná montage. Verandert de versie onderweg, dan wordt het resultaat `stale`. Een nieuw opgebouwde montage wordt dan uitsluitend via haar eigen scoped handle beëindigd; een eventueel nieuwere weergave wordt ongemoeid gelaten. De bestaande expliciete contextrevisie en twee actuele autorisatiechecks blijven aanvullend vereist.
+
+De extra controle is een **contractverplichting**, geen autonome sessiebron of beveiligingsbewijs: een host die geen correcte veranderende revisie levert, kan hiermee geen betrouwbare contextbinding claimen. Ook na succesvolle montage blijven tijdige before-events noodzakelijk. Externe hostaanroepen met drie argumenten (of minder) moeten de nieuwe callback toevoegen voordat de TypeScript-integratie volledig is. De oorspronkelijke Citadel Sites-frontend en de echte PALACO ONE-sessiebron zijn nog niet aangesloten.
+
+**Reviewstatus:** GitHub DRAFT PR #58; alleen broncode/documentatie, geen functionele tests, merge, autorisatievrijgave of live websitepublicatie. **HOLD**.
