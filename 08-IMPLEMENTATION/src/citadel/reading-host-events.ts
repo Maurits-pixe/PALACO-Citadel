@@ -25,6 +25,7 @@ export interface ConnectedReadingHost {
   activate(
     authorizeAndResolve: () => Promise<ReadingMountOptions | null>,
     isStillAuthorized: () => boolean,
+    readContextVersion: () => string | null,
   ): Promise<ReadingBridgeResult>;
   beforeHostChange(change: ReadingLifecycleChange): void;
   dispose(): void;
@@ -90,10 +91,10 @@ export function connectReadingHostEvents(source: ReadingBeforeChangeSource): Con
   }
 
   return {
-    activate(callback, isStillAuthorized): Promise<ReadingBridgeResult> {
+    activate(callback, isStillAuthorized, readContextVersion): Promise<ReadingBridgeResult> {
       return closed
         ? Promise.resolve({ kind: "stale" })
-        : bridge.activate(callback, isStillAuthorized);
+        : bridge.activate(callback, isStillAuthorized, readContextVersion);
     },
     beforeHostChange(change): void {
       onBeforeChange(change);
