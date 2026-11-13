@@ -432,3 +432,13 @@ Bij het terugkomen van een oude belofte wordt zowel de contextrevisie als de ide
 Dit begrenst het gat tussen een langlopende autorisatieaanvraag en een inmiddels gewijzigde hostcontext. De hostcallback moet werkelijk de **huidige** toegang, sessie en route beoordelen; hij mag geen vooraf vastgelegde `true` of oud autorisatiebewijs retourneren. Er worden geen PALACO ONE-API's, fictieve eventnamen, logingegevens of toegangsrechten verondersteld. Dit is een bewuste contractverstrenging: hostaanroepen met slechts één argument moeten worden bijgewerkt voordat ze compileren. Ook na de finale controle blijven de bestaande invalidering en montagecoördinator verantwoordelijk voor hostovergangen tijdens synchrone DOM-initialisatie.
 
 **Status:** GitHub DRAFT PR #58; uitsluitend broncode en documentatie. Geen functionele tests, live Sites-koppeling, merge, autorisatievrijgave of productiepublicatie uitgevoerd. **HOLD**.
+
+## CITADEL-READING-POST-MOUNT-AUTH-006 — autorisatie vóór én ná montage
+
+`ReadingHostBridge.activate(authorizeAndResolve, isStillAuthorized)` voert de door de host aangeleverde synchronische autorisatiecallback nu zowel **direct vóór** als **direct ná** de interne `mountAuthorized` uit. Dit vangt een mogelijke wijziging op die tijdens het opbouwen van de DOM/presenter plaatsvindt, waaronder re-entrante hostcallbacks die de actuele toegang veranderen zonder een geldig before-event te hebben verstuurd.
+
+De tweede controle wordt uitsluitend uitgevoerd zolang het aanvraagtoken en de contextrevisie actueel blijven. Retourneert de callback niet exact `true`, of werpt deze een uitzondering, dan wordt alleen het eigen instantiegebonden montagehandvat beëindigd; de activatie eindigt met `denied` (of `stale` als de hostcontext intussen veranderde). Een verouderde activatie mag nooit een nieuwere montage afsluiten. Alleen na beide geslaagde controles kan de bridge `mounted` melden.
+
+**Beveiligingsgrens:** deze controles zijn geen zelfstandige identificatie of echte PALACO ONE-login. De host moet bij iedere controle de werkelijke huidige gebruiker, rechten en gerenderde route raadplegen; een oude gecachete boolean of een PP-nummer volstaat niet. Dit vervangt de plicht tot synchronische before-events niet en kan geen hostwijzigingen ná een geslaagde activering waarnemen zonder eventmelding.
+
+**Review:** GitHub PR #58 DRAFT/HOLD; geen functionele tests uitgevoerd en geen live Sites-frontend aangesloten, gemerged of gepubliceerd.
