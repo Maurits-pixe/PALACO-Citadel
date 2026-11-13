@@ -4,7 +4,7 @@
 
 ## Scope
 
-De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert tweeëntwintig geïsoleerde TypeScript-modules:
+De eigenaar-privé Citadel bevat vijf regio's. Deze bouwbijdrage levert drieëntwintig geïsoleerde TypeScript-modules:
 
 - `reading-state.ts`: bewaarbeleid en opslagfouten afschermen.
 - `reading-ui.ts`: zichtbare tekst en gebruikersgestuurde acties zonder browserafhankelijkheden.
@@ -442,3 +442,15 @@ De tweede controle wordt uitsluitend uitgevoerd zolang het aanvraagtoken en de c
 **Beveiligingsgrens:** deze controles zijn geen zelfstandige identificatie of echte PALACO ONE-login. De host moet bij iedere controle de werkelijke huidige gebruiker, rechten en gerenderde route raadplegen; een oude gecachete boolean of een PP-nummer volstaat niet. Dit vervangt de plicht tot synchronische before-events niet en kan geen hostwijzigingen ná een geslaagde activering waarnemen zonder eventmelding.
 
 **Review:** GitHub PR #58 DRAFT/HOLD; geen functionele tests uitgevoerd en geen live Sites-frontend aangesloten, gemerged of gepubliceerd.
+
+## CITADEL-READING-HOST-CONTRACT-001 — gecentraliseerd aansluitpunt
+
+`connectReadingHostContract(contract)` vormt één expliciete integratiepoort voor de toekomstige originele Citadel-frontend. Het vereiste hostcontract bestaat uit **drie werkelijk door de host geïmplementeerde functies**:
+
+1. `subscribeBeforeChange(handler)` meldt vertrouwde route-, sessie-, rechten- en sluitingsgebeurtenissen **synchronisch vóór** toepassing, en retourneert een unsubscribe-functie.
+2. `authorizeAndResolve()` voert per expliciete activatie zelfstandig de actuele toegangstoets uit, controleert de al gerenderde pagina en retourneert `ReadingMountOptions` of `null`.
+3. `isStillAuthorized()` beoordeelt **synchroon de actuele** sessie, rechten en route. De hostbridge roept deze functie zowel onmiddellijk vóór als direct ná montage aan; de letterlijke uitkomst `true` is vereist.
+
+De contractadapter controleert eerst of alle functies aanwezig zijn, registreert daarna de werkelijke eventbron via de bestaande adapter en biedt `activate()`, `beforeHostChange(change)` en `dispose()`. `activate()` voert geen impliciete login uit en start niet automatisch tijdens initialisatie. De methodes worden op het oorspronkelijke contractobject aangeroepen zodat een klassegebaseerde host zijn eigen `this` behoudt.
+
+**Grenzen en afhankelijkheden:** het valideren van aanwezige callbacks bewijst niet dat hun antwoorden juist, cryptografisch geverifieerd of afkomstig van PALACO ONE zijn. De oorspronkelijke frontendbron is niet in deze implementatiemap gevonden; er zijn daarom geen fictieve route-hooks of sessie-API's aangesloten. De host moet een echt, onafhankelijk gecontroleerd identity- en permissions-contract aanleveren. De broncode blijft in GitHub PR #58. Geen functionele tests, merge, Sites-publicatie of autorisatievrijgave. **DRAFT/HOLD**.
