@@ -36,6 +36,12 @@ export {
 } from "./reading-admin";
 
 export {
+  connectReadingHostContract,
+  type ReadingHostContract,
+  type ConnectedReadingContract,
+} from "./reading-host-contract";
+
+export {
   connectReadingHostEvents,
   type ConnectedReadingHost,
   type ReadingBeforeChangeSource,
