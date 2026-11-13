@@ -26,11 +26,15 @@ export interface ReadingHostBridge {
    * authenticated identity, permissions and view on every invocation.
    * A false result must not return any reader configuration.
    * Revalidate the CURRENT host context immediately before mounting. The
-   * synchronous check must independently confirm route, session and access.\n   * It is repeated after mounting to reject synchronous host-side changes.
+   * synchronous check must independently confirm route, session and access.
+   * It is repeated after mounting to reject synchronous host-side changes.
+   * A mandatory opaque, non-identity context version must remain stable
+   * throughout activation, even if the host omitted a before-change event.
    */
   activate(
     authorizeAndResolve: () => Promise<ReadingMountOptions | null>,
     isStillAuthorized: () => boolean,
+    readContextVersion: () => string | null,
   ): Promise<ReadingBridgeResult>;
   /** Permanently destroy this bridge; never revive an old reader. */
   dispose(): void;
@@ -69,11 +73,26 @@ export function createReadingHostBridge(
     async activate(
       authorizeAndResolve: () => Promise<ReadingMountOptions | null>,
       isStillAuthorized: () => boolean,
+      readContextVersion: () => string | null,
     ): Promise<ReadingBridgeResult> {
       if (disposed) return { kind: "stale" };
       if (activeRequest !== null || coordinator.hasActiveMount()) {
         return { kind: "mount-failed" };
       }
+
+      // A host-generated opaque version must change for every meaningful
+      // session, access or route transition, including unannounced changes.
+      // Never use a PP number, user identifier or authorization boolean.
+      const version = (): string | null => {
+        try {
+          const value = readContextVersion();
+          return typeof value === "string" && value.length > 0 ? value : null;
+        } catch {
+          return null;
+        }
+      };
+      const initialVersion = version();
+      if (initialVersion === null) return { kind: "denied" };
 
       const request = { epoch };
       activeRequest = request;
@@ -90,6 +109,9 @@ export function createReadingHostBridge(
         }
 
         if (isStale()) return { kind: "stale" };
+        const resolvedVersion = version();
+        if (resolvedVersion === null) return { kind: "denied" };
+        if (resolvedVersion !== initialVersion) return { kind: "stale" };
         if (options === null) return { kind: "denied" };
 
         // Async authorization can outlive its session. Ask the trusted host
@@ -101,6 +123,9 @@ export function createReadingHostBridge(
           authorized = false;
         }
         if (isStale()) return { kind: "stale" };
+        const beforeMountVersion = version();
+        if (beforeMountVersion === null) return { kind: "denied" };
+        if (beforeMountVersion !== initialVersion) return { kind: "stale" };
         if (!authorized) return { kind: "denied" };
 
         // The callback may synchronously trigger a host transition while
@@ -118,11 +143,17 @@ export function createReadingHostBridge(
               stillAuthorized = false;
             }
           }
-          if (isStale() || !stillAuthorized) {
+          const finalVersion = !isStale() ? version() : null;
+          const versionMissing = !isStale() && finalVersion === null;
+          const versionChanged = !isStale() && finalVersion !== null &&
+            finalVersion !== initialVersion;
+          if (isStale() || versionMissing || versionChanged || !stillAuthorized) {
             // This scoped handle cannot close a newer authorized mount.
             // Deny the just-created view before reporting success.
             try { mounted.dispose(); } catch { /* already invalidated */ }
-            return isStale() ? { kind: "stale" } : { kind: "denied" };
+            return isStale() || versionChanged
+              ? { kind: "stale" }
+              : { kind: "denied" };
           }
           return { kind: "mounted" };
         } catch {
