@@ -465,3 +465,11 @@ De hostbridge neemt de contextversie bij de start van de activatie op en vergeli
 De extra controle is een **contractverplichting**, geen autonome sessiebron of beveiligingsbewijs: een host die geen correcte veranderende revisie levert, kan hiermee geen betrouwbare contextbinding claimen. Ook na succesvolle montage blijven tijdige before-events noodzakelijk. Externe hostaanroepen met drie argumenten (of minder) moeten de nieuwe callback toevoegen voordat de TypeScript-integratie volledig is. De oorspronkelijke Citadel Sites-frontend en de echte PALACO ONE-sessiebron zijn nog niet aangesloten.
 
 **Reviewstatus:** GitHub DRAFT PR #58; alleen broncode/documentatie, geen functionele tests, merge, autorisatievrijgave of live websitepublicatie. **HOLD**.
+
+## CITADEL-READING-INITIAL-CONTEXT-RACE-008 — token vóór eerste hostcallback
+
+De hostbridge claimt nu het unieke aanvraagtoken **vóór** de eerste aanroep van `readContextVersion()`. Zo valt ook de initiële, synchronische contextlezing onder dezelfde exclusieve aanvraagbewaking als de daaropvolgende asynchrone autorisatie. Een re-entrante `activate()` tijdens het lezen van de contextversie kan daardoor geen tweede gelijktijdige aanvraag binnen dezelfde context starten.
+
+Na iedere tussentijdse hostaanroep van `readContextVersion()`, met name direct na het verkrijgen van de beginsnapshot, na `authorizeAndResolve()` en onmiddellijk vóór montage, wordt de epoch/token-controle opnieuw uitgevoerd. Als een host tijdens een van deze synchrone callbacks `beforeHostChange()` aanroept of de bridge beëindigt, retourneert de oorspronkelijke activatie `stale` en zal zij niet alsnog monteren.
+
+**Randvoorwaarden:** de host moet de versie bij iedere route-, sessie- of rechtenwijziging werkelijk veranderen; de contractadapter is geen eigen identiteitsprovider. De nieuwe code is alleen bijgewerkt op GitHub PR #58. Geen functionele tests, merge, autorisatievrijgave of Sites-publicatie uitgevoerd. **DRAFT/HOLD**.
