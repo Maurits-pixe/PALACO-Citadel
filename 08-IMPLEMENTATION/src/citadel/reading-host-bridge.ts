@@ -91,14 +91,18 @@ export function createReadingHostBridge(
           return null;
         }
       };
-      const initialVersion = version();
-      if (initialVersion === null) return { kind: "denied" };
-
+      // Claim the activation BEFORE invoking any host-owned callback:
+      // readContextVersion may itself synchronously trigger a context
+      // change or re-enter activate(). Either case must fail closed.
       const request = { epoch };
       activeRequest = request;
       const isStale = (): boolean =>
         disposed || epoch !== request.epoch || activeRequest !== request;
       try {
+        const initialVersion = version();
+        if (isStale()) return { kind: "stale" };
+        if (initialVersion === null) return { kind: "denied" };
+
         let options: ReadingMountOptions | null;
         try {
           options = await authorizeAndResolve();
@@ -110,6 +114,7 @@ export function createReadingHostBridge(
 
         if (isStale()) return { kind: "stale" };
         const resolvedVersion = version();
+        if (isStale()) return { kind: "stale" };
         if (resolvedVersion === null) return { kind: "denied" };
         if (resolvedVersion !== initialVersion) return { kind: "stale" };
         if (options === null) return { kind: "denied" };
@@ -124,6 +129,7 @@ export function createReadingHostBridge(
         }
         if (isStale()) return { kind: "stale" };
         const beforeMountVersion = version();
+        if (isStale()) return { kind: "stale" };
         if (beforeMountVersion === null) return { kind: "denied" };
         if (beforeMountVersion !== initialVersion) return { kind: "stale" };
         if (!authorized) return { kind: "denied" };
