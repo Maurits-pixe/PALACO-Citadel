@@ -47,6 +47,7 @@ export function assessReadiness(dossier=null,review=null){
   observation,gates,errors,productionReady:false};
 }
 export function makeReadinessExport(dossier,review,{reference=""}={}){
+ if(dossier===null||review===null)throw Error("Dossier en gekoppelde review verplicht.");
  if(!safe(reference,300))throw Error("Bewijsreferentie ongeldig.");
  const report=assessReadiness(dossier,review);
  if(report.errors.length)throw Error(report.errors.join("; "));
