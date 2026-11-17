@@ -95,6 +95,8 @@ test('Atelier: alle modules en gedeelde scripts blijven bereikbaar zonder netwer
     await page.goto('/atelier/regiekamer.html');
     await expect(page.getByRole('heading', { name: /Regiekamer/ })).toBeVisible();
     await expect(page.locator('#galleryFrame svg')).toBeVisible();
+    await expect(page.locator('#offlineBadge')).toHaveText('Offline actief');
+    await expect(page.locator('#offlineStatus')).toContainText('zes gecontroleerde Atelier-bestanden');
     await page.goto('/atelier/studio.html');
     await expect(page.getByRole('heading', { name: /Het Atelier/ })).toBeVisible();
     await page.goto('/atelier/interieur.html');
@@ -106,4 +108,16 @@ test('Atelier: alle modules en gedeelde scripts blijven bereikbaar zonder netwer
   } finally {
     await context.setOffline(false);
   }
+});
+
+test('Atelier: cache-indicator maakt ontbrekende offlinebestanden expliciet', async ({ page }) => {
+  await page.goto('/atelier/regiekamer.html');
+  await expect(page.locator('#offlineBadge')).toHaveText('Offline gereed');
+  await page.evaluate(async () => {
+    const cache = await caches.open('palaco-rio-shell-v6');
+    await cache.delete('/atelier/panorama.html');
+  });
+  await page.locator('#checkOffline').click();
+  await expect(page.locator('#offlineBadge')).toHaveText('Nog niet offline gereed');
+  await expect(page.locator('#offlineStatus')).toContainText('5 van 6');
 });
