@@ -16,18 +16,20 @@ async function withPage(viewport,run) {
  });
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
  const address=server.address();
- const browser=await chromium.launch({headless:true});
- const context=await browser.newContext({viewport,acceptDownloads:true});
- const page=await context.newPage();
- const errors=[];
- page.on('pageerror',e=>errors.push(e.message));
+ let browser;
  try {
-  await page.goto(`http://127.0.0.1:${address.port}/DOCS/la-observatorium/`);
+  browser=await chromium.launch({headless:true,timeout:20000});
+  const context=await browser.newContext({viewport,acceptDownloads:true});
+  const page=await context.newPage();
+  const errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
   page.setDefaultTimeout(10000);
+  await page.goto(`http://127.0.0.1:${address.port}/DOCS/la-observatorium/`,{timeout:10000});
   await run(page);
   assert.deepEqual(errors,[],'Browser should have no JS runtime errors');
  } finally {
-  await browser.close();
+  if(browser)await browser.close();
+  server.closeAllConnections();
   await new Promise(resolve=>server.close(resolve));
  }
 }
