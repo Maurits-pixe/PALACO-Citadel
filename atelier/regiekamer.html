@@ -36,6 +36,9 @@
 <div class="actions"><button class="action primary" type="button" id="bundleSave">↓ Bewaar compleet projectpakket</button></div>
 <label for="bundleVerify" class="eyebrow" style="display:block;margin:18px 0 9px">Controleer een projectbestand zonder import</label>
 <input type="file" id="bundleVerify" accept=".json,application/json" style="max-width:100%;font-size:13px">
+<label for="expectedFingerprint" class="eyebrow" style="display:block;margin:12px 0 8px">Eerder vastgelegde SHA-256-referentie (optioneel)</label>
+<input type="text" id="expectedFingerprint" maxlength="64" inputmode="text" spellcheck="false" autocomplete="off" placeholder="64 hexadecimale tekens, bijvoorbeeld uit je vorige controle" style="width:min(100%,600px);padding:12px;background:#102c23;color:#f4f0e6;border:1px solid #779078;border-radius:10px">
+<p class="small">Alleen een eerder veilig bewaarde, vertrouwde referentie kan dienen als vergelijkingsbasis. De waarde wordt niet opgeslagen of verzonden.</p>
 <p class="small" id="verifyStatus" role="status" aria-live="polite">Kies een lokaal DRAFT JSON-bestand om schema, inhoud en SHA-256-vingerafdruk te controleren. Dit verandert geen opgeslagen ontwerp.</p>
 <label for="bundleImport" class="eyebrow" style="display:block;margin:18px 0 9px">Herstel een eerder projectpakket</label>
 <input type="file" id="bundleImport" accept=".json,application/json" style="max-width:100%;font-size:13px">
@@ -50,7 +53,7 @@
 <p id="feedback" role="status" class="small">De projectgegevens worden uitsluitend uit deze browser gelezen.</p></section>
 <aside class="section"><p class="eyebrow">05 / Projectkompas</p><h2>Ontwerpchecks</h2><div class="diagnostics" id="diagnostics" role="list"></div>
 <h3>Bevoegdheid & veiligheid</h3><p class="message">Deze Regiekamer is alleen een lokaal, read-only overzicht van de maquettes, met een afzonderlijke ontwerpnotitie. Er worden geen officiële identiteiten, bewijsstukken, cryptografische handtekeningen, WORLD-creaties of autorisaties uitgevoerd.</p><p class="small">De export is een niet-geverifieerde creatieve DRAFT-kopie. Bewaar deze zelf. Browseropslag is geen veilige langdurige back-up.</p></aside></div>
-<footer>PALACO CITADEL · Atelier Regiekamer v2.6 · Nieuwe ontwerpen, bestaande fundamenten.</footer></div>
+<footer>PALACO CITADEL · Atelier Regiekamer v2.7 · Nieuwe ontwerpen, bestaande fundamenten.</footer></div>
 <script src="./regiekamer-gallery.js"></script>
 <script src="./regiekamer-bundle.js"></script>
 <script>
@@ -112,6 +115,8 @@ $('bundleVerify').addEventListener('change',async event=>{
    const api=window.PalacoAtelierBundle;
    if(!api)throw Error('Projectpakket-functie niet geladen');
    if(file.size>150000)throw Error('Bestand groter dan 150 KB');
+   const reference=$('expectedFingerprint').value.trim();
+   if(reference!==''&&!/^[0-9a-fA-F]{64}$/.test(reference))throw Error('Referentie moet precies 64 hexadecimale SHA-256-tekens bevatten');
    const bytes=await file.arrayBuffer();
    const contents=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
    const pack=api.parse(contents);
@@ -120,7 +125,8 @@ $('bundleVerify').addEventListener('change',async event=>{
    const fingerprint=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
    const ex=pack.exterior?pack.exterior.cells.filter(Boolean).length:0;
    const interior=pack.interior?pack.interior.floors.flat().filter(Boolean).length:0;
-   status.textContent='Geldig creatief DRAFT-project · autoriteit NONE · exterieur '+ex+'/96 · interieur '+interior+'/240 · notitie '+pack.note.length+' tekens · SHA-256: '+fingerprint+'. Vingerafdruk is geen digitale handtekening of officiële goedkeuring.';
+   const comparison=reference===''?'Geen eerdere referentie ingevoerd.':fingerprint===reference.toLowerCase()?'REFERENTIE KOMT OVEREEN.':'WAARSCHUWING: SHA-256 KOMT NIET OVEREEN MET DE REFERENTIE.';
+   status.textContent='Geldig creatief DRAFT-project · autoriteit NONE · exterieur '+ex+'/96 · interieur '+interior+'/240 · notitie '+pack.note.length+' tekens · SHA-256: '+fingerprint+'. '+comparison+' Vergelijking is geen digitale handtekening of officiële goedkeuring.';
  }catch(err){
    status.textContent='Controle afgewezen: '+err.message+'. Er is niets geïmporteerd.';
  }finally{event.target.value='';}
