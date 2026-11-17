@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Herstelgrendels voor import en gewoon wissen (v1.7)
+Zolang een lokale notitiekopie beschadigd is of de opslagstatus niet onafhankelijk kan worden bevestigd, weigert het Observatorium zowel een nieuwe JSON-import als de gewone knop **Wis lokale notities**. Hiermee kan een onleesbare bestaande kopie niet onopgemerkt door een import of normale wisactie verloren gaan. De afzonderlijke herstelprocedure blijft beschikbaar, inclusief een onveranderde ruwe download en een expliciet bevestigde reset.
+
+Als de opslag tijdens importeren of normaal wissen faalt, vermeldt de interface dat alleen het huidige tabblad is gewijzigd en dat de blijvende opslag **niet bevestigd** is. Dit is geen bewijs dat de oorspronkelijke lokale kopie fysiek is gewist. Aparte Chromium-tests zijn toegevoegd voor geblokkeerde import, geblokkeerd wissen en een geforceerde mislukte wisactie. De release blijft HOLD totdat de tests daadwerkelijk zijn afgerond.
+
 ## Ruwe herstelkopie vóór verwijderen (v1.6)
 Bij een beschadigd of onleesbaar lokaal notitielogboek biedt de herstelmodus een afzonderlijke knop **Download onleesbare kopie (lokaal)**. Deze download bevat de onveranderde ruwe tekst uit de bestaande lokale notitiekopie en heeft extensie `.txt` om niet te suggereren dat het om een gevalideerd JSON-dossier gaat. De download verandert noch de gegevens noch de bewaartoestemming. Een expliciete bevestiging blijft noodzakelijk voordat de lokale kopie en toestemming definitief worden gewist. De inhoud kan gevoelig zijn: bewaar de herstelkopie veilig en deel haar niet zonder noodzaak.
 
