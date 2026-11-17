@@ -34,4 +34,4 @@ node --test DOCS/la-bewijskamer/triage.test.mjs
 node --test DOCS/la-geheugenkamer/geheugenkamer.test.mjs
 ```
 
-De 10 handoff-tests en 7 aanvullende triage-tests zijn opgesteld maar **nog niet uitgevoerd**. Browser- en mobiele acceptatie, privacybeoordeling en externe code-review blijven HOLD. PR is DRAFT en Sites is niet gepubliceerd.
+**CI-verificatie 17 november 2026:** GitHub Actions-run [44021549355](https://github.com/Maurits-pixe/PALACO-Citadel/actions/runs/44021549355) is geslaagd. Geheugenkamer 18/18, Bewijskamer-handoff 10/10, triage 7/7: **35/35 PASS, 0 FAIL** op commit `78823a1fb8741665538ed81072b318ebfd4ee575`. De bestaande placeholder-CI is vervangen door Node 22 regressiecommando's in `.github/workflows/ci.yml`. **Browser- en mobiele acceptatie, privacybeoordeling en externe code-review blijven HOLD.** PR is DRAFT en Sites is niet gepubliceerd.
