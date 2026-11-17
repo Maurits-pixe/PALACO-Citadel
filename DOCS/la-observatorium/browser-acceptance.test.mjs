@@ -375,3 +375,36 @@ test('stale async journal import cannot reintroduce notes after a local edit',{t
   assert.doesNotMatch(await page.locator('#events').innerText(),/Verouderde import/);
  });
 });
+
+test('pending inspection export is cancelled when another note becomes selected',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  await page.locator('#tab-atelier').click();
+  for(const subject of ['Eerste dossier','Tweede dossier']){
+   await page.locator('#subject').fill(subject);
+   await page.locator('#notes').fill('Alleen lokaal, geen autorisatie');
+   await page.locator('#form button[type="submit"]').click();
+  }
+  await page.locator('#tab-geheugen').click();
+  await page.getByRole('button',{name:'Inspecteer Eerste dossier'}).click();
+  await page.evaluate(()=>{
+   const original=SubtleCrypto.prototype.digest;
+   window.__hashStarted=false;
+   SubtleCrypto.prototype.digest=function(...args){
+    window.__hashStarted=true;
+    return new Promise((resolve,reject)=>{
+     window.__finishHash=()=>original.apply(this,args).then(resolve,reject);
+    });
+   };
+  });
+  let downloads=0;
+  page.on('download',()=>{downloads++;});
+  await page.locator('#inspection-export').click();
+  await page.waitForFunction(()=>window.__hashStarted===true);
+  await page.locator('#inspection-back').click();
+  await page.getByRole('button',{name:'Inspecteer Tweede dossier'}).click();
+  await page.evaluate(()=>window.__finishHash());
+  await page.waitForFunction(()=>document.querySelector('#announce')?.textContent?.includes('Export afgebroken'));
+  assert.equal(downloads,0,'A stale inspection must not be downloaded');
+  assert.equal(await page.locator('#inspection-subject').innerText(),'Tweede dossier');
+ });
+});
