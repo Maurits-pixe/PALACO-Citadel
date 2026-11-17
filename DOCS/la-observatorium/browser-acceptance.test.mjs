@@ -181,3 +181,43 @@ test('schema-invalid consented memory is not silently filtered or overwritten',{
   assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),malformed);
  });
 });
+
+test('failed local wipe never claims success or releases storage guard',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  await page.locator('#tab-atelier').click();
+  await page.locator('#persist').check();
+  await page.locator('#subject').fill('Wisfout controle');
+  await page.locator('#notes').fill('Alleen lokaal met toestemming');
+  await page.locator('#form button[type="submit"]').click();
+  assert.ok(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')));
+  await page.evaluate(()=>{
+   const remove=Storage.prototype.removeItem;
+   Storage.prototype.removeItem=function(key){
+    if(key==='palaco_la_observatory_notes_v1')throw new Error('Simulated storage remove failure');
+    return remove.call(this,key);
+   };
+  });
+  await page.locator('#persist').uncheck();
+  assert.equal(await page.locator('#persist').isDisabled(),true);
+  assert.match(await page.locator('#storage').innerText(),/WISSEN NIET BEVESTIGD/);
+  assert.doesNotMatch(await page.locator('#announce').innerText(),/aantoonbaar verwijderd/);
+  assert.ok(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')));
+  assert.equal(await page.locator('#storage-reset').isVisible(),true);
+ });
+});
+test('failed local write does not claim storage enabled',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  await page.locator('#tab-atelier').click();
+  await page.evaluate(()=>{
+   const set=Storage.prototype.setItem;
+   Storage.prototype.setItem=function(key,value){
+    if(key==='palaco_la_observatory_notes_v1')throw new Error('Simulated storage write failure');
+    return set.call(this,key,value);
+   };
+  });
+  await page.locator('#persist').check();
+  assert.equal(await page.locator('#persist').isDisabled(),true);
+  assert.match(await page.locator('#storage').innerText(),/OPSLAG ONBEVESTIGD/);
+  assert.doesNotMatch(await page.locator('#announce').innerText(),/Opslag bevestigd/);
+ });
+});
