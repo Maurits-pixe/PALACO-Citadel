@@ -1,5 +1,5 @@
 /* PALACO Atlas offline shell v1.0 RC. No user content, credentials or API caching. */
-const CACHE = "palaco-atlas-shell-v1-rc1";
+const CACHE = "palaco-atlas-shell-v1-rc2";
 const PREFIX = "palaco-atlas-shell-";
 const ASSETS = [
   "./",
@@ -13,6 +13,7 @@ const ASSETS = [
   "./atlas-provenance.html",
   "./atlas-trust-gateway.html",
   "./atlas-integratie.html",
+  "./atlas-acceptatie.html",
   "./atlas-contract.mjs",
   "./wereldregister.mjs",
   "./atlas-archief.mjs",
