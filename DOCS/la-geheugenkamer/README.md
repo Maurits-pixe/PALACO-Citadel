@@ -56,6 +56,14 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Gelijktijdige wijzigingen en kluisintegriteit · v1.7
+- Versleuteld bewaren en ontgrendelen krijgen elk een uniek operatienummer en een momentopname van het actieve geheugen. Na de asynchrone sleutelafleiding moet de huidige toestand nog overeenkomen met het uitgangspunt; anders wordt de bewerking geweigerd.
+- Nieuwe herinneringen, herstel, JSON-import, wissen, vergrendelen en verwijderen van de kluis maken een nog lopende kluisoperatie ongeldig. Zo kan een late ontgrendeling een bewust vergrendelde tab niet opnieuw vullen.
+- Direct vóór een versleutelde opslag worden het originele kluisobject, de onversleutelde opslagstatus, de expliciete opslagcheckbox en de actuele gegevens opnieuw gecontroleerd. Bij een afwijking wordt niet opgeslagen.
+- Nieuwe Chromium-tests zetten PBKDF2-sleutelafleiding doelbewust stil om twee racecondities te testen: een nieuw geheugenrecord tijdens encryptie en vergrendelen tijdens ontgrendeling. Beide worden fail-closed afgebroken.
+- **Geverifieerd:** [GitHub Actions-run 44080171193](https://github.com/Maurits-pixe/PALACO-Citadel/actions/runs/44080171193): **51/51 PASS** (35 Node-tests, 16 Chromium-tests) op codecommit `274d3c7081867733ce9e70a4b778573f0cd0c1cc`.
+- **Beperking:** localStorage biedt geen atomaire compare-and-swap tussen verschillende tabs. Dit voorkomt meerdere praktische races in één tab, maar garandeert geen transactionele synchronisatie of bescherming tegen kwaadaardige scripts op dezelfde origin. Geen officiële ERA/EDTR-autorisatie.
+
 ## Versleutelde lokale apparaatkluis · v1.6
 - `Bewaar versleutelde kluis` slaat een AES-256-GCM-versleutelde kopie van de huidige archiefsnapshot in de lokale browseropslag op, onder een afzonderlijke sleutel `palaco.citadel.geheugenkamer.vault.v1`. Er is geen automatisch opslaan van daaropvolgende wijzigingen.
 - `Ontgrendel kluis` vraagt opnieuw de wachtzin en controleert de AEAD-tag, het archiefschema, SHA-256, recordvalidatie, lineage en conflicten voordat een dossier in de huidige tab zichtbaar wordt. **Na herladen is de tab altijd leeg**, totdat de gebruiker zelf ontgrendelt.
