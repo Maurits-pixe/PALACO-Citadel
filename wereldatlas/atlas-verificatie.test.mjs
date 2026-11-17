@@ -1,0 +1,15 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {REVIEW_SCHEMA,reviewCandidates,checkEvidenceDraft,makeReviewDraft} from "./atlas-verificatie.mjs";
+const candidate=()=>reviewCandidates().find(c=>c.sourceIds.length);
+const sample=()=>({schema:REVIEW_SCHEMA,state:"DRAFT",verified:false,dossierId:candidate().dossierId,sourceId:candidate().sourceIds[0],reference:"",notes:"Vereist onafhankelijke bronbeoordeling.",decision:"REVIEW_REQUIRED"});
+test("beoordelingskandidaten volgen bestaande archiefdossiers",()=>{const rows=reviewCandidates();assert.equal(rows.length,13);assert.ok(rows.every(c=>c.independentVerification===false));});
+test("conceptbron geeft nooit geverifieerde status",()=>{const x=checkEvidenceDraft(sample());assert.equal(x.ok,true);assert.equal(x.assessment.status,"CONCEPT_ONLY");assert.equal(x.assessment.independentVerification,false);assert.equal(x.assessment.authorization,"DENY")});
+test("geen bron geeft UNSUPPORTED status",()=>{const a=sample();a.sourceId=null;const x=checkEvidenceDraft(a);assert.equal(x.ok,true);assert.equal(x.assessment.status,"UNSUPPORTED")});
+test("onbekende dossier ID faalt",()=>{const a=sample();a.dossierId="DOSSIER-W-9999";assert.equal(checkEvidenceDraft(a).ok,false)});
+test("vreemde bron bij dossier faalt",()=>{const a=sample();a.sourceId="SRC-FAKE";assert.equal(checkEvidenceDraft(a).ok,false)});
+test("actieve status en verificatieclaim falen",()=>{for(const patch of [{state:"ACTIVE"},{verified:true},{decision:"APPROVED"}])assert.equal(checkEvidenceDraft({...sample(),...patch}).ok,false)});
+test("extra autorisatievelden falen",()=>assert.equal(checkEvidenceDraft({...sample(),owner:"admin"}).ok,false));
+test("control characters in de notitie falen",()=>{const a=sample();a.notes="test\nfoo";assert.equal(checkEvidenceDraft(a).ok,false)});
+test("ontbrekende expliciete bron faalt",()=>{const a=sample();delete a.sourceId;assert.equal(checkEvidenceDraft(a).ok,false)});
+test("maker levert een DRAFT-verslag op zonder autorisatie",()=>{const x=makeReviewDraft({dossierId:candidate().dossierId,sourceId:candidate().sourceIds[0]});assert.equal(x.state,"DRAFT");assert.equal(x.verified,false);assert.equal(x.assessment.authorization,"DENY")});
