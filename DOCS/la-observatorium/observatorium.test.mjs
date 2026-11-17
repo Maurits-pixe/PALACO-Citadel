@@ -225,7 +225,7 @@ test('normal import and clear cannot bypass protected corrupt-storage recovery',
  assert.match(html,/if\(storageRecoveryBlocked\)\{status\("Wissen geblokkeerd/);
  assert.match(html,/const persisted=save\(\);render\(\)/);
  assert.match(html,/blijvende opslag NIET bevestigd/);
- assert.match(html,/const cleared=save\(\);render\(\)/);
+ assert.match(html,/const cleared=save\(\);\s*if\(!cleared\)notes=pendingNotes;\s*render\(\)/);
  assert.match(html,/lokale opslag NIET bevestigd gewist/);
 });
 
