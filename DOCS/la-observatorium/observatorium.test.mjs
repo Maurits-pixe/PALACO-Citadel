@@ -33,7 +33,7 @@ test('local storage requires consent marker and supports deletion',()=>{
 test('timeline permits classification and invalid stored dates are rejected',()=>{
  assert.match(html,/id="filter"/);
  assert.match(html,/Number\.isFinite\(Date\.parse\(n\.at\)\)/);
- assert.match(html,/notes\\.filter\\(n=>\\(selected==="ALL"\\|\\|n\\.kind===selected\\)/);
+ assert.match(html,/notes\.filter\(n=>\(selected==="ALL"\|\|n\.kind===selected\)/);
 });
 
 test('JSON journal import has strict schema, size and count limits',()=>{
