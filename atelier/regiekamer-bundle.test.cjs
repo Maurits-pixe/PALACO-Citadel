@@ -20,7 +20,7 @@ test('round-trip preserves both designs and the note as creative DRAFT only',()=
  assert.equal(saved.interior.floors[2][14],'library');
  assert.equal(saved.note,'Gold & Emerald');
  assert.equal(saved.authority,'NONE');
- assert.deepEqual(saved.exterior.snapshots,[]);
+ assert.equal(saved.exterior.snapshots.length,0);
 });
 test('rejects active projects, role claims, unknown zones, missing fields and large payloads',()=>{
  const e=exterior(),i=interior(),valid=bundle.create(e,i,'note');
