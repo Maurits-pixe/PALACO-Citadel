@@ -69,6 +69,7 @@ footer{border-top:1px solid #3d5046;padding:24px;text-align:center;color:#9eada4
 </section>
 <section id="geheugen" class="section hidden" aria-label="Het Geheugen">
 <div class="panel"><div class="row"><h2>Lokale waarnemingstijdlijn</h2><span id="count" class="tag">0 notities</span></div>
+<label for="filter">Filter op classificatie</label><select id="filter"><option value="ALL">Alle classificaties</option><option value="OBSERVED">OBSERVED</option><option value="RECORDED">RECORDED</option><option value="DERIVED">DERIVED</option><option value="INFERRED">INFERRED</option><option value="HYPOTHESIS">HYPOTHESIS</option></select>
 <p class="muted">Alleen handmatig vastgelegde notities. Geen officiële Quay-events; bewerken of verwijderen hier verandert nooit de canonieke geschiedenis.</p>
 <ul class="events" id="events"><li>Er zijn nog geen lokale waarnemingen.</li></ul></div>
 </section>
@@ -100,7 +101,7 @@ footer{border-top:1px solid #3d5046;padding:24px;text-align:center;color:#9eada4
 <script>
 (function(){
 "use strict";
-const KEY="palaco_la_observatory_notes_v1", max=100, $=id=>document.getElementById(id);
+const KEY="palaco_la_observatory_notes_v1", CONSENT="palaco_la_observatory_consent_v1", max=100, $=id=>document.getElementById(id);
 const tabs=Array.from(document.querySelectorAll("[data-tab]"));
 tabs.forEach(btn=>btn.addEventListener("click",()=>{
 tabs.forEach(b=>b.setAttribute("aria-selected",String(b===btn)));
@@ -108,15 +109,16 @@ tabs.forEach(b=>$(b.dataset.tab).classList.toggle("hidden",b!==btn));
 }));
 $("clock").textContent=new Date().toLocaleString("nl-NL",{dateStyle:"medium",timeStyle:"short"});
 let notes=[];
-try{const raw=localStorage.getItem(KEY);if(raw){const value=JSON.parse(raw);if(Array.isArray(value))notes=value.filter(valid).slice(0,max);}}catch(_){}
-function valid(n){return n&&typeof n==="object"&&typeof n.id==="string"&&typeof n.at==="string"&&typeof n.subject==="string"&&n.subject.length<=100&&typeof n.notes==="string"&&n.notes.length<=1500&&typeof n.kind==="string"&&["OBSERVED","RECORDED","DERIVED","INFERRED","HYPOTHESIS"].includes(n.kind)&&typeof n.reference==="string"&&n.reference.length<=200;}
-$("persist").checked=notes.length>0;
+let storageEnabled=false;
+try{storageEnabled=localStorage.getItem(CONSENT)==="yes";if(storageEnabled){const raw=localStorage.getItem(KEY);if(raw){const value=JSON.parse(raw);if(Array.isArray(value))notes=value.filter(valid).slice(0,max);}}}catch(_){}
+function valid(n){return n&&typeof n==="object"&&typeof n.id==="string"&&n.id.length<=100&&typeof n.at==="string"&&Number.isFinite(Date.parse(n.at))&&typeof n.subject==="string"&&n.subject.trim().length>0&&n.subject.length<=100&&typeof n.notes==="string"&&n.notes.trim().length>0&&n.notes.length<=1500&&typeof n.kind==="string"&&["OBSERVED","RECORDED","DERIVED","INFERRED","HYPOTHESIS"].includes(n.kind)&&typeof n.reference==="string"&&n.reference.length<=200;}
+$("persist").checked=storageEnabled;
 function status(msg){$("announce").textContent=msg;}
-function save(){if($("persist").checked){try{localStorage.setItem(KEY,JSON.stringify(notes));$("storage").textContent="Opslag: lokaal op dit apparaat (toestemming actief)";}catch(_){$("storage").textContent="Lokale opslag mislukt";status("Lokale opslag mislukt");}}else{try{localStorage.removeItem(KEY);}catch(_){}$("storage").textContent="Opslag: alleen huidig tabblad";}}
+function save(){if($("persist").checked){try{localStorage.setItem(KEY,JSON.stringify(notes));localStorage.setItem(CONSENT,"yes");$("storage").textContent="Opslag: lokaal op dit apparaat (toestemming actief)";}catch(_){$("storage").textContent="Lokale opslag mislukt";status("Lokale opslag mislukt");}}else{try{localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);}catch(_){}$("storage").textContent="Opslag: alleen huidig tabblad";}}
 function render(){
-const list=$("events");list.replaceChildren();$("count").textContent=notes.length+" notities";
-if(!notes.length){const li=document.createElement("li");li.textContent="Er zijn nog geen lokale waarnemingen.";list.append(li);return;}
-notes.slice().reverse().forEach(n=>{
+const list=$("events");list.replaceChildren();const selected=$("filter").value,visible=selected==="ALL"?notes:notes.filter(n=>n.kind===selected);$("count").textContent=visible.length+" / "+notes.length+" notities";
+if(!visible.length){const li=document.createElement("li");li.textContent=notes.length?"Geen waarnemingen met deze classificatie.":"Er zijn nog geen lokale waarnemingen.";list.append(li);return;}
+visible.slice().reverse().forEach(n=>{
 const li=document.createElement("li"),strong=document.createElement("strong"),small=document.createElement("small"),p=document.createElement("p");
 strong.textContent=n.subject;small.textContent=n.kind+" · "+new Date(n.at).toLocaleString("nl-NL")+" · "+(n.reference||"Geen bronverwijzing");p.textContent=n.notes;
 li.append(strong,small,p);list.append(li);
@@ -126,6 +128,7 @@ e.preventDefault();if(notes.length>=max){status("Maximum van 100 notities bereik
 const f=e.currentTarget, field=name=>f.elements.namedItem(name), n={id:(crypto.randomUUID?crypto.randomUUID():String(Date.now())),at:new Date().toISOString(),subject:field("subject").value.trim(),kind:field("kind").value,reference:field("reference").value.trim(),notes:field("notes").value.trim()};
 if(!n.subject||!n.notes)return;notes.push(n);save();render();f.reset();status("Lokale waarneming toegevoegd, niet geverifieerd.");
 });
+$("filter").addEventListener("change",render);
 $("persist").addEventListener("change",()=>{save();status($("persist").checked?"Lokale opslag ingeschakeld.":"Lokale opslag uitgeschakeld; opgeslagen kopie gewist.");});
 $("clear").addEventListener("click",()=>{if(!confirm("Alle lokale waarnemingen in dit tabblad en de lokale opslag wissen?"))return;notes=[];save();render();status("Lokale notities gewist.");});
 $("export").addEventListener("click",()=>{
@@ -133,6 +136,6 @@ const payload={format:"palaco-la-observatory-local-v1",exported_at:new Date().to
 const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
 a.href=url;a.download="la-observatorium-lokale-waarnemingen.json";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);status("JSON-export aangemaakt.");
 });
-render();save();
+render();if(storageEnabled)save();
 })();
 </script></body></html>
