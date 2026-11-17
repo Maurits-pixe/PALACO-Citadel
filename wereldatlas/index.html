@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071c19"><title>De Wereldatlas · PALACO Citadel</title>
+<style>
+:root{color-scheme:dark;--bg:#071614;--panel:#102824;--panel2:#16352f;--line:#375749;--gold:#e3c78a;--text:#f4f4e9;--muted:#b0c8bc;--green:#83dfb6}
+*{box-sizing:border-box}body{margin:0;font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text);background:radial-gradient(circle at 75% 0%,#24483b,transparent 40%),var(--bg)}
+a{color:var(--gold)}button,input,select{font:inherit}button,select,input{border:1px solid var(--line);border-radius:12px;background:#102b25;color:var(--text);padding:12px}button{cursor:pointer}button:hover,button:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+header,main,footer{max-width:1280px;margin:auto;padding:20px}header{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.brand{letter-spacing:.24em;color:var(--gold);font-size:.78rem;font-weight:700}h1{font-family:Georgia,serif;font-size:clamp(2.2rem,5vw,4.3rem);margin:.15em 0}h2{font-family:Georgia,serif;font-weight:400;margin:.2em 0}p{margin:.5em 0 1em}.muted{color:var(--muted)}.eyebrow{text-transform:uppercase;letter-spacing:.2em;font-size:.72rem;color:var(--green)}
+.hero{padding:40px 0 24px;display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:center}.globe{width:min(100%,330px);aspect-ratio:1;margin:auto;border-radius:50%;position:relative;background:radial-gradient(circle at 33% 22%,#76e2c5 0%,#1d8174 18%,#104b4c 40%,#041c28 75%);border:2px solid #b3d9aa;box-shadow:0 0 0 15px #bfa36e13,0 0 0 30px #bfa36e09,0 20px 70px #0008;overflow:hidden}
+.globe:before{content:"";position:absolute;inset:10%;border:1px solid #e7ebcc55;border-radius:50%;transform:rotate(-25deg) scaleX(.43)}.globe:after{content:"W-0001";position:absolute;bottom:24%;left:24%;color:#fff9;letter-spacing:.25em;transform:rotate(-14deg)}
+.continents{font-size:clamp(4rem,10vw,7rem);position:absolute;inset:0;display:grid;place-items:center;opacity:.75;filter:drop-shadow(0 2px 9px #072b28)}
+.panel{border:1px solid var(--line);border-radius:20px;padding:20px;background:#102721e8;box-shadow:0 15px 40px #0002}.toolbar{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin:20px 0}.toolbar label{display:grid;gap:7px;color:var(--muted);font-size:.85rem}.toolbar input,.toolbar select{width:100%;min-width:0}
+.layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);gap:18px}.list{display:grid;gap:10px;max-height:650px;overflow:auto}.world{display:block;text-align:left;width:100%;background:#142e29;border-color:#456354}.world[aria-pressed="true"]{border-color:var(--gold);box-shadow:inset 4px 0 var(--gold)}.world strong{color:#f7e3b8}.meta{font-size:.82rem;color:var(--muted)}.world .row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.tag{font-size:.7rem;border:1px solid #648574;border-radius:30px;padding:3px 9px;color:var(--green);white-space:nowrap}.detail h2{font-size:2rem;color:var(--gold)}.detail dl{display:grid;grid-template-columns:auto 1fr;gap:8px 12px}dt{color:var(--muted)}dd{margin:0}.regions{display:grid;gap:8px}.region{background:var(--panel2);padding:12px;border-radius:10px;border:1px solid var(--line)}.region p{font-size:.9rem;margin:4px 0 0}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.notice{background:#243c32;border-left:3px solid var(--gold);padding:12px 15px;margin-top:18px;border-radius:4px}.counter{font-variant-numeric:tabular-nums}
+footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);margin-top:28px}
+@media(max-width:760px){.hero,.layout{grid-template-columns:1fr}.globe{width:230px}.toolbar{grid-template-columns:1fr}.list{max-height:none}header,main,footer{padding:16px}}
+@media(prefers-reduced-motion:no-preference){.globe{animation:float 8s ease-in-out infinite}@keyframes float{50%{transform:translateY(-8px)}}}
+</style></head>
+<body><header><div><div class="brand">PALACO · CITADEL</div><div class="muted">Locus Amoenus / De Wereldatlas</div></div><nav><a href="../index.html">← Citadel hoofdportaal</a></nav></header>
+<main><section class="hero"><div><div class="eyebrow">Wereldarchief · Atlas 0.1 · DRAFT</div><h1>De Wereldatlas</h1><p>Verken de werelden van PALACO. Elke wereld heeft een eigen identiteit, context en geografische structuur. Deze atlas is een lees- en navigatieomgeving — geen autorisatie- of uitgiftesysteem.</p><p class="muted">Van EARTH / W-0001 tot de verdere wereldstructuur: één toegankelijke ingang voor ontdekking, geschiedenis en toekomstige cartografie.</p></div><div class="globe" role="img" aria-label="Gestileerde, niet-geografische wereldbol"><span class="continents" aria-hidden="true">🌍</span></div></section>
+<section class="panel" aria-labelledby="catalogus"><div class="eyebrow">De collectie</div><h2 id="catalogus">Atlas der werelden</h2><p class="muted"><span id="count" class="counter">7</span> werelden in de startcatalogus. Voorbeeld-/conceptgegevens zijn herkenbaar gemarkeerd.</p>
+<div class="toolbar"><label>Zoeken<input id="search" type="search" autocomplete="off" placeholder="Naam, wereld-ID of beschrijving"></label><label>Type<select id="type"><option value="all">Alle werelden</option><option value="basis">Basiswereld</option><option value="concept">Conceptwereld</option></select></label><label>Sorteren<select id="sort"><option value="id">Wereld-ID</option><option value="name">Naam</option></select></label></div>
+<div class="layout"><div id="world-list" class="list" aria-label="Wereldcatalogus"></div><article id="detail" class="panel detail" aria-live="polite"></article></div>
+<div class="notice"><strong>Verificatiegrens:</strong> deze module bevat een beperkte startcatalogus. Namen en identificaties volgen het PALACO-wereldconcept; beschrijvingen en regio-indeling zijn redactionele conceptinhoud, geen geverifieerde registratie. Er worden geen rechten verleend en geen accountgegevens uitgelezen.</div></section>
+<section class="panel" style="margin-top:20px"><div class="eyebrow">Atlasarchitectuur</div><h2>Van wereld naar regio</h2><p class="muted">Navigatiepad: WORLD → regio → plaats → dossier → bewijslijn. Alleen bekende gegevens worden getoond; ontbrekende kaartlagen blijven expliciet onbevestigd. De toekomstige MUNDO / World Studio-koppeling vereist een afzonderlijk gecontroleerd datacontract.</p></section></main>
+<footer>PALACO INDUSTRIE · CITADEL WERELDATLAS · v0.1 · Offline leesbaar na laden · Geen login, publicatie of activatie vanuit deze module.</footer>
+<script>
+"use strict";
+const DATA=[
+{id:"W-0001",name:"EARTH",type:"basis",icon:"🌍",summary:"De aarde als vertrekpunt van de wereldverkenning.",regions:[["LA PAZ","Conceptuele regio binnen MUNDO; kaartgrenzen nog niet vastgelegd."],["Locus Amoenus","Citadel-context voor samenleving, natuur, geheugen en atelier."]]},
+{id:"W-0002",name:"PLUTO",type:"concept",icon:"🦆",summary:"PALACO-wereld in de uitbreidbare catalogus.",regions:[]},
+{id:"W-0003",name:"EVA",type:"concept",icon:"✨",summary:"Wereldidentiteit in de conceptuele wereldstructuur.",regions:[]},
+{id:"W-0004",name:"RIO",type:"concept",icon:"💬",summary:"Wereldidentiteit; geen koppeling met chat- of identiteitsrechten.",regions:[]},
+{id:"W-0005",name:"PALACO",type:"concept",icon:"🏛️",summary:"Wereldidentiteit binnen het PALACO-ecosysteem.",regions:[]},
+{id:"W-0006",name:"6IO",type:"concept",icon:"✳️",summary:"Wereldidentiteit gereserveerd voor nadere uitwerking.",regions:[]},
+{id:"W-0007",name:"E9O",type:"concept",icon:"✦",summary:"Wereldidentiteit gereserveerd voor nadere uitwerking.",regions:[]}
+];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let selected="W-0001";
+const params=new URLSearchParams(location.search);
+const requested=params.get("world");if(DATA.some(w=>w.id===requested))selected=requested;
+function render(){
+const q=$("search").value.trim().toLocaleLowerCase("nl"),type=$("type").value,sort=$("sort").value;
+const found=DATA.filter(w=>(type==="all"||w.type===type)&&[w.id,w.name,w.summary].join(" ").toLocaleLowerCase("nl").includes(q)).sort((a,b)=>sort==="name"?a.name.localeCompare(b.name,"nl"):a.id.localeCompare(b.id));
+$("count").textContent=found.length;
+$("world-list").innerHTML=found.length?found.map(w=>'<button type="button" class="world" data-id="'+esc(w.id)+'" aria-pressed="'+(w.id===selected)+'"><span class="row"><strong>'+esc(w.icon+' '+w.name)+'</strong><span class="tag">'+esc(w.type==="basis"?"BASIS":"CONCEPT")+'</span></span><span class="meta">'+esc(w.id)+' · '+esc(w.summary)+'</span></button>').join(""):'<p class="muted">Geen resultaten. Wis het zoekveld of verander de filters.</p>';
+if(!DATA.some(w=>w.id===selected))selected="W-0001";
+const w=DATA.find(w=>w.id===selected);
+$("detail").innerHTML='<div class="eyebrow">Geselecteerde wereld</div><h2>'+esc(w.icon+" "+w.name)+'</h2><dl><dt>Wereld-ID</dt><dd>'+esc(w.id)+'</dd><dt>Catalogusstatus</dt><dd>'+esc(w.type==="basis"?"Basiswereld / conceptdata":"Conceptwereld")+'</dd><dt>Geografische bron</dt><dd>Niet geverifieerd</dd></dl><p>'+esc(w.summary)+'</p><h3>Regioverkenning</h3><div class="regions">'+(w.regions.length?w.regions.map(r=>'<div class="region"><strong>'+esc(r[0])+'</strong><p>'+esc(r[1])+'</p></div>').join(""):'<p class="muted">Nog geen geregistreerde regio’s in deze versie.</p>')+'</div><div class="actions"><button id="copy" type="button">Kopieer wereldverwijzing</button><button id="export" type="button">Exporteer DRAFT JSON</button></div><p class="meta" id="status" role="status"></p>';
+$("copy").addEventListener("click",async()=>{const ref=w.id+" · "+w.name;try{await navigator.clipboard.writeText(ref);$("status").textContent="Wereldverwijzing gekopieerd."}catch{$("status").textContent=ref}});
+$("export").addEventListener("click",()=>{const payload={schema:"palaco.citadel.atlas.draft.v0.1",state:"DRAFT",verified:false,world:w};const b=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});const url=URL.createObjectURL(b);const a=document.createElement("a");a.href=url;a.download="palaco-atlas-"+w.id.toLowerCase()+"-draft.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+document.querySelectorAll(".world").forEach(b=>b.addEventListener("click",()=>{selected=b.dataset.id;history.replaceState(null,"",location.pathname+"?world="+encodeURIComponent(selected));render()}));
+}
+["search","type","sort"].forEach(id=>$(id).addEventListener(id==="search"?"input":"change",render));render();
+</script></body></html>
