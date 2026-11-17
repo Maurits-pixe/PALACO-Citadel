@@ -365,10 +365,13 @@ $("persist").addEventListener("change",()=>{if(save())status($("persist").checke
 $("clear").addEventListener("click",()=>{
 if(storageRecoveryBlocked){status("Wissen geblokkeerd: onleesbare kopie blijft beschermd; gebruik de afzonderlijke herstelprocedure.");return;}
 if(!confirm("Alle lokale waarnemingen in dit tabblad en de lokale opslag wissen? Ook de bewaartoestemming wordt ingetrokken."))return;
+const pendingNotes=notes;
 notes=[];
 $("persist").checked=false;
-const cleared=save();render();
-status(cleared?"Lokale notities, opgeslagen kopie en bewaartoestemming aantoonbaar verwijderd.":"Notities uit dit tabblad verwijderd; lokale opslag NIET bevestigd gewist.");
+const cleared=save();
+if(!cleared)notes=pendingNotes;
+render();
+status(cleared?"Lokale notities, opgeslagen kopie en bewaartoestemming aantoonbaar verwijderd.":"Wissen NIET bevestigd; de notities blijven in dit tabblad beschikbaar voor export of herstel.");
 });
 $("export").addEventListener("click",()=>{
 const payload={format:"palaco-la-observatory-local-v1",exported_at:new Date().toISOString(),authority:"SELF_REPORTED_NOT_VERIFIED",notes};
