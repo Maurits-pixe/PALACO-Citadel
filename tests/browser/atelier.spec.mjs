@@ -215,6 +215,16 @@ test('Atelier: dossiercontrole toont echte SHA-256 en wijzigt geen lokaal projec
   await expect(page.locator('#verifyStatus')).toContainText(expected);
   await expect(page.locator('#verifyStatus')).toContainText('geen digitale handtekening');
   await expect(page.locator('#verifyStatus')).toContainText('Geen eerdere referentie ingevoerd');
+  await expect(page.locator('#exportFingerprint')).toBeEnabled();
+  const receiptPromise=page.waitForEvent('download');
+  await page.locator('#exportFingerprint').click();
+  const receiptDownload=await receiptPromise;
+  const receiptBytes=await (await import('node:fs/promises')).readFile(await receiptDownload.path());
+  const receiptText=receiptBytes.toString('utf8');
+  expect(receiptText).toContain('SHA-256: '+expected);
+  expect(receiptText).toContain('Bestand: inspectie.json');
+  expect(receiptText).toContain('geen digitale handtekening');
+
   await page.locator('#expectedFingerprint').fill(expected.toUpperCase());
   await page.locator('#bundleVerify').setInputFiles({name:'gelijk.json',mimeType:'application/json',buffer:bytes});
   await expect(page.locator('#verifyStatus')).toContainText('REFERENTIE KOMT OVEREEN');
@@ -225,6 +235,7 @@ test('Atelier: dossiercontrole toont echte SHA-256 en wijzigt geen lokaal projec
   await page.locator('#bundleVerify').setInputFiles({name:'ongeldig.json',mimeType:'application/json',buffer:bytes});
   await expect(page.locator('#verifyStatus')).toContainText('Controle afgewezen');
   await expect(page.locator('#verifyStatus')).toContainText('precies 64');
+  await expect(page.locator('#exportFingerprint')).toBeDisabled();
   await page.locator('#expectedFingerprint').fill('');
   await expect(page.locator('#outUsed')).toHaveText('1');
   await expect(page.locator('#undoImport')).toBeDisabled();
