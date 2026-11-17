@@ -44,6 +44,6 @@ jobs:
       - name: Install isolated Playwright test dependency
         run: npm install --no-save --package-lock=false --ignore-scripts playwright@1.56.1
       - name: Install headless Chromium
-        run: npx playwright install --with-deps chromium
+        run: ./node_modules/.bin/playwright install --with-deps chromium
       - name: Run mobile and desktop browser journey
         run: node --test DOCS/la-observatorium/browser-acceptance.test.mjs
