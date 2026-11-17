@@ -52,6 +52,15 @@ Er zijn aparte controles nodig voor authentieke bron, geldige handtekening, tijd
 Voer lokaal uit: `node --test DOCS/la-observatorium/observatorium.test.mjs`.
 Deze tests bewaken syntaxis, navigatielinks, consent en read-only indicatoren. Ze vervangen **geen** interactieve browser-, offline-, mobiele of securitytests. In deze wijziging is nog geen onafhankelijke runtime-uitvoering bevestigd.
 
+## Reproduceerbare end-to-end integriteitstests (Node.js)
+De nieuwe suite `DOCS/la-observatorium/dossier-roundtrip.test.mjs` gebruikt de **echte** functies uit de ingebedde browsercode en Node.js WebCrypto (SHA-256). Scenario's: gelijkblijvend dossier, gewijzigde inhoud, gewijzigde digest, ongeoorloofde autoriteitsverhoging, extra/ongeldige velden en een opnieuw gehasht maar nog steeds onbevoegd dossier.
+
+Voer lokaal uit:
+```sh
+node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/dossier-roundtrip.test.mjs
+```
+De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
+
 ## Import-beveiligingsgrenzen
 Het geïmporteerde bestand blijft uitsluitend lokaal in de browser; er is geen upload. Het bestand mag uitsluitend het eigen exportformaat bevatten, met `SELF_REPORTED_NOT_VERIFIED`. Ongeldige notities, conflicterende ID's in hetzelfde bestand, te grote bestanden en overschrijding van de notitielimiet worden geweigerd. De import toont het aantal nieuwe notities en vraagt expliciet toestemming vóór wijziging van het lokale Geheugen. Lege bestanden, oversized JSON-inhoud en array-vormige enveloppen worden geweigerd. Import is niet cryptografisch gevalideerd en geldt nooit als canonieke provenance.
 
