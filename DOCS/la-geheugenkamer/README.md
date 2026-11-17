@@ -1,4 +1,4 @@
-# De Geheugenkamer · Citadel v0.1
+# De Geheugenkamer · Citadel v0.3
 
 Afzonderlijke, offline-first werkende HTML-proefmodule voor Locus Amoenus. De bestaande Citadel-startnavigatie bevat op deze **conceptbranch** een extra link naar de Geheugenkamer. Observatorium en Atelier blijven inhoudelijk ongewijzigd. De Sites-publicatie is **niet gewijzigd**.
 
@@ -7,7 +7,9 @@ Afzonderlijke, offline-first werkende HTML-proefmodule voor Locus Amoenus. De be
 - Herinneringen met WIE/WAT/WAAR/WAAROM/HOE, bron en collectie.
 - Zoekveld, collectiefilter, sorteerrichting en geschiedenis per versie (append-only binnen tab).
 - Lokaal concept zonder automatisch permanent opslaan; expliciete checkbox voor localStorage.
-- JSON-import/export met schema- en lengtecontrole, 256-KB importlimiet, maximaal 100 records, deduplicatie per ID.
+- JSON-import/export met schema- en lengtecontrole, 256-KB importlimiet, maximaal 100 records, deduplicatie per ID en lineage-conflictcontrole.
+- Herstel van een eerder lokaal archief uitsluitend na expliciete gebruikersactie; geen automatische restore.
+- Afzonderlijk *Bewijskamer-dossier (concept)* met record-ID, verwijzing naar vorige versie, bron en statusvelden: geen inhoudelijke verificatie of officiële EDTR-uitgifte.
 - UTC van het apparaat (presentatietijd, **niet** een ERA atoomtijdmeting).
 - Vertrouwenslabel `SELF_REPORTED_NOT_VERIFIED`.
 
@@ -25,7 +27,7 @@ Voer vanuit de repository-root uit:
 node --test DOCS/la-geheugenkamer/geheugenkamer.test.mjs
 ```
 
-De tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opslag-opt-in en wissen, append-only versieontwikkeling, zoeken, negatieve JSON-import en veilige tekstweergave. **Deze regressietests zijn toegevoegd, maar in deze wijzigingsronde nog niet uitgevoerd.**
+De 10 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opslag-opt-in en wissen, expliciet herstel, append-only versieontwikkeling, zoeken, negatieve JSON-import, afwijzen van cyclische lineage, veilige tekstweergave en concept-bewijsuitwisseling. **Deze regressietests zijn toegevoegd, maar in deze wijzigingsronde nog niet uitgevoerd.**
 
 ## Acceptatie
 Dit is een afzonderlijke reviewkandidaat. Niet gemerged of gepubliceerd. Uitvoeren van browser-/mobiele acceptatie, import-negatieve tests en integratiebeoordeling vóór opname in de bestaande site.
