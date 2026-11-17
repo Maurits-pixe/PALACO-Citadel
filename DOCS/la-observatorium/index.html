@@ -69,8 +69,9 @@ footer{border-top:1px solid #3d5046;padding:24px;text-align:center;color:#9eada4
 </section>
 <section id="geheugen" class="section hidden" aria-label="Het Geheugen">
 <div class="panel"><div class="row"><h2>Lokale waarnemingstijdlijn</h2><span id="count" class="tag">0 notities</span></div>
+<label for="search">Zoek in onderwerp, beschrijving of bronverwijzing</label><input id="search" type="search" maxlength="120" autocomplete="off" placeholder="Zoek in dit lokale geheugen">
 <label for="filter">Filter op classificatie</label><select id="filter"><option value="ALL">Alle classificaties</option><option value="OBSERVED">OBSERVED</option><option value="RECORDED">RECORDED</option><option value="DERIVED">DERIVED</option><option value="INFERRED">INFERRED</option><option value="HYPOTHESIS">HYPOTHESIS</option></select>
-<p class="muted">Alleen handmatig vastgelegde notities. Geen officiële Quay-events; bewerken of verwijderen hier verandert nooit de canonieke geschiedenis.</p>
+<p class="muted">Alleen handmatig vastgelegde notities. Geen officiële Quay-events; bewerken of verwijderen hier verandert nooit de canonieke geschiedenis. Alle resultaten zijn <strong>SELF_REPORTED_NOT_VERIFIED</strong>.</p>
 <ul class="events" id="events"><li>Er zijn nog geen lokale waarnemingen.</li></ul></div>
 </section>
 <section id="wacht" class="section hidden" aria-label="De Wachttoren">
@@ -119,11 +120,11 @@ $("persist").checked=storageEnabled;
 function status(msg){$("announce").textContent=msg;}
 function save(){if($("persist").checked){try{localStorage.setItem(KEY,JSON.stringify(notes));localStorage.setItem(CONSENT,"yes");$("storage").textContent="Opslag: lokaal op dit apparaat (toestemming actief)";}catch(_){$("storage").textContent="Lokale opslag mislukt";status("Lokale opslag mislukt");}}else{try{localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);}catch(_){}$("storage").textContent="Opslag: alleen huidig tabblad";}}
 function render(){
-const list=$("events");list.replaceChildren();const selected=$("filter").value,visible=selected==="ALL"?notes:notes.filter(n=>n.kind===selected);$("count").textContent=visible.length+" / "+notes.length+" notities";
-if(!visible.length){const li=document.createElement("li");li.textContent=notes.length?"Geen waarnemingen met deze classificatie.":"Er zijn nog geen lokale waarnemingen.";list.append(li);return;}
+const list=$("events");list.replaceChildren();const selected=$("filter").value,term=$("search").value.trim().toLocaleLowerCase("nl-NL");const visible=notes.filter(n=>(selected==="ALL"||n.kind===selected)&&(!term||[n.subject,n.notes,n.reference].some(v=>v.toLocaleLowerCase("nl-NL").includes(term))));$("count").textContent=visible.length+" / "+notes.length+" notities";
+if(!visible.length){const li=document.createElement("li");li.textContent=notes.length?"Geen waarnemingen voor de huidige zoekopdracht of classificatie.":"Er zijn nog geen lokale waarnemingen.";list.append(li);return;}
 visible.slice().reverse().forEach(n=>{
 const li=document.createElement("li"),strong=document.createElement("strong"),small=document.createElement("small"),p=document.createElement("p");
-strong.textContent=n.subject;small.textContent=n.kind+" · "+new Date(n.at).toLocaleString("nl-NL")+" · "+(n.reference||"Geen bronverwijzing");p.textContent=n.notes;
+strong.textContent=n.subject;small.textContent=n.kind+" · "+new Date(n.at).toLocaleString("nl-NL")+" · "+(n.reference||"Geen bronverwijzing")+" · SELF_REPORTED_NOT_VERIFIED";p.textContent=n.notes;
 li.append(strong,small,p);list.append(li);
 });}
 $("form").addEventListener("submit",e=>{
@@ -132,6 +133,7 @@ const f=e.currentTarget, field=name=>f.elements.namedItem(name), n={id:(crypto.r
 if(!n.subject||!n.notes)return;notes.push(n);save();render();f.reset();status("Lokale waarneming toegevoegd, niet geverifieerd.");
 });
 $("filter").addEventListener("change",render);
+$("search").addEventListener("input",render);
 $("import").addEventListener("click",async()=>{
 const file=$("import-file").files[0];
 if(!file){status("Selecteer eerst een JSON-bestand.");return;}
