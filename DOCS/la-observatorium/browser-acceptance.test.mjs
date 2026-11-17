@@ -87,3 +87,43 @@ for (const width of [320,390,1280]) {
   });
  });
 }
+
+test('non-consented notes disappear after reload without device persistence',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  await page.locator('#tab-atelier').click();
+  await page.locator('#subject').fill('Tijdelijke notitie');
+  await page.locator('#notes').fill('Geen toestemming tot bewaren');
+  await page.locator('#form button[type="submit"]').click();
+  await page.locator('#tab-geheugen').click();
+  assert.match(await page.locator('#count').innerText(),/1 \/ 1/);
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),null);
+  await page.reload();
+  await page.locator('#tab-geheugen').click();
+  assert.match(await page.locator('#count').innerText(),/0 \/ 0/);
+  assert.equal(await page.locator('#persist').isChecked(),false);
+ });
+});
+
+test('explicit opt-in survives reload; revocation erases saved copy',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  await page.locator('#tab-atelier').click();
+  await page.locator('#persist').check();
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_consent_v1')),'yes');
+  await page.locator('#subject').fill('Bewaarproef');
+  await page.locator('#notes').fill('Alleen met toestemming');
+  await page.locator('#form button[type="submit"]').click();
+  assert.ok(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')));
+  await page.reload();
+  assert.equal(await page.locator('#persist').isChecked(),true);
+  await page.locator('#tab-geheugen').click();
+  assert.match(await page.locator('#count').innerText(),/1 \/ 1/);
+  await page.locator('#tab-atelier').click();
+  await page.locator('#persist').uncheck();
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),null);
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_consent_v1')),null);
+  await page.reload();
+  assert.equal(await page.locator('#persist').isChecked(),false);
+  await page.locator('#tab-geheugen').click();
+  assert.match(await page.locator('#count').innerText(),/0 \/ 0/);
+ });
+});
