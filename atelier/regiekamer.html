@@ -34,6 +34,9 @@
 <div class="nav"><div><p class="eyebrow">05 / Projectarchief</p><h2 id="portable-heading">Bewaren & herstellen</h2></div><span class="status">PORTABLE · DRAFT</span></div>
 <p class="small">Bewaar de exterieurmaquette, het interieur op drie verdiepingen en de ontwerpnotitie samen in één overdraagbaar JSON-projectpakket. De bestaande afzonderlijke bestanden blijven beschikbaar. De export bevat bewust geen autorisatiegegevens of ontwerphistorie.</p>
 <div class="actions"><button class="action primary" type="button" id="bundleSave">↓ Bewaar compleet projectpakket</button></div>
+<label for="bundleVerify" class="eyebrow" style="display:block;margin:18px 0 9px">Controleer een projectbestand zonder import</label>
+<input type="file" id="bundleVerify" accept=".json,application/json" style="max-width:100%;font-size:13px">
+<p class="small" id="verifyStatus" role="status" aria-live="polite">Kies een lokaal DRAFT JSON-bestand om schema, inhoud en SHA-256-vingerafdruk te controleren. Dit verandert geen opgeslagen ontwerp.</p>
 <label for="bundleImport" class="eyebrow" style="display:block;margin:18px 0 9px">Herstel een eerder projectpakket</label>
 <input type="file" id="bundleImport" accept=".json,application/json" style="max-width:100%;font-size:13px">
 <p class="message">Herstel vervangt uitsluitend de drie lokale Atelier-opslagonderdelen na jouw bevestiging. Controleer vooraf het pakketoverzicht; exporteer je huidige werk eerst. Onbekende of niet-DRAFT-pakketten worden geweigerd. Een mislukte schrijfactie wordt zo mogelijk teruggedraaid.</p>
@@ -47,7 +50,7 @@
 <p id="feedback" role="status" class="small">De projectgegevens worden uitsluitend uit deze browser gelezen.</p></section>
 <aside class="section"><p class="eyebrow">05 / Projectkompas</p><h2>Ontwerpchecks</h2><div class="diagnostics" id="diagnostics" role="list"></div>
 <h3>Bevoegdheid & veiligheid</h3><p class="message">Deze Regiekamer is alleen een lokaal, read-only overzicht van de maquettes, met een afzonderlijke ontwerpnotitie. Er worden geen officiële identiteiten, bewijsstukken, cryptografische handtekeningen, WORLD-creaties of autorisaties uitgevoerd.</p><p class="small">De export is een niet-geverifieerde creatieve DRAFT-kopie. Bewaar deze zelf. Browseropslag is geen veilige langdurige back-up.</p></aside></div>
-<footer>PALACO CITADEL · Atelier Regiekamer v2.5 · Nieuwe ontwerpen, bestaande fundamenten.</footer></div>
+<footer>PALACO CITADEL · Atelier Regiekamer v2.6 · Nieuwe ontwerpen, bestaande fundamenten.</footer></div>
 <script src="./regiekamer-gallery.js"></script>
 <script src="./regiekamer-bundle.js"></script>
 <script>
@@ -99,6 +102,28 @@ $('bundleSave').addEventListener('click',()=>{
     download('PALACO-Atelier-Compleet-Project-DRAFT.json',JSON.stringify(checked,null,2),'application/json');
     $('bundleStatus').textContent='Creatief projectpakket geëxporteerd, zonder autorisatie of historiek.';
   }catch(err){$('bundleStatus').textContent='Projectpakket niet beschikbaar: '+err.message;}
+});
+$('bundleVerify').addEventListener('change',async event=>{
+ const file=event.target.files?.[0];
+ if(!file)return;
+ const status=$('verifyStatus');
+ status.textContent='Projectbestand controleren…';
+ try{
+   const api=window.PalacoAtelierBundle;
+   if(!api)throw Error('Projectpakket-functie niet geladen');
+   if(file.size>150000)throw Error('Bestand groter dan 150 KB');
+   const bytes=await file.arrayBuffer();
+   const contents=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
+   const pack=api.parse(contents);
+   if(!crypto?.subtle?.digest)throw Error('SHA-256 niet beschikbaar in deze browser');
+   const digest=await crypto.subtle.digest('SHA-256',bytes);
+   const fingerprint=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
+   const ex=pack.exterior?pack.exterior.cells.filter(Boolean).length:0;
+   const interior=pack.interior?pack.interior.floors.flat().filter(Boolean).length:0;
+   status.textContent='Geldig creatief DRAFT-project · autoriteit NONE · exterieur '+ex+'/96 · interieur '+interior+'/240 · notitie '+pack.note.length+' tekens · SHA-256: '+fingerprint+'. Vingerafdruk is geen digitale handtekening of officiële goedkeuring.';
+ }catch(err){
+   status.textContent='Controle afgewezen: '+err.message+'. Er is niets geïmporteerd.';
+ }finally{event.target.value='';}
 });
 $('bundleImport').addEventListener('change',async event=>{
  const file=event.target.files?.[0];
