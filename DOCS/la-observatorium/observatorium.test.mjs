@@ -116,3 +116,24 @@ test('inspection dossier is locally downloadable only with WebCrypto SHA-256',()
  assert.match(html,/if\(!globalThis\.crypto\|\|!crypto\.subtle/);
  assert.match(html,/exportInspection\);/);
 });
+
+test('offline dossier verifier validates strict envelope and reports integrity only',()=>{
+ assert.match(html,/id="dossier-file"/);
+ assert.match(html,/id="verify-dossier"/);
+ assert.match(html,/function validateDossier\(packet\)/);
+ assert.match(html,/ownKeysEqual\(packet,\["schema","observation","source_status","verification","integrity"\]\)/);
+ assert.match(html,/packet\.integrity\.meaning==="INTEGRITY_ONLY_NOT_AUTHENTICITY"/);
+ assert.match(html,/packet\.verification\.authority!=="NONE"/);
+ assert.match(html,/current===packet\.integrity\.digest/);
+ assert.match(html,/INTEGRITEIT KOMT OVEREEN/);
+ assert.match(html,/INTEGRITEIT AFGEWEZEN/);
+ assert.match(html,/authenticiteit NIET GEVERIFIEERD/);
+ assert.match(html,/\$\("verify-dossier"\)\.addEventListener\("click",verifyDossier\)/);
+});
+test('inspection exporter and verifier share the exact serialization',()=>{
+ assert.match(html,/function inspectionContent\(n\)/);
+ assert.match(html,/const content=inspectionContent\(n\)/);
+ assert.match(html,/const sha256=await digestContent\(content\)/);
+ assert.match(html,/const current=await digestContent\(content\)/);
+ assert.match(html,/new TextEncoder\(\)\.encode\(JSON\.stringify\(content\)\)/);
+});
