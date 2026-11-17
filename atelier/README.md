@@ -65,3 +65,11 @@ De portable projectimport toont nu vóór bevestiging de namen en het aantal ing
 `regiekamer-bundle.js` bevat voortaan `snapshot(storage)`, waarmee drie ruwe waarden van de lokale Atelier-opslag worden gelezen. De restore-aanroep accepteert een optionele verwachte snapshot en weigert overschrijven als de waarden sinds de importpreview veranderd zijn. Bestaande oproepen zonder deze parameter blijven ondersteund. `regiekamer-bundle.test.cjs` heeft aanvullende regressiecategorieën voor stale previews, overeenkomende snapshots en ongeldige snapshots (8 testcases totaal).
 
 **Beperking:** browser-`localStorage` heeft geen atomair compare-and-swap. Een gelijktijdige wijziging precies tussen de vergelijking en het schrijven kan niet volledig worden uitgesloten. De controle verkleint het overschrijfrisico, maar vervangt geen transactionele backend, onafhankelijk reviewproces of formele autorisatie. Ook deze versie blijft DRAFT/HOLD en niet live gepubliceerd.
+
+## Releasepoort v1.8 — geïsoleerde Atelier-validatie
+
+Een aparte pull-request-workflow, `.github/workflows/atelier-validation.yml`, controleert wijzigingen onder `atelier/**` zonder GitHub Pages-deployrechten. De workflow draait met Node.js 22, read-only repositoryrechten en twee groepen tests: (1) portable projectarchief, galerij en statische modulecontracten; (2) de oorspronkelijke builder-, wizard- en proof-tests. De bestaande Pages-deployworkflow en releasebevoegdheden blijven ongewijzigd.
+
+De browser-UMD-scripts worden in de Node-tests nu met `node:vm` geladen in plaats van via `require()`: het project heeft namelijk `"type":"module"`. Assertions zijn aangepast om verschillen tussen JavaScript-realms niet ten onrechte als inhoudelijke fouten te beoordelen. De zes nieuwe `atelier/atelier-surface.test.cjs`-contractcontroles verifiëren modulecontinuïteit, wederzijdse navigatie, inline JavaScript-syntaxis, lokale afhankelijkheden, DRAFT/NONE en het behoud van de New Citadel Wizard.
+
+**Nog te bevestigen:** daadwerkelijke GitHub Actions-uitvoering met groen resultaat, visuele browser-QA, mobiele interface-QA en datamigratie/gelijktijdige-tabscenario's. Een statische test bewijst geen volledige webapp-functionaliteit. Tot die controles slagen blijft PR #60 DRAFT / HOLD en vindt geen publicatie plaats.
