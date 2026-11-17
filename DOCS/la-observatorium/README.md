@@ -6,7 +6,9 @@ DRAFT · HOLD · read-only prototype. Deze map is **geen** live-monitoring, bewi
 ## Navigatie en huidige functionaliteit
 - De bestaande Citadel-navigatie op `index.html` bevat een kandidaatlink naar `/DOCS/la-observatorium/` op deze branch.
 - Vijf schermen: Uitkijk, Bewijskamer, Geheugen, Wachttoren en Atelier.
-- Handmatige, zelfgerapporteerde waarnemingen met classificatiefilter in de tijdlijn en optionele persistentie in browseropslag.
+- Handmatige, zelfgerapporteerde waarnemingen met gecombineerd classificatiefilter en lokale tekstzoekfunctie op onderwerp, beschrijving en bronverwijzing.
+- Elke tijdlijnregel toont uitdrukkelijk `SELF_REPORTED_NOT_VERIFIED`; een zoekresultaat is nooit een Quay-, ERA- of WATERMERK-verificatie.
+- Optionele persistentie in browseropslag, uitsluitend met expliciete toestemming.
 - Bewaartoestemming wordt expliciet in een afzonderlijke lokale consent-markering bijgehouden. Zonder deze markering worden bestaande browsernotities niet ingelezen; bij uitzetten wordt de opgeslagen kopie verwijderd.
 - Ongeldige tijdstempels en lege waarnemingen worden bij uitlezen geweigerd.
 - JSON-export en begrensde JSON-herimport (`≤256 KB`, maximaal 100 notities, strikte schema- en ID-controle) met expliciete `authority: SELF_REPORTED_NOT_VERIFIED`.
