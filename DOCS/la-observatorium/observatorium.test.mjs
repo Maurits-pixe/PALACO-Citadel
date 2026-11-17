@@ -239,3 +239,14 @@ test('failed clear retains local notes for inspection and manual export',()=>{
  assert.match(html,/if\(!cleared\)notes=pendingNotes/);
  assert.match(html,/Wissen NIET bevestigd; de notities blijven in dit tabblad beschikbaar voor export of herstel/);
 });
+
+test('asynchronous import aborts when local journal changes during file reading or confirmation',()=>{
+ assert.match(html,/let journalRevision=0/);
+ assert.match(html,/const startedAtRevision=journalRevision/);
+ assert.match(html,/journalRevision!==startedAtRevision/);
+ assert.match(html,/Import afgebroken: lokaal Geheugen is tijdens het lezen gewijzigd/);
+ assert.match(html,/Import afgebroken: lokaal Geheugen is tijdens de bevestiging gewijzigd/);
+ assert.match(html,/notes\.push\(n\);journalRevision\+\+/);
+ assert.match(html,/notes=notes\.concat\(incoming\);journalRevision\+\+/);
+ assert.match(html,/else journalRevision\+\+/);
+});
