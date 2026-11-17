@@ -143,3 +143,26 @@ test('Atelier: offline herstel weigert stilzwijgend een netwerkloze reparatie', 
     await context.setOffline(false);
   }
 });
+
+test('Atelier: importvergelijking is zichtbaar en annuleren bewaart het bestaande ontwerp', async ({page})=>{
+  await page.goto('/atelier/studio.html');
+  await page.locator('#map .cell').first().click();
+  await page.goto('/atelier/regiekamer.html');
+  const valid=await page.evaluate(()=>{
+    const api=window.PalacoAtelierBundle;
+    const old=api.read(localStorage);
+    const next=api.parse(JSON.stringify(old));
+    next.exterior.cells[0]=null;
+    next.note='Inkomend concept';
+    return JSON.stringify(next);
+  });
+  page.once('dialog',dialog=>dialog.dismiss());
+  await page.locator('#bundleImport').setInputFiles({
+    name:'replacement.json',mimeType:'application/json',buffer:Buffer.from(valid)
+  });
+  await expect(page.locator('#bundleStatus')).toContainText('Veranderende vakken: 1');
+  await expect(page.locator('#bundleStatus')).toContainText('Leeg te maken vakken: 1');
+  await expect(page.locator('#outUsed')).toHaveText('1');
+  await page.goto('/atelier/studio.html');
+  await expect(page.locator('#count')).toHaveText('1');
+});
