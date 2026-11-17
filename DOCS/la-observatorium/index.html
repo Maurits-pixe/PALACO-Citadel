@@ -114,7 +114,7 @@ $("clock").textContent=new Date().toLocaleString("nl-NL",{dateStyle:"medium",tim
 let notes=[];
 let storageEnabled=false;
 try{storageEnabled=localStorage.getItem(CONSENT)==="yes";if(storageEnabled){const raw=localStorage.getItem(KEY);if(raw){const value=JSON.parse(raw);if(Array.isArray(value))notes=value.filter(valid).slice(0,max);}}}catch(_){}
-function valid(n){return n&&typeof n==="object"&&typeof n.id==="string"&&n.id.length<=100&&typeof n.at==="string"&&Number.isFinite(Date.parse(n.at))&&typeof n.subject==="string"&&n.subject.trim().length>0&&n.subject.length<=100&&typeof n.notes==="string"&&n.notes.trim().length>0&&n.notes.length<=1500&&typeof n.kind==="string"&&["OBSERVED","RECORDED","DERIVED","INFERRED","HYPOTHESIS"].includes(n.kind)&&typeof n.reference==="string"&&n.reference.length<=200;}
+function valid(n){return n&&typeof n==="object"&&!Array.isArray(n)&&typeof n.id==="string"&&n.id.length>0&&n.id.length<=100&&typeof n.at==="string"&&Number.isFinite(Date.parse(n.at))&&typeof n.subject==="string"&&n.subject.trim().length>0&&n.subject.length<=100&&typeof n.notes==="string"&&n.notes.trim().length>0&&n.notes.length<=1500&&typeof n.kind==="string"&&["OBSERVED","RECORDED","DERIVED","INFERRED","HYPOTHESIS"].includes(n.kind)&&typeof n.reference==="string"&&n.reference.length<=200;}
 $("persist").checked=storageEnabled;
 function status(msg){$("announce").textContent=msg;}
 function save(){if($("persist").checked){try{localStorage.setItem(KEY,JSON.stringify(notes));localStorage.setItem(CONSENT,"yes");$("storage").textContent="Opslag: lokaal op dit apparaat (toestemming actief)";}catch(_){$("storage").textContent="Lokale opslag mislukt";status("Lokale opslag mislukt");}}else{try{localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);}catch(_){}$("storage").textContent="Opslag: alleen huidig tabblad";}}
@@ -135,11 +135,12 @@ $("filter").addEventListener("change",render);
 $("import").addEventListener("click",async()=>{
 const file=$("import-file").files[0];
 if(!file){status("Selecteer eerst een JSON-bestand.");return;}
-if(file.size>262144){status("Import geweigerd: bestand groter dan 256 KB.");return;}
+if(file.size===0||file.size>262144){status("Import geweigerd: bestand leeg of groter dan 256 KB.");return;}
 try{
 const raw=await file.text();
+if(new TextEncoder().encode(raw).length>262144){status("Import geweigerd: ingelezen inhoud te groot.");return;}
 const data=JSON.parse(raw);
-if(!data||data.format!=="palaco-la-observatory-local-v1"||data.authority!=="SELF_REPORTED_NOT_VERIFIED"||!Array.isArray(data.notes)||data.notes.length>max||!data.notes.every(valid)){
+if(!data||typeof data!=="object"||Array.isArray(data)||data.format!=="palaco-la-observatory-local-v1"||data.authority!=="SELF_REPORTED_NOT_VERIFIED"||!Array.isArray(data.notes)||data.notes.length>max||!data.notes.every(valid)){
 status("Import geweigerd: formaat, bewijsgrens of inhoud ongeldig.");return;
 }
 const ids=new Set(notes.map(n=>n.id)),incoming=[],fileIds=new Set();
@@ -149,6 +150,8 @@ fileIds.add(n.id);
 if(!ids.has(n.id)){incoming.push({id:n.id,at:n.at,subject:n.subject,kind:n.kind,reference:n.reference,notes:n.notes});}
 }
 if(notes.length+incoming.length>max){status("Import geweigerd: limiet van 100 notities overschreden.");return;}
+if(!incoming.length){status("Geen nieuwe notities: alle IDs waren al aanwezig.");return;}
+if(!confirm(incoming.length+" notities alleen als ONGEVERIFIEERDE lokale waarnemingen toevoegen?")){status("Import geannuleerd; er zijn geen notities toegevoegd.");return;}
 notes=notes.concat(incoming);
 save();render();
 status(incoming.length+" zelfgerapporteerde notities geïmporteerd; niet geverifieerd.");
