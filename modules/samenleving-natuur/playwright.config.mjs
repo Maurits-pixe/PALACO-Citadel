@@ -20,7 +20,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'python3 -m http.server 4177 --bind 127.0.0.1',
-    url: 'http://127.0.0.1:4177/modules/samenleving-natuur/index.html',
+    url: 'http://127.0.0.1:4177/index.html',
     reuseExistingServer: !process.env.CI,
     timeout: 30000
   }
