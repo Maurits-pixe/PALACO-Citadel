@@ -37,7 +37,7 @@ test('timeline permits classification and invalid stored dates are rejected',()=
 });
 
 test('JSON journal import has strict schema, size and count limits',()=>{
- assert.match(html,/file\.size>262144/);
+ assert.match(html,/file\.size===0\|\|file\.size>262144/);
  assert.match(html,/data\.format!=="palaco-la-observatory-local-v1"/);
  assert.match(html,/data\.authority!=="SELF_REPORTED_NOT_VERIFIED"/);
  assert.match(html,/data\.notes\.length>max/);
@@ -85,4 +85,20 @@ test('memory inspection navigates to proof room without elevating authority',()=
 test('stale note inspection is cleared if local journal changes',()=>{
  assert.match(html,/if\(selectedId&&!notes\.some\(x=>x\.id===selectedId\)\)clearInspection\(\)/);
  assert.match(html,/function clearInspection\(\)/);
+});
+
+test('manual source labels never certify Quay, ERA or WATERMERK claims',()=>{
+ assert.match(html,/function referenceDescriptor\(reference\)/);
+ assert.match(html,/QUAY\|ERA\|WATERMERK/);
+ assert.match(html,/HANDMATIG LABEL/);
+ assert.match(html,/BRON ONTBREEKT/);
+ assert.match(html,/inspection-reference-state/);
+ assert.match(html,/NIET GEVERIFIEERD/);
+});
+test('conflicting duplicate IDs fail closed before any import mutation',()=>{
+ assert.match(html,/if\(ids\.has\(n\.id\)\)/);
+ assert.match(html,/tegenstrijdige gegevens/);
+ const conflict=html.indexOf('Import geweigerd: bestaand ID heeft tegenstrijdige gegevens.');
+ const mutation=html.indexOf('notes=notes.concat(incoming)');
+ assert.ok(conflict>=0&&conflict<mutation);
 });
