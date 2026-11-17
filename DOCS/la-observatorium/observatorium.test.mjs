@@ -200,3 +200,12 @@ test('offline write and consent revocation must be confirmed before success',()=
  assert.match(html,/if\(save\(\)\)status\(/);
  assert.match(html,/Lokale opslagstatus onbekend/);
 });
+
+test('offline notes have unique IDs when randomUUID is unavailable and report storage failures accurately',()=>{
+ assert.match(html,/function nextLocalId\(\)/);
+ assert.match(html,/if\(random&&typeof random\.randomUUID==="function"\)/);
+ assert.match(html,/do\{id="local-"/);
+ assert.match(html,/while\(notes\.some\(n=>n\.id===id\)\)/);
+ assert.match(html,/const persisted=save\(\)/);
+ assert.match(html,/Waarneming alleen in dit tabblad toegevoegd; opslag is geblokkeerd of niet bevestigd/);
+});
