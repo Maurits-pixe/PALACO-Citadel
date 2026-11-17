@@ -24,7 +24,7 @@ function harness(initialArchive=null){
     reset(){for(const id of ['title','who','what','where','why','how','source'])nodes.get('#'+id).value='';nodes.get('#category').value='Persoonlijk'}
     click(){if(this.tagName==='a')this.clicked=true;else if(this.listeners.has('click'))return this.dispatch('click')}
   }
-  const names=['message','count','utc','entryForm','persist','title','who','what','where','why','how','source','category','search','filter','sort','timeline','collections','dossier','dossierDetails','dossierExport','dossierClose','clear','restore','proof','export','importBtn','file'];
+  const names=['message','count','utc','entryForm','persist','title','who','what','where','why','how','source','category','search','filter','sort','timeline','collections','dossier','dossierDetails','dossierExport','dossierClose','handoffConsent','contractExport','clear','restore','proof','export','importBtn','file'];
   for(const n of names)nodes.set('#'+n,new Element());
   nodes.get('#category').value='Persoonlijk';
   const storage=new Map(),intervals=[];if(initialArchive!==null)storage.set('palaco.citadel.geheugenkamer.v1',JSON.stringify(initialArchive));
@@ -171,4 +171,37 @@ test('clearing memory invalidates selected dossier and blocks stale export',()=>
  assert.equal(h.nodes.get('#dossier').className,'panel hidden');
  h.nodes.get('#dossierExport').dispatch('click');
  assert.match(h.nodes.get('#message').textContent,/Geen dossier geselecteerd/);
+});
+
+test('handoff without explicit selection consent remains blocked',()=>{
+ const h=harness();enter(h,'Geen toestemming');
+ h.nodes.get('#timeline').children[0].children.at(-1).children[1].dispatch('click');
+ h.nodes.get('#contractExport').dispatch('click');
+ assert.equal(h.sandbox.latestBlob,undefined);
+ assert.match(h.nodes.get('#message').textContent,/toestemming ontbreekt/);
+});
+test('handoff contains draft-only trust and one-time consent, never authority',()=>{
+ const h=harness();enter(h,'Handoff');
+ h.nodes.get('#timeline').children[0].children.at(-1).children[1].dispatch('click');
+ h.nodes.get('#handoffConsent').checked=true;
+ h.nodes.get('#contractExport').dispatch('click');
+ const obj=JSON.parse(h.sandbox.latestBlob.chunks[0]);
+ assert.equal(obj.schema,'PALACO-CITADEL-HANDOFF-DRAFT-1');
+ assert.equal(obj.destination.mode,'MANUAL_FILE_TRANSFER_ONLY');
+ assert.equal(obj.consent.scope,'ONE_LOCAL_EXPORT');
+ assert.equal(obj.trust.authority,'NONE');
+ assert.equal(obj.trust.edtrIssued,false);
+ assert.equal(obj.trust.sourceVerified,false);
+ assert.equal(obj.trust.clockAttested,false);
+ assert.equal(obj.lineage.length,1);
+ assert.equal(h.nodes.get('#handoffConsent').checked,false);
+});
+test('selecting a different dossier cancels earlier export consent',()=>{
+ const h=harness();enter(h,'Eerste');enter(h,'Tweede');
+ h.nodes.get('#timeline').children[0].children.at(-1).children[1].dispatch('click');
+ h.nodes.get('#handoffConsent').checked=true;
+ h.nodes.get('#timeline').children[1].children.at(-1).children[1].dispatch('click');
+ assert.equal(h.nodes.get('#handoffConsent').checked,false);
+ h.nodes.get('#contractExport').dispatch('click');
+ assert.equal(h.sandbox.latestBlob,undefined);
 });
