@@ -48,6 +48,8 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(gallery,/state==='DRAFT'/);
   assert.match(read('regiekamer.html'),/api\.restoreWithRecovery\(localStorage,pack,current\)/);
   assert.match(read('regiekamer.html'),/api\.undoLastImport\(localStorage,before\)/);
+  assert.match(read('regiekamer.html'),/id="exportRecovery" disabled/);
+  assert.match(read('regiekamer.html'),/api\.getRecovery\(localStorage\)/);
 });
 test('original New Citadel identity wizard is still linked and cannot authorize',()=>{
   const wizard=read('wizard.html');
