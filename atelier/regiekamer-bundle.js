@@ -50,14 +50,23 @@ function read(storage){
  const note=storage.getItem(NOTE);
  return create(exterior,interior,typeof note==='string'?note.slice(0,6000):'');
 }
-function restore(storage,bundle){
+function snapshot(storage){
+ return keys.map(key=>storage.getItem(key));
+}
+function restore(storage,bundle,expectedSnapshot){
  const b=parse(JSON.stringify(bundle));
- // Snapshot all original raw values; roll back if any write fails.
- const prior=keys.map(key=>storage.getItem(key));
+ // Optimistic compare: refuse a write if another tab changed source data after preview.
+ const prior=snapshot(storage);
+ if(expectedSnapshot!==undefined){
+   if(!Array.isArray(expectedSnapshot)||expectedSnapshot.length!==keys.length||expectedSnapshot.some((value,i)=>prior[i]!==value)){
+     throw Error('Lokaal project gewijzigd sinds de controle. Heropen het bestand en controleer opnieuw.');
+   }
+ }
  const changes=[[EX,b.exterior?JSON.stringify(b.exterior):null],[IN,b.interior?JSON.stringify(b.interior):null],[NOTE,b.note]];
  try{
    changes.forEach(([key,value])=>value===null?storage.removeItem(key):storage.setItem(key,value));
  }catch(err){
+   // Rollback is best effort: localStorage has no multi-key atomic transactions.
    let rollbackOk=true;
    for(let i=0;i<keys.length;i++){
      try{prior[i]===null?storage.removeItem(keys[i]):storage.setItem(keys[i],prior[i]);}catch{rollbackOk=false;}
@@ -67,5 +76,5 @@ function restore(storage,bundle){
  }
  return {exterior:!!b.exterior,interior:!!b.interior,noteLength:b.note.length};
 }
-return Object.freeze({EX,IN,NOTE,validExterior,validInterior,create,parse,read,restore});
+return Object.freeze({EX,IN,NOTE,validExterior,validInterior,create,parse,read,snapshot,restore});
 });
