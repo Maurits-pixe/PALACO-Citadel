@@ -9,6 +9,7 @@
 const EX='palaco.citadel.atelier.grand-studio.v1';
 const IN='palaco.citadel.atelier.interior.v1';
 const NOTE='palaco.citadel.atelier.regiekamer.note.v1';
+const RECOVERY='palaco.citadel.atelier.regiekamer.recovery.v1';
 const keys=Object.freeze([EX,IN,NOTE]);
 const extKinds=new Set(['royal','home','park','water','culture','trade','care','path','observatory','atelier','garden','bridge']);
 const intKinds=new Set(['salon','bedroom','kitchen','bath','library','gallery','atelier','terrace','hall','stairs','pool','wellness','dining','greenhouse']);
@@ -96,5 +97,48 @@ function restore(storage,bundle,expectedSnapshot){
  }
  return {exterior:!!b.exterior,interior:!!b.interior,noteLength:b.note.length};
 }
-return Object.freeze({EX,IN,NOTE,validExterior,validInterior,create,parse,read,preview,snapshot,restore});
+function getRecovery(storage){
+ const raw=storage.getItem(RECOVERY);
+ if(raw===null)return null;
+ if(raw.length>150000)throw Error('Herstelkopie is te groot');
+ const record=JSON.parse(raw);
+ if(!record||record.schema!=='palaco.citadel.atelier.recovery/1'||record.authority!=='NONE'||record.state!=='DRAFT'){
+   throw Error('Onbekende herstelkopie');
+ }
+ const draft=parse(JSON.stringify(record.draft));
+ if(typeof record.savedAt!=='string'||!/^\\d{4}-\\d{2}-\\d{2}T/.test(record.savedAt))throw Error('Ongeldig herstelmoment');
+ return {savedAt:record.savedAt,draft};
+}
+function restoreWithRecovery(storage,bundle,expectedSnapshot){
+ const incoming=parse(JSON.stringify(bundle));
+ const prior=snapshot(storage);
+ if(expectedSnapshot!==undefined&&(!Array.isArray(expectedSnapshot)||expectedSnapshot.length!==keys.length||expectedSnapshot.some((v,i)=>prior[i]!==v))){
+   throw Error('Lokaal project gewijzigd sinds de controle. Heropen het bestand en controleer opnieuw.');
+ }
+ // Never silently discard unreadable source data during a destructive import.
+ for(const [i,validate] of [[0,validExterior],[1,validInterior]]){
+   if(prior[i]!==null){
+     let value;
+     try{value=JSON.parse(prior[i]);}catch{throw Error('Bestaande Atelier-bron bevat onleesbare gegevens; exporteer of herstel deze eerst.');}
+     if(!validate(value))throw Error('Bestaande Atelier-bron is geen geldig DRAFT-project; automatisch overschrijven geweigerd.');
+   }
+ }
+ if(prior[2]!==null&&prior[2].length>6000)throw Error('Bestaande ontwerpnotitie overschrijdt de veilige limiet');
+ const previousRecovery=storage.getItem(RECOVERY);
+ const record={schema:'palaco.citadel.atelier.recovery/1',state:'DRAFT',authority:'NONE',savedAt:new Date().toISOString(),draft:read(storage)};
+ try{storage.setItem(RECOVERY,JSON.stringify(record));}
+ catch{throw Error('Geen ruimte voor veilige herstelkopie; import afgebroken zonder wijzigingen.');}
+ try{return restore(storage,incoming,prior);}
+ catch(err){
+   try{previousRecovery===null?storage.removeItem(RECOVERY):storage.setItem(RECOVERY,previousRecovery);}
+   catch{throw Error('Import faalde en herstelkopie kon niet worden teruggezet. Controleer je lokale projectgegevens.');}
+   throw err;
+ }
+}
+function undoLastImport(storage,expectedSnapshot){
+ const recovery=getRecovery(storage);
+ if(!recovery)throw Error('Er is geen lokale herstelkopie beschikbaar');
+ return restoreWithRecovery(storage,recovery.draft,expectedSnapshot);
+}
+return Object.freeze({EX,IN,NOTE,RECOVERY,validExterior,validInterior,create,parse,read,preview,snapshot,restore,getRecovery,restoreWithRecovery,undoLastImport});
 });
