@@ -45,5 +45,7 @@ jobs:
         run: npm install --no-save --package-lock=false --ignore-scripts playwright@1.56.1
       - name: Install headless Chromium
         run: ./node_modules/.bin/playwright install --with-deps chromium
+      - name: Assert local Playwright browser revision is available
+        run: node --input-type=module -e "import { chromium } from 'playwright'; import { existsSync } from 'node:fs'; const binary = chromium.executablePath(); if (!existsSync(binary)) throw new Error('Playwright Chromium binary missing: ' + binary); console.log(binary)"
       - name: Run mobile and desktop browser journey
         run: node --test DOCS/la-observatorium/browser-acceptance.test.mjs
