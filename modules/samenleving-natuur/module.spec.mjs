@@ -189,3 +189,37 @@ test('mobile layout avoids horizontal page overflow across chapters', async ({ p
     expect(sizes.documentWidth, 'overflow in chapter '+id).toBeLessThanOrEqual(sizes.viewportWidth + 2);
   }
 });
+
+test('keyboard skip link moves focus to main chapter content', async ({ page }) => {
+  await page.reload();
+  await page.keyboard.press('Tab');
+  const skip = page.getByRole('link', { name: 'Direct naar hoofdstukinhoud' });
+  await expect(skip).toBeFocused();
+  await expect(skip).toBeVisible();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#main-content')).toBeFocused();
+  await expect(page).toHaveURL(/#main-content$/);
+});
+
+test('user provided markup is displayed as text, never executed', async ({ page }) => {
+  await page.getByRole('button', { name:'Levend register' }).click();
+  await page.locator('#title').fill('<img src=x onerror=alert(1)>');
+  await page.locator('#notes').fill('<script>window.CITADEL_XSS=1</script>');
+  await page.locator('#entryform button[type="submit"]').click();
+  await expect(page.locator('#message')).toContainText('lokaal opgeslagen');
+  await expect(page.locator('#records')).toContainText('<img src=x onerror=alert(1)>');
+  await expect(page.locator('#records')).toContainText('<script>window.CITADEL_XSS=1</script>');
+  await expect(page.locator('#records img')).toHaveCount(0);
+  await expect(page.locator('#records script')).toHaveCount(0);
+  expect(await page.evaluate(() => window.CITADEL_XSS)).toBeUndefined();
+});
+
+test('invalid handoff cannot activate import confirmation', async ({ page }) => {
+  await page.locator('#handoffFile').setInputFiles({
+    name:'wrong-schema.json', mimeType:'application/json',
+    buffer:Buffer.from(JSON.stringify({schema:'other',source:'citadel/samenleving-natuur',records:[]}))
+  });
+  await expect(page.locator('#handoffStatus')).toContainText('afgewezen');
+  await expect(page.locator('#handoffPreview')).toBeHidden();
+  await expect(page.locator('#handoffAccept')).toBeDisabled();
+});
