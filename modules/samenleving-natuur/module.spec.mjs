@@ -1,12 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { fileURLToPath } from 'node:url';
-import { resolve } from 'node:path';
 
-const modulePage = fileURLToPath(new URL('./index.html', import.meta.url));
-const origin = 'file://' + resolve(modulePage).replaceAll('\\', '/');
+const origin = 'http://127.0.0.1:4177/modules/samenleving-natuur/index.html';
 
 test.beforeEach(async ({ page }) => {
   await page.goto(origin);
+  await expect(page.locator('main')).toBeVisible();
   await page.getByRole('button', { name: 'Ontvangstruimte' }).click();
 });
 
