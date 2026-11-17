@@ -201,3 +201,27 @@ test('Atelier: bevestigde import bewaart een herstelkopie en vorige versie kan t
   await expect(page.locator('#outUsed')).toHaveText('1');
   await expect(page.locator('#statement')).toHaveValue('');
 });
+
+test('Atelier: dossiercontrole toont echte SHA-256 en wijzigt geen lokaal project', async ({page})=>{
+  const {createHash}=await import('node:crypto');
+  await page.goto('/atelier/studio.html');
+  await page.locator('#map .cell').first().click();
+  await page.goto('/atelier/regiekamer.html');
+  const packageString=await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage)));
+  const bytes=Buffer.from(packageString,'utf8');
+  const expected=createHash('sha256').update(bytes).digest('hex');
+  await page.locator('#bundleVerify').setInputFiles({name:'inspectie.json',mimeType:'application/json',buffer:bytes});
+  await expect(page.locator('#verifyStatus')).toContainText('Geldig creatief DRAFT-project');
+  await expect(page.locator('#verifyStatus')).toContainText(expected);
+  await expect(page.locator('#verifyStatus')).toContainText('geen digitale handtekening');
+  await expect(page.locator('#outUsed')).toHaveText('1');
+  await expect(page.locator('#undoImport')).toBeDisabled();
+  const before=await page.evaluate(()=>localStorage.getItem('palaco.citadel.atelier.grand-studio.v1'));
+  await page.locator('#bundleVerify').setInputFiles({
+    name:'bevoegdheid.json',mimeType:'application/json',
+    buffer:Buffer.from(JSON.stringify({...JSON.parse(packageString),authority:'OWNER'}))
+  });
+  await expect(page.locator('#verifyStatus')).toContainText('Controle afgewezen');
+  await expect(page.locator('#outUsed')).toHaveText('1');
+  expect(await page.evaluate(()=>localStorage.getItem('palaco.citadel.atelier.grand-studio.v1'))).toBe(before);
+});
