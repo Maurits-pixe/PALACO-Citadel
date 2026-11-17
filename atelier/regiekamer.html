@@ -102,9 +102,15 @@ $('bundleImport').addEventListener('change',async event=>{
    const pack=api.parse(await file.text());
    const ex=pack.exterior?pack.exterior.name:'geen exterieur';
    const ins=pack.interior?pack.interior.name:'geen interieur';
-   $('bundleStatus').textContent='Geldig DRAFT-pakket gelezen: '+ex+' / '+ins+'.';
-   if(!confirm('Lokaal Atelier-project herstellen? Dit vervangt je huidige exterieur, interieur en ontwerpnotitie. Exporteer eerst je huidige werk.'))return;
-   api.restore(localStorage,pack);
+   const current=api.snapshot(localStorage);
+   const currentNote=current[2]===null?'':current[2];
+   const pendingNote=noteValue()!==currentNote;
+   const filledEx=pack.exterior?pack.exterior.cells.filter(Boolean).length:0;
+   const filledIn=pack.interior?pack.interior.floors.flat().filter(Boolean).length:0;
+   $('bundleStatus').textContent='Gecontroleerd DRAFT-pakket: '+ex+' ('+filledEx+'/96), '+ins+' ('+filledIn+'/240), notitie '+pack.note.length+' tekens.';
+   const warning=pendingNote?' LET OP: er staan nog niet-bewaarde notitiewijzigingen in deze pagina.':'';
+   if(!confirm('Vervang alle huidige lokale Atelier-ontwerpen en de notitie door dit DRAFT-pakket? Bewaar eerst je huidige werk als JSON.'+warning))return;
+   api.restore(localStorage,pack,current);
    $('statement').value=pack.note;
    refresh();
    $('bundleStatus').textContent='Projectpakket lokaal hersteld. Open de editors opnieuw om de gegevens te bekijken.';
