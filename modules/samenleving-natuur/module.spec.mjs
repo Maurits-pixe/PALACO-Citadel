@@ -119,3 +119,48 @@ test('default handoff export omits private note, title, and record IDs', async (
   expect(json.records[0]).not.toHaveProperty('id');
   expect(JSON.stringify(json)).not.toContain('VERTROUWELIJKE');
 });
+
+test('a pending handoff is invalidated when another tab modifies the register', async ({ page, context }) => {
+  const record = { id:'external-001', title:'Andere eik', category:'Flora',
+    conceptualArea:'Het Woud', verification:'nog te verifiëren',
+    description:'Cross-tab controle', observedAt:'2026-11-01T12:00:00Z' };
+  await page.locator('#handoffFile').setInputFiles({
+    name:'pending.json', mimeType:'application/json',
+    buffer:Buffer.from(JSON.stringify({
+      schema:'palaco-citadel-handoff-v1',
+      source:'citadel/samenleving-natuur', privacy:'full-user-controlled',
+      records:[record]
+    }))
+  });
+  await expect(page.locator('#handoffNew')).toHaveText('1');
+  await page.locator('#handoffConsent').check();
+  await expect(page.locator('#handoffAccept')).toBeEnabled();
+  const second = await context.newPage();
+  await second.goto(origin);
+  await second.getByRole('button', { name:'Levend register' }).click();
+  await second.locator('#title').fill('Waarneming vanuit tweede tab');
+  await second.locator('#entryform button[type="submit"]').click();
+  await expect(second.locator('#message')).toContainText('lokaal opgeslagen');
+  await expect(page.locator('#handoffPreview')).toBeHidden();
+  await expect(page.locator('#handoffAccept')).toBeDisabled();
+  await expect(page.locator('#records')).toContainText('Waarneming vanuit tweede tab');
+  await second.close();
+});
+
+test('stale storage snapshot cannot overwrite a newer register', async ({ page }) => {
+  await page.getByRole('button', { name:'Levend register' }).click();
+  await page.locator('#title').fill('Oud voorstel');
+  await page.evaluate(() => {
+    const key = 'palaco.citadel.samenleving-natuur.v1';
+    localStorage.setItem(key, JSON.stringify([{
+      id:'preserved-001', title:'Bewaar deze observatie', kind:'Flora',
+      area:'Het Woud', verification:'persoonlijke observatie',
+      notes:'Nieuwe gegevens', time:'2026-11-01T12:00:00Z'
+    }]));
+  });
+  await page.locator('#entryform button[type="submit"]').click();
+  await expect(page.locator('#message')).toContainText('overschrijving geweigerd');
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('palaco.citadel.samenleving-natuur.v1')));
+  expect(saved).toHaveLength(1);
+  expect(saved[0].title).toBe('Bewaar deze observatie');
+});
