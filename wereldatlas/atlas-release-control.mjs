@@ -1,5 +1,6 @@
 // PALACO Atlas Release Control Center v1.4 RC — preparation only; never deploy or approve.
 import {GATES,READINESS_SCHEMA} from "./atlas-readiness.mjs";
+export {GATES};
 export const CONTROL_SCHEMA="palaco.atlas.release-control.draft.v1";
 export const MAX_IMPORT_BYTES=65536;
 export const ROLLBACK=Object.freeze([
