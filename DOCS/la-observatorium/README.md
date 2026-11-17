@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Concurrentieveilige JSON-import (v2.0)
+Een lokale JSON-import loopt asynchroon en kan plaatsvinden terwijl het Atelier of Geheugen verandert. De applicatie telt wijzigingen aan het lokale logboek en onthoudt de versie bij het starten van iedere import. Na het inlezen van de bestandsinhoud en opnieuw vlak vóór het toepassen van de import wordt gecontroleerd dat de versie ongewijzigd is. Zodra tussentijds een lokale notitie is toegevoegd, een import is toegepast, de notities zijn gewist of een herstelreset is uitgevoerd, wordt een verouderde import afgebroken in plaats van stilzwijgend het nieuwere Geheugen te veranderen.
+
+Een Chromium-test pauzeert de bestandslezing, voegt tijdens die pauze een lokale waarneming toe en controleert daarna dat de oude import niet wordt toegepast. Dit is geen claim over geverifieerde afkomst; alle notities blijven `SELF_REPORTED_NOT_VERIFIED`. De volledige browseracceptatie en release blijven HOLD.
+
 ## Herstelbaar wissen bij browseropslagfout (v1.9)
 De knop **Wis lokale notities** houdt de bestaande notities in het geheugen van het open tabblad beschikbaar zolang de permanente verwijdering niet aantoonbaar is voltooid. De toepassing bereidt de verwijdering voor, controleert met `save()` of logboek en toestemmingsmarkering zijn verdwenen en herstelt bij een fout de in-memory lijst. De interface meldt dan **Wissen NIET bevestigd**; de gebruiker kan het logboek nog inspecteren of als JSON exporteren. Bij bevestigde verwijdering verdwijnen ook de notities uit het tabblad.
 
