@@ -164,3 +164,28 @@ test('stale storage snapshot cannot overwrite a newer register', async ({ page }
   expect(saved).toHaveLength(1);
   expect(saved[0].title).toBe('Bewaar deze observatie');
 });
+
+test('chapter navigation remains keyboard accessible and reports active section', async ({ page }) => {
+  await page.getByRole('button', { name:'Samenleving' }).focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#society')).toBeVisible();
+  await expect(page.locator('nav [data-tab="society"]')).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('#inbox')).toBeHidden();
+  await page.getByRole('button', { name:'Seizoenen & ecologie' }).focus();
+  await page.keyboard.press('Space');
+  await expect(page.locator('#seasons')).toBeVisible();
+});
+
+test('mobile layout avoids horizontal page overflow across chapters', async ({ page }, testInfo) => {
+  if (testInfo.project.name !== 'mobile-chromium') return;
+  const ids = ['overview','nature','society','species','seasons','atlas','timeline','inbox','register'];
+  for (const id of ids) {
+    await page.locator('nav [data-tab="'+id+'"]').click();
+    await expect(page.locator('#'+id)).toBeVisible();
+    const sizes = await page.evaluate(() => ({
+      documentWidth: document.documentElement.scrollWidth,
+      viewportWidth: document.documentElement.clientWidth
+    }));
+    expect(sizes.documentWidth, 'overflow in chapter '+id).toBeLessThanOrEqual(sizes.viewportWidth + 2);
+  }
+});
