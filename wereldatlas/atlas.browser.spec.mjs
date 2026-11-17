@@ -12,7 +12,8 @@ const routes=[
  ["Trust & Lineage Gateway","atlas-trust-gateway.html"],
  ["Integratiekern","atlas-integratie.html"],
  ["Acceptatiekamer","atlas-acceptatie.html"],
- ["Release Evidence Review","atlas-release-review.html"]
+ ["Release Evidence Review","atlas-release-review.html"],
+ ["Release Readiness","atlas-readiness.html"]
 ];
 test("alle tien Atlas-pagina's laden lokaal zonder script- of netwerkfouten",async({page})=>{
  const failures=[];
@@ -70,11 +71,11 @@ test("offlinemodus bewaart alleen de vaste Atlas-shell en opent archief zonder n
  await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
  await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
  const paths=await page.evaluate(async()=>{
-  const cache=await caches.open("palaco-atlas-shell-v1-rc5");
+  const cache=await caches.open("palaco-atlas-shell-v1-rc6");
   const keys=await cache.keys();
   return keys.map(r=>new URL(r.url).pathname);
  });
- expect(paths).toHaveLength(24);
+ expect(paths).toHaveLength(26);
  expect(paths.every(p=>p.startsWith("/wereldatlas/"))).toBe(true);
  expect(paths.some(p=>p.endsWith(".json")||p.includes("admin")||p.includes("api/"))).toBe(false);
  await context.setOffline(true);
@@ -178,4 +179,31 @@ test("Review en contractmodule openen na offline installatie",async({page,contex
  await page.goto(root+"atlas-release-review.html");
  await expect(page.locator("h1")).toContainText("Release Evidence Review");
  await expect(page.locator("#import-status")).toContainText("Nog geen dossier");
+});
+
+test("Release Readiness toont negen modules en zes open releasepoorten",async({page})=>{
+ await page.goto(root+"atlas-readiness.html");
+ await expect(page.locator("#modules .entry")).toHaveCount(9);
+ await expect(page.locator("#external p")).toHaveCount(4);
+ await expect(page.locator("#gates .entry")).toHaveCount(6);
+ await expect(page.locator("#module-status")).toContainText("intern consistent");
+ await expect(page.locator("#download")).toBeDisabled();
+ await expect(page.locator("body")).toContainText("AUTHORIZATION DENY");
+});
+test("Release Readiness weigert review zonder dossier en ongeoorloofde vrijgave",async({page})=>{
+ await page.goto(root+"atlas-readiness.html");
+ const review={schema:"palaco.atlas.release-evidence-review.draft.v1",decision:"GO",authorization:"ALLOW",verified:true};
+ await page.locator("#review-file").setInputFiles({name:"tampered.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(review))});
+ await expect(page.locator("#import-status")).toContainText("AFGEWEZEN");
+ await expect(page.locator("#download")).toBeDisabled();
+});
+test("Release Readiness werkt na opt-in installatie zonder netwerk",async({page,context})=>{
+ await page.goto(root+"atlas-integratie.html");
+ await page.locator("#offline-enable").click();
+ await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
+ await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+ await context.setOffline(true);
+ await page.goto(root+"atlas-readiness.html");
+ await expect(page.locator("#modules .entry")).toHaveCount(9);
+ await expect(page.locator("#gates .entry")).toHaveCount(6);
 });
