@@ -12,12 +12,16 @@ permissions:
 
 jobs:
   build:
+    name: Citadel node regression suite
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: Run a one-line script
-        run: echo Hello, world!
-      - name: Run a multi-line script
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate Geheugenkamer and Bewijskamer contracts
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          node --test DOCS/la-geheugenkamer/geheugenkamer.test.mjs
+          node --test DOCS/la-bewijskamer/handoff.test.mjs
+          node --test DOCS/la-bewijskamer/triage.test.mjs
