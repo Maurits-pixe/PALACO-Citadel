@@ -209,3 +209,12 @@ test('offline notes have unique IDs when randomUUID is unavailable and report st
  assert.match(html,/const persisted=save\(\)/);
  assert.match(html,/Waarneming alleen in dit tabblad toegevoegd; opslag is geblokkeerd of niet bevestigd/);
 });
+
+test('damaged offline journal can be backed up without mutation before destructive reset',()=>{
+ assert.match(html,/id="storage-backup"/);
+ assert.match(html,/\$\("storage-backup"\)\.addEventListener\("click"/);
+ assert.match(html,/const raw=localStorage\.getItem\(KEY\)/);
+ assert.match(html,/la-observatorium-onleesbare-kopie\.txt/);
+ assert.match(html,/Onleesbare kopie lokaal gedownload; geen validatie of bewijsstatus/);
+ assert.match(html,/\$\("storage-backup"\)\.classList\.add\("hidden"\)/);
+});
