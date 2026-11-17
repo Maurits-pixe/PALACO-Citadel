@@ -73,3 +73,11 @@ Een aparte pull-request-workflow, `.github/workflows/atelier-validation.yml`, co
 De browser-UMD-scripts worden in de Node-tests nu met `node:vm` geladen in plaats van via `require()`: het project heeft namelijk `"type":"module"`. Assertions zijn aangepast om verschillen tussen JavaScript-realms niet ten onrechte als inhoudelijke fouten te beoordelen. De zes nieuwe `atelier/atelier-surface.test.cjs`-contractcontroles verifiëren modulecontinuïteit, wederzijdse navigatie, inline JavaScript-syntaxis, lokale afhankelijkheden, DRAFT/NONE en het behoud van de New Citadel Wizard.
 
 **Nog te bevestigen:** daadwerkelijke GitHub Actions-uitvoering met groen resultaat, visuele browser-QA, mobiele interface-QA en datamigratie/gelijktijdige-tabscenario's. Een statische test bewijst geen volledige webapp-functionaliteit. Tot die controles slagen blijft PR #60 DRAFT / HOLD en vindt geen publicatie plaats.
+
+## Atelier v1.9 — mobiele en desktop-browseracceptatie
+
+De PR-validatie is uitgebreid met `tests/browser/atelier.spec.mjs`. Deze Playwright-tests draaien met de bestaande `playwright.config.mjs` op twee Chromium-schermformaten: mobiel 390×844 en desktop 1440×900. Getest worden (1) editor → interieur → Regiekamer → galerij, (2) portable DRAFT-export, herstel en afwijzen van authority-claims en (3) panorama-camerastandpunten en wederzijdse module-navigatie. Ze vergen geen productieaccount of servermutaties.
+
+De workflow `.github/workflows/atelier-validation.yml` installeert vergrendelde npm-afhankelijkheden en Chromium, voert bestaande domein- en contracttests uit en draait gericht de nieuwe browsertests. De workflow heeft uitsluitend `contents: read` en geen deployrechten.
+
+**Releasegate:** broncode/testdefinitie toegevoegd betekent nog niet dat de nieuwe browsertests daadwerkelijk geslaagd zijn. De status blijft HOLD totdat de workflow een bevestigde success-conclusie heeft, inclusief Playwright, en een onafhankelijke visuele/manual review is uitgevoerd.
