@@ -72,10 +72,11 @@ button[aria-current=page],.primary{background:var(--gold);color:#122018;font-wei
 <label for="notes">Beschrijving</label><textarea id="notes" maxlength="2000" placeholder="Wat is waargenomen? Vermijd precieze locaties van kwetsbare soorten."></textarea>
 <div class="actions"><button class="primary" type="submit">Bewaar observatie</button></div></form>
 <div class="card"><h3>Mijn registraties</h3><label for="filter">Filter categorie</label><select id="filter"><option value="Alle">Alle</option><option>Flora</option><option>Fauna</option><option>Water</option><option>Landschap</option><option>Samenleving</option></select><div id="records" aria-live="polite"></div><div class="actions"><button id="export" type="button">Exporteer JSON</button><button id="importBtn" type="button">Importeer JSON</button><input id="importFile" type="file" accept=".json,application/json" class="hidden"><button id="clear" type="button">Wis lokaal register</button></div></div></div><p id="message" role="status" aria-live="polite"></p>
-</section></main><footer>PALACO · Samenleving & Natuur · prototype v1.0-rc3 · Geen publicatie, synchronisatie of identiteitsuitgifte.</footer></div>
+</section></main><footer>PALACO · Samenleving & Natuur · prototype v1.0-rc4 · Geen publicatie, synchronisatie of identiteitsuitgifte.</footer></div>
 <script>
 (()=>{'use strict';
 const KEY='palaco.citadel.samenleving-natuur.v1',MAX=500;
+let storedSnapshot=null;
 const species=[
 {kind:'Flora',name:'Zomereik',latin:'Quercus robur',icon:'🌳',habitat:'Bossen, lanen en houtwallen',about:'Loofboom met diep ingesneden bladeren en eikels; vormt leefruimte voor veel organismen.'},
 {kind:'Flora',name:'Gewone paardenbloem',latin:'Taraxacum officinale agg.',icon:'🌼',habitat:'Graslanden en bermen',about:'Herkenbare gele bloemhoofdjes; onderscheid tussen afzonderlijke soorten kan specialistisch zijn.'},
@@ -108,10 +109,10 @@ const ecoRelations=[
 ];
 const zones=[['🌳','Het Woud','Bomen, schaduw, schimmels en bosleven.'],['🌾','De Velden','Grassen, bloemen, bestuivers en open landschappen.'],['💦','Het Waterland','Vijvers, oevers, waterkwaliteit en biodiversiteit.'],['🪨','De Heuvels','Bodem, gesteente, uitzicht en erosie.'],['🌸','De Tuinen','Verzorgde natuur en gedeelde groenruimtes.'],['🌙','Het Stiltegebied','Nachtleven, rust, donkerte en bescherming.']];
 const $=id=>document.getElementById(id);let entries=[];
-function load(){try{const data=JSON.parse(localStorage.getItem(KEY)||'[]');entries=Array.isArray(data)?data.filter(valid).slice(0,MAX):[]}catch{entries=[]}}
+function load(){try{storedSnapshot=localStorage.getItem(KEY);const data=JSON.parse(storedSnapshot||'[]');entries=Array.isArray(data)?data.filter(valid).slice(0,MAX):[]}catch{entries=[]}}
 const kinds=['Flora','Fauna','Water','Landschap','Samenleving'],states=['persoonlijke observatie','nog te verifiëren','geverifieerd door gebruiker'];
 function valid(e){return !!e&&typeof e.id==='string'&&e.id.length<=120&&typeof e.title==='string'&&e.title.trim().length>0&&e.title.length<=100&&typeof e.area==='string'&&zones.some(z=>z[1]===e.area)&&kinds.includes(e.kind)&&typeof e.notes==='string'&&e.notes.length<=2000&&typeof e.time==='string'&&!Number.isNaN(Date.parse(e.time))&&states.includes(e.verification)}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(entries));return true}catch{say('Opslag mislukt. Exporteer eventueel bestaande gegevens.');return false}}
+function save(){try{if(localStorage.getItem(KEY)!==storedSnapshot){load();render();handoffReset('Het register is gewijzigd in een ander tabblad. Controleer de nieuwe inhoud en laad het pakket opnieuw.');say('Wijziging door ander tabblad gedetecteerd; lokale overschrijving geweigerd.');return false}const serialized=JSON.stringify(entries);localStorage.setItem(KEY,serialized);storedSnapshot=serialized;return true}catch{say('Opslag mislukt. Exporteer eventueel bestaande gegevens.');return false}}
 function say(s){$('message').textContent=s}
 function el(tag,txt,cls){const n=document.createElement(tag);if(txt!==undefined)n.textContent=txt;if(cls)n.className=cls;return n}
 function renderSeasons(){const data=seasons[$('seasonSelect').value],zone=$('seasonZone').value,card=$('seasonCard');card.replaceChildren();card.append(el('div',data.icon,'art'));card.append(el('h3',data.name+' — '+data.theme));card.append(el('p',data.intro));if(zone!=='all')card.append(el('p',zone+': '+zoneHints[zone]));card.append(el('p','Natuurzorg: '+data.care,'muted'))}
@@ -166,6 +167,7 @@ $('packetExport').addEventListener('click',()=>{const minimal=$('packetMinimal')
 $('importBtn').addEventListener('click',()=>$('importFile').click());
 $('importFile').addEventListener('change',async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;if(file.size>2_000_000){say('Importbestand is te groot.');return}try{const data=JSON.parse(await file.text());if(data.schema!=='palaco-citadel-natuur-v1'||!Array.isArray(data.entries)||data.entries.length>MAX||!data.entries.every(valid)){say('Ongeldig of incompatibel importbestand.');return}if(!confirm('Huidige lokale registraties vervangen door dit bestand?'))return;const old=entries;entries=data.entries.map(x=>({...x,title:x.title.slice(0,100),notes:x.notes.slice(0,2000)}));if(save()){render();say('Import voltooid.')}else entries=old}catch{say('Kon JSON niet lezen.')}});
 $('clear').addEventListener('click',()=>{if(confirm('Alle lokale observaties verwijderen? Maak eerst een export.')){const old=entries;entries=[];if(save()){render();say('Lokaal register gewist.')}else entries=old}});
+window.addEventListener('storage',event=>{if(event.key!==KEY&&event.key!==null)return;load();render();handoffReset('Het register is gewijzigd in een ander tabblad. Laad het overdrachtspakket opnieuw.');say('Het register is bijgewerkt vanuit een ander tabblad.')});
 load();render();renderSpecies();renderSeasons();renderEco();
 })();
 </script></body></html>
