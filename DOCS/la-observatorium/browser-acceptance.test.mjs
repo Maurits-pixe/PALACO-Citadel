@@ -267,3 +267,50 @@ test('failed save of new observation retains local-only warning',{timeout:60000}
   assert.equal(await page.locator('#persist').isDisabled(),true);
  });
 });
+
+test('corrupt storage blocks import and ordinary clear without mutating protected copy',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  const corrupt='{unreadable backup';
+  await page.evaluate(raw=>{
+   localStorage.setItem('palaco_la_observatory_consent_v1','yes');
+   localStorage.setItem('palaco_la_observatory_notes_v1',raw);
+  },corrupt);
+  await page.reload();
+  await page.locator('#tab-atelier').click();
+  const journal={format:'palaco-la-observatory-local-v1',authority:'SELF_REPORTED_NOT_VERIFIED',
+    notes:[{id:'import-1',at:'2026-11-17T07:00:00.000Z',subject:'Imported note',
+      kind:'OBSERVED',reference:'',notes:'Should be blocked'}]};
+  await page.locator('#import-file').setInputFiles({
+   name:'import.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(journal))});
+  await page.locator('#import').click();
+  assert.match(await page.locator('#announce').innerText(),/Import geblokkeerd/);
+  await page.locator('#clear').click();
+  assert.match(await page.locator('#announce').innerText(),/Wissen geblokkeerd/);
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),corrupt);
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_consent_v1')),'yes');
+  await page.locator('#tab-geheugen').click();
+  assert.match(await page.locator('#count').innerText(),/0 \/ 0/);
+ });
+});
+
+test('failed journal clear does not claim confirmed local erasure',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  await page.locator('#tab-atelier').click();
+  await page.locator('#persist').check();
+  await page.locator('#subject').fill('Notitie voor wisproef');
+  await page.locator('#notes').fill('Lokaal bewaard');
+  await page.locator('#form button[type="submit"]').click();
+  await page.evaluate(()=>{
+   const remove=Storage.prototype.removeItem;
+   Storage.prototype.removeItem=function(key){
+    if(key==='palaco_la_observatory_notes_v1')throw Error('Forced clear failure');
+    return remove.call(this,key);
+   };
+  });
+  page.once('dialog',dialog=>dialog.accept());
+  await page.locator('#clear').click();
+  assert.match(await page.locator('#announce').innerText(),/NIET bevestigd gewist/);
+  assert.equal(await page.locator('#persist').isDisabled(),true);
+  assert.ok(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')));
+ });
+});
