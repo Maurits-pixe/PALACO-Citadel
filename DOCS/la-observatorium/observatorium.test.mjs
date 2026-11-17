@@ -188,3 +188,15 @@ test('malformed or duplicate offline journals quarantine rather than overwrite t
  assert.match(html,/Onleesbare lokale kopie en toestemmingsmarkering definitief wissen/);
  assert.match(html,/\$\("persist"\)\.disabled=storageRecoveryBlocked/);
 });
+
+test('offline write and consent revocation must be confirmed before success',()=>{
+ assert.match(html,/function save\(\)/);
+ assert.match(html,/localStorage\.getItem\(KEY\)!==serialized/);
+ assert.match(html,/localStorage\.getItem\(KEY\)!==null\|\|localStorage\.getItem\(CONSENT\)!==null/);
+ assert.match(html,/storageRecoveryBlocked=true/);
+ assert.match(html,/\$\("persist"\)\.disabled=true/);
+ assert.match(html,/WISSEN NIET BEVESTIGD/);
+ assert.match(html,/OPSLAG ONBEVESTIGD/);
+ assert.match(html,/if\(save\(\)\)status\(/);
+ assert.match(html,/Lokale opslagstatus onbekend/);
+});
