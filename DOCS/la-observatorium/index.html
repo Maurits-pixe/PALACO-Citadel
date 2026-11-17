@@ -65,7 +65,7 @@ footer{border-top:1px solid #3d5046;padding:24px;text-align:center;color:#9eada4
 <article class="panel"><div class="label">Mandaat / bevoegdheid</div><div class="metric unknown">ONBEKEND</div><p class="muted">De module verleent of verandert geen mandaten.</p></article>
 <article class="panel"><div class="label">Provenance · Quay</div><div class="metric unknown">NIET AANGESLOTEN</div><p class="muted">Geen externe eventstream, replay of auditbron actief.</p></article>
 </div>
-<div class="panel section" id="inspection" aria-live="polite"><h2>Geselecteerde waarneming</h2><p class="muted" id="inspection-empty">Selecteer een lokale waarneming in Het Geheugen om de bewijsketen te inspecteren.</p><div id="inspection-fields" class="hidden"><p><strong id="inspection-subject"></strong></p><p id="inspection-notes"></p><p><span class="label">Classificatie</span> <span id="inspection-kind"></span></p><p><span class="label">Bronverwijzing</span> <span id="inspection-reference"></span></p><p><span class="label">Apparaattijd</span> <span id="inspection-time"></span></p><p><span class="label">Herkomst</span> <strong>SELF_REPORTED_NOT_VERIFIED</strong></p><p class="unknown">Quay: NIET AANGESLOTEN · ERA/EDTR: NIET GECONTROLEERD · WATERMERK: GEEN VALIDATIE · Mandaat: GEEN</p><button id="inspection-back" type="button" class="secondary">Terug naar Geheugen</button></div></div>
+<div class="panel section" id="inspection" aria-live="polite"><h2>Geselecteerde waarneming</h2><p class="muted" id="inspection-empty">Selecteer een lokale waarneming in Het Geheugen om de bewijsketen te inspecteren.</p><div id="inspection-fields" class="hidden"><p><strong id="inspection-subject"></strong></p><p id="inspection-notes"></p><p><span class="label">Classificatie</span> <span id="inspection-kind"></span></p><p><span class="label">Bronverwijzing</span> <span id="inspection-reference"></span></p><p><span class="label">Referentietype</span> <span id="inspection-reference-type"></span></p><p><span class="label">Referentiecontrole</span> <strong id="inspection-reference-state">NIET GEVERIFIEERD</strong></p><p><span class="label">Apparaattijd</span> <span id="inspection-time"></span></p><p><span class="label">Herkomst</span> <strong>SELF_REPORTED_NOT_VERIFIED</strong></p><p class="unknown">Quay: NIET AANGESLOTEN · ERA/EDTR: NIET GECONTROLEERD · WATERMERK: GEEN VALIDATIE · Mandaat: GEEN</p><button id="inspection-back" type="button" class="secondary">Terug naar Geheugen</button></div></div>
 <div class="panel section"><h2>Bewijsladder</h2><p>Bron → Herkomst → Bewijs → Regels → Replay → Reconstructie → Beoordeling.</p><p class="muted">Elke ontbrekende schakel blijft zichtbaar. Uitkomsten mogen pas PASS, REJECT of UNRESOLVED heten na een afzonderlijke, aantoonbare beoordeling. Deze presentatie beoordeelt niets.</p></div>
 </section>
 <section id="geheugen" class="section hidden" aria-label="Het Geheugen">
@@ -87,7 +87,7 @@ footer{border-top:1px solid #3d5046;padding:24px;text-align:center;color:#9eada4
 <form id="form">
 <label for="subject">Onderwerp</label><input id="subject" name="subject" required maxlength="100" placeholder="Bijv. WATERMERK-status in lokale proefomgeving">
 <label for="kind">Classificatie</label><select id="kind" name="kind"><option>OBSERVED</option><option>RECORDED</option><option>DERIVED</option><option>INFERRED</option><option>HYPOTHESIS</option></select>
-<label for="reference">Bronverwijzing (optioneel)</label><input id="reference" name="reference" maxlength="200" placeholder="Documentreferentie of lokale aanduiding">
+<label for="reference">Bronverwijzing (optioneel)</label><input id="reference" name="reference" maxlength="200" placeholder="Bijv. QUAY: event-123, ERA: dossier-4 of WATERMERK: ref-5"><p class="muted">De aanduidingen QUAY:, ERA: en WATERMERK: zijn alleen labels. De bron en het bewijs worden niet automatisch gecontroleerd.</p>
 <label for="notes">Beschrijving</label><textarea id="notes" name="notes" maxlength="1500" required placeholder="Wat is daadwerkelijk waargenomen, en wat is onzeker?"></textarea>
 <div class="actions"><button class="primary" type="submit">Voeg lokale waarneming toe</button></div>
 </form>
@@ -122,10 +122,17 @@ $("persist").checked=storageEnabled;
 function status(msg){$("announce").textContent=msg;}
 function save(){if($("persist").checked){try{localStorage.setItem(KEY,JSON.stringify(notes));localStorage.setItem(CONSENT,"yes");$("storage").textContent="Opslag: lokaal op dit apparaat (toestemming actief)";}catch(_){$("storage").textContent="Lokale opslag mislukt";status("Lokale opslag mislukt");}}else{try{localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);}catch(_){}$("storage").textContent="Opslag: alleen huidig tabblad";}}
 function showTab(id){const btn=tabs.find(b=>b.dataset.tab===id);if(btn)btn.click();}
+function referenceDescriptor(reference){
+const value=reference.trim();if(!value)return {type:"GEEN REFERENTIE",state:"BRON ONTBREEKT"};
+const match=/^(QUAY|ERA|WATERMERK):\s*(\S[\s\S]*)$/i.exec(value);
+if(!match)return {type:"LOKALE / ONGESPECIFICEERDE REFERENTIE",state:"NIET GEVERIFIEERD"};
+return {type:match[1].toUpperCase()+" (HANDMATIG LABEL)",state:"NIET GEVERIFIEERD"};
+}
 function inspectNote(id){const n=notes.find(x=>x.id===id);if(!n){selectedId=null;clearInspection();status("Waarneming niet meer beschikbaar.");return;}
 selectedId=id;$("inspection-empty").classList.add("hidden");$("inspection-fields").classList.remove("hidden");
 $("inspection-subject").textContent=n.subject;$("inspection-notes").textContent=n.notes;
 $("inspection-kind").textContent=n.kind;$("inspection-reference").textContent=n.reference||"Geen bronverwijzing";
+const reference=referenceDescriptor(n.reference);$("inspection-reference-type").textContent=reference.type;$("inspection-reference-state").textContent=reference.state;
 $("inspection-time").textContent=new Date(n.at).toLocaleString("nl-NL")+" (apparaat of geïmporteerd, niet geattesteerd)";
 showTab("bewijs");$("inspection-subject").setAttribute("tabindex","-1");$("inspection-subject").focus();status("Lokale bewijsketen weergegeven; geen onafhankelijke verificatie.");}
 function clearInspection(){selectedId=null;$("inspection-fields").classList.add("hidden");$("inspection-empty").classList.remove("hidden");}
@@ -161,7 +168,10 @@ const ids=new Set(notes.map(n=>n.id)),incoming=[],fileIds=new Set();
 for(const n of data.notes){
 if(fileIds.has(n.id)){status("Import geweigerd: dubbele IDs in bestand.");return;}
 fileIds.add(n.id);
-if(!ids.has(n.id)){incoming.push({id:n.id,at:n.at,subject:n.subject,kind:n.kind,reference:n.reference,notes:n.notes});}
+if(ids.has(n.id)){
+const existing=notes.find(item=>item.id===n.id);
+if(!existing||["at","subject","kind","reference","notes"].some(key=>existing[key]!==n[key])){status("Import geweigerd: bestaand ID heeft tegenstrijdige gegevens.");return;}
+}else{incoming.push({id:n.id,at:n.at,subject:n.subject,kind:n.kind,reference:n.reference,notes:n.notes});}
 }
 if(notes.length+incoming.length>max){status("Import geweigerd: limiet van 100 notities overschreden.");return;}
 if(!incoming.length){status("Geen nieuwe notities: alle IDs waren al aanwezig.");return;}
