@@ -280,3 +280,57 @@ test("encrypted archive: wrong passphrase and corrupted ciphertext cannot be imp
  assert.match(await b.locator("#message").innerText(),/beschadigd bestand/);
  await c.close();await receiver.close();
 });
+
+test("encrypted local vault: manual save, reload stays locked, unlock and lock",async()=>{
+ const context=await browser.newContext({viewport:{width:390,height:844}});
+ const page=await context.newPage();await page.goto(base+"/DOCS/la-geheugenkamer/");
+ await page.locator("#title").fill("Versleutelde apparaatnotitie");
+ await page.locator("#who").fill("Eigenaar");
+ await page.locator("#what").fill("Privé");
+ await page.locator("#entryForm button[type=submit]").click();
+ await page.locator("#archivePassphrase").fill("Sterke lokale wachtzin 123!");
+ await page.locator("#vaultSave").click();
+ await page.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde kluis bewust opgeslagen"));
+ const raw=await page.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1"));
+ assert.ok(raw);assert.equal(raw.includes("Versleutelde apparaatnotitie"),false);
+ assert.equal(await page.locator("#archivePassphrase").inputValue(),"");
+ assert.equal(await page.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.v1")),null);
+ await page.reload();
+ assert.equal(await page.locator("#count").innerText(),"0","Vault never auto-unlocks");
+ await page.locator("#archivePassphrase").fill("Onjuiste kluiswachtzin 456");
+ await page.locator("#vaultUnlock").click();
+ await page.waitForFunction(()=>document.querySelector("#message").textContent.includes("verkeerde wachtzin"));
+ assert.equal(await page.locator("#count").innerText(),"0");
+ await page.locator("#archivePassphrase").fill("Sterke lokale wachtzin 123!");
+ await page.locator("#vaultUnlock").click();
+ await page.waitForFunction(()=>document.querySelector("#count").textContent==="1");
+ assert.equal(await page.locator("#archivePassphrase").inputValue(),"");
+ await page.locator("#vaultLock").click();
+ assert.equal(await page.locator("#count").innerText(),"0");
+ assert.ok(await page.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")));
+ await context.close();
+});
+
+test("encrypted local vault: refuse plaintext opt-in and vault save over plaintext",async()=>{
+ const context=await browser.newContext({viewport:{width:390,height:844}});
+ const page=await context.newPage();await page.goto(base+"/DOCS/la-geheugenkamer/");
+ await page.locator("#title").fill("Geen dubbele opslag");
+ await page.locator("#who").fill("W");
+ await page.locator("#what").fill("X");
+ await page.locator("#entryForm button[type=submit]").click();
+ await page.locator("#persist").check();
+ await page.locator("#archivePassphrase").fill("Geheim apparaat 123!");
+ await page.locator("#vaultSave").click();
+ assert.match(await page.locator("#message").innerText(),/schakel eerst onversleutelde/);
+ assert.equal(await page.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),null);
+ await page.locator("#vaultLock").click();
+ assert.equal(await page.locator("#count").innerText(),"1","Refuse misleading lock");
+ await page.locator("#persist").uncheck();
+ await page.locator("#archivePassphrase").fill("Geheim apparaat 123!");
+ await page.locator("#vaultSave").click();
+ await page.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde kluis bewust opgeslagen"));
+ await page.locator("#persist").click();
+ assert.equal(await page.locator("#persist").isChecked(),false);
+ assert.match(await page.locator("#message").innerText(),/Onversleuteld opslaan geweigerd/);
+ await context.close();
+});
