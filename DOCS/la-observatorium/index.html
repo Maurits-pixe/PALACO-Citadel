@@ -15,6 +15,8 @@ h1{font-family:Georgia,serif;font-weight:400;font-size:clamp(2.4rem,6vw,5rem);ma
 p{line-height:1.6}.lead{font-size:1.07rem;color:#c0cbc5;max-width:760px}
 .bar,.tabs{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0}.pill,.tab{background:#122220;color:#d4ded5;border:1px solid #385049;border-radius:32px;padding:10px 16px}
 .tab[aria-selected=true]{color:#0b1816;background:#dbc486;border-color:#dbc486}
+.tab:focus-visible,.primary:focus-visible,.secondary:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #efdcab;outline-offset:3px}
+.tab{min-height:44px}
 .panel{background:linear-gradient(155deg,#172723,#0f1b1b);border:1px solid #3d5046;border-radius:18px;padding:24px;min-width:0}
 .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.wide{grid-column:span 2}
 .metric{font-size:1.45rem;margin:12px 0;color:#edd498}.label{font-size:.77rem;text-transform:uppercase;letter-spacing:.14em;color:#afc1b3}
@@ -43,14 +45,14 @@ footer{border-top:1px solid #3d5046;padding:24px;text-align:center;color:#9eada4
 <h1>Het Observatorium</h1>
 <p class="lead">Een rustige plaats om constitutionele gebeurtenissen te observeren, herkomst te volgen en bewijsgrenzen zichtbaar te houden. Waarneming ≠ bewijs ≠ definitief besluit.</p>
 <div class="bar"><span class="tag">Modus: PROTOTYPE</span><span class="tag">Bevoegdheid: READ ONLY</span><span class="tag">Live verbinding: NIET AANGESLOTEN</span></div>
-<nav class="tabs" aria-label="Observatorium hoofdstukken">
-<button class="tab" data-tab="uitkijk" aria-selected="true">De Uitkijk</button>
-<button class="tab" data-tab="bewijs" aria-selected="false">De Bewijskamer</button>
-<button class="tab" data-tab="geheugen" aria-selected="false">Het Geheugen</button>
-<button class="tab" data-tab="wacht" aria-selected="false">De Wachttoren</button>
-<button class="tab" data-tab="atelier" aria-selected="false">Het Atelier</button>
+<nav class="tabs" role="tablist" aria-label="Observatorium hoofdstukken">
+<button class="tab" id="tab-uitkijk" role="tab" type="button" data-tab="uitkijk" aria-controls="uitkijk" aria-selected="true" tabindex="0">De Uitkijk</button>
+<button class="tab" id="tab-bewijs" role="tab" type="button" data-tab="bewijs" aria-controls="bewijs" aria-selected="false" tabindex="-1">De Bewijskamer</button>
+<button class="tab" id="tab-geheugen" role="tab" type="button" data-tab="geheugen" aria-controls="geheugen" aria-selected="false" tabindex="-1">Het Geheugen</button>
+<button class="tab" id="tab-wacht" role="tab" type="button" data-tab="wacht" aria-controls="wacht" aria-selected="false" tabindex="-1">De Wachttoren</button>
+<button class="tab" id="tab-atelier" role="tab" type="button" data-tab="atelier" aria-controls="atelier" aria-selected="false" tabindex="-1">Het Atelier</button>
 </nav>
-<section id="uitkijk" class="section" aria-label="De Uitkijk">
+<section id="uitkijk" class="section" role="tabpanel" aria-labelledby="tab-uitkijk" tabindex="0">
 <div class="grid">
 <article class="panel"><div class="label">Referentie-Citadel</div><div class="metric">L.A. · W-0001</div><p class="muted">Locus Amoenus; referentiepresentatie, geen gezagsbron.</p></article>
 <article class="panel"><div class="label">Systeemstatus</div><div class="metric unknown">ONBEKEND</div><p class="muted">Geen geauthenticeerde live bron gekoppeld. Niet interpreteren als gezond of operationeel.</p></article>
@@ -59,7 +61,7 @@ footer{border-top:1px solid #3d5046;padding:24px;text-align:center;color:#9eada4
 <article class="panel"><div class="label">Lokale tijdsaanduiding</div><div class="metric" id="clock">—</div><p class="muted">Apparaattijd, geen EDTR- of WATERMERK-verificatie.</p></article>
 </div>
 </section>
-<section id="bewijs" class="section hidden" aria-label="De Bewijskamer">
+<section id="bewijs" class="section hidden" role="tabpanel" aria-labelledby="tab-bewijs" tabindex="0">
 <div class="grid">
 <article class="panel"><div class="label">WATERMERK</div><div class="metric unknown">BRON ONTBREEKT</div><p class="muted">Geen ketencontrole, handtekening of monotone lineage aangeleverd.</p></article>
 <article class="panel"><div class="label">Mandaat / bevoegdheid</div><div class="metric unknown">ONBEKEND</div><p class="muted">De module verleent of verandert geen mandaten.</p></article>
@@ -73,20 +75,20 @@ footer{border-top:1px solid #3d5046;padding:24px;text-align:center;color:#9eada4
 <p class="muted">Bij gelijke hash: INTEGRITEIT KOMT OVEREEN, maar authenticiteit blijft NIET GEVERIFIEERD. Bij afwijking: INTEGRITEIT AFGEWEZEN.</p></div>
 <div class="panel section"><h2>Bewijsladder</h2><p>Bron → Herkomst → Bewijs → Regels → Replay → Reconstructie → Beoordeling.</p><p class="muted">Elke ontbrekende schakel blijft zichtbaar. Uitkomsten mogen pas PASS, REJECT of UNRESOLVED heten na een afzonderlijke, aantoonbare beoordeling. Deze presentatie beoordeelt niets.</p></div>
 </section>
-<section id="geheugen" class="section hidden" aria-label="Het Geheugen">
+<section id="geheugen" class="section hidden" role="tabpanel" aria-labelledby="tab-geheugen" tabindex="0">
 <div class="panel"><div class="row"><h2>Lokale waarnemingstijdlijn</h2><span id="count" class="tag">0 notities</span></div>
 <label for="search">Zoek in onderwerp, beschrijving of bronverwijzing</label><input id="search" type="search" maxlength="120" autocomplete="off" placeholder="Zoek in dit lokale geheugen">
 <label for="filter">Filter op classificatie</label><select id="filter"><option value="ALL">Alle classificaties</option><option value="OBSERVED">OBSERVED</option><option value="RECORDED">RECORDED</option><option value="DERIVED">DERIVED</option><option value="INFERRED">INFERRED</option><option value="HYPOTHESIS">HYPOTHESIS</option></select>
 <p class="muted">Alleen handmatig vastgelegde notities. Geen officiële Quay-events; bewerken of verwijderen hier verandert nooit de canonieke geschiedenis. Alle resultaten zijn <strong>SELF_REPORTED_NOT_VERIFIED</strong>.</p>
 <ul class="events" id="events"><li>Er zijn nog geen lokale waarnemingen.</li></ul></div>
 </section>
-<section id="wacht" class="section hidden" aria-label="De Wachttoren">
+<section id="wacht" class="section hidden" role="tabpanel" aria-labelledby="tab-wacht" tabindex="0">
 <div class="grid">
 <article class="panel"><div class="kicker">Zichtbare grens</div><h2>Geen live bron</h2><p class="bad">BLOKKADE</p><p class="muted">Drift en echte incidenten kunnen niet worden bepaald zonder geverifieerde feed.</p></article>
 <article class="panel"><div class="kicker">Historische integriteit</div><h2>Replay ontbreekt</h2><p class="unknown">ONOPGELOST</p><p class="muted">Geen bronhistorie of reproduceerbare checkpoint ontvangen.</p></article>
 <article class="panel"><div class="kicker">Veiligheidsgrens</div><h2>Geen autorisatie</h2><p class="ok">READ ONLY</p><p class="muted">Geen uitvoering, uitgifte, goedkeuring of wijziging van bevoegdheden.</p></article>
 </div></section>
-<section id="atelier" class="section hidden" aria-label="Het Atelier">
+<section id="atelier" class="section hidden" role="tabpanel" aria-labelledby="tab-atelier" tabindex="0">
 <div class="grid"><div class="panel wide">
 <h2>Leg een waarneming vast</h2><p class="muted">Een notitie is zelfgerapporteerd, niet onafhankelijk geverifieerd. Vul geen geheimen, identiteitsbewijzen of toegangstokens in.</p>
 <form id="form">
@@ -113,10 +115,24 @@ footer{border-top:1px solid #3d5046;padding:24px;text-align:center;color:#9eada4
 "use strict";
 const KEY="palaco_la_observatory_notes_v1", CONSENT="palaco_la_observatory_consent_v1", max=100, $=id=>document.getElementById(id);
 const tabs=Array.from(document.querySelectorAll("[data-tab]"));
-tabs.forEach(btn=>btn.addEventListener("click",()=>{
-tabs.forEach(b=>b.setAttribute("aria-selected",String(b===btn)));
-tabs.forEach(b=>$(b.dataset.tab).classList.toggle("hidden",b!==btn));
-}));
+function activateTab(btn){
+ tabs.forEach(b=>{
+  const active=b===btn;b.setAttribute("aria-selected",String(active));b.tabIndex=active?0:-1;
+  $(b.dataset.tab).classList.toggle("hidden",!active);
+ });
+}
+tabs.forEach((btn,i)=>{
+ btn.addEventListener("click",()=>activateTab(btn));
+ btn.addEventListener("keydown",e=>{
+  let next;
+  if(e.key==="ArrowRight")next=(i+1)%tabs.length;
+  else if(e.key==="ArrowLeft")next=(i+tabs.length-1)%tabs.length;
+  else if(e.key==="Home")next=0;
+  else if(e.key==="End")next=tabs.length-1;
+  else return;
+  e.preventDefault();const selected=tabs[next];activateTab(selected);selected.focus();
+ });
+});
 $("clock").textContent=new Date().toLocaleString("nl-NL",{dateStyle:"medium",timeStyle:"short"});
 let notes=[];
 let selectedId=null;
