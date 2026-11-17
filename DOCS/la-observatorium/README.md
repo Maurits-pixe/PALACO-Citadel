@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Branchgerichte browsertests (v1.0)
+De workflow is uitgebreid met een `push`-trigger die uitsluitend geldt voor `feature/la-observatorium-readonly-20261117` en relevante Observatorium- of workflowbestanden. De bestaande `pull_request`- en `workflow_dispatch`-triggers blijven behouden. Deze trigger dient uitsluitend om CI opnieuw te laten draaien; hij merged, deployed of publiceert niets. De workflow heeft alleen `contents: read` en de test bewaakt dit contract.
+
+Let op: de GitHub connector voor commit-workflowhistorie retourneert in deze omgeving uitsluitend pull-request-geïnitieerde runs. Een `push`-getriggerde run kan daardoor plaatsvinden zonder zichtbaar te zijn in dat overzicht. Beschouw de browseracceptatie uitsluitend als PASS wanneer een afgeronde workflow en testuitkomst onafhankelijk terug te lezen zijn; tot dat moment blijft HOLD.
+
 ## Chromium-versieconsistentie (v0.9)
 In de afgeronde GitHub-run `44023639342` faalden alle drie de browserscenario's **vóór paginaopstart**: de lokale Playwright-library verwachtte een browser executable onder `chromium_headless_shell-1194`, terwijl `npx playwright install` een nieuwere revision (`1255`) downloadde. Dit was een CI-dependencyfout, geen bewezen defect in het Observatorium.
 
