@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Chromium-versieconsistentie (v0.9)
+In de afgeronde GitHub-run `44023639342` faalden alle drie de browserscenario's **vóór paginaopstart**: de lokale Playwright-library verwachtte een browser executable onder `chromium_headless_shell-1194`, terwijl `npx playwright install` een nieuwere revision (`1255`) downloadde. Dit was een CI-dependencyfout, geen bewezen defect in het Observatorium.
+
+De workflow gebruikt daarom expliciet `./node_modules/.bin/playwright install --with-deps chromium` in plaats van een automatisch door `npx` gekozen CLI, gevolgd door een controle of `chromium.executablePath()` daadwerkelijk bestaat. Pas de volgende voltooide browserjob bepaalt de acceptatiestatus; zonder die uitkomst blijft HOLD.
+
 ## Browserharnas betrouwbaarheid (v0.8)
 De acceptatieharnas sluit de lokale HTTP-server voortaan ook als Chromium niet kan starten, en ruimt browserprocessen op na ieder scenario. De browserstart en HTTP-navigatie hebben afzonderlijke timeouts. Een mislukking of hang is geen bewijs van een defect in het Observatorium zelf; de CI-log moet het test- of applicatiefoutpad expliciet aantonen. De browseruitkomst blijft HOLD tot een volledige run is afgerond.
 
