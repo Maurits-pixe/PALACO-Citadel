@@ -10,8 +10,8 @@
 <section class="section" aria-labelledby="offline-title" style="margin-top:16px">
   <div class="nav"><div><p class="eyebrow">OFFLINE / LOKALE BESCHIKBAARHEID</p><h2 id="offline-title">Verbindingskompas</h2></div><span id="offlineBadge" class="status">Controleren…</span></div>
   <p class="small" id="offlineStatus" role="status" aria-live="polite">Controle van verbinding en lokaal gecachete Atelier-bestanden.</p>
-  <div class="actions"><button type="button" class="action" id="checkOffline">⟳ Controleer offlinepakket</button></div>
-  <p class="small">De indicator vergelijkt de lokale cache met de zes benodigde Atelier-resources. Offlinegebruik vereist dat het pakket eerder met internet is geïnstalleerd. Een groene cachecontrole is geen garantie voor blijvende opslag of werkende synchronisatie.</p>
+  <div class="actions"><button type="button" class="action" id="checkOffline">⟳ Controleer offlinepakket</button><button type="button" class="action primary" id="repairOffline">↻ Herstel offlinepakket</button></div>
+  <p class="small">De indicator vergelijkt de lokale cache met de zes benodigde Atelier-resources. Gebruik ‘Herstel offlinepakket’ met internet om ontbrekende bestanden opnieuw te laden. Offlinegebruik vereist dat het pakket eerder met internet is geïnstalleerd. Een groene cachecontrole is geen garantie voor blijvende opslag of werkende synchronisatie.</p>
 </section>
 <div class="grid">
 <section class="card"><p class="eyebrow">01 / Exterieur</p><h2>De levende Citadel</h2><p id="extStatus">Bron controleren…</p><div class="summary"><div class="stat"><strong id="outUsed">0</strong><span>Ingericht</span></div><div class="stat"><strong id="outNature">0</strong><span>Natuur</span></div></div><p><strong id="outName">Geen ontwerp</strong></p><a href="./studio.html">Open de Grand Studio</a></section>
@@ -45,7 +45,7 @@
 <p id="feedback" role="status" class="small">De projectgegevens worden uitsluitend uit deze browser gelezen.</p></section>
 <aside class="section"><p class="eyebrow">05 / Projectkompas</p><h2>Ontwerpchecks</h2><div class="diagnostics" id="diagnostics" role="list"></div>
 <h3>Bevoegdheid & veiligheid</h3><p class="message">Deze Regiekamer is alleen een lokaal, read-only overzicht van de maquettes, met een afzonderlijke ontwerpnotitie. Er worden geen officiële identiteiten, bewijsstukken, cryptografische handtekeningen, WORLD-creaties of autorisaties uitgevoerd.</p><p class="small">De export is een niet-geverifieerde creatieve DRAFT-kopie. Bewaar deze zelf. Browseropslag is geen veilige langdurige back-up.</p></aside></div>
-<footer>PALACO CITADEL · Atelier Regiekamer v2.1 · Nieuwe ontwerpen, bestaande fundamenten.</footer></div>
+<footer>PALACO CITADEL · Atelier Regiekamer v2.2 · Nieuwe ontwerpen, bestaande fundamenten.</footer></div>
 <script src="./regiekamer-gallery.js"></script>
 <script src="./regiekamer-bundle.js"></script>
 <script>
@@ -201,6 +201,48 @@ async function checkOfflineReady(){
    description.textContent='Atelier-cache: '+count+' van '+OFFLINE_ASSETS.length+' bestanden. '+(connected?'Controleer opnieuw nadat de serviceworker het pakket heeft opgeslagen.':'Verbind opnieuw met internet om ontbrekende bestanden te installeren.');
  }
 }
+let repairingOffline=false;
+async function repairOffline(){
+ if(repairingOffline)return;
+ const button=$('repairOffline'),description=$('offlineStatus');
+ if(!navigator.onLine){
+   description.textContent='Offlinepakket kan alleen met internet worden hersteld. Het huidige ontwerp blijft lokaal bewaard.';
+   return;
+ }
+ if(!('serviceWorker' in navigator)||!('caches' in window)){
+   description.textContent='Deze browser biedt geen volledige offlinepakketondersteuning. Bewaar een DRAFT-export.';
+   return;
+ }
+ repairingOffline=true;
+ button.disabled=true;
+ button.textContent='Herstellen…';
+ try{
+   await navigator.serviceWorker.register('/sw.js');
+   await navigator.serviceWorker.ready;
+   // Avoid replacing files already cached; download only missing local resources.
+   const cache=await caches.open('palaco-rio-shell-v6');
+   let repaired=0;
+   for(const resource of OFFLINE_ASSETS){
+     if(await cache.match(resource))continue;
+     const response=await fetch(resource,{cache:'reload'});
+     if(!response.ok)throw Error('HTTP '+response.status+' voor '+resource);
+     await cache.put(resource,response);
+     repaired++;
+   }
+   await checkOfflineReady();
+   const matches=await Promise.all(OFFLINE_ASSETS.map(resource=>cache.match(resource)));
+   if(!matches.every(Boolean))throw Error('Cache onvolledig na herstel');
+   description.textContent='Offlinepakket gecontroleerd: '+repaired+' ontbrekende bestanden hersteld. Alle zes creatieve resources beschikbaar.';
+ }catch(err){
+   await checkOfflineReady();
+   description.textContent='Herstel niet volledig uitgevoerd ('+err.message+'). Controleer de internetverbinding en probeer opnieuw.';
+ }finally{
+   repairingOffline=false;
+   button.disabled=false;
+   button.textContent='↻ Herstel offlinepakket';
+ }
+}
+$('repairOffline').addEventListener('click',repairOffline);
 $('checkOffline').addEventListener('click',checkOfflineReady);
 window.addEventListener('online',checkOfflineReady);
 window.addEventListener('offline',checkOfflineReady);
