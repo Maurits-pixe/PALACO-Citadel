@@ -24,14 +24,24 @@
 <p id="galleryInfo" class="gallery-info" role="status">Ontwerpweergave wordt voorbereid.</p>
 <div class="actions"><button class="action" id="saveGallery" type="button">↓ Exporteer galerijbeeld (SVG)</button><a class="action" id="editGallery" href="./studio.html">Open bijbehorende editor</a></div>
 </section>
+<section class="section" aria-labelledby="portable-heading" style="margin:0 0 16px">
+<div class="nav"><div><p class="eyebrow">05 / Projectarchief</p><h2 id="portable-heading">Bewaren & herstellen</h2></div><span class="status">PORTABLE · DRAFT</span></div>
+<p class="small">Bewaar de exterieurmaquette, het interieur op drie verdiepingen en de ontwerpnotitie samen in één overdraagbaar JSON-projectpakket. De bestaande afzonderlijke bestanden blijven beschikbaar. De export bevat bewust geen autorisatiegegevens of ontwerphistorie.</p>
+<div class="actions"><button class="action primary" type="button" id="bundleSave">↓ Bewaar compleet projectpakket</button></div>
+<label for="bundleImport" class="eyebrow" style="display:block;margin:18px 0 9px">Herstel een eerder projectpakket</label>
+<input type="file" id="bundleImport" accept=".json,application/json" style="max-width:100%;font-size:13px">
+<p class="message">Herstel vervangt uitsluitend de drie lokale Atelier-opslagonderdelen na jouw bevestiging. Controleer vooraf het pakketoverzicht; exporteer je huidige werk eerst. Onbekende of niet-DRAFT-pakketten worden geweigerd. Een mislukte schrijfactie wordt zo mogelijk teruggedraaid.</p>
+<p id="bundleStatus" class="small" role="status" aria-live="polite">Er is nog geen projectpakket geselecteerd.</p>
+</section>
 <div class="bottom"><section class="section"><p class="eyebrow">04 / Ontwerpintentie</p><h2>Het creatieve dossier</h2><p class="small">Een eigen, lokale tekstnotitie die losstaat van de officiële Citadel-wizard. Dit is een ontwerpverklaring, geen bewijs, besluit, machtiging of registratie.</p>
 <label for="statement" class="eyebrow">Verhaal, uitgangspunten en materiaalvisie</label><textarea id="statement" maxlength="6000" placeholder="Beschrijf jouw visie op een luxueus en leefbaar Locus Amoenus: architectuur, natuur, ruimtes, kunst, ritme, toegankelijkheid…"></textarea>
 <div class="actions"><button class="action" id="saveNote">Bewaar notitie lokaal</button><button class="action primary" id="export">Exporteer DRAFT-dossier (JSON)</button><button class="action" id="exportTxt">Exporteer overzicht (TXT)</button><button class="action" id="refresh">Vernieuw overzicht</button></div>
 <p id="feedback" role="status" class="small">De projectgegevens worden uitsluitend uit deze browser gelezen.</p></section>
 <aside class="section"><p class="eyebrow">05 / Projectkompas</p><h2>Ontwerpchecks</h2><div class="diagnostics" id="diagnostics" role="list"></div>
 <h3>Bevoegdheid & veiligheid</h3><p class="message">Deze Regiekamer is alleen een lokaal, read-only overzicht van de maquettes, met een afzonderlijke ontwerpnotitie. Er worden geen officiële identiteiten, bewijsstukken, cryptografische handtekeningen, WORLD-creaties of autorisaties uitgevoerd.</p><p class="small">De export is een niet-geverifieerde creatieve DRAFT-kopie. Bewaar deze zelf. Browseropslag is geen veilige langdurige back-up.</p></aside></div>
-<footer>PALACO CITADEL · Atelier Regiekamer v1.1 · Nieuwe ontwerpen, bestaande fundamenten.</footer></div>
+<footer>PALACO CITADEL · Atelier Regiekamer v1.2 · Nieuwe ontwerpen, bestaande fundamenten.</footer></div>
 <script src="./regiekamer-gallery.js"></script>
+<script src="./regiekamer-bundle.js"></script>
 <script>
 'use strict';
 const EX='palaco.citadel.atelier.grand-studio.v1';
@@ -70,6 +80,37 @@ function saveNote(){try{localStorage.setItem(NOTE,noteValue());$('feedback').tex
 function getSummary(){const ec=exterior?exterior.cells:[],ic=interior?interior.floors.flat():[];return {exterior_parcels_used:ec.filter(Boolean).length,nature_and_water:ec.filter(k=>['park','garden','water'].includes(k)).length,interior_parcels_used:ic.filter(Boolean).length,interior_functions:new Set(ic.filter(Boolean)).size};}
 function packageDraft(){return {schema:'palaco.citadel.atelier.creative-dossier/1',state:'DRAFT',authority:'NONE',purpose:'CREATIVE_REFERENCE_ONLY',exterior:exterior?{schema:exterior.schema,state:'DRAFT',authority:'NONE',name:exterior.name,cells:exterior.cells.slice()}:null,interior:interior?{schema:interior.schema,state:'DRAFT',authority:'NONE',name:interior.name,material:interior.material,mood:interior.mood,floors:interior.floors.map(f=>f.slice())}:null,creative_statement:noteValue(),summary:getSummary(),limitations:['No official identity','No approval or building permit','No evidence or issuer signature','No WORLD activation']};}
 function download(filename,body,type){const url=URL.createObjectURL(new Blob([body],{type}));const link=document.createElement('a');link.href=url;link.download=filename;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1200);}
+$('bundleSave').addEventListener('click',()=>{
+  const api=window.PalacoAtelierBundle;
+  if(!api){$('bundleStatus').textContent='Projectpakket-functie niet geladen.';return;}
+  try{
+    // Read directly from browser storage; an unsaved note remains visible separately.
+    const pack=api.read(localStorage);
+    pack.note=noteValue();
+    const checked=api.parse(JSON.stringify(pack));
+    download('PALACO-Atelier-Compleet-Project-DRAFT.json',JSON.stringify(checked,null,2),'application/json');
+    $('bundleStatus').textContent='Creatief projectpakket geëxporteerd, zonder autorisatie of historiek.';
+  }catch(err){$('bundleStatus').textContent='Projectpakket niet beschikbaar: '+err.message;}
+});
+$('bundleImport').addEventListener('change',async event=>{
+ const file=event.target.files?.[0];
+ if(!file)return;
+ try{
+   const api=window.PalacoAtelierBundle;
+   if(!api)throw Error('Projectpakket-functie niet geladen');
+   if(file.size>150000)throw Error('Bestand groter dan 150 KB');
+   const pack=api.parse(await file.text());
+   const ex=pack.exterior?pack.exterior.name:'geen exterieur';
+   const ins=pack.interior?pack.interior.name:'geen interieur';
+   $('bundleStatus').textContent='Geldig DRAFT-pakket gelezen: '+ex+' / '+ins+'.';
+   if(!confirm('Lokaal Atelier-project herstellen? Dit vervangt je huidige exterieur, interieur en ontwerpnotitie. Exporteer eerst je huidige werk.'))return;
+   api.restore(localStorage,pack);
+   $('statement').value=pack.note;
+   refresh();
+   $('bundleStatus').textContent='Projectpakket lokaal hersteld. Open de editors opnieuw om de gegevens te bekijken.';
+ }catch(err){$('bundleStatus').textContent='Herstel geweigerd: '+err.message;}
+ finally{event.target.value='';}
+});
 $('saveNote').addEventListener('click',saveNote);
 $('refresh').addEventListener('click',()=>{refresh();$('feedback').textContent='Het lokale projectoverzicht is opnieuw geladen.';});
 $('export').addEventListener('click',()=>{refresh();download('PALACO-Atelier-Creatief-Dossier-DRAFT.json',JSON.stringify(packageDraft(),null,2),'application/json');$('feedback').textContent='Creatief DRAFT-dossier geëxporteerd. Geen officiële uitgifte.';});
