@@ -123,3 +123,43 @@ test("real Chromium: keyboard reachability and missing-source intake hold",async
  assert.equal(await page.locator("#details").innerText(),"Geen dossier geladen.");
  await context.close();
 });
+
+test("offline archive: refresh requires explicit restore, consent can erase local copy",async()=>{
+ const context=await browser.newContext({viewport:{width:390,height:844}});
+ const page=await context.newPage();
+ await page.goto(base+"/DOCS/la-geheugenkamer/");
+ await page.locator("#title").fill("Offline geschiedenis");
+ await page.locator("#who").fill("Waarnemer");
+ await page.locator("#what").fill("Blijft op dit apparaat");
+ await page.locator("#entryForm button[type=submit]").click();
+ await page.locator("#persist").check();
+ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem("palaco.citadel.geheugenkamer.v1")).length),1);
+ await page.reload();
+ assert.equal(await page.locator("#count").innerText(),"0","No automatic archive restoration");
+ assert.equal(await page.locator("#persist").isChecked(),false);
+ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem("palaco.citadel.geheugenkamer.v1")).length),1);
+ await page.locator("#persist").check();
+ assert.equal(await page.locator("#persist").isChecked(),false,"Reject toggling storage before restore");
+ assert.match(await page.locator("#message").innerText(),/Laad eerder lokaal archief/);
+ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem("palaco.citadel.geheugenkamer.v1")).length),1);
+ await page.locator("#restore").click();
+ assert.equal(await page.locator("#count").innerText(),"1");
+ assert.equal(await page.locator("#persist").isChecked(),true);
+ await page.locator("#persist").uncheck();
+ assert.equal(await page.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.v1")),null);
+ await context.close();
+});
+
+test("offline archive: invalid stored data cannot be restored or overwritten by consent",async()=>{
+ const context=await browser.newContext({viewport:{width:390,height:844}});
+ const page=await context.newPage();
+ await page.goto(base+"/DOCS/la-geheugenkamer/");
+ await page.evaluate(()=>localStorage.setItem("palaco.citadel.geheugenkamer.v1",'{"records":"tampered"}'));
+ await page.locator("#restore").click();
+ assert.equal(await page.locator("#count").innerText(),"0");
+ assert.match(await page.locator("#message").innerText(),/Herstel geweigerd/);
+ await page.locator("#persist").check();
+ assert.equal(await page.locator("#persist").isChecked(),false);
+ assert.equal(await page.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.v1")),'{"records":"tampered"}');
+ await context.close();
+});
