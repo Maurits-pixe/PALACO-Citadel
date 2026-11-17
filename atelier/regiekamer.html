@@ -38,6 +38,8 @@
 <input type="file" id="bundleImport" accept=".json,application/json" style="max-width:100%;font-size:13px">
 <p class="message">Herstel vervangt uitsluitend de drie lokale Atelier-opslagonderdelen na jouw bevestiging. Controleer vooraf het pakketoverzicht; exporteer je huidige werk eerst. Onbekende of niet-DRAFT-pakketten worden geweigerd. Een mislukte schrijfactie wordt zo mogelijk teruggedraaid.</p>
 <p id="bundleStatus" class="small" role="status" aria-live="polite">Er is nog geen projectpakket geselecteerd.</p>
+<div class="actions"><button type="button" class="action" id="undoImport" disabled>Herstel vorig lokaal ontwerp</button></div>
+<p class="small" id="recoveryStatus" role="status" aria-live="polite">Lokale herstelkopie controleren…</p>
 </section>
 <div class="bottom"><section class="section"><p class="eyebrow">04 / Ontwerpintentie</p><h2>Het creatieve dossier</h2><p class="small">Een eigen, lokale tekstnotitie die losstaat van de officiële Citadel-wizard. Dit is een ontwerpverklaring, geen bewijs, besluit, machtiging of registratie.</p>
 <label for="statement" class="eyebrow">Verhaal, uitgangspunten en materiaalvisie</label><textarea id="statement" maxlength="6000" placeholder="Beschrijf jouw visie op een luxueus en leefbaar Locus Amoenus: architectuur, natuur, ruimtes, kunst, ritme, toegankelijkheid…"></textarea>
@@ -45,7 +47,7 @@
 <p id="feedback" role="status" class="small">De projectgegevens worden uitsluitend uit deze browser gelezen.</p></section>
 <aside class="section"><p class="eyebrow">05 / Projectkompas</p><h2>Ontwerpchecks</h2><div class="diagnostics" id="diagnostics" role="list"></div>
 <h3>Bevoegdheid & veiligheid</h3><p class="message">Deze Regiekamer is alleen een lokaal, read-only overzicht van de maquettes, met een afzonderlijke ontwerpnotitie. Er worden geen officiële identiteiten, bewijsstukken, cryptografische handtekeningen, WORLD-creaties of autorisaties uitgevoerd.</p><p class="small">De export is een niet-geverifieerde creatieve DRAFT-kopie. Bewaar deze zelf. Browseropslag is geen veilige langdurige back-up.</p></aside></div>
-<footer>PALACO CITADEL · Atelier Regiekamer v2.2 · Nieuwe ontwerpen, bestaande fundamenten.</footer></div>
+<footer>PALACO CITADEL · Atelier Regiekamer v2.4 · Nieuwe ontwerpen, bestaande fundamenten.</footer></div>
 <script src="./regiekamer-gallery.js"></script>
 <script src="./regiekamer-bundle.js"></script>
 <script>
@@ -122,12 +124,43 @@ $('bundleImport').addEventListener('change',async event=>{
    $('bundleStatus').textContent=description;
    const warning=pendingNote?' LET OP: er staan nog niet-bewaarde notitiewijzigingen in deze pagina.':'';
    if(!confirm(description+' Herstel vervangt je huidige lokale Atelier-ontwerpen. Exporteer eerst je huidige werk als JSON. Wil je doorgaan?'+warning))return;
-   api.restore(localStorage,pack,current);
+   api.restoreWithRecovery(localStorage,pack,current);
    $('statement').value=pack.note;
    refresh();
    $('bundleStatus').textContent='Projectpakket lokaal hersteld. Open de editors opnieuw om de gegevens te bekijken.';
+   refreshRecoveryInfo();
  }catch(err){$('bundleStatus').textContent='Herstel geweigerd: '+err.message;}
  finally{event.target.value='';}
+});
+function refreshRecoveryInfo(){
+ const api=window.PalacoAtelierBundle;
+ const button=$('undoImport');
+ button.disabled=true;
+ if(!api){$('recoveryStatus').textContent='Herstelmodule niet geladen.';return;}
+ try{
+   const previous=api.getRecovery(localStorage);
+   if(!previous){$('recoveryStatus').textContent='Nog geen lokale herstelkopie. Maak eerst een DRAFT-export.';return;}
+   button.disabled=false;
+   $('recoveryStatus').textContent='Herstelkopie uit '+new Date(previous.savedAt).toLocaleString('nl-NL')+' beschikbaar op dit apparaat. Alleen de laatste import kan direct worden teruggedraaid.';
+ }catch(err){$('recoveryStatus').textContent='Herstelkopie kon niet worden gelezen: '+err.message;}
+}
+$('undoImport').addEventListener('click',()=>{
+ const api=window.PalacoAtelierBundle;
+ if(!api)return;
+ try{
+   const before=api.snapshot(localStorage);
+   const record=api.getRecovery(localStorage);
+   if(!record){refreshRecoveryInfo();return;}
+   const pending=noteValue()!==(before[2]===null?'':before[2]);
+   const difference=api.preview(api.read(localStorage),record.draft);
+   const warning=pending?' Onopgeslagen tekst in deze pagina gaat verloren.':'';
+   if(!confirm('Vorige lokale Atelier-versie terugzetten? '+difference.changed+' vakken veranderen, '+difference.removed+' ingerichte vakken verdwijnen. De huidige opgeslagen versie wordt dan de nieuwe herstelkopie.'+warning))return;
+   api.undoLastImport(localStorage,before);
+   $('statement').value=record.draft.note;
+   refresh();
+   refreshRecoveryInfo();
+   $('bundleStatus').textContent='Vorige Atelier-versie teruggezet vanuit de lokale herstelkopie.';
+ }catch(err){$('bundleStatus').textContent='Terugzetten geweigerd: '+err.message;refreshRecoveryInfo();}
 });
 $('saveNote').addEventListener('click',saveNote);
 $('refresh').addEventListener('click',()=>{refresh();$('feedback').textContent='Het lokale projectoverzicht is opnieuw geladen.';});
@@ -256,5 +289,6 @@ if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('contro
 window.addEventListener('storage',e=>{if([EX,IN].includes(e.key))refresh();if(e.key===NOTE&&typeof e.newValue==='string')$('statement').value=e.newValue.slice(0,6000);});
 try{const v=localStorage.getItem(NOTE);if(v)$('statement').value=v.slice(0,6000);}catch{$('feedback').textContent='Lokale opslag is niet toegankelijk; export blijft beschikbaar.';}
 refresh();
+refreshRecoveryInfo();
 checkOfflineReady();
 </script></body></html>
