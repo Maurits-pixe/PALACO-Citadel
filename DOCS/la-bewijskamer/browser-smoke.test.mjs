@@ -163,3 +163,39 @@ test("offline archive: invalid stored data cannot be restored or overwritten by 
  assert.equal(await page.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.v1")),'{"records":"tampered"}');
  await context.close();
 });
+
+test("portable archive: export on one device and import on another",async()=>{
+ const sender=await browser.newContext({viewport:{width:1280,height:800}});
+ const a=await sender.newPage();await a.goto(base+"/DOCS/la-geheugenkamer/");
+ await a.locator("#title").fill("Wereldherinnering");
+ await a.locator("#who").fill("Waarnemer");
+ await a.locator("#what").fill("Een offline overdracht");
+ await a.locator("#category").selectOption("Wereld");
+ await a.locator("#entryForm button[type=submit]").click();
+ const [download]=await Promise.all([a.waitForEvent("download"),a.locator("#export").click()]);
+ const archive=await readFile(await download.path());
+ const receiver=await browser.newContext({viewport:{width:390,height:844}});
+ const b=await receiver.newPage();await b.goto(base+"/DOCS/la-geheugenkamer/");
+ assert.equal(await b.evaluate(()=>localStorage.length),0);
+ await b.locator("#file").setInputFiles({name:"memory.json",mimeType:"application/json",buffer:archive});
+ assert.equal(await b.locator("#count").innerText(),"1");
+ assert.match(await b.locator("#timeline").innerText(),/Wereldherinnering/);
+ assert.equal(await b.evaluate(()=>localStorage.length),0,"Import does not silently persist");
+ await b.locator("#file").setInputFiles({name:"memory.json",mimeType:"application/json",buffer:archive});
+ assert.equal(await b.locator("#count").innerText(),"1","Reimport is idempotent");
+ await sender.close();await receiver.close();
+});
+test("portable archive: forged authority and unknown record fields fail closed",async()=>{
+ const context=await browser.newContext({viewport:{width:390,height:844}});
+ const page=await context.newPage();await page.goto(base+"/DOCS/la-geheugenkamer/");
+ const entry={id:"arch-1",createdAt:T,previousId:"",version:1,trust:"SELF_REPORTED_NOT_VERIFIED",title:"Eerste",who:"W",what:"X",where:"",why:"",how:"",source:"",category:"Persoonlijk"};
+ const pkg={schema:"PALACO-CITADEL-GEHEUGEN-1",issuedAt:null,authority:"OWNER",status:"LOCAL_DRAFT_ONLY",exportedAt:T,entries:[entry]};
+ await page.locator("#file").setInputFiles({name:"forged.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(pkg))});
+ assert.equal(await page.locator("#count").innerText(),"0");
+ assert.match(await page.locator("#message").innerText(),/geweigerd/);
+ pkg.authority="NONE";pkg.entries[0].verified=true;
+ await page.locator("#file").setInputFiles({name:"extra.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(pkg))});
+ assert.equal(await page.locator("#count").innerText(),"0");
+ assert.match(await page.locator("#message").innerText(),/geweigerd/);
+ await context.close();
+});
