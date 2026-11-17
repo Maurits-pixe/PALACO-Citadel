@@ -49,3 +49,29 @@ test('persistent write failure explicitly reports incomplete rollback',()=>{
  storage.setItem=(key,value)=>{if(key===bundle.IN||key===bundle.EX)throw Error('Persistent storage failure');};
  assert.throws(()=>bundle.restore(storage,bundle.create(exterior(),interior(),'new')),/terugdraaien mislukt/);
 });
+
+test('stale preview cannot overwrite changes made in another tab',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'original note'});
+ const before=bundle.snapshot(storage);
+ storage.setItem(bundle.NOTE,'updated in another tab');
+ const draft=bundle.create(exterior(),interior(),'new import');
+ assert.throws(()=>bundle.restore(storage,draft,before),/gewijzigd sinds de controle/);
+ assert.equal(storage.getItem(bundle.NOTE),'updated in another tab');
+ assert.equal(storage.getItem(bundle.EX),null);
+ assert.equal(storage.getItem(bundle.IN),null);
+});
+test('matching preview snapshot allows restoration without unrelated writes',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'prior note',other:'keep'});
+ const before=bundle.snapshot(storage);
+ const draft=bundle.create(exterior(),interior(),'restored');
+ const report=bundle.restore(storage,draft,before);
+ assert.equal(report.exterior,true);
+ assert.equal(report.interior,true);
+ assert.equal(storage.getItem(bundle.NOTE),'restored');
+ assert.equal(storage.getItem('other'),'keep');
+});
+test('invalid comparison snapshot is rejected before any writes',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'safe'});
+ assert.throws(()=>bundle.restore(storage,bundle.create(null,null,''),['bad']),/gewijzigd sinds de controle/);
+ assert.equal(storage.getItem(bundle.NOTE),'safe');
+});
