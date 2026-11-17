@@ -81,3 +81,11 @@ De PR-validatie is uitgebreid met `tests/browser/atelier.spec.mjs`. Deze Playwri
 De workflow `.github/workflows/atelier-validation.yml` installeert vergrendelde npm-afhankelijkheden en Chromium, voert bestaande domein- en contracttests uit en draait gericht de nieuwe browsertests. De workflow heeft uitsluitend `contents: read` en geen deployrechten.
 
 **Releasegate:** broncode/testdefinitie toegevoegd betekent nog niet dat de nieuwe browsertests daadwerkelijk geslaagd zijn. De status blijft HOLD totdat de workflow een bevestigde success-conclusie heeft, inclusief Playwright, en een onafhankelijke visuele/manual review is uitgevoerd.
+
+## Atelier v2.0 — offline navigatie en cache-integriteit
+
+De bestaande Citadel-serviceworker `sw.js` precachet met versiesleutel `palaco-rio-shell-v6` nu eveneens `atelier/studio.html`, `atelier/panorama.html`, `atelier/interieur.html`, `atelier/regiekamer.html` en beide gedeelde Regiekamer-scripts. De oorspronkelijke shellbestanden en wizard blijven behouden. Dit is een additieve aanpassing op de PR-branch; de live site is niet bijgewerkt.
+
+Een extra Playwright-scenario in `tests/browser/atelier.spec.mjs` controleert eerst de aanwezigheid van alle zes nieuwe resources in de Service Worker-cache, schakelt daarna Chromium offline en bezoekt achtereenvolgens Regiekamer, Grand Studio, Interieuratelier, Panorama en Wizard. Het scenario draait met de bestaande mobile/desktop projectconfiguraties.
+
+**Grenzen:** het offlinepad werkt pas nadat de serviceworker succesvol geïnstalleerd en de assets gecachet zijn. Bestaande browseropslag blijft apparaatlokaal. Er zijn geen offline autorisaties, cryptografische uitgiftes, automatische synchronisatie, of formele projectregistraties. De nieuwe tests moeten succesvol op de nieuwste PR-SHA zijn uitgevoerd voordat de offlineclaim als volledig geaccepteerd geldt. Merge en publicatie blijven HOLD.
