@@ -1,0 +1,18 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {makeControlRecord,validateControlRecord,parseReadiness,GATES,ROLLBACK,CONTROL_SCHEMA} from "./atlas-release-control.mjs";
+const valid=()=>makeControlRecord(null,{candidateSha:"a".repeat(40),previousSha:"b".repeat(40),ciRun:"44065726212",operatorNote:"Releasereview nodig"});
+test("controlrecord is DRAFT HOLD DENY",()=>{const x=valid();assert.equal(x.schema,CONTROL_SCHEMA);assert.equal(x.state,"DRAFT");assert.equal(x.decision,"HOLD");assert.equal(x.authorization,"DENY");assert.equal(x.deployAllowed,false)});
+test("zes releaseblokkades zonder goedkeuring",()=>{const x=valid();assert.equal(x.blockers.length,6);assert.equal(GATES.length,6);assert.ok(x.blockers.every(b=>b.independentEvidence===false))});
+test("vier rollbackchecklistregels blijven OPEN",()=>{const x=valid();assert.equal(x.rollback.length,4);assert.equal(ROLLBACK.length,4);assert.ok(x.rollback.every(r=>r.status==="OPEN"))});
+test("geldig controlrecord valideert",()=>assert.equal(validateControlRecord(valid(),null).ok,true));
+test("onbevoegde releasegoedkeuring wordt geweigerd",()=>{for(const patch of [{authorization:"ALLOW"},{decision:"GO"},{verified:true},{deployAllowed:true},{state:"APPROVED"}])assert.equal(validateControlRecord({...valid(),...patch},null).ok,false)});
+test("manipulatie van releaseblokkade wordt geweigerd",()=>{const x=valid();x.blockers[0].status="PASS";assert.equal(validateControlRecord(x,null).ok,false)});
+test("terugrolstatus kan niet worden voorgewend",()=>{const x=valid();x.rollback[0].status="EXECUTED";assert.equal(validateControlRecord(x,null).ok,false)});
+test("SHA is 40 lowercase hextekens",()=>{assert.throws(()=>makeControlRecord(null,{candidateSha:"xyz"}));assert.throws(()=>makeControlRecord(null,{candidateSha:"A".repeat(40)}));assert.equal(makeControlRecord(null,{candidateSha:"a".repeat(40)}).candidateSha.length,40)});
+test("workflow runreferentie is alleen optionele numerieke ID",()=>{assert.throws(()=>makeControlRecord(null,{ciRun:"http://example.com"}));assert.throws(()=>makeControlRecord(null,{ciRun:"0"}))});
+test("notities met controltekens en lengte worden geweigerd",()=>{assert.throws(()=>makeControlRecord(null,{operatorNote:"a\nb"}));assert.throws(()=>makeControlRecord(null,{operatorNote:"x".repeat(1001)}))});
+test("extra onbekende velden mogen niet",()=>assert.equal(validateControlRecord({...valid(),owner:"root"},null).ok,false));
+test("ontbrekende readiness blijft onverified",()=>{const x=makeControlRecord(null);assert.equal(x.snapshotProvided,false);assert.equal(x.readinessPending,null);assert.equal(x.verified,false)});
+test("parseReadiness verwerpt ongeldige JSON en ALLOW",()=>{assert.throws(()=>parseReadiness("{"));assert.throws(()=>parseReadiness(JSON.stringify({schema:"palaco.atlas.release-readiness.draft.v1",authorization:"ALLOW"})))});
+test("readinessbestand boven 64KiB geweigerd",()=>assert.throws(()=>parseReadiness(" ".repeat(65537))));
