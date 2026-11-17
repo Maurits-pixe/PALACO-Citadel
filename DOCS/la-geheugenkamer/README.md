@@ -56,6 +56,13 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Tab-overstijgende wijzigingsmeldingen · v1.8
+- De Geheugenkamer luistert naar het browser-`storage`-event voor de versleutelde apparaatkluis en de oude onversleutelde opslag.
+- Wijzigingen of verwijderingen vanuit een **andere tab** maken lopende versleutel- en ontgrendelbewerkingen ongeldig, met een zichtbare melding; hiermee wordt voorkomen dat een vertraagde ontsleuteling na verwijdering van de kluis alsnog herinneringen zichtbaar maakt.
+- Twee nieuwe echte Chromium-browserproeven: verwijdering vanuit een tweede tab tijdens bewust vertraagde sleutelafleiding blokkeert late ontgrendeling; wijzigingen in onversleutelde opslag worden gemeld.
+- **Geverifieerd:** [GitHub Actions-run 44082472099](https://github.com/Maurits-pixe/PALACO-Citadel/actions/runs/44082472099): **53/53 PASS** (35 Node, 18 Chromium) op codecommit `774db27431615f8822f84b199524698aa5e5dc18`.
+- Beperkingen: `storage`-events bieden geen atomaire locking. Parallelle schrijfacties in verschillende tabs kunnen nog steeds een race veroorzaken. Deze wijziging detecteert bekende externe veranderingen en blokkeert gerelateerde lopende bewerkingen, maar vormt **geen garantie op serialiseerbare transacties**, geen server-synchronisatie en geen beveiliging tegen kwaadaardige origin-scripts.
+
 ## Gelijktijdige wijzigingen en kluisintegriteit · v1.7
 - Versleuteld bewaren en ontgrendelen krijgen elk een uniek operatienummer en een momentopname van het actieve geheugen. Na de asynchrone sleutelafleiding moet de huidige toestand nog overeenkomen met het uitgangspunt; anders wordt de bewerking geweigerd.
 - Nieuwe herinneringen, herstel, JSON-import, wissen, vergrendelen en verwijderen van de kluis maken een nog lopende kluisoperatie ongeldig. Zo kan een late ontgrendeling een bewust vergrendelde tab niet opnieuw vullen.
