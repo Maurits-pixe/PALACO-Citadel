@@ -221,7 +221,7 @@ test('damaged offline journal can be backed up without mutation before destructi
 
 test('normal import and clear cannot bypass protected corrupt-storage recovery',()=>{
  assert.match(html,/if\(storageRecoveryBlocked\)\{status\("Import geblokkeerd/);
- assert.match(html,/if\(storageRecoveryBlocked\)\{status\("Import afgebroken/);
+ assert.match(html,/if\(storageRecoveryBlocked\|\|journalRevision!==startedAtRevision\)\{status\("Import afgebroken/);
  assert.match(html,/if\(storageRecoveryBlocked\)\{status\("Wissen geblokkeerd/);
  assert.match(html,/const persisted=save\(\);render\(\)/);
  assert.match(html,/blijvende opslag NIET bevestigd/);
@@ -231,7 +231,7 @@ test('normal import and clear cannot bypass protected corrupt-storage recovery',
 
 test('clear-all revokes storage consent before reporting persistent erasure',()=>{
  assert.match(html,/Alle lokale waarnemingen in dit tabblad en de lokale opslag wissen\? Ook de bewaartoestemming wordt ingetrokken/);
- assert.match(html,/const pendingNotes=notes;\s*notes=\[\];\s*\$\("persist"\)\.checked=false;\s*const cleared=save\(\);\s*if\(!cleared\)notes=pendingNotes;\s*render\(\)/);
+ assert.match(html,/const pendingNotes=notes;\s*notes=\[\];\s*\$\("persist"\)\.checked=false;\s*const cleared=save\(\);\s*if\(!cleared\)notes=pendingNotes;\s*else journalRevision\+\+;\s*render\(\)/);
  assert.match(html,/Lokale notities, opgeslagen kopie en bewaartoestemming aantoonbaar verwijderd/);
 });
 
