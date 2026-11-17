@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'atelier/**'
+      - 'sw.js'
+      - 'tests/browser/atelier.spec.mjs'
       - '.github/workflows/atelier-validation.yml'
   workflow_dispatch:
 
