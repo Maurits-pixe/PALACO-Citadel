@@ -221,3 +221,43 @@ test('failed local write does not claim storage enabled',{timeout:60000},async()
   assert.doesNotMatch(await page.locator('#announce').innerText(),/Opslag bevestigd/);
  });
 });
+
+test('two offline observations get distinct IDs without randomUUID',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  await page.evaluate(()=>{
+   Object.defineProperty(Crypto.prototype,'randomUUID',{value:undefined,configurable:true});
+  });
+  await page.locator('#tab-atelier').click();
+  for(const subject of ['Eerste offline notitie','Tweede offline notitie']){
+   await page.locator('#subject').fill(subject);
+   await page.locator('#notes').fill('Test zonder UUID-generator');
+   await page.locator('#form button[type="submit"]').click();
+  }
+  const downloadEvent=page.waitForEvent('download',{timeout:10000});
+  await page.locator('#export').click();
+  const download=await downloadEvent;
+  const journal=JSON.parse((await readFile(await download.path())).toString('utf8'));
+  assert.equal(journal.notes.length,2);
+  assert.notEqual(journal.notes[0].id,journal.notes[1].id);
+  assert.ok(journal.notes.every(note=>note.id.startsWith('local-')));
+  assert.equal(journal.authority,'SELF_REPORTED_NOT_VERIFIED');
+ });
+});
+test('failed save of new observation retains local-only warning',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  await page.locator('#tab-atelier').click();
+  await page.locator('#persist').check();
+  await page.evaluate(()=>{
+   const set=Storage.prototype.setItem;
+   Storage.prototype.setItem=function(key,value){
+    if(key==='palaco_la_observatory_notes_v1')throw Error('Forced write failure');
+    return set.call(this,key,value);
+   };
+  });
+  await page.locator('#subject').fill('Alleen tijdelijk');
+  await page.locator('#notes').fill('Opslag geweigerd');
+  await page.locator('#form button[type="submit"]').click();
+  assert.match(await page.locator('#announce').innerText(),/alleen in dit tabblad toegevoegd/);
+  assert.equal(await page.locator('#persist').isDisabled(),true);
+ });
+});
