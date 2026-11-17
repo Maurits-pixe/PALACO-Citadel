@@ -214,6 +214,18 @@ test('Atelier: dossiercontrole toont echte SHA-256 en wijzigt geen lokaal projec
   await expect(page.locator('#verifyStatus')).toContainText('Geldig creatief DRAFT-project');
   await expect(page.locator('#verifyStatus')).toContainText(expected);
   await expect(page.locator('#verifyStatus')).toContainText('geen digitale handtekening');
+  await expect(page.locator('#verifyStatus')).toContainText('Geen eerdere referentie ingevoerd');
+  await page.locator('#expectedFingerprint').fill(expected.toUpperCase());
+  await page.locator('#bundleVerify').setInputFiles({name:'gelijk.json',mimeType:'application/json',buffer:bytes});
+  await expect(page.locator('#verifyStatus')).toContainText('REFERENTIE KOMT OVEREEN');
+  await page.locator('#expectedFingerprint').fill('0'.repeat(64));
+  await page.locator('#bundleVerify').setInputFiles({name:'anders.json',mimeType:'application/json',buffer:bytes});
+  await expect(page.locator('#verifyStatus')).toContainText('WAARSCHUWING: SHA-256 KOMT NIET OVEREEN');
+  await page.locator('#expectedFingerprint').fill('not-a-sha');
+  await page.locator('#bundleVerify').setInputFiles({name:'ongeldig.json',mimeType:'application/json',buffer:bytes});
+  await expect(page.locator('#verifyStatus')).toContainText('Controle afgewezen');
+  await expect(page.locator('#verifyStatus')).toContainText('precies 64');
+  await page.locator('#expectedFingerprint').fill('');
   await expect(page.locator('#outUsed')).toHaveText('1');
   await expect(page.locator('#undoImport')).toBeDisabled();
   const before=await page.evaluate(()=>localStorage.getItem('palaco.citadel.atelier.grand-studio.v1'));
