@@ -199,3 +199,33 @@ test("portable archive: forged authority and unknown record fields fail closed",
  assert.match(await page.locator("#message").innerText(),/geweigerd/);
  await context.close();
 });
+
+test("SHA-256 portable archive: refuse changed title and digest after export",async()=>{
+ const from=await browser.newContext({viewport:{width:1280,height:800}});
+ const a=await from.newPage();await a.goto(base+"/DOCS/la-geheugenkamer/");
+ await a.locator("#title").fill("Verzegelde notitie");
+ await a.locator("#who").fill("Waarnemer");
+ await a.locator("#what").fill("Originele inhoud");
+ await a.locator("#entryForm button[type=submit]").click();
+ const [download]=await Promise.all([a.waitForEvent("download"),a.locator("#export").click()]);
+ const original=JSON.parse((await readFile(await download.path())).toString("utf8"));
+ assert.equal(original.schema,"PALACO-CITADEL-GEHEUGEN-2");
+ assert.match(original.integrity.digest,/^[0-9a-f]{64}$/);
+ const to=await browser.newContext({viewport:{width:390,height:844}});
+ const b=await to.newPage();await b.goto(base+"/DOCS/la-geheugenkamer/");
+ original.entries[0].title="Vervalsing";
+ await b.locator("#file").setInputFiles({name:"tampered.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(original))});
+ assert.equal(await b.locator("#count").innerText(),"0");
+ assert.match(await b.locator("#message").innerText(),/SHA-256 checksum wijkt af/);
+ await from.close();await to.close();
+});
+test("legacy archive remains importable but warns checksum unverified",async()=>{
+ const context=await browser.newContext({viewport:{width:390,height:844}});
+ const page=await context.newPage();await page.goto(base+"/DOCS/la-geheugenkamer/");
+ const entry={id:"legacy-record",createdAt:T,previousId:"",version:1,trust:"SELF_REPORTED_NOT_VERIFIED",title:"Historisch archief",who:"W",what:"X",where:"",why:"",how:"",source:"",category:"Persoonlijk"};
+ const legacy={schema:"PALACO-CITADEL-GEHEUGEN-1",issuedAt:null,authority:"NONE",status:"LOCAL_DRAFT_ONLY",exportedAt:T,entries:[entry]};
+ await page.locator("#file").setInputFiles({name:"legacy.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(legacy))});
+ assert.equal(await page.locator("#count").innerText(),"1");
+ assert.match(await page.locator("#message").innerText(),/zonder checksum/);
+ await context.close();
+});
