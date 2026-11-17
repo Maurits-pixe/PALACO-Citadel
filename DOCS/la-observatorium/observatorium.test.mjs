@@ -228,3 +228,9 @@ test('normal import and clear cannot bypass protected corrupt-storage recovery',
  assert.match(html,/const cleared=save\(\);render\(\)/);
  assert.match(html,/lokale opslag NIET bevestigd gewist/);
 });
+
+test('clear-all revokes storage consent before reporting persistent erasure',()=>{
+ assert.match(html,/Alle lokale waarnemingen in dit tabblad en de lokale opslag wissen\? Ook de bewaartoestemming wordt ingetrokken/);
+ assert.match(html,/notes=\[\];\s*\$\("persist"\)\.checked=false;\s*const cleared=save\(\);render\(\)/);
+ assert.match(html,/Lokale notities, opgeslagen kopie en bewaartoestemming aantoonbaar verwijderd/);
+});
