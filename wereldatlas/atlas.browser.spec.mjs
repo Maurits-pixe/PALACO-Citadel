@@ -61,3 +61,32 @@ test("Integratiekern past binnen mobiele breedte",async({page},testInfo)=>{
  const widths=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
  expect(widths.scroll).toBeLessThanOrEqual(widths.client+1);
 });
+
+test("offlinemodus bewaart alleen de vaste Atlas-shell en opent archief zonder netwerk",async({page,context})=>{
+ await page.goto(root+"atlas-integratie.html");
+ await page.locator("#offline-enable").click();
+ await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
+ await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+ const paths=await page.evaluate(async()=>{
+  const cache=await caches.open("palaco-atlas-shell-v1-rc1");
+  const keys=await cache.keys();
+  return keys.map(r=>new URL(r.url).pathname);
+ });
+ expect(paths).toHaveLength(19);
+ expect(paths.every(p=>p.startsWith("/wereldatlas/"))).toBe(true);
+ expect(paths.some(p=>p.endsWith(".json")||p.includes("admin")||p.includes("api/"))).toBe(false);
+ await context.setOffline(true);
+ await page.goto(root+"atlas-archief.html");
+ await expect(page.locator("#entries .entry")).toHaveCount(13);
+ await page.goto(root+"atlas-integratie.html");
+ await expect(page.locator("#modules a.tool")).toHaveCount(9);
+});
+test("offline installatie kan cachegegevens wissen",async({page})=>{
+ await page.goto(root+"atlas-integratie.html");
+ await page.locator("#offline-enable").click();
+ await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
+ await page.locator("#offline-clear").click();
+ await expect(page.locator("#offline-status")).toContainText("Offline Atlasgegevens verwijderd");
+ const names=await page.evaluate(()=>caches.keys());
+ expect(names.filter(n=>n.startsWith("palaco-atlas-shell-"))).toEqual([]);
+});
