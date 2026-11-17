@@ -31,3 +31,10 @@ jobs:
         run: node --test atelier/regiekamer-bundle.test.cjs atelier/regiekamer-gallery.test.cjs atelier/atelier-surface.test.cjs
       - name: Test original Atelier domain and wizard
         run: node --test atelier/builder.test.mjs atelier/wizard.test.mjs citadel-proof/proof.test.mjs
+      - name: Install locked browser-test dependencies
+        run: npm ci
+      - name: Install Chromium for browser acceptance
+        run: npx playwright install --with-deps chromium
+      - name: Verify Atelier in desktop and mobile Chromium
+        run: npx playwright test tests/browser/atelier.spec.mjs
+
