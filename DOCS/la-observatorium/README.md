@@ -32,7 +32,7 @@ Voer lokaal uit: `node --test DOCS/la-observatorium/observatorium.test.mjs`.
 Deze tests bewaken syntaxis, navigatielinks, consent en read-only indicatoren. Ze vervangen **geen** interactieve browser-, offline-, mobiele of securitytests. In deze wijziging is nog geen onafhankelijke runtime-uitvoering bevestigd.
 
 ## Import-beveiligingsgrenzen
-Het geïmporteerde bestand blijft uitsluitend lokaal in de browser; er is geen upload. Het bestand mag uitsluitend het eigen exportformaat bevatten, met `SELF_REPORTED_NOT_VERIFIED`. Ongeldige notities, conflicterende ID's in hetzelfde bestand, te grote bestanden en overschrijding van de notitielimiet worden geweigerd. Import is niet cryptografisch gevalideerd en geldt nooit als canonieke provenance.
+Het geïmporteerde bestand blijft uitsluitend lokaal in de browser; er is geen upload. Het bestand mag uitsluitend het eigen exportformaat bevatten, met `SELF_REPORTED_NOT_VERIFIED`. Ongeldige notities, conflicterende ID's in hetzelfde bestand, te grote bestanden en overschrijding van de notitielimiet worden geweigerd. De import toont het aantal nieuwe notities en vraagt expliciet toestemming vóór wijziging van het lokale Geheugen. Lege bestanden, oversized JSON-inhoud en array-vormige enveloppen worden geweigerd. Import is niet cryptografisch gevalideerd en geldt nooit als canonieke provenance.
 
 ## Acceptatiechecklist
 - [ ] Nieuwe route werkt in lokale/preview-host; geen 404.
