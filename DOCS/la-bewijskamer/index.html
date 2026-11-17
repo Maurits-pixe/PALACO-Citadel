@@ -53,7 +53,7 @@ small,.muted{color:#acbeb7}.notice{background:#30291b;color:#f2deb4;border-left:
 <script type="module">
 import {parseHandoff,makeLocalAssessment} from "./handoff.mjs";
 const $=s=>document.querySelector(s);
-let current=null;
+let current=null,loadSequence=0;
 const line=(text,tag="p")=>{const node=document.createElement(tag);node.textContent=text;return node};
 function clear(){
  current=null;
@@ -79,20 +79,22 @@ function render(doc,partial){
  details.append(line("Bronauthenticiteit: UNASSESSED · Identiteitsbinding: UNASSESSED · Chronologie: UNASSESSED · Volledigheid: UNASSESSED"));
 }
 $("#handoff").addEventListener("change",async ev=>{
+ const file=ev.target.files?.[0],request=++loadSequence;
  clear();
- const file=ev.target.files?.[0];if(!file)return;
+ if(!file)return;
  if(file.size>256*1024){$("#status").textContent="GEWEIGERD: bestand groter dan 256 KB.";return}
  try{
-   const result=parseHandoff(await file.text());
+   const raw=await file.text();if(request!==loadSequence)return;
+   const result=parseHandoff(raw);
    if(!result.ok){$("#status").textContent="GEWEIGERD: "+result.reason;return}
    current=result.document;
    $("#state").textContent="CONCEPT ONTVANGEN";$("#lineageCount").textContent=String(result.count);
    $("#status").textContent="Schema gecontroleerd; document blijft niet-geverifieerd. Dit is geen bewijsbeoordeling.";
    $("#assessment").classList.remove("hidden");
    render(current,result.partial);
- }catch{clear();$("#status").textContent="GEWEIGERD: bestand kon niet worden ingelezen."}
+ }catch{if(request!==loadSequence)return;clear();$("#status").textContent="GEWEIGERD: bestand kon niet worden ingelezen."}
 });
-$("#discard").addEventListener("click",()=>{clear();$("#status").textContent="Dossier gewist uit deze tab."});
+$("#discard").addEventListener("click",()=>{loadSequence++;clear();$("#status").textContent="Dossier gewist uit deze tab."});
 $("#assessmentExport").addEventListener("click",()=>{
  if(!current){$("#status").textContent="Geen geldig dossier geladen.";return}
  const obj=makeLocalAssessment(current,$("#notes").value);
