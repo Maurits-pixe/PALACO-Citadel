@@ -1,0 +1,15 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {archiveIndex,validateArchiveIndex,queryArchive,makeArchiveExport,ARCHIVE_SCHEMA} from "./atlas-archief.mjs";
+test("archief bevat gekoppelde, unieke dossiers",()=>{const a=archiveIndex();assert.equal(a.ok,true);assert.deepEqual(validateArchiveIndex(a),{ok:true,errors:[]});assert.equal(new Set(a.items.map(x=>x.id)).size,a.items.length)});
+test("zeven wereldkaarten, twee regiodossiers en vier ontwikkelstappen",()=>{const rows=queryArchive();assert.equal(rows.filter(x=>x.kind==="WORLD").length,7);assert.equal(rows.filter(x=>x.kind==="REGION").length,2);assert.equal(rows.filter(x=>x.kind==="EVENT").length,4)});
+test("EARTH filter toont alleen gekoppelde dossiers",()=>{const rows=queryArchive({worldId:"W-0001"});assert.equal(rows.length,7);assert.ok(rows.every(x=>x.worldId==="W-0001"))});
+test("region filter en zoeken combineren",()=>{const rows=queryArchive({kind:"REGION",query:"locus"});assert.equal(rows.length,1);assert.equal(rows[0].regionId,"REGION-LOCUS-AMOENUS")});
+test("onbekende wereld geeft lege lijst terug",()=>assert.equal(queryArchive({worldId:"W-9999"}).length,0));
+test("export bevat uitsluitend DRAFT zonder verified claims",()=>{const x=makeArchiveExport({worldId:"W-0001"});assert.equal(x.schema,ARCHIVE_SCHEMA);assert.equal(x.state,"DRAFT");assert.equal(x.verified,false);assert.ok(x.sources.every(s=>s.verified===false&&s.reference===null));assert.equal(x.entries.length,7)});
+test("export neemt alleen gebruikte bronlabels mee",()=>{const x=makeArchiveExport({kind:"WORLD"});assert.equal(x.entries.length,7);assert.equal(x.sources.length,0)});
+test("dubbel dossier-ID wordt afgewezen",()=>{const a=archiveIndex();a.items.push({...a.items[0]});assert.equal(validateArchiveIndex(a).ok,false)});
+test("broken source reference wordt afgewezen",()=>{const a=archiveIndex();const row=a.items.find(x=>x.sourceIds.length);row.sourceIds=["SRC-MISSING"];assert.equal(validateArchiveIndex(a).ok,false)});
+test("onbevestigde status wordt afgewezen",()=>{const a=archiveIndex();a.items[0].state="ACTIVE";assert.equal(validateArchiveIndex(a).ok,false)});
+test("mismatch regio en wereld wordt afgewezen",()=>{const a=archiveIndex();const row=a.items.find(x=>x.kind==="REGION");row.worldId="W-0002";assert.equal(validateArchiveIndex(a).ok,false)});
+test("tijdlijn zonder volgorde wordt afgewezen",()=>{const a=archiveIndex();const row=a.items.find(x=>x.kind==="EVENT");row.sequence=null;assert.equal(validateArchiveIndex(a).ok,false)});
