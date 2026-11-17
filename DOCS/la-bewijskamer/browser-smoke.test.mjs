@@ -138,7 +138,7 @@ test("offline archive: refresh requires explicit restore, consent can erase loca
  assert.equal(await page.locator("#count").innerText(),"0","No automatic archive restoration");
  assert.equal(await page.locator("#persist").isChecked(),false);
  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem("palaco.citadel.geheugenkamer.v1")).length),1);
- await page.locator("#persist").check();
+ await page.locator("#persist").click();
  assert.equal(await page.locator("#persist").isChecked(),false,"Reject toggling storage before restore");
  assert.match(await page.locator("#message").innerText(),/Laad eerder lokaal archief/);
  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem("palaco.citadel.geheugenkamer.v1")).length),1);
@@ -158,7 +158,7 @@ test("offline archive: invalid stored data cannot be restored or overwritten by 
  await page.locator("#restore").click();
  assert.equal(await page.locator("#count").innerText(),"0");
  assert.match(await page.locator("#message").innerText(),/Herstel geweigerd/);
- await page.locator("#persist").check();
+ await page.locator("#persist").click();
  assert.equal(await page.locator("#persist").isChecked(),false);
  assert.equal(await page.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.v1")),'{"records":"tampered"}');
  await context.close();
