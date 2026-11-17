@@ -88,3 +88,38 @@ for(const [deviceName,viewport] of [["desktop",{viewport:{width:1280,height:800}
    await context.close();
  });
 }
+
+test("real Chromium: injected markup stays inert in the receiving dossier",async()=>{
+ const context=await browser.newContext({viewport:{width:390,height:844}});
+ const page=await context.newPage();
+ await page.goto(base+"/DOCS/la-bewijskamer/");
+ const payload=handoff();
+ payload.lineage[0].title='<img src=x onerror="window.__pwned=1">';
+ payload.lineage[0].source="<script>window.__pwned=1</script>";
+ await page.locator("#handoff").setInputFiles({name:"untrusted.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(payload))});
+ assert.equal(await page.locator("#state").innerText(),"CONCEPT ONTVANGEN");
+ assert.equal(await page.locator("#details img").count(),0);
+ assert.equal(await page.locator("#details script").count(),0);
+ assert.match(await page.locator("#details").innerText(),/<img src=x/);
+ assert.equal(await page.evaluate(()=>window.__pwned),undefined);
+ await context.close();
+});
+
+test("real Chromium: keyboard reachability and missing-source intake hold",async()=>{
+ const context=await browser.newContext({viewport:{width:390,height:844}});
+ const page=await context.newPage();
+ await page.goto(base+"/DOCS/la-bewijskamer/");
+ const file=page.locator("#handoff");
+ await file.focus();
+ assert.equal(await file.evaluate(el=>document.activeElement===el),true);
+ const payload=handoff();payload.lineage[0].source="";
+ await file.setInputFiles({name:"missing-source.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(payload))});
+ assert.equal(await page.locator("#triageStatus").innerText(),"NEEDS_SOURCE_MATERIAL");
+ assert.match(await page.locator("#triageIssues").innerText(),/MISSING_SOURCE/);
+ assert.equal(await page.locator("#assessment").isVisible(),true);
+ await page.locator("#discard").click();
+ assert.equal(await page.locator("#assessment").isVisible(),false);
+ assert.equal(await page.locator("#triageStatus").innerText(),"NOT_STARTED");
+ assert.equal(await page.locator("#details").innerText(),"Geen dossier geladen.");
+ await context.close();
+});
