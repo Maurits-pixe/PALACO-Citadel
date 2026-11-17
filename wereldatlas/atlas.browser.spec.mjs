@@ -11,7 +11,8 @@ const routes=[
  ["Provenance Centrum","atlas-provenance.html"],
  ["Trust & Lineage Gateway","atlas-trust-gateway.html"],
  ["Integratiekern","atlas-integratie.html"],
- ["Acceptatiekamer","atlas-acceptatie.html"]
+ ["Acceptatiekamer","atlas-acceptatie.html"],
+ ["Release Evidence Review","atlas-release-review.html"]
 ];
 test("alle tien Atlas-pagina's laden lokaal zonder script- of netwerkfouten",async({page})=>{
  const failures=[];
@@ -69,11 +70,11 @@ test("offlinemodus bewaart alleen de vaste Atlas-shell en opent archief zonder n
  await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
  await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
  const paths=await page.evaluate(async()=>{
-  const cache=await caches.open("palaco-atlas-shell-v1-rc4");
+  const cache=await caches.open("palaco-atlas-shell-v1-rc5");
   const keys=await cache.keys();
   return keys.map(r=>new URL(r.url).pathname);
  });
- expect(paths).toHaveLength(22);
+ expect(paths).toHaveLength(24);
  expect(paths.every(p=>p.startsWith("/wereldatlas/"))).toBe(true);
  expect(paths.some(p=>p.endsWith(".json")||p.includes("admin")||p.includes("api/"))).toBe(false);
  await context.setOffline(true);
@@ -147,4 +148,34 @@ test("Offline Acceptatiekamer vergelijkt DRAFT-rapport zonder netwerk",async({pa
  await expect(page.locator("#import-status")).toContainText("ingelezen en gevalideerd");
  await page.locator("#steps select").first().selectOption("PASS");
  await expect(page.locator("#comparison")).toContainText("Verschillende controles/notities: 1");
+});
+
+test("Release Evidence Review importeert geldig DRAFT dossier en bewaart HOLD",async({page})=>{
+ await page.goto(root+"atlas-release-review.html");
+ const base={schema:"palaco.atlas.acceptance.self-report.v1",release:"1.0-RC",source:"LOCAL_SELF_REPORTED_NOT_VERIFIED",decision:"HOLD",authorization:"DENY",verified:false,
+ observations:["ATLAS-MOB-001","ATLAS-MOB-002","ATLAS-MOB-003","ATLAS-MOB-004","ATLAS-MOB-005","ATLAS-MOB-006","ATLAS-MOB-007","ATLAS-SEC-008"].map(id=>({id,status:"NOT_TESTED",note:""}))};
+ const diff=base.observations.map(({id,status})=>({id,previous:status,current:status,changed:false,notesChanged:false}));
+ const dossier={schema:"palaco.atlas.acceptance.comparison.draft.v1",state:"DRAFT",source:"LOCAL_SELF_REPORTED_NOT_VERIFIED",verified:false,decision:"HOLD",authorization:"DENY",evidenceReference:"",baseline:base,current:base,comparison:{changedCount:0,differences:diff},notice:"Een bronlabel en lokale zelfrapportage zijn geen onafhankelijke verificatie of productieautorisatie."};
+ await page.locator("#dossier-file").setInputFiles({name:"draft.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(dossier))});
+ await expect(page.locator("#import-status")).toContainText("DRAFT-dossier geladen");
+ await expect(page.locator("#entries .entry")).toHaveCount(8);
+ await expect(page.locator("#count")).toContainText("8 van 8");
+ await expect(page.locator("#download")).toBeEnabled();
+ await expect(page.locator("body")).toContainText("HOLD");
+});
+test("Release Evidence Review weigert gemanipuleerde vrijgave",async({page})=>{
+ await page.goto(root+"atlas-release-review.html");
+ await page.locator("#dossier-file").setInputFiles({name:"fout.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify({authorization:"ALLOW"}))});
+ await expect(page.locator("#import-status")).toContainText("Import afgewezen");
+ await expect(page.locator("#download")).toBeDisabled();
+});
+test("Review en contractmodule openen na offline installatie",async({page,context})=>{
+ await page.goto(root+"atlas-integratie.html");
+ await page.locator("#offline-enable").click();
+ await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
+ await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+ await context.setOffline(true);
+ await page.goto(root+"atlas-release-review.html");
+ await expect(page.locator("h1")).toContainText("Release Evidence Review");
+ await expect(page.locator("#import-status")).toContainText("Nog geen dossier");
 });
