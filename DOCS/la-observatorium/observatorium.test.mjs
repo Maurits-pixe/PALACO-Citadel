@@ -33,7 +33,7 @@ test('local storage requires consent marker and supports deletion',()=>{
 test('timeline permits classification and invalid stored dates are rejected',()=>{
  assert.match(html,/id="filter"/);
  assert.match(html,/Number\.isFinite\(Date\.parse\(n\.at\)\)/);
- assert.match(html,/notes\.filter\(n=>n\.kind===selected\)/);
+ assert.match(html,/notes\\.filter\\(n=>\\(selected==="ALL"\\|\\|n\\.kind===selected\\)/);
 });
 
 test('JSON journal import has strict schema, size and count limits',()=>{
@@ -60,4 +60,12 @@ test('import rejects empty, oversized or array-shaped envelopes',()=>{
  assert.match(html,/new TextEncoder\(\)\.encode\(raw\)\.length>262144/);
  assert.match(html,/Array\.isArray\(data\)/);
  assert.match(html,/!Array\.isArray\(n\)/);
+});
+
+test('memory search combines classification and text without changing evidence status',()=>{
+ assert.match(html,/id="search" type="search"/);
+ assert.match(html,/\$\("search"\)\.addEventListener\("input",render\)/);
+ assert.match(html,/n\.subject,n\.notes,n\.reference/);
+ assert.match(html,/SELF_REPORTED_NOT_VERIFIED/);
+ assert.match(html,/small\.textContent=n\.kind/);
 });
