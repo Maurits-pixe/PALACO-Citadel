@@ -106,3 +106,52 @@ test('preview rejects elevated authority and preserves absence without invented 
  assert.equal(report.noteChanged,false);
  assert.throws(()=>bundle.preview(empty,{...empty,authority:'OWNER'}));
 });
+
+test('confirmed import saves the previous DRAFT as a local recovery point',()=>{
+ const storage=fakeStorage();
+ const old=exterior(),incoming=exterior();old.cells[1]='park';incoming.cells[1]='water';
+ storage.setItem(bundle.EX,JSON.stringify(old));
+ storage.setItem(bundle.IN,JSON.stringify(interior()));
+ storage.setItem(bundle.NOTE,'first');
+ bundle.restoreWithRecovery(storage,bundle.create(incoming,interior(),'second'),bundle.snapshot(storage));
+ assert.equal(JSON.parse(storage.getItem(bundle.EX)).cells[1],'water');
+ const recovery=bundle.getRecovery(storage);
+ assert.equal(recovery.draft.exterior.cells[1],'park');
+ assert.equal(recovery.draft.note,'first');
+ assert.equal(recovery.draft.authority,'NONE');
+});
+test('previous local project is recoverable and the current project becomes the rollback point',()=>{
+ const storage=fakeStorage();
+ const old=exterior(),incoming=exterior();old.cells[1]='park';incoming.cells[1]='water';
+ storage.setItem(bundle.EX,JSON.stringify(old));
+ storage.setItem(bundle.NOTE,'before');
+ bundle.restoreWithRecovery(storage,bundle.create(incoming,null,'after'));
+ bundle.undoLastImport(storage,bundle.snapshot(storage));
+ assert.equal(JSON.parse(storage.getItem(bundle.EX)).cells[1],'park');
+ assert.equal(storage.getItem(bundle.NOTE),'before');
+ assert.equal(bundle.getRecovery(storage).draft.exterior.cells[1],'water');
+});
+test('stale snapshot or corrupt local source never overwrites prior work',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'first'});
+ const expected=bundle.snapshot(storage);
+ storage.setItem(bundle.NOTE,'updated by another tab');
+ assert.throws(()=>bundle.restoreWithRecovery(storage,bundle.create(null,null,'incoming'),expected),/gewijzigd/);
+ assert.equal(storage.getItem(bundle.NOTE),'updated by another tab');
+ assert.equal(storage.getItem(bundle.RECOVERY),null);
+ storage.setItem(bundle.EX,'not json');
+ assert.throws(()=>bundle.restoreWithRecovery(storage,bundle.create(null,null,'new')),/onleesbare/);
+ assert.equal(storage.getItem(bundle.EX),'not json');
+});
+test('recovery quota failure blocks import without changing the current project',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'original'});
+ const setter=storage.setItem;storage.setItem=(key,value)=>{if(key===bundle.RECOVERY)throw Error('quota');setter(key,value);};
+ assert.throws(()=>bundle.restoreWithRecovery(storage,bundle.create(null,null,'incoming')),/Geen ruimte/);
+ assert.equal(storage.getItem(bundle.NOTE),'original');
+});
+test('invalid or elevated authority recovery record cannot be used to roll back',()=>{
+ const storage=fakeStorage();
+ const good=bundle.create(null,null,'');
+ storage.setItem(bundle.RECOVERY,JSON.stringify({schema:'palaco.citadel.atelier.recovery/1',state:'DRAFT',authority:'OWNER',savedAt:new Date().toISOString(),draft:good}));
+ assert.throws(()=>bundle.getRecovery(storage),/Onbekende/);
+ assert.throws(()=>bundle.undoLastImport(storage),/Onbekende/);
+});
