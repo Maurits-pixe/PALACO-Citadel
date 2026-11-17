@@ -70,3 +70,40 @@ test('Atelier: panorama blijft schematisch en navigatie werkt', async ({ page })
   await page.getByRole('link', { name: /Regiekamer/ }).click();
   await expect(page.getByRole('heading', { name: /Regiekamer/ })).toBeVisible();
 });
+
+test('Atelier: alle modules en gedeelde scripts blijven bereikbaar zonder netwerk', async ({ page, context }) => {
+  await page.goto('/index.html');
+  await page.evaluate(async () => {
+    if (!('serviceWorker' in navigator)) throw new Error('Service worker ontbreekt');
+    await navigator.serviceWorker.register('/sw.js');
+    await navigator.serviceWorker.ready;
+  });
+  // Verify cache was populated before disconnecting. No production account is needed.
+  await expect.poll(() => page.evaluate(async () => {
+    const names = await caches.keys();
+    const current = names.find(name => name === 'palaco-rio-shell-v6');
+    if (!current) return 0;
+    const cache = await caches.open(current);
+    const pages = ['/atelier/studio.html','/atelier/panorama.html','/atelier/interieur.html',
+      '/atelier/regiekamer.html','/atelier/regiekamer-gallery.js','/atelier/regiekamer-bundle.js'];
+    const hits = await Promise.all(pages.map(url => cache.match(url)));
+    return hits.filter(Boolean).length;
+  })).toBe(6);
+
+  await context.setOffline(true);
+  try {
+    await page.goto('/atelier/regiekamer.html');
+    await expect(page.getByRole('heading', { name: /Regiekamer/ })).toBeVisible();
+    await expect(page.locator('#galleryFrame svg')).toBeVisible();
+    await page.goto('/atelier/studio.html');
+    await expect(page.getByRole('heading', { name: /Het Atelier/ })).toBeVisible();
+    await page.goto('/atelier/interieur.html');
+    await expect(page.getByRole('heading', { name: /Interieuratelier/ })).toBeVisible();
+    await page.goto('/atelier/panorama.html');
+    await expect(page.locator('#scene')).toBeVisible();
+    await page.goto('/atelier/wizard.html');
+    await expect(page.getByRole('heading', { name: 'New Citadel' })).toBeVisible();
+  } finally {
+    await context.setOffline(false);
+  }
+});
