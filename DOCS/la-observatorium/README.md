@@ -61,6 +61,9 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Stale-result beveiliging (v1.1)
+Wanneer een gebruiker een ander JSON-inspectiedossier kiest, wordt een oude uitkomst `INTEGRITEIT KOMT OVEREEN` onmiddellijk vervangen door `controle nog niet uitgevoerd`. Iedere controle krijgt een opeenvolgend lokaal volgnummer; oudere asynchrone file-read- en SHA-256-uitkomsten mogen geen status of bestandsselectie van een nieuwere controle wijzigen. Een positieve uitslag geldt alleen voor de **laatst gecontroleerde bestandsinhoud**, nooit voor een nieuw geselecteerd dossier. Een Chromium-browsertest bewaakt deze overgang.
+
 ## Branchgerichte browsertests (v1.0)
 De workflow is uitgebreid met een `push`-trigger die uitsluitend geldt voor `feature/la-observatorium-readonly-20261117` en relevante Observatorium- of workflowbestanden. De bestaande `pull_request`- en `workflow_dispatch`-triggers blijven behouden. Deze trigger dient uitsluitend om CI opnieuw te laten draaien; hij merged, deployed of publiceert niets. De workflow heeft alleen `contents: read` en de test bewaakt dit contract.
 
