@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101d21"><title>De Geheugenkamer · PALACO Citadel</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:#0b1518;color:#f5f1e6}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 78% 0%,#26423a 0%,transparent 50%),#0b1518}
+header,main,footer{max-width:1180px;margin:auto;padding:24px}header{padding-top:38px}.eyebrow{color:#c7a974;letter-spacing:.22em;font-size:.77rem;text-transform:uppercase}
+h1{font-family:Georgia,serif;font-weight:400;letter-spacing:-.045em;font-size:clamp(2.8rem,7vw,5.8rem);margin:.15em 0}
+h2{font-family:Georgia,serif;font-weight:400;font-size:1.7rem}.lead{max-width:680px;color:#bfcec9;line-height:1.6}
+a{color:#e0c487}nav{display:flex;gap:17px;flex-wrap:wrap;margin:20px 0}
+.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:20px}.panel{background:#13262a;border:1px solid #42554b;border-radius:18px;padding:23px;box-shadow:0 15px 50px #0003}
+label{display:block;margin:13px 0 5px;color:#e2d5bd;font-size:.88rem}
+input,textarea,select{width:100%;border:1px solid #52665b;border-radius:10px;background:#0c1b20;color:#fff;padding:12px;font:inherit}
+textarea{min-height:94px;resize:vertical}button,.button{border:1px solid #a88b56;background:#cbb17c;color:#172424;padding:11px 15px;border-radius:10px;font:inherit;font-weight:650;cursor:pointer}
+button.secondary{background:transparent;color:#eddab7}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #d9ba7f;outline-offset:3px}
+.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}.meta,.muted,small{color:#aabbb5}.meta{font-size:.85rem}.badge{display:inline-block;border:1px solid #bda36d;color:#e4c78e;padding:5px 9px;border-radius:100px;font-size:.73rem;letter-spacing:.04em}
+.timeline{display:grid;gap:14px;max-height:680px;overflow:auto}.item{border-left:3px solid #c6a76d;padding:10px 16px;background:#0b1b1e;border-radius:0 10px 10px 0;overflow-wrap:anywhere}
+.item h3{margin:5px 0 8px}.item p{white-space:pre-wrap}.stat{display:flex;gap:10px;flex-wrap:wrap}.stat span{border:1px solid #526357;border-radius:10px;padding:12px;flex:1;min-width:145px}.alert{padding:12px;border-left:3px solid #d5b77e;background:#302b20;color:#f0dfbd}
+footer{border-top:1px solid #405249;color:#a5b6af}.hidden{display:none!important}
+@media(max-width:800px){.grid{grid-template-columns:1fr}header,main,footer{padding:17px}.panel{padding:18px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style></head><body>
+<header><p class="eyebrow">PALACO · CITADEL · LOCUS AMOENUS</p><h1>De Geheugenkamer</h1>
+<p class="lead">Een bewoonbaar geheugen. Verzamel momenten, leg hun herkomst vast en volg hoe verhalen evolueren. Ieder lokaal dossier blijft onderscheiden van onafhankelijk geverifieerd bewijs.</p>
+<nav aria-label="Citadel navigatie"><a href="../../index.html">← Citadel</a><a href="../la-observatorium/">Observatorium</a><a href="../">Documentatie</a></nav>
+<div class="stat"><span><strong id="count">0</strong><br><small>Lokale herinneringen</small></span><span><strong id="utc">—</strong><br><small>Apparaat-UTC · geen atoomtijdattest</small></span><span><strong>HOLD</strong><br><small>EDTR / autorisatie</small></span></div>
+<p class="alert">PRIVÉPROEF · SELF_REPORTED_NOT_VERIFIED · Geen PALACO One-login, serverregistratie, bewijsverklaring of officiële EDTR-uitgifte. Lokale opslag staat standaard uit.</p>
+</header>
+<main class="grid">
+<section class="panel" aria-labelledby="addtitle"><h2 id="addtitle">Een herinnering bewaren</h2>
+<form id="entryForm">
+<label for="title">Titel</label><input id="title" maxlength="100" required placeholder="Bijvoorbeeld: Het eerste licht">
+<label for="who">Wie · betrokkenen</label><input id="who" maxlength="160" required>
+<label for="what">Wat · gebeurtenis</label><textarea id="what" maxlength="2500" required></textarea>
+<label for="where">Waar · plaats / wereld</label><input id="where" maxlength="160" placeholder="Locus Amoenus · W-0001">
+<label for="why">Waarom · betekenis</label><textarea id="why" maxlength="1200"></textarea>
+<label for="how">Hoe · methode of bron</label><textarea id="how" maxlength="1200"></textarea>
+<label for="source">Herkomst / bronverwijzing</label><input id="source" maxlength="250" placeholder="Eigen waarneming, document-ID of bron">
+<label for="category">Collectie</label><select id="category"><option>Persoonlijk</option><option>Wereld</option><option>Atelier</option><option>Observatorium</option><option>Citadel</option></select>
+<div class="actions"><button type="submit">Bewaar als lokaal concept</button><button type="reset" class="secondary">Wis velden</button></div>
+</form><p class="meta">Registratietijd = apparaattijd (UTC). De tijd wordt niet voorgesteld als geverifieerde ERA/EDTR-tijd. Wijzigingen worden als nieuwe versie vastgelegd, nooit als onzichtbare overschrijving.</p>
+<hr style="border:0;border-top:1px solid #42554b;margin:27px 0">
+<h2>Privacy &amp; overdracht</h2><label><input id="persist" type="checkbox" style="width:auto"> Ik kies expliciet voor opslag op dit apparaat</label>
+<p class="meta">Zonder toestemming blijven gegevens uitsluitend in deze tab. Uitschakelen wist de door deze module opgeslagen browsergegevens.</p>
+<div class="actions"><button type="button" id="export" class="secondary">Exporteer JSON</button><button type="button" id="importBtn" class="secondary">Importeer JSON</button><button type="button" id="clear" class="secondary">Wis lokaal geheugen</button><input id="file" type="file" accept=".json,application/json" class="hidden" aria-label="JSON-importbestand"></div>
+<p class="meta" id="message" role="status" aria-live="polite"></p>
+</section>
+<section class="panel" aria-labelledby="archivetitle"><h2 id="archivetitle">De levende tijdlijn</h2>
+<label for="search">Zoek in het archief</label><input id="search" type="search" placeholder="Zoek titel, wie, wat, waar, bron…">
+<label for="filter">Filter collectie</label><select id="filter"><option value="">Alle collecties</option><option>Persoonlijk</option><option>Wereld</option><option>Atelier</option><option>Observatorium</option><option>Citadel</option></select>
+<div class="actions"><button type="button" id="sort" class="secondary">Oudste eerst</button></div>
+<p class="meta">Lineage: Bron → Gebeurtenis → Versie → Beoordeling → Verificatie. In deze proef blijft Beoordeling open en Verificatie onbevestigd.</p><div id="timeline" class="timeline" aria-live="polite"></div></section>
+</main><footer>PALACO VORM9EVIN9 · Geheugenkamer v0.1 · Lokale privéproef · Observatie ≠ Bewijs ≠ Autorisatie</footer>
+<script>
+(()=>{"use strict";
+const KEY="palaco.citadel.geheugenkamer.v1";const $=s=>document.querySelector(s);
+const fields=["title","who","what","where","why","how","source","category"];
+const limit=100;let entries=[],oldest=false;
+const status=s=>{$("#message").textContent=s};const now=()=>new Date().toISOString();
+const uuid=()=>globalThis.crypto&&crypto.randomUUID?crypto.randomUUID():"local-"+Date.now()+"-"+Math.random().toString(36).slice(2);
+const safe=(v,n)=>typeof v==="string"&&v.length<=n;const categories=["Persoonlijk","Wereld","Atelier","Observatorium","Citadel"];
+function valid(e){return e&&typeof e==="object"&&!Array.isArray(e)&&safe(e.id,100)&&safe(e.title,100)&&e.title.trim()&&safe(e.who,160)&&safe(e.what,2500)&&safe(e.where,160)&&safe(e.why,1200)&&safe(e.how,1200)&&safe(e.source,250)&&categories.includes(e.category)&&typeof e.createdAt==="string"&&!Number.isNaN(Date.parse(e.createdAt))&&Number.isSafeInteger(e.version)&&e.version>=1&&e.version<=100&&safe(e.previousId,100)&&e.trust==="SELF_REPORTED_NOT_VERIFIED";}
+function save(){if(!$("#persist").checked)return;try{localStorage.setItem(KEY,JSON.stringify(entries));status("Lokaal opgeslagen op dit apparaat.")}catch{status("Opslag mislukt; gegevens blijven in deze tab.")}}
+function text(tag,value,cls){const el=document.createElement(tag);if(cls)el.className=cls;el.textContent=value;return el}
+function render(){const q=$("#search").value.trim().toLocaleLowerCase("nl"),cat=$("#filter").value;$("#count").textContent=entries.length;$("#sort").textContent=oldest?"Nieuwste eerst":"Oudste eerst";
+const list=entries.filter(e=>(!cat||e.category===cat)&&fields.some(k=>String(e[k]).toLocaleLowerCase("nl").includes(q))).sort((a,b)=>oldest?a.createdAt.localeCompare(b.createdAt):b.createdAt.localeCompare(a.createdAt));
+const host=$("#timeline");host.replaceChildren();if(!list.length){host.append(text("p","Geen herinneringen gevonden. Voeg een lokaal concept toe.","muted"));return}
+for(const e of list){const card=text("article","","item");card.append(text("small",e.category+" · "+e.createdAt+" · versie "+e.version));card.append(text("h3",e.title));card.append(text("p",e.what));for(const [name,key] of [["Wie","who"],["Waar","where"],["Waarom","why"],["Hoe","how"],["Bron","source"]])if(e[key])card.append(text("p",name+": "+e[key],"meta"));card.append(text("small","SELF_REPORTED_NOT_VERIFIED · "+e.id));if(e.previousId)card.append(text("p","Voorganger: "+e.previousId,"meta"));
+const bar=text("div","","actions");const revise=text("button","Nieuwe versie","secondary");revise.type="button";revise.addEventListener("click",()=>{for(const k of fields)$("#"+k).value=e[k];$("#entryForm").dataset.previousId=e.id;$("#title").focus();status("Vorige versie geladen. Opslaan maakt een nieuwe vermelding; de oude blijft bestaan.")});bar.append(revise);card.append(bar);host.append(card)}}
+$("#entryForm").addEventListener("submit",ev=>{ev.preventDefault();if(entries.length>=limit){status("Maximum van 100 vermeldingen bereikt. Exporteer eerst.");return}
+const previousId=ev.currentTarget.dataset.previousId||"";const old=entries.find(x=>x.id===previousId);const e={id:uuid(),createdAt:now(),previousId:old?old.id:"",version:old?old.version+1:1,trust:"SELF_REPORTED_NOT_VERIFIED"};for(const f of fields)e[f]=$("#"+f).value.trim();if(!valid(e)){status("Controleer de ingevulde velden.");return}entries.push(e);ev.currentTarget.reset();delete ev.currentTarget.dataset.previousId;save();render();status("Concept toegevoegd. Geen verificatie of EDTR-uitgifte.")});
+$("#persist").addEventListener("change",()=>{if($("#persist").checked)save();else{try{localStorage.removeItem(KEY)}catch{}status("Apparaatopslag uitgeschakeld en lokale opslag gewist.")}});
+$("#search").addEventListener("input",render);$("#filter").addEventListener("change",render);$("#sort").addEventListener("click",()=>{oldest=!oldest;render()});
+$("#clear").addEventListener("click",()=>{if(!confirm("Alle herinneringen in deze tab en in de lokale opslag wissen?"))return;entries=[];try{localStorage.removeItem(KEY)}catch{}render();status("Lokaal geheugen gewist.")});
+$("#export").addEventListener("click",()=>{const blob=new Blob([JSON.stringify({schema:"PALACO-CITADEL-GEHEUGEN-1",issuedAt:null,authority:"NONE",status:"LOCAL_DRAFT_ONLY",exportedAt:now(),entries},null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="palaco-geheugenkamer-lokaal.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status("Lokaal JSON-controlepakket geëxporteerd; geen officieel bewijs.")});
+$("#importBtn").addEventListener("click",()=>$("#file").click());
+$("#file").addEventListener("change",async ev=>{const file=ev.target.files?.[0];ev.target.value="";if(!file)return;if(file.size>256*1024){status("Import geweigerd: bestand groter dan 256 KB.");return}
+try{const parsed=JSON.parse(await file.text());if(parsed.schema!=="PALACO-CITADEL-GEHEUGEN-1"||!Array.isArray(parsed.entries)||parsed.entries.length>limit||!parsed.entries.every(valid)){status("Import geweigerd: ongeldig schema of inhoud.");return}
+const ids=new Set(parsed.entries.map(e=>e.id));if(ids.size!==parsed.entries.length){status("Import geweigerd: dubbele IDs.");return}
+let added=0;for(const e of parsed.entries){if(entries.some(x=>x.id===e.id))continue;if(entries.length>=limit)break;entries.push({...e,trust:"SELF_REPORTED_NOT_VERIFIED"});added++}save();render();status(added+" nieuwe lokale concepten geïmporteerd; inhoud niet geverifieerd.")}catch{status("Import geweigerd: onleesbaar JSON-bestand.")}});
+function tick(){$("#utc").textContent=new Date().toISOString().slice(11,19)+" UTC"}tick();setInterval(tick,1000);
+render();
+})();
+</script></body></html>
