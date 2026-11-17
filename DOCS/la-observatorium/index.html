@@ -164,6 +164,7 @@ $("storage-reset").addEventListener("click",()=>{
  if(!confirm("Onleesbare lokale kopie en toestemmingsmarkering definitief wissen? Deze inhoud kan niet worden hersteld vanuit het Observatorium."))return;
  try{
   localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);
+  if(localStorage.getItem(KEY)!==null||localStorage.getItem(CONSENT)!==null)throw new Error("Wissen niet bevestigd");
   storageRecoveryBlocked=false;storageEnabled=false;notes=[];
   $("persist").checked=false;$("persist").disabled=false;
   $("storage-reset").classList.add("hidden");
@@ -171,7 +172,33 @@ $("storage-reset").addEventListener("click",()=>{
   render();status("Onleesbare lokale kopie na bevestiging gewist. Geen notities hersteld.");
  }catch(_){status("Wissen mislukt: onleesbare lokale kopie blijft geblokkeerd.");}
 });
-function save(){if(storageRecoveryBlocked){status("Opslag geblokkeerd: herstel eerst de onleesbare lokale kopie.");return;}if($("persist").checked){try{localStorage.setItem(KEY,JSON.stringify(notes));localStorage.setItem(CONSENT,"yes");$("storage").textContent="Opslag: lokaal op dit apparaat (toestemming actief)";}catch(_){$("storage").textContent="Lokale opslag mislukt";status("Lokale opslag mislukt");}}else{try{localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);}catch(_){}$("storage").textContent="Opslag: alleen huidig tabblad";}}
+function save(){
+ if(storageRecoveryBlocked){status("Opslag geblokkeerd: herstel eerst de onleesbare lokale kopie.");return false;}
+ const wantsStorage=$("persist").checked;
+ try{
+  if(wantsStorage){
+   const serialized=JSON.stringify(notes);
+   localStorage.setItem(KEY,serialized);
+   localStorage.setItem(CONSENT,"yes");
+   if(localStorage.getItem(KEY)!==serialized||localStorage.getItem(CONSENT)!=="yes")throw new Error("Opslag niet bevestigd");
+   storageEnabled=true;
+   $("storage").textContent="Opslag: lokaal op dit apparaat (toestemming actief)";
+  }else{
+   localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);
+   if(localStorage.getItem(KEY)!==null||localStorage.getItem(CONSENT)!==null)throw new Error("Wissen niet bevestigd");
+   storageEnabled=false;
+   $("storage").textContent="Opslag: alleen huidig tabblad";
+  }
+  return true;
+ }catch(_){
+  storageRecoveryBlocked=true;
+  $("persist").disabled=true;
+  $("storage-reset").classList.remove("hidden");
+  $("storage").textContent=wantsStorage?"OPSLAG ONBEVESTIGD: controleer lokaal herstel.":"WISSEN NIET BEVESTIGD: controleer lokaal herstel.";
+  status("Lokale opslagstatus onbekend; geen succesvolle bewaar- of wisactie bevestigd.");
+  return false;
+ }
+}
 function showTab(id){const btn=tabs.find(b=>b.dataset.tab===id);if(btn)btn.click();}
 function referenceDescriptor(reference){
 const value=reference.trim();if(!value)return {type:"GEEN REFERENTIE",state:"BRON ONTBREEKT"};
@@ -294,7 +321,7 @@ status(incoming.length+" zelfgerapporteerde notities geïmporteerd; niet geverif
 }catch(_){status("Import geweigerd: bestand kan niet veilig worden verwerkt.");}
 finally{$("import-file").value="";}
 });
-$("persist").addEventListener("change",()=>{save();status($("persist").checked?"Lokale opslag ingeschakeld.":"Lokale opslag uitgeschakeld; opgeslagen kopie gewist.");});
+$("persist").addEventListener("change",()=>{if(save())status($("persist").checked?"Lokale opslag bevestigd.":"Lokale kopie en toestemming aantoonbaar verwijderd.");});
 $("clear").addEventListener("click",()=>{if(!confirm("Alle lokale waarnemingen in dit tabblad en de lokale opslag wissen?"))return;notes=[];save();render();status("Lokale notities gewist.");});
 $("export").addEventListener("click",()=>{
 const payload={format:"palaco-la-observatory-local-v1",exported_at:new Date().toISOString(),authority:"SELF_REPORTED_NOT_VERIFIED",notes};
