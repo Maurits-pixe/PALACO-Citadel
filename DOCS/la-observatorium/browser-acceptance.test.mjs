@@ -309,9 +309,18 @@ test('failed journal clear does not claim confirmed local erasure',{timeout:6000
   });
   page.once('dialog',dialog=>dialog.accept());
   await page.locator('#clear').click();
-  assert.match(await page.locator('#announce').innerText(),/NIET bevestigd gewist/);
+  assert.match(await page.locator('#announce').innerText(),/Wissen NIET bevestigd/);
   assert.equal(await page.locator('#persist').isDisabled(),true);
   assert.ok(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')));
+  await page.locator('#tab-geheugen').click();
+  assert.match(await page.locator('#count').innerText(),/1 \/ 1/);
+  await page.locator('#tab-atelier').click();
+  const downloadPromise=page.waitForEvent('download',{timeout:10000});
+  await page.locator('#export').click();
+  const download=await downloadPromise;
+  const journal=JSON.parse((await readFile(await download.path())).toString('utf8'));
+  assert.equal(journal.notes.length,1);
+  assert.equal(journal.notes[0].subject,'Notitie voor wisproef');
  });
 });
 
