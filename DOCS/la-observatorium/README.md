@@ -8,6 +8,8 @@ DRAFT · HOLD · read-only prototype. Deze map is **geen** live-monitoring, bewi
 - Vijf schermen: Uitkijk, Bewijskamer, Geheugen, Wachttoren en Atelier.
 - Handmatige, zelfgerapporteerde waarnemingen met gecombineerd classificatiefilter en lokale tekstzoekfunctie op onderwerp, beschrijving en bronverwijzing.
 - Elke tijdlijnregel toont uitdrukkelijk `SELF_REPORTED_NOT_VERIFIED`; een zoekresultaat is nooit een Quay-, ERA- of WATERMERK-verificatie.
+- Een knop per waarneming opent een read-only inspectiepaneel in de Bewijskamer met classificatie, bronverwijzing, apparaat-/importtijd en tekst. Het paneel vermeldt expliciet dat Quay, ERA/EDTR en WATERMERK niet zijn geverifieerd en verleent geen mandaat.
+- Als een geselecteerde waarneming uit het lokale Geheugen verdwijnt, wordt de inspectieselectie gewist.
 - Optionele persistentie in browseropslag, uitsluitend met expliciete toestemming.
 - Bewaartoestemming wordt expliciet in een afzonderlijke lokale consent-markering bijgehouden. Zonder deze markering worden bestaande browsernotities niet ingelezen; bij uitzetten wordt de opgeslagen kopie verwijderd.
 - Ongeldige tijdstempels en lege waarnemingen worden bij uitlezen geweigerd.
