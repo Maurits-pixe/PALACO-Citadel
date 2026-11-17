@@ -335,3 +335,52 @@ test("encrypted local vault: refuse plaintext opt-in and vault save over plainte
  assert.match(await page.locator("#message").innerText(),/Onversleuteld opslaan geweigerd/);
  await context.close();
 });
+
+test("vault save cannot commit a stale snapshot after a memory edit",async()=>{
+ const c=await browser.newContext({viewport:{width:390,height:844}});
+ const p=await c.newPage();await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Eerste");await p.locator("#who").fill("W");await p.locator("#what").fill("A");await p.locator("#entryForm button[type=submit]").click();
+ await p.evaluate(()=>{
+   const real=SubtleCrypto.prototype.deriveKey;
+   window.__cryptoPending=false;
+   SubtleCrypto.prototype.deriveKey=function(...args){
+     window.__cryptoPending=true;
+     return new Promise((resolve,reject)=>{window.__releaseCrypto=()=>real.apply(this,args).then(resolve,reject)});
+   };
+ });
+ await p.locator("#archivePassphrase").fill("Kluis geheim voor test 123");
+ await p.locator("#vaultSave").click();
+ await p.waitForFunction(()=>window.__cryptoPending);
+ await p.locator("#title").fill("Tweede");await p.locator("#who").fill("W");await p.locator("#what").fill("B");await p.locator("#entryForm button[type=submit]").click();
+ await p.evaluate(()=>window.__releaseCrypto());
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("Kluisopslag geweigerd"));
+ assert.equal(await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),null);
+ assert.equal(await p.locator("#count").innerText(),"2");
+ await c.close();
+});
+
+test("vault unlock cannot resurrect entries after explicit lock",async()=>{
+ const c=await browser.newContext({viewport:{width:390,height:844}});
+ const p=await c.newPage();await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Kluisrecord");await p.locator("#who").fill("W");await p.locator("#what").fill("C");await p.locator("#entryForm button[type=submit]").click();
+ await p.locator("#archivePassphrase").fill("Kluis wachtzin voor test 123");
+ await p.locator("#vaultSave").click();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde kluis bewust opgeslagen"));
+ await p.reload();
+ await p.evaluate(()=>{
+   const real=SubtleCrypto.prototype.deriveKey;window.__cryptoPending=false;
+   SubtleCrypto.prototype.deriveKey=function(...args){
+     window.__cryptoPending=true;
+     return new Promise((resolve,reject)=>{window.__releaseCrypto=()=>real.apply(this,args).then(resolve,reject)});
+   };
+ });
+ await p.locator("#archivePassphrase").fill("Kluis wachtzin voor test 123");
+ await p.locator("#vaultUnlock").click();
+ await p.waitForFunction(()=>window.__cryptoPending);
+ await p.locator("#vaultLock").click();
+ assert.equal(await p.locator("#count").innerText(),"0");
+ await p.evaluate(()=>window.__releaseCrypto());
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("Ontgrendeling geweigerd"));
+ assert.equal(await p.locator("#count").innerText(),"0");
+ await c.close();
+});
