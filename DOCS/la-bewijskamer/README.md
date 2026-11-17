@@ -1,4 +1,4 @@
-# De Bewijskamer · Citadel v0.1
+# De Bewijskamer · Citadel v0.2
 
 Afzonderlijke offline-first **ontvangende proefmodule** binnen dezelfde Citadel-repository, zonder verbinding naar live systemen.
 
@@ -8,6 +8,13 @@ Afzonderlijke offline-first **ontvangende proefmodule** binnen dezelfde Citadel-
 3. Selecteer het eerder geëxporteerde JSON-bestand in de Bewijskamer.
 4. Inspecteer aangeleverde versie-ID's, bron, apparaat-UTC, gedeeltelijke lineage en onveranderlijk onbeoordeelde trustvelden.
 5. Schrijf indien gewenst een lokale beoordelingsnotitie en exporteer die als `PALACO-CITADEL-BEWIJSKAMER-LOCAL-ASSESSMENT-1`.
+
+## Ontvangsttriage v0.2
+- `INVALID_PACKET`: schema-, autorisatie- of lineage-controles falen; het pakket wordt geweigerd.
+- `NEEDS_SOURCE_MATERIAL`: er is een lege bronverwijzing of de ontvangen lineage begint met een ontbrekende voorganger.
+- `READY_FOR_HUMAN_REVIEW`: uitsluitend minimale documentatie is aanwezig voor **menselijke beoordeling**; nooit bewijs van juistheid, identiteit, toestemming of authenticiteit.
+- Een apart JSON-concept `PALACO-CITADEL-TRIAGE-DRAFT-1` bevat uitsluitend lokale intakebevindingen. Dit is geen officiële beoordeling of autorisatie.
+- Deze triage is een indicatie van **aanlevervolledigheid**, geen bewijskracht. De ontvangende partij moet alle bronnen zelfstandig beoordelen.
 
 ## Grensbewaking
 - De ontvanger accepteert uitsluitend het vastgelegde schema met **exacte verwachte velden**, beperkende lengtes en maximaal 100 lineage-records.
@@ -23,7 +30,8 @@ Afzonderlijke offline-first **ontvangende proefmodule** binnen dezelfde Citadel-
 
 ```sh
 node --test DOCS/la-bewijskamer/handoff.test.mjs
+node --test DOCS/la-bewijskamer/triage.test.mjs
 node --test DOCS/la-geheugenkamer/geheugenkamer.test.mjs
 ```
 
-De 10 nieuwe Bewijskamer-testscenario's zijn opgesteld maar **nog niet uitgevoerd**. Browser- en mobiele acceptatie, privacybeoordeling en externe code-review blijven HOLD. PR is DRAFT en Sites is niet gepubliceerd.
+De 10 handoff-tests en 7 aanvullende triage-tests zijn opgesteld maar **nog niet uitgevoerd**. Browser- en mobiele acceptatie, privacybeoordeling en externe code-review blijven HOLD. PR is DRAFT en Sites is niet gepubliceerd.
