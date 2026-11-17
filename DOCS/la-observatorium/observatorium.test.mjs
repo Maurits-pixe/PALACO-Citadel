@@ -250,3 +250,11 @@ test('asynchronous import aborts when local journal changes during file reading 
  assert.match(html,/notes=notes\.concat\(incoming\);journalRevision\+\+/);
  assert.match(html,/else journalRevision\+\+/);
 });
+
+test('inspection exports reject stale SHA-256 results after note or selection changes',()=>{
+ assert.match(html,/let inspectionExportRun=0/);
+ assert.match(html,/const run=\+\+inspectionExportRun/);
+ assert.match(html,/const inspectedId=selectedId,startedAtRevision=journalRevision/);
+ assert.match(html,/run!==inspectionExportRun\|\|selectedId!==inspectedId\|\|journalRevision!==startedAtRevision\|\|storageRecoveryBlocked/);
+ assert.match(html,/Export afgebroken: selectie, Geheugen of opslagstatus is tussentijds gewijzigd/);
+});
