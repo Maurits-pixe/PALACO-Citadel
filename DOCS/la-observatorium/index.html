@@ -105,7 +105,7 @@ footer{border-top:1px solid #3d5046;padding:24px;text-align:center;color:#9eada4
 <input id="import-file" type="file" accept=".json,application/json">
 <p class="muted">Import is uitsluitend een lokale kopie. Bestaande notities blijven behouden; dubbele ID's worden overgeslagen. Import verleent nooit bewijsstatus of mandaat.</p>
 <div class="actions"><button class="secondary" id="import" type="button">Controleer en importeer</button><button class="secondary" id="export" type="button">Exporteer JSON</button><button class="secondary" id="clear" type="button">Wis lokale notities</button></div>
-<p class="muted" id="storage">Opslag: alleen huidig tabblad</p>
+<p class="muted" id="storage">Opslag: alleen huidig tabblad</p><button class="secondary hidden" id="storage-reset" type="button">Wis onleesbare lokale kopie (na bevestiging)</button>
 </div></div>
 </section>
 <p class="sr" role="status" aria-live="polite" id="announce"></p>
@@ -136,12 +136,42 @@ tabs.forEach((btn,i)=>{
 $("clock").textContent=new Date().toLocaleString("nl-NL",{dateStyle:"medium",timeStyle:"short"});
 let notes=[];
 let selectedId=null;
-let storageEnabled=false;
-try{storageEnabled=localStorage.getItem(CONSENT)==="yes";if(storageEnabled){const raw=localStorage.getItem(KEY);if(raw){const value=JSON.parse(raw);if(Array.isArray(value))notes=value.filter(valid).slice(0,max);}}else{localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);}}catch(_){}
+let storageEnabled=false,storageRecoveryBlocked=false;
+function validStoredNotes(value){
+return Array.isArray(value)&&value.length<=max&&value.every(valid)&&new Set(value.map(n=>n.id)).size===value.length;
+}
+try{
+ storageEnabled=localStorage.getItem(CONSENT)==="yes";
+ if(storageEnabled){
+  const raw=localStorage.getItem(KEY);
+  if(raw!==null){
+   const value=JSON.parse(raw);
+   if(!validStoredNotes(value))throw new Error("Lokale kopie heeft een ongeldig schema");
+   notes=value.map(n=>({id:n.id,at:n.at,subject:n.subject,kind:n.kind,reference:n.reference,notes:n.notes}));
+  }
+ }else{localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);}
+}catch(_){storageRecoveryBlocked=true;storageEnabled=false;notes=[];}
 function valid(n){return n&&typeof n==="object"&&!Array.isArray(n)&&typeof n.id==="string"&&n.id.length>0&&n.id.length<=100&&typeof n.at==="string"&&Number.isFinite(Date.parse(n.at))&&typeof n.subject==="string"&&n.subject.trim().length>0&&n.subject.length<=100&&typeof n.notes==="string"&&n.notes.trim().length>0&&n.notes.length<=1500&&typeof n.kind==="string"&&["OBSERVED","RECORDED","DERIVED","INFERRED","HYPOTHESIS"].includes(n.kind)&&typeof n.reference==="string"&&n.reference.length<=200;}
 $("persist").checked=storageEnabled;
+$("persist").disabled=storageRecoveryBlocked;
+if(storageRecoveryBlocked){
+ $("storage").textContent="HERSTEL VEREIST: lokale opslag niet leesbaar. Bestaande kopie blijft behouden.";
+ $("storage-reset").classList.remove("hidden");
+}
 function status(msg){$("announce").textContent=msg;}
-function save(){if($("persist").checked){try{localStorage.setItem(KEY,JSON.stringify(notes));localStorage.setItem(CONSENT,"yes");$("storage").textContent="Opslag: lokaal op dit apparaat (toestemming actief)";}catch(_){$("storage").textContent="Lokale opslag mislukt";status("Lokale opslag mislukt");}}else{try{localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);}catch(_){}$("storage").textContent="Opslag: alleen huidig tabblad";}}
+$("storage-reset").addEventListener("click",()=>{
+ if(!storageRecoveryBlocked)return;
+ if(!confirm("Onleesbare lokale kopie en toestemmingsmarkering definitief wissen? Deze inhoud kan niet worden hersteld vanuit het Observatorium."))return;
+ try{
+  localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);
+  storageRecoveryBlocked=false;storageEnabled=false;notes=[];
+  $("persist").checked=false;$("persist").disabled=false;
+  $("storage-reset").classList.add("hidden");
+  $("storage").textContent="Opslag: alleen huidig tabblad";
+  render();status("Onleesbare lokale kopie na bevestiging gewist. Geen notities hersteld.");
+ }catch(_){status("Wissen mislukt: onleesbare lokale kopie blijft geblokkeerd.");}
+});
+function save(){if(storageRecoveryBlocked){status("Opslag geblokkeerd: herstel eerst de onleesbare lokale kopie.");return;}if($("persist").checked){try{localStorage.setItem(KEY,JSON.stringify(notes));localStorage.setItem(CONSENT,"yes");$("storage").textContent="Opslag: lokaal op dit apparaat (toestemming actief)";}catch(_){$("storage").textContent="Lokale opslag mislukt";status("Lokale opslag mislukt");}}else{try{localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);}catch(_){}$("storage").textContent="Opslag: alleen huidig tabblad";}}
 function showTab(id){const btn=tabs.find(b=>b.dataset.tab===id);if(btn)btn.click();}
 function referenceDescriptor(reference){
 const value=reference.trim();if(!value)return {type:"GEEN REFERENTIE",state:"BRON ONTBREEKT"};
