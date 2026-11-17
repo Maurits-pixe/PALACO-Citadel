@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Veilige asynchrone inspectie-export (v2.1)
+Bij het exporteren van een inspectiedossier kan de SHA-256-berekening nog bezig zijn wanneer de selectie of het lokale Geheugen verandert. De Bewijskamer onthoudt daarom de geselecteerde waarneming, de logboekversie en het nummer van de lopende export. Vóór downloaden worden deze gegevens opnieuw gecontroleerd. Een verouderde export wordt afgebroken als de gebruiker een andere notitie selecteert, het Geheugen wijzigt, een nieuwere export start of een opslagherstelblokkade ontstaat. Zo kan een oud dossier niet onbedoeld worden uitgegeven nadat de context is veranderd.
+
+De Chromium-acceptatietest pauzeert de hashberekening, wisselt naar een andere waarneming en controleert dat er geen oud dossier wordt gedownload. De SHA-256-hash is uitsluitend een integriteitscontrole en bewijst geen identiteit, oorsprong of mandaat. De release blijft HOLD tot de volledige browseracceptatie daadwerkelijk is geslaagd.
+
 ## Concurrentieveilige JSON-import (v2.0)
 Een lokale JSON-import loopt asynchroon en kan plaatsvinden terwijl het Atelier of Geheugen verandert. De applicatie telt wijzigingen aan het lokale logboek en onthoudt de versie bij het starten van iedere import. Na het inlezen van de bestandsinhoud en opnieuw vlak vóór het toepassen van de import wordt gecontroleerd dat de versie ongewijzigd is. Zodra tussentijds een lokale notitie is toegevoegd, een import is toegepast, de notities zijn gewist of een herstelreset is uitgevoerd, wordt een verouderde import afgebroken in plaats van stilzwijgend het nieuwere Geheugen te veranderen.
 
