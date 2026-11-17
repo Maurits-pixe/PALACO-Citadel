@@ -106,7 +106,7 @@ function getRecovery(storage){
    throw Error('Onbekende herstelkopie');
  }
  const draft=parse(JSON.stringify(record.draft));
- if(typeof record.savedAt!=='string'||!/^\\d{4}-\\d{2}-\\d{2}T/.test(record.savedAt))throw Error('Ongeldig herstelmoment');
+ if(typeof record.savedAt!=='string'||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}T/.test(record.savedAt))throw Error('Ongeldig herstelmoment');
  return {savedAt:record.savedAt,draft};
 }
 function restoreWithRecovery(storage,bundle,expectedSnapshot){
