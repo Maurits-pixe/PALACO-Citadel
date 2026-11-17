@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Offline privacy- en herstelacceptatie (v1.2)
+De Chromium-browseracceptatie bevat nu onafhankelijke scenario's voor niet-opgeslagen notities (verdwijnen bij herladen), expliciete bewaartoestemming (overleven herladen), intrekken van toestemming (lokaal opgeslagen notities en consentmarkering worden gewist) en verweesde opslag (een oude notitiekopie zonder actieve toestemming wordt bij openen verwijderd).
+
+De introductie van deze tests is **geen** geslaagde browseracceptatie totdat GitHub Actions alle scenario's heeft uitgevoerd. De Observatorium-release blijft HOLD. De browserkopie is alleen een lokaal hulpmiddel; de canonieke bewijsgeschiedenis en de Citadel-hoofdsite worden niet gewijzigd.
+
 ## Stale-result beveiliging (v1.1)
 Wanneer een gebruiker een ander JSON-inspectiedossier kiest, wordt een oude uitkomst `INTEGRITEIT KOMT OVEREEN` onmiddellijk vervangen door `controle nog niet uitgevoerd`. Iedere controle krijgt een opeenvolgend lokaal volgnummer; oudere asynchrone file-read- en SHA-256-uitkomsten mogen geen status of bestandsselectie van een nieuwere controle wijzigen. Een positieve uitslag geldt alleen voor de **laatst gecontroleerde bestandsinhoud**, nooit voor een nieuw geselecteerd dossier. Een Chromium-browsertest bewaakt deze overgang.
 
