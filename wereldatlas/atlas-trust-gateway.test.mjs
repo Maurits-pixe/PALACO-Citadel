@@ -1,0 +1,23 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {webcrypto} from "node:crypto";
+import {emptyChain,appendEvidence} from "./atlas-provenance.mjs";
+import {buildEvidenceManifest} from "./atlas-bewijs.mjs";
+import {archiveIndex} from "./atlas-archief.mjs";
+import {buildCheckpoint,validateCheckpoint,compareCheckpoint,createCheckpointFromChain,parseCheckpoint,CHECKPOINT_SCHEMA} from "./atlas-trust-gateway.mjs";
+if(!globalThis.crypto?.subtle)globalThis.crypto=webcrypto;
+const evidence=()=>buildEvidenceManifest({dossierId:archiveIndex().items[0].id,fileName:"file.txt",byteLength:3,sha256:"ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"});
+async function fixture(){return appendEvidence(emptyChain(),evidence(),"Concept");}
+test("bouwt alleen unsigned DRAFT/DENY controlepunt",async()=>{const c=await createCheckpointFromChain(await fixture(),"Lokaal");assert.equal(c.schema,CHECKPOINT_SCHEMA);assert.equal(c.state,"DRAFT");assert.equal(c.verified,false);assert.equal(c.signature,null);assert.equal(c.authorization,"DENY")});
+test("zelfde ketenkop is niet geauthenticeerd",async()=>{const chain=await fixture();const cp=await createCheckpointFromChain(chain,"Lokaal");const r=await compareCheckpoint(chain,cp);assert.equal(r.matches,true);assert.equal(r.status,"UNAUTHENTICATED_MATCH");assert.equal(r.authenticated,false);assert.equal(r.authorization,"DENY")});
+test("afwijkende hash geeft mismatch",async()=>{const chain=await fixture();const cp=await createCheckpointFromChain(chain,"Lokaal");cp.head="f".repeat(64);assert.equal((await compareCheckpoint(chain,cp)).status,"MISMATCH")});
+test("afwijkend volgnummer geeft mismatch",async()=>{const chain=await fixture();const cp=await createCheckpointFromChain(chain,"Lokaal");cp.sequence=0;assert.equal((await compareCheckpoint(chain,cp)).matches,false)});
+test("niet-gevalideerde handtekening is verboden",async()=>{const cp=await createCheckpointFromChain(await fixture(),"Lokaal");cp.signature="fake";assert.equal(validateCheckpoint(cp).ok,false)});
+test("active, verified of allow claims worden geweigerd",async()=>{const cp=await createCheckpointFromChain(await fixture(),"Lokaal");for(const x of [{state:"ACTIVE"},{verified:true},{authorization:"ALLOW"}])assert.equal(validateCheckpoint({...cp,...x}).ok,false)});
+test("onbekende velden worden geweigerd",async()=>{const cp=await createCheckpointFromChain(await fixture(),"Lokaal");assert.equal(validateCheckpoint({...cp,publicKey:"untrusted"}).ok,false)});
+test("leeg bronlabel wordt geweigerd",async()=>{const cp=await createCheckpointFromChain(await fixture(),"Lokaal");cp.sourceLabel="";assert.equal(validateCheckpoint(cp).ok,false)});
+test("ongeldige keten krijgt nooit match",async()=>{const chain=await fixture();const cp=await createCheckpointFromChain(chain,"Lokaal");chain.entries[0].note="Gewijzigd";const r=await compareCheckpoint(chain,cp);assert.equal(r.status,"INVALID");assert.equal(r.matches,false)});
+test("JSON import accepteert alleen valide DRAFT checkpoint",async()=>{const cp=await createCheckpointFromChain(await fixture(),"Lokaal");assert.deepEqual(await parseCheckpoint(JSON.stringify(cp)),cp)});
+test("te groot of ongeldig JSON afgewezen",async()=>{await assert.rejects(parseCheckpoint("x".repeat(16385)));await assert.rejects(parseCheckpoint("not-json"))});
+test("leeg ketencontrolepunt kan een genesis match geven zonder trust",async()=>{const chain=emptyChain(),cp=await createCheckpointFromChain(chain,"Test");const r=await compareCheckpoint(chain,cp);assert.equal(r.matches,true);assert.equal(r.authenticated,false)});
+test("checkpoint bouwfunctie valideert head",()=>assert.throws(()=>buildCheckpoint({head:"oops",sequence:1,sourceLabel:"Bron"})));
