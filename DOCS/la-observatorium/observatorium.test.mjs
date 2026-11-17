@@ -172,3 +172,8 @@ test('dossier integrity verdict is invalidated on file change and stale async re
  assert.match(html,/if\(run===dossierVerificationRun\)output\.textContent/);
  assert.match(html,/if\(run===dossierVerificationRun\)\$\("dossier-file"\)\.value=""/);
 });
+
+test('orphaned notes are removed at startup without explicit consent marker',()=>{
+ assert.match(html,/else\{localStorage\.removeItem\(KEY\);localStorage\.removeItem\(CONSENT\);\}/);
+ assert.match(html,/storageEnabled=localStorage\.getItem\(CONSENT\)==="yes"/);
+});
