@@ -158,6 +158,12 @@ test('corrupt consented local memory is quarantined until explicit reset',{timeo
   await page.locator('#tab-geheugen').click();
   assert.match(await page.locator('#count').innerText(),/0 \/ 0/);
   await page.locator('#tab-atelier').click();
+  const recoveryDownload=page.waitForEvent('download',{timeout:10000});
+  await page.locator('#storage-backup').click();
+  const archived=await recoveryDownload;
+  assert.equal(archived.suggestedFilename(),'la-observatorium-onleesbare-kopie.txt');
+  assert.equal((await readFile(await archived.path())).toString('utf8'),corrupt);
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),corrupt);
   page.once('dialog',dialog=>dialog.dismiss());
   await page.locator('#storage-reset').click();
   assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),corrupt,
