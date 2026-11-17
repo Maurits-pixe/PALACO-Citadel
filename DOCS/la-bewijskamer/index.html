@@ -36,12 +36,12 @@ small,.muted{color:#acbeb7}.notice{background:#30291b;color:#f2deb4;border-left:
 <small id="filehint">Alleen schema PALACO-CITADEL-HANDOFF-DRAFT-1 · max. 256 KB. Gegevens worden niet naar een server verzonden.</small>
 <p role="status" id="status" aria-live="polite">Nog geen bestand geselecteerd.</p>
 <button type="button" id="discard" class="secondary">Verwerp dossier en wis uit tab</button>
-<section id="assessment" class="hidden" aria-labelledby="reviewtitle">
+<section id="assessment" class="hidden" aria-labelledby="reviewtitle"><h3>Ontvangsttriage · geen bewijsverificatie</h3><p id="triageStatus" role="status">NOT_STARTED</p><div id="triageIssues" aria-label="Openstaande beoordelingspunten"></div>
 <h2 id="reviewtitle">Lokale beoordeling</h2>
 <p class="muted">De bron, identiteit, chronologie en volledigheid blijven onbeoordeeld. Een notitie verandert nooit de vertrouwensstatus.</p>
 <label for="notes">Beoordelingsnotitie (max. 1000 tekens)</label>
 <textarea id="notes" maxlength="1000" placeholder="Waarnemingen, ontbrekende stukken of vervolgstappen"></textarea>
-<button type="button" id="assessmentExport">Exporteer lokale notitie (niet-geverifieerd)</button>
+<button type="button" id="assessmentExport">Exporteer lokale notitie (niet-geverifieerd)</button><button type="button" id="triageExport" class="secondary">Exporteer triage-overzicht (DRAFT)</button>
 </section>
 </section>
 <section class="panel" aria-labelledby="dossiertitle">
@@ -49,9 +49,10 @@ small,.muted{color:#acbeb7}.notice{background:#30291b;color:#f2deb4;border-left:
 <div id="details"><p class="muted">Kies eerst een handmatig geëxporteerd conceptbestand uit de Geheugenkamer.</p></div>
 </section>
 </main>
-<footer><small>PALACO VORM9EVIN9 · Bewijskamer v0.1 · OBSERVED ≠ PROVEN ≠ FINAL · Geen verificatie of EDTR-uitgifte</small></footer>
+<footer><small>PALACO VORM9EVIN9 · Bewijskamer v0.2 · OBSERVED ≠ PROVEN ≠ FINAL · Geen verificatie of EDTR-uitgifte</small></footer>
 <script type="module">
 import {parseHandoff,makeLocalAssessment} from "./handoff.mjs";
+import {triageHandoff,buildTriageRecord} from "./triage.mjs";
 const $=s=>document.querySelector(s);
 let current=null,loadSequence=0;
 const line=(text,tag="p")=>{const node=document.createElement(tag);node.textContent=text;return node};
@@ -60,7 +61,7 @@ function clear(){
  $("#state").textContent="GEEN DOSSIER";$("#lineageCount").textContent="0";
  $("#details").replaceChildren(line("Geen dossier geladen."));
  $("#assessment").classList.add("hidden");
- $("#notes").value="";$("#handoff").value="";
+ $("#notes").value="";$("#handoff").value="";$("#triageStatus").textContent="NOT_STARTED";$("#triageIssues").replaceChildren();
 }
 function render(doc,partial){
  const details=$("#details");details.replaceChildren();
@@ -92,16 +93,16 @@ $("#handoff").addEventListener("change",async ev=>{
    $("#status").textContent="Schema gecontroleerd; document blijft niet-geverifieerd. Dit is geen bewijsbeoordeling.";
    $("#assessment").classList.remove("hidden");
    render(current,result.partial);
+   const triage=triageHandoff(current);$("#triageStatus").textContent=triage.status;$("#triageIssues").replaceChildren();if(!triage.issues.length)$("#triageIssues").append(line("Geen ontbrekende bronvelden in dit pakket. Bronwaarheid en identiteit zijn niet geverifieerd."));else for(const issue of triage.issues)$("#triageIssues").append(line(issue.code+": "+issue.detail));
  }catch{if(request!==loadSequence)return;clear();$("#status").textContent="GEWEIGERD: bestand kon niet worden ingelezen."}
 });
 $("#discard").addEventListener("click",()=>{loadSequence++;clear();$("#status").textContent="Dossier gewist uit deze tab."});
+$("#triageExport").addEventListener("click",()=>{if(!current){$("#status").textContent="Geen geldig dossier geladen.";return}const obj=buildTriageRecord(current,$("#notes").value);downloadJSON(obj,"palaco-bewijskamer-triage-draft.json");$("#status").textContent="Triageconcept geëxporteerd zonder verificatie of autorisatie."});
+function downloadJSON(obj,filename){const blob=new Blob([JSON.stringify(obj,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob),anchor=document.createElement("a");anchor.href=url;anchor.download=filename;anchor.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 $("#assessmentExport").addEventListener("click",()=>{
  if(!current){$("#status").textContent="Geen geldig dossier geladen.";return}
  const obj=makeLocalAssessment(current,$("#notes").value);
- const blob=new Blob([JSON.stringify(obj,null,2)],{type:"application/json"});
- const url=URL.createObjectURL(blob),anchor=document.createElement("a");
- anchor.href=url;anchor.download="palaco-bewijskamer-lokale-notitie.json";anchor.click();
- setTimeout(()=>URL.revokeObjectURL(url),1000);
+ downloadJSON(obj,"palaco-bewijskamer-lokale-notitie.json");
  $("#status").textContent="Lokale notitie geëxporteerd, zonder bewijsstatus of autorisatie.";
 });
 clear();
