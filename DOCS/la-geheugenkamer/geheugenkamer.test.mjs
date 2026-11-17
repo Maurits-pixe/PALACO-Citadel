@@ -11,7 +11,7 @@ const root=readFileSync(resolve(here,'../../index.html'),'utf8');
 const script=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 assert.ok(script,'embedded Geheugenkamer application script exists');
 
-function harness(){
+function harness(initialArchive=null){
   const nodes=new Map();
   class Element{
     constructor(tag='div'){this.tagName=tag;this.value='';this.checked=false;this.textContent='';this.children=[];this.dataset={};this.listeners=new Map();this.files=[];}
@@ -23,14 +23,14 @@ function harness(){
     reset(){for(const id of ['title','who','what','where','why','how','source'])nodes.get('#'+id).value='';nodes.get('#category').value='Persoonlijk'}
     click(){if(this.tagName==='a')this.clicked=true;else if(this.listeners.has('click'))return this.dispatch('click')}
   }
-  const names=['message','count','utc','entryForm','persist','title','who','what','where','why','how','source','category','search','filter','sort','timeline','clear','export','importBtn','file'];
+  const names=['message','count','utc','entryForm','persist','title','who','what','where','why','how','source','category','search','filter','sort','timeline','clear','restore','proof','export','importBtn','file'];
   for(const n of names)nodes.set('#'+n,new Element());
   nodes.get('#category').value='Persoonlijk';
-  const storage=new Map(),intervals=[];
+  const storage=new Map(),intervals=[];if(initialArchive!==null)storage.set('palaco.citadel.geheugenkamer.v1',JSON.stringify(initialArchive));
   const sandbox={
     document:{querySelector(sel){assert.ok(nodes.has(sel),'missing mock: '+sel);return nodes.get(sel)},createElement(tag){return new Element(tag)}},
     localStorage:{setItem(k,v){storage.set(k,v)},removeItem(k){storage.delete(k)},getItem(k){return storage.get(k)||null}},
-    Blob:class{constructor(chunks,options){this.chunks=chunks;this.options=options}},
+    Blob:class{constructor(chunks,options){this.chunks=chunks;this.options=options;sandbox.latestBlob=this}},
     URL:{createObjectURL(){return 'blob:test'},revokeObjectURL(){}},
     setTimeout(){},setInterval(fn){intervals.push(fn)},confirm(){return true},
     crypto:{randomUUID:(()=>{let i=0;return ()=> 'test-id-'+(++i)})()},
@@ -91,4 +91,31 @@ test('import untrusted text never becomes markup',async()=>{
  await file.dispatch('change');
  assert.equal(h.nodes.get('#count').textContent,1);
  assert.equal(h.nodes.get('#timeline').children[0].children[1].textContent,sample.title);
+});
+
+test('previously stored archive only restores after explicit click',()=>{
+ const seed={id:'restored-1',createdAt:'2026-11-17T12:00:00.000Z',previousId:'',version:1,trust:'SELF_REPORTED_NOT_VERIFIED',title:'Herinnering',who:'W',what:'Tekst',where:'',why:'',how:'',source:'',category:'Persoonlijk'};
+ const h=harness([seed]);
+ assert.equal(h.nodes.get('#count').textContent,0);
+ h.nodes.get('#restore').dispatch('click');
+ assert.equal(h.nodes.get('#count').textContent,1);
+ assert.equal(h.nodes.get('#persist').checked,true);
+});
+test('Bewijskamer draft export is not an official attestation',()=>{
+ const h=harness();enter(h,'Bewijsconcept');
+ h.nodes.get('#proof').dispatch('click');
+ const data=JSON.parse(h.sandbox.latestBlob.chunks[0]);
+ assert.equal(data.schema,'PALACO-CITADEL-BEWIJSKAMER-DRAFT-1');
+ assert.equal(data.authority,'NONE');
+ assert.equal(data.edtrIssued,false);
+ assert.equal(data.records.length,1);
+ assert.equal(data.records[0].trust,'SELF_REPORTED_NOT_VERIFIED');
+});
+test('reject imported self-referential lineage',async()=>{
+ const h=harness(),file=h.nodes.get('#file');
+ const sample={id:'cycle',createdAt:'2026-11-17T12:00:00.000Z',previousId:'cycle',version:2,trust:'SELF_REPORTED_NOT_VERIFIED',title:'Cyclisch',who:'W',what:'X',where:'',why:'',how:'',source:'',category:'Persoonlijk'};
+ file.files=[{size:500,text:async()=>JSON.stringify({schema:'PALACO-CITADEL-GEHEUGEN-1',entries:[sample]})}];
+ await file.dispatch('change');
+ assert.equal(h.nodes.get('#count').textContent,0);
+ assert.match(h.nodes.get('#message').textContent,/geweigerd/);
 });
