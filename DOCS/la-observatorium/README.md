@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Mobiele toegankelijkheid (v0.6)
+De vijf hoofdstukken volgen een tablist/tab/tabpanel-structuur met zichtbare focusindicatoren en minimale tabhoogte van 44px. Pijltjes links/rechts selecteren het volgende/vorige hoofdstuk, Home gaat naar het eerste en End naar het laatste; slechts de geselecteerde tab staat in de normale tabvolgorde.
+
+De Chromium-acceptatietest controleert deze toetsenbordnavigatie en bewaakt tevens dat de standaard uitgeschakelde opslag geen lokale persoonsgegevens persisteert. Een eerdere Chromium-run werd geannuleerd tijdens een reeks commits; dit was geen vastgesteld functioneel PASS of FAIL.
+
 ## Chromium-browseracceptatie (v0.5)
 De geïsoleerde test `DOCS/la-observatorium/browser-acceptance.test.mjs` serveert de Observatorium-HTML via een lokale HTTP-server, zonder toegang tot een live Citadel-service. Met Playwright/Chromium doorloopt hij voor 320, 390 en 1280 pixels: formulierinvoer, Geheugen, inspectie in de Bewijskamer, dossierdownload, integriteitscontrole van het dossier en afwijzing van een gemanipuleerde kopie. Hij controleert ook op horizontale overflow, JavaScript-runtimefouten en het feit dat lokale permanente opslag standaard uit staat.
 
