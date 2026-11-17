@@ -4,6 +4,7 @@
 <div class="panel"><span class="pill">RC / HOLD · geen uitgifte</span><h2>Systeemoverzicht</h2><div id="stats" class="stats" aria-live="polite"></div><p id="integrity" role="status" class="muted"></p></div>
 <section class="panel"><h2>De negen atelierraamten</h2><nav id="modules" class="tools" aria-label="Atlasmodules"></nav></section>
 <div class="grid"><section class="panel"><h2>Wereldnavigatie</h2><label for="world">Selecteer een wereld<select id="world"></select></label><div id="world-detail"></div></section><section class="panel"><h2>Externe verbindingsgrenzen</h2><ul id="external"></ul><p class="muted">Een toekomstige connector vereist afzonderlijke identiteit, bevoegdheid, provenance, versie- en integriteitscontroles.</p></section></div>
+<section class="panel"><h2>Offline Atlaspakket</h2><p class="muted">Activeer op dit apparaat een leesbare kopie van de tien Atlaspagina’s en hun vaste JavaScript-modules. De installatie is optioneel en slaat geen persoonlijke dossiers, formulieren, accounts of bewijsbestanden op.</p><div class="grid"><button type="button" id="offline-enable" style="cursor:pointer;background:#1d4a36;border:1px solid #87a98a;border-radius:10px;padding:12px;color:white">Installeer offline Atlas</button><button type="button" id="offline-clear" style="cursor:pointer;background:#102e24;border:1px solid #87a98a;border-radius:10px;padding:12px;color:white">Verwijder offline Atlas</button></div><p id="offline-status" role="status" aria-live="polite" class="muted">Offlinepakket niet gecontroleerd; internet is nodig voor de eerste installatie.</p></section>
 <div class="notice"><strong>Constitutioneel contract:</strong> alle interfaces blijven DRAFT en zonder schrijfrechten. De integratiekern aggregeert uitsluitend lokale conceptdata; een groen intern resultaat is geen productie-autorisatie, externe verificatie of toestemming om een release te publiceren.</div></main><footer>PALACO INDUSTRIE · Atlas v1.0 RC · Offline-capabel na laden · Geen externe scripts, API-calls of accounttoegang</footer>
 <script type="module">
 import {MODULES,EXTERNAL,validateIntegration,snapshot,selectedWorld} from "./atlas-integratie.mjs";
@@ -16,4 +17,34 @@ $("integrity").textContent=checks.ok?"Intern gegevenscontract consistent; geen e
 for(const [num,label] of [[s.counts?.worlds??"—","Werelden"],[s.counts?.regions??"—","Regio's"],[s.counts?.events??"—","Ontwikkelstappen"],[s.counts?.dossiers??"—","Dossiers"],[s.counts?.modules??"—","Modules"]]){const item=el("div",undefined,"stat");item.append(el("strong",num),el("small",label));$("stats").append(item)}
 if(checks.ok){for(const m of MODULES){const a=el("a",undefined,"tool");a.href=m.href;a.append(el("strong",m.title),el("p",m.description));$("modules").append(a)}for(const w of WORLDS){const opt=el("option",w.id+" · "+w.name);opt.value=w.id;$("world").append(opt)}$("world").addEventListener("change",renderWorld);renderWorld()}else{$("modules").append(el("p","Navigatie geblokkeerd totdat contractconsistentie is hersteld."));$("world").disabled=true}
 for(const e of EXTERNAL){const li=el("li");li.append(el("strong",e.id+" · "+e.status),el("p",e.purpose+" · schrijfrecht: NEE"));$("external").append(li)}
+
+// Offline shell is opt-in, static allowlist only; no accounts, proof files or API data.
+const offlineStatus=$("offline-status");
+async function offlineAction(action){
+ if(!("serviceWorker" in navigator)||!("caches" in window)){
+  offlineStatus.textContent="Offlineinstallatie is niet beschikbaar in deze browser.";return;
+ }
+ $("offline-enable").disabled=true;$("offline-clear").disabled=true;
+ try{
+  if(action==="enable"){
+   if(!checks.ok)throw Error("Atlasgegevenscontract ongeldig.");
+   const reg=await navigator.serviceWorker.register("./atlas-offline-sw.js",{scope:"./"});
+   await navigator.serviceWorker.ready;
+   if(!reg.active)throw Error("Offline worker is niet geactiveerd.");
+   const cache=await caches.open("palaco-atlas-shell-v1-rc1");
+   const cached=await cache.keys();
+   if(cached.length!==19)throw Error("Offlinepakket onvolledig; geen offlinegarantie.");
+   offlineStatus.textContent="Offlinepakket gereed: 19 vaste Atlasbronnen beschikbaar op dit apparaat. Proef offline na herladen.";
+  } else {
+   const reg=await navigator.serviceWorker.getRegistration("./");
+   if(reg)await reg.unregister();
+   const names=await caches.keys();
+   await Promise.all(names.filter(n=>n.startsWith("palaco-atlas-shell-")).map(n=>caches.delete(n)));
+   offlineStatus.textContent="Offline Atlasgegevens verwijderd. Herlaad openstaande Atlaspagina’s om de wijziging door te voeren.";
+  }
+ }catch(error){offlineStatus.textContent="Offlineactie mislukt: "+error.message}
+ finally{$("offline-enable").disabled=false;$("offline-clear").disabled=false}
+}
+$("offline-enable").addEventListener("click",()=>offlineAction("enable"));
+$("offline-clear").addEventListener("click",()=>offlineAction("clear"));
 </script></body></html>
