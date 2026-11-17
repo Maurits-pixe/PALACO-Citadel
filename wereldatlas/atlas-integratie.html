@@ -4,10 +4,11 @@
 <div class="panel"><span class="pill">RC / HOLD · geen uitgifte</span><h2>Systeemoverzicht</h2><div id="stats" class="stats" aria-live="polite"></div><p id="integrity" role="status" class="muted"></p></div>
 <section class="panel"><h2>De negen atelierraamten</h2><nav id="modules" class="tools" aria-label="Atlasmodules"></nav></section>
 <div class="grid"><section class="panel"><h2>Wereldnavigatie</h2><label for="world">Selecteer een wereld<select id="world"></select></label><div id="world-detail"></div></section><section class="panel"><h2>Externe verbindingsgrenzen</h2><ul id="external"></ul><p class="muted">Een toekomstige connector vereist afzonderlijke identiteit, bevoegdheid, provenance, versie- en integriteitscontroles.</p></section></div>
-<section class="panel"><h2>Offline Atlaspakket</h2><p class="muted">Activeer op dit apparaat een leesbare kopie van de dertien Atlaspagina’s en hun vaste JavaScript-modules. De installatie is optioneel en slaat geen persoonlijke dossiers, formulieren, accounts of bewijsbestanden op.</p><div class="grid"><button type="button" id="offline-enable" style="cursor:pointer;background:#1d4a36;border:1px solid #87a98a;border-radius:10px;padding:12px;color:white">Installeer offline Atlas</button><button type="button" id="offline-clear" style="cursor:pointer;background:#102e24;border:1px solid #87a98a;border-radius:10px;padding:12px;color:white">Verwijder offline Atlas</button></div><p id="offline-status" role="status" aria-live="polite" class="muted">Offlinepakket niet gecontroleerd; internet is nodig voor de eerste installatie.</p></section>
+<section class="panel"><h2>Offline Atlaspakket</h2><p class="muted">Activeer op dit apparaat een leesbare kopie van de veertien Atlaspagina’s en hun vaste JavaScript-modules. De installatie is optioneel en slaat geen persoonlijke dossiers, formulieren, accounts of bewijsbestanden op.</p><div class="grid"><button type="button" id="offline-enable" style="cursor:pointer;background:#1d4a36;border:1px solid #87a98a;border-radius:10px;padding:12px;color:white">Installeer offline Atlas</button><button type="button" id="offline-clear" style="cursor:pointer;background:#102e24;border:1px solid #87a98a;border-radius:10px;padding:12px;color:white">Verwijder offline Atlas</button></div><p id="offline-status" role="status" aria-live="polite" class="muted">Offlinepakket niet gecontroleerd; internet is nodig voor de eerste installatie.</p></section>
 <section class="panel"><h2>Release-acceptatiekamer</h2><p class="muted">Begeleide mobiele praktijktest met acht controlepunten, lokale rapportimport, vergelijking en JSON-rapportage en de verplichte HOLD/DENY-grens.</p><p><a href="./atlas-acceptatie.html">Open de Acceptatiekamer →</a></p></section>
 <section class="panel"><h2>Release Evidence Review</h2><p class="muted">Importeer een eerder acceptatiedossier en bekijk openstaande bewijs- en releasevoorwaarden. De beoordeling kan nooit zelfstandig GO afgeven.</p><p><a href="./atlas-release-review.html">Open de Evidence Review →</a></p></section>
 <section class="panel"><h2>Release Readiness Dashboard</h2><p class="muted">Bekijk negen modulecontracten, externe verbindingsgrenzen en zes openstaande releasepoorten; koppel lokale bewijsdossiers zonder productieclaims.</p><p><a href="./atlas-readiness.html">Open het Readiness Dashboard →</a></p></section>
+<section class="panel"><h2>Release Control Center</h2><p class="muted">Beheer kandidaatcommit, CI-referentie en terugrolvoorbereiding in een lokaal DRAFT-overdrachtsdossier zonder releasebevoegdheid.</p><p><a href="./atlas-release-control.html">Open Release Control Center →</a></p></section>
 <div class="notice"><strong>Constitutioneel contract:</strong> alle interfaces blijven DRAFT en zonder schrijfrechten. De integratiekern aggregeert uitsluitend lokale conceptdata; een groen intern resultaat is geen productie-autorisatie, externe verificatie of toestemming om een release te publiceren.</div></main><footer>PALACO INDUSTRIE · Atlas v1.0 RC · Offline-capabel na laden · Geen externe scripts, API-calls of accounttoegang</footer>
 <script type="module">
 import {MODULES,EXTERNAL,validateIntegration,snapshot,selectedWorld} from "./atlas-integratie.mjs";
@@ -34,10 +35,10 @@ async function offlineAction(action){
    const reg=await navigator.serviceWorker.register("./atlas-offline-sw.js",{scope:"./"});
    await navigator.serviceWorker.ready;
    if(!reg.active)throw Error("Offline worker is niet geactiveerd.");
-   const cache=await caches.open("palaco-atlas-shell-v1-rc6");
+   const cache=await caches.open("palaco-atlas-shell-v1-rc7");
    const cached=await cache.keys();
-   if(cached.length!==26)throw Error("Offlinepakket onvolledig; geen offlinegarantie.");
-   offlineStatus.textContent="Offlinepakket gereed: 26 vaste Atlasbronnen beschikbaar op dit apparaat. Proef offline na herladen.";
+   if(cached.length!==28)throw Error("Offlinepakket onvolledig; geen offlinegarantie.");
+   offlineStatus.textContent="Offlinepakket gereed: 28 vaste Atlasbronnen beschikbaar op dit apparaat. Proef offline na herladen.";
   } else {
    const reg=await navigator.serviceWorker.getRegistration("./");
    if(reg)await reg.unregister();
