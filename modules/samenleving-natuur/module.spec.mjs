@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const origin = 'http://127.0.0.1:4177/modules/samenleving-natuur/index.html';
+const origin = 'http://127.0.0.1:4177/index.html';
 
 test.beforeEach(async ({ page }) => {
   await page.goto(origin);
