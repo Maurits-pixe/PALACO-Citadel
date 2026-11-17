@@ -25,3 +25,19 @@ jobs:
           node --test DOCS/la-geheugenkamer/geheugenkamer.test.mjs
           node --test DOCS/la-bewijskamer/handoff.test.mjs
           node --test DOCS/la-bewijskamer/triage.test.mjs
+
+  browser-smoke:
+    name: Citadel desktop and mobile Chromium smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated browser test dependency
+        run: npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+      - name: Install Chromium browser
+        run: npx playwright install --with-deps chromium
+      - name: Exercise Geheugenkamer to Bewijskamer in desktop and mobile emulation
+        run: node --test DOCS/la-bewijskamer/browser-smoke.test.mjs
