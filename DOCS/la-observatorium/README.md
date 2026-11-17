@@ -28,6 +28,13 @@ Een geselecteerde waarneming kan vanuit de Bewijskamer als JSON worden geëxport
 
 Een SHA-256-digest is **geen** digitale handtekening en authenticeert noch de gebruiker noch de bron. Verificatiestatus blijft `SELF_REPORTED_NOT_VERIFIED`. Als de WebCrypto SHA-256-functie ontbreekt, wordt de dossierexport geweigerd; er vindt geen stille degradatie naar een dossier zonder hash plaats. De export wordt uitsluitend op het apparaat gedownload.
 
+## Lokale SHA-256-dossiercontroleur (v0.4)
+De Bewijskamer kan een geëxporteerd `palaco-la-inspection-v1` inspectiedossier (maximaal 256 KB) lokaal teruglezen. De controle vereist exact de velden `schema`, `observation`, `source_status`, `verification`, `integrity` en de verplichte inhoudsvelden. Er mogen geen extra sleutels in de gecontroleerde objecten staan. Alle verificatiestatussen moeten expliciet onbekend/niet uitgevoerd blijven en `authority` moet `NONE` zijn.
+
+De controleur bouwt de canonieke inhoud opnieuw op met de door de exporteur gebruikte veldvolgorde en vergelijkt `SHA-256(UTF8(JSON.stringify(content)))` met de aangeleverde digest. Bij overeenkomst staat uitsluitend **INTEGRITEIT KOMT OVEREEN**, met de waarschuwing dat **authenticiteit NIET GEVERIFIEERD** blijft. Bij ongeldig schema, ongeldige status, ontbrekende WebCrypto of een afwijkende hash wordt niet goedgekeurd. Er wordt niets geüpload, geen notitie ingevoerd en geen mandaat verleend.
+
+Dit formaat kan alleen integriteit *binnen het zelfverklaarde dossier* aantonen. Een aanvaller kan een aangepast dossier opnieuw hashen; daarom is ondertekening via vertrouwde sleutels, bronattestatie en onafhankelijke lineage-verificatie vereist voordat een toekomstige bewijsstatus boven `SELF_REPORTED_NOT_VERIFIED` mag uitstijgen.
+
 ## Data-contract (voorstel, niet geïntegreerd)
 Een toekomstig canoniek observatiebericht kan minimaal bevatten:
 `schema_version`, `event_id`, `world_id`, `citadel_id`, `source_id`, `source_digest`, `source_timestamp`, `received_timestamp`, `proof_reference`, `verification_state`, `policy_version` en `redaction_level`.
