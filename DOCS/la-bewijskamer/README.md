@@ -16,6 +16,18 @@ Afzonderlijke offline-first **ontvangende proefmodule** binnen dezelfde Citadel-
 - Een apart JSON-concept `PALACO-CITADEL-TRIAGE-DRAFT-1` bevat uitsluitend lokale intakebevindingen. Dit is geen officiële beoordeling of autorisatie.
 - Deze triage is een indicatie van **aanlevervolledigheid**, geen bewijskracht. De ontvangende partij moet alle bronnen zelfstandig beoordelen.
 
+
+## Browseracceptatie (v1.0 kandidaat)
+De nieuwe `browser-smoke.test.mjs` start een lokale HTTP-server en test de echte HTML-interface in Chromium op desktopformaat en met mobiele iPhone-viewportemulatie. Het scenario maakt een herinnering aan, controleert dat localStorage standaard leeg blijft, weigert overdracht zonder toestemming, exporteert een eenmalig conceptbestand, importeert dit in de Bewijskamer en weigert een gemanipuleerde autoriteitsstatus. De tests draaien op een tijdelijke GitHub Actions-runner; er is geen live publicatie.
+
+```sh
+npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+npx playwright install --with-deps chromium
+node --test DOCS/la-bewijskamer/browser-smoke.test.mjs
+```
+
+Een geautomatiseerde mobiele viewporttest is geen handmatige apparaattest. Cross-browser, touch-gebruik en toegankelijkheidsreview blijven afzonderlijke acceptatiepunten.
+
 ## Grensbewaking
 - De ontvanger accepteert uitsluitend het vastgelegde schema met **exacte verwachte velden**, beperkende lengtes en maximaal 100 lineage-records.
 - Er wordt geweigerd bij autorisatie-escalatie, ontbrekende toestemming, verkeerd doel, dubbel ID, cyclische of onderbroken aangeleverde versievolgorde, te grote bestanden of een ontbrekend eindrecord.
