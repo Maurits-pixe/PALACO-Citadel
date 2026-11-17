@@ -5,6 +5,7 @@ import { Script } from 'node:vm';
 const html=readFileSync(new URL('./index.html',import.meta.url),'utf8');
 const root=readFileSync(new URL('../../index.html',import.meta.url),'utf8');
 const app=readFileSync(new URL('../../app.js',import.meta.url),'utf8');
+const workflow=readFileSync(new URL('../../.github/workflows/la-observatorium.yml',import.meta.url),'utf8');
 
 test('embedded Observatorium script parses as JavaScript',()=>{
  const match=html.match(/<script>([\s\S]*?)<\/script>/);
@@ -150,4 +151,14 @@ test('five observatory chapters expose keyboard accessible WAI-ARIA tab semantic
  assert.match(html,/e\.key==="Home"/);
  assert.match(html,/e\.key==="End"/);
  assert.match(html,/selected\.focus\(\)/);
+});
+
+test('CI guards feature-branch pushes and remains read-only',()=>{
+ assert.match(workflow,/push:\s*\n\s*branches:\s*\n\s*- 'feature\/la-observatorium-readonly-20261117'/);
+ assert.match(workflow,/pull_request:/);
+ assert.match(workflow,/workflow_dispatch:/);
+ assert.match(workflow,/permissions:\s*\n\s*contents: read/);
+ assert.match(workflow,/\.\/node_modules\/\.bin\/playwright install --with-deps chromium/);
+ assert.match(workflow,/chromium\.executablePath\(\)/);
+ assert.doesNotMatch(workflow,/\b(?:deploy|pages: write|contents: write)\b/i);
 });
