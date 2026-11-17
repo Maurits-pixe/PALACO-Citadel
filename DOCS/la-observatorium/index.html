@@ -92,7 +92,10 @@ footer{border-top:1px solid #3d5046;padding:24px;text-align:center;color:#9eada4
 </div><div class="panel">
 <h2>Privacy & export</h2><p class="muted">Standaard alleen in dit geopende tabblad; bij herladen vervallen niet-opgeslagen notities.</p>
 <label><input type="checkbox" id="persist"> Sta opslag op dit apparaat toe</label>
-<div class="actions"><button class="secondary" id="export" type="button">Exporteer JSON</button><button class="secondary" id="clear" type="button">Wis lokale notities</button></div>
+<label for="import-file">Importeer eerder lokaal observatielogboek (JSON, maximaal 256 KB)</label>
+<input id="import-file" type="file" accept=".json,application/json">
+<p class="muted">Import is uitsluitend een lokale kopie. Bestaande notities blijven behouden; dubbele ID's worden overgeslagen. Import verleent nooit bewijsstatus of mandaat.</p>
+<div class="actions"><button class="secondary" id="import" type="button">Controleer en importeer</button><button class="secondary" id="export" type="button">Exporteer JSON</button><button class="secondary" id="clear" type="button">Wis lokale notities</button></div>
 <p class="muted" id="storage">Opslag: alleen huidig tabblad</p>
 </div></div>
 </section>
@@ -129,6 +132,29 @@ const f=e.currentTarget, field=name=>f.elements.namedItem(name), n={id:(crypto.r
 if(!n.subject||!n.notes)return;notes.push(n);save();render();f.reset();status("Lokale waarneming toegevoegd, niet geverifieerd.");
 });
 $("filter").addEventListener("change",render);
+$("import").addEventListener("click",async()=>{
+const file=$("import-file").files[0];
+if(!file){status("Selecteer eerst een JSON-bestand.");return;}
+if(file.size>262144){status("Import geweigerd: bestand groter dan 256 KB.");return;}
+try{
+const raw=await file.text();
+const data=JSON.parse(raw);
+if(!data||data.format!=="palaco-la-observatory-local-v1"||data.authority!=="SELF_REPORTED_NOT_VERIFIED"||!Array.isArray(data.notes)||data.notes.length>max||!data.notes.every(valid)){
+status("Import geweigerd: formaat, bewijsgrens of inhoud ongeldig.");return;
+}
+const ids=new Set(notes.map(n=>n.id)),incoming=[],fileIds=new Set();
+for(const n of data.notes){
+if(fileIds.has(n.id)){status("Import geweigerd: dubbele IDs in bestand.");return;}
+fileIds.add(n.id);
+if(!ids.has(n.id)){incoming.push({id:n.id,at:n.at,subject:n.subject,kind:n.kind,reference:n.reference,notes:n.notes});}
+}
+if(notes.length+incoming.length>max){status("Import geweigerd: limiet van 100 notities overschreden.");return;}
+notes=notes.concat(incoming);
+save();render();
+status(incoming.length+" zelfgerapporteerde notities geïmporteerd; niet geverifieerd.");
+}catch(_){status("Import geweigerd: bestand kan niet veilig worden verwerkt.");}
+finally{$("import-file").value="";}
+});
 $("persist").addEventListener("change",()=>{save();status($("persist").checked?"Lokale opslag ingeschakeld.":"Lokale opslag uitgeschakeld; opgeslagen kopie gewist.");});
 $("clear").addEventListener("click",()=>{if(!confirm("Alle lokale waarnemingen in dit tabblad en de lokale opslag wissen?"))return;notes=[];save();render();status("Lokale notities gewist.");});
 $("export").addEventListener("click",()=>{
