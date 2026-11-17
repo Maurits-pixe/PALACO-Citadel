@@ -120,4 +120,26 @@ test('Atelier: cache-indicator maakt ontbrekende offlinebestanden expliciet', as
   await page.locator('#checkOffline').click();
   await expect(page.locator('#offlineBadge')).toHaveText('Nog niet offline gereed');
   await expect(page.locator('#offlineStatus')).toContainText('5 van 6');
+  await page.locator('#repairOffline').click();
+  await expect(page.locator('#offlineBadge')).toHaveText('Offline gereed');
+  await expect(page.locator('#offlineStatus')).toContainText('1 ontbrekende bestanden hersteld');
+  const restored = await page.evaluate(async () => {
+    const cache = await caches.open('palaco-rio-shell-v6');
+    return Boolean(await cache.match('/atelier/panorama.html'));
+  });
+  expect(restored).toBe(true);
+});
+
+test('Atelier: offline herstel weigert stilzwijgend een netwerkloze reparatie', async ({ page, context }) => {
+  await page.goto('/atelier/regiekamer.html');
+  await expect(page.locator('#offlineBadge')).toHaveText('Offline gereed');
+  await context.setOffline(true);
+  try {
+    await expect(page.locator('#offlineBadge')).toHaveText('Offline actief');
+    await page.locator('#repairOffline').click();
+    await expect(page.locator('#offlineStatus')).toContainText('alleen met internet');
+    await expect(page.locator('#repairOffline')).toBeEnabled();
+  } finally {
+    await context.setOffline(false);
+  }
 });
