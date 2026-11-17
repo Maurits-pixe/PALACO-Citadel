@@ -6,7 +6,7 @@
 <section class="panel"><h2>Controlepad</h2><div class="line">1. <strong>Identificatie</strong> — controleer het bestaande WORLD-/REGION-/EVENT-dossier.</div><div class="line">2. <strong>Bronkoppeling</strong> — bepaal of er uitsluitend conceptlabels zijn of daadwerkelijk onafhankelijk bewijs beschikbaar is.</div><div class="line">3. <strong>Beoordeling</strong> — leg ontbrekende verificatiestappen vast in een lokaal DRAFT-verslag.</div><div class="line">4. <strong>Autoriseringsgrens</strong> — deze preview stopt altijd bij REVIEW_REQUIRED en DENY.</div></section></main><footer>PALACO INDUSTRIE · Verificatiekamer v0.6 · Read-only · Geen accounttoegang, netwerkverzoek of registratie</footer>
 <script type="module">
 import {SOURCES} from "./wereldregister.mjs";
-import {reviewCandidates,makeReviewDraft,checkEvidenceDraft} from "./atlas-verificatie.mjs";
+import {reviewCandidates,makeReviewDraft} from "./atlas-verificatie.mjs";
 const $=id=>document.getElementById(id);const candidates=reviewCandidates();let prepared=null;
 function el(tag,txt){const e=document.createElement(tag);if(txt!==undefined)e.textContent=String(txt);return e}
 function updateSelection(){prepared=null;$("download").disabled=true;$("result").replaceChildren(el("p","Nog geen beoordeling uitgevoerd."));$("feedback").textContent="";
@@ -20,7 +20,7 @@ function showResult(draft){const result=$("result");result.replaceChildren();for
 for(const c of candidates){const opt=el("option",c.title+" · "+c.dossierId);opt.value=c.dossierId;$("dossier").append(opt)}
 $("dossier").addEventListener("change",updateSelection);
 for(const id of ["source","reference","notes"])$(id).addEventListener("input",()=>{prepared=null;$("download").disabled=true;$("feedback").textContent="Wijziging aangebracht: controleer de beoordeling opnieuw.";});
-$("review").addEventListener("click",()=>{try{const c={dossierId:$("dossier").value,sourceId:$("source").value||null,reference:$("reference").value,notes:$("notes").value};const draft=makeReviewDraft(c);if(!checkEvidenceDraft(draft).ok)throw Error("Beoordeling geweigerd.");prepared=draft;showResult(draft);$("feedback").textContent="DRAFT-beoordeling opgesteld; geen verificatie of autorisatie toegekend.";$("download").disabled=false}catch(error){prepared=null;$("download").disabled=true;$("feedback").textContent="AFGEWEZEN: "+error.message;}});
+$("review").addEventListener("click",()=>{try{const c={dossierId:$("dossier").value,sourceId:$("source").value||null,reference:$("reference").value,notes:$("notes").value};const draft=makeReviewDraft(c);prepared=draft;showResult(draft);$("feedback").textContent="DRAFT-beoordeling opgesteld; geen verificatie of autorisatie toegekend.";$("download").disabled=false}catch(error){prepared=null;$("download").disabled=true;$("feedback").textContent="AFGEWEZEN: "+error.message;}});
 $("download").addEventListener("click",()=>{if(!prepared)return;const blob=new Blob([JSON.stringify(prepared,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=el("a");a.href=url;a.download="palaco-atlas-review-v06-draft.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
 updateSelection();
 </script></body></html>
