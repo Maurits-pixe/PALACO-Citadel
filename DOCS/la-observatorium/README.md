@@ -9,7 +9,8 @@ DRAFT · HOLD · read-only prototype. Deze map is **geen** live-monitoring, bewi
 - Handmatige, zelfgerapporteerde waarnemingen met classificatiefilter in de tijdlijn en optionele persistentie in browseropslag.
 - Bewaartoestemming wordt expliciet in een afzonderlijke lokale consent-markering bijgehouden. Zonder deze markering worden bestaande browsernotities niet ingelezen; bij uitzetten wordt de opgeslagen kopie verwijderd.
 - Ongeldige tijdstempels en lege waarnemingen worden bij uitlezen geweigerd.
-- JSON-export `palaco-la-observatory-local-v1` met expliciete `authority: SELF_REPORTED_NOT_VERIFIED`.
+- JSON-export en begrensde JSON-herimport (`≤256 KB`, maximaal 100 notities, strikte schema- en ID-controle) met expliciete `authority: SELF_REPORTED_NOT_VERIFIED`.
+- Import koppelt lokaal Atelier aan Geheugen, slaat bekende ID's over en geeft geen bewijs- of mandaatstatus. De gebruiker moet apart toestemming geven voor blijvende opslag.
 - Geen upload, netwerkrequest, tokeninvoer, cryptografische attestatie of backend.
 - Alleen tekstinhoud wordt als DOM-tekst ingevoegd, niet als HTML uitgevoerd.
 
@@ -29,6 +30,9 @@ Er zijn aparte controles nodig voor authentieke bron, geldige handtekening, tijd
 ## Broncodecontrole
 Voer lokaal uit: `node --test DOCS/la-observatorium/observatorium.test.mjs`.
 Deze tests bewaken syntaxis, navigatielinks, consent en read-only indicatoren. Ze vervangen **geen** interactieve browser-, offline-, mobiele of securitytests. In deze wijziging is nog geen onafhankelijke runtime-uitvoering bevestigd.
+
+## Import-beveiligingsgrenzen
+Het geïmporteerde bestand blijft uitsluitend lokaal in de browser; er is geen upload. Het bestand mag uitsluitend het eigen exportformaat bevatten, met `SELF_REPORTED_NOT_VERIFIED`. Ongeldige notities, conflicterende ID's in hetzelfde bestand, te grote bestanden en overschrijding van de notitielimiet worden geweigerd. Import is niet cryptografisch gevalideerd en geldt nooit als canonieke provenance.
 
 ## Acceptatiechecklist
 - [ ] Nieuwe route werkt in lokale/preview-host; geen 404.
