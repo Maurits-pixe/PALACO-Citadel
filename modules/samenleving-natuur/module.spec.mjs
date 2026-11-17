@@ -69,3 +69,53 @@ test('minimal handoff is view-only and cannot be imported', async ({ page }) => 
   await page.locator('#handoffConsent').check();
   await expect(page.locator('#handoffAccept')).toBeDisabled();
 });
+
+test('a local observation survives a page reload without server synchronization', async ({ page }) => {
+  await page.getByRole('button', { name: 'Levend register' }).click();
+  await page.locator('#title').fill('Testboom in het woud');
+  await page.locator('#notes').fill('Lokaal en zonder account geregistreerd');
+  await page.locator('#entryform button[type="submit"]').click();
+  await expect(page.locator('#message')).toContainText('lokaal opgeslagen');
+  await page.reload();
+  await page.getByRole('button', { name: 'Levend register' }).click();
+  await expect(page.locator('#records')).toContainText('Testboom in het woud');
+  await expect(page.locator('#count')).toHaveText('1');
+});
+
+test('invalid transfer is rejected without mutating stored observations', async ({ page }) => {
+  const before = await page.evaluate(() => localStorage.getItem('palaco.citadel.samenleving-natuur.v1'));
+  const malformed = {
+    schema: 'palaco-citadel-handoff-v1', source: 'citadel/samenleving-natuur',
+    privacy: 'full-user-controlled',
+    records: [{ id:'bad-date', title:'Test', category:'Flora',
+      conceptualArea:'Het Woud', verification:'nog te verifiëren',
+      description:'', observedAt:'2999-01-01T00:00:00Z' }]
+  };
+  await page.locator('#handoffFile').setInputFiles({
+    name:'invalid.json', mimeType:'application/json', buffer:Buffer.from(JSON.stringify(malformed))
+  });
+  await expect(page.locator('#handoffStatus')).toContainText('afgewezen');
+  await expect(page.locator('#handoffAccept')).toBeDisabled();
+  expect(await page.evaluate(() => localStorage.getItem('palaco.citadel.samenleving-natuur.v1'))).toBe(before);
+});
+
+test('default handoff export omits private note, title, and record IDs', async ({ page }) => {
+  await page.getByRole('button', { name: 'Levend register' }).click();
+  await page.locator('#title').fill('VERTROUWELIJKE TITEL');
+  await page.locator('#notes').fill('VERTROUWELIJKE INHOUD');
+  await page.locator('#entryform button[type="submit"]').click();
+  await page.getByRole('button', { name: 'Leefwereldatlas' }).click();
+  await expect(page.locator('#packetMinimal')).toBeChecked();
+  const pending = page.waitForEvent('download');
+  await page.locator('#packetExport').click();
+  const download = await pending;
+  expect(download.suggestedFilename()).toBe('citadel-leefwereld-minimaal.json');
+  const { readFile } = await import('node:fs/promises');
+  const json = JSON.parse(await readFile(await download.path(), 'utf8'));
+  expect(json.privacy).toBe('minimal-user-controlled');
+  expect(json.records).toHaveLength(1);
+  expect(json.records[0]).not.toHaveProperty('title');
+  expect(json.records[0]).not.toHaveProperty('description');
+  expect(json.records[0]).not.toHaveProperty('id');
+  expect(JSON.stringify(json)).not.toContain('VERTROUWELIJKE');
+});
