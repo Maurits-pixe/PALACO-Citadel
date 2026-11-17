@@ -77,6 +77,7 @@ for (const width of [320,390,1280]) {
    const tampered=structuredClone(packet);
    tampered.observation.notes='Aangepaste tekst zonder nieuwe hash';
    await page.locator('#dossier-file').setInputFiles({name:'aangepast.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(tampered))});
+   assert.match(await page.locator('#dossier-verdict').innerText(),/controle nog niet uitgevoerd/,'Previously successful verdict must reset on new file');
    await page.locator('#verify-dossier').click();
    await page.waitForFunction(()=>document.querySelector('#dossier-verdict')?.textContent?.includes('INTEGRITEIT AFGEWEZEN'),null,{timeout:10000});
    assert.match(await page.locator('#dossier-verdict').innerText(),/geen bewijs of mandaat/);
