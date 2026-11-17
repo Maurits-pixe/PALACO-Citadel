@@ -46,3 +46,18 @@ test('JSON journal import has strict schema, size and count limits',()=>{
  assert.match(html,/notes\.length\+incoming\.length>max/);
  assert.match(html,/Import geweigerd/);
 });
+
+test('import requires explicit acknowledgement before changing journal',()=>{
+ assert.match(html,/if\(!incoming\.length\)/);
+ assert.match(html,/if\(!confirm\(incoming\.length/);
+ const confirmation=html.indexOf('if(!confirm(incoming.length');
+ const mutation=html.indexOf('notes=notes.concat(incoming)');
+ assert.ok(confirmation>=0 && mutation>confirmation);
+ assert.match(html,/Import geannuleerd; er zijn geen notities toegevoegd/);
+});
+test('import rejects empty, oversized or array-shaped envelopes',()=>{
+ assert.match(html,/file\.size===0\|\|file\.size>262144/);
+ assert.match(html,/new TextEncoder\(\)\.encode\(raw\)\.length>262144/);
+ assert.match(html,/Array\.isArray\(data\)/);
+ assert.match(html,/!Array\.isArray\(n\)/);
+});
