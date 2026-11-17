@@ -35,3 +35,14 @@ test('timeline permits classification and invalid stored dates are rejected',()=
  assert.match(html,/Number\.isFinite\(Date\.parse\(n\.at\)\)/);
  assert.match(html,/notes\.filter\(n=>n\.kind===selected\)/);
 });
+
+test('JSON journal import has strict schema, size and count limits',()=>{
+ assert.match(html,/file\.size>262144/);
+ assert.match(html,/data\.format!=="palaco-la-observatory-local-v1"/);
+ assert.match(html,/data\.authority!=="SELF_REPORTED_NOT_VERIFIED"/);
+ assert.match(html,/data\.notes\.length>max/);
+ assert.match(html,/data\.notes\.every\(valid\)/);
+ assert.match(html,/fileIds\.has\(n\.id\)/);
+ assert.match(html,/notes\.length\+incoming\.length>max/);
+ assert.match(html,/Import geweigerd/);
+});
