@@ -137,3 +137,17 @@ test('inspection exporter and verifier share the exact serialization',()=>{
  assert.match(html,/const current=await digestContent\(content\)/);
  assert.match(html,/new TextEncoder\(\)\.encode\(JSON\.stringify\(content\)\)/);
 });
+
+test('five observatory chapters expose keyboard accessible WAI-ARIA tab semantics',()=>{
+ assert.match(html,/role="tablist" aria-label="Observatorium hoofdstukken"/);
+ for(const id of ['uitkijk','bewijs','geheugen','wacht','atelier']){
+  assert.match(html,new RegExp('id="tab-'+id+'" role="tab"'));
+  assert.match(html,new RegExp('id="'+id+'" class="section[^"]*" role="tabpanel"'));
+ }
+ assert.match(html,/function activateTab\(btn\)/);
+ assert.match(html,/e\.key==="ArrowRight"/);
+ assert.match(html,/e\.key==="ArrowLeft"/);
+ assert.match(html,/e\.key==="Home"/);
+ assert.match(html,/e\.key==="End"/);
+ assert.match(html,/selected\.focus\(\)/);
+});
