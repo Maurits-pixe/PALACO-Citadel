@@ -61,6 +61,9 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Browserharnas betrouwbaarheid (v0.8)
+De acceptatieharnas sluit de lokale HTTP-server voortaan ook als Chromium niet kan starten, en ruimt browserprocessen op na ieder scenario. De browserstart en HTTP-navigatie hebben afzonderlijke timeouts. Een mislukking of hang is geen bewijs van een defect in het Observatorium zelf; de CI-log moet het test- of applicatiefoutpad expliciet aantonen. De browseruitkomst blijft HOLD tot een volledige run is afgerond.
+
 ## Mobiele acceptatie en diagnose (v0.7)
 Het lange statuslabel in de Citadel-header mag op schermen van 320px en breder afbreken; de header-inhoud mag geen horizontale overflow afdwingen. De browserjourney controleert 320, 390 en 1280 pixels en meldt expliciet of een eventuele storing plaatsvindt bij navigatie, dossierexport, hash-verificatie of afwijzing van manipulatie. Browseracties zijn begrensd met afzonderlijke timeouts, zodat een vastgelopen controle niet ten onrechte als PASS wordt behandeld.
 
