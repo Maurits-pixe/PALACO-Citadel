@@ -27,7 +27,7 @@ Er is nu een afzonderlijke lokale ontvanger op [`../la-bewijskamer/`](../la-bewi
 - Responsieve luxueuze Citadel-weergave, mobiel/desktop en toetsenbordbediening.
 - Herinneringen met WIE/WAT/WAAR/WAAROM/HOE, bron en collectie.
 - Zoekveld, collectiefilter, sorteerrichting en geschiedenis per versie (append-only binnen tab).
-- Lokaal concept zonder automatisch permanent opslaan; expliciete checkbox voor localStorage.
+- Lokaal concept zonder automatisch permanent opslaan; expliciete checkbox voor localStorage. Bestaande opgeslagen gegevens worden bij nieuwe opt-in niet overschreven: eerst expliciet herstellen.
 - JSON-import/export met schema- en lengtecontrole, 256-KB importlimiet, maximaal 100 records, deduplicatie per ID en lineage-conflictcontrole.
 - Herstel van een eerder lokaal archief uitsluitend na expliciete gebruikersactie; geen automatische restore.
 - Afzonderlijk *Bewijskamer-dossier (concept)* met record-ID, verwijzing naar vorige versie, bron en statusvelden: geen inhoudelijke verificatie of officiële EDTR-uitgifte.
@@ -49,6 +49,12 @@ node --test DOCS/la-geheugenkamer/geheugenkamer.test.mjs
 ```
 
 De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opslag-opt-in en wissen, expliciet herstel, append-only versieontwikkeling, zoeken, negatieve JSON-import, afwijzen van cyclische lineage, veilige tekstweergave, concept-bewijsuitwisseling, collectiefilters en bescherming tegen een verdwenen voorganger, dossierinspectie, export zonder uitgifte, ongeldige selectie na wissen, geblokkeerde overdracht zonder toestemming en eenmalige overdrachtstoestemming. **CI-uitvoering geslaagd (17 november 2026): 18/18 Geheugenkamer, 10/10 Bewijskamer-handoff en 7/7 triage; totaal 35/35 PASS.** Zie [GitHub Actions-run 44021549355](https://github.com/Maurits-pixe/PALACO-Citadel/actions/runs/44021549355). Browser-/mobiele acceptatie en security review blijven HOLD.
+
+## Offline-data-integriteit
+- Na paginavernieuwing wordt een eerder lokaal archief **niet automatisch** geladen.
+- De opslagcheckbox weigert inschakelen als een ander archief al op het apparaat aanwezig is; eerst via `Laad eerder lokaal archief` herstellen.
+- Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
+- Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
 ## Acceptatie
 Dit is een afzonderlijke reviewkandidaat. Niet gemerged of gepubliceerd. Uitvoeren van browser-/mobiele acceptatie, import-negatieve tests en integratiebeoordeling vóór opname in de bestaande site.
