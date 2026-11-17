@@ -57,7 +57,7 @@ function preview(current,incoming){
    existing:a?a.filter(Boolean).length:0,
    incoming:b?b.filter(Boolean).length:0,
    changed:a&&b?a.reduce((sum,value,i)=>sum+Number(value!==b[i]),0):a||b?(a||b).filter(Boolean).length:0,
-   removed:a&&!b?a.filter(Boolean).length:0:a&&b?a.reduce((sum,value,i)=>sum+Number(Boolean(value)&&!b[i]),0):0
+   removed:a&&!b?a.filter(Boolean).length:a&&b?a.reduce((sum,value,i)=>sum+Number(Boolean(value)&&!b[i]),0):0
  });
  const exterior=compare(now.exterior?.cells||null,next.exterior?.cells||null);
  const floors=[0,1,2].map(i=>compare(now.interior?.floors[i]||null,next.interior?.floors[i]||null));
