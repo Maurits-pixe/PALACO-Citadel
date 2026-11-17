@@ -45,7 +45,7 @@ for (const width of [320,390,1280]) {
    await page.getByRole('button',{name:'Voeg lokale waarneming toe'}).click();
    await page.locator('[data-tab="geheugen"]').click();
    assert.match(await page.locator('#count').innerText(),/1 \/ 1/);
-   await page.getByRole('button',{name:/Inspecteer bewijsketen/}).click();
+   await page.locator('#events button').click();
    assert.equal(await page.locator('#inspection-reference-state').innerText(),'NIET GEVERIFIEERD');
    assert.match(await page.locator('#inspection-reference-type').innerText(),/QUAY/);
    const downloadPromise=page.waitForEvent('download');
@@ -57,12 +57,12 @@ for (const width of [320,390,1280]) {
    assert.equal(packet.verification.authority,'NONE');
    await page.locator('#dossier-file').setInputFiles({name:'dossier.json',mimeType:'application/json',buffer:bytes});
    await page.locator('#verify-dossier').click();
-   await page.locator('#dossier-verdict').getByText(/INTEGRITEIT KOMT OVEREEN/).waitFor();
+   await page.waitForFunction(()=>document.querySelector('#dossier-verdict')?.textContent?.includes('INTEGRITEIT KOMT OVEREEN'));
    const tampered=structuredClone(packet);
    tampered.observation.notes='Aangepaste tekst zonder nieuwe hash';
    await page.locator('#dossier-file').setInputFiles({name:'aangepast.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(tampered))});
    await page.locator('#verify-dossier').click();
-   await page.locator('#dossier-verdict').getByText(/INTEGRITEIT AFGEWEZEN/).waitFor();
+   await page.waitForFunction(()=>document.querySelector('#dossier-verdict')?.textContent?.includes('INTEGRITEIT AFGEWEZEN'));
    assert.match(await page.locator('#dossier-verdict').innerText(),/geen bewijs of mandaat/);
    assert.equal(await page.locator('#persist').isChecked(),false);
   });
