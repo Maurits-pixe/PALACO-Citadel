@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Ruwe herstelkopie vóór verwijderen (v1.6)
+Bij een beschadigd of onleesbaar lokaal notitielogboek biedt de herstelmodus een afzonderlijke knop **Download onleesbare kopie (lokaal)**. Deze download bevat de onveranderde ruwe tekst uit de bestaande lokale notitiekopie en heeft extensie `.txt` om niet te suggereren dat het om een gevalideerd JSON-dossier gaat. De download verandert noch de gegevens noch de bewaartoestemming. Een expliciete bevestiging blijft noodzakelijk voordat de lokale kopie en toestemming definitief worden gewist. De inhoud kan gevoelig zijn: bewaar de herstelkopie veilig en deel haar niet zonder noodzaak.
+
+De Chromium-test vergelijkt de gedownloade bytes met de onleesbare bronwaarde en verifieert dat downloaden niets wist. Dit vormt geen cryptografische attestatie of bewijs. De release blijft HOLD tot browser- en mobiele acceptatie.
+
 ## Lokale ID's en statusmeldingen (v1.5)
 Nieuwe lokale waarnemingen krijgen waar beschikbaar een `crypto.randomUUID()`-identificatie. Als die methode ontbreekt, wordt een lokaal gegenereerde ID samengesteld uit het apparaattijdstip en een oplopende teller, met extra controle op bestaande ID's. Het betreft uitsluitend een **lokale sleutel**, nooit een bewijs van identiteit of authenticiteit.
 
