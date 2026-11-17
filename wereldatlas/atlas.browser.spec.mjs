@@ -14,7 +14,8 @@ const routes=[
  ["Acceptatiekamer","atlas-acceptatie.html"],
  ["Release Evidence Review","atlas-release-review.html"],
  ["Release Readiness","atlas-readiness.html"],
- ["Release Control Center","atlas-release-control.html"]
+ ["Release Control Center","atlas-release-control.html"],
+ ["Release Integrity & Recovery","atlas-release-integrity.html"]
 ];
 test("alle tien Atlas-pagina's laden lokaal zonder script- of netwerkfouten",async({page})=>{
  const failures=[];
@@ -72,11 +73,11 @@ test("offlinemodus bewaart alleen de vaste Atlas-shell en opent archief zonder n
  await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
  await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
  const paths=await page.evaluate(async()=>{
-  const cache=await caches.open("palaco-atlas-shell-v1-rc7");
+  const cache=await caches.open("palaco-atlas-shell-v1-rc8");
   const keys=await cache.keys();
   return keys.map(r=>new URL(r.url).pathname);
  });
- expect(paths).toHaveLength(28);
+ expect(paths).toHaveLength(30);
  expect(paths.every(p=>p.startsWith("/wereldatlas/"))).toBe(true);
  expect(paths.some(p=>p.endsWith(".json")||p.includes("admin")||p.includes("api/"))).toBe(false);
  await context.setOffline(true);
@@ -232,4 +233,38 @@ test("Release Control Center opent na offline installatie",async({page,context})
  await page.goto(root+"atlas-release-control.html");
  await expect(page.locator("#gates .line")).toHaveCount(6);
  await expect(page.locator("#rollback .line")).toHaveCount(4);
+});
+
+test("Integrity & Recovery maakt en vergelijkt lokale SHA-256 bestanden",async({page})=>{
+ await page.goto(root+"atlas-release-integrity.html");
+ await page.locator("#source-files").setInputFiles({name:"sample.txt",mimeType:"text/plain",buffer:Buffer.from("Hello PALACO")});
+ await page.locator("#make").click();
+ await expect(page.locator("#make-status")).toContainText("DRAFT-manifest van 1");
+ await page.locator("#verify-files").setInputFiles({name:"sample.txt",mimeType:"text/plain",buffer:Buffer.from("Hello PALACO")});
+ await page.locator("#verify").click();
+ await expect(page.locator("#compare-status")).toContainText("ALLE HASHES MATCHEN");
+ await expect(page.locator("#compare-status")).toContainText("DENY");
+ await expect(page.locator("#recovery-export")).toBeEnabled();
+});
+test("Integrity & Recovery detecteert gewijzigd releasebestand",async({page})=>{
+ await page.goto(root+"atlas-release-integrity.html");
+ await page.locator("#source-files").setInputFiles({name:"sample.txt",mimeType:"text/plain",buffer:Buffer.from("Original")});
+ await page.locator("#make").click();
+ await expect(page.locator("#make-status")).toContainText("DRAFT-manifest");
+ await page.locator("#verify-files").setInputFiles({name:"sample.txt",mimeType:"text/plain",buffer:Buffer.from("Altered")});
+ await page.locator("#verify").click();
+ await expect(page.locator("#results")).toContainText("MISMATCH");
+ await expect(page.locator("#compare-status")).toContainText("HOLD / DENY");
+});
+test("Integrity & Recovery blijft offline bruikbaar",async({page,context})=>{
+ await page.goto(root+"atlas-integratie.html");
+ await page.locator("#offline-enable").click();
+ await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
+ await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+ await context.setOffline(true);
+ await page.goto(root+"atlas-release-integrity.html");
+ await expect(page.locator("h1")).toContainText("Integriteit & herstel");
+ await page.locator("#source-files").setInputFiles({name:"offline.txt",mimeType:"text/plain",buffer:Buffer.from("local")});
+ await page.locator("#make").click();
+ await expect(page.locator("#make-status")).toContainText("DRAFT-manifest");
 });
