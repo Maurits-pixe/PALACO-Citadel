@@ -127,3 +127,18 @@ test('explicit opt-in survives reload; revocation erases saved copy',{timeout:60
   assert.match(await page.locator('#count').innerText(),/0 \/ 0/);
  });
 });
+
+test('orphaned local note copy is purged when no consent marker exists',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  const orphan=[{id:'orphan-1',at:'2026-11-17T07:00:00.000Z',subject:'Old copy',kind:'OBSERVED',reference:'',notes:'No current consent'}];
+  await page.evaluate(items=>{
+   localStorage.setItem('palaco_la_observatory_notes_v1',JSON.stringify(items));
+   localStorage.removeItem('palaco_la_observatory_consent_v1');
+  },orphan);
+  await page.reload();
+  assert.equal(await page.locator('#persist').isChecked(),false);
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),null);
+  await page.locator('#tab-geheugen').click();
+  assert.match(await page.locator('#count').innerText(),/0 \/ 0/);
+ });
+});
