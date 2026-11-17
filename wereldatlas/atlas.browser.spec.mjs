@@ -69,11 +69,11 @@ test("offlinemodus bewaart alleen de vaste Atlas-shell en opent archief zonder n
  await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
  await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
  const paths=await page.evaluate(async()=>{
-  const cache=await caches.open("palaco-atlas-shell-v1-rc3");
+  const cache=await caches.open("palaco-atlas-shell-v1-rc4");
   const keys=await cache.keys();
   return keys.map(r=>new URL(r.url).pathname);
  });
- expect(paths).toHaveLength(21);
+ expect(paths).toHaveLength(22);
  expect(paths.every(p=>p.startsWith("/wereldatlas/"))).toBe(true);
  expect(paths.some(p=>p.endsWith(".json")||p.includes("admin")||p.includes("api/"))).toBe(false);
  await context.setOffline(true);
@@ -113,4 +113,38 @@ test("Acceptatiekamer werkt zonder netwerk na offline installatie",async({page,c
  await page.goto(root+"atlas-acceptatie.html");
  await expect(page.locator("#steps .step")).toHaveCount(8);
  await expect(page.locator("#summary")).toContainText("Autorisatie: DENY");
+});
+
+test("Acceptatiekamer importeert eerder lokaal rapport en vergelijkt statuswijziging",async({page})=>{
+ await page.goto(root+"atlas-acceptatie.html");
+ const baseline=await page.locator("#preview").innerText();
+ await page.locator("#baseline-file").setInputFiles({name:"vorig-draft.json",mimeType:"application/json",buffer:Buffer.from(baseline,"utf8")});
+ await expect(page.locator("#import-status")).toContainText("ingelezen en gevalideerd");
+ await page.locator("#steps select").first().selectOption("PASS");
+ await expect(page.locator("#comparison")).toContainText("Verschillende controles/notities: 1");
+ await expect(page.locator("#comparison")).toContainText("ATLAS-MOB-001: NOT_TESTED → PASS");
+ await expect(page.locator("#comparison")).toContainText("HOLD");
+ await expect(page.locator("#dossier-export")).toBeEnabled();
+});
+test("Acceptatiekamer weigert ongeldige import en productievrijgave",async({page})=>{
+ await page.goto(root+"atlas-acceptatie.html");
+ const tampered=JSON.parse(await page.locator("#preview").innerText());
+ tampered.authorization="ALLOW";
+ await page.locator("#baseline-file").setInputFiles({name:"ongeldig.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(tampered),"utf8")});
+ await expect(page.locator("#import-status")).toContainText("Import afgewezen");
+ await expect(page.locator("#dossier-export")).toBeDisabled();
+ await expect(page.locator("#summary")).toContainText("Autorisatie: DENY");
+});
+test("Offline Acceptatiekamer vergelijkt DRAFT-rapport zonder netwerk",async({page,context})=>{
+ await page.goto(root+"atlas-integratie.html");
+ await page.locator("#offline-enable").click();
+ await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
+ await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+ await context.setOffline(true);
+ await page.goto(root+"atlas-acceptatie.html");
+ const baseline=await page.locator("#preview").innerText();
+ await page.locator("#baseline-file").setInputFiles({name:"vorige-waarneming.json",mimeType:"application/json",buffer:Buffer.from(baseline,"utf8")});
+ await expect(page.locator("#import-status")).toContainText("ingelezen en gevalideerd");
+ await page.locator("#steps select").first().selectOption("PASS");
+ await expect(page.locator("#comparison")).toContainText("Verschillende controles/notities: 1");
 });
