@@ -103,3 +103,9 @@ Het Verbindingskompas van `regiekamer.html` heeft een knop **Herstel offlinepakk
 Na voltooiing telt de interface opnieuw alle resources en meldt hoeveel bestanden ontbraken. Fouten en offlinegebruik krijgen een expliciete melding, zonder succesclaim. De Playwright-suite test (1) het herstellen van een opzettelijk verwijderd cachebestand en (2) de weigering om netwerkloos herstel als succesvol te presenteren. Dit is een herstelhulpmiddel voor browserbestanden, **niet** voor verloren browser-`localStorage`-data, accounts of serverregistraties.
 
 De eerdere v2.1-runs op commit `85f9347cb1bcde285efb62256a594189f8f773b5` zijn alle groen bevestigd. v2.2 heeft opnieuw een afzonderlijke CI-/browsercontrole nodig. De PR blijft DRAFT/HOLD; geen live-publicatie.
+
+## Atelier v2.3 — transparante importvergelijking
+
+De Regiekamer berekent voortaan vóór elk portable-projectherstel via `regiekamer-bundle.js` een pure `preview(current,incoming)`. Deze toont de aantallen veranderende en leeg te maken percelen in exterieur en de drie interieurlagen, plus expliciete waarschuwingen bij verwijdering van een compleet onderdeel of vervanging van de ontwerpnotitie. De gebruiker krijgt de samenvatting vóór de bevestigingsdialoog. Annuleren schrijft niets. Na bevestiging blijft de bestaande snapshotcheck van kracht, zodat gewijzigde lokale gegevens niet stilzwijgend worden overschreven.
+
+Twee nieuwe Node-cases dekken inhoudelijk verschil, verwijdering, niet-muterend vergelijken en afwijzing van `authority: OWNER`. Een aanvullende Playwright-case controleert dat annulering na een getoond verwijderingsrisico de oorspronkelijke ontwerpgegevens behoudt. Een afzonderlijke PR-run moet de nieuwste uitbreiding valideren. Deze preview is alleen voor creatief DRAFT-werk en geen formele revisie/vergunning of cryptografische authenticiteitscontrole. PR #60 blijft DRAFT/HOLD.
