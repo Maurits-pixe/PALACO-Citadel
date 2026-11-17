@@ -19,4 +19,4 @@
 node --test DOCS/la-geheugenkamer/geheugenkamer.test.mjs
 ```
 
-Er zijn 18 regressiescenario's geschreven. **Uitvoering, browseracceptatie en onafhankelijke beveiligingsreview staan nog open.** De PR blijft DRAFT en HOLD.
+**CI PASS op 17 november 2026:** 18 Geheugenkamer-tests (plus 10 handoff- en 7 triage-tests) zijn geslaagd in [GitHub Actions-run 44021549355](https://github.com/Maurits-pixe/PALACO-Citadel/actions/runs/44021549355). Browseracceptatie en onafhankelijke beveiligingsreview blijven open. De PR blijft DRAFT en HOLD.
