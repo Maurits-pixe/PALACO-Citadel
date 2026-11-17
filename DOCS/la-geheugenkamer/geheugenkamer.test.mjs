@@ -14,16 +14,17 @@ assert.ok(script,'embedded Geheugenkamer application script exists');
 function harness(initialArchive=null){
   const nodes=new Map();
   class Element{
-    constructor(tag='div'){this.tagName=tag;this.value='';this.checked=false;this.textContent='';this.children=[];this.dataset={};this.listeners=new Map();this.files=[];}
+    constructor(tag='div'){this.tagName=tag;this.value='';this.checked=false;this.textContent='';this.children=[];this.dataset={};this.listeners=new Map();this.files=[];this.attributes={};}
     addEventListener(type,fn){this.listeners.set(type,fn)}
     dispatch(type){const fn=this.listeners.get(type);if(!fn)throw Error('No '+type+' listener');return fn({preventDefault(){},target:this,currentTarget:this})}
     append(...kids){this.children.push(...kids)}
     replaceChildren(...kids){this.children=[...kids]}
+    setAttribute(name,value){this.attributes[name]=value}
     focus(){}
     reset(){for(const id of ['title','who','what','where','why','how','source'])nodes.get('#'+id).value='';nodes.get('#category').value='Persoonlijk'}
     click(){if(this.tagName==='a')this.clicked=true;else if(this.listeners.has('click'))return this.dispatch('click')}
   }
-  const names=['message','count','utc','entryForm','persist','title','who','what','where','why','how','source','category','search','filter','sort','timeline','clear','restore','proof','export','importBtn','file'];
+  const names=['message','count','utc','entryForm','persist','title','who','what','where','why','how','source','category','search','filter','sort','timeline','collections','clear','restore','proof','export','importBtn','file'];
   for(const n of names)nodes.set('#'+n,new Element());
   nodes.get('#category').value='Persoonlijk';
   const storage=new Map(),intervals=[];if(initialArchive!==null)storage.set('palaco.citadel.geheugenkamer.v1',JSON.stringify(initialArchive));
@@ -118,4 +119,24 @@ test('reject imported self-referential lineage',async()=>{
  await file.dispatch('change');
  assert.equal(h.nodes.get('#count').textContent,0);
  assert.match(h.nodes.get('#message').textContent,/geweigerd/);
+});
+
+test('local collection overview counts records and filters without data transfer',()=>{
+ const h=harness();enter(h,'Eerste');
+ assert.equal(h.nodes.get('#collections').children.length,5);
+ assert.equal(h.nodes.get('#collections').children[0].textContent,'Persoonlijk · 1');
+ const button=h.nodes.get('#collections').children.find(x=>x.textContent==='Atelier · 0');
+ button.dispatch('click');
+ assert.equal(h.nodes.get('#filter').value,'Atelier');
+ assert.equal(h.nodes.get('#timeline').children.length,1);
+ assert.match(h.nodes.get('#timeline').children[0].textContent,/Geen herinneringen/);
+});
+test('no new record is created when an edited predecessor disappeared',()=>{
+ const h=harness();enter(h,'Oorspronkelijk');
+ h.nodes.get('#timeline').children[0].children.at(-1).children[0].dispatch('click');
+ h.nodes.get('#clear').dispatch('click');
+ h.nodes.get('#title').value='Verdwenen voorganger';
+ h.nodes.get('#entryForm').dispatch('submit');
+ assert.equal(h.nodes.get('#count').textContent,0);
+ assert.match(h.nodes.get('#message').textContent,/afgebroken/);
 });
