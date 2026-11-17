@@ -38,7 +38,7 @@
 <input type="file" id="bundleImport" accept=".json,application/json" style="max-width:100%;font-size:13px">
 <p class="message">Herstel vervangt uitsluitend de drie lokale Atelier-opslagonderdelen na jouw bevestiging. Controleer vooraf het pakketoverzicht; exporteer je huidige werk eerst. Onbekende of niet-DRAFT-pakketten worden geweigerd. Een mislukte schrijfactie wordt zo mogelijk teruggedraaid.</p>
 <p id="bundleStatus" class="small" role="status" aria-live="polite">Er is nog geen projectpakket geselecteerd.</p>
-<div class="actions"><button type="button" class="action" id="undoImport" disabled>Herstel vorig lokaal ontwerp</button></div>
+<div class="actions"><button type="button" class="action" id="undoImport" disabled>Herstel vorig lokaal ontwerp</button><button type="button" class="action" id="exportRecovery" disabled>↓ Exporteer herstelkopie (JSON)</button></div>
 <p class="small" id="recoveryStatus" role="status" aria-live="polite">Lokale herstelkopie controleren…</p>
 </section>
 <div class="bottom"><section class="section"><p class="eyebrow">04 / Ontwerpintentie</p><h2>Het creatieve dossier</h2><p class="small">Een eigen, lokale tekstnotitie die losstaat van de officiële Citadel-wizard. Dit is een ontwerpverklaring, geen bewijs, besluit, machtiging of registratie.</p>
@@ -47,7 +47,7 @@
 <p id="feedback" role="status" class="small">De projectgegevens worden uitsluitend uit deze browser gelezen.</p></section>
 <aside class="section"><p class="eyebrow">05 / Projectkompas</p><h2>Ontwerpchecks</h2><div class="diagnostics" id="diagnostics" role="list"></div>
 <h3>Bevoegdheid & veiligheid</h3><p class="message">Deze Regiekamer is alleen een lokaal, read-only overzicht van de maquettes, met een afzonderlijke ontwerpnotitie. Er worden geen officiële identiteiten, bewijsstukken, cryptografische handtekeningen, WORLD-creaties of autorisaties uitgevoerd.</p><p class="small">De export is een niet-geverifieerde creatieve DRAFT-kopie. Bewaar deze zelf. Browseropslag is geen veilige langdurige back-up.</p></aside></div>
-<footer>PALACO CITADEL · Atelier Regiekamer v2.4 · Nieuwe ontwerpen, bestaande fundamenten.</footer></div>
+<footer>PALACO CITADEL · Atelier Regiekamer v2.5 · Nieuwe ontwerpen, bestaande fundamenten.</footer></div>
 <script src="./regiekamer-gallery.js"></script>
 <script src="./regiekamer-bundle.js"></script>
 <script>
@@ -134,16 +134,31 @@ $('bundleImport').addEventListener('change',async event=>{
 });
 function refreshRecoveryInfo(){
  const api=window.PalacoAtelierBundle;
- const button=$('undoImport');
- button.disabled=true;
+ const button=$('undoImport'),exportButton=$('exportRecovery');
+ button.disabled=true;exportButton.disabled=true;
  if(!api){$('recoveryStatus').textContent='Herstelmodule niet geladen.';return;}
  try{
    const previous=api.getRecovery(localStorage);
    if(!previous){$('recoveryStatus').textContent='Nog geen lokale herstelkopie. Maak eerst een DRAFT-export.';return;}
-   button.disabled=false;
+   button.disabled=false;exportButton.disabled=false;
    $('recoveryStatus').textContent='Herstelkopie uit '+new Date(previous.savedAt).toLocaleString('nl-NL')+' beschikbaar op dit apparaat. Alleen de laatste import kan direct worden teruggedraaid.';
  }catch(err){$('recoveryStatus').textContent='Herstelkopie kon niet worden gelezen: '+err.message;}
 }
+$('exportRecovery').addEventListener('click',()=>{
+ const api=window.PalacoAtelierBundle;
+ if(!api){$('bundleStatus').textContent='Herstelmodule niet geladen.';return;}
+ try{
+   const recovered=api.getRecovery(localStorage);
+   if(!recovered){refreshRecoveryInfo();$('bundleStatus').textContent='Geen lokale herstelkopie om te exporteren.';return;}
+   // Export an ordinary validated portable DRAFT bundle, never internal storage metadata.
+   const safe=api.parse(JSON.stringify(recovered.draft));
+   download('PALACO-Atelier-Vorige-Versie-DRAFT.json',JSON.stringify(safe,null,2),'application/json');
+   $('bundleStatus').textContent='Vorige creatieve versie geëxporteerd als overdraagbaar DRAFT JSON. Bestaande ontwerpen blijven ongewijzigd.';
+ }catch(err){
+   $('bundleStatus').textContent='Herstelkopie-export geweigerd: '+err.message;
+   refreshRecoveryInfo();
+ }
+});
 $('undoImport').addEventListener('click',()=>{
  const api=window.PalacoAtelierBundle;
  if(!api)return;
