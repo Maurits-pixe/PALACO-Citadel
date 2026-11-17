@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Wis-alles trekt ook bewaartoestemming in (v1.8)
+De actie **Wis lokale notities** bevestigt vooraf dat naast de tabbladnotities ook de bewaartoestemming wordt ingetrokken. De applicatie zet de bewaarkeuze uit vóór `save()` en bevestigt een geslaagde verwijdering alleen als zowel het opgeslagen notitielogboek als de toestemmingsmarkering ontbreken. Hierdoor wordt bij actieve toestemming niet langer per ongeluk een leeg logboek opnieuw opgeslagen.
+
+Een aparte Chromium-test maakt een opgeslagen notitie, wist alles na bevestiging, controleert dat beide sleutels ontbreken en controleert dezelfde toestand na herladen. De nieuwe test is toegevoegd maar pas als acceptatiebewijs bruikbaar na een werkelijk geslaagde browserrun. Status blijft HOLD.
+
 ## Herstelgrendels voor import en gewoon wissen (v1.7)
 Zolang een lokale notitiekopie beschadigd is of de opslagstatus niet onafhankelijk kan worden bevestigd, weigert het Observatorium zowel een nieuwe JSON-import als de gewone knop **Wis lokale notities**. Hiermee kan een onleesbare bestaande kopie niet onopgemerkt door een import of normale wisactie verloren gaan. De afzonderlijke herstelprocedure blijft beschikbaar, inclusief een onveranderde ruwe download en een expliciet bevestigde reset.
 
