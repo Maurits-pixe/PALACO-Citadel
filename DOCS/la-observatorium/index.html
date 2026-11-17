@@ -285,10 +285,28 @@ strong.textContent=n.subject;small.textContent=n.kind+" · "+new Date(n.at).toLo
 const inspect=document.createElement("button");inspect.type="button";inspect.className="secondary";inspect.textContent="Inspecteer bewijsketen";inspect.setAttribute("aria-label","Inspecteer "+n.subject);inspect.addEventListener("click",()=>inspectNote(n.id));
 li.append(strong,small,p,inspect);list.append(li);
 });}
+let localIdCounter=0;
+function nextLocalId(){
+ const random=globalThis.crypto;
+ if(random&&typeof random.randomUUID==="function"){
+  const uuid=random.randomUUID();
+  if(!notes.some(n=>n.id===uuid))return uuid;
+ }
+ let id;
+ do{id="local-"+Date.now().toString(36)+"-"+(++localIdCounter).toString(36);}
+ while(notes.some(n=>n.id===id));
+ return id;
+}
 $("form").addEventListener("submit",e=>{
-e.preventDefault();if(notes.length>=max){status("Maximum van 100 notities bereikt; exporteer en wis notities.");return;}
-const f=e.currentTarget, field=name=>f.elements.namedItem(name), n={id:(crypto.randomUUID?crypto.randomUUID():String(Date.now())),at:new Date().toISOString(),subject:field("subject").value.trim(),kind:field("kind").value,reference:field("reference").value.trim(),notes:field("notes").value.trim()};
-if(!n.subject||!n.notes)return;notes.push(n);save();render();f.reset();status("Lokale waarneming toegevoegd, niet geverifieerd.");
+ e.preventDefault();
+ if(notes.length>=max){status("Maximum van 100 notities bereikt; exporteer en wis notities.");return;}
+ const f=e.currentTarget,field=name=>f.elements.namedItem(name);
+ const n={id:nextLocalId(),at:new Date().toISOString(),subject:field("subject").value.trim(),kind:field("kind").value,reference:field("reference").value.trim(),notes:field("notes").value.trim()};
+ if(!n.subject||!n.notes)return;
+ notes.push(n);
+ const persisted=save();
+ render();f.reset();
+ status(persisted?"Lokale waarneming toegevoegd, niet geverifieerd.":"Waarneming alleen in dit tabblad toegevoegd; opslag is geblokkeerd of niet bevestigd.");
 });
 $("filter").addEventListener("change",render);
 $("search").addEventListener("input",render);
