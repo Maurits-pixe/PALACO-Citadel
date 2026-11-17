@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Verifieerbare wis- en bewaarstatus (v1.4)
+Opslag en het intrekken van bewaartoestemming worden pas als geslaagd gemeld nadat de toepassing via `localStorage.getItem` controleert dat de notities en toestemmingsmarkering de verwachte waarden hebben. Wanneer schrijven, wissen of teruglezen faalt, claimt de interface geen succes. De permanente opslag wordt geblokkeerd en een expliciete herstelknop blijft beschikbaar. Ook die herstelprocedure verifieert dat beide opslagwaarden daadwerkelijk zijn verdwenen vóór de blokkade wordt opgeheven.
+
+De geautomatiseerde Chromium-tests simuleren afzonderlijk een mislukte `setItem`- en `removeItem`-bewerking. Deze tests zijn toegevoegd, maar de browserteststatus blijft onbevestigd tot een succesvolle volledige CI-run. De applicatie kan geen fysieke vernietiging van eerder gekopieerde browser-, schijf- of systeemback-ups garanderen.
+
 ## Beschermd herstel bij onleesbare lokale gegevens (v1.3)
 Bij actieve bewaartoestemming wordt een opgeslagen JSON-notitiekopie bij het openen volledig op schema, limiet, geldige velden en unieke IDs gecontroleerd. Een niet-parseerbare, ongeldige of intern conflicterende kopie wordt niet stilzwijgend gefilterd of met een lege verzameling overschreven. In plaats daarvan blijft de bestaande kopie lokaal aanwezig en wordt permanente opslag geblokkeerd; de applicatie toont **HERSTEL VEREIST**.
 
