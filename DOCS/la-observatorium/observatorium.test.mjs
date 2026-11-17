@@ -162,3 +162,13 @@ test('CI guards feature-branch pushes and remains read-only',()=>{
  assert.match(workflow,/chromium\.executablePath\(\)/);
  assert.doesNotMatch(workflow,/\b(?:deploy|pages: write|contents: write)\b/i);
 });
+
+test('dossier integrity verdict is invalidated on file change and stale async results discarded',()=>{
+ assert.match(html,/let dossierVerificationRun=0/);
+ assert.match(html,/\$\("dossier-file"\)\.addEventListener\("change"/);
+ assert.match(html,/Nieuw dossier geselecteerd · controle nog niet uitgevoerd/);
+ assert.match(html,/const run=\+\+dossierVerificationRun/);
+ assert.match(html,/if\(run!==dossierVerificationRun\)return/);
+ assert.match(html,/if\(run===dossierVerificationRun\)output\.textContent/);
+ assert.match(html,/if\(run===dossierVerificationRun\)\$\("dossier-file"\)\.value=""/);
+});
