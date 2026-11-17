@@ -137,7 +137,7 @@ $("clock").textContent=new Date().toLocaleString("nl-NL",{dateStyle:"medium",tim
 let notes=[];
 let selectedId=null;
 let storageEnabled=false;
-try{storageEnabled=localStorage.getItem(CONSENT)==="yes";if(storageEnabled){const raw=localStorage.getItem(KEY);if(raw){const value=JSON.parse(raw);if(Array.isArray(value))notes=value.filter(valid).slice(0,max);}}}catch(_){}
+try{storageEnabled=localStorage.getItem(CONSENT)==="yes";if(storageEnabled){const raw=localStorage.getItem(KEY);if(raw){const value=JSON.parse(raw);if(Array.isArray(value))notes=value.filter(valid).slice(0,max);}}else{localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);}}catch(_){}
 function valid(n){return n&&typeof n==="object"&&!Array.isArray(n)&&typeof n.id==="string"&&n.id.length>0&&n.id.length<=100&&typeof n.at==="string"&&Number.isFinite(Date.parse(n.at))&&typeof n.subject==="string"&&n.subject.trim().length>0&&n.subject.length<=100&&typeof n.notes==="string"&&n.notes.trim().length>0&&n.notes.length<=1500&&typeof n.kind==="string"&&["OBSERVED","RECORDED","DERIVED","INFERRED","HYPOTHESIS"].includes(n.kind)&&typeof n.reference==="string"&&n.reference.length<=200;}
 $("persist").checked=storageEnabled;
 function status(msg){$("announce").textContent=msg;}
