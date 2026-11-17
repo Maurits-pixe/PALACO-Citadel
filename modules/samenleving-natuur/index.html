@@ -124,7 +124,7 @@ function handoffCheck(data){if(!data||data.schema!=='palaco-citadel-handoff-v1'|
 const minimal=data.privacy==='minimal-user-controlled';
 const existing=new Set(entries.map(e=>e.id)),seen=new Set();let duplicates=0;const accepted=[];
 for(const r of data.records){if(!r||!kinds.includes(r.category)||!zones.some(z=>z[1]===r.conceptualArea)||!states.includes(r.verification))throw Error('Ongeldige recordvelden');
-if(minimal){if(!Number.isInteger(r.sequence)||r.sequence<1||typeof r.recordedMonth!=='string'||!/^\\d{4}-\\d{2}$/.test(r.recordedMonth))throw Error('Ongeldig minimaal record');continue}
+if(minimal){if(!Number.isInteger(r.sequence)||r.sequence<1||typeof r.recordedMonth!=='string'||!/^\d{4}-\d{2}$/.test(r.recordedMonth))throw Error('Ongeldig minimaal record');continue}
 const item={id:r.id,title:r.title,kind:r.category,area:r.conceptualArea,verification:'nog te verifiëren',notes:r.description,time:r.observedAt};
 if(!valid(item))throw Error('Ongeldige volledige waarneming');
 if(existing.has(item.id)||seen.has(item.id)){duplicates++;continue}seen.add(item.id);accepted.push(item)}
