@@ -95,3 +95,11 @@ Een extra Playwright-scenario in `tests/browser/atelier.spec.mjs` controleert ee
 De Regiekamer toont nu expliciet of `sw.js` beschikbaar is en alle zes benodigde creatieve modules/resources in `palaco-rio-shell-v6` zijn opgenomen. De weergave onderscheidt **Offline gereed** (verbonden + volledige cache), **Offline actief** (offline + volledige cache), **Nog niet offline gereed** en **Offline beperkt**. Bij twijfel of niet-toegankelijke cache wordt geen positieve claim getoond. Een knop biedt opnieuw controleren; netwerk- en serviceworkerstatuswijzigingen verversen de waarneming.
 
 De offline-acceptatietest controleert nu zowel de succesvolle offline-indicatie als een opzettelijk onvolledige cache (5 van 6). De functionaliteit biedt geen permanente gegevensgarantie of automatische synchronisatie tussen apparaten. De eerdere succesvolle browser- en CI-runs horen bij v2.0; een nieuwe volledige GitHub-acceptatierun moet v2.1 apart bevestigen. PR #60 blijft DRAFT / HOLD en geen productiepublicatie vindt plaats.
+
+## Atelier v2.2 — gecontroleerd offlinepakket-herstel
+
+Het Verbindingskompas van `regiekamer.html` heeft een knop **Herstel offlinepakket**. Deze werkt uitsluitend wanneer een internetverbinding beschikbaar is. Via de bestaande serviceworker worden alleen ontbrekende bestanden van de zes Atelier-assets opgehaald en aan `palaco-rio-shell-v6` toegevoegd; reeds gecachete bestanden blijven intact. Er worden geen lokale creatieve ontwerpgegevens of DRAFT-projectbestanden aangepast.
+
+Na voltooiing telt de interface opnieuw alle resources en meldt hoeveel bestanden ontbraken. Fouten en offlinegebruik krijgen een expliciete melding, zonder succesclaim. De Playwright-suite test (1) het herstellen van een opzettelijk verwijderd cachebestand en (2) de weigering om netwerkloos herstel als succesvol te presenteren. Dit is een herstelhulpmiddel voor browserbestanden, **niet** voor verloren browser-`localStorage`-data, accounts of serverregistraties.
+
+De eerdere v2.1-runs op commit `85f9347cb1bcde285efb62256a594189f8f773b5` zijn alle groen bevestigd. v2.2 heeft opnieuw een afzonderlijke CI-/browsercontrole nodig. De PR blijft DRAFT/HOLD; geen live-publicatie.
