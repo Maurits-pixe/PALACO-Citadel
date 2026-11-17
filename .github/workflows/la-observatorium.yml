@@ -1,0 +1,31 @@
+name: Locus Amoenus Observatory checks
+
+on:
+  pull_request:
+    paths:
+      - 'DOCS/la-observatorium/**'
+      - 'index.html'
+      - 'app.js'
+      - '.github/workflows/la-observatorium.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  observatory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run Citadel Observatory static regressions
+        run: node --test DOCS/la-observatorium/observatorium.test.mjs
+      - name: Run WebCrypto round-trip and tamper regression
+        run: node --test DOCS/la-observatorium/dossier-roundtrip.test.mjs
