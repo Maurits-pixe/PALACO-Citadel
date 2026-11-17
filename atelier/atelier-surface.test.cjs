@@ -52,6 +52,9 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/api\.getRecovery\(localStorage\)/);
   assert.match(read('regiekamer.html'),/id="bundleVerify"/);
   assert.match(read('regiekamer.html'),/crypto\.subtle\.digest\('SHA-256',bytes\)/);
+  assert.match(read('regiekamer.html'),/id="expectedFingerprint"/);
+  assert.match(read('regiekamer.html'),/fingerprint===reference\.toLowerCase\(\)/);
+  assert.match(read('regiekamer.html'),/WAARSCHUWING: SHA-256 KOMT NIET OVEREEN/);
 });
 test('original New Citadel identity wizard is still linked and cannot authorize',()=>{
   const wizard=read('wizard.html');
