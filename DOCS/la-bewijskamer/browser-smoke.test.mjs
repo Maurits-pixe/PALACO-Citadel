@@ -384,3 +384,41 @@ test("vault unlock cannot resurrect entries after explicit lock",async()=>{
  assert.equal(await p.locator("#count").innerText(),"0");
  await c.close();
 });
+
+test("cross-tab change interrupts pending vault unlock and prevents stale reveal",async()=>{
+ const context=await browser.newContext({viewport:{width:390,height:844}});
+ const a=await context.newPage();await a.goto(base+"/DOCS/la-geheugenkamer/");
+ await a.locator("#title").fill("Andere tab");await a.locator("#who").fill("W");await a.locator("#what").fill("Geheim");await a.locator("#entryForm button[type=submit]").click();
+ await a.locator("#archivePassphrase").fill("Kluis wachtzin tussen tabs 123");
+ await a.locator("#vaultSave").click();
+ await a.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde kluis bewust opgeslagen"));
+ await a.reload();
+ const b=await context.newPage();await b.goto(base+"/DOCS/la-geheugenkamer/");
+ await a.evaluate(()=>{
+   const real=SubtleCrypto.prototype.deriveKey;window.__pending=false;
+   SubtleCrypto.prototype.deriveKey=function(...args){
+     window.__pending=true;
+     return new Promise((resolve,reject)=>{window.__release=()=>real.apply(this,args).then(resolve,reject)});
+   };
+ });
+ await a.locator("#archivePassphrase").fill("Kluis wachtzin tussen tabs 123");
+ await a.locator("#vaultUnlock").click();
+ await a.waitForFunction(()=>window.__pending);
+ await b.evaluate(()=>localStorage.removeItem("palaco.citadel.geheugenkamer.vault.v1"));
+ await a.waitForFunction(()=>document.querySelector("#message").textContent.includes("Kluis elders gewijzigd"));
+ await a.evaluate(()=>window.__release());
+ await a.waitForFunction(()=>document.querySelector("#message").textContent.includes("Ontgrendeling geweigerd"));
+ assert.equal(await a.locator("#count").innerText(),"0");
+ assert.equal(await a.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),null);
+ await context.close();
+});
+
+test("cross-tab storage event reports modification of plaintext store",async()=>{
+ const context=await browser.newContext({viewport:{width:390,height:844}});
+ const a=await context.newPage();await a.goto(base+"/DOCS/la-geheugenkamer/");
+ const b=await context.newPage();await b.goto(base+"/DOCS/la-geheugenkamer/");
+ await b.evaluate(()=>localStorage.setItem("palaco.citadel.geheugenkamer.v1","[]"));
+ await a.waitForFunction(()=>document.querySelector("#message").textContent.includes("andere tab gewijzigd"));
+ assert.equal(await a.locator("#count").innerText(),"0");
+ await context.close();
+});
