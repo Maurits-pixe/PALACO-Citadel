@@ -65,6 +65,7 @@ footer{border-top:1px solid #3d5046;padding:24px;text-align:center;color:#9eada4
 <article class="panel"><div class="label">Mandaat / bevoegdheid</div><div class="metric unknown">ONBEKEND</div><p class="muted">De module verleent of verandert geen mandaten.</p></article>
 <article class="panel"><div class="label">Provenance · Quay</div><div class="metric unknown">NIET AANGESLOTEN</div><p class="muted">Geen externe eventstream, replay of auditbron actief.</p></article>
 </div>
+<div class="panel section" id="inspection" aria-live="polite"><h2>Geselecteerde waarneming</h2><p class="muted" id="inspection-empty">Selecteer een lokale waarneming in Het Geheugen om de bewijsketen te inspecteren.</p><div id="inspection-fields" class="hidden"><p><strong id="inspection-subject"></strong></p><p id="inspection-notes"></p><p><span class="label">Classificatie</span> <span id="inspection-kind"></span></p><p><span class="label">Bronverwijzing</span> <span id="inspection-reference"></span></p><p><span class="label">Apparaattijd</span> <span id="inspection-time"></span></p><p><span class="label">Herkomst</span> <strong>SELF_REPORTED_NOT_VERIFIED</strong></p><p class="unknown">Quay: NIET AANGESLOTEN · ERA/EDTR: NIET GECONTROLEERD · WATERMERK: GEEN VALIDATIE · Mandaat: GEEN</p><button id="inspection-back" type="button" class="secondary">Terug naar Geheugen</button></div></div>
 <div class="panel section"><h2>Bewijsladder</h2><p>Bron → Herkomst → Bewijs → Regels → Replay → Reconstructie → Beoordeling.</p><p class="muted">Elke ontbrekende schakel blijft zichtbaar. Uitkomsten mogen pas PASS, REJECT of UNRESOLVED heten na een afzonderlijke, aantoonbare beoordeling. Deze presentatie beoordeelt niets.</p></div>
 </section>
 <section id="geheugen" class="section hidden" aria-label="Het Geheugen">
@@ -113,19 +114,30 @@ tabs.forEach(b=>$(b.dataset.tab).classList.toggle("hidden",b!==btn));
 }));
 $("clock").textContent=new Date().toLocaleString("nl-NL",{dateStyle:"medium",timeStyle:"short"});
 let notes=[];
+let selectedId=null;
 let storageEnabled=false;
 try{storageEnabled=localStorage.getItem(CONSENT)==="yes";if(storageEnabled){const raw=localStorage.getItem(KEY);if(raw){const value=JSON.parse(raw);if(Array.isArray(value))notes=value.filter(valid).slice(0,max);}}}catch(_){}
 function valid(n){return n&&typeof n==="object"&&!Array.isArray(n)&&typeof n.id==="string"&&n.id.length>0&&n.id.length<=100&&typeof n.at==="string"&&Number.isFinite(Date.parse(n.at))&&typeof n.subject==="string"&&n.subject.trim().length>0&&n.subject.length<=100&&typeof n.notes==="string"&&n.notes.trim().length>0&&n.notes.length<=1500&&typeof n.kind==="string"&&["OBSERVED","RECORDED","DERIVED","INFERRED","HYPOTHESIS"].includes(n.kind)&&typeof n.reference==="string"&&n.reference.length<=200;}
 $("persist").checked=storageEnabled;
 function status(msg){$("announce").textContent=msg;}
 function save(){if($("persist").checked){try{localStorage.setItem(KEY,JSON.stringify(notes));localStorage.setItem(CONSENT,"yes");$("storage").textContent="Opslag: lokaal op dit apparaat (toestemming actief)";}catch(_){$("storage").textContent="Lokale opslag mislukt";status("Lokale opslag mislukt");}}else{try{localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);}catch(_){}$("storage").textContent="Opslag: alleen huidig tabblad";}}
-function render(){
+function showTab(id){const btn=tabs.find(b=>b.dataset.tab===id);if(btn)btn.click();}
+function inspectNote(id){const n=notes.find(x=>x.id===id);if(!n){selectedId=null;clearInspection();status("Waarneming niet meer beschikbaar.");return;}
+selectedId=id;$("inspection-empty").classList.add("hidden");$("inspection-fields").classList.remove("hidden");
+$("inspection-subject").textContent=n.subject;$("inspection-notes").textContent=n.notes;
+$("inspection-kind").textContent=n.kind;$("inspection-reference").textContent=n.reference||"Geen bronverwijzing";
+$("inspection-time").textContent=new Date(n.at).toLocaleString("nl-NL")+" (apparaat of geïmporteerd, niet geattesteerd)";
+showTab("bewijs");$("inspection-subject").setAttribute("tabindex","-1");$("inspection-subject").focus();status("Lokale bewijsketen weergegeven; geen onafhankelijke verificatie.");}
+function clearInspection(){selectedId=null;$("inspection-fields").classList.add("hidden");$("inspection-empty").classList.remove("hidden");}
+$("inspection-back").addEventListener("click",()=>showTab("geheugen"));
+function render(){if(selectedId&&!notes.some(x=>x.id===selectedId))clearInspection();
 const list=$("events");list.replaceChildren();const selected=$("filter").value,term=$("search").value.trim().toLocaleLowerCase("nl-NL");const visible=notes.filter(n=>(selected==="ALL"||n.kind===selected)&&(!term||[n.subject,n.notes,n.reference].some(v=>v.toLocaleLowerCase("nl-NL").includes(term))));$("count").textContent=visible.length+" / "+notes.length+" notities";
 if(!visible.length){const li=document.createElement("li");li.textContent=notes.length?"Geen waarnemingen voor de huidige zoekopdracht of classificatie.":"Er zijn nog geen lokale waarnemingen.";list.append(li);return;}
 visible.slice().reverse().forEach(n=>{
 const li=document.createElement("li"),strong=document.createElement("strong"),small=document.createElement("small"),p=document.createElement("p");
 strong.textContent=n.subject;small.textContent=n.kind+" · "+new Date(n.at).toLocaleString("nl-NL")+" · "+(n.reference||"Geen bronverwijzing")+" · SELF_REPORTED_NOT_VERIFIED";p.textContent=n.notes;
-li.append(strong,small,p);list.append(li);
+const inspect=document.createElement("button");inspect.type="button";inspect.className="secondary";inspect.textContent="Inspecteer bewijsketen";inspect.setAttribute("aria-label","Inspecteer "+n.subject);inspect.addEventListener("click",()=>inspectNote(n.id));
+li.append(strong,small,p,inspect);list.append(li);
 });}
 $("form").addEventListener("submit",e=>{
 e.preventDefault();if(notes.length>=max){status("Maximum van 100 notities bereikt; exporteer en wis notities.");return;}
