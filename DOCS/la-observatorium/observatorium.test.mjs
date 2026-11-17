@@ -177,3 +177,14 @@ test('orphaned notes are removed at startup without explicit consent marker',()=
  assert.match(html,/else\{localStorage\.removeItem\(KEY\);localStorage\.removeItem\(CONSENT\);\}/);
  assert.match(html,/storageEnabled=localStorage\.getItem\(CONSENT\)==="yes"/);
 });
+
+test('malformed or duplicate offline journals quarantine rather than overwrite the original',()=>{
+ assert.match(html,/function validStoredNotes\(value\)/);
+ assert.match(html,/value\.every\(valid\)/);
+ assert.match(html,/new Set\(value\.map\(n=>n\.id\)\)\.size===value\.length/);
+ assert.match(html,/storageRecoveryBlocked=true;storageEnabled=false;notes=\[\]/);
+ assert.match(html,/if\(storageRecoveryBlocked\)\{status\("Opslag geblokkeerd/);
+ assert.match(html,/id="storage-reset"/);
+ assert.match(html,/Onleesbare lokale kopie en toestemmingsmarkering definitief wissen/);
+ assert.match(html,/\$\("persist"\)\.disabled=storageRecoveryBlocked/);
+});
