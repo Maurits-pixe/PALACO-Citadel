@@ -1,6 +1,11 @@
-# De Geheugenkamer · Citadel v0.3
+# De Geheugenkamer · Citadel v0.4
 
 Afzonderlijke, offline-first werkende HTML-proefmodule voor Locus Amoenus. De bestaande Citadel-startnavigatie bevat op deze **conceptbranch** een extra link naar de Geheugenkamer. Observatorium en Atelier blijven inhoudelijk ongewijzigd. De Sites-publicatie is **niet gewijzigd**.
+
+## Functionele verbindingen
+- Nieuw lokaal geheugenlandschap: verzamelingen Persoonlijk, Wereld, Atelier, Observatorium en Citadel met aantallen en directe filters.
+- Duidelijke navigatielinks naar Observatorium, Atelier en Citadel; er is **geen** gedeelde datastore, automatische export of autorisatie over die routes heen.
+- Nieuwe versie weigeren als de eerdere recordreferentie ondertussen gewist is.
 
 ## Functionaliteit
 - Responsieve luxueuze Citadel-weergave, mobiel/desktop en toetsenbordbediening.
@@ -27,7 +32,7 @@ Voer vanuit de repository-root uit:
 node --test DOCS/la-geheugenkamer/geheugenkamer.test.mjs
 ```
 
-De 10 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opslag-opt-in en wissen, expliciet herstel, append-only versieontwikkeling, zoeken, negatieve JSON-import, afwijzen van cyclische lineage, veilige tekstweergave en concept-bewijsuitwisseling. **Deze regressietests zijn toegevoegd, maar in deze wijzigingsronde nog niet uitgevoerd.**
+De 12 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opslag-opt-in en wissen, expliciet herstel, append-only versieontwikkeling, zoeken, negatieve JSON-import, afwijzen van cyclische lineage, veilige tekstweergave, concept-bewijsuitwisseling, collectiefilters en bescherming tegen een verdwenen voorganger. **Deze regressietests zijn toegevoegd, maar in deze wijzigingsronde nog niet uitgevoerd.**
 
 ## Acceptatie
 Dit is een afzonderlijke reviewkandidaat. Niet gemerged of gepubliceerd. Uitvoeren van browser-/mobiele acceptatie, import-negatieve tests en integratiebeoordeling vóór opname in de bestaande site.
