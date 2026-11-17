@@ -111,11 +111,17 @@ $('bundleImport').addEventListener('change',async event=>{
    const current=api.snapshot(localStorage);
    const currentNote=current[2]===null?'':current[2];
    const pendingNote=noteValue()!==currentNote;
+   const inspection=api.preview(api.read(localStorage),pack);
    const filledEx=pack.exterior?pack.exterior.cells.filter(Boolean).length:0;
    const filledIn=pack.interior?pack.interior.floors.flat().filter(Boolean).length:0;
-   $('bundleStatus').textContent='Gecontroleerd DRAFT-pakket: '+ex+' ('+filledEx+'/96), '+ins+' ('+filledIn+'/240), notitie '+pack.note.length+' tekens.';
+   const description='DRAFT-pakket: '+ex+' ('+filledEx+'/96), '+ins+' ('+filledIn+'/240), notitie '+pack.note.length+' tekens. '
+    +'Veranderende vakken: '+inspection.changed+'. Leeg te maken vakken: '+inspection.removed+'.'
+    +(inspection.removesExterior?' Exterieur wordt verwijderd.':'')
+    +(inspection.removesInterior?' Interieur wordt verwijderd.':'')
+    +(inspection.noteChanged?' Ontwerpnotitie wordt vervangen.':'');
+   $('bundleStatus').textContent=description;
    const warning=pendingNote?' LET OP: er staan nog niet-bewaarde notitiewijzigingen in deze pagina.':'';
-   if(!confirm('Vervang alle huidige lokale Atelier-ontwerpen en de notitie door dit DRAFT-pakket? Bewaar eerst je huidige werk als JSON.'+warning))return;
+   if(!confirm(description+' Herstel vervangt je huidige lokale Atelier-ontwerpen. Exporteer eerst je huidige werk als JSON. Wil je doorgaan?'+warning))return;
    api.restore(localStorage,pack,current);
    $('statement').value=pack.note;
    refresh();
