@@ -105,7 +105,7 @@ footer{border-top:1px solid #3d5046;padding:24px;text-align:center;color:#9eada4
 <input id="import-file" type="file" accept=".json,application/json">
 <p class="muted">Import is uitsluitend een lokale kopie. Bestaande notities blijven behouden; dubbele ID's worden overgeslagen. Import verleent nooit bewijsstatus of mandaat.</p>
 <div class="actions"><button class="secondary" id="import" type="button">Controleer en importeer</button><button class="secondary" id="export" type="button">Exporteer JSON</button><button class="secondary" id="clear" type="button">Wis lokale notities</button></div>
-<p class="muted" id="storage">Opslag: alleen huidig tabblad</p><button class="secondary hidden" id="storage-reset" type="button">Wis onleesbare lokale kopie (na bevestiging)</button>
+<p class="muted" id="storage">Opslag: alleen huidig tabblad</p><div class="actions"><button class="secondary hidden" id="storage-backup" type="button">Download onleesbare kopie (lokaal)</button><button class="secondary hidden" id="storage-reset" type="button">Wis onleesbare lokale kopie (na bevestiging)</button></div>
 </div></div>
 </section>
 <p class="sr" role="status" aria-live="polite" id="announce"></p>
@@ -157,8 +157,25 @@ $("persist").disabled=storageRecoveryBlocked;
 if(storageRecoveryBlocked){
  $("storage").textContent="HERSTEL VEREIST: lokale opslag niet leesbaar. Bestaande kopie blijft behouden.";
  $("storage-reset").classList.remove("hidden");
+ $("storage-backup").classList.remove("hidden");
 }
 function status(msg){$("announce").textContent=msg;}
+$("storage-backup").addEventListener("click",()=>{
+ if(!storageRecoveryBlocked)return;
+ try{
+  const raw=localStorage.getItem(KEY);
+  if(raw===null){status("Geen lokale notitiekopie om te downloaden.");return;}
+  const blob=new Blob([raw],{type:"application/octet-stream"});
+  const url=URL.createObjectURL(blob),link=document.createElement("a");
+  try{
+   link.href=url;link.download="la-observatorium-onleesbare-kopie.txt";
+   document.body.append(link);link.click();
+  }finally{
+   link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
+  status("Onleesbare kopie lokaal gedownload; geen validatie of bewijsstatus.");
+ }catch(_){status("Download van de onleesbare kopie mislukt; originele lokale gegevens niet gewist.");}
+});
 $("storage-reset").addEventListener("click",()=>{
  if(!storageRecoveryBlocked)return;
  if(!confirm("Onleesbare lokale kopie en toestemmingsmarkering definitief wissen? Deze inhoud kan niet worden hersteld vanuit het Observatorium."))return;
@@ -168,6 +185,7 @@ $("storage-reset").addEventListener("click",()=>{
   storageRecoveryBlocked=false;storageEnabled=false;notes=[];
   $("persist").checked=false;$("persist").disabled=false;
   $("storage-reset").classList.add("hidden");
+  $("storage-backup").classList.add("hidden");
   $("storage").textContent="Opslag: alleen huidig tabblad";
   render();status("Onleesbare lokale kopie na bevestiging gewist. Geen notities hersteld.");
  }catch(_){status("Wissen mislukt: onleesbare lokale kopie blijft geblokkeerd.");}
@@ -194,6 +212,7 @@ function save(){
   storageRecoveryBlocked=true;
   $("persist").disabled=true;
   $("storage-reset").classList.remove("hidden");
+  $("storage-backup").classList.remove("hidden");
   $("storage").textContent=wantsStorage?"OPSLAG ONBEVESTIGD: controleer lokaal herstel.":"WISSEN NIET BEVESTIGD: controleer lokaal herstel.";
   status("Lokale opslagstatus onbekend; geen succesvolle bewaar- of wisactie bevestigd.");
   return false;
