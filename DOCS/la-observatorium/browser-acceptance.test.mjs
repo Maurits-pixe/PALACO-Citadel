@@ -35,6 +35,15 @@ for (const width of [320,390,1280]) {
  test(`Citadel Observatory browser roundtrip and tamper check at ${width}px`,{timeout:90000},async()=>{
   await withPage({width,height:800},async page=>{
    assert.equal(await page.locator('#persist').isChecked(),false);
+   assert.equal(await page.locator('[role="tab"]').count(),5);
+   assert.equal(await page.locator('[role="tablist"]').count(),1);
+   assert.equal(await page.locator('[role="tabpanel"]').count(),5);
+   await page.locator('#tab-uitkijk').focus();
+   await page.keyboard.press('ArrowRight');
+   assert.equal(await page.locator('#tab-bewijs').getAttribute('aria-selected'),'true');
+   assert.equal(await page.locator('#tab-bewijs').getAttribute('tabindex'),'0');
+   await page.keyboard.press('Home');
+   assert.equal(await page.locator('#tab-uitkijk').getAttribute('aria-selected'),'true');
    const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1);
    assert.equal(overflow,false,`Horizontal overflow at ${width}px`);
    await page.locator('[data-tab="atelier"]').click();
@@ -65,6 +74,8 @@ for (const width of [320,390,1280]) {
    await page.waitForFunction(()=>document.querySelector('#dossier-verdict')?.textContent?.includes('INTEGRITEIT AFGEWEZEN'));
    assert.match(await page.locator('#dossier-verdict').innerText(),/geen bewijs of mandaat/);
    assert.equal(await page.locator('#persist').isChecked(),false);
+   assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),null);
+   assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_consent_v1')),null);
   });
  });
 }
