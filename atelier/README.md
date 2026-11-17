@@ -89,3 +89,9 @@ De bestaande Citadel-serviceworker `sw.js` precachet met versiesleutel `palaco-r
 Een extra Playwright-scenario in `tests/browser/atelier.spec.mjs` controleert eerst de aanwezigheid van alle zes nieuwe resources in de Service Worker-cache, schakelt daarna Chromium offline en bezoekt achtereenvolgens Regiekamer, Grand Studio, Interieuratelier, Panorama en Wizard. Het scenario draait met de bestaande mobile/desktop projectconfiguraties.
 
 **Grenzen:** het offlinepad werkt pas nadat de serviceworker succesvol geïnstalleerd en de assets gecachet zijn. Bestaande browseropslag blijft apparaatlokaal. Er zijn geen offline autorisaties, cryptografische uitgiftes, automatische synchronisatie, of formele projectregistraties. De nieuwe tests moeten succesvol op de nieuwste PR-SHA zijn uitgevoerd voordat de offlineclaim als volledig geaccepteerd geldt. Merge en publicatie blijven HOLD.
+
+## Atelier v2.1 — zichtbaar offline-verbindingskompas
+
+De Regiekamer toont nu expliciet of `sw.js` beschikbaar is en alle zes benodigde creatieve modules/resources in `palaco-rio-shell-v6` zijn opgenomen. De weergave onderscheidt **Offline gereed** (verbonden + volledige cache), **Offline actief** (offline + volledige cache), **Nog niet offline gereed** en **Offline beperkt**. Bij twijfel of niet-toegankelijke cache wordt geen positieve claim getoond. Een knop biedt opnieuw controleren; netwerk- en serviceworkerstatuswijzigingen verversen de waarneming.
+
+De offline-acceptatietest controleert nu zowel de succesvolle offline-indicatie als een opzettelijk onvolledige cache (5 van 6). De functionaliteit biedt geen permanente gegevensgarantie of automatische synchronisatie tussen apparaten. De eerdere succesvolle browser- en CI-runs horen bij v2.0; een nieuwe volledige GitHub-acceptatierun moet v2.1 apart bevestigen. PR #60 blijft DRAFT / HOLD en geen productiepublicatie vindt plaats.
