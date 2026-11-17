@@ -142,3 +142,41 @@ test('orphaned local note copy is purged when no consent marker exists',{timeout
   assert.match(await page.locator('#count').innerText(),/0 \/ 0/);
  });
 });
+
+test('corrupt consented local memory is quarantined until explicit reset',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  const corrupt='{not valid JSON';
+  await page.evaluate(raw=>{
+   localStorage.setItem('palaco_la_observatory_consent_v1','yes');
+   localStorage.setItem('palaco_la_observatory_notes_v1',raw);
+  },corrupt);
+  await page.reload();
+  assert.equal(await page.locator('#persist').isDisabled(),true);
+  assert.match(await page.locator('#storage').innerText(),/HERSTEL VEREIST/);
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),corrupt,
+    'Damaged local copy must not be overwritten during startup');
+  await page.locator('#tab-geheugen').click();
+  assert.match(await page.locator('#count').innerText(),/0 \/ 0/);
+  page.once('dialog',dialog=>dialog.dismiss());
+  await page.locator('#storage-reset').click();
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),corrupt,
+    'Cancelling the reset retains the original');
+  page.once('dialog',dialog=>dialog.accept());
+  await page.locator('#storage-reset').click();
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),null);
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_consent_v1')),null);
+  assert.equal(await page.locator('#persist').isDisabled(),false);
+ });
+});
+test('schema-invalid consented memory is not silently filtered or overwritten',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  const malformed=JSON.stringify([{id:'bad',at:'not-a-date',subject:'Bad',kind:'OBSERVED',reference:'',notes:'Invalid timestamp'}]);
+  await page.evaluate(raw=>{
+   localStorage.setItem('palaco_la_observatory_consent_v1','yes');
+   localStorage.setItem('palaco_la_observatory_notes_v1',raw);
+  },malformed);
+  await page.reload();
+  assert.equal(await page.locator('#persist').isDisabled(),true);
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),malformed);
+ });
+});
