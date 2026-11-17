@@ -57,3 +57,11 @@ De Regiekamer kan een gecombineerd **PALACO-Atelier-Compleet-Project-DRAFT.json*
 `regiekamer-bundle.js` controleert expliciet schema `palaco.citadel.atelier.portable/1`, `state: DRAFT`, `authority: NONE`, bekende objectcategorieën en het bestandformaat. De import vraagt bevestiging, schrijft uitsluitend de bekende lokale Atelier-sleutels en probeert bij een schrijffout alle oorspronkelijke waarden te herstellen. Een uitzonderlijk opslagfalen kan ook rollback verhinderen; dat wordt expliciet gemeld en blijft een risico van `localStorage`. Er is geen transactiegarantie tussen browsers, apparaten of tabbladen en geen cryptografische validatie.
 
 Gerichte cases staan in `regiekamer-bundle.test.cjs`: round-trip, ongeautoriseerde en onbekende gegevens, exacte schrijfscope, eenmalige schrijffout met rollback en permanente opslagfouten. Testcommando: `node --test atelier/regiekamer-bundle.test.cjs atelier/regiekamer-gallery.test.cjs`. Nog vereist: echte browseracceptatie, mobiele export/import en conflictgedrag bij meerdere tabs. Niet mergen/publiceren zonder review.
+
+## Regiekamer v1.7 — importpreflight en tabconflicten (2026-11-17)
+
+De portable projectimport toont nu vóór bevestiging de namen en het aantal ingerichte exterieur- en interieurpercelen, plus de lengte van de ontwerpnotitie. Onopgeslagen wijzigingen in de Regiekamer-notitie worden expliciet gemeld.
+
+`regiekamer-bundle.js` bevat voortaan `snapshot(storage)`, waarmee drie ruwe waarden van de lokale Atelier-opslag worden gelezen. De restore-aanroep accepteert een optionele verwachte snapshot en weigert overschrijven als de waarden sinds de importpreview veranderd zijn. Bestaande oproepen zonder deze parameter blijven ondersteund. `regiekamer-bundle.test.cjs` heeft aanvullende regressiecategorieën voor stale previews, overeenkomende snapshots en ongeldige snapshots (8 testcases totaal).
+
+**Beperking:** browser-`localStorage` heeft geen atomair compare-and-swap. Een gelijktijdige wijziging precies tussen de vergelijking en het schrijven kan niet volledig worden uitgesloten. De controle verkleint het overschrijfrisico, maar vervangt geen transactionele backend, onafhankelijk reviewproces of formele autorisatie. Ook deze versie blijft DRAFT/HOLD en niet live gepubliceerd.
