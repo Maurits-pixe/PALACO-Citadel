@@ -32,6 +32,9 @@ Een geautomatiseerde mobiele viewporttest is geen handmatige apparaattest. Cross
 ### Gecontroleerde CI-uitslag
 GitHub Actions-run [44023078788](https://github.com/Maurits-pixe/PALACO-Citadel/actions/runs/44023078788) is **PASS** op commit `fe8e9d1cd090d4d639420194f6cb6bdc34cc4da2`: 35 Node-regressietests en 2 werkelijke Chromium-browserproeven, **37/37 PASS, 0 FAIL**. De eerdere browserproef mislukte uitsluitend door een Playwright-browser-versiemismatch; installatie en runtime zijn nu uit dezelfde lokale Playwright-package vastgepind. Dit bevestigt een geautomatiseerde desktop- en mobiele viewportproef, **niet** een test op een fysiek toestel of een volledige security-/accessibility-audit.
 
+## Browserbeveiliging en toegankelijkheids-smoketest (v1.1)
+GitHub Actions-run [44028718017](https://github.com/Maurits-pixe/PALACO-Citadel/actions/runs/44028718017) op commit `dcea4a5f5768709ea14a9b5f5f8df0f65a3b6c97`: **39/39 PASS**, 35 Node-tests en 4 Chromium-tests. Twee extra browserproeven controleren dat script-/afbeeldingsmarkup uit onbetrouwbare dossiergegevens niet wordt uitgevoerd en dat bestandsselectie toetsenbordfocus heeft, ontbrekend bronmateriaal correct als `NEEDS_SOURCE_MATERIAL` verschijnt en wissen de inspectie sluit. Dit is een beperkte smokecontrole en **geen** volledige WCAG-audit, security review of fysieke mobiele test.
+
 ## Grensbewaking
 - De ontvanger accepteert uitsluitend het vastgelegde schema met **exacte verwachte velden**, beperkende lengtes en maximaal 100 lineage-records.
 - Er wordt geweigerd bij autorisatie-escalatie, ontbrekende toestemming, verkeerd doel, dubbel ID, cyclische of onderbroken aangeleverde versievolgorde, te grote bestanden of een ontbrekend eindrecord.
