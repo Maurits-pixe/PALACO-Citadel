@@ -183,6 +183,18 @@ test('Atelier: bevestigde import bewaart een herstelkopie en vorige versie kan t
   await expect(page.locator('#bundleStatus')).toContainText('hersteld');
   await expect(page.locator('#outUsed')).toHaveText('0');
   await expect(page.locator('#undoImport')).toBeEnabled();
+  await expect(page.locator('#exportRecovery')).toBeEnabled();
+  const recoveryDownload=page.waitForEvent('download');
+  await page.locator('#exportRecovery').click();
+  const recoveryFile=await recoveryDownload;
+  const recoveryBytes=await (await import('node:fs/promises')).readFile(await recoveryFile.path());
+  const recoveryJson=JSON.parse(recoveryBytes.toString('utf8'));
+  expect(recoveryJson.schema).toBe('palaco.citadel.atelier.portable/1');
+  expect(recoveryJson.authority).toBe('NONE');
+  expect(recoveryJson.exterior.cells[0]).toBe('royal');
+  expect(recoveryJson.note).toBe('');
+  expect(recoveryJson.savedAt).toBeUndefined();
+  await expect(page.locator('#outUsed')).toHaveText('0');
   page.once('dialog',dialog=>dialog.accept());
   await page.locator('#undoImport').click();
   await expect(page.locator('#bundleStatus')).toContainText('Vorige Atelier-versie teruggezet');
