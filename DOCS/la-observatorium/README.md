@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Chromium-browseracceptatie (v0.5)
+De geïsoleerde test `DOCS/la-observatorium/browser-acceptance.test.mjs` serveert de Observatorium-HTML via een lokale HTTP-server, zonder toegang tot een live Citadel-service. Met Playwright/Chromium doorloopt hij voor 320, 390 en 1280 pixels: formulierinvoer, Geheugen, inspectie in de Bewijskamer, dossierdownload, integriteitscontrole van het dossier en afwijzing van een gemanipuleerde kopie. Hij controleert ook op horizontale overflow, JavaScript-runtimefouten en het feit dat lokale permanente opslag standaard uit staat.
+
+De workflow `.github/workflows/la-observatorium.yml` voert dit uit in een aparte job op pull requests. Deze controle simuleert mobiele schermbreedtes op desktop-Chromium en is **niet** gelijk aan een test op echte mobiele Safari, Android of de bestaande ChatGPT Sites-host.
+
 ## Import-beveiligingsgrenzen
 Het geïmporteerde bestand blijft uitsluitend lokaal in de browser; er is geen upload. Het bestand mag uitsluitend het eigen exportformaat bevatten, met `SELF_REPORTED_NOT_VERIFIED`. Ongeldige notities, conflicterende ID's in hetzelfde bestand, te grote bestanden en overschrijding van de notitielimiet worden geweigerd. De import toont het aantal nieuwe notities en vraagt expliciet toestemming vóór wijziging van het lokale Geheugen. Lege bestanden, oversized JSON-inhoud en array-vormige enveloppen worden geweigerd. Import is niet cryptografisch gevalideerd en geldt nooit als canonieke provenance.
 
