@@ -314,3 +314,25 @@ test('failed journal clear does not claim confirmed local erasure',{timeout:6000
   assert.ok(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')));
  });
 });
+
+test('clear all revokes consent and removes persisted journal rather than saving empty list',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  await page.locator('#tab-atelier').click();
+  await page.locator('#persist').check();
+  await page.locator('#subject').fill('Te verwijderen notitie');
+  await page.locator('#notes').fill('Toestemming moet ook verdwijnen');
+  await page.locator('#form button[type="submit"]').click();
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_consent_v1')),'yes');
+  assert.ok(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')));
+  page.once('dialog',dialog=>dialog.accept());
+  await page.locator('#clear').click();
+  assert.equal(await page.locator('#persist').isChecked(),false);
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),null);
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_consent_v1')),null);
+  assert.match(await page.locator('#announce').innerText(),/bewaartoestemming aantoonbaar verwijderd/);
+  await page.reload();
+  assert.equal(await page.locator('#persist').isChecked(),false);
+  await page.locator('#tab-geheugen').click();
+  assert.match(await page.locator('#count').innerText(),/0 \/ 0/);
+ });
+});
