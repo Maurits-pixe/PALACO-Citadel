@@ -38,6 +38,7 @@ footer{border-top:1px solid #3d5046;padding:24px;text-align:center;color:#9eada4
 <a class="skip" href="#main">Ga naar inhoud</a>
 <header><div><div class="brand">PALACO · CITADEL</div><div class="muted">L.A. / LOCUS AMOENUS / OBSERVATORIUM</div></div><span class="tag">LOKALE PROEFMODULE · GEEN LIVE TELEMETRIE</span></header>
 <main id="main">
+<p class="muted"><a href="../../index.html">← Terug naar Citadel</a></p>
 <div class="eyebrow">De kroon · De uitkijk · De herinnering</div>
 <h1>Het Observatorium</h1>
 <p class="lead">Een rustige plaats om constitutionele gebeurtenissen te observeren, herkomst te volgen en bewijsgrenzen zichtbaar te houden. Waarneming ≠ bewijs ≠ definitief besluit.</p>
@@ -122,7 +123,7 @@ li.append(strong,small,p);list.append(li);
 });}
 $("form").addEventListener("submit",e=>{
 e.preventDefault();if(notes.length>=max){status("Maximum van 100 notities bereikt; exporteer en wis notities.");return;}
-const f=e.currentTarget, n={id:(crypto.randomUUID?crypto.randomUUID():String(Date.now())),at:new Date().toISOString(),subject:f.subject.value.trim(),kind:f.kind.value,reference:f.reference.value.trim(),notes:f.notes.value.trim()};
+const f=e.currentTarget, field=name=>f.elements.namedItem(name), n={id:(crypto.randomUUID?crypto.randomUUID():String(Date.now())),at:new Date().toISOString(),subject:field("subject").value.trim(),kind:field("kind").value,reference:field("reference").value.trim(),notes:field("notes").value.trim()};
 if(!n.subject||!n.notes)return;notes.push(n);save();render();f.reset();status("Lokale waarneming toegevoegd, niet geverifieerd.");
 });
 $("persist").addEventListener("change",()=>{save();status($("persist").checked?"Lokale opslag ingeschakeld.":"Lokale opslag uitgeschakeld; opgeslagen kopie gewist.");});
