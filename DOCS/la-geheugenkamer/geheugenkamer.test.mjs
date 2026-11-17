@@ -24,7 +24,7 @@ function harness(initialArchive=null){
     reset(){for(const id of ['title','who','what','where','why','how','source'])nodes.get('#'+id).value='';nodes.get('#category').value='Persoonlijk'}
     click(){if(this.tagName==='a')this.clicked=true;else if(this.listeners.has('click'))return this.dispatch('click')}
   }
-  const names=['message','count','utc','entryForm','persist','title','who','what','where','why','how','source','category','search','filter','sort','timeline','collections','clear','restore','proof','export','importBtn','file'];
+  const names=['message','count','utc','entryForm','persist','title','who','what','where','why','how','source','category','search','filter','sort','timeline','collections','dossier','dossierDetails','dossierExport','dossierClose','clear','restore','proof','export','importBtn','file'];
   for(const n of names)nodes.set('#'+n,new Element());
   nodes.get('#category').value='Persoonlijk';
   const storage=new Map(),intervals=[];if(initialArchive!==null)storage.set('palaco.citadel.geheugenkamer.v1',JSON.stringify(initialArchive));
@@ -139,4 +139,36 @@ test('no new record is created when an edited predecessor disappeared',()=>{
  h.nodes.get('#entryForm').dispatch('submit');
  assert.equal(h.nodes.get('#count').textContent,0);
  assert.match(h.nodes.get('#message').textContent,/afgebroken/);
+});
+
+test('dossier inspector displays source and unverified lineage in local context',()=>{
+ const h=harness();enter(h,'Eerste dossier');
+ const inspect=h.nodes.get('#timeline').children[0].children.at(-1).children[1];
+ inspect.dispatch('click');
+ const details=h.nodes.get('#dossierDetails').children.map(x=>x.textContent).join('\n');
+ assert.match(details,/Bron: Lokale bron/);
+ assert.match(details,/SELF_REPORTED_NOT_VERIFIED/);
+ assert.match(details,/Versie 1/);
+ assert.match(details,/EDTR: HOLD/);
+});
+test('selected dossier export cannot claim official issuance',()=>{
+ const h=harness();enter(h,'Versie 1');
+ h.nodes.get('#timeline').children[0].children.at(-1).children[0].dispatch('click');
+ h.nodes.get('#title').value='Versie 2';
+ h.nodes.get('#entryForm').dispatch('submit');
+ h.nodes.get('#timeline').children[0].children.at(-1).children[1].dispatch('click');
+ h.nodes.get('#dossierExport').dispatch('click');
+ const doc=JSON.parse(h.sandbox.latestBlob.chunks[0]);
+ assert.equal(doc.schema,'PALACO-CITADEL-DOSSIER-DRAFT-1');
+ assert.equal(doc.authority,'NONE');
+ assert.equal(doc.edtrIssued,false);
+ assert.deepEqual(Array.from(doc.records,x=>x.version),[1,2]);
+});
+test('clearing memory invalidates selected dossier and blocks stale export',()=>{
+ const h=harness();enter(h,'Tijdelijk');
+ h.nodes.get('#timeline').children[0].children.at(-1).children[1].dispatch('click');
+ h.nodes.get('#clear').dispatch('click');
+ assert.equal(h.nodes.get('#dossier').className,'panel hidden');
+ h.nodes.get('#dossierExport').dispatch('click');
+ assert.match(h.nodes.get('#message').textContent,/Geen dossier geselecteerd/);
 });
