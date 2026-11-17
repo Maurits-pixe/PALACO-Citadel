@@ -223,3 +223,57 @@ test('invalid handoff cannot activate import confirmation', async ({ page }) => 
   await expect(page.locator('#handoffPreview')).toBeHidden();
   await expect(page.locator('#handoffAccept')).toBeDisabled();
 });
+
+const backupRecord = (id, title = 'Eik uit back-up') => ({
+  id, title, kind: 'Flora', area: 'Het Woud',
+  verification: 'persoonlijke observatie', notes: 'Herstelcontrole',
+  time: '2026-11-01T12:00:00Z'
+});
+const backupFile = entries => ({
+  name:'citadel-backup.json', mimeType:'application/json',
+  buffer:Buffer.from(JSON.stringify({schema:'palaco-citadel-natuur-v1',entries}))
+});
+
+test('duplicate backup record IDs are rejected without replacing local data', async ({ page }) => {
+  await page.getByRole('button', { name: 'Levend register' }).click();
+  await page.locator('#title').fill('Bestaande registratie');
+  await page.locator('#entryform button[type="submit"]').click();
+  const before = await page.evaluate(() => localStorage.getItem('palaco.citadel.samenleving-natuur.v1'));
+  await page.locator('#importFile').setInputFiles(backupFile([
+    backupRecord('duplicate-01'), backupRecord('duplicate-01','Een andere titel')
+  ]));
+  await expect(page.locator('#message')).toContainText('Back-up afgewezen');
+  expect(await page.evaluate(() => localStorage.getItem('palaco.citadel.samenleving-natuur.v1'))).toBe(before);
+});
+
+test('malformed timestamp in backup is rejected', async ({ page }) => {
+  await page.getByRole('button', { name: 'Levend register' }).click();
+  await page.locator('#importFile').setInputFiles(backupFile([
+    {...backupRecord('invalid-time'),time:'2999-01-01T12:00:00Z'}
+  ]));
+  await expect(page.locator('#message')).toContainText('Back-up afgewezen');
+  await expect(page.locator('#count')).toHaveText('0');
+});
+
+test('cancelled backup restore preserves the existing register', async ({ page }) => {
+  await page.getByRole('button', { name: 'Levend register' }).click();
+  await page.locator('#title').fill('Niet overschrijven');
+  await page.locator('#entryform button[type="submit"]').click();
+  page.once('dialog', dialog => dialog.dismiss());
+  await page.locator('#importFile').setInputFiles(backupFile([backupRecord('restore-cancel')]));
+  await expect(page.locator('#message')).toContainText('Herstel geannuleerd');
+  await expect(page.locator('#records')).toContainText('Niet overschrijven');
+  await expect(page.locator('#count')).toHaveText('1');
+});
+
+test('explicitly approved backup restore replaces local records', async ({ page }) => {
+  await page.getByRole('button', { name: 'Levend register' }).click();
+  await page.locator('#title').fill('Oude observatie');
+  await page.locator('#entryform button[type="submit"]').click();
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('#importFile').setInputFiles(backupFile([backupRecord('restore-approved')]));
+  await expect(page.locator('#message')).toContainText('Back-up veilig hersteld');
+  await expect(page.locator('#records')).toContainText('Eik uit back-up');
+  await expect(page.locator('#records')).not.toContainText('Oude observatie');
+  await expect(page.locator('#count')).toHaveText('1');
+});
