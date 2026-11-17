@@ -281,17 +281,24 @@ function downloadJSON(data,name){
 const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
 try{a.href=url;a.download=name;document.body.append(a);a.click();}finally{a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 }
+let inspectionExportRun=0;
 async function exportInspection(){
-const n=notes.find(item=>item.id===selectedId);
+const run=++inspectionExportRun;
+const inspectedId=selectedId,startedAtRevision=journalRevision;
+const n=notes.find(item=>item.id===inspectedId);
 if(!n){clearInspection();status("Export geweigerd: waarneming ontbreekt.");return;}
 if(!globalThis.crypto||!crypto.subtle||typeof crypto.subtle.digest!=="function"){status("Export geweigerd: veilige SHA-256-functie niet beschikbaar. Geen dossier zonder controlesom.");return;}
 const content=inspectionContent(n);
 try{
 const sha256=await digestContent(content);
+if(run!==inspectionExportRun||selectedId!==inspectedId||journalRevision!==startedAtRevision||storageRecoveryBlocked){
+ status("Export afgebroken: selectie, Geheugen of opslagstatus is tussentijds gewijzigd.");
+ return;
+}
 const packet={...content,integrity:{algorithm:"SHA-256",scope:"UTF8_JSON_STRINGIFY_CONTENT_V1",digest:sha256,meaning:"INTEGRITY_ONLY_NOT_AUTHENTICITY"}};
 downloadJSON(packet,"la-observatorium-inspectiedossier.json");
 status("Lokaal inspectiedossier geëxporteerd. SHA-256 is geen verificatie van de bron.");
-}catch(_){status("Export mislukt; geen betrouwbaar inspectiedossier aangemaakt.");}
+}catch(_){if(run===inspectionExportRun)status("Export mislukt; geen betrouwbaar inspectiedossier aangemaakt.");}
 }
 $("inspection-export").addEventListener("click",exportInspection);
 function clearInspection(){selectedId=null;$("inspection-fields").classList.add("hidden");$("inspection-empty").classList.remove("hidden");}
