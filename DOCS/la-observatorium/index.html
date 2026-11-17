@@ -176,7 +176,10 @@ if(packet.verification.quay!=="NOT_CONNECTED"||packet.verification.era_edtr!=="N
 if(!ownKeysEqual(packet.integrity,["algorithm","scope","digest","meaning"]))return false;
 return packet.integrity.algorithm==="SHA-256"&&packet.integrity.scope==="UTF8_JSON_STRINGIFY_CONTENT_V1"&&packet.integrity.meaning==="INTEGRITY_ONLY_NOT_AUTHENTICITY"&&typeof packet.integrity.digest==="string"&&/^[0-9a-f]{64}$/.test(packet.integrity.digest);
 }
+let dossierVerificationRun=0;
+$("dossier-file").addEventListener("change",()=>{dossierVerificationRun++;$("dossier-verdict").textContent="Nieuw dossier geselecteerd · controle nog niet uitgevoerd.";});
 async function verifyDossier(){
+const run=++dossierVerificationRun;
 const output=$("dossier-verdict"),file=$("dossier-file").files[0];
 output.textContent="Geen integriteitscontrole uitgevoerd.";
 if(!file){output.textContent="Selecteer eerst een inspectiedossier.";return;}
@@ -184,15 +187,17 @@ if(file.size===0||file.size>262144){output.textContent="AFGEWEZEN: leeg of te gr
 if(!globalThis.crypto||!crypto.subtle||typeof crypto.subtle.digest!=="function"){output.textContent="ONBEKEND: SHA-256 niet beschikbaar; geen controle mogelijk.";return;}
 try{
 const raw=await file.text();
+if(run!==dossierVerificationRun)return;
 if(new TextEncoder().encode(raw).length>262144){output.textContent="AFGEWEZEN: dossierinhoud te groot.";return;}
 const packet=JSON.parse(raw);
 if(!validateDossier(packet)){output.textContent="AFGEWEZEN: dossierformaat of status ongeldig.";return;}
 const n=packet.observation;
 const content=inspectionContent(n);
 const current=await digestContent(content);
+if(run!==dossierVerificationRun)return;
 output.textContent=current===packet.integrity.digest?"INTEGRITEIT KOMT OVEREEN · authenticiteit NIET GEVERIFIEERD · geen mandaat":"INTEGRITEIT AFGEWEZEN · hash wijkt af; geen bewijs of mandaat";
-}catch(_){output.textContent="AFGEWEZEN: dossier kon niet worden verwerkt.";}
-finally{$("dossier-file").value="";}
+}catch(_){if(run===dossierVerificationRun)output.textContent="AFGEWEZEN: dossier kon niet worden verwerkt.";}
+finally{if(run===dossierVerificationRun)$("dossier-file").value="";}
 }
 $("verify-dossier").addEventListener("click",verifyDossier);
 function downloadJSON(data,name){
