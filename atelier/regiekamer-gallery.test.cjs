@@ -1,7 +1,12 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const gallery=require('./regiekamer-gallery.js');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const path=require('node:path');
+const sandbox={module:{exports:{}}};
+vm.runInNewContext(fs.readFileSync(path.join(__dirname,'regiekamer-gallery.js'),'utf8'),sandbox,{filename:'regiekamer-gallery.js'});
+const gallery=sandbox.module.exports;
 const exterior=()=>({schema:'palaco.citadel.atelier.studio/1',state:'DRAFT',authority:'NONE',name:'EVA',cells:Array(96).fill(null)});
 const interior=()=>({schema:'palaco.citadel.atelier.interior/1',state:'DRAFT',authority:'NONE',name:'L.A.',floors:[Array(80).fill(null),Array(80).fill(null),Array(80).fill(null)]});
 test('vier galerijlagen hebben correcte aantallen en isolatie',()=>{
