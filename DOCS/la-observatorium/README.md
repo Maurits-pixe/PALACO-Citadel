@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Beschermd herstel bij onleesbare lokale gegevens (v1.3)
+Bij actieve bewaartoestemming wordt een opgeslagen JSON-notitiekopie bij het openen volledig op schema, limiet, geldige velden en unieke IDs gecontroleerd. Een niet-parseerbare, ongeldige of intern conflicterende kopie wordt niet stilzwijgend gefilterd of met een lege verzameling overschreven. In plaats daarvan blijft de bestaande kopie lokaal aanwezig en wordt permanente opslag geblokkeerd; de applicatie toont **HERSTEL VEREIST**.
+
+De eigenaar van het apparaat kan de beschadigde kopie uitsluitend na een expliciete bevestiging wissen. Annuleren behoudt de oorspronkelijke kopie. Daarna wordt de toestemmingsmarkering eveneens verwijderd en kan men opnieuw toestemming geven. Er wordt geen officiële historie hersteld en nooit een authenticiteits- of mandaatstatus toegekend. Voor deze grenzen zijn afzonderlijke Chromium-acceptatiescenario's toegevoegd; de testuitkomst blijft onbevestigd totdat CI een afgeronde browsertest meldt.
+
 ## Offline privacy- en herstelacceptatie (v1.2)
 De Chromium-browseracceptatie bevat nu onafhankelijke scenario's voor niet-opgeslagen notities (verdwijnen bij herladen), expliciete bewaartoestemming (overleven herladen), intrekken van toestemming (lokaal opgeslagen notities en consentmarkering worden gewist) en verweesde opslag (een oude notitiekopie zonder actieve toestemming wordt bij openen verwijderd).
 
