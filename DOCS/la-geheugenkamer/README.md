@@ -56,6 +56,16 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Versleutelde lokale apparaatkluis · v1.6
+- `Bewaar versleutelde kluis` slaat een AES-256-GCM-versleutelde kopie van de huidige archiefsnapshot in de lokale browseropslag op, onder een afzonderlijke sleutel `palaco.citadel.geheugenkamer.vault.v1`. Er is geen automatisch opslaan van daaropvolgende wijzigingen.
+- `Ontgrendel kluis` vraagt opnieuw de wachtzin en controleert de AEAD-tag, het archiefschema, SHA-256, recordvalidatie, lineage en conflicten voordat een dossier in de huidige tab zichtbaar wordt. **Na herladen is de tab altijd leeg**, totdat de gebruiker zelf ontgrendelt.
+- `Vergrendel deze tab` wist de huidige herinneringen uit de actieve weergave na bevestiging, maar alleen wanneer er geen onversleutelde lokale opslag actief of aanwezig is. **Dit is geen geheugenuitwissing op OS-niveau.**
+- `Verwijder apparaatkluis` vereist een afzonderlijke bevestiging. Een bestaande kluis overschrijven vereist eveneens expliciete bevestiging en kan oude gegevens onherstelbaar vervangen.
+- De module weigert versleutelde kluisopslag als de oude onversleutelde browseropslag actief of aanwezig is. Omgekeerd wordt onversleutelde opslag geweigerd zolang een versleutelde kluis bestaat. Dit voorkomt onbedoelde gelijktijdige dubbelopslag.
+- De wachtzin wordt niet persistent opgeslagen en na gebruik uit het invoerveld gewist. **Verloren wachtzin betekent verloren toegang**; vergeet niet een veilige back-up te maken.
+- Grenzen: lokale browseropslag blijft kwetsbaar voor kwaadaardige scripts op dezelfde origin, browsercompromittering en toegang terwijl de tab is ontgrendeld. De opslag is een bewuste snapshot; latere wijzigingen vereisen handmatig opnieuw opslaan.
+- Dit is een geïsoleerde conceptfunctie en **geen formele autorisatie, digitale handtekening of ERA/EDTR-uitgifte**.
+
 ## Optionele archiefversleuteling · v1.5
 - Afzonderlijke knop `Exporteer versleuteld (.json)` met een zelfgekozen wachtzin van minimaal 12 tekens (maximaal 256). De normale SHA-256 JSON-export blijft ongewijzigd beschikbaar.
 - Versleutelde bestanden gebruiken `PALACO-CITADEL-GEHEUGEN-ENCRYPTED-1`, AES-256-GCM met willekeurige 96-bits IV en 128-bits authenticatietag; de sleutel wordt per export afgeleid via PBKDF2-HMAC-SHA-256 met **310.000 iteraties** en een willekeurige salt van 16 bytes.
