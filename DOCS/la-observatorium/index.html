@@ -330,11 +330,13 @@ $("form").addEventListener("submit",e=>{
 $("filter").addEventListener("change",render);
 $("search").addEventListener("input",render);
 $("import").addEventListener("click",async()=>{
+if(storageRecoveryBlocked){status("Import geblokkeerd: stel eerst de bestaande onleesbare lokale kopie veilig en herstel de opslag.");return;}
 const file=$("import-file").files[0];
 if(!file){status("Selecteer eerst een JSON-bestand.");return;}
 if(file.size===0||file.size>262144){status("Import geweigerd: bestand leeg of groter dan 256 KB.");return;}
 try{
 const raw=await file.text();
+if(storageRecoveryBlocked){status("Import afgebroken: lokale opslag is inmiddels geblokkeerd.");return;}
 if(new TextEncoder().encode(raw).length>262144){status("Import geweigerd: ingelezen inhoud te groot.");return;}
 const data=JSON.parse(raw);
 if(!data||typeof data!=="object"||Array.isArray(data)||data.format!=="palaco-la-observatory-local-v1"||data.authority!=="SELF_REPORTED_NOT_VERIFIED"||!Array.isArray(data.notes)||data.notes.length>max||!data.notes.every(valid)){
@@ -352,14 +354,21 @@ if(!existing||["at","subject","kind","reference","notes"].some(key=>existing[key
 if(notes.length+incoming.length>max){status("Import geweigerd: limiet van 100 notities overschreden.");return;}
 if(!incoming.length){status("Geen nieuwe notities: alle IDs waren al aanwezig.");return;}
 if(!confirm(incoming.length+" notities alleen als ONGEVERIFIEERDE lokale waarnemingen toevoegen?")){status("Import geannuleerd; er zijn geen notities toegevoegd.");return;}
+if(storageRecoveryBlocked){status("Import afgebroken: bestaande onleesbare kopie blijft behouden.");return;}
 notes=notes.concat(incoming);
-save();render();
-status(incoming.length+" zelfgerapporteerde notities geïmporteerd; niet geverifieerd.");
+const persisted=save();render();
+status(persisted?incoming.length+" zelfgerapporteerde notities geïmporteerd; niet geverifieerd.":incoming.length+" notities uitsluitend in dit tabblad geïmporteerd; blijvende opslag NIET bevestigd.");
 }catch(_){status("Import geweigerd: bestand kan niet veilig worden verwerkt.");}
 finally{$("import-file").value="";}
 });
 $("persist").addEventListener("change",()=>{if(save())status($("persist").checked?"Lokale opslag bevestigd.":"Lokale kopie en toestemming aantoonbaar verwijderd.");});
-$("clear").addEventListener("click",()=>{if(!confirm("Alle lokale waarnemingen in dit tabblad en de lokale opslag wissen?"))return;notes=[];save();render();status("Lokale notities gewist.");});
+$("clear").addEventListener("click",()=>{
+if(storageRecoveryBlocked){status("Wissen geblokkeerd: onleesbare kopie blijft beschermd; gebruik de afzonderlijke herstelprocedure.");return;}
+if(!confirm("Alle lokale waarnemingen in dit tabblad en de lokale opslag wissen?"))return;
+notes=[];
+const cleared=save();render();
+status(cleared?"Lokale notities en eventuele opgeslagen kopie aantoonbaar gewist.":"Notities uit dit tabblad verwijderd; lokale opslag NIET bevestigd gewist.");
+});
 $("export").addEventListener("click",()=>{
 const payload={format:"palaco-la-observatory-local-v1",exported_at:new Date().toISOString(),authority:"SELF_REPORTED_NOT_VERIFIED",notes};
 const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
