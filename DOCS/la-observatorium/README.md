@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Herstelbaar wissen bij browseropslagfout (v1.9)
+De knop **Wis lokale notities** houdt de bestaande notities in het geheugen van het open tabblad beschikbaar zolang de permanente verwijdering niet aantoonbaar is voltooid. De toepassing bereidt de verwijdering voor, controleert met `save()` of logboek en toestemmingsmarkering zijn verdwenen en herstelt bij een fout de in-memory lijst. De interface meldt dan **Wissen NIET bevestigd**; de gebruiker kan het logboek nog inspecteren of als JSON exporteren. Bij bevestigde verwijdering verdwijnen ook de notities uit het tabblad.
+
+Een extra Chromium-acceptatietest simuleert een `removeItem`-fout, inspecteert de resterende tijdlijn en exporteert de behouden notities. Dit garandeert geen herstel na sluiten van het tabblad; de gegevens zijn dan afhankelijk van de werkelijke browseropslag. De code blijft DRAFT/HOLD totdat de integrale browseracceptatie onafhankelijk is geslaagd.
+
 ## Wis-alles trekt ook bewaartoestemming in (v1.8)
 De actie **Wis lokale notities** bevestigt vooraf dat naast de tabbladnotities ook de bewaartoestemming wordt ingetrokken. De applicatie zet de bewaarkeuze uit vóór `save()` en bevestigt een geslaagde verwijdering alleen als zowel het opgeslagen notitielogboek als de toestemmingsmarkering ontbreken. Hierdoor wordt bij actieve toestemming niet langer per ongeluk een leeg logboek opnieuw opgeslagen.
 
