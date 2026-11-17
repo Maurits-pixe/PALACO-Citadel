@@ -13,7 +13,8 @@ const routes=[
  ["Integratiekern","atlas-integratie.html"],
  ["Acceptatiekamer","atlas-acceptatie.html"],
  ["Release Evidence Review","atlas-release-review.html"],
- ["Release Readiness","atlas-readiness.html"]
+ ["Release Readiness","atlas-readiness.html"],
+ ["Release Control Center","atlas-release-control.html"]
 ];
 test("alle tien Atlas-pagina's laden lokaal zonder script- of netwerkfouten",async({page})=>{
  const failures=[];
@@ -71,11 +72,11 @@ test("offlinemodus bewaart alleen de vaste Atlas-shell en opent archief zonder n
  await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
  await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
  const paths=await page.evaluate(async()=>{
-  const cache=await caches.open("palaco-atlas-shell-v1-rc6");
+  const cache=await caches.open("palaco-atlas-shell-v1-rc7");
   const keys=await cache.keys();
   return keys.map(r=>new URL(r.url).pathname);
  });
- expect(paths).toHaveLength(26);
+ expect(paths).toHaveLength(28);
  expect(paths.every(p=>p.startsWith("/wereldatlas/"))).toBe(true);
  expect(paths.some(p=>p.endsWith(".json")||p.includes("admin")||p.includes("api/"))).toBe(false);
  await context.setOffline(true);
@@ -206,4 +207,29 @@ test("Release Readiness werkt na opt-in installatie zonder netwerk",async({page,
  await page.goto(root+"atlas-readiness.html");
  await expect(page.locator("#modules .entry")).toHaveCount(9);
  await expect(page.locator("#gates .entry")).toHaveCount(6);
+});
+
+test("Release Control Center toont open blokkades en rollbackvoorbereiding",async({page})=>{
+ await page.goto(root+"atlas-release-control.html");
+ await expect(page.locator("#gates .line")).toHaveCount(6);
+ await expect(page.locator("#rollback .line")).toHaveCount(4);
+ await expect(page.locator("body")).toContainText("HOLD / DENY");
+ await expect(page.locator("#status")).toContainText("Geen geauthenticeerd");
+});
+test("Release Control Center weigert ongeldige commitwaarden",async({page})=>{
+ await page.goto(root+"atlas-release-control.html");
+ await page.locator("#candidate").fill("BAD-SHA");
+ await page.locator("#export").click();
+ await expect(page.locator("#status")).toContainText("EXPORT AFGEWEZEN");
+ await expect(page.locator("#status")).not.toContainText("DRAFT-overdrachtsdossier lokaal aangeboden");
+});
+test("Release Control Center opent na offline installatie",async({page,context})=>{
+ await page.goto(root+"atlas-integratie.html");
+ await page.locator("#offline-enable").click();
+ await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
+ await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+ await context.setOffline(true);
+ await page.goto(root+"atlas-release-control.html");
+ await expect(page.locator("#gates .line")).toHaveCount(6);
+ await expect(page.locator("#rollback .line")).toHaveCount(4);
 });
