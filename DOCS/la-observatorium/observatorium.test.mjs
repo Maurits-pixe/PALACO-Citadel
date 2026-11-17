@@ -108,7 +108,7 @@ test('inspection dossier is locally downloadable only with WebCrypto SHA-256',()
  assert.match(html,/function downloadJSON\(data,name\)/);
  assert.match(html,/async function exportInspection\(\)/);
  assert.match(html,/crypto\.subtle\.digest\("SHA-256",bytes\)/);
- assert.match(html,/new TextEncoder\\(\\)\\.encode\\(JSON\\.stringify\\(content\\)\\)/);
+ assert.match(html,/new TextEncoder\(\)\.encode\(JSON\.stringify\(content\)\)/);
  assert.match(html,/UTF8_JSON_STRINGIFY_CONTENT_V1/);
  assert.match(html,/INTEGRITY_ONLY_NOT_AUTHENTICITY/);
  assert.match(html,/source_status:"SELF_REPORTED_NOT_VERIFIED"/);
