@@ -32,10 +32,10 @@ async function offlineAction(action){
    const reg=await navigator.serviceWorker.register("./atlas-offline-sw.js",{scope:"./"});
    await navigator.serviceWorker.ready;
    if(!reg.active)throw Error("Offline worker is niet geactiveerd.");
-   const cache=await caches.open("palaco-atlas-shell-v1-rc2");
+   const cache=await caches.open("palaco-atlas-shell-v1-rc3");
    const cached=await cache.keys();
-   if(cached.length!==20)throw Error("Offlinepakket onvolledig; geen offlinegarantie.");
-   offlineStatus.textContent="Offlinepakket gereed: 20 vaste Atlasbronnen beschikbaar op dit apparaat. Proef offline na herladen.";
+   if(cached.length!==21)throw Error("Offlinepakket onvolledig; geen offlinegarantie.");
+   offlineStatus.textContent="Offlinepakket gereed: 21 vaste Atlasbronnen beschikbaar op dit apparaat. Proef offline na herladen.";
   } else {
    const reg=await navigator.serviceWorker.getRegistration("./");
    if(reg)await reg.unregister();
