@@ -50,6 +50,26 @@ function read(storage){
  const note=storage.getItem(NOTE);
  return create(exterior,interior,typeof note==='string'?note.slice(0,6000):'');
 }
+function preview(current,incoming){
+ const now=parse(JSON.stringify(current));
+ const next=parse(JSON.stringify(incoming));
+ const compare=(a,b)=>({
+   existing:a?a.filter(Boolean).length:0,
+   incoming:b?b.filter(Boolean).length:0,
+   changed:a&&b?a.reduce((sum,value,i)=>sum+Number(value!==b[i]),0):a||b?(a||b).filter(Boolean).length:0,
+   removed:a&&!b?a.filter(Boolean).length:0:a&&b?a.reduce((sum,value,i)=>sum+Number(Boolean(value)&&!b[i]),0):0
+ });
+ const exterior=compare(now.exterior?.cells||null,next.exterior?.cells||null);
+ const floors=[0,1,2].map(i=>compare(now.interior?.floors[i]||null,next.interior?.floors[i]||null));
+ const removed=floors.reduce((a,f)=>a+f.removed,exterior.removed);
+ const namesChanged=(now.exterior?.name||'')!==(next.exterior?.name||'')||(now.interior?.name||'')!==(next.interior?.name||'');
+ const noteChanged=now.note!==next.note;
+ return {exterior,floors,removed,noteChanged,namesChanged,
+   replacesExterior:Boolean(now.exterior),replacesInterior:Boolean(now.interior),
+   removesExterior:Boolean(now.exterior&&!next.exterior),
+   removesInterior:Boolean(now.interior&&!next.interior),
+   changed:exterior.changed+floors.reduce((a,f)=>a+f.changed,0)};
+}
 function snapshot(storage){
  return keys.map(key=>storage.getItem(key));
 }
@@ -76,5 +96,5 @@ function restore(storage,bundle,expectedSnapshot){
  }
  return {exterior:!!b.exterior,interior:!!b.interior,noteLength:b.note.length};
 }
-return Object.freeze({EX,IN,NOTE,validExterior,validInterior,create,parse,read,snapshot,restore});
+return Object.freeze({EX,IN,NOTE,validExterior,validInterior,create,parse,read,preview,snapshot,restore});
 });
