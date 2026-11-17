@@ -1,6 +1,14 @@
 name: Locus Amoenus Observatory checks
 
 on:
+  push:
+    branches:
+      - 'feature/la-observatorium-readonly-20261117'
+    paths:
+      - 'DOCS/la-observatorium/**'
+      - 'index.html'
+      - 'app.js'
+      - '.github/workflows/la-observatorium.yml'
   pull_request:
     paths:
       - 'DOCS/la-observatorium/**'
