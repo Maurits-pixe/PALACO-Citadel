@@ -65,7 +65,7 @@ footer{border-top:1px solid #3d5046;padding:24px;text-align:center;color:#9eada4
 <article class="panel"><div class="label">Mandaat / bevoegdheid</div><div class="metric unknown">ONBEKEND</div><p class="muted">De module verleent of verandert geen mandaten.</p></article>
 <article class="panel"><div class="label">Provenance · Quay</div><div class="metric unknown">NIET AANGESLOTEN</div><p class="muted">Geen externe eventstream, replay of auditbron actief.</p></article>
 </div>
-<div class="panel section" id="inspection" aria-live="polite"><h2>Geselecteerde waarneming</h2><p class="muted" id="inspection-empty">Selecteer een lokale waarneming in Het Geheugen om de bewijsketen te inspecteren.</p><div id="inspection-fields" class="hidden"><p><strong id="inspection-subject"></strong></p><p id="inspection-notes"></p><p><span class="label">Classificatie</span> <span id="inspection-kind"></span></p><p><span class="label">Bronverwijzing</span> <span id="inspection-reference"></span></p><p><span class="label">Referentietype</span> <span id="inspection-reference-type"></span></p><p><span class="label">Referentiecontrole</span> <strong id="inspection-reference-state">NIET GEVERIFIEERD</strong></p><p><span class="label">Apparaattijd</span> <span id="inspection-time"></span></p><p><span class="label">Herkomst</span> <strong>SELF_REPORTED_NOT_VERIFIED</strong></p><p class="unknown">Quay: NIET AANGESLOTEN · ERA/EDTR: NIET GECONTROLEERD · WATERMERK: GEEN VALIDATIE · Mandaat: GEEN</p><button id="inspection-back" type="button" class="secondary">Terug naar Geheugen</button></div></div>
+<div class="panel section" id="inspection" aria-live="polite"><h2>Geselecteerde waarneming</h2><p class="muted" id="inspection-empty">Selecteer een lokale waarneming in Het Geheugen om de bewijsketen te inspecteren.</p><div id="inspection-fields" class="hidden"><p><strong id="inspection-subject"></strong></p><p id="inspection-notes"></p><p><span class="label">Classificatie</span> <span id="inspection-kind"></span></p><p><span class="label">Bronverwijzing</span> <span id="inspection-reference"></span></p><p><span class="label">Referentietype</span> <span id="inspection-reference-type"></span></p><p><span class="label">Referentiecontrole</span> <strong id="inspection-reference-state">NIET GEVERIFIEERD</strong></p><p><span class="label">Apparaattijd</span> <span id="inspection-time"></span></p><p><span class="label">Herkomst</span> <strong>SELF_REPORTED_NOT_VERIFIED</strong></p><p class="unknown">Quay: NIET AANGESLOTEN · ERA/EDTR: NIET GECONTROLEERD · WATERMERK: GEEN VALIDATIE · Mandaat: GEEN</p><p class="muted">Een SHA-256-controlesom controleert alleen de bestandsinhoud; dit is geen handtekening, bronattestatie of bewijs van authenticiteit.</p><div class="actions"><button id="inspection-export" type="button" class="primary">Exporteer lokaal inspectiedossier</button><button id="inspection-back" type="button" class="secondary">Terug naar Geheugen</button></div></div></div>
 <div class="panel section"><h2>Bewijsladder</h2><p>Bron → Herkomst → Bewijs → Regels → Replay → Reconstructie → Beoordeling.</p><p class="muted">Elke ontbrekende schakel blijft zichtbaar. Uitkomsten mogen pas PASS, REJECT of UNRESOLVED heten na een afzonderlijke, aantoonbare beoordeling. Deze presentatie beoordeelt niets.</p></div>
 </section>
 <section id="geheugen" class="section hidden" aria-label="Het Geheugen">
@@ -135,6 +135,25 @@ $("inspection-kind").textContent=n.kind;$("inspection-reference").textContent=n.
 const reference=referenceDescriptor(n.reference);$("inspection-reference-type").textContent=reference.type;$("inspection-reference-state").textContent=reference.state;
 $("inspection-time").textContent=new Date(n.at).toLocaleString("nl-NL")+" (apparaat of geïmporteerd, niet geattesteerd)";
 showTab("bewijs");$("inspection-subject").setAttribute("tabindex","-1");$("inspection-subject").focus();status("Lokale bewijsketen weergegeven; geen onafhankelijke verificatie.");}
+function downloadJSON(data,name){
+const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+try{a.href=url;a.download=name;document.body.append(a);a.click();}finally{a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+}
+async function exportInspection(){
+const n=notes.find(item=>item.id===selectedId);
+if(!n){clearInspection();status("Export geweigerd: waarneming ontbreekt.");return;}
+if(!globalThis.crypto||!crypto.subtle||typeof crypto.subtle.digest!=="function"){status("Export geweigerd: veilige SHA-256-functie niet beschikbaar. Geen dossier zonder controlesom.");return;}
+const content={schema:"palaco-la-inspection-v1",observation:{id:n.id,at:n.at,subject:n.subject,kind:n.kind,reference:n.reference,notes:n.notes},source_status:"SELF_REPORTED_NOT_VERIFIED",verification:{quay:"NOT_CONNECTED",era_edtr:"NOT_CHECKED",watermerk:"NOT_VALIDATED",authority:"NONE"}};
+try{
+const canonical=JSON.stringify(content),bytes=new TextEncoder().encode(canonical);
+const hash=await crypto.subtle.digest("SHA-256",bytes);
+const sha256=Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,"0")).join("");
+const packet={...content,integrity:{algorithm:"SHA-256",scope:"UTF8_JSON_STRINGIFY_CONTENT_V1",digest:sha256,meaning:"INTEGRITY_ONLY_NOT_AUTHENTICITY"}};
+downloadJSON(packet,"la-observatorium-inspectiedossier.json");
+status("Lokaal inspectiedossier geëxporteerd. SHA-256 is geen verificatie van de bron.");
+}catch(_){status("Export mislukt; geen betrouwbaar inspectiedossier aangemaakt.");}
+}
+$("inspection-export").addEventListener("click",exportInspection);
 function clearInspection(){selectedId=null;$("inspection-fields").classList.add("hidden");$("inspection-empty").classList.remove("hidden");}
 $("inspection-back").addEventListener("click",()=>showTab("geheugen"));
 function render(){if(selectedId&&!notes.some(x=>x.id===selectedId))clearInspection();
