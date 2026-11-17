@@ -73,6 +73,7 @@ for(const [deviceName,viewport] of [["desktop",{viewport:{width:1280,height:800}
    await page.locator("#handoff").setInputFiles({
      name:"handoff.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(payload))
    });
+   await page.waitForFunction(()=>document.querySelector("#state").textContent==="CONCEPT ONTVANGEN");
    await assert.equal(await page.locator("#state").innerText(),"CONCEPT ONTVANGEN");
    await assert.equal(await page.locator("#triageStatus").innerText(),"READY_FOR_HUMAN_REVIEW");
    assert.match(await page.locator("#details").innerText(),/SELF_REPORTED_NOT_VERIFIED/);
@@ -249,6 +250,7 @@ test("encrypted archive: AES-GCM roundtrip on separate browser context",async()=
  await b.goto(base+"/DOCS/la-geheugenkamer/");
  await b.locator("#archivePassphrase").fill("Test wachtzin nummer 123!");
  await b.locator("#file").setInputFiles({name:"encrypted.json",mimeType:"application/json",buffer:bytes});
+ await b.waitForFunction(()=>document.querySelector("#count").textContent==="1");
  assert.equal(await b.locator("#count").innerText(),"1");
  assert.match(await b.locator("#timeline").innerText(),/Privé herinnering/);
  assert.equal(await b.locator("#archivePassphrase").inputValue(),"");
@@ -268,11 +270,13 @@ test("encrypted archive: wrong passphrase and corrupted ciphertext cannot be imp
  await b.locator("#archivePassphrase").fill("Verkeerde wachtzin 456");
  await b.locator("#file").setInputFiles({name:"wrong.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(obj))});
  assert.equal(await b.locator("#count").innerText(),"0");
+ await b.waitForFunction(()=>document.querySelector("#message").textContent.includes("verkeerde wachtzin"));
  assert.match(await b.locator("#message").innerText(),/verkeerde wachtzin/);
  await b.locator("#archivePassphrase").fill("Geheime wachtzin 123");
  const original=obj.cipher.data;obj.cipher.data=(original[0]==="A"?"B":"A")+original.slice(1);
  await b.locator("#file").setInputFiles({name:"changed.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(obj))});
  assert.equal(await b.locator("#count").innerText(),"0");
+ await b.waitForFunction(()=>document.querySelector("#message").textContent.includes("beschadigd bestand"));
  assert.match(await b.locator("#message").innerText(),/beschadigd bestand/);
  await c.close();await receiver.close();
 });
