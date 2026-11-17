@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Lokale ID's en statusmeldingen (v1.5)
+Nieuwe lokale waarnemingen krijgen waar beschikbaar een `crypto.randomUUID()`-identificatie. Als die methode ontbreekt, wordt een lokaal gegenereerde ID samengesteld uit het apparaattijdstip en een oplopende teller, met extra controle op bestaande ID's. Het betreft uitsluitend een **lokale sleutel**, nooit een bewijs van identiteit of authenticiteit.
+
+Als het bewaren van een toegevoegde waarneming niet kan worden bevestigd, meldt de interface uitdrukkelijk dat de notitie slechts tijdens de huidige sessie aanwezig is. Deze melding mag de eerdere opslagfout niet maskeren. Extra Chromium-tests controleren unieke IDs zonder UUID-generator en het foutpad voor lokale opslag. Browseracceptatie blijft HOLD totdat een volledige testjob daadwerkelijk is geslaagd.
+
 ## Verifieerbare wis- en bewaarstatus (v1.4)
 Opslag en het intrekken van bewaartoestemming worden pas als geslaagd gemeld nadat de toepassing via `localStorage.getItem` controleert dat de notities en toestemmingsmarkering de verwachte waarden hebben. Wanneer schrijven, wissen of teruglezen faalt, claimt de interface geen succes. De permanente opslag wordt geblokkeerd en een expliciete herstelknop blijft beschikbaar. Ook die herstelprocedure verifieert dat beide opslagwaarden daadwerkelijk zijn verdwenen vóór de blokkade wordt opgeheven.
 
