@@ -12,8 +12,10 @@ assert.ok(inline, 'Observatorium has inline JavaScript');
 // algorithm in the tests. An unmatched function declaration fails the build.
 function extractDeclaration(name) {
   const marker = 'function ' + name + '(';
-  const begin = inline.indexOf(marker);
+  let begin = inline.indexOf(marker);
   assert.ok(begin >= 0, 'Missing browser function: ' + name);
+  // Keep the async keyword: digestContent awaits WebCrypto SHA-256.
+  if (inline.slice(Math.max(0, begin - 6), begin) === 'async ') begin -= 6;
   const brace = inline.indexOf('{', begin);
   assert.ok(brace >= 0);
   let depth = 0, quoted = null, escaped = false;
