@@ -80,3 +80,29 @@ test('invalid comparison snapshot is rejected before any writes',()=>{
  assert.throws(()=>bundle.restore(storage,bundle.create(null,null,''),['bad']),/gewijzigd sinds de controle/);
  assert.equal(storage.getItem(bundle.NOTE),'safe');
 });
+
+test('import preview reports changed cells, removals and note replacement without mutation',()=>{
+ const current=exterior(), incoming=exterior();
+ const inside=interior();
+ current.cells[0]='park';current.cells[2]='royal';incoming.cells[0]='water';
+ inside.floors[0][4]='salon';
+ const before=bundle.create(current,inside,'original');
+ const after=bundle.create(incoming,null,'new');
+ const report=bundle.preview(before,after);
+ assert.equal(report.exterior.changed,2);
+ assert.equal(report.exterior.removed,1);
+ assert.equal(report.floors[0].removed,1);
+ assert.equal(report.removed,2);
+ assert.equal(report.removesInterior,true);
+ assert.equal(report.noteChanged,true);
+ assert.equal(before.exterior.cells[0],'park');
+ assert.equal(before.interior.floors[0][4],'salon');
+});
+test('preview rejects elevated authority and preserves absence without invented changes',()=>{
+ const empty=bundle.create(null,null,'');
+ const report=bundle.preview(empty,empty);
+ assert.equal(report.changed,0);
+ assert.equal(report.removed,0);
+ assert.equal(report.noteChanged,false);
+ assert.throws(()=>bundle.preview(empty,{...empty,authority:'OWNER'}));
+});
