@@ -166,3 +166,26 @@ test('Atelier: importvergelijking is zichtbaar en annuleren bewaart het bestaand
   await page.goto('/atelier/studio.html');
   await expect(page.locator('#count')).toHaveText('1');
 });
+
+test('Atelier: bevestigde import bewaart een herstelkopie en vorige versie kan terug', async ({page})=>{
+  await page.goto('/atelier/studio.html');
+  await page.locator('#map .cell').first().click();
+  await page.goto('/atelier/regiekamer.html');
+  const replacement=await page.evaluate(()=>{
+    const b=window.PalacoAtelierBundle.read(localStorage);
+    b.exterior.cells[0]=null;
+    b.note='Nieuw DRAFT-concept';
+    return JSON.stringify(b);
+  });
+  await expect(page.locator('#undoImport')).toBeDisabled();
+  page.once('dialog',dialog=>dialog.accept());
+  await page.locator('#bundleImport').setInputFiles({name:'changed.json',mimeType:'application/json',buffer:Buffer.from(replacement)});
+  await expect(page.locator('#bundleStatus')).toContainText('hersteld');
+  await expect(page.locator('#outUsed')).toHaveText('0');
+  await expect(page.locator('#undoImport')).toBeEnabled();
+  page.once('dialog',dialog=>dialog.accept());
+  await page.locator('#undoImport').click();
+  await expect(page.locator('#bundleStatus')).toContainText('Vorige Atelier-versie teruggezet');
+  await expect(page.locator('#outUsed')).toHaveText('1');
+  await expect(page.locator('#statement')).toHaveValue('');
+});
