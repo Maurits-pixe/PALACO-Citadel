@@ -218,3 +218,13 @@ test('damaged offline journal can be backed up without mutation before destructi
  assert.match(html,/Onleesbare kopie lokaal gedownload; geen validatie of bewijsstatus/);
  assert.match(html,/\$\("storage-backup"\)\.classList\.add\("hidden"\)/);
 });
+
+test('normal import and clear cannot bypass protected corrupt-storage recovery',()=>{
+ assert.match(html,/if\(storageRecoveryBlocked\)\{status\("Import geblokkeerd/);
+ assert.match(html,/if\(storageRecoveryBlocked\)\{status\("Import afgebroken/);
+ assert.match(html,/if\(storageRecoveryBlocked\)\{status\("Wissen geblokkeerd/);
+ assert.match(html,/const persisted=save\(\);render\(\)/);
+ assert.match(html,/blijvende opslag NIET bevestigd/);
+ assert.match(html,/const cleared=save\(\);render\(\)/);
+ assert.match(html,/lokale opslag NIET bevestigd gewist/);
+});
