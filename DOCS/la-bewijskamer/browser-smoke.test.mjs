@@ -305,6 +305,7 @@ test("encrypted local vault: manual save, reload stays locked, unlock and lock",
  await page.locator("#vaultUnlock").click();
  await page.waitForFunction(()=>document.querySelector("#count").textContent==="1");
  assert.equal(await page.locator("#archivePassphrase").inputValue(),"");
+ page.once("dialog",dialog=>dialog.accept());
  await page.locator("#vaultLock").click();
  assert.equal(await page.locator("#count").innerText(),"0");
  assert.ok(await page.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")));
