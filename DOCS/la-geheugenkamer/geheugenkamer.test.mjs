@@ -20,6 +20,7 @@ function harness(){
     append(...kids){this.children.push(...kids)}
     replaceChildren(...kids){this.children=[...kids]}
     focus(){}
+    reset(){for(const id of ['title','who','what','where','why','how','source'])nodes.get('#'+id).value='';nodes.get('#category').value='Persoonlijk'}
     click(){if(this.tagName==='a')this.clicked=true;else if(this.listeners.has('click'))return this.dispatch('click')}
   }
   const names=['message','count','utc','entryForm','persist','title','who','what','where','why','how','source','category','search','filter','sort','timeline','clear','export','importBtn','file'];
