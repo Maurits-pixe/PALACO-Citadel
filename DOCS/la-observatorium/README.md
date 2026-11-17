@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Mobiele acceptatie en diagnose (v0.7)
+Het lange statuslabel in de Citadel-header mag op schermen van 320px en breder afbreken; de header-inhoud mag geen horizontale overflow afdwingen. De browserjourney controleert 320, 390 en 1280 pixels en meldt expliciet of een eventuele storing plaatsvindt bij navigatie, dossierexport, hash-verificatie of afwijzing van manipulatie. Browseracties zijn begrensd met afzonderlijke timeouts, zodat een vastgelopen controle niet ten onrechte als PASS wordt behandeld.
+
+De voorafgaande Chromium-job is als `cancelled` aangemerkt en levert dus geen acceptatiebewijs. Pas een afgeronde browserjob met PASS én aanvullende handmatige mobiele controle volstaan om de teststatus te verhogen. Release blijft HOLD.
+
 ## Mobiele toegankelijkheid (v0.6)
 De vijf hoofdstukken volgen een tablist/tab/tabpanel-structuur met zichtbare focusindicatoren en minimale tabhoogte van 44px. Pijltjes links/rechts selecteren het volgende/vorige hoofdstuk, Home gaat naar het eerste en End naar het laatste; slechts de geselecteerde tab staat in de normale tabvolgorde.
 
