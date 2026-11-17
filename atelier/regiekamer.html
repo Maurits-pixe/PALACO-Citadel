@@ -40,6 +40,7 @@
 <input type="text" id="expectedFingerprint" maxlength="64" inputmode="text" spellcheck="false" autocomplete="off" placeholder="64 hexadecimale tekens, bijvoorbeeld uit je vorige controle" style="width:min(100%,600px);padding:12px;background:#102c23;color:#f4f0e6;border:1px solid #779078;border-radius:10px">
 <p class="small">Alleen een eerder veilig bewaarde, vertrouwde referentie kan dienen als vergelijkingsbasis. De waarde wordt niet opgeslagen of verzonden.</p>
 <p class="small" id="verifyStatus" role="status" aria-live="polite">Kies een lokaal DRAFT JSON-bestand om schema, inhoud en SHA-256-vingerafdruk te controleren. Dit verandert geen opgeslagen ontwerp.</p>
+<div class="actions"><button type="button" class="action" id="exportFingerprint" disabled>↓ Bewaar SHA-256-referentie (TXT)</button></div>
 <label for="bundleImport" class="eyebrow" style="display:block;margin:18px 0 9px">Herstel een eerder projectpakket</label>
 <input type="file" id="bundleImport" accept=".json,application/json" style="max-width:100%;font-size:13px">
 <p class="message">Herstel vervangt uitsluitend de drie lokale Atelier-opslagonderdelen na jouw bevestiging. Controleer vooraf het pakketoverzicht; exporteer je huidige werk eerst. Onbekende of niet-DRAFT-pakketten worden geweigerd. Een mislukte schrijfactie wordt zo mogelijk teruggedraaid.</p>
@@ -53,7 +54,7 @@
 <p id="feedback" role="status" class="small">De projectgegevens worden uitsluitend uit deze browser gelezen.</p></section>
 <aside class="section"><p class="eyebrow">05 / Projectkompas</p><h2>Ontwerpchecks</h2><div class="diagnostics" id="diagnostics" role="list"></div>
 <h3>Bevoegdheid & veiligheid</h3><p class="message">Deze Regiekamer is alleen een lokaal, read-only overzicht van de maquettes, met een afzonderlijke ontwerpnotitie. Er worden geen officiële identiteiten, bewijsstukken, cryptografische handtekeningen, WORLD-creaties of autorisaties uitgevoerd.</p><p class="small">De export is een niet-geverifieerde creatieve DRAFT-kopie. Bewaar deze zelf. Browseropslag is geen veilige langdurige back-up.</p></aside></div>
-<footer>PALACO CITADEL · Atelier Regiekamer v2.7 · Nieuwe ontwerpen, bestaande fundamenten.</footer></div>
+<footer>PALACO CITADEL · Atelier Regiekamer v2.8 · Nieuwe ontwerpen, bestaande fundamenten.</footer></div>
 <script src="./regiekamer-gallery.js"></script>
 <script src="./regiekamer-bundle.js"></script>
 <script>
@@ -106,11 +107,25 @@ $('bundleSave').addEventListener('click',()=>{
     $('bundleStatus').textContent='Creatief projectpakket geëxporteerd, zonder autorisatie of historiek.';
   }catch(err){$('bundleStatus').textContent='Projectpakket niet beschikbaar: '+err.message;}
 });
+let verifiedFingerprint=null;
+$('exportFingerprint').addEventListener('click',()=>{
+ if(!verifiedFingerprint)return;
+ const {hash,filename}=verifiedFingerprint;
+ // A plain text receipt, without credentials, signature, or official authority.
+ const receipt='PALACO ATELIER · DRAFT SHA-256 REFERENTIE\\n'
+  +'SHA-256: '+hash+'\\n'
+  +'Bestand: '+filename+'\\n'
+  +'Controle: bestandsbytes, geen digitale handtekening of officiële goedkeuring.\\n'
+  +'Bewaar deze referentie afzonderlijk van het projectbestand.\\n';
+ download('PALACO-Atelier-SHA256-Referentie-DRAFT.txt',receipt.replaceAll('\\n','\n'),'text/plain;charset=utf-8');
+});
 $('bundleVerify').addEventListener('change',async event=>{
  const file=event.target.files?.[0];
  if(!file)return;
  const status=$('verifyStatus');
  status.textContent='Projectbestand controleren…';
+ verifiedFingerprint=null;
+ $('exportFingerprint').disabled=true;
  try{
    const api=window.PalacoAtelierBundle;
    if(!api)throw Error('Projectpakket-functie niet geladen');
@@ -123,6 +138,8 @@ $('bundleVerify').addEventListener('change',async event=>{
    if(!crypto?.subtle?.digest)throw Error('SHA-256 niet beschikbaar in deze browser');
    const digest=await crypto.subtle.digest('SHA-256',bytes);
    const fingerprint=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
+   verifiedFingerprint={hash:fingerprint,filename:file.name.replace(/[\\r\\n\\t]/g,' ').slice(0,120)};
+   $('exportFingerprint').disabled=false;
    const ex=pack.exterior?pack.exterior.cells.filter(Boolean).length:0;
    const interior=pack.interior?pack.interior.floors.flat().filter(Boolean).length:0;
    const comparison=reference===''?'Geen eerdere referentie ingevoerd.':fingerprint===reference.toLowerCase()?'REFERENTIE KOMT OVEREEN.':'WAARSCHUWING: SHA-256 KOMT NIET OVEREEN MET DE REFERENTIE.';
