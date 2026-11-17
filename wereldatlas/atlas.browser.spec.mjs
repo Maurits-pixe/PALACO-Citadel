@@ -10,7 +10,8 @@ const routes=[
  ["Bewijskamer","atlas-bewijs.html"],
  ["Provenance Centrum","atlas-provenance.html"],
  ["Trust & Lineage Gateway","atlas-trust-gateway.html"],
- ["Integratiekern","atlas-integratie.html"]
+ ["Integratiekern","atlas-integratie.html"],
+ ["Acceptatiekamer","atlas-acceptatie.html"]
 ];
 test("alle tien Atlas-pagina's laden lokaal zonder script- of netwerkfouten",async({page})=>{
  const failures=[];
@@ -68,11 +69,11 @@ test("offlinemodus bewaart alleen de vaste Atlas-shell en opent archief zonder n
  await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
  await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
  const paths=await page.evaluate(async()=>{
-  const cache=await caches.open("palaco-atlas-shell-v1-rc1");
+  const cache=await caches.open("palaco-atlas-shell-v1-rc2");
   const keys=await cache.keys();
   return keys.map(r=>new URL(r.url).pathname);
  });
- expect(paths).toHaveLength(19);
+ expect(paths).toHaveLength(20);
  expect(paths.every(p=>p.startsWith("/wereldatlas/"))).toBe(true);
  expect(paths.some(p=>p.endsWith(".json")||p.includes("admin")||p.includes("api/"))).toBe(false);
  await context.setOffline(true);
@@ -89,4 +90,27 @@ test("offline installatie kan cachegegevens wissen",async({page})=>{
  await expect(page.locator("#offline-status")).toContainText("Offline Atlasgegevens verwijderd");
  const names=await page.evaluate(()=>caches.keys());
  expect(names.filter(n=>n.startsWith("palaco-atlas-shell-"))).toEqual([]);
+});
+
+test("Acceptatiekamer blijft HOLD wanneer alle stappen PASS zijn",async({page})=>{
+ await page.goto(root+"atlas-acceptatie.html");
+ await expect(page.locator("#steps .step")).toHaveCount(8);
+ const selects=page.locator("#steps select");
+ for(let index=0;index<8;index++)await selects.nth(index).selectOption("PASS");
+ await expect(page.locator("#summary")).toContainText("PASS: 8");
+ await expect(page.locator("#summary")).toContainText("Beslissing: HOLD");
+ await expect(page.locator("#summary")).toContainText("Autorisatie: DENY");
+ const report=JSON.parse(await page.locator("#preview").innerText());
+ expect(report.source).toBe("LOCAL_SELF_REPORTED_NOT_VERIFIED");
+ expect(report.authorization).toBe("DENY");
+});
+test("Acceptatiekamer werkt zonder netwerk na offline installatie",async({page,context})=>{
+ await page.goto(root+"atlas-integratie.html");
+ await page.locator("#offline-enable").click();
+ await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
+ await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+ await context.setOffline(true);
+ await page.goto(root+"atlas-acceptatie.html");
+ await expect(page.locator("#steps .step")).toHaveCount(8);
+ await expect(page.locator("#summary")).toContainText("Autorisatie: DENY");
 });
