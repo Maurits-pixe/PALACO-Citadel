@@ -23,6 +23,11 @@ De Bewijskamer onderscheidt optioneel handmatig aangebrachte prefixes `QUAY:`, `
 
 Bij herimport wordt een al bestaand ID alleen overgeslagen als tijd, onderwerp, classificatie, referentie en inhoud overeenkomen. Een inhoudelijk conflict weigert de volledige import voordat notities worden toegevoegd. Zo wordt verschillend bewijs niet onder één lokale sleutel samengevoegd.
 
+## Lokaal inspectiedossier (v0.3)
+Een geselecteerde waarneming kan vanuit de Bewijskamer als JSON worden geëxporteerd. Het dossier bevat de originele lokale notitie en expliciete verificatiegrenzen (Quay niet verbonden, ERA/EDTR niet gecontroleerd, WATERMERK niet gevalideerd, geen bevoegdheid). Het dossier krijgt een SHA-256-digest over de UTF-8 bytes van `JSON.stringify(content)`, waarbij `content` precies de velden `schema`, `observation`, `source_status` en `verification` bevat. De `integrity`-sectie wordt pas daarna toegevoegd.
+
+Een SHA-256-digest is **geen** digitale handtekening en authenticeert noch de gebruiker noch de bron. Verificatiestatus blijft `SELF_REPORTED_NOT_VERIFIED`. Als de WebCrypto SHA-256-functie ontbreekt, wordt de dossierexport geweigerd; er vindt geen stille degradatie naar een dossier zonder hash plaats. De export wordt uitsluitend op het apparaat gedownload.
+
 ## Data-contract (voorstel, niet geïntegreerd)
 Een toekomstig canoniek observatiebericht kan minimaal bevatten:
 `schema_version`, `event_id`, `world_id`, `citadel_id`, `source_id`, `source_digest`, `source_timestamp`, `received_timestamp`, `proof_reference`, `verification_state`, `policy_version` en `redaction_level`.
