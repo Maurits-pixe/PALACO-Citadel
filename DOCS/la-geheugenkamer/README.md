@@ -56,6 +56,16 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Optionele archiefversleuteling · v1.5
+- Afzonderlijke knop `Exporteer versleuteld (.json)` met een zelfgekozen wachtzin van minimaal 12 tekens (maximaal 256). De normale SHA-256 JSON-export blijft ongewijzigd beschikbaar.
+- Versleutelde bestanden gebruiken `PALACO-CITADEL-GEHEUGEN-ENCRYPTED-1`, AES-256-GCM met willekeurige 96-bits IV en 128-bits authenticatietag; de sleutel wordt per export afgeleid via PBKDF2-HMAC-SHA-256 met **310.000 iteraties** en een willekeurige salt van 16 bytes.
+- De oorspronkelijke v2-archiefstructuur inclusief SHA-256-integriteitscontrole bevindt zich *binnen* de versleutelde inhoud. Bij import worden eerst de AEAD-authenticatietag en daarna de v2-checksum gecontroleerd, voordat recordvalidatie en samenvoeging plaatsvinden.
+- De wachtzin wordt na gebruik uit het invoerveld gewist en niet naar een server verzonden of in localStorage geplaatst. Opslag van wachtzinnen in browserwachtwoordmanagers, clipboard of geheugen kan daarmee niet categorisch worden uitgesloten.
+- Een verkeerde wachtzin, onjuiste encryptiemetadata of gewijzigd versleuteld bestand leidt tot weigering van import. Als Web Crypto niet beschikbaar is, stopt de bewerking.
+- **Vergeten wachtzin = geen herstelroute.** De gebruiker moet deze zelf veilig bewaren. Een korte of voorspelbare wachtzin blijft vatbaar voor offline wachtwoordaanvallen.
+- De versleuteling garandeert geen onafhankelijke herkomstverificatie, digitale handtekening, ERA/EDTR-uitgifte of veiligheid van de gegevens nadat zij op het scherm zijn ontsleuteld. Browseropslag na een bewuste opslagkeuze blijft onveranderd **onversleuteld**; deze functie versleutelt uitsluitend geëxporteerde bestanden.
+- Geautomatiseerde Chromium-browserproeven testen een versleutelde export/import-ronde en het weigeren van verkeerde wachtzinnen en gemanipuleerde ciphertext.
+
 ## Integriteitscontrole · v1.4
 - Nieuwe export: `PALACO-CITADEL-GEHEUGEN-2` met `integrity.algorithm: SHA-256` en een digest over het complete archief (zonder het digestveld zelf).
 - Bij import wordt een gewijzigde of beschadigde v2-export geweigerd voordat records worden samengevoegd. Een niet-beschikbare Web Crypto-omgeving veroorzaakt een foutmelding in plaats van een onbeveiligde v2-export of v2-import.
