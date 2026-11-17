@@ -23,6 +23,7 @@ async function withPage(viewport,run) {
  page.on('pageerror',e=>errors.push(e.message));
  try {
   await page.goto(`http://127.0.0.1:${address.port}/DOCS/la-observatorium/`);
+  page.setDefaultTimeout(10000);
   await run(page);
   assert.deepEqual(errors,[],'Browser should have no JS runtime errors');
  } finally {
@@ -46,6 +47,7 @@ for (const width of [320,390,1280]) {
    assert.equal(await page.locator('#tab-uitkijk').getAttribute('aria-selected'),'true');
    const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1);
    assert.equal(overflow,false,`Horizontal overflow at ${width}px`);
+   console.log('Observatorium browser journey: chapter navigation');
    await page.locator('[data-tab="atelier"]').click();
    await page.locator('#subject').fill('Mobiele waarneming');
    await page.locator('#kind').selectOption('OBSERVED');
@@ -57,21 +59,24 @@ for (const width of [320,390,1280]) {
    await page.locator('#events button').click();
    assert.equal(await page.locator('#inspection-reference-state').innerText(),'NIET GEVERIFIEERD');
    assert.match(await page.locator('#inspection-reference-type').innerText(),/QUAY/);
-   const downloadPromise=page.waitForEvent('download');
+   console.log('Observatorium browser journey: inspection dossier export');
+   const downloadPromise=page.waitForEvent('download',{timeout:10000});
    await page.locator('#inspection-export').click();
    const download=await downloadPromise;
    const bytes=await readFile(await download.path());
    const packet=JSON.parse(bytes.toString('utf8'));
    assert.equal(packet.source_status,'SELF_REPORTED_NOT_VERIFIED');
    assert.equal(packet.verification.authority,'NONE');
+   console.log('Observatorium browser journey: intact dossier verification');
    await page.locator('#dossier-file').setInputFiles({name:'dossier.json',mimeType:'application/json',buffer:bytes});
    await page.locator('#verify-dossier').click();
-   await page.waitForFunction(()=>document.querySelector('#dossier-verdict')?.textContent?.includes('INTEGRITEIT KOMT OVEREEN'));
+   await page.waitForFunction(()=>document.querySelector('#dossier-verdict')?.textContent?.includes('INTEGRITEIT KOMT OVEREEN'),null,{timeout:10000});
+   console.log('Observatorium browser journey: tampered dossier rejection');
    const tampered=structuredClone(packet);
    tampered.observation.notes='Aangepaste tekst zonder nieuwe hash';
    await page.locator('#dossier-file').setInputFiles({name:'aangepast.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(tampered))});
    await page.locator('#verify-dossier').click();
-   await page.waitForFunction(()=>document.querySelector('#dossier-verdict')?.textContent?.includes('INTEGRITEIT AFGEWEZEN'));
+   await page.waitForFunction(()=>document.querySelector('#dossier-verdict')?.textContent?.includes('INTEGRITEIT AFGEWEZEN'),null,{timeout:10000});
    assert.match(await page.locator('#dossier-verdict').innerText(),/geen bewijs of mandaat/);
    assert.equal(await page.locator('#persist').isChecked(),false);
    assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),null);
