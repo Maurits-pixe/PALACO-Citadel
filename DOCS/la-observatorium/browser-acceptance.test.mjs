@@ -345,3 +345,33 @@ test('clear all revokes consent and removes persisted journal rather than saving
   assert.match(await page.locator('#count').innerText(),/0 \/ 0/);
  });
 });
+
+test('stale async journal import cannot reintroduce notes after a local edit',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  await page.locator('#tab-atelier').click();
+  const journal={format:'palaco-la-observatory-local-v1',authority:'SELF_REPORTED_NOT_VERIFIED',
+   notes:[{id:'stale-import-1',at:'2026-11-17T10:00:00.000Z',subject:'Verouderde import',
+    kind:'OBSERVED',reference:'',notes:'Mag niet worden toegevoegd'}]};
+  await page.locator('#import-file').setInputFiles({
+   name:'stale.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(journal))});
+  await page.evaluate(()=>{
+   const original=File.prototype.text;
+   window.__importReadStarted=false;
+   File.prototype.text=function(){
+    window.__importReadStarted=true;
+    return new Promise(resolve=>{window.__finishImportRead=async()=>resolve(await original.call(this));});
+   };
+  });
+  await page.locator('#import').click();
+  await page.waitForFunction(()=>window.__importReadStarted===true);
+  await page.locator('#subject').fill('Nieuwe lokale wijziging');
+  await page.locator('#notes').fill('Tijdens bestandsinlezen toegevoegd');
+  await page.locator('#form button[type="submit"]').click();
+  await page.evaluate(()=>window.__finishImportRead());
+  await page.waitForFunction(()=>document.querySelector('#announce')?.textContent?.includes('Import afgebroken'));
+  await page.locator('#tab-geheugen').click();
+  assert.match(await page.locator('#count').innerText(),/1 \/ 1/);
+  assert.match(await page.locator('#events').innerText(),/Nieuwe lokale wijziging/);
+  assert.doesNotMatch(await page.locator('#events').innerText(),/Verouderde import/);
+ });
+});
