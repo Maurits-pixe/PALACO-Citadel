@@ -18,6 +18,11 @@ DRAFT · HOLD · read-only prototype. Deze map is **geen** live-monitoring, bewi
 - Geen upload, netwerkrequest, tokeninvoer, cryptografische attestatie of backend.
 - Alleen tekstinhoud wordt als DOM-tekst ingevoegd, niet als HTML uitgevoerd.
 
+## Lokale referentie-inspectie (v0.2)
+De Bewijskamer onderscheidt optioneel handmatig aangebrachte prefixes `QUAY:`, `ERA:` en `WATERMERK:`. Dit zijn **uitsluitend tekstlabels**. Er volgt geen netwerkopvraag, cryptografische validatie, trust-evaluatie of verlening van bevoegdheid. Zonder referentie verschijnt `BRON ONTBREEKT`; bij iedere andere referentie blijft de verificatiestatus `NIET GEVERIFIEERD`.
+
+Bij herimport wordt een al bestaand ID alleen overgeslagen als tijd, onderwerp, classificatie, referentie en inhoud overeenkomen. Een inhoudelijk conflict weigert de volledige import voordat notities worden toegevoegd. Zo wordt verschillend bewijs niet onder één lokale sleutel samengevoegd.
+
 ## Data-contract (voorstel, niet geïntegreerd)
 Een toekomstig canoniek observatiebericht kan minimaal bevatten:
 `schema_version`, `event_id`, `world_id`, `citadel_id`, `source_id`, `source_digest`, `source_timestamp`, `received_timestamp`, `proof_reference`, `verification_state`, `policy_version` en `redaction_level`.
