@@ -1,0 +1,33 @@
+name: Atelier DRAFT validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'atelier/**'
+      - '.github/workflows/atelier-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: atelier-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  atelier-check:
+    name: Atelier isolated regression and contract checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact PR revision
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test Atelier data and static route contracts
+        run: node --test atelier/regiekamer-bundle.test.cjs atelier/regiekamer-gallery.test.cjs atelier/atelier-surface.test.cjs
+      - name: Test original Atelier domain and wizard
+        run: node --test atelier/builder.test.mjs atelier/wizard.test.mjs citadel-proof/proof.test.mjs
