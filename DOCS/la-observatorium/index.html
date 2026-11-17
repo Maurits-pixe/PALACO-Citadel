@@ -135,6 +135,7 @@ tabs.forEach((btn,i)=>{
 });
 $("clock").textContent=new Date().toLocaleString("nl-NL",{dateStyle:"medium",timeStyle:"short"});
 let notes=[];
+let journalRevision=0;
 let selectedId=null;
 let storageEnabled=false,storageRecoveryBlocked=false;
 function validStoredNotes(value){
@@ -182,7 +183,7 @@ $("storage-reset").addEventListener("click",()=>{
  try{
   localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);
   if(localStorage.getItem(KEY)!==null||localStorage.getItem(CONSENT)!==null)throw new Error("Wissen niet bevestigd");
-  storageRecoveryBlocked=false;storageEnabled=false;notes=[];
+  storageRecoveryBlocked=false;storageEnabled=false;notes=[];journalRevision++;
   $("persist").checked=false;$("persist").disabled=false;
   $("storage-reset").classList.add("hidden");
   $("storage-backup").classList.add("hidden");
@@ -322,7 +323,7 @@ $("form").addEventListener("submit",e=>{
  const f=e.currentTarget,field=name=>f.elements.namedItem(name);
  const n={id:nextLocalId(),at:new Date().toISOString(),subject:field("subject").value.trim(),kind:field("kind").value,reference:field("reference").value.trim(),notes:field("notes").value.trim()};
  if(!n.subject||!n.notes)return;
- notes.push(n);
+ notes.push(n);journalRevision++;
  const persisted=save();
  render();f.reset();
  status(persisted?"Lokale waarneming toegevoegd, niet geverifieerd.":"Waarneming alleen in dit tabblad toegevoegd; opslag is geblokkeerd of niet bevestigd.");
@@ -331,12 +332,13 @@ $("filter").addEventListener("change",render);
 $("search").addEventListener("input",render);
 $("import").addEventListener("click",async()=>{
 if(storageRecoveryBlocked){status("Import geblokkeerd: stel eerst de bestaande onleesbare lokale kopie veilig en herstel de opslag.");return;}
+const startedAtRevision=journalRevision;
 const file=$("import-file").files[0];
 if(!file){status("Selecteer eerst een JSON-bestand.");return;}
 if(file.size===0||file.size>262144){status("Import geweigerd: bestand leeg of groter dan 256 KB.");return;}
 try{
 const raw=await file.text();
-if(storageRecoveryBlocked){status("Import afgebroken: lokale opslag is inmiddels geblokkeerd.");return;}
+if(storageRecoveryBlocked||journalRevision!==startedAtRevision){status("Import afgebroken: lokaal Geheugen is tijdens het lezen gewijzigd.");return;}
 if(new TextEncoder().encode(raw).length>262144){status("Import geweigerd: ingelezen inhoud te groot.");return;}
 const data=JSON.parse(raw);
 if(!data||typeof data!=="object"||Array.isArray(data)||data.format!=="palaco-la-observatory-local-v1"||data.authority!=="SELF_REPORTED_NOT_VERIFIED"||!Array.isArray(data.notes)||data.notes.length>max||!data.notes.every(valid)){
@@ -354,8 +356,8 @@ if(!existing||["at","subject","kind","reference","notes"].some(key=>existing[key
 if(notes.length+incoming.length>max){status("Import geweigerd: limiet van 100 notities overschreden.");return;}
 if(!incoming.length){status("Geen nieuwe notities: alle IDs waren al aanwezig.");return;}
 if(!confirm(incoming.length+" notities alleen als ONGEVERIFIEERDE lokale waarnemingen toevoegen?")){status("Import geannuleerd; er zijn geen notities toegevoegd.");return;}
-if(storageRecoveryBlocked){status("Import afgebroken: bestaande onleesbare kopie blijft behouden.");return;}
-notes=notes.concat(incoming);
+if(storageRecoveryBlocked||journalRevision!==startedAtRevision){status("Import afgebroken: lokaal Geheugen is tijdens de bevestiging gewijzigd.");return;}
+notes=notes.concat(incoming);journalRevision++;
 const persisted=save();render();
 status(persisted?incoming.length+" zelfgerapporteerde notities geïmporteerd; niet geverifieerd.":incoming.length+" notities uitsluitend in dit tabblad geïmporteerd; blijvende opslag NIET bevestigd.");
 }catch(_){status("Import geweigerd: bestand kan niet veilig worden verwerkt.");}
@@ -370,6 +372,7 @@ notes=[];
 $("persist").checked=false;
 const cleared=save();
 if(!cleared)notes=pendingNotes;
+else journalRevision++;
 render();
 status(cleared?"Lokale notities, opgeslagen kopie en bewaartoestemming aantoonbaar verwijderd.":"Wissen NIET bevestigd; de notities blijven in dit tabblad beschikbaar voor export of herstel.");
 });
