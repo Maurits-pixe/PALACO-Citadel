@@ -69,3 +69,20 @@ test('memory search combines classification and text without changing evidence s
  assert.match(html,/SELF_REPORTED_NOT_VERIFIED/);
  assert.match(html,/small\.textContent=n\.kind/);
 });
+
+test('memory inspection navigates to proof room without elevating authority',()=>{
+ assert.match(html,/id="inspection" aria-live="polite"/);
+ assert.match(html,/inspect\.addEventListener\("click",\(\)=>inspectNote\(n\.id\)\)/);
+ assert.match(html,/function inspectNote\(id\)/);
+ assert.match(html,/showTab\("bewijs"\)/);
+ assert.match(html,/inspection-subject"\)\.textContent=n\.subject/);
+ assert.match(html,/inspection-reference"\)\.textContent=n\.reference/);
+ assert.match(html,/Quay: NIET AANGESLOTEN/);
+ assert.match(html,/ERA\/EDTR: NIET GECONTROLEERD/);
+ assert.match(html,/WATERMERK: GEEN VALIDATIE/);
+ assert.match(html,/Mandaat: GEEN/);
+});
+test('stale note inspection is cleared if local journal changes',()=>{
+ assert.match(html,/if\(selectedId&&!notes\.some\(x=>x\.id===selectedId\)\)clearInspection\(\)/);
+ assert.match(html,/function clearInspection\(\)/);
+});
