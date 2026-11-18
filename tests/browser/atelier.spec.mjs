@@ -378,3 +378,27 @@ test('Atelier: vorige downloadcontrole wordt genegeerd bij nieuwe projectexport'
  await page.evaluate(()=>window.finishOldExportCheck());
  await expect(page.locator('#exportCheckStatus')).toContainText('Selecteer het zojuist gedownloade JSON');
 });
+
+test('Atelier: JSON en TXT samen controleren zonder het huidige ontwerp te wijzigen',async ({page})=>{
+ const {createHash}=await import('node:crypto');
+ await page.goto('/atelier/regiekamer.html');
+ const draft=await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage)));
+ const original=Buffer.from(draft,'utf8');
+ const hash=createHash('sha256').update(original).digest('hex');
+ const txt=Buffer.from('PALACO ATELIER DRAFT SHA-256 REFERENTIE\nSHA-256: '+hash+'\nBestand: creative.json\n');
+ const before=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const jsonFile={name:'creative.json',mimeType:'application/json',buffer:original};
+ const txtFile={name:'checksum.txt',mimeType:'text/plain',buffer:txt};
+ await page.locator('#pairVerify').setInputFiles([jsonFile,txtFile]);
+ await expect(page.locator('#pairStatus')).toContainText('PAARCONTROLE GESLAAGD');
+ await expect(page.locator('#pairStatus')).toContainText(hash);
+ const altered=Buffer.from(JSON.stringify({...JSON.parse(draft),note:'ander creatief dossier'}));
+ await page.locator('#pairVerify').setInputFiles([{...jsonFile,buffer:altered},txtFile]);
+ await expect(page.locator('#pairStatus')).toContainText('JSON EN TXT KOMEN NIET OVEREEN');
+ await page.locator('#pairVerify').setInputFiles([{...jsonFile,buffer:Buffer.from(JSON.stringify({...JSON.parse(draft),authority:'OWNER'}))},txtFile]);
+ await expect(page.locator('#pairStatus')).toContainText('Paarcontrole geweigerd');
+ await page.locator('#pairVerify').setInputFiles([jsonFile,{...txtFile,buffer:Buffer.from('SHA-256: '+hash+'\nSHA-256: '+hash+'\n')}]);
+ await expect(page.locator('#pairStatus')).toContainText('precies één SHA-256-regel');
+ await expect(page.locator('#undoImport')).toBeDisabled();
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+});
