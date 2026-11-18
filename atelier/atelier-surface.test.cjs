@@ -57,6 +57,9 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/WAARSCHUWING: SHA-256 KOMT NIET OVEREEN/);
   assert.match(read('regiekamer.html'),/id="exportFingerprint" disabled/);
   assert.match(read('regiekamer.html'),/id="exportBundleReceipt" disabled/);
+  assert.match(read('regiekamer.html'),/id="checkExportFile"[^>]*disabled/);
+  assert.match(read('regiekamer.html'),/CONTROLE GESLAAGD/);
+  assert.match(read('regiekamer.html'),/revision!==exportRevision/);
   assert.match(read('regiekamer.html'),/new TextEncoder\(\)\.encode\(serialized\)/);
   assert.match(read('regiekamer.html'),/lastExportFingerprint=\{hash\}/);
   assert.match(read('regiekamer.html'),/verifiedFingerprint=null/);
