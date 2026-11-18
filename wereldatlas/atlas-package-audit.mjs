@@ -60,7 +60,7 @@ export function validateAudit(audit,manifest){
     if(JSON.stringify(audit[k])!==JSON.stringify(base[k]))throw Error("Pakketaudit gewijzigd.");
    }
    if(audit.hashesCompared!==true||!["LOCAL_MATCH_UNAUTHENTICATED","MISMATCH"].includes(audit.byteIntegrity)||
-     !Array.isArray(audit.fileStatuses)||audit.fileStatuses.length<manifest.files.length||audit.fileStatuses.length>40||
+     !Array.isArray(audit.fileStatuses)||audit.fileStatuses.length<manifest.files.length||audit.fileStatuses.length>48||
      !audit.fileStatuses.every(x=>equal(x,["name","status"])&&typeof x.name==="string"&&["MATCH","MISMATCH","MISSING","UNEXPECTED"].includes(x.status))||
      (audit.byteIntegrity==="LOCAL_MATCH_UNAUTHENTICATED")!==(audit.fileStatuses.length===manifest.files.length&&audit.fileStatuses.every(x=>x.status==="MATCH")))throw Error("Integriteitsdetails ongeldig.");
   }
