@@ -105,7 +105,7 @@ footer{border-top:1px solid #3d5046;padding:24px;text-align:center;color:#9eada4
 <input id="import-file" type="file" accept=".json,application/json">
 <p class="muted">Import is uitsluitend een lokale kopie. Bestaande notities blijven behouden; dubbele ID's worden overgeslagen. Import verleent nooit bewijsstatus of mandaat.</p>
 <div class="actions"><button class="secondary" id="import" type="button">Controleer en importeer</button><button class="secondary" id="export" type="button">Exporteer JSON</button><button class="secondary" id="clear" type="button">Wis lokale notities</button></div>
-<p class="muted" id="storage">Opslag: alleen huidig tabblad</p><div class="actions"><button class="secondary hidden" id="storage-backup" type="button">Download onleesbare kopie (lokaal)</button><button class="secondary hidden" id="storage-reset" type="button">Wis onleesbare lokale kopie (na bevestiging)</button></div>
+<p class="muted" id="storage">Opslag: alleen huidig tabblad</p><p class="muted" id="pending" role="status" aria-live="polite">0 notities wachten op opslag.</p><div class="actions"><button class="secondary hidden" id="storage-backup" type="button">Download onleesbare kopie (lokaal)</button><button class="secondary hidden" id="storage-reset" type="button">Wis onleesbare lokale kopie (na bevestiging)</button></div>
 </div></div>
 </section>
 <p class="sr" role="status" aria-live="polite" id="announce"></p>
@@ -153,6 +153,11 @@ try{
   }
  }else{localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);}
 }catch(_){storageRecoveryBlocked=true;storageEnabled=false;notes=[];}
+let persistedNoteIds=new Set(storageEnabled?notes.map(n=>n.id):[]);
+function updatePendingStatus(){
+ const unpersisted=notes.filter(n=>!persistedNoteIds.has(n.id)).length;
+ $("pending").textContent=unpersisted?unpersisted+" notitie(s) alleen in dit tabblad; exporteer JSON vóór herladen.":"Alle aanwezige notities opgeslagen of geen notities aanwezig.";
+}
 function valid(n){return n&&typeof n==="object"&&!Array.isArray(n)&&typeof n.id==="string"&&n.id.length>0&&n.id.length<=100&&typeof n.at==="string"&&Number.isFinite(Date.parse(n.at))&&typeof n.subject==="string"&&n.subject.trim().length>0&&n.subject.length<=100&&typeof n.notes==="string"&&n.notes.trim().length>0&&n.notes.length<=1500&&typeof n.kind==="string"&&["OBSERVED","RECORDED","DERIVED","INFERRED","HYPOTHESIS"].includes(n.kind)&&typeof n.reference==="string"&&n.reference.length<=200;}
 $("persist").checked=storageEnabled;
 $("persist").disabled=storageRecoveryBlocked;
@@ -184,7 +189,7 @@ $("storage-reset").addEventListener("click",()=>{
  try{
   localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);
   if(localStorage.getItem(KEY)!==null||localStorage.getItem(CONSENT)!==null)throw new Error("Wissen niet bevestigd");
-  storageRecoveryBlocked=false;storageEnabled=false;notes=[];journalRevision++;
+  storageRecoveryBlocked=false;storageEnabled=false;notes=[];journalRevision++;persistedNoteIds.clear();
   $("persist").checked=false;$("persist").disabled=false;
   $("storage-reset").classList.add("hidden");
   $("storage-backup").classList.add("hidden");
@@ -207,11 +212,13 @@ function save(){
    localStorage.setItem(CONSENT,"yes");
    if(localStorage.getItem(KEY)!==serialized||localStorage.getItem(CONSENT)!=="yes")throw new Error("Opslag niet bevestigd");
    storageEnabled=true;
+   persistedNoteIds=new Set(notes.map(n=>n.id));
    $("storage").textContent="Opslag: lokaal op dit apparaat (toestemming actief)";
   }else{
    localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);
    if(localStorage.getItem(KEY)!==null||localStorage.getItem(CONSENT)!==null)throw new Error("Wissen niet bevestigd");
    storageEnabled=false;
+   persistedNoteIds.clear();
    $("storage").textContent="Opslag: alleen huidig tabblad";
   }
   return true;
@@ -309,7 +316,7 @@ status("Lokaal inspectiedossier geëxporteerd. SHA-256 is geen verificatie van d
 $("inspection-export").addEventListener("click",exportInspection);
 function clearInspection(){selectedId=null;$("inspection-fields").classList.add("hidden");$("inspection-empty").classList.remove("hidden");}
 $("inspection-back").addEventListener("click",()=>showTab("geheugen"));
-function render(){if(selectedId&&!notes.some(x=>x.id===selectedId))clearInspection();
+function render(){updatePendingStatus();if(selectedId&&!notes.some(x=>x.id===selectedId))clearInspection();
 const list=$("events");list.replaceChildren();const selected=$("filter").value,term=$("search").value.trim().toLocaleLowerCase("nl-NL");const visible=notes.filter(n=>(selected==="ALL"||n.kind===selected)&&(!term||[n.subject,n.notes,n.reference].some(v=>v.toLocaleLowerCase("nl-NL").includes(term))));$("count").textContent=visible.length+" / "+notes.length+" notities";
 if(!visible.length){const li=document.createElement("li");li.textContent=notes.length?"Geen waarnemingen voor de huidige zoekopdracht of classificatie.":"Er zijn nog geen lokale waarnemingen.";list.append(li);return;}
 visible.slice().reverse().forEach(n=>{
@@ -376,7 +383,7 @@ status(persisted?incoming.length+" zelfgerapporteerde notities geïmporteerd; ni
 }catch(_){status("Import geweigerd: bestand kan niet veilig worden verwerkt.");}
 finally{$("import-file").value="";}
 });
-$("persist").addEventListener("change",()=>{if(save())status($("persist").checked?"Lokale opslag bevestigd.":"Lokale kopie en toestemming aantoonbaar verwijderd.");});
+$("persist").addEventListener("change",()=>{if(save())status($("persist").checked?"Lokale opslag bevestigd.":"Lokale kopie en toestemming aantoonbaar verwijderd.");updatePendingStatus();});
 $("clear").addEventListener("click",()=>{
 if(storageRecoveryBlocked){status("Wissen geblokkeerd: onleesbare kopie blijft beschermd; gebruik de afzonderlijke herstelprocedure.");return;}
 if(!confirm("Alle lokale waarnemingen in dit tabblad en de lokale opslag wissen? Ook de bewaartoestemming wordt ingetrokken."))return;
