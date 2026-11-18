@@ -342,16 +342,21 @@ test('empty recovery requires two confirmations and can be cancelled safely', as
   await expect(page.locator('#recoverEmpty')).toBeDisabled();
   await page.locator('#recoverConsent').check();
   await expect(page.locator('#recoverEmpty')).toBeEnabled();
-  page.once('dialog',dialog=>dialog.dismiss());
+  const decisions=[false,true,false,true,true];
+  const prompts=[];
+  page.on('dialog',async dialog=>{
+    prompts.push(dialog.message());
+    const decision=decisions.shift();
+    if(decision===undefined)throw new Error('Onverwachte hersteldialoog');
+    if(decision)await dialog.accept();else await dialog.dismiss();
+  });
   await page.locator('#recoverEmpty').click();
   expect(await page.evaluate(key=>localStorage.getItem(key),key)).toBe('{BROKEN');
-  page.once('dialog',dialog=>dialog.accept());
-  page.once('dialog',dialog=>dialog.dismiss());
   await page.locator('#recoverEmpty').click();
   expect(await page.evaluate(key=>localStorage.getItem(key),key)).toBe('{BROKEN');
-  page.once('dialog',dialog=>dialog.accept());
-  page.once('dialog',dialog=>dialog.accept());
   await page.locator('#recoverEmpty').click();
+  expect(prompts).toHaveLength(5);
+  expect(decisions).toHaveLength(0);
   await expect(page.locator('#message')).toContainText('Leeg register hersteld');
   await expect(page.locator('#storageWarning')).toBeHidden();
   expect(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),key)).toEqual([]);
