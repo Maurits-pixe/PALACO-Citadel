@@ -422,3 +422,44 @@ test("cross-tab storage event reports modification of plaintext store",async()=>
  assert.equal(await a.locator("#count").innerText(),"0");
  await context.close();
 });
+
+test("vault revision increments only from a known unlocked snapshot",async()=>{
+ const context=await browser.newContext({viewport:{width:390,height:844}});
+ const a=await context.newPage();await a.goto(base+"/DOCS/la-geheugenkamer/");
+ await a.locator("#title").fill("v1");await a.locator("#who").fill("W");await a.locator("#what").fill("Een");await a.locator("#entryForm button[type=submit]").click();
+ await a.locator("#archivePassphrase").fill("Versie wachtzin nummer 123!");
+ await a.locator("#vaultSave").click();
+ await a.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde kluis bewust opgeslagen"));
+ assert.equal(await a.evaluate(()=>JSON.parse(localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")).revision),1);
+ await a.locator("#title").fill("v2");await a.locator("#who").fill("W");await a.locator("#what").fill("Twee");await a.locator("#entryForm button[type=submit]").click();
+ a.once("dialog",d=>d.accept());
+ await a.locator("#archivePassphrase").fill("Versie wachtzin nummer 123!");
+ await a.locator("#vaultSave").click();
+ await a.waitForFunction(()=>document.querySelector("#message").textContent.includes("versie 2"));
+ const wrapped=await a.evaluate(()=>JSON.parse(localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")));
+ assert.equal(wrapped.revision,2);
+ assert.match(wrapped.parentDigest,/^[0-9a-f]{64}$/);
+ await context.close();
+});
+
+test("stale tab cannot overwrite newer vault and must unlock first",async()=>{
+ const context=await browser.newContext({viewport:{width:390,height:844}});
+ const a=await context.newPage(),b=await context.newPage();
+ await a.goto(base+"/DOCS/la-geheugenkamer/");await b.goto(base+"/DOCS/la-geheugenkamer/");
+ await a.locator("#title").fill("Nieuwste notitie");await a.locator("#who").fill("W");await a.locator("#what").fill("Niet wissen");await a.locator("#entryForm button[type=submit]").click();
+ await a.locator("#archivePassphrase").fill("Gedeeld geheim nummer 123!");
+ await a.locator("#vaultSave").click();
+ await a.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde kluis bewust opgeslagen"));
+ const original=await a.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1"));
+ await b.locator("#title").fill("Oud tabvenster");await b.locator("#who").fill("W");await b.locator("#what").fill("Oude data");await b.locator("#entryForm button[type=submit]").click();
+ await b.locator("#archivePassphrase").fill("Gedeeld geheim nummer 123!");
+ await b.locator("#vaultSave").click();
+ await b.waitForFunction(()=>document.querySelector("#message").textContent.includes("Kluisconflict"));
+ assert.equal(await b.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),original);
+ await b.locator("#vaultLock").click();
+ await b.locator("#archivePassphrase").fill("Gedeeld geheim nummer 123!");
+ await b.locator("#vaultUnlock").click();
+ await b.waitForFunction(()=>document.querySelector("#count").textContent==="1");
+ assert.match(await b.locator("#timeline").innerText(),/Nieuwste notitie/);
+ await context.close();
+});
