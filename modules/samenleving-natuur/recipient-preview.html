@@ -24,6 +24,8 @@ small{color:#c2d1c5}.hidden{display:none!important}
 <select id="recipient"><option value="wereldatlas">Wereldatlas</option><option value="geheugenkamer">Geheugenkamer</option></select>
 <label for="packet">Kies een lokaal JSON-overdrachtspakket (maximaal 2 MB)</label>
 <input id="packet" type="file" accept=".json,application/json">
+<label for="allowLegacy" style="display:flex;gap:10px;align-items:center"><input id="allowLegacy" type="checkbox" style="width:auto"> Oud pakket zonder SHA-256-hash bewust toestaan (niet aanbevolen)</label>
+<p><small>Standaard is een geldige SHA-256-controle vereist. Oudere bestanden zonder hash kun je uitsluitend met bovenstaande expliciete toestemming bekijken. Een hash bevestigt geen identiteit of betrouwbaarheid van de bron.</small></p>
 <p id="status" role="status" aria-live="polite">Er is nog geen bestand gekozen.</p>
 </div>
 <section id="preview" class="card hidden" aria-labelledby="heading">
@@ -114,10 +116,12 @@ $('packet').addEventListener('change',async e=>{
   const minimal=validate(data,recipient);
   const verified=await verifyIntegrity(data);
   if(id!==ticket)return;
+  if(!verified&&!$('allowLegacy').checked){clear('Pakket zonder SHA-256-hash geblokkeerd. Vink de bewuste uitzondering aan om een oud bestand te bekijken.');return}
   render(data,recipient,minimal,verified);
  }catch{if(id===ticket)clear('Pakket afgewezen: onjuist contract, bestemming of record.')}
 });
 $('recipient').addEventListener('change',()=>{ticket++;$('packet').value='';clear('Ontvanger gewijzigd; kies opnieuw een passend pakket.')});
+$('allowLegacy').addEventListener('change',()=>{ticket++;$('packet').value='';clear('Integriteitsbeleid gewijzigd; kies het bestand opnieuw.')});
 $('discard').addEventListener('click',()=>{ticket++;$('packet').value='';clear('Voorvertoning gewist. Er is niets opgeslagen.')});
 })();
 </script></body></html>
