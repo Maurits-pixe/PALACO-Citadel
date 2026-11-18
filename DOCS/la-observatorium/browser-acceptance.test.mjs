@@ -507,11 +507,29 @@ test('persistent journal refuses over 256 KiB writes without destroying last val
    }
   }
   assert.equal(limitReached,true,'The persisted byte cap must be reached');
+  assert.match(await page.locator('#pending').innerText(),/1 notitie\(s\) alleen in dit tabblad/);
   assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),lastValidCopy);
   assert.equal(await page.locator('#persist').isDisabled(),false);
   assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_consent_v1')),'yes');
   await page.locator('#tab-geheugen').click();
   const visibleCount=Number((await page.locator('#count').innerText()).split('/')[1].match(/\d+/)[0]);
   assert.ok(visibleCount>JSON.parse(lastValidCopy).length,'New note remains in current tab');
+ });
+});
+
+test('unsaved-note indicator follows consent and confirmed persistence',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  await page.locator('#tab-atelier').click();
+  assert.match(await page.locator('#pending').innerText(),/geen notities aanwezig/);
+  await page.locator('#subject').fill('Alleen deze sessie');
+  await page.locator('#notes').fill('Nog geen opslagtoestemming');
+  await page.locator('#form button[type="submit"]').click();
+  assert.match(await page.locator('#pending').innerText(),/1 notitie\(s\) alleen in dit tabblad/);
+  await page.locator('#persist').check();
+  assert.match(await page.locator('#pending').innerText(),/Alle aanwezige notities opgeslagen/);
+  assert.ok(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')));
+  await page.locator('#persist').uncheck();
+  assert.match(await page.locator('#pending').innerText(),/1 notitie\(s\) alleen in dit tabblad/);
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),null);
  });
 });
