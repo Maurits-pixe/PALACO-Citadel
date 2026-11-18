@@ -163,6 +163,11 @@ test('CI guards feature-branch pushes and remains read-only',()=>{
  assert.match(workflow,/working-directory: DOCS\/la-observatorium/);
  assert.match(workflow,/version !== '1\.56\.1'/);
  assert.match(workflow,/chromium\.executablePath\(\)/);
+ assert.match(workflow,/set -o pipefail/);
+ assert.match(workflow,/--test-reporter=tap/);
+ assert.match(workflow,/actions\/upload-artifact@v4/);
+ assert.match(workflow,/if: always\(\)/);
+ assert.match(workflow,/retention-days: 14/);
  assert.doesNotMatch(workflow,/\b(?:deploy|pages: write|contents: write)\b/i);
 });
 
@@ -266,4 +271,13 @@ test('local journal imports reject unexpected authority-like fields and bad expo
  assert.match(html,/ownKeysEqual\(data,\["format","exported_at","authority","notes"\]\)/);
  assert.match(html,/Number\.isFinite\(Date\.parse\(data\.exported_at\)\)/);
  assert.match(html,/data\.notes\.every\(n=>ownKeysEqual\(n,\["id","at","subject","kind","reference","notes"\]\)&&valid\(n\)\)/);
+});
+
+test('browser acceptance records CI-only screenshots and runtime errors when a journey fails',()=>{
+ const browser=readFileSync(new URL('./browser-acceptance.test.mjs',import.meta.url),'utf8');
+ assert.match(browser,/if\(process\.env\.CI\)/);
+ assert.match(browser,/page\.screenshot\(\{path:prefix\+'\.png'/);
+ assert.match(browser,/pageerrors=/);
+ assert.match(browser,/throw error;/);
+ assert.match(browser,/test-results/);
 });
