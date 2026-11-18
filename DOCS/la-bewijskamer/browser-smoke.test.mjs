@@ -683,3 +683,50 @@ test("mobile recovery: a new memory during delayed import prevents stale merge",
  assert.doesNotMatch(await b.locator("#timeline").innerText(),/Inhoud uit bestand/);
  await sender.close();await receiver.close();
 });
+
+test("mobile recovery: wrong passphrase preserves active memories and stored vault",async()=>{
+ const ctx=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true}),p=await ctx.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Bewaarde veilige herinnering");
+ await p.locator("#who").fill("Waarnemer");await p.locator("#what").fill("Moet onveranderd blijven");
+ await p.locator("#entryForm button[type=submit]").tap();
+ await p.locator("#archivePassphrase").fill("Correcte mobiele kluiszin 123");
+ await p.locator("#vaultSave").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde kluis bewust opgeslagen"));
+ const original=await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1"));
+ await p.locator("#archivePassphrase").fill("Verkeerde mobiele wachtzin 456");
+ p.once("dialog",d=>d.accept());
+ await p.locator("#vaultUnlock").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("Ontgrendeling geweigerd"));
+ assert.equal(await p.locator("#count").innerText(),"1");
+ assert.match(await p.locator("#timeline").innerText(),/Bewaarde veilige herinnering/);
+ assert.equal(await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),original);
+ assert.equal(await p.locator("#archivePassphrase").inputValue(),"");
+ await ctx.close();
+});
+
+test("mobile recovery: tampered encrypted file cannot alter an existing local memory",async()=>{
+ const source=await browser.newContext({viewport:{width:360,height:740},isMobile:true,hasTouch:true}),a=await source.newPage();
+ await a.goto(base+"/DOCS/la-geheugenkamer/");
+ await a.locator("#title").fill("Externe beschadigde herinnering");
+ await a.locator("#who").fill("W");await a.locator("#what").fill("Niet accepteren");
+ await a.locator("#entryForm button[type=submit]").tap();
+ await a.locator("#archivePassphrase").fill("Bestand wachtzin controle 123");
+ const [download]=await Promise.all([a.waitForEvent("download"),a.locator("#encryptedExport").tap()]);
+ const corrupted=JSON.parse((await readFile(await download.path())).toString("utf8"));
+ corrupted.cipher.data=(corrupted.cipher.data[0]==="A"?"B":"A")+corrupted.cipher.data.slice(1);
+ const target=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true}),b=await target.newPage();
+ await b.goto(base+"/DOCS/la-geheugenkamer/");
+ await b.locator("#title").fill("Bestaande herinnering");
+ await b.locator("#who").fill("W");await b.locator("#what").fill("Blijft beschikbaar");
+ await b.locator("#entryForm button[type=submit]").tap();
+ await b.locator("#archivePassphrase").fill("Bestand wachtzin controle 123");
+ await b.locator("#file").setInputFiles({name:"tampered.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(corrupted))});
+ await b.waitForFunction(()=>document.querySelector("#message").textContent.includes("Import geweigerd"));
+ assert.equal(await b.locator("#count").innerText(),"1");
+ assert.match(await b.locator("#timeline").innerText(),/Bestaande herinnering/);
+ assert.doesNotMatch(await b.locator("#timeline").innerText(),/Externe beschadigde herinnering/);
+ assert.equal(await b.locator("#archivePassphrase").inputValue(),"");
+ assert.equal(await b.evaluate(()=>localStorage.length),0);
+ await source.close();await target.close();
+});
