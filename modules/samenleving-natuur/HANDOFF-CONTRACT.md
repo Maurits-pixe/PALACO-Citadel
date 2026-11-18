@@ -1,4 +1,4 @@
-# PALACO Citadel — Samenleving & Natuur: overdrachtscontract v1.0-rc10
+# PALACO Citadel — Samenleving & Natuur: overdrachtscontract v1.0-rc11
 
 Status: **DRAFT / HOLD**. Dit is een lokaal import/export-contract, geen serverprotocol, digitale handtekening, formeel bewijs of automatische koppeling met Wereldatlas/Geheugenkamer.
 
@@ -50,3 +50,9 @@ npx playwright test --config modules/samenleving-natuur/playwright.config.mjs
 ```
 
 De ingebouwde tien controles in de Ontvangstruimte kunnen zonder wijzigingen aan gebruikersdata worden uitgevoerd en als JSON-rapport worden geëxporteerd. **Een aanwezige test is geen geslaagde test**: registreer runnerresultaten en browser-/mobiele evidence voordat HOLD wordt heroverwogen.
+
+## Lokale ontvangstdemonstratie rc11
+
+`recipient-preview.html` is een zelfstandige, alleen-lezen ontvangstpreview voor de twee **beoogde** ontvangers. De gebruiker kiest een ontvangend hoofdstuk en importeert handmatig een bestand. Het bestand wordt lokaal gecontroleerd op schema, bron, eventuele bestemming, privacyvorm, categorie, conceptuele zone, verificatiestatus, uniciteit en tijdnotatie. Inhoud verschijnt alleen als tekst, niet als HTML. Bij wijziging van het hoofdstuk of bij wissen wordt de tijdelijke weergave verwijderd. Er is geen opslag, synchronisatie, autorisatie, servercommunicatie, authenticiteitscontrole of verbinding met live Wereldatlas/Geheugenkamer. Bestaande handoff-v1-bestanden zonder ontvangersveld zijn voor compatibiliteit bruikbaar wanneer de gebruiker handmatig een bestemming kiest.
+
+De preview is **geen bewijs** dat een ontvangende module zelf het pakket verwerkt. Een werkelijke integratie vergt aparte implementatie en acceptatie in beide doelapplicaties.
