@@ -9,7 +9,7 @@ export const REQUIRED=Object.freeze([
 "atlas-contract.mjs","wereldregister.mjs","atlas-archief.mjs","atlas-verificatie.mjs",
 "atlas-bewijs.mjs","atlas-provenance.mjs","atlas-trust-gateway.mjs","atlas-integratie.mjs",
 "atlas-acceptatie.mjs","atlas-acceptatie-dossier.mjs","atlas-release-review.mjs",
-"atlas-readiness.mjs","atlas-release-control.mjs","atlas-release-integrity.mjs","atlas-package-audit.mjs"
+"atlas-readiness.mjs","atlas-release-control.mjs","atlas-release-integrity.mjs","atlas-package-audit.mjs","atlas-security-audit.html","atlas-security-audit.mjs"
 ]);
 export const DEPENDENCIES=Object.freeze([
 ["atlas-integratie.html","atlas-integratie.mjs"],["atlas-integratie.mjs","wereldregister.mjs"],["atlas-integratie.mjs","atlas-archief.mjs"],
@@ -18,7 +18,8 @@ export const DEPENDENCIES=Object.freeze([
 ["atlas-readiness.html","atlas-readiness.mjs"],["atlas-readiness.mjs","atlas-release-review.mjs"],["atlas-readiness.mjs","atlas-integratie.mjs"],
 ["atlas-release-control.html","atlas-release-control.mjs"],["atlas-release-control.mjs","atlas-readiness.mjs"],
 ["atlas-release-integrity.html","atlas-release-integrity.mjs"],
-["atlas-package-audit.html","atlas-package-audit.mjs"],["atlas-package-audit.mjs","atlas-release-integrity.mjs"]
+["atlas-package-audit.html","atlas-package-audit.mjs"],["atlas-package-audit.mjs","atlas-release-integrity.mjs"],
+["atlas-security-audit.html","atlas-security-audit.mjs"],["atlas-security-audit.mjs","atlas-package-audit.mjs"]
 ]);
 export const MAX_EVIDENCE=12;
 const sane=s=>typeof s==="string"&&s.length<=240&&!/[\u0000-\u001f\u007f]/.test(s);
@@ -55,7 +56,7 @@ export function validateAudit(audit,manifest){
     if(JSON.stringify(audit[k])!==JSON.stringify(base[k]))throw Error("Pakketaudit gewijzigd.");
    }
    if(audit.hashesCompared!==true||!["LOCAL_MATCH_UNAUTHENTICATED","MISMATCH"].includes(audit.byteIntegrity)||
-     !Array.isArray(audit.fileStatuses)||audit.fileStatuses.length<manifest.files.length||audit.fileStatuses.length>32||
+     !Array.isArray(audit.fileStatuses)||audit.fileStatuses.length<manifest.files.length||audit.fileStatuses.length>40||
      !audit.fileStatuses.every(x=>equal(x,["name","status"])&&typeof x.name==="string"&&["MATCH","MISMATCH","MISSING","UNEXPECTED"].includes(x.status))||
      (audit.byteIntegrity==="LOCAL_MATCH_UNAUTHENTICATED")!==(audit.fileStatuses.length===manifest.files.length&&audit.fileStatuses.every(x=>x.status==="MATCH")))throw Error("Integriteitsdetails ongeldig.");
   }
