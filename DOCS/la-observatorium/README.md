@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Zichtbare niet-opgeslagen notities (v2.7)
+Het Atelier toont nu een toegankelijke live-status van notities die in het huidige tabblad bestaan maar niet tot de laatst bevestigde lokaal opgeslagen verzameling behoren. Deze teller gebruikt de unieke lokale IDs van de laatst succesvol bewaarde kopie. Een mislukte of door de 256 KiB-grens geweigerde schrijfoperatie verandert deze bevestigde set niet. De interface blijft daarom expliciet vermelden hoeveel nieuwe waarnemingen bij herladen verloren kunnen gaan en adviseert een JSON-export vóór herladen.
+
+Wanneer de gebruiker toestemming geeft en een opslag daadwerkelijk wordt bevestigd, verdwijnt de waarschuwing. Bij het intrekken van toestemming worden alle nog aanwezige notities als uitsluitend tijdelijk getoond. De nieuwe Chromium-test controleert toestemming, intrekking en de teller na het bereiken van de opslaglimiet. Dit blijft een lokaal zelfgerapporteerd logboek en verleent geen bewijs- of mandaatstatus.
+
 ## Gelijkwaardige schrijflimiet voor offline Geheugen (v2.6)
 De grens van 256 KiB aan UTF-8-inhoud geldt nu niet alleen bij het laden maar ook **vóór iedere persistente schrijfactie**. Bij overschrijding wordt niets naar `localStorage` geschreven: de laatst bevestigde geldige kopie en de bestaande toestemmingsmarkering blijven behouden. De nieuwe notitie is uitsluitend tijdens de huidige tabsessie beschikbaar; de interface meldt **OPSLAGLIMIET BEREIKT** en adviseert export van het Geheugen. Deze grens veroorzaakt geen herstelblokkade zolang de bestaande opgeslagen kopie geldig blijft.
 
