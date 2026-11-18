@@ -46,6 +46,9 @@ const minimalKeys=['sequence','category','conceptualArea','verification','record
 const fullKeys=['id','title','category','conceptualArea','verification','description','observedAt'];
 function exactFields(record,allowed){return Object.keys(record).length===allowed.length&&Object.keys(record).every(key=>allowed.includes(key))}
 let ticket=0;
+function canonicalJson(value){if(Array.isArray(value))return '['+value.map(canonicalJson).join(',')+']';if(value&&typeof value==='object')return '{'+Object.keys(value).sort().map(key=>JSON.stringify(key)+':'+canonicalJson(value[key])).join(',')+'}';return JSON.stringify(value)}
+async function verifyIntegrity(data){if(data.integrity===undefined)return false;const info=data.integrity;if(!info||typeof info!=='object'||Array.isArray(info)||Object.keys(info).length!==3||info.algorithm!=='SHA-256'||info.canonicalization!=='palaco-sorted-json-v1'||typeof info.digest!=='string'||! /^[0-9a-f]{64}$/.test(info.digest))throw Error('Onbekende integriteitsmethode');const packet={...data};delete packet.integrity;const bytes=new TextEncoder().encode(canonicalJson(packet));const hash=await crypto.subtle.digest('SHA-256',bytes);const observed=Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('');if(observed!==info.digest)throw Error('Hash komt niet overeen');return true}
+
 function clear(message){$('preview').classList.add('hidden');$('records').replaceChildren();$('actualRecipient').textContent='';$('privacy').textContent='';$('total').textContent='';$('status').textContent=message}
 function validate(data,recipient){
  if(!data||data.schema!=='palaco-citadel-handoff-v1'||data.source!=='citadel/samenleving-natuur'||!['wereldatlas','geheugenkamer'].includes(recipient))throw Error('Ongeldig contract');
@@ -82,7 +85,7 @@ function validate(data,recipient){
  return minimal;
 }
 function field(tag,value){const n=document.createElement(tag);n.textContent=value;return n}
-function render(data,recipient,minimal){
+function render(data,recipient,minimal,verified){
  $('actualRecipient').textContent=recipient==='wereldatlas'?'Wereldatlas':'Geheugenkamer';
  $('privacy').textContent=minimal?'Minimaal — zonder vrije tekst':'Volledig — bevat mogelijk gevoelige beschrijvingen';
  $('total').textContent=String(data.records.length);
@@ -97,7 +100,7 @@ function render(data,recipient,minimal){
  }
  if(!data.records.length)target.append(field('p','Dit pakket bevat geen observaties.'));
  $('preview').classList.remove('hidden');
- $('status').textContent='Pakket lokaal gevalideerd; geen gegevens overgenomen of verzonden.';
+ $('status').textContent=verified?'Pakket lokaal gevalideerd: SHA-256-integriteit klopt; herkomst en identiteit niet geverifieerd. Niets verzonden.':'Pakket lokaal gevalideerd zonder SHA-256-hash (legacy); herkomst en integriteit niet cryptografisch geverifieerd. Niets verzonden.';
 }
 $('packet').addEventListener('change',async e=>{
  const id=++ticket;clear('Bestand wordt gecontroleerd.');
@@ -109,8 +112,9 @@ $('packet').addEventListener('change',async e=>{
   if(id!==ticket)return;
   const recipient=$('recipient').value;
   const minimal=validate(data,recipient);
+  const verified=await verifyIntegrity(data);
   if(id!==ticket)return;
-  render(data,recipient,minimal);
+  render(data,recipient,minimal,verified);
  }catch{if(id===ticket)clear('Pakket afgewezen: onjuist contract, bestemming of record.')}
 });
 $('recipient').addEventListener('change',()=>{ticket++;$('packet').value='';clear('Ontvanger gewijzigd; kies opnieuw een passend pakket.')});
