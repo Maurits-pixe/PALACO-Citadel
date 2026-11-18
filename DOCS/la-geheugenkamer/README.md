@@ -56,6 +56,13 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Cross-browser-acceptatie · v2.2
+- De CI bevat naast de bestaande Chromium-regressies twee afzonderlijke Playwright-matrixjobs op Ubuntu 24.04 voor **Firefox** en **WebKit**.
+- Beide browsers testen handmatige AES-256-GCM-archiefexport en -import over geïsoleerde browsercontexten: geen leesbare titel in de versleutelde bestandsbytes, correcte ontsleuteling, geen stilzwijgende opslag.
+- De kluisproef verifieert per engine het ondersteunde gedrag: waar Web Locks beschikbaar zijn, kan de kluis versleuteld worden opgeslagen en na expliciete ontgrendeling terugkomen; anders moet opslag fail-closed worden geweigerd zonder onversleutelde fallback. Een geslaagde test betekent **niet** automatisch dat iedere engine Web Locks ondersteunt.
+- **Geverifieerd:** [GitHub Actions-run #44244131191](https://github.com/Maurits-pixe/PALACO-Citadel/actions/runs/44244131191): **63/63 PASS** (35 Node + 24 Chromium + 2 Firefox + 2 WebKit), vier jobs succesvol.
+- Grenzen: gesimuleerde browsers in Linux-CI zijn geen fysieke Windows/Android/iOS-apparaten; iOS Safari, mobiele Firefox, brede toegankelijkheid en onafhankelijke security/privacy-review blijven open.
+
 ## Racecontrole en directe compatibiliteitsmelding · v2.1
 - Twee nieuwe echte Chromium-scenario's: twee versleutelde schrijvers concurreren achter een door een derde tab bezette Web Lock; slechts één snapshot wordt opgeslagen, en een verouderde tweede schrijver wordt afgewezen.
 - Een test zonder `navigator.locks` controleert dat de versleutelde kluis **niet** wordt opgeslagen en dat geen onversleutelde fallback wordt gebruikt.
