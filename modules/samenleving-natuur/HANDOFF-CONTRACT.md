@@ -1,4 +1,4 @@
-# PALACO Citadel — Samenleving & Natuur: overdrachtscontract v1.0-rc12
+# PALACO Citadel — Samenleving & Natuur: overdrachtscontract v1.0-rc13
 
 Status: **DRAFT / HOLD**. Dit is een lokaal import/export-contract, geen serverprotocol, digitale handtekening, formeel bewijs of automatische koppeling met Wereldatlas/Geheugenkamer.
 
@@ -60,3 +60,7 @@ De preview is **geen bewijs** dat een ontvangende module zelf het pakket verwerk
 ## Ontvangstbeveiliging rc12
 
 De alleen-lezen ontvanger weigert minimaal gelabelde bestanden wanneer records alsnog `id`, `title`, `description` of `observedAt` bevatten. Daarmee voorkomt de preview dat persoonsgegevens onopgemerkt als privacy-minimale gegevens worden behandeld. Dubbele `sequence`-waarden worden afgewezen. Wijziging van de ontvanger of wissen trekt een eerder geladen voorvertoning in; lopende asynchrone bestandslezingen mogen die niet opnieuw zichtbaar maken. Nieuwe browserregressies controleren deze invarianten. Dit verandert niets aan de autorisatiestatus van externe modules.
+
+## Exacte recordschema's rc13
+
+De alleen-lezen ontvangstpreview staat per record uitsluitend de expliciet gespecificeerde velden toe. Voor minimaal: `sequence`, `category`, `conceptualArea`, `verification`, `recordedMonth`. Voor volledig: `id`, `title`, `category`, `conceptualArea`, `verification`, `description`, `observedAt`. Onbekende, ontbrekende of aanvullende velden veroorzaken afwijzing van het gehele pakket. Deze striktheid geldt voor de v1-ontvangstpreview; schema-uitbreidingen vergen een afzonderlijke versie en review. Metadata op pakketniveau is niet in deze veldwhitelist opgenomen. Dit is nog geen cryptografische herkomst- of authenticiteitscontrole.
