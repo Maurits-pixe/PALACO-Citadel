@@ -1,4 +1,4 @@
-# PALACO Citadel — Samenleving & Natuur: overdrachtscontract v1.0-rc14
+# PALACO Citadel — Samenleving & Natuur: overdrachtscontract v1.0-rc15
 
 Status: **DRAFT / HOLD**. Dit is een lokaal import/export-contract, geen serverprotocol, digitale handtekening, formeel bewijs of automatische koppeling met Wereldatlas/Geheugenkamer.
 
@@ -68,3 +68,7 @@ De alleen-lezen ontvangstpreview staat per record uitsluitend de expliciet gespe
 ## Metadata-integriteit rc14
 
 De alleen-lezen ontvangstpreview controleert optionele pakketmetadata bij aanwezigheid: `authority` moet `unverified-user-observations` blijven, `transferMode` blijft handmatig, `exported` moet een valide datumtijd zijn en `destinationHints` moet beide bekende bestemmingen exact eenmaal bevatten. Een meegeleverde `summary` moet overeenkomen met het aantal records, de status van verificatie, actieve conceptuele zones en de `flora`-/`fauna`-/totaaltellingen voor elk van de zes zones. Ontbrekende `summary` blijft toegestaan voor oudere v1-pakketten. De controles bieden consistentiecontrole, **geen cryptografische authenticiteit of digitale handtekening**; een aanvaller kan gegevens én tellingen tegelijk veranderen. Uitgebreide gegevenscontracten vereisen expliciete review.
+
+## SHA-256-integriteitslaag rc15
+
+Nieuwe Citadel-overdrachtspakketten bevatten `integrity: { algorithm: "SHA-256", canonicalization: "palaco-sorted-json-v1", digest: "<64 kleine hextekens>" }`. De hash wordt berekend over het volledige pakket **zonder** de `integrity`-eigenschap. Canonicalisatie: recursief op lexicografische sleutelvolgorde gesorteerde objecten, arrays behouden hun oorspronkelijke volgorde, primitive waarden via JSON-serialisatie; vervolgens UTF-8 en SHA-256 met WebCrypto. Ontvangst controleert de hash vóór weergave; bij een afwijking volgt afwijzing. Oudere pakketten zonder `integrity` blijven leesbaar, met zichtbare waarschuwing dat integriteit niet cryptografisch is gecontroleerd. Onbekende algoritmes of malformed digest worden geweigerd. Deze laag biedt detectie van niet-bijgewerkte wijzigingen na export, **geen digitale handtekening, sleutelbezit, vertrouwde bron, authenticiteit of autorisatie**. Een tegenstander kan inhoud en hash samen wijzigen. Geen netwerkverkeer en geen automatische registratie in de ontvangende modules.
