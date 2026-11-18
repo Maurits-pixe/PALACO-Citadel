@@ -277,3 +277,37 @@ test('explicitly approved backup restore replaces local records', async ({ page 
   await expect(page.locator('#records')).not.toContainText('Oude observatie');
   await expect(page.locator('#count')).toHaveText('1');
 });
+
+test('corrupted local JSON blocks overwrites and permits raw recovery download', async ({ page }) => {
+  await page.evaluate(() => localStorage.setItem('palaco.citadel.samenleving-natuur.v1', '{INVALID_JSON'));
+  await page.reload();
+  await page.getByRole('button', { name: 'Levend register' }).click();
+  await expect(page.locator('#storageWarning')).toBeVisible();
+  await expect(page.locator('#message')).toContainText('Opslaan geblokkeerd');
+  await page.locator('#title').fill('Mag niet opgeslagen worden');
+  await page.locator('#entryform button[type="submit"]').click();
+  await expect(page.locator('#message')).toContainText('Opslaan geblokkeerd');
+  expect(await page.evaluate(() => localStorage.getItem('palaco.citadel.samenleving-natuur.v1'))).toBe('{INVALID_JSON');
+  const pending = page.waitForEvent('download');
+  await page.locator('#rawStorageExport').click();
+  const download = await pending;
+  expect(download.suggestedFilename()).toBe('citadel-onbewerkte-opslag.txt');
+  const {readFile} = await import('node:fs/promises');
+  expect(await readFile(await download.path(), 'utf8')).toBe('{INVALID_JSON');
+});
+
+test('invalid records are not silently dropped and replaced by later saves', async ({ page }) => {
+  const key = 'palaco.citadel.samenleving-natuur.v1';
+  const raw = JSON.stringify([{
+    id:'preserve-but-invalid',title:'Oude waarneming',kind:'Flora',
+    area:'Onbekend gebied',verification:'persoonlijke observatie',notes:'Unieke tekst',
+    time:'2026-11-01T12:00:00Z'
+  }]);
+  await page.evaluate(({key,raw}) => localStorage.setItem(key,raw),{key,raw});
+  await page.reload();
+  await page.getByRole('button', { name: 'Levend register' }).click();
+  await expect(page.locator('#storageWarning')).toBeVisible();
+  await page.locator('#title').fill('Nieuwe registratie');
+  await page.locator('#entryform button[type="submit"]').click();
+  expect(await page.evaluate(key => localStorage.getItem(key),key)).toBe(raw);
+});
