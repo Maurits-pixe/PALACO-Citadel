@@ -565,3 +565,57 @@ test("Web Locks unavailable: vault write is refused without unencrypted fallback
  assert.equal(await page.locator("#count").innerText(),"1");
  await context.close();
 });
+
+test("mobile acceptance: narrow phone can use vault save, reload, unlock and lock",async()=>{
+ const context=await browser.newContext({viewport:{width:320,height:640},isMobile:true,deviceScaleFactor:2,hasTouch:true});
+ const page=await context.newPage();
+ const errors=[];page.on("pageerror",e=>errors.push(e.message));
+ await page.goto(base+"/DOCS/la-geheugenkamer/");
+ assert.equal(await page.locator("h1").isVisible(),true);
+ await page.locator("#title").fill("Mobiele kluisnotitie");
+ await page.locator("#who").fill("Mobiele waarnemer");
+ await page.locator("#what").fill("Offline op een smal scherm");
+ await page.locator("#entryForm button[type=submit]").tap();
+ assert.equal(await page.locator("#count").innerText(),"1");
+ await page.locator("#archivePassphrase").fill("Mobiele wachtzin 123! veilig");
+ await page.locator("#vaultSave").tap();
+ await page.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde kluis bewust opgeslagen"));
+ assert.equal(await page.locator("#archivePassphrase").inputValue(),"");
+ assert.equal(await page.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.v1")),null);
+ await page.reload();
+ assert.equal(await page.locator("#count").innerText(),"0");
+ await page.locator("#archivePassphrase").fill("Mobiele wachtzin 123! veilig");
+ await page.locator("#vaultUnlock").tap();
+ await page.waitForFunction(()=>document.querySelector("#count").textContent==="1");
+ assert.match(await page.locator("#timeline").innerText(),/Mobiele kluisnotitie/);
+ page.once("dialog",dialog=>dialog.accept());
+ await page.locator("#vaultLock").tap();
+ assert.equal(await page.locator("#count").innerText(),"0");
+ assert.ok(await page.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")));
+ assert.deepEqual(errors,[]);
+ await context.close();
+});
+
+test("mobile acceptance: encrypted file import has no automatic storage or plaintext",async()=>{
+ const sender=await browser.newContext({viewport:{width:360,height:740},isMobile:true,hasTouch:true});
+ const a=await sender.newPage();
+ await a.goto(base+"/DOCS/la-geheugenkamer/");
+ await a.locator("#title").fill("Mobiele archiefoverdracht");
+ await a.locator("#who").fill("Waarnemer");
+ await a.locator("#what").fill("Privé verplaatsbaar dossier");
+ await a.locator("#entryForm button[type=submit]").tap();
+ await a.locator("#archivePassphrase").fill("Bestandswachtzin mobiel 123!");
+ const [download]=await Promise.all([a.waitForEvent("download"),a.locator("#encryptedExport").tap()]);
+ const file=await readFile(await download.path());
+ assert.equal(file.includes(Buffer.from("Mobiele archiefoverdracht")),false);
+ const receiver=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true});
+ const b=await receiver.newPage();
+ await b.goto(base+"/DOCS/la-geheugenkamer/");
+ await b.locator("#archivePassphrase").fill("Bestandswachtzin mobiel 123!");
+ await b.locator("#file").setInputFiles({name:"mobile-encrypted.json",mimeType:"application/json",buffer:file});
+ await b.waitForFunction(()=>document.querySelector("#count").textContent==="1");
+ assert.equal(await b.evaluate(()=>localStorage.length),0);
+ assert.equal(await b.locator("#archivePassphrase").inputValue(),"");
+ assert.match(await b.locator("#timeline").innerText(),/Mobiele archiefoverdracht/);
+ await sender.close();await receiver.close();
+});
