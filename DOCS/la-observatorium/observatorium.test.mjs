@@ -59,7 +59,7 @@ test('import requires explicit acknowledgement before changing journal',()=>{
 test('import rejects empty, oversized or array-shaped envelopes',()=>{
  assert.match(html,/file\.size===0\|\|file\.size>262144/);
  assert.match(html,/new TextEncoder\(\)\.encode\(raw\)\.length>262144/);
- assert.match(html,/Array\.isArray\(data\)/);
+ assert.match(html,/ownKeysEqual\(data,\["format","exported_at","authority","notes"\]\)/);
  assert.match(html,/!Array\.isArray\(n\)/);
 });
 
