@@ -41,7 +41,7 @@
 <label for="fingerprintReceipt" class="eyebrow" style="display:block;margin:12px 0 8px">Of laad een eerder bewaarde SHA-256-referentie (TXT)</label>
 <input type="file" id="fingerprintReceipt" accept=".txt,text/plain" style="max-width:100%;font-size:13px">
 <p class="small" id="referenceStatus" role="status" aria-live="polite">Referentie blijft uitsluitend in deze pagina; het bestand wordt niet geüpload.</p>
-<p class="small">Alleen een eerder veilig bewaarde, vertrouwde referentie kan dienen als vergelijkingsbasis. De waarde wordt niet opgeslagen of verzonden.</p>
+<p class="small">Alleen een eerder veilig bewaarde, vertrouwde referentie kan dienen als vergelijkingsbasis. De waarde wordt niet opgeslagen of verzonden. Een wijziging aan de referentie vereist een nieuwe controle; bij een afwijking blijft de exportknop uitgeschakeld.</p>
 <p class="small" id="verifyStatus" role="status" aria-live="polite">Kies een lokaal DRAFT JSON-bestand om schema, inhoud en SHA-256-vingerafdruk te controleren. Dit verandert geen opgeslagen ontwerp.</p>
 <div class="actions"><button type="button" class="action" id="exportFingerprint" disabled>↓ Bewaar SHA-256-referentie (TXT)</button></div>
 <label for="bundleImport" class="eyebrow" style="display:block;margin:18px 0 9px">Herstel een eerder projectpakket</label>
@@ -111,6 +111,12 @@ $('bundleSave').addEventListener('click',()=>{
   }catch(err){$('bundleStatus').textContent='Projectpakket niet beschikbaar: '+err.message;}
 });
 let verifiedFingerprint=null;
+$('expectedFingerprint').addEventListener('input',()=>{
+ verifiedFingerprint=null;
+ $('exportFingerprint').disabled=true;
+ $('verifyStatus').textContent='SHA-256-referentie aangepast. Kies het JSON-projectbestand opnieuw voor een verse controle.';
+});
+
 $('exportFingerprint').addEventListener('click',()=>{
  if(!verifiedFingerprint)return;
  const {hash,filename}=verifiedFingerprint;
@@ -165,8 +171,10 @@ $('bundleVerify').addEventListener('change',async event=>{
    if(!crypto?.subtle?.digest)throw Error('SHA-256 niet beschikbaar in deze browser');
    const digest=await crypto.subtle.digest('SHA-256',bytes);
    const fingerprint=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
-   verifiedFingerprint={hash:fingerprint,filename:file.name.replace(/[\x00-\x1f\x7f]/g,' ').slice(0,120)};
-   $('exportFingerprint').disabled=false;
+   // A mismatched trusted reference cannot unlock a fresh matching-receipt export.
+   const matchesReference=reference===''||fingerprint===reference.toLowerCase();
+   verifiedFingerprint=matchesReference?{hash:fingerprint,filename:file.name.replace(/[\x00-\x1f\x7f]/g,' ').slice(0,120)}:null;
+   $('exportFingerprint').disabled=!matchesReference;
    const ex=pack.exterior?pack.exterior.cells.filter(Boolean).length:0;
    const interior=pack.interior?pack.interior.floors.flat().filter(Boolean).length:0;
    const comparison=reference===''?'Geen eerdere referentie ingevoerd.':fingerprint===reference.toLowerCase()?'REFERENTIE KOMT OVEREEN.':'WAARSCHUWING: SHA-256 KOMT NIET OVEREEN MET DE REFERENTIE.';
