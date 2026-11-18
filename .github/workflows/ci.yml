@@ -43,3 +43,25 @@ jobs:
           node ./node_modules/playwright/cli.js install --with-deps chromium
       - name: Exercise Geheugenkamer to Bewijskamer in desktop and mobile emulation
         run: node --test DOCS/la-bewijskamer/browser-smoke.test.mjs
+
+  cross-browser:
+    name: Citadel cross-browser ${{ matrix.browser }} acceptance
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated Playwright dependency
+        run: npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+      - name: Install requested browser
+        run: node ./node_modules/playwright/cli.js install --with-deps ${{ matrix.browser }}
+      - name: Test encrypted archive transfer and local vault behavior
+        env:
+          PALACO_BROWSER: ${{ matrix.browser }}
+        run: node --test DOCS/la-bewijskamer/cross-browser.test.mjs
