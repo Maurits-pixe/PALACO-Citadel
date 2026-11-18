@@ -224,6 +224,17 @@ test('Atelier: dossiercontrole toont echte SHA-256 en wijzigt geen lokaal projec
   expect(receiptText).toContain('SHA-256: '+expected);
   expect(receiptText).toContain('Bestand: inspectie.json');
   expect(receiptText).toContain('geen digitale handtekening');
+  await page.locator('#fingerprintReceipt').setInputFiles({name:'controlebewijs.txt',mimeType:'text/plain',buffer:Buffer.from(receiptText)});
+  await expect(page.locator('#referenceStatus')).toContainText('SHA-256-referentie geladen');
+  await expect(page.locator('#expectedFingerprint')).toHaveValue(expected);
+  await expect(page.locator('#exportFingerprint')).toBeDisabled();
+  await page.locator('#bundleVerify').setInputFiles({name:'nogmaals.json',mimeType:'application/json',buffer:bytes});
+  await expect(page.locator('#verifyStatus')).toContainText('REFERENTIE KOMT OVEREEN');
+  await page.locator('#fingerprintReceipt').setInputFiles({name:'onjuiste.txt',mimeType:'text/plain',buffer:Buffer.from('SHA-256: nietgeldig')});
+  await expect(page.locator('#referenceStatus')).toContainText('Referentie geweigerd');
+  await expect(page.locator('#expectedFingerprint')).toHaveValue('');
+  await expect(page.locator('#exportFingerprint')).toBeDisabled();
+
 
   await page.locator('#expectedFingerprint').fill(expected.toUpperCase());
   await page.locator('#bundleVerify').setInputFiles({name:'gelijk.json',mimeType:'application/json',buffer:bytes});
