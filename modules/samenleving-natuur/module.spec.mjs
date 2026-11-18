@@ -403,6 +403,7 @@ test('damaged local storage blocks misleading standard exports', async ({page}) 
 
 test('receiver preview reads minimal Atlas transfer without saving data', async ({page}) => {
   await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await page.locator('#allowLegacy').check();
   const before=await page.evaluate(()=>({...localStorage}));
   const packet={
     schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
@@ -425,6 +426,7 @@ test('receiver preview reads minimal Atlas transfer without saving data', async 
 
 test('receiver preview rejects wrongly addressed file', async ({page}) => {
   await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await page.locator('#allowLegacy').check();
   await page.locator('#recipient').selectOption('geheugenkamer');
   const packet={
     schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
@@ -440,6 +442,7 @@ test('receiver preview rejects wrongly addressed file', async ({page}) => {
 
 test('Geheugenkamer preview shows full text safely and requires no authority', async ({page}) => {
   await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await page.locator('#allowLegacy').check();
   await page.locator('#recipient').selectOption('geheugenkamer');
   const packet={
     schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
@@ -462,6 +465,7 @@ test('Geheugenkamer preview shows full text safely and requires no authority', a
 
 test('recipient preview refuses personal fields disguised as minimal data', async ({page}) => {
   await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await page.locator('#allowLegacy').check();
   const packet={
     schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
     intendedRecipient:'wereldatlas',transferMode:'manual-file-preview-only',
@@ -481,6 +485,7 @@ test('recipient preview refuses personal fields disguised as minimal data', asyn
 
 test('recipient preview rejects duplicate observation sequence in minimal packet', async ({page}) => {
   await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await page.locator('#allowLegacy').check();
   const observation={sequence:1,category:'Flora',conceptualArea:'Het Woud',
     verification:'nog te verifiëren',recordedMonth:'2026-11'};
   await page.locator('#packet').setInputFiles({
@@ -497,6 +502,7 @@ test('recipient preview rejects duplicate observation sequence in minimal packet
 
 test('changing recipient invalidates a previously rendered preview', async ({page}) => {
   await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await page.locator('#allowLegacy').check();
   await page.locator('#packet').setInputFiles({
     name:'atlas.json',mimeType:'application/json',
     buffer:Buffer.from(JSON.stringify({
@@ -513,6 +519,7 @@ test('changing recipient invalidates a previously rendered preview', async ({pag
 
 test('receiver rejects unknown fields in minimal records rather than concealing them', async ({page}) => {
   await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await page.locator('#allowLegacy').check();
   await page.locator('#packet').setInputFiles({
     name:'unknown-minimal.json',mimeType:'application/json',
     buffer:Buffer.from(JSON.stringify({
@@ -529,6 +536,7 @@ test('receiver rejects unknown fields in minimal records rather than concealing 
 
 test('receiver rejects unexpected fields in full records', async ({page}) => {
   await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await page.locator('#allowLegacy').check();
   await page.locator('#recipient').selectOption('geheugenkamer');
   await page.locator('#packet').setInputFiles({
     name:'unknown-full.json',mimeType:'application/json',
@@ -546,6 +554,7 @@ test('receiver rejects unexpected fields in full records', async ({page}) => {
 
 test('receiver rejects a minimal record missing its required month', async ({page}) => {
   await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await page.locator('#allowLegacy').check();
   await page.locator('#packet').setInputFiles({
     name:'incomplete.json',mimeType:'application/json',
     buffer:Buffer.from(JSON.stringify({
@@ -561,6 +570,7 @@ test('receiver rejects a minimal record missing its required month', async ({pag
 
 test('receiver rejects false authority assertions in package metadata', async ({page})=>{
   await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await page.locator('#allowLegacy').check();
   await page.locator('#packet').setInputFiles({
     name:'fake-authority.json',mimeType:'application/json',
     buffer:Buffer.from(JSON.stringify({
@@ -575,6 +585,7 @@ test('receiver rejects false authority assertions in package metadata', async ({
 
 test('receiver rejects a tampered summary even when record fields are valid', async ({page})=>{
   await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await page.locator('#allowLegacy').check();
   const areas=['Het Woud','De Velden','Het Waterland','De Heuvels','De Tuinen','Het Stiltegebied'];
   const packet={schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
     privacy:'minimal-user-controlled',records:[{sequence:1,category:'Flora',conceptualArea:'Het Woud',
@@ -590,6 +601,7 @@ test('receiver rejects a tampered summary even when record fields are valid', as
 
 test('receiver accepts a consistent full handoff including summary and metadata', async ({page})=>{
   await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await page.locator('#allowLegacy').check();
   await page.locator('#recipient').selectOption('geheugenkamer');
   const areas=['Het Woud','De Velden','Het Waterland','De Heuvels','De Tuinen','Het Stiltegebied'];
   const packet={schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
@@ -621,6 +633,7 @@ test('exported SHA-256 packet is verified by recipient preview',async ({page})=>
  expect(data.integrity.canonicalization).toBe('palaco-sorted-json-v1');
  expect(data.integrity.digest).toMatch(/^[0-9a-f]{64}$/);
  await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await page.locator('#allowLegacy').check();
  await page.locator('#packet').setInputFiles({name:'signed.json',mimeType:'application/json',buffer:bytes});
  await expect(page.locator('#preview')).toBeVisible();
  await expect(page.locator('#status')).toContainText('SHA-256-integriteit klopt');
@@ -636,6 +649,7 @@ test('recipient detects tampering of a SHA-256 protected record',async ({page})=
  const data=JSON.parse(await readFile(await file.path(),'utf8'));
  data.exported='2026-11-01T13:00:00Z';
  await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await page.locator('#allowLegacy').check();
  await page.locator('#packet').setInputFiles({
   name:'tampered.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(data))
  });
@@ -645,6 +659,7 @@ test('recipient detects tampering of a SHA-256 protected record',async ({page})=
 
 test('legacy handoff remains readable but is explicitly unverified',async ({page})=>{
  await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await page.locator('#allowLegacy').check();
  await page.locator('#packet').setInputFiles({
   name:'legacy.json',mimeType:'application/json',
   buffer:Buffer.from(JSON.stringify({
@@ -655,4 +670,55 @@ test('legacy handoff remains readable but is explicitly unverified',async ({page
  await expect(page.locator('#preview')).toBeVisible();
  await expect(page.locator('#status')).toContainText('zonder SHA-256-hash');
  await expect(page.locator('#status')).toContainText('niet cryptografisch geverifieerd');
+});
+
+test('unsigned handoff is blocked by default and requires explicit legacy permission',async ({page})=>{
+ await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await expect(page.locator('#allowLegacy')).not.toBeChecked();
+ const packet={
+  schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
+  privacy:'minimal-user-controlled',records:[]
+ };
+ const file={name:'legacy.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(packet))};
+ await page.locator('#packet').setInputFiles(file);
+ await expect(page.locator('#preview')).toBeHidden();
+ await expect(page.locator('#status')).toContainText('zonder SHA-256-hash geblokkeerd');
+ await page.locator('#allowLegacy').check();
+ await expect(page.locator('#packet')).toHaveValue('');
+ await page.locator('#packet').setInputFiles(file);
+ await expect(page.locator('#preview')).toBeVisible();
+ await expect(page.locator('#status')).toContainText('niet cryptografisch geverifieerd');
+});
+
+test('revoking legacy permission clears the open unsigned preview',async ({page})=>{
+ await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await page.locator('#allowLegacy').check();
+ await page.locator('#packet').setInputFiles({
+  name:'unsigned.json',mimeType:'application/json',
+  buffer:Buffer.from(JSON.stringify({
+   schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
+   privacy:'minimal-user-controlled',records:[]
+  }))
+ });
+ await expect(page.locator('#preview')).toBeVisible();
+ await page.locator('#allowLegacy').uncheck();
+ await expect(page.locator('#preview')).toBeHidden();
+ await expect(page.locator('#status')).toContainText('Integriteitsbeleid gewijzigd');
+ await expect(page.locator('#packet')).toHaveValue('');
+});
+
+test('SHA-256 handoff is readable without legacy exception',async ({page})=>{
+ await page.getByRole('button',{name:'Leefwereldatlas'}).click();
+ const pending=page.waitForEvent('download');
+ await page.locator('#packetExport').click();
+ const download=await pending;
+ const {readFile}=await import('node:fs/promises');
+ const bytes=await readFile(await download.path());
+ await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await expect(page.locator('#allowLegacy')).not.toBeChecked();
+ await page.locator('#packet').setInputFiles({
+  name:'hashed.json',mimeType:'application/json',buffer:bytes
+ });
+ await expect(page.locator('#preview')).toBeVisible();
+ await expect(page.locator('#status')).toContainText('SHA-256-integriteit klopt');
 });
