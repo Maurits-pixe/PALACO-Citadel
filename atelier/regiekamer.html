@@ -37,6 +37,9 @@
 <label for="checkExportFile" class="eyebrow" style="display:block;margin:12px 0 8px">Controleer het gedownloade JSON tegen je laatste export</label>
 <input type="file" id="checkExportFile" accept=".json,application/json" disabled style="max-width:100%;font-size:13px">
 <p class="small" id="exportCheckStatus" role="status" aria-live="polite">Eerst een compleet DRAFT-project exporteren; daarna kun je het gedownloade bestand opnieuw selecteren.</p>
+<label for="pairVerify" class="eyebrow" style="display:block;margin:18px 0 9px">Controleer JSON en SHA-256-TXT samen</label>
+<input type="file" id="pairVerify" accept=".json,.txt,application/json,text/plain" multiple style="max-width:100%;font-size:13px">
+<p class="small" id="pairStatus" role="status" aria-live="polite">Selecteer precies één DRAFT JSON-project en één SHA-256 TXT-bewijs. Beide bestanden blijven lokaal; er wordt niets geïmporteerd.</p>
 <label for="bundleVerify" class="eyebrow" style="display:block;margin:18px 0 9px">Controleer een projectbestand zonder import</label>
 <input type="file" id="bundleVerify" accept=".json,application/json" style="max-width:100%;font-size:13px">
 <label for="expectedFingerprint" class="eyebrow" style="display:block;margin:12px 0 8px">Eerder vastgelegde SHA-256-referentie (optioneel)</label>
@@ -180,6 +183,43 @@ $('bundleSave').addEventListener('click',async ()=>{
    $('bundleReceiptStatus').textContent='SHA-256-referentie niet beschikbaar: '+err.message;
    if(!lastExportFingerprint)$('bundleStatus').textContent='Projectexport uitgevoerd of geweigerd; controleer het gedownloade bestand voordat je het gebruikt.';
  }
+});
+let pairRevision=0;
+$('pairVerify').addEventListener('change',async event=>{
+ const files=Array.from(event.target.files||[]);
+ const revision=++pairRevision;
+ const status=$('pairStatus');
+ status.textContent='Beide bestanden veilig controleren…';
+ try{
+   if(files.length!==2)throw Error('Selecteer precies twee bestanden: één JSON en één TXT');
+   const jsonFiles=files.filter(file=>/\\.json$/i.test(file.name));
+   const txtFiles=files.filter(file=>/\\.txt$/i.test(file.name));
+   if(jsonFiles.length!==1||txtFiles.length!==1)throw Error('Eén .json en één .txt-bestand vereist');
+   const json=jsonFiles[0],txt=txtFiles[0];
+   if(json.size>150000||txt.size>4096)throw Error('Bestand te groot (JSON 150 KB, TXT 4 KB)');
+   const [jsonBytes,txtBytes]=await Promise.all([json.arrayBuffer(),txt.arrayBuffer()]);
+   if(revision!==pairRevision)return;
+   const decode=new TextDecoder('utf-8',{fatal:true});
+   const api=window.PalacoAtelierBundle;
+   if(!api)throw Error('Atelier-validatiemodule niet geladen');
+   const archive=api.parse(decode.decode(jsonBytes));
+   const receipt=decode.decode(txtBytes);
+   const lines=receipt.split(/\\r?\\n/).filter(line=>line.startsWith('SHA-256: '));
+   if(lines.length!==1)throw Error('Het TXT-bewijs moet precies één SHA-256-regel bevatten');
+   const expected=lines[0].slice(9).trim().toLowerCase();
+   if(!/^[0-9a-f]{64}$/.test(expected))throw Error('Ongeldige SHA-256-referentie');
+   if(!crypto?.subtle?.digest)throw Error('SHA-256 niet beschikbaar in deze browser');
+   const digest=await crypto.subtle.digest('SHA-256',jsonBytes);
+   if(revision!==pairRevision)return;
+   const actual=Array.from(new Uint8Array(digest),value=>value.toString(16).padStart(2,'0')).join('');
+   const count=(archive.exterior?archive.exterior.cells.filter(Boolean).length:0)+(archive.interior?archive.interior.floors.flat().filter(Boolean).length:0);
+   status.textContent=actual===expected
+    ?'PAARCONTROLE GESLAAGD: geldig creatief DRAFT-project, autoriteit NONE, '+count+' ingerichte vakken. SHA-256: '+actual+'. De referentie bewijst geen herkomst.'
+    :'WAARSCHUWING: JSON EN TXT KOMEN NIET OVEREEN. Berekend: '+actual+' · verwacht: '+expected+'. Geen gegevens geïmporteerd.';
+ }catch(err){
+   if(revision!==pairRevision)return;
+   status.textContent='Paarcontrole geweigerd: '+err.message+'. Geen gegevens geïmporteerd.';
+ }finally{event.target.value='';}
 });
 let verifiedFingerprint=null;
 let dossierRevision=0;
