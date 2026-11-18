@@ -1,4 +1,4 @@
-# PALACO Citadel — Samenleving & Natuur: overdrachtscontract v1.0-rc13
+# PALACO Citadel — Samenleving & Natuur: overdrachtscontract v1.0-rc14
 
 Status: **DRAFT / HOLD**. Dit is een lokaal import/export-contract, geen serverprotocol, digitale handtekening, formeel bewijs of automatische koppeling met Wereldatlas/Geheugenkamer.
 
@@ -64,3 +64,7 @@ De alleen-lezen ontvanger weigert minimaal gelabelde bestanden wanneer records a
 ## Exacte recordschema's rc13
 
 De alleen-lezen ontvangstpreview staat per record uitsluitend de expliciet gespecificeerde velden toe. Voor minimaal: `sequence`, `category`, `conceptualArea`, `verification`, `recordedMonth`. Voor volledig: `id`, `title`, `category`, `conceptualArea`, `verification`, `description`, `observedAt`. Onbekende, ontbrekende of aanvullende velden veroorzaken afwijzing van het gehele pakket. Deze striktheid geldt voor de v1-ontvangstpreview; schema-uitbreidingen vergen een afzonderlijke versie en review. Metadata op pakketniveau is niet in deze veldwhitelist opgenomen. Dit is nog geen cryptografische herkomst- of authenticiteitscontrole.
+
+## Metadata-integriteit rc14
+
+De alleen-lezen ontvangstpreview controleert optionele pakketmetadata bij aanwezigheid: `authority` moet `unverified-user-observations` blijven, `transferMode` blijft handmatig, `exported` moet een valide datumtijd zijn en `destinationHints` moet beide bekende bestemmingen exact eenmaal bevatten. Een meegeleverde `summary` moet overeenkomen met het aantal records, de status van verificatie, actieve conceptuele zones en de `flora`-/`fauna`-/totaaltellingen voor elk van de zes zones. Ontbrekende `summary` blijft toegestaan voor oudere v1-pakketten. De controles bieden consistentiecontrole, **geen cryptografische authenticiteit of digitale handtekening**; een aanvaller kan gegevens én tellingen tegelijk veranderen. Uitgebreide gegevenscontracten vereisen expliciete review.
