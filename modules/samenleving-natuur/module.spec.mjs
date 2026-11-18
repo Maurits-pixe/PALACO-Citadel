@@ -608,3 +608,51 @@ test('receiver accepts a consistent full handoff including summary and metadata'
   await expect(page.locator('#total')).toHaveText('1');
   await expect(page.locator('#status')).toContainText('lokaal gevalideerd');
 });
+
+test('exported SHA-256 packet is verified by recipient preview',async ({page})=>{
+ await page.getByRole('button',{name:'Leefwereldatlas'}).click();
+ const pending=page.waitForEvent('download');
+ await page.locator('#packetExport').click();
+ const file=await pending;
+ const {readFile}=await import('node:fs/promises');
+ const bytes=await readFile(await file.path());
+ const data=JSON.parse(bytes.toString('utf8'));
+ expect(data.integrity.algorithm).toBe('SHA-256');
+ expect(data.integrity.canonicalization).toBe('palaco-sorted-json-v1');
+ expect(data.integrity.digest).toMatch(/^[0-9a-f]{64}$/);
+ await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await page.locator('#packet').setInputFiles({name:'signed.json',mimeType:'application/json',buffer:bytes});
+ await expect(page.locator('#preview')).toBeVisible();
+ await expect(page.locator('#status')).toContainText('SHA-256-integriteit klopt');
+ await expect(page.locator('#status')).toContainText('herkomst en identiteit niet geverifieerd');
+});
+
+test('recipient detects tampering of a SHA-256 protected record',async ({page})=>{
+ await page.getByRole('button',{name:'Leefwereldatlas'}).click();
+ const pending=page.waitForEvent('download');
+ await page.locator('#packetExport').click();
+ const file=await pending;
+ const {readFile}=await import('node:fs/promises');
+ const data=JSON.parse(await readFile(await file.path(),'utf8'));
+ data.exported='2026-11-01T13:00:00Z';
+ await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await page.locator('#packet').setInputFiles({
+  name:'tampered.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(data))
+ });
+ await expect(page.locator('#preview')).toBeHidden();
+ await expect(page.locator('#status')).toContainText('Pakket afgewezen');
+});
+
+test('legacy handoff remains readable but is explicitly unverified',async ({page})=>{
+ await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+ await page.locator('#packet').setInputFiles({
+  name:'legacy.json',mimeType:'application/json',
+  buffer:Buffer.from(JSON.stringify({
+   schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
+   privacy:'minimal-user-controlled',records:[]
+  }))
+ });
+ await expect(page.locator('#preview')).toBeVisible();
+ await expect(page.locator('#status')).toContainText('zonder SHA-256-hash');
+ await expect(page.locator('#status')).toContainText('niet cryptografisch geverifieerd');
+});
