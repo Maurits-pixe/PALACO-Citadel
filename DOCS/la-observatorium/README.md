@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Controleerbare Chromium-testresultaten (v2.4)
+De browser-acceptatiejob bewaart de volledige TAP-uitvoer bij zowel succes als falen. Bij een testfout maakt het browserharnas in CI bovendien een schermafbeelding van de huidige pagina en een tekstbestand met viewport, URL, foutmelding en JavaScript-runtimefouten. GitHub Actions uploadt deze gegevens met `actions/upload-artifact@v4` onder de naam `la-observatorium-browser-diagnostics`, bewaartermijn 14 dagen. Met `set -o pipefail` blijft een falende testjob werkelijk rood, ook als het log met `tee` wordt vastgelegd.
+
+De artifacts zijn uitsluitend testdiagnostiek met synthetische testgegevens, **geen bewijs van productiegebruik** en geen wijziging van de officiële bewijsketen. De browseracceptatie blijft HOLD zolang de jobstatus en uitvoering niet onafhankelijk zijn bevestigd.
+
 ## Geïsoleerde Chromium-acceptatieomgeving (v2.3)
 De repository heeft een eigen `@playwright/test`-afhankelijkheid. Om te voorkomen dat de Observatorium-test onbedoeld een andere Playwright-versie of Chromium-revisie gebruikt, installeert de specifieke GitHub Actions-workflow `playwright@1.56.1` in `DOCS/la-observatorium/node_modules`, en installeert Chromium met de CLI uit exact die map. Voorafgaand aan de browserjourneys controleert de workflow de werkelijk geladen Playwright-versie én of de bijbehorende browserbinary aanwezig is.
 
