@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { createServer } from 'node:http';
 import { chromium } from 'playwright';
 
@@ -25,8 +26,28 @@ async function withPage(viewport,run) {
   page.on('pageerror',e=>errors.push(e.message));
   page.setDefaultTimeout(10000);
   await page.goto(`http://127.0.0.1:${address.port}/DOCS/la-observatorium/`,{timeout:10000});
-  await run(page);
-  assert.deepEqual(errors,[],'Browser should have no JS runtime errors');
+  try {
+   await run(page);
+   assert.deepEqual(errors,[],'Browser should have no JS runtime errors');
+  } catch(error) {
+   if(process.env.CI){
+    try {
+     const dir=new URL('./test-results/',import.meta.url);
+     await mkdir(dir,{recursive:true});
+     const stamp=Date.now().toString(36);
+     const prefix=join(dir.pathname,`observatorium-${viewport.width}-${stamp}`);
+     await page.screenshot({path:prefix+'.png',fullPage:true,timeout:5000});
+     await writeFile(prefix+'.txt',[
+      'OBSERVATORIUM_BROWSER_FAILURE',
+      'viewport='+viewport.width+'x'+viewport.height,
+      'url='+page.url(),
+      'error='+String(error?.stack||error),
+      'pageerrors='+JSON.stringify(errors)
+     ].join('\\n'),'utf8');
+    }catch(diagnosticError){console.error('Could not collect browser diagnostic artifact:',diagnosticError);}
+   }
+   throw error;
+  }
  } finally {
   if(browser)await browser.close();
   server.closeAllConnections();
