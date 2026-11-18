@@ -34,6 +34,9 @@
 <div class="nav"><div><p class="eyebrow">05 / Projectarchief</p><h2 id="portable-heading">Bewaren & herstellen</h2></div><span class="status">PORTABLE · DRAFT</span></div>
 <p class="small">Bewaar de exterieurmaquette, het interieur op drie verdiepingen en de ontwerpnotitie samen in één overdraagbaar JSON-projectpakket. De bestaande afzonderlijke bestanden blijven beschikbaar. De export bevat bewust geen autorisatiegegevens of ontwerphistorie.</p>
 <div class="actions"><button class="action primary" type="button" id="bundleSave">↓ Bewaar compleet projectpakket</button><button class="action" type="button" id="exportBundleReceipt" disabled>↓ Bewaar SHA-256 van laatste projectexport</button></div><p class="small" id="bundleReceiptStatus" role="status" aria-live="polite">Nog geen gecontroleerde projectexport in deze sessie.</p>
+<label for="checkExportFile" class="eyebrow" style="display:block;margin:12px 0 8px">Controleer het gedownloade JSON tegen je laatste export</label>
+<input type="file" id="checkExportFile" accept=".json,application/json" disabled style="max-width:100%;font-size:13px">
+<p class="small" id="exportCheckStatus" role="status" aria-live="polite">Eerst een compleet DRAFT-project exporteren; daarna kun je het gedownloade bestand opnieuw selecteren.</p>
 <label for="bundleVerify" class="eyebrow" style="display:block;margin:18px 0 9px">Controleer een projectbestand zonder import</label>
 <input type="file" id="bundleVerify" accept=".json,application/json" style="max-width:100%;font-size:13px">
 <label for="expectedFingerprint" class="eyebrow" style="display:block;margin:12px 0 8px">Eerder vastgelegde SHA-256-referentie (optioneel)</label>
@@ -101,6 +104,35 @@ function download(filename,body,type){const url=URL.createObjectURL(new Blob([bo
 const PROJECT_FILENAME='PALACO-Atelier-Compleet-Project-DRAFT.json';
 let lastExportFingerprint=null;
 let exportRevision=0;
+$('checkExportFile').addEventListener('change',async event=>{
+ const file=event.target.files?.[0];
+ if(!file)return;
+ const revision=exportRevision;
+ const reference=lastExportFingerprint?.hash;
+ const status=$('exportCheckStatus');
+ status.textContent='Gedownload JSON-bestand opnieuw controleren…';
+ try{
+   if(!reference)throw Error('Geen actuele exportreferentie beschikbaar');
+   if(file.size>150000)throw Error('Bestand te groot (maximaal 150 KB)');
+   const bytes=await file.arrayBuffer();
+   if(revision!==exportRevision)return;
+   const api=window.PalacoAtelierBundle;
+   if(!api)throw Error('Projectpakketcontrole niet beschikbaar');
+   const content=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
+   api.parse(content);
+   if(!crypto?.subtle?.digest)throw Error('SHA-256 niet beschikbaar in deze browser');
+   const digest=await crypto.subtle.digest('SHA-256',bytes);
+   if(revision!==exportRevision)return;
+   const actual=Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('');
+   status.textContent=actual===reference
+      ?'CONTROLE GESLAAGD: het geselecteerde JSON-bestand komt byte voor byte overeen met de laatste export. SHA-256: '+actual
+      :'WAARSCHUWING: geselecteerd JSON-bestand wijkt af van de laatste export. SHA-256: '+actual;
+ }catch(err){
+   if(revision!==exportRevision)return;
+   status.textContent='Exportcontrole geweigerd: '+err.message;
+ }finally{event.target.value='';}
+});
+
 $('exportBundleReceipt').addEventListener('click',()=>{
  if(!lastExportFingerprint)return;
  const receipt=[
@@ -117,6 +149,8 @@ $('bundleSave').addEventListener('click',async ()=>{
  const revision=++exportRevision;
  lastExportFingerprint=null;
  $('exportBundleReceipt').disabled=true;
+ $('checkExportFile').disabled=true;
+ $('exportCheckStatus').textContent='Nieuwe export gestart: vorige bestandscontrole vervallen.';
  $('bundleReceiptStatus').textContent='De nieuwe projectexport wordt gecontroleerd…';
  const api=window.PalacoAtelierBundle;
  if(!api){
@@ -138,6 +172,8 @@ $('bundleSave').addEventListener('click',async ()=>{
    const hash=Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('');
    lastExportFingerprint={hash};
    $('exportBundleReceipt').disabled=false;
+   $('checkExportFile').disabled=false;
+   $('exportCheckStatus').textContent='Selecteer het zojuist gedownloade JSON-bestand voor een extra controle tegen de laatste export.';
    $('bundleReceiptStatus').textContent='SHA-256 van de laatste projectexport: '+hash+'. Bewaar het TXT-bewijs afzonderlijk.';
  }catch(err){
    if(revision!==exportRevision)return;
