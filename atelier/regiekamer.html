@@ -111,7 +111,9 @@ $('bundleSave').addEventListener('click',()=>{
   }catch(err){$('bundleStatus').textContent='Projectpakket niet beschikbaar: '+err.message;}
 });
 let verifiedFingerprint=null;
+let dossierRevision=0;
 $('expectedFingerprint').addEventListener('input',()=>{
+ dossierRevision++;
  verifiedFingerprint=null;
  $('exportFingerprint').disabled=true;
  $('verifyStatus').textContent='SHA-256-referentie aangepast. Kies het JSON-projectbestand opnieuw voor een verse controle.';
@@ -132,9 +134,14 @@ $('fingerprintReceipt').addEventListener('change',async event=>{
  const file=event.target.files?.[0];
  if(!file)return;
  const status=$('referenceStatus');
+ const revision=++dossierRevision;
+ verifiedFingerprint=null;
+ $('exportFingerprint').disabled=true;
+ status.textContent='Referentiebestand controleren…';
  try{
    if(file.size>4096)throw Error('Referentiebestand te groot (maximaal 4 KB)');
    const content=new TextDecoder('utf-8',{fatal:true}).decode(await file.arrayBuffer());
+   if(revision!==dossierRevision)return;
    const line=content.split(/\r?\n/).find(value=>value.startsWith('SHA-256: '));
    if(!line)throw Error('SHA-256-regel ontbreekt');
    const hash=line.slice('SHA-256: '.length).trim();
@@ -146,6 +153,7 @@ $('fingerprintReceipt').addEventListener('change',async event=>{
    $('exportFingerprint').disabled=true;
    $('verifyStatus').textContent='Nieuwe referentie geladen: kies opnieuw het projectbestand voor vergelijking.';
  }catch(err){
+   if(revision!==dossierRevision)return;
    $('expectedFingerprint').value='';
    verifiedFingerprint=null;
    $('exportFingerprint').disabled=true;
@@ -156,6 +164,7 @@ $('bundleVerify').addEventListener('change',async event=>{
  const file=event.target.files?.[0];
  if(!file)return;
  const status=$('verifyStatus');
+ const revision=++dossierRevision;
  status.textContent='Projectbestand controleren…';
  verifiedFingerprint=null;
  $('exportFingerprint').disabled=true;
@@ -166,10 +175,12 @@ $('bundleVerify').addEventListener('change',async event=>{
    const reference=$('expectedFingerprint').value.trim();
    if(reference!==''&&!/^[0-9a-fA-F]{64}$/.test(reference))throw Error('Referentie moet precies 64 hexadecimale SHA-256-tekens bevatten');
    const bytes=await file.arrayBuffer();
+   if(revision!==dossierRevision)return;
    const contents=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
    const pack=api.parse(contents);
    if(!crypto?.subtle?.digest)throw Error('SHA-256 niet beschikbaar in deze browser');
    const digest=await crypto.subtle.digest('SHA-256',bytes);
+   if(revision!==dossierRevision)return;
    const fingerprint=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
    // A mismatched trusted reference cannot unlock a fresh matching-receipt export.
    const matchesReference=reference===''||fingerprint===reference.toLowerCase();
@@ -180,6 +191,7 @@ $('bundleVerify').addEventListener('change',async event=>{
    const comparison=reference===''?'Geen eerdere referentie ingevoerd.':fingerprint===reference.toLowerCase()?'REFERENTIE KOMT OVEREEN.':'WAARSCHUWING: SHA-256 KOMT NIET OVEREEN MET DE REFERENTIE.';
    status.textContent='Geldig creatief DRAFT-project · autoriteit NONE · exterieur '+ex+'/96 · interieur '+interior+'/240 · notitie '+pack.note.length+' tekens · SHA-256: '+fingerprint+'. '+comparison+' Vergelijking is geen digitale handtekening of officiële goedkeuring.';
  }catch(err){
+   if(revision!==dossierRevision)return;
    status.textContent='Controle afgewezen: '+err.message+'. Er is niets geïmporteerd.';
  }finally{event.target.value='';}
 });
