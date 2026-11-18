@@ -277,7 +277,7 @@ test('corrupt storage blocks import and ordinary clear without mutating protecte
   },corrupt);
   await page.reload();
   await page.locator('#tab-atelier').click();
-  const journal={format:'palaco-la-observatory-local-v1',authority:'SELF_REPORTED_NOT_VERIFIED',
+  const journal={format:'palaco-la-observatory-local-v1',exported_at:'2026-11-18T04:00:00.000Z',authority:'SELF_REPORTED_NOT_VERIFIED',
     notes:[{id:'import-1',at:'2026-11-17T07:00:00.000Z',subject:'Imported note',
       kind:'OBSERVED',reference:'',notes:'Should be blocked'}]};
   await page.locator('#import-file').setInputFiles({
@@ -349,7 +349,7 @@ test('clear all revokes consent and removes persisted journal rather than saving
 test('stale async journal import cannot reintroduce notes after a local edit',{timeout:60000},async()=>{
  await withPage({width:390,height:800},async page=>{
   await page.locator('#tab-atelier').click();
-  const journal={format:'palaco-la-observatory-local-v1',authority:'SELF_REPORTED_NOT_VERIFIED',
+  const journal={format:'palaco-la-observatory-local-v1',exported_at:'2026-11-18T04:00:00.000Z',authority:'SELF_REPORTED_NOT_VERIFIED',
    notes:[{id:'stale-import-1',at:'2026-11-17T10:00:00.000Z',subject:'Verouderde import',
     kind:'OBSERVED',reference:'',notes:'Mag niet worden toegevoegd'}]};
   await page.locator('#import-file').setInputFiles({
