@@ -139,13 +139,14 @@ let journalRevision=0;
 let selectedId=null;
 let storageEnabled=false,storageRecoveryBlocked=false;
 function validStoredNotes(value){
-return Array.isArray(value)&&value.length<=max&&value.every(valid)&&new Set(value.map(n=>n.id)).size===value.length;
+return Array.isArray(value)&&value.length<=max&&value.every(n=>ownKeysEqual(n,["id","at","subject","kind","reference","notes"])&&valid(n))&&new Set(value.map(n=>n.id)).size===value.length;
 }
 try{
  storageEnabled=localStorage.getItem(CONSENT)==="yes";
  if(storageEnabled){
   const raw=localStorage.getItem(KEY);
   if(raw!==null){
+   if(new TextEncoder().encode(raw).length>262144)throw new Error("Lokale kopie overschrijdt veilige grootte");
    const value=JSON.parse(raw);
    if(!validStoredNotes(value))throw new Error("Lokale kopie heeft een ongeldig schema");
    notes=value.map(n=>({id:n.id,at:n.at,subject:n.subject,kind:n.kind,reference:n.reference,notes:n.notes}));
