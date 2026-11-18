@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Exacte importcontracten en claimbeperking (v2.2)
+De offline JSON-import accepteert nu uitsluitend de vier canonieke velden `format`, `exported_at`, `authority` en `notes`. Het exporttijdstip moet parseerbaar zijn als datum. Iedere geïmporteerde waarneming moet uitsluitend `id`, `at`, `subject`, `kind`, `reference` en `notes` bevatten. Extra attributen zoals `verified`, `authority` op notitieniveau of andere niet-ondersteunde bewijsclaims worden afgewezen in plaats van genegeerd.
+
+Nieuwe Chromium-scenario's controleren ongeldige exporttijdstippen en ongeautoriseerde extra velden. Bestaande testfixtures zijn bijgewerkt naar het strikte exportcontract. Deze validatie stelt uitsluitend de structuur van een lokaal bestand vast, niet de authenticiteit of herkomst. Browseracceptatie en release blijven HOLD.
+
 ## Veilige asynchrone inspectie-export (v2.1)
 Bij het exporteren van een inspectiedossier kan de SHA-256-berekening nog bezig zijn wanneer de selectie of het lokale Geheugen verandert. De Bewijskamer onthoudt daarom de geselecteerde waarneming, de logboekversie en het nummer van de lopende export. Vóór downloaden worden deze gegevens opnieuw gecontroleerd. Een verouderde export wordt afgebroken als de gebruiker een andere notitie selecteert, het Geheugen wijzigt, een nieuwere export start of een opslagherstelblokkade ontstaat. Zo kan een oud dossier niet onbedoeld worden uitgegeven nadat de context is veranderd.
 
