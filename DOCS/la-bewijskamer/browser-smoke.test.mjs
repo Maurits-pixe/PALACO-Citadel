@@ -619,3 +619,67 @@ test("mobile acceptance: encrypted file import has no automatic storage or plain
  assert.match(await b.locator("#timeline").innerText(),/Mobiele archiefoverdracht/);
  await sender.close();await receiver.close();
 });
+
+test("mobile recovery: locking during delayed encrypted file import must not reopen memories",async()=>{
+ const sender=await browser.newContext({viewport:{width:360,height:740},isMobile:true,hasTouch:true}),a=await sender.newPage();
+ await a.goto(base+"/DOCS/la-geheugenkamer/");
+ await a.locator("#title").fill("Geen heropening na slot");
+ await a.locator("#who").fill("W");await a.locator("#what").fill("Afgeschermde herinnering");
+ await a.locator("#entryForm button[type=submit]").tap();
+ await a.locator("#archivePassphrase").fill("Herstelwachtzin mobiel 123");
+ const [download]=await Promise.all([a.waitForEvent("download"),a.locator("#encryptedExport").tap()]);
+ const file=await readFile(await download.path());
+ const receiver=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true}),b=await receiver.newPage();
+ await b.goto(base+"/DOCS/la-geheugenkamer/");
+ await b.evaluate(()=>{
+  const original=SubtleCrypto.prototype.deriveKey;
+  window.__cryptoPending=false;
+  SubtleCrypto.prototype.deriveKey=function(...args){
+    window.__cryptoPending=true;
+    return new Promise((resolve,reject)=>{window.__releaseCrypto=()=>original.apply(this,args).then(resolve,reject)});
+  };
+ });
+ await b.locator("#archivePassphrase").fill("Herstelwachtzin mobiel 123");
+ await b.locator("#file").setInputFiles({name:"delayed.json",mimeType:"application/json",buffer:file});
+ await b.waitForFunction(()=>window.__cryptoPending);
+ await b.locator("#vaultLock").tap();
+ assert.equal(await b.locator("#count").innerText(),"0");
+ await b.evaluate(()=>window.__releaseCrypto());
+ await b.waitForFunction(()=>document.querySelector("#message").textContent.includes("Import afgebroken"));
+ assert.equal(await b.locator("#count").innerText(),"0");
+ assert.equal(await b.evaluate(()=>localStorage.length),0);
+ await sender.close();await receiver.close();
+});
+
+test("mobile recovery: a new memory during delayed import prevents stale merge",async()=>{
+ const sender=await browser.newContext({viewport:{width:360,height:740},isMobile:true,hasTouch:true}),a=await sender.newPage();
+ await a.goto(base+"/DOCS/la-geheugenkamer/");
+ await a.locator("#title").fill("Inhoud uit bestand");
+ await a.locator("#who").fill("W");await a.locator("#what").fill("Oude momentopname");
+ await a.locator("#entryForm button[type=submit]").tap();
+ await a.locator("#archivePassphrase").fill("Test import geheugen 123");
+ const [download]=await Promise.all([a.waitForEvent("download"),a.locator("#encryptedExport").tap()]);
+ const file=await readFile(await download.path());
+ const receiver=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true}),b=await receiver.newPage();
+ await b.goto(base+"/DOCS/la-geheugenkamer/");
+ await b.evaluate(()=>{
+  const original=SubtleCrypto.prototype.deriveKey;
+  window.__cryptoPending=false;
+  SubtleCrypto.prototype.deriveKey=function(...args){
+    window.__cryptoPending=true;
+    return new Promise((resolve,reject)=>{window.__releaseCrypto=()=>original.apply(this,args).then(resolve,reject)});
+  };
+ });
+ await b.locator("#archivePassphrase").fill("Test import geheugen 123");
+ await b.locator("#file").setInputFiles({name:"delayed.json",mimeType:"application/json",buffer:file});
+ await b.waitForFunction(()=>window.__cryptoPending);
+ await b.locator("#title").fill("Nieuw lokaal record");
+ await b.locator("#who").fill("W");await b.locator("#what").fill("Wijziging tijdens import");
+ await b.locator("#entryForm button[type=submit]").tap();
+ await b.evaluate(()=>window.__releaseCrypto());
+ await b.waitForFunction(()=>document.querySelector("#message").textContent.includes("Import afgebroken"));
+ assert.equal(await b.locator("#count").innerText(),"1");
+ assert.match(await b.locator("#timeline").innerText(),/Nieuw lokaal record/);
+ assert.doesNotMatch(await b.locator("#timeline").innerText(),/Inhoud uit bestand/);
+ await sender.close();await receiver.close();
+});
