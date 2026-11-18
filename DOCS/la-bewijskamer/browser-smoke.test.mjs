@@ -517,3 +517,50 @@ test("Web Locks: deleting a known vault waits for exclusive lock and then remove
  assert.equal(await page.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),null);
  await context.close();
 });
+
+test("Web Locks: concurrent writers serialize and reject stale second snapshot",async()=>{
+ const context=await browser.newContext({viewport:{width:390,height:844}});
+ const holder=await context.newPage(),first=await context.newPage(),second=await context.newPage();
+ await Promise.all([holder,first,second].map(p=>p.goto(base+"/DOCS/la-geheugenkamer/")));
+ await holder.evaluate(()=>{
+  window.__held=false;
+  window.__request=navigator.locks.request("palaco.citadel.geheugenkamer.vault.write",{mode:"exclusive"},async()=>{
+    window.__held=true;await new Promise(ok=>window.__release=ok);
+  });
+ });
+ await holder.waitForFunction(()=>window.__held);
+ for(const [page,name] of [[first,"Eerste schrijver"],[second,"Tweede schrijver"]]){
+  await page.locator("#title").fill(name);
+  await page.locator("#who").fill("W");
+  await page.locator("#what").fill("Gelijktijdige opslag");
+  await page.locator("#entryForm button[type=submit]").click();
+  await page.locator("#archivePassphrase").fill("Wachtzin voor gelijktijdige opslag 123");
+ }
+ await first.locator("#vaultSave").click();
+ await second.locator("#vaultSave").click();
+ await first.waitForFunction(async()=> (await navigator.locks.query()).pending.filter(x=>x.name==="palaco.citadel.geheugenkamer.vault.write").length===2);
+ assert.equal(await first.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),null);
+ await holder.evaluate(()=>window.__release());
+ await first.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde kluis bewust opgeslagen"));
+ await second.waitForFunction(()=>document.querySelector("#message").textContent.includes("Kluisopslag geweigerd"));
+ const blob=await first.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1"));
+ assert.equal(JSON.parse(blob).revision,1);
+ assert.equal(blob,await second.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")));
+ await context.close();
+});
+
+test("Web Locks unavailable: vault write is refused without unencrypted fallback",async()=>{
+ const context=await browser.newContext({viewport:{width:390,height:844}});
+ await context.addInitScript(()=>Object.defineProperty(navigator,"locks",{value:undefined,configurable:true}));
+ const page=await context.newPage();await page.goto(base+"/DOCS/la-geheugenkamer/");
+ await page.locator("#title").fill("Geen lock beschikbaar");
+ await page.locator("#who").fill("W");
+ await page.locator("#what").fill("Blijft alleen in tab");
+ await page.locator("#entryForm button[type=submit]").click();
+ await page.locator("#archivePassphrase").fill("Wachtzin zonder browser-lock 123");
+ await page.locator("#vaultSave").click();
+ await page.waitForFunction(()=>document.querySelector("#message").textContent.includes("Kluisopslag mislukt"));
+ assert.equal(await page.evaluate(()=>localStorage.length),0);
+ assert.equal(await page.locator("#count").innerText(),"1");
+ await context.close();
+});
