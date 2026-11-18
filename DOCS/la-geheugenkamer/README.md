@@ -56,6 +56,15 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Revisies en bescherming tegen verouderde tabbladen · v1.9
+- De versleutelde apparaatkluis gebruikt voortaan een envelop `PALACO-CITADEL-VAULT-2` met `revision` (beginnend bij 1) en `parentDigest` (SHA-256 van de vorige volledig opgeslagen kluisblob). De bestaande AES-256-GCM-archiefinhoud blijft versleuteld.
+- Na succesvol ontgrendelen wordt de exacte opslagversie als uitgangspunt van deze tab onthouden. Bij bewust opnieuw bewaren moet de actuele kluisblob daarmee overeenkomen. Een tweede, verouderde tab kan dus niet zonder voorafgaand ontgrendelen de inmiddels aanwezige kluis vervangen.
+- Bestaande versleutelde kluizen van v1.6–v1.8 worden bij ontgrendelen gelezen; de eerstvolgende bewuste opslag migreert die kluis naar revisie 2. De exportbestanden uit v1.5 blijven ongewijzigd.
+- Bij iedere overschrijving is nog steeds een afzonderlijke bevestiging vereist. Het mechanisme verhindert het ongemerkt vervangen van een onbekende snapshot; het is **geen onvoorwaardelijke datafusie**.
+- Deze revisie- en parent-digestvelden zijn lokale conflicthulpmiddelen, geen geauthenticeerde externe historie of officieel bewijscertificaat.
+- Er is **geen atomaire compare-and-swap** in localStorage. Twee exact gelijktijdige schrijfacties kunnen theoretisch nog racen tussen de laatste controle en opslag. Een toekomstige transactielaag, bijvoorbeeld IndexedDB, blijft daarvoor nodig.
+- Twee Chromium-proeven testen oplopende revisies en weigering van overschrijven vanuit een verouderd tabblad.
+
 ## Tab-overstijgende wijzigingsmeldingen · v1.8
 - De Geheugenkamer luistert naar het browser-`storage`-event voor de versleutelde apparaatkluis en de oude onversleutelde opslag.
 - Wijzigingen of verwijderingen vanuit een **andere tab** maken lopende versleutel- en ontgrendelbewerkingen ongeldig, met een zichtbare melding; hiermee wordt voorkomen dat een vertraagde ontsleuteling na verwijdering van de kluis alsnog herinneringen zichtbaar maakt.
