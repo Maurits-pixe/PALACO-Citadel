@@ -452,3 +452,32 @@ test('journal import rejects extra authority claims and invalid export timestamp
   assert.match(await page.locator('#count').innerText(),/0 \/ 0/);
  });
 });
+
+test('stored journal with forbidden extra fields stays quarantined without mutation',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  const tampered=JSON.stringify([{id:'extra-1',at:'2026-11-18T04:00:00.000Z',subject:'Handmatig',kind:'OBSERVED',reference:'',notes:'Niet geverifieerd',verified:true}]);
+  await page.evaluate(raw=>{
+   localStorage.setItem('palaco_la_observatory_consent_v1','yes');
+   localStorage.setItem('palaco_la_observatory_notes_v1',raw);
+  },tampered);
+  await page.reload();
+  assert.equal(await page.locator('#persist').isDisabled(),true);
+  assert.match(await page.locator('#storage').innerText(),/HERSTEL VEREIST/);
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),tampered);
+  await page.locator('#tab-geheugen').click();
+  assert.match(await page.locator('#count').innerText(),/0 \/ 0/);
+ });
+});
+test('oversized consented journal is quarantined before JSON parsing',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  const oversized='['+' '.repeat(262145)+']';
+  await page.evaluate(raw=>{
+   localStorage.setItem('palaco_la_observatory_consent_v1','yes');
+   localStorage.setItem('palaco_la_observatory_notes_v1',raw);
+  },oversized);
+  await page.reload();
+  assert.equal(await page.locator('#persist').isDisabled(),true);
+  assert.match(await page.locator('#storage').innerText(),/HERSTEL VEREIST/);
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')?.length),oversized.length);
+ });
+});
