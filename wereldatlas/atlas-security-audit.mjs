@@ -3,7 +3,7 @@
 import {REQUIRED,DEPENDENCIES} from "./atlas-package-audit.mjs";
 export const SECURITY_SCHEMA="palaco.atlas.dependency-security.draft.v1";
 export const MAX_SOURCE_BYTES=512*1024;
-export const MAX_SOURCES=40;
+export const MAX_SOURCES=48;
 export const SHELL_FILES=Object.freeze([...REQUIRED,"./"]);
 const EXPECTED=new Set(REQUIRED);
 const isObj=x=>x!==null&&typeof x==="object"&&!Array.isArray(x);
