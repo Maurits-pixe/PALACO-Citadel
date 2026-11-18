@@ -57,4 +57,16 @@ jobs:
         working-directory: DOCS/la-observatorium
         run: node --input-type=module -e "import { chromium } from 'playwright'; import { existsSync } from 'node:fs'; import { createRequire } from 'node:module'; const require = createRequire(import.meta.url); const version = require('playwright/package.json').version; if (version !== '1.56.1') throw new Error('Wrong Playwright version: ' + version); const binary = chromium.executablePath(); if (!existsSync(binary)) throw new Error('Playwright Chromium binary missing: ' + binary); console.log('Playwright ' + version + ', browser: ' + binary)"
       - name: Run mobile and desktop browser journey
-        run: node --test DOCS/la-observatorium/browser-acceptance.test.mjs
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p DOCS/la-observatorium/test-results
+          node --test --test-reporter=tap DOCS/la-observatorium/browser-acceptance.test.mjs 2>&1 | tee DOCS/la-observatorium/test-results/browser-tap.log
+      - name: Preserve browser acceptance diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: la-observatorium-browser-diagnostics
+          path: DOCS/la-observatorium/test-results/
+          if-no-files-found: warn
+          retention-days: 14
