@@ -58,6 +58,9 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/id="exportFingerprint" disabled/);
   assert.match(read('regiekamer.html'),/verifiedFingerprint=null/);
   assert.match(read('regiekamer.html'),/PALACO-Atelier-SHA256-Referentie-DRAFT\.txt/);
+  assert.match(read('regiekamer.html'),/id="fingerprintReceipt"/);
+  assert.match(read('regiekamer.html'),/Referentie geweigerd/);
+  assert.match(read('regiekamer.html'),/file\.name\.replace\(/);
 });
 test('original New Citadel identity wizard is still linked and cannot authorize',()=>{
   const wizard=read('wizard.html');
