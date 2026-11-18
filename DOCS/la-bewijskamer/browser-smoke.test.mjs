@@ -456,6 +456,7 @@ test("stale tab cannot overwrite newer vault and must unlock first",async()=>{
  await b.locator("#vaultSave").click();
  await b.waitForFunction(()=>document.querySelector("#message").textContent.includes("Kluisconflict"));
  assert.equal(await b.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),original);
+ b.once("dialog",d=>d.accept());
  await b.locator("#vaultLock").click();
  await b.locator("#archivePassphrase").fill("Gedeeld geheim nummer 123!");
  await b.locator("#vaultUnlock").click();
