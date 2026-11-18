@@ -52,6 +52,9 @@ function validate(data,recipient){
  if(!Array.isArray(data.records)||data.records.length>500||!['minimal-user-controlled','full-user-controlled'].includes(data.privacy))throw Error('Ongeldige inhoud');
  if(data.transferMode!==undefined&&data.transferMode!=='manual-file-preview-only')throw Error('Onbekende overdrachtsmodus');
  if(data.intendedRecipient!==undefined&&data.intendedRecipient!==recipient)throw Error('Bestemming komt niet overeen');
+ if(data.authority!==undefined&&data.authority!=='unverified-user-observations')throw Error('Ongeldige autoriteitsclaim');
+ if(data.exported!==undefined&&(typeof data.exported!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(data.exported)||!Number.isFinite(Date.parse(data.exported))||Date.parse(data.exported)>Date.now()+86400000))throw Error('Ongeldig exporttijdstip');
+ if(data.destinationHints!==undefined&&(!Array.isArray(data.destinationHints)||data.destinationHints.length!==2||new Set(data.destinationHints).size!==2||!['wereldatlas','geheugenkamer'].every(value=>data.destinationHints.includes(value))))throw Error('Ongeldige bestemmingsindicaties');
  const minimal=data.privacy==='minimal-user-controlled',ids=new Set(),sequences=new Set();
  for(const r of data.records){
   if(!r||!kinds.includes(r.category)||!areas.includes(r.conceptualArea)||!states.includes(r.verification))throw Error('Ongeldig record');
@@ -62,6 +65,19 @@ function validate(data,recipient){
    if(!exactFields(r,fullKeys)||typeof r.id!=='string'||!r.id.trim()||r.id.length>120||ids.has(r.id)||typeof r.title!=='string'||!r.title.trim()||r.title.length>100||typeof r.description!=='string'||r.description.length>2000||typeof r.observedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(r.observedAt)||!Number.isFinite(Date.parse(r.observedAt))||Date.parse(r.observedAt)>Date.now()+86400000)throw Error('Ongeldig volledig record');
    ids.add(r.id);
   }
+ }
+ if(data.summary!==undefined){
+  const summary=data.summary;
+  if(!summary||typeof summary!=='object'||Array.isArray(summary)||!Array.isArray(summary.byZone)||summary.byZone.length!==areas.length)throw Error('Ongeldige samenvatting');
+  if(summary.total!==data.records.length||summary.pending!==data.records.filter(r=>r.verification!=='geverifieerd door gebruiker').length)throw Error('Samenvatting wijkt af');
+  const byArea=new Map();
+  for(const z of summary.byZone){
+   if(!z||typeof z.zone!=='string'||!areas.includes(z.zone)||byArea.has(z.zone))throw Error('Dubbel of onbekend gebied');
+   const rows=data.records.filter(r=>r.conceptualArea===z.zone);
+   if(z.total!==rows.length||z.flora!==rows.filter(r=>r.category==='Flora').length||z.fauna!==rows.filter(r=>r.category==='Fauna').length)throw Error('Gebiedstellingen wijken af');
+   byArea.set(z.zone,true);
+  }
+  if(summary.activeZones!==areas.filter(area=>data.records.some(r=>r.conceptualArea===area)).length)throw Error('Actieve gebieden wijken af');
  }
  return minimal;
 }
