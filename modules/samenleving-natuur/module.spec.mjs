@@ -109,7 +109,7 @@ test('default handoff export omits private note, title, and record IDs', async (
   const pending = page.waitForEvent('download');
   await page.locator('#packetExport').click();
   const download = await pending;
-  expect(download.suggestedFilename()).toBe('citadel-leefwereld-minimaal.json');
+  expect(download.suggestedFilename()).toBe('citadel-wereldatlas-minimaal.json');
   const { readFile } = await import('node:fs/promises');
   const json = JSON.parse(await readFile(await download.path(), 'utf8'));
   expect(json.privacy).toBe('minimal-user-controlled');
@@ -360,4 +360,43 @@ test('empty recovery requires two confirmations and can be cancelled safely', as
   await expect(page.locator('#message')).toContainText('Leeg register hersteld');
   await expect(page.locator('#storageWarning')).toBeHidden();
   expect(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),key)).toEqual([]);
+});
+
+test('geheugenkamer handoff is explicitly addressed and remains a manual local file', async ({page}) => {
+  await page.getByRole('button',{name:'Levend register'}).click();
+  await page.locator('#title').fill('Een bijzondere eik');
+  await page.locator('#entryform button[type="submit"]').click();
+  await page.getByRole('button',{name:'Leefwereldatlas'}).click();
+  await page.locator('#packetDestination').selectOption('geheugenkamer');
+  const requests=[];
+  page.on('request',request=>{if(!request.url().startsWith('http://127.0.0.1:4177/'))requests.push(request.url())});
+  const pending=page.waitForEvent('download');
+  await page.locator('#packetExport').click();
+  const download=await pending;
+  expect(download.suggestedFilename()).toBe('citadel-geheugenkamer-minimaal.json');
+  const {readFile}=await import('node:fs/promises');
+  const data=JSON.parse(await readFile(await download.path(),'utf8'));
+  expect(data.intendedRecipient).toBe('geheugenkamer');
+  expect(data.transferMode).toBe('manual-file-preview-only');
+  expect(data.privacy).toBe('minimal-user-controlled');
+  expect(data.records[0]).not.toHaveProperty('title');
+  expect(data.records[0]).not.toHaveProperty('description');
+  expect(requests).toEqual([]);
+  await expect(page.locator('#atlasStatus')).toContainText('er is niets verzonden');
+});
+
+test('damaged local storage blocks misleading standard exports', async ({page}) => {
+  const key='palaco.citadel.samenleving-natuur.v1';
+  await page.evaluate(key=>localStorage.setItem(key,'{DAMAGED'),key);
+  await page.reload();
+  await page.getByRole('button',{name:'Leefwereldatlas'}).click();
+  let downloads=0;
+  page.on('download',()=>downloads++);
+  await page.locator('#packetExport').click();
+  await expect(page.locator('#atlasStatus')).toContainText('Export geblokkeerd');
+  await page.getByRole('button',{name:'Levend register'}).click();
+  await page.locator('#export').click();
+  await expect(page.locator('#message')).toContainText('Back-upexport geblokkeerd');
+  expect(downloads).toBe(0);
+  expect(await page.evaluate(key=>localStorage.getItem(key),key)).toBe('{DAMAGED');
 });
