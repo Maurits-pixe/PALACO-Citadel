@@ -464,3 +464,56 @@ test("stale tab cannot overwrite newer vault and must unlock first",async()=>{
  assert.match(await b.locator("#timeline").innerText(),/Nieuwste notitie/);
  await context.close();
 });
+
+test("Web Locks: encrypted vault write waits for other tab's exclusive lock",async()=>{
+ const context=await browser.newContext({viewport:{width:390,height:844}});
+ const holder=await context.newPage(),writer=await context.newPage();
+ await holder.goto(base+"/DOCS/la-geheugenkamer/");
+ await writer.goto(base+"/DOCS/la-geheugenkamer/");
+ await holder.evaluate(()=>{
+   window.__held=false;
+   window.__locked=navigator.locks.request("palaco.citadel.geheugenkamer.vault.write",{mode:"exclusive"},async()=>{
+      window.__held=true;await new Promise(resolve=>window.__unlock=resolve);
+   });
+ });
+ await holder.waitForFunction(()=>window.__held);
+ await writer.locator("#title").fill("Exclusieve kluis");
+ await writer.locator("#who").fill("W");await writer.locator("#what").fill("Een");
+ await writer.locator("#entryForm button[type=submit]").click();
+ await writer.locator("#archivePassphrase").fill("Wachtzin met exclusieve lock 123");
+ await writer.locator("#vaultSave").click();
+ await writer.waitForFunction(async()=>{const q=await navigator.locks.query();return q.pending.some(x=>x.name==="palaco.citadel.geheugenkamer.vault.write")});
+ assert.equal(await writer.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),null,"No write while lock held");
+ await holder.evaluate(()=>window.__unlock());
+ await writer.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde kluis bewust opgeslagen"));
+ assert.equal(await writer.evaluate(()=>JSON.parse(localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")).revision),1);
+ await context.close();
+});
+
+test("Web Locks: deleting a known vault waits for exclusive lock and then removes it",async()=>{
+ const context=await browser.newContext({viewport:{width:390,height:844}});
+ const page=await context.newPage(),holder=await context.newPage();
+ await page.goto(base+"/DOCS/la-geheugenkamer/");
+ await holder.goto(base+"/DOCS/la-geheugenkamer/");
+ await page.locator("#title").fill("Verwijderen onder slot");
+ await page.locator("#who").fill("W");await page.locator("#what").fill("T");
+ await page.locator("#entryForm button[type=submit]").click();
+ await page.locator("#archivePassphrase").fill("Verwijder wachtzin lokaal 123!");
+ await page.locator("#vaultSave").click();
+ await page.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde kluis bewust opgeslagen"));
+ await holder.evaluate(()=>{
+   window.__held=false;
+   window.__locked=navigator.locks.request("palaco.citadel.geheugenkamer.vault.write",{mode:"exclusive"},async()=>{
+      window.__held=true;await new Promise(resolve=>window.__unlock=resolve);
+   });
+ });
+ await holder.waitForFunction(()=>window.__held);
+ page.once("dialog",d=>d.accept());
+ await page.locator("#vaultDelete").click();
+ await page.waitForFunction(async()=>{const q=await navigator.locks.query();return q.pending.some(x=>x.name==="palaco.citadel.geheugenkamer.vault.write")});
+ assert.ok(await page.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")));
+ await holder.evaluate(()=>window.__unlock());
+ await page.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde apparaatkluis verwijderd"));
+ assert.equal(await page.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),null);
+ await context.close();
+});
