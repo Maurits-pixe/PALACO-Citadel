@@ -64,6 +64,7 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Deze revisie- en parent-digestvelden zijn lokale conflicthulpmiddelen, geen geauthenticeerde externe historie of officieel bewijscertificaat.
 - Er is **geen atomaire compare-and-swap** in localStorage. Twee exact gelijktijdige schrijfacties kunnen theoretisch nog racen tussen de laatste controle en opslag. Een toekomstige transactielaag, bijvoorbeeld IndexedDB, blijft daarvoor nodig.
 - Twee Chromium-proeven testen oplopende revisies en weigering van overschrijven vanuit een verouderd tabblad.
+- **CI gecontroleerd op 18 november 2026:** [run #44238500301](https://github.com/Maurits-pixe/PALACO-Citadel/actions/runs/44238500301) slaagde met **55/55 tests**: 35 Node-regressies en 20 Chromium-browserproeven. Voor de Chromium-tests is de runner vastgezet op Ubuntu 24.04 omdat de gebruikte Playwright-versie Ubuntu 26.04 nog niet ondersteunde.
 
 ## Tab-overstijgende wijzigingsmeldingen · v1.8
 - De Geheugenkamer luistert naar het browser-`storage`-event voor de versleutelde apparaatkluis en de oude onversleutelde opslag.
