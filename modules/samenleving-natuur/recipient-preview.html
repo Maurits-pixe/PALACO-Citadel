@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="nl">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PALACO CITADEL — Ontvangstpreview</title>
+<meta name="theme-color" content="#10241f">
+<style>
+:root{color-scheme:dark;--bg:#091612;--panel:#142b22;--line:#456251;--gold:#dbc483;--text:#f5f3e9}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top left,#244838,var(--bg) 60%);color:var(--text);font:16px/1.55 system-ui,sans-serif}
+main{max-width:950px;margin:auto;padding:32px 20px}h1,h2{font-family:Georgia,serif;font-weight:400}h1{font-size:clamp(2rem,6vw,3.4rem)}
+.brand{letter-spacing:.2em;color:var(--gold);font-size:.8rem;font-weight:700}
+.card{padding:20px;border:1px solid var(--line);background:var(--panel);border-radius:16px;margin:18px 0}
+label{display:block;margin:14px 0 5px}select,input,button{font:inherit;padding:12px;border-radius:9px;border:1px solid var(--line);background:#0b1c15;color:var(--text);max-width:100%}
+select,input[type=file]{width:100%}button{cursor:pointer}button:disabled{opacity:.5;cursor:default}:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.notice{border-left:3px solid var(--gold);padding-left:14px}dl{display:grid;grid-template-columns:max-content 1fr;gap:8px 16px}dt{color:var(--gold)}dd{margin:0;overflow-wrap:anywhere}
+#records article{border-top:1px solid var(--line);padding:12px 0}#records p{white-space:pre-wrap;overflow-wrap:anywhere}
+small{color:#c2d1c5}.hidden{display:none!important}
+</style></head>
+<body><main>
+<div class="brand">PALACO INDUSTRIE · CITADEL</div>
+<h1>Ontvangstpreview</h1>
+<p>Bekijk een overdrachtspakket voor de Wereldatlas of Geheugenkamer, zonder registratie of verzending. Dit is een <strong>lokale demonstratie</strong>, geen live-koppeling en geen bewijs van authenticiteit.</p>
+<div class="card">
+<label for="recipient">Ontvangend hoofdstuk</label>
+<select id="recipient"><option value="wereldatlas">Wereldatlas</option><option value="geheugenkamer">Geheugenkamer</option></select>
+<label for="packet">Kies een lokaal JSON-overdrachtspakket (maximaal 2 MB)</label>
+<input id="packet" type="file" accept=".json,application/json">
+<p id="status" role="status" aria-live="polite">Er is nog geen bestand gekozen.</p>
+</div>
+<section id="preview" class="card hidden" aria-labelledby="heading">
+<h2 id="heading">Voorvertoning zonder opslag</h2>
+<p class="notice">De gegevens blijven alleen tijdelijk in dit browsertabblad. Er wordt niets naar de Wereldatlas, Geheugenkamer of een server verzonden.</p>
+<dl><dt>Ontvanger</dt><dd id="actualRecipient"></dd><dt>Privacy</dt><dd id="privacy"></dd><dt>Records</dt><dd id="total"></dd><dt>Herkomststatus</dt><dd>Niet onafhankelijk geverifieerd</dd></dl>
+<h2>Inhoud</h2><div id="records"></div>
+<button id="discard" type="button">Voorvertoning wissen</button>
+</section>
+<small>Contract palaco-citadel-handoff-v1 · ontwerpstatus DRAFT / HOLD · offline-first</small>
+</main>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const kinds=['Flora','Fauna','Water','Landschap','Samenleving'];
+const areas=['Het Woud','De Velden','Het Waterland','De Heuvels','De Tuinen','Het Stiltegebied'];
+const states=['persoonlijke observatie','nog te verifiëren','geverifieerd door gebruiker'];
+let ticket=0;
+function clear(message){$('preview').classList.add('hidden');$('records').replaceChildren();$('actualRecipient').textContent='';$('privacy').textContent='';$('total').textContent='';$('status').textContent=message}
+function validate(data,recipient){
+ if(!data||data.schema!=='palaco-citadel-handoff-v1'||data.source!=='citadel/samenleving-natuur'||!['wereldatlas','geheugenkamer'].includes(recipient))throw Error('Ongeldig contract');
+ if(!Array.isArray(data.records)||data.records.length>500||!['minimal-user-controlled','full-user-controlled'].includes(data.privacy))throw Error('Ongeldige inhoud');
+ if(data.transferMode!==undefined&&data.transferMode!=='manual-file-preview-only')throw Error('Onbekende overdrachtsmodus');
+ if(data.intendedRecipient!==undefined&&data.intendedRecipient!==recipient)throw Error('Bestemming komt niet overeen');
+ const minimal=data.privacy==='minimal-user-controlled',ids=new Set(),sequences=new Set();
+ for(const r of data.records){
+  if(!r||!kinds.includes(r.category)||!areas.includes(r.conceptualArea)||!states.includes(r.verification))throw Error('Ongeldig record');
+  if(minimal){
+   if(!Number.isInteger(r.sequence)||r.sequence<1||sequences.has(r.sequence)||typeof r.recordedMonth!=='string'||!/^\\d{4}-(0[1-9]|1[0-2])$/.test(r.recordedMonth))throw Error('Ongeldig minimaal record');
+   sequences.add(r.sequence);
+  }else{
+   if(typeof r.id!=='string'||!r.id.trim()||r.id.length>120||ids.has(r.id)||typeof r.title!=='string'||!r.title.trim()||r.title.length>100||typeof r.description!=='string'||r.description.length>2000||typeof r.observedAt!=='string'||!/^\\d{4}-\\d{2}-\\d{2}T/.test(r.observedAt)||!Number.isFinite(Date.parse(r.observedAt))||Date.parse(r.observedAt)>Date.now()+86400000)throw Error('Ongeldig volledig record');
+   ids.add(r.id);
+  }
+ }
+ return minimal;
+}
+function field(tag,value){const n=document.createElement(tag);n.textContent=value;return n}
+function render(data,recipient,minimal){
+ $('actualRecipient').textContent=recipient==='wereldatlas'?'Wereldatlas':'Geheugenkamer';
+ $('privacy').textContent=minimal?'Minimaal — zonder vrije tekst':'Volledig — bevat mogelijk gevoelige beschrijvingen';
+ $('total').textContent=String(data.records.length);
+ const target=$('records');target.replaceChildren();
+ for(const r of data.records){
+  const article=document.createElement('article');
+  article.append(field('strong',minimal?'Observatie '+r.sequence:r.title));
+  article.append(field('p',r.category+' · '+r.conceptualArea+' · '+r.verification));
+  article.append(field('small',minimal?r.recordedMonth:r.observedAt));
+  if(!minimal)article.append(field('p',r.description));
+  target.append(article);
+ }
+ if(!data.records.length)target.append(field('p','Dit pakket bevat geen observaties.'));
+ $('preview').classList.remove('hidden');
+ $('status').textContent='Pakket lokaal gevalideerd; geen gegevens overgenomen of verzonden.';
+}
+$('packet').addEventListener('change',async e=>{
+ const id=++ticket;clear('Bestand wordt gecontroleerd.');
+ const file=e.target.files?.[0];
+ if(!file){clear('Er is geen bestand gekozen.');return}
+ if(file.size>2000000){clear('Bestand afgewezen: maximaal 2 MB.');return}
+ try{
+  const data=JSON.parse(await file.text());
+  if(id!==ticket)return;
+  const recipient=$('recipient').value;
+  const minimal=validate(data,recipient);
+  render(data,recipient,minimal);
+ }catch{if(id===ticket)clear('Pakket afgewezen: onjuist contract, bestemming of record.')}
+});
+$('recipient').addEventListener('change',()=>{ticket++;$('packet').value='';clear('Ontvanger gewijzigd; kies opnieuw een passend pakket.')});
+$('discard').addEventListener('click',()=>{ticket++;$('packet').value='';clear('Voorvertoning gewist. Er is niets opgeslagen.')});
+})();
+</script></body></html>
