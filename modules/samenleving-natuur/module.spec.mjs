@@ -459,3 +459,54 @@ test('Geheugenkamer preview shows full text safely and requires no authority', a
   await expect(page.locator('#records img, #records script')).toHaveCount(0);
   expect(await page.evaluate(()=>window.citadelInjection)).toBeUndefined();
 });
+
+test('recipient preview refuses personal fields disguised as minimal data', async ({page}) => {
+  await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+  const packet={
+    schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
+    intendedRecipient:'wereldatlas',transferMode:'manual-file-preview-only',
+    privacy:'minimal-user-controlled',
+    records:[{sequence:1,category:'Flora',conceptualArea:'Het Woud',
+      verification:'nog te verifiëren',recordedMonth:'2026-11',
+      title:'PERSOONLIJKE TITEL',description:'GEVOELIGE NOTITIE'}]
+  };
+  await page.locator('#packet').setInputFiles({
+    name:'leaking-minimal.json',mimeType:'application/json',
+    buffer:Buffer.from(JSON.stringify(packet))
+  });
+  await expect(page.locator('#preview')).toBeHidden();
+  await expect(page.locator('#status')).toContainText('Pakket afgewezen');
+  await expect(page.locator('#records')).not.toContainText('PERSOONLIJKE TITEL');
+});
+
+test('recipient preview rejects duplicate observation sequence in minimal packet', async ({page}) => {
+  await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+  const observation={sequence:1,category:'Flora',conceptualArea:'Het Woud',
+    verification:'nog te verifiëren',recordedMonth:'2026-11'};
+  await page.locator('#packet').setInputFiles({
+    name:'duplicate.json',mimeType:'application/json',
+    buffer:Buffer.from(JSON.stringify({
+      schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
+      intendedRecipient:'wereldatlas',privacy:'minimal-user-controlled',
+      records:[observation,{...observation}]
+    }))
+  });
+  await expect(page.locator('#status')).toContainText('Pakket afgewezen');
+  await expect(page.locator('#preview')).toBeHidden();
+});
+
+test('changing recipient invalidates a previously rendered preview', async ({page}) => {
+  await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+  await page.locator('#packet').setInputFiles({
+    name:'atlas.json',mimeType:'application/json',
+    buffer:Buffer.from(JSON.stringify({
+      schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
+      intendedRecipient:'wereldatlas',privacy:'minimal-user-controlled',records:[]
+    }))
+  });
+  await expect(page.locator('#preview')).toBeVisible();
+  await page.locator('#recipient').selectOption('geheugenkamer');
+  await expect(page.locator('#preview')).toBeHidden();
+  await expect(page.locator('#packet')).toHaveValue('');
+  await expect(page.locator('#status')).toContainText('Ontvanger gewijzigd');
+});
