@@ -38,6 +38,9 @@
 <input type="file" id="bundleVerify" accept=".json,application/json" style="max-width:100%;font-size:13px">
 <label for="expectedFingerprint" class="eyebrow" style="display:block;margin:12px 0 8px">Eerder vastgelegde SHA-256-referentie (optioneel)</label>
 <input type="text" id="expectedFingerprint" maxlength="64" inputmode="text" spellcheck="false" autocomplete="off" placeholder="64 hexadecimale tekens, bijvoorbeeld uit je vorige controle" style="width:min(100%,600px);padding:12px;background:#102c23;color:#f4f0e6;border:1px solid #779078;border-radius:10px">
+<label for="fingerprintReceipt" class="eyebrow" style="display:block;margin:12px 0 8px">Of laad een eerder bewaarde SHA-256-referentie (TXT)</label>
+<input type="file" id="fingerprintReceipt" accept=".txt,text/plain" style="max-width:100%;font-size:13px">
+<p class="small" id="referenceStatus" role="status" aria-live="polite">Referentie blijft uitsluitend in deze pagina; het bestand wordt niet geüpload.</p>
 <p class="small">Alleen een eerder veilig bewaarde, vertrouwde referentie kan dienen als vergelijkingsbasis. De waarde wordt niet opgeslagen of verzonden.</p>
 <p class="small" id="verifyStatus" role="status" aria-live="polite">Kies een lokaal DRAFT JSON-bestand om schema, inhoud en SHA-256-vingerafdruk te controleren. Dit verandert geen opgeslagen ontwerp.</p>
 <div class="actions"><button type="button" class="action" id="exportFingerprint" disabled>↓ Bewaar SHA-256-referentie (TXT)</button></div>
@@ -117,7 +120,31 @@ $('exportFingerprint').addEventListener('click',()=>{
   +'Bestand: '+filename+'\\n'
   +'Controle: bestandsbytes, geen digitale handtekening of officiële goedkeuring.\\n'
   +'Bewaar deze referentie afzonderlijk van het projectbestand.\\n';
- download('PALACO-Atelier-SHA256-Referentie-DRAFT.txt',receipt.replaceAll('\\n','\n'),'text/plain;charset=utf-8');
+ download('PALACO-Atelier-SHA256-Referentie-DRAFT.txt',receipt.replaceAll('\\n',String.fromCharCode(10)),'text/plain;charset=utf-8');
+});
+$('fingerprintReceipt').addEventListener('change',async event=>{
+ const file=event.target.files?.[0];
+ if(!file)return;
+ const status=$('referenceStatus');
+ try{
+   if(file.size>4096)throw Error('Referentiebestand te groot (maximaal 4 KB)');
+   const content=new TextDecoder('utf-8',{fatal:true}).decode(await file.arrayBuffer());
+   const line=content.split(/\r?\n/).find(value=>value.startsWith('SHA-256: '));
+   if(!line)throw Error('SHA-256-regel ontbreekt');
+   const hash=line.slice('SHA-256: '.length).trim();
+   if(!/^[0-9a-fA-F]{64}$/.test(hash))throw Error('Referentie bevat geen geldige SHA-256');
+   $('expectedFingerprint').value=hash.toLowerCase();
+   status.textContent='SHA-256-referentie geladen. Selecteer nu opnieuw het JSON-projectbestand voor een verse vergelijking. De referentie is niet geauthenticeerd.';
+   // A prior successful verification is not valid for a newly loaded reference.
+   verifiedFingerprint=null;
+   $('exportFingerprint').disabled=true;
+   $('verifyStatus').textContent='Nieuwe referentie geladen: kies opnieuw het projectbestand voor vergelijking.';
+ }catch(err){
+   $('expectedFingerprint').value='';
+   verifiedFingerprint=null;
+   $('exportFingerprint').disabled=true;
+   status.textContent='Referentie geweigerd: '+err.message;
+ }finally{event.target.value='';}
 });
 $('bundleVerify').addEventListener('change',async event=>{
  const file=event.target.files?.[0];
@@ -138,7 +165,7 @@ $('bundleVerify').addEventListener('change',async event=>{
    if(!crypto?.subtle?.digest)throw Error('SHA-256 niet beschikbaar in deze browser');
    const digest=await crypto.subtle.digest('SHA-256',bytes);
    const fingerprint=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
-   verifiedFingerprint={hash:fingerprint,filename:file.name.replace(/[\\r\\n\\t]/g,' ').slice(0,120)};
+   verifiedFingerprint={hash:fingerprint,filename:file.name.replace(/[\x00-\x1f\x7f]/g,' ').slice(0,120)};
    $('exportFingerprint').disabled=false;
    const ex=pack.exterior?pack.exterior.cells.filter(Boolean).length:0;
    const interior=pack.interior?pack.interior.floors.flat().filter(Boolean).length:0;
