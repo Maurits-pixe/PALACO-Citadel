@@ -510,3 +510,51 @@ test('changing recipient invalidates a previously rendered preview', async ({pag
   await expect(page.locator('#packet')).toHaveValue('');
   await expect(page.locator('#status')).toContainText('Ontvanger gewijzigd');
 });
+
+test('receiver rejects unknown fields in minimal records rather than concealing them', async ({page}) => {
+  await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+  await page.locator('#packet').setInputFiles({
+    name:'unknown-minimal.json',mimeType:'application/json',
+    buffer:Buffer.from(JSON.stringify({
+      schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
+      intendedRecipient:'wereldatlas',privacy:'minimal-user-controlled',
+      records:[{sequence:1,category:'Flora',conceptualArea:'Het Woud',
+        verification:'nog te verifiëren',recordedMonth:'2026-11',privateMemo:'EXTRA PERSOONLIJKE DATA'}]
+    }))
+  });
+  await expect(page.locator('#status')).toContainText('Pakket afgewezen');
+  await expect(page.locator('#preview')).toBeHidden();
+  await expect(page.locator('#records')).not.toContainText('EXTRA PERSOONLIJKE DATA');
+});
+
+test('receiver rejects unexpected fields in full records', async ({page}) => {
+  await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+  await page.locator('#recipient').selectOption('geheugenkamer');
+  await page.locator('#packet').setInputFiles({
+    name:'unknown-full.json',mimeType:'application/json',
+    buffer:Buffer.from(JSON.stringify({
+      schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
+      intendedRecipient:'geheugenkamer',privacy:'full-user-controlled',
+      records:[{id:'strict-001',title:'Testboom',category:'Flora',conceptualArea:'Het Woud',
+        verification:'nog te verifiëren',description:'Notitie',
+        observedAt:'2026-11-01T12:00:00Z',hiddenDeviceId:'DEVICE-PRIVATE'}]
+    }))
+  });
+  await expect(page.locator('#status')).toContainText('Pakket afgewezen');
+  await expect(page.locator('#preview')).toBeHidden();
+});
+
+test('receiver rejects a minimal record missing its required month', async ({page}) => {
+  await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+  await page.locator('#packet').setInputFiles({
+    name:'incomplete.json',mimeType:'application/json',
+    buffer:Buffer.from(JSON.stringify({
+      schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
+      privacy:'minimal-user-controlled',
+      records:[{sequence:1,category:'Flora',conceptualArea:'Het Woud',
+        verification:'nog te verifiëren'}]
+    }))
+  });
+  await expect(page.locator('#status')).toContainText('Pakket afgewezen');
+  await expect(page.locator('#preview')).toBeHidden();
+});
