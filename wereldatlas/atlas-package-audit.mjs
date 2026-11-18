@@ -9,7 +9,7 @@ export const REQUIRED=Object.freeze([
 "atlas-contract.mjs","wereldregister.mjs","atlas-archief.mjs","atlas-verificatie.mjs",
 "atlas-bewijs.mjs","atlas-provenance.mjs","atlas-trust-gateway.mjs","atlas-integratie.mjs",
 "atlas-acceptatie.mjs","atlas-acceptatie-dossier.mjs","atlas-release-review.mjs",
-"atlas-readiness.mjs","atlas-release-control.mjs","atlas-release-integrity.mjs","atlas-package-audit.mjs","atlas-security-audit.html","atlas-security-audit.mjs","atlas-traceability.html","atlas-traceability.mjs","atlas-attestation.html","atlas-attestation.mjs","atlas-consolidatie.html","atlas-consolidatie.mjs","atlas-device-acceptance.html","atlas-device-acceptance.mjs","atlas-device-handover.html","atlas-device-handover.mjs"
+"atlas-readiness.mjs","atlas-release-control.mjs","atlas-release-integrity.mjs","atlas-package-audit.mjs","atlas-security-audit.html","atlas-security-audit.mjs","atlas-traceability.html","atlas-traceability.mjs","atlas-attestation.html","atlas-attestation.mjs","atlas-consolidatie.html","atlas-consolidatie.mjs","atlas-device-acceptance.html","atlas-device-acceptance.mjs","atlas-device-handover.html","atlas-device-handover.mjs","atlas-device-retest.html","atlas-device-retest.mjs"
 ]);
 export const DEPENDENCIES=Object.freeze([
 ["atlas-integratie.html","atlas-integratie.mjs"],["atlas-integratie.mjs","wereldregister.mjs"],["atlas-integratie.mjs","atlas-archief.mjs"],
@@ -24,7 +24,8 @@ export const DEPENDENCIES=Object.freeze([
 ["atlas-attestation.html","atlas-attestation.mjs"],["atlas-attestation.mjs","atlas-traceability.mjs"],["atlas-attestation.mjs","atlas-readiness.mjs"],
 ["atlas-consolidatie.html","atlas-consolidatie.mjs"],["atlas-consolidatie.mjs","atlas-integratie.mjs"],["atlas-consolidatie.mjs","atlas-readiness.mjs"],["atlas-consolidatie.mjs","atlas-package-audit.mjs"],
 ["atlas-device-acceptance.html","atlas-device-acceptance.mjs"],
-["atlas-device-handover.html","atlas-device-handover.mjs"],["atlas-device-handover.mjs","atlas-device-acceptance.mjs"]
+["atlas-device-handover.html","atlas-device-handover.mjs"],["atlas-device-handover.mjs","atlas-device-acceptance.mjs"],
+["atlas-device-retest.html","atlas-device-retest.mjs"],["atlas-device-retest.mjs","atlas-device-acceptance.mjs"]
 ]);
 export const MAX_EVIDENCE=12;
 const sane=s=>typeof s==="string"&&s.length<=240&&!/[\u0000-\u001f\u007f]/.test(s);
