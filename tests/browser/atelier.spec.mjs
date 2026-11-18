@@ -230,6 +230,13 @@ test('Atelier: dossiercontrole toont echte SHA-256 en wijzigt geen lokaal projec
   await expect(page.locator('#exportFingerprint')).toBeDisabled();
   await page.locator('#bundleVerify').setInputFiles({name:'nogmaals.json',mimeType:'application/json',buffer:bytes});
   await expect(page.locator('#verifyStatus')).toContainText('REFERENTIE KOMT OVEREEN');
+  await expect(page.locator('#exportFingerprint')).toBeEnabled();
+  await page.locator('#expectedFingerprint').fill('f'.repeat(64));
+  await expect(page.locator('#verifyStatus')).toContainText('referentie aangepast');
+  await expect(page.locator('#exportFingerprint')).toBeDisabled();
+  await page.locator('#bundleVerify').setInputFiles({name:'gewijzigdereferentie.json',mimeType:'application/json',buffer:bytes});
+  await expect(page.locator('#verifyStatus')).toContainText('WAARSCHUWING: SHA-256 KOMT NIET OVEREEN');
+  await expect(page.locator('#exportFingerprint')).toBeDisabled();
   await page.locator('#fingerprintReceipt').setInputFiles({name:'onjuiste.txt',mimeType:'text/plain',buffer:Buffer.from('SHA-256: nietgeldig')});
   await expect(page.locator('#referenceStatus')).toContainText('Referentie geweigerd');
   await expect(page.locator('#expectedFingerprint')).toHaveValue('');
@@ -242,6 +249,7 @@ test('Atelier: dossiercontrole toont echte SHA-256 en wijzigt geen lokaal projec
   await page.locator('#expectedFingerprint').fill('0'.repeat(64));
   await page.locator('#bundleVerify').setInputFiles({name:'anders.json',mimeType:'application/json',buffer:bytes});
   await expect(page.locator('#verifyStatus')).toContainText('WAARSCHUWING: SHA-256 KOMT NIET OVEREEN');
+  await expect(page.locator('#exportFingerprint')).toBeDisabled();
   await page.locator('#expectedFingerprint').fill('not-a-sha');
   await page.locator('#bundleVerify').setInputFiles({name:'ongeldig.json',mimeType:'application/json',buffer:bytes});
   await expect(page.locator('#verifyStatus')).toContainText('Controle afgewezen');
