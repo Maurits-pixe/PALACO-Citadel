@@ -408,3 +408,26 @@ test('pending inspection export is cancelled when another note becomes selected'
   assert.equal(await page.locator('#inspection-subject').innerText(),'Tweede dossier');
  });
 });
+
+test('journal import rejects extra authority claims and invalid export timestamp',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  await page.locator('#tab-atelier').click();
+  const base={format:'palaco-la-observatory-local-v1',exported_at:'2026-11-18T04:00:00.000Z',
+   authority:'SELF_REPORTED_NOT_VERIFIED',
+   notes:[{id:'import-harden-1',at:'2026-11-18T04:00:00.000Z',
+    subject:'Handmatig',kind:'OBSERVED',reference:'',notes:'Niet geverifieerd'}]};
+  const cases=[
+   {...base,verified:true},
+   {...base,exported_at:'not-a-date'},
+   {...base,notes:[{...base.notes[0],authority:'OWNER'}]}
+  ];
+  for(const [index,document] of cases.entries()){
+   await page.locator('#import-file').setInputFiles({
+    name:`invalid-${index}.json`,mimeType:'application/json',buffer:Buffer.from(JSON.stringify(document))});
+   await page.locator('#import').click();
+   assert.match(await page.locator('#announce').innerText(),/Import geweigerd: formaat/);
+  }
+  await page.locator('#tab-geheugen').click();
+  assert.match(await page.locator('#count').innerText(),/0 \/ 0/);
+ });
+});
