@@ -311,3 +311,48 @@ test('invalid records are not silently dropped and replaced by later saves', asy
   await page.locator('#entryform button[type="submit"]').click();
   expect(await page.evaluate(key => localStorage.getItem(key),key)).toBe(raw);
 });
+
+test('corrupt storage can recover from a valid backup only after backup acknowledgement', async ({page}) => {
+  const key='palaco.citadel.samenleving-natuur.v1';
+  await page.evaluate(key=>localStorage.setItem(key,'{DAMAGED'),key);
+  await page.reload();
+  await page.getByRole('button',{name:'Levend register'}).click();
+  await page.locator('#importFile').setInputFiles(backupFile([backupRecord('recovered-from-backup')]));
+  await expect(page.locator('#message')).toContainText('Herstel geblokkeerd');
+  expect(await page.evaluate(key=>localStorage.getItem(key),key)).toBe('{DAMAGED');
+  await page.locator('#rawStorageExport').click();
+  await page.locator('#recoverConsent').check();
+  page.once('dialog',dialog=>dialog.accept());
+  await page.locator('#importFile').setInputFiles(backupFile([backupRecord('recovered-from-backup')]));
+  await expect(page.locator('#message')).toContainText('Back-up veilig hersteld');
+  await expect(page.locator('#storageWarning')).toBeHidden();
+  await expect(page.locator('#records')).toContainText('Eik uit back-up');
+  const saved=await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),key);
+  expect(saved).toHaveLength(1);
+  expect(saved[0].id).toBe('recovered-from-backup');
+});
+
+test('empty recovery requires two confirmations and can be cancelled safely', async ({page}) => {
+  const key='palaco.citadel.samenleving-natuur.v1';
+  await page.evaluate(key=>localStorage.setItem(key,'{BROKEN'),key);
+  await page.reload();
+  await page.getByRole('button',{name:'Levend register'}).click();
+  await expect(page.locator('#recoverEmpty')).toBeDisabled();
+  await page.locator('#rawStorageExport').click();
+  await expect(page.locator('#recoverEmpty')).toBeDisabled();
+  await page.locator('#recoverConsent').check();
+  await expect(page.locator('#recoverEmpty')).toBeEnabled();
+  page.once('dialog',dialog=>dialog.dismiss());
+  await page.locator('#recoverEmpty').click();
+  expect(await page.evaluate(key=>localStorage.getItem(key),key)).toBe('{BROKEN');
+  page.once('dialog',dialog=>dialog.accept());
+  page.once('dialog',dialog=>dialog.dismiss());
+  await page.locator('#recoverEmpty').click();
+  expect(await page.evaluate(key=>localStorage.getItem(key),key)).toBe('{BROKEN');
+  page.once('dialog',dialog=>dialog.accept());
+  page.once('dialog',dialog=>dialog.accept());
+  await page.locator('#recoverEmpty').click();
+  await expect(page.locator('#message')).toContainText('Leeg register hersteld');
+  await expect(page.locator('#storageWarning')).toBeHidden();
+  expect(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),key)).toEqual([]);
+});
