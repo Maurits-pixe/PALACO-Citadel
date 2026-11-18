@@ -481,3 +481,37 @@ test('oversized consented journal is quarantined before JSON parsing',{timeout:6
   assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')?.length),oversized.length);
  });
 });
+
+test('persistent journal refuses over 256 KiB writes without destroying last valid copy',{timeout:90000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  const sample='😀'.repeat(750);
+  await page.evaluate(largeNotes=>{
+   const seed=Array.from({length:80},(_,i)=>({
+    id:'stored-'+i,at:'2026-11-18T04:00:00.000Z',
+    subject:'Bron '+i,kind:'OBSERVED',reference:'',notes:largeNotes
+   }));
+   localStorage.setItem('palaco_la_observatory_notes_v1',JSON.stringify(seed));
+   localStorage.setItem('palaco_la_observatory_consent_v1','yes');
+  },sample);
+  await page.reload();
+  assert.equal(await page.locator('#persist').isChecked(),true);
+  await page.locator('#tab-atelier').click();
+  let lastValidCopy=null,limitReached=false;
+  for(let i=0;i<20;i++){
+   lastValidCopy=await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1'));
+   await page.locator('#subject').fill('Grote aanvulling '+i);
+   await page.locator('#notes').fill(sample);
+   await page.locator('#form button[type="submit"]').click();
+   if((await page.locator('#storage').innerText()).includes('OPSLAGLIMIET BEREIKT')){
+    limitReached=true;break;
+   }
+  }
+  assert.equal(limitReached,true,'The persisted byte cap must be reached');
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),lastValidCopy);
+  assert.equal(await page.locator('#persist').isDisabled(),false);
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_consent_v1')),'yes');
+  await page.locator('#tab-geheugen').click();
+  const visibleCount=Number((await page.locator('#count').innerText()).split('/')[1].match(/\d+/)[0]);
+  assert.ok(visibleCount>JSON.parse(lastValidCopy).length,'New note remains in current tab');
+ });
+});
