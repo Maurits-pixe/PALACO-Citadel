@@ -348,7 +348,7 @@ const raw=await file.text();
 if(storageRecoveryBlocked||journalRevision!==startedAtRevision){status("Import afgebroken: lokaal Geheugen is tijdens het lezen gewijzigd.");return;}
 if(new TextEncoder().encode(raw).length>262144){status("Import geweigerd: ingelezen inhoud te groot.");return;}
 const data=JSON.parse(raw);
-if(!data||typeof data!=="object"||Array.isArray(data)||data.format!=="palaco-la-observatory-local-v1"||data.authority!=="SELF_REPORTED_NOT_VERIFIED"||!Array.isArray(data.notes)||data.notes.length>max||!data.notes.every(valid)){
+if(!ownKeysEqual(data,["format","exported_at","authority","notes"])||data.format!=="palaco-la-observatory-local-v1"||data.authority!=="SELF_REPORTED_NOT_VERIFIED"||typeof data.exported_at!=="string"||!Number.isFinite(Date.parse(data.exported_at))||!Array.isArray(data.notes)||data.notes.length>max||!data.notes.every(n=>ownKeysEqual(n,["id","at","subject","kind","reference","notes"])&&valid(n))){
 status("Import geweigerd: formaat, bewijsgrens of inhoud ongeldig.");return;
 }
 const ids=new Set(notes.map(n=>n.id)),incoming=[],fileIds=new Set();
