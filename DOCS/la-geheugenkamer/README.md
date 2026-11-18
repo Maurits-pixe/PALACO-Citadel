@@ -56,6 +56,14 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Exclusieve cross-tab schrijflock · v2.0
+- Versleuteld kluisschrijven en het verwijderen van de kluis maken gebruik van de **Web Locks API** (exclusieve locknaam `palaco.citadel.geheugenkamer.vault.write`), gedeeld door tabs van dezelfde origin.
+- De exclusieve lock omvat de laatste controle van revisie/opslagstatus én de daadwerkelijke localStorage-mutatie. Een tweede tab kan niet tegelijk via dezelfde appcode een kluis schrijven of verwijderen.
+- Bij afwezigheid van Web Locks wordt de mutatie **fail-closed geweigerd**. Het openen en gebruiken van bestaande dossiers blijft gescheiden van deze schrijfacties.
+- Verwijderen controleert de bekende huidige kluisversie opnieuw; het wissen van een onbekende of inmiddels gewijzigde kluis wordt geweigerd. Bewust verwijderen vereist nog steeds een bevestiging.
+- Chromium-browserproeven bezetten de exclusieve lock in tab A en controleren dat opslaan en verwijderen in tab B wachten tot de lock vrijkomt.
+- **Grenzen:** de Web Locks API coördineert alleen code die dezelfde lock respecteert. Andere scripts, browserextensies of directe localStorage-wijzigingen kunnen dit omzeilen. Web Locks garandeert geen duurzame, transactionele commit of synchronisatie tussen apparaten. Browserondersteuning buiten Chromium moet nog worden geaccepteerd.
+
 ## Revisies en bescherming tegen verouderde tabbladen · v1.9
 - De versleutelde apparaatkluis gebruikt voortaan een envelop `PALACO-CITADEL-VAULT-2` met `revision` (beginnend bij 1) en `parentDigest` (SHA-256 van de vorige volledig opgeslagen kluisblob). De bestaande AES-256-GCM-archiefinhoud blijft versleuteld.
 - Na succesvol ontgrendelen wordt de exacte opslagversie als uitgangspunt van deze tab onthouden. Bij bewust opnieuw bewaren moet de actuele kluisblob daarmee overeenkomen. Een tweede, verouderde tab kan dus niet zonder voorafgaand ontgrendelen de inmiddels aanwezige kluis vervangen.
