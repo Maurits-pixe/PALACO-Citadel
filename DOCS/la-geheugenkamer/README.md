@@ -56,6 +56,13 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Mobiele herstelbeveiliging · v2.4
+- De asynchrone JSON-import bewaakt nu het oorspronkelijke geheugen en een operatietoken. Een tussentijdse wijziging of vergrendeling annuleert de nog lopende import voordat records worden samengevoegd.
+- De beveiliging geldt ook tijdens trage AES-256-GCM-ontsleuteling: een vergrendelde mobiele tab mag niet door een eerder gestarte bestandsimport opnieuw worden gevuld.
+- Twee aanvullende echte Chromium-touchtests gebruiken vertraagde sleutelafleiding om te controleren dat (1) vergrendelen tijdens import geen herinneringen heropent en (2) het aanmaken van een nieuwe herinnering tijdens import de oudere bestandssnapshot niet stilzwijgend toevoegt.
+- Een afgewezen import verandert de reeds aanwezige herinneringen niet en start geen ongevraagde apparaatopslag.
+- Fysieke tests op Android en iOS blijven nodig; Chromium-touchsimulatie garandeert niet hetzelfde bestands- en opslaggedrag op echte telefoons.
+
 ## Mobiele aanraakacceptatie · v2.3
 - Twee extra Chromium-browserproeven testen viewportbreedtes **320 px en 360 px**, mobiele aanraakbediening en een gesimuleerde telefooncontext.
 - Kluisproef: herinnering invoeren, versleuteld bewaren, controleren dat geen oude onversleutelde opslag is ontstaan, pagina herladen (gesloten), bewust ontgrendelen met wachtzin en de actieve tab na bevestiging vergrendelen.
