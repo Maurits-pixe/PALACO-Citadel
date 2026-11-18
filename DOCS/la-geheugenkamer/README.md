@@ -56,6 +56,13 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Racecontrole en directe compatibiliteitsmelding · v2.1
+- Twee nieuwe echte Chromium-scenario's: twee versleutelde schrijvers concurreren achter een door een derde tab bezette Web Lock; slechts één snapshot wordt opgeslagen, en een verouderde tweede schrijver wordt afgewezen.
+- Een test zonder `navigator.locks` controleert dat de versleutelde kluis **niet** wordt opgeslagen en dat geen onversleutelde fallback wordt gebruikt.
+- Als Web Locks niet beschikbaar is, meldt de Geheugenkamer dat nu **vóór** een kostbare PBKDF2-sleutelafleiding. De lokale gegevens blijven voorlopig uitsluitend in de geopende tab.
+- Geverifieerde basis: [GitHub Actions #44241693594](https://github.com/Maurits-pixe/PALACO-Citadel/actions/runs/44241693594), **59/59 PASS** (35 Node en 24 Chromium), op commit `4a04181122c16e893d5c2886607363788c26dd69`. De aanvullende test op de snellere compatibiliteitsmelding wordt afzonderlijk door CI uitgevoerd.
+- Web Locks coördineert alleen samenwerkende tabs van dezelfde origin. Dit is geen volledige databanktransactie, geen fysieke mobiele acceptatie en geen bewijs van herkomst of ERA/EDTR-autorisatie.
+
 ## Exclusieve cross-tab schrijflock · v2.0
 - Versleuteld kluisschrijven en het verwijderen van de kluis maken gebruik van de **Web Locks API** (exclusieve locknaam `palaco.citadel.geheugenkamer.vault.write`), gedeeld door tabs van dezelfde origin.
 - De exclusieve lock omvat de laatste controle van revisie/opslagstatus én de daadwerkelijke localStorage-mutatie. Een tweede tab kan niet tegelijk via dezelfde appcode een kluis schrijven of verwijderen.
