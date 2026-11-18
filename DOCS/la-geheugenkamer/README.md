@@ -56,6 +56,13 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Mobiele aanraakacceptatie · v2.3
+- Twee extra Chromium-browserproeven testen viewportbreedtes **320 px en 360 px**, mobiele aanraakbediening en een gesimuleerde telefooncontext.
+- Kluisproef: herinnering invoeren, versleuteld bewaren, controleren dat geen oude onversleutelde opslag is ontstaan, pagina herladen (gesloten), bewust ontgrendelen met wachtzin en de actieve tab na bevestiging vergrendelen.
+- Bestandsproef: versleuteld archief op een mobiele browsercontext downloaden, met de bestandskiezer invoeren in een tweede mobiele context, SHA-256/AES-256-GCM-validatie doorlopen en controleren dat geen automatische localStorage ontstaat.
+- De proeven verifiëren de browserlogica en de gesimuleerde aanraakinteractie; **ze zijn geen fysieke iPhone- of Android-tests**. Werkelijke mobiele bestandskiezers, toetsenborden en opslagbeleid vereisen aanvullende acceptatie op echte apparaten.
+- Bestaande desktop-Chromium-, Firefox-, WebKit- en Node-controles blijven verplicht.
+
 ## Cross-browser-acceptatie · v2.2
 - De CI bevat naast de bestaande Chromium-regressies twee afzonderlijke Playwright-matrixjobs op Ubuntu 24.04 voor **Firefox** en **WebKit**.
 - Beide browsers testen handmatige AES-256-GCM-archiefexport en -import over geïsoleerde browsercontexten: geen leesbare titel in de versleutelde bestandsbytes, correcte ontsleuteling, geen stilzwijgende opslag.
