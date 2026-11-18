@@ -297,3 +297,14 @@ test('persistent journal enforces UTF-8 byte limit before replacing stored data'
  assert.match(html,/meer dan 256 KiB; bestaande opgeslagen kopie niet overschreven/);
  assert.ok(html.indexOf('encode(serialized).length>262144')<html.indexOf('localStorage.setItem(KEY,serialized)'));
 });
+
+test('unsaved journal notes remain visible until local storage is confirmed',()=>{
+ assert.match(html,/id="pending" role="status" aria-live="polite"/);
+ assert.match(html,/let persistedNoteIds=new Set\(storageEnabled\?notes\.map\(n=>n\.id\):\[\]\)/);
+ assert.match(html,/function updatePendingStatus\(\)/);
+ assert.match(html,/notes\.filter\(n=>!persistedNoteIds\.has\(n\.id\)\)\.length/);
+ assert.match(html,/exporteer JSON vóór herladen/);
+ assert.match(html,/persistedNoteIds=new Set\(notes\.map\(n=>n\.id\)\)/);
+ assert.match(html,/persistedNoteIds\.clear\(\)/);
+ assert.match(html,/function render\(\)\{updatePendingStatus\(\)/);
+});
