@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Gelijkwaardige schrijflimiet voor offline Geheugen (v2.6)
+De grens van 256 KiB aan UTF-8-inhoud geldt nu niet alleen bij het laden maar ook **vóór iedere persistente schrijfactie**. Bij overschrijding wordt niets naar `localStorage` geschreven: de laatst bevestigde geldige kopie en de bestaande toestemmingsmarkering blijven behouden. De nieuwe notitie is uitsluitend tijdens de huidige tabsessie beschikbaar; de interface meldt **OPSLAGLIMIET BEREIKT** en adviseert export van het Geheugen. Deze grens veroorzaakt geen herstelblokkade zolang de bestaande opgeslagen kopie geldig blijft.
+
+De nieuwe Chromium-test gebruikt grote Unicode-notities (meerdere UTF-8-bytes per teken), groeit het logboek tot boven de grens en controleert dat de oude persistente kopie niet wordt overschreven. Dit is een toegevoegde acceptatietest, niet zelfstandig bewijs dat Chromium al is geslaagd. Release blijft HOLD.
+
 ## Strikte opstartcontrole van lokale opslag (v2.5)
 Een opgeslagen notitielogboek met actieve bewaartoestemming wordt vóór gebruik gecontroleerd op een bovengrens van 256 KiB aan UTF-8-bytes, maximaal 100 notities, een exact toegestaan notitieschema, geldige veldwaarden en unieke ID's. Extra velden zoals `verified`, `authority` of ongedocumenteerde attributen worden niet stilzwijgend weggefilterd. Een te groot of niet-conform logboek wordt **quarantaine**: de originele kopie blijft lokaal aanwezig, permanente opslag is geblokkeerd en een expliciete herstel-/downloadroute blijft beschikbaar.
 
