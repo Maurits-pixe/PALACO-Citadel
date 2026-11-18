@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Geïsoleerde Chromium-acceptatieomgeving (v2.3)
+De repository heeft een eigen `@playwright/test`-afhankelijkheid. Om te voorkomen dat de Observatorium-test onbedoeld een andere Playwright-versie of Chromium-revisie gebruikt, installeert de specifieke GitHub Actions-workflow `playwright@1.56.1` in `DOCS/la-observatorium/node_modules`, en installeert Chromium met de CLI uit exact die map. Voorafgaand aan de browserjourneys controleert de workflow de werkelijk geladen Playwright-versie én of de bijbehorende browserbinary aanwezig is.
+
+**Bewijsgrens:** de reguliere GitHub-CI en de statische broncodecontroles zijn niet hetzelfde als een geslaagde Chromium-browsertest. De Observatorium-release blijft HOLD tot de job `browser-acceptance` aantoonbaar met conclusie `success` is afgerond en de relevante tests zijn uitgevoerd. Er is geen merge of publicatie verbonden aan deze workflow.
+
 ## Exacte importcontracten en claimbeperking (v2.2)
 De offline JSON-import accepteert nu uitsluitend de vier canonieke velden `format`, `exported_at`, `authority` en `notes`. Het exporttijdstip moet parseerbaar zijn als datum. Iedere geïmporteerde waarneming moet uitsluitend `id`, `at`, `subject`, `kind`, `reference` en `notes` bevatten. Extra attributen zoals `verified`, `authority` op notitieniveau of andere niet-ondersteunde bewijsclaims worden afgewezen in plaats van genegeerd.
 
