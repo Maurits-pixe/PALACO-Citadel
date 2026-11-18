@@ -158,7 +158,10 @@ test('CI guards feature-branch pushes and remains read-only',()=>{
  assert.match(workflow,/pull_request:/);
  assert.match(workflow,/workflow_dispatch:/);
  assert.match(workflow,/permissions:\s*\n\s*contents: read/);
- assert.match(workflow,/\.\/node_modules\/\.bin\/playwright install --with-deps chromium/);
+ assert.match(workflow,/\.\/DOCS\/la-observatorium\/node_modules\/\.bin\/playwright install --with-deps chromium/);
+ assert.match(workflow,/npm install --prefix DOCS\/la-observatorium --no-save --package-lock=false --ignore-scripts playwright@1\.56\.1/);
+ assert.match(workflow,/working-directory: DOCS\/la-observatorium/);
+ assert.match(workflow,/version !== '1\.56\.1'/);
  assert.match(workflow,/chromium\.executablePath\(\)/);
  assert.doesNotMatch(workflow,/\b(?:deploy|pages: write|contents: write)\b/i);
 });
