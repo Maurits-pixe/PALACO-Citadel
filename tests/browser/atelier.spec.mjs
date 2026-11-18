@@ -267,3 +267,49 @@ test('Atelier: dossiercontrole toont echte SHA-256 en wijzigt geen lokaal projec
   await expect(page.locator('#outUsed')).toHaveText('1');
   expect(await page.evaluate(()=>localStorage.getItem('palaco.citadel.atelier.grand-studio.v1'))).toBe(before);
 });
+
+test('Atelier: langzame oude dossiercontrole kan nieuwste bestand niet overschrijven',async ({page})=>{
+ const {createHash}=await import('node:crypto');
+ await page.goto('/atelier/regiekamer.html');
+ const first=await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage)));
+ const second=JSON.stringify({...JSON.parse(first),note:'Nieuwste versie'});
+ const latestHash=createHash('sha256').update(Buffer.from(second)).digest('hex');
+ await page.evaluate(()=>{
+   const original=File.prototype.arrayBuffer;
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='traag-oud.json')return new Promise((resolve,reject)=>{
+       window.releaseOldVerification=()=>original.call(this).then(resolve,reject);
+     });
+     return original.call(this);
+   };
+ });
+ await page.locator('#bundleVerify').setInputFiles({name:'traag-oud.json',mimeType:'application/json',buffer:Buffer.from(first)});
+ await expect(page.locator('#verifyStatus')).toContainText('controleren');
+ await page.locator('#bundleVerify').setInputFiles({name:'nieuw.json',mimeType:'application/json',buffer:Buffer.from(second)});
+ await expect(page.locator('#verifyStatus')).toContainText(latestHash);
+ await expect(page.locator('#exportFingerprint')).toBeEnabled();
+ await page.evaluate(()=>window.releaseOldVerification());
+ await expect(page.locator('#verifyStatus')).toContainText(latestHash);
+ await expect(page.locator('#verifyStatus')).not.toContainText(createHash('sha256').update(Buffer.from(first)).digest('hex'));
+});
+
+test('Atelier: veranderde referentie invalideert vertraagde bestandscontrole',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const draft=await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage)));
+ await page.evaluate(()=>{
+   const original=File.prototype.arrayBuffer;
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='vertraagd.json')return new Promise((resolve,reject)=>{
+       window.releasePendingVerification=()=>original.call(this).then(resolve,reject);
+     });
+     return original.call(this);
+   };
+ });
+ await page.locator('#bundleVerify').setInputFiles({name:'vertraagd.json',mimeType:'application/json',buffer:Buffer.from(draft)});
+ await expect(page.locator('#verifyStatus')).toContainText('controleren');
+ await page.locator('#expectedFingerprint').fill('a'.repeat(64));
+ await expect(page.locator('#verifyStatus')).toContainText('referentie aangepast');
+ await page.evaluate(()=>window.releasePendingVerification());
+ await expect(page.locator('#verifyStatus')).toContainText('referentie aangepast');
+ await expect(page.locator('#exportFingerprint')).toBeDisabled();
+});
