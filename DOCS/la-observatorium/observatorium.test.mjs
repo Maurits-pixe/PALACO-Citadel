@@ -42,7 +42,7 @@ test('JSON journal import has strict schema, size and count limits',()=>{
  assert.match(html,/data\.format!=="palaco-la-observatory-local-v1"/);
  assert.match(html,/data\.authority!=="SELF_REPORTED_NOT_VERIFIED"/);
  assert.match(html,/data\.notes\.length>max/);
- assert.match(html,/data\.notes\.every\(valid\)/);
+ assert.match(html,/data\.notes\.every\(n=>ownKeysEqual\(n,\["id","at","subject","kind","reference","notes"\]\)&&valid\(n\)\)/);
  assert.match(html,/fileIds\.has\(n\.id\)/);
  assert.match(html,/notes\.length\+incoming\.length>max/);
  assert.match(html,/Import geweigerd/);
@@ -257,4 +257,10 @@ test('inspection exports reject stale SHA-256 results after note or selection ch
  assert.match(html,/const inspectedId=selectedId,startedAtRevision=journalRevision/);
  assert.match(html,/run!==inspectionExportRun\|\|selectedId!==inspectedId\|\|journalRevision!==startedAtRevision\|\|storageRecoveryBlocked/);
  assert.match(html,/Export afgebroken: selectie, Geheugen of opslagstatus is tussentijds gewijzigd/);
+});
+
+test('local journal imports reject unexpected authority-like fields and bad export metadata',()=>{
+ assert.match(html,/ownKeysEqual\(data,\["format","exported_at","authority","notes"\]\)/);
+ assert.match(html,/Number\.isFinite\(Date\.parse\(data\.exported_at\)\)/);
+ assert.match(html,/data\.notes\.every\(n=>ownKeysEqual\(n,\["id","at","subject","kind","reference","notes"\]\)&&valid\(n\)\)/);
 });
