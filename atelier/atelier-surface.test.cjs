@@ -62,6 +62,8 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/Referentie geweigerd/);
   assert.match(read('regiekamer.html'),/addEventListener\('input'/);
   assert.match(read('regiekamer.html'),/const matchesReference=reference===/);
+  assert.match(read('regiekamer.html'),/let dossierRevision=0/);
+  assert.match(read('regiekamer.html'),/if\(revision!==dossierRevision\)return/);
   assert.match(read('regiekamer.html'),/verifiedFingerprint=matchesReference\?/);
   assert.match(read('regiekamer.html'),/file\.name\.replace\(/);
 });
