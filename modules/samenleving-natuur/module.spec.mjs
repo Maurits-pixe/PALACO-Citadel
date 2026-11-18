@@ -558,3 +558,53 @@ test('receiver rejects a minimal record missing its required month', async ({pag
   await expect(page.locator('#status')).toContainText('Pakket afgewezen');
   await expect(page.locator('#preview')).toBeHidden();
 });
+
+test('receiver rejects false authority assertions in package metadata', async ({page})=>{
+  await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+  await page.locator('#packet').setInputFiles({
+    name:'fake-authority.json',mimeType:'application/json',
+    buffer:Buffer.from(JSON.stringify({
+      schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
+      intendedRecipient:'wereldatlas',privacy:'minimal-user-controlled',
+      authority:'independently-verified',records:[]
+    }))
+  });
+  await expect(page.locator('#status')).toContainText('Pakket afgewezen');
+  await expect(page.locator('#preview')).toBeHidden();
+});
+
+test('receiver rejects a tampered summary even when record fields are valid', async ({page})=>{
+  await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+  const areas=['Het Woud','De Velden','Het Waterland','De Heuvels','De Tuinen','Het Stiltegebied'];
+  const packet={schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
+    privacy:'minimal-user-controlled',records:[{sequence:1,category:'Flora',conceptualArea:'Het Woud',
+      verification:'nog te verifiëren',recordedMonth:'2026-11'}],
+    summary:{total:999,pending:1,activeZones:1,
+      byZone:areas.map(zone=>({zone,total:zone==='Het Woud'?1:0,flora:zone==='Het Woud'?1:0,fauna:0}))}};
+  await page.locator('#packet').setInputFiles({
+    name:'tampered.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(packet))
+  });
+  await expect(page.locator('#status')).toContainText('Pakket afgewezen');
+  await expect(page.locator('#preview')).toBeHidden();
+});
+
+test('receiver accepts a consistent full handoff including summary and metadata', async ({page})=>{
+  await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+  await page.locator('#recipient').selectOption('geheugenkamer');
+  const areas=['Het Woud','De Velden','Het Waterland','De Heuvels','De Tuinen','Het Stiltegebied'];
+  const packet={schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
+    intendedRecipient:'geheugenkamer',transferMode:'manual-file-preview-only',
+    privacy:'full-user-controlled',authority:'unverified-user-observations',
+    exported:'2026-11-18T08:00:00Z',destinationHints:['wereldatlas','geheugenkamer'],
+    records:[{id:'summary-001',title:'Eik',category:'Flora',conceptualArea:'Het Woud',
+      verification:'persoonlijke observatie',description:'Leefgebied',observedAt:'2026-11-01T12:00:00Z'}],
+    summary:{total:1,pending:1,activeZones:1,
+      byZone:areas.map(zone=>({zone,total:zone==='Het Woud'?1:0,
+        flora:zone==='Het Woud'?1:0,fauna:0}))}};
+  await page.locator('#packet').setInputFiles({
+    name:'consistent.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(packet))
+  });
+  await expect(page.locator('#preview')).toBeVisible();
+  await expect(page.locator('#total')).toHaveText('1');
+  await expect(page.locator('#status')).toContainText('lokaal gevalideerd');
+});
