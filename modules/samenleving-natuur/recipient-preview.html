@@ -42,6 +42,9 @@ const $=id=>document.getElementById(id);
 const kinds=['Flora','Fauna','Water','Landschap','Samenleving'];
 const areas=['Het Woud','De Velden','Het Waterland','De Heuvels','De Tuinen','Het Stiltegebied'];
 const states=['persoonlijke observatie','nog te verifiëren','geverifieerd door gebruiker'];
+const minimalKeys=['sequence','category','conceptualArea','verification','recordedMonth'];
+const fullKeys=['id','title','category','conceptualArea','verification','description','observedAt'];
+function exactFields(record,allowed){return Object.keys(record).length===allowed.length&&Object.keys(record).every(key=>allowed.includes(key))}
 let ticket=0;
 function clear(message){$('preview').classList.add('hidden');$('records').replaceChildren();$('actualRecipient').textContent='';$('privacy').textContent='';$('total').textContent='';$('status').textContent=message}
 function validate(data,recipient){
@@ -53,10 +56,10 @@ function validate(data,recipient){
  for(const r of data.records){
   if(!r||!kinds.includes(r.category)||!areas.includes(r.conceptualArea)||!states.includes(r.verification))throw Error('Ongeldig record');
   if(minimal){
-   if(!Number.isInteger(r.sequence)||r.sequence<1||sequences.has(r.sequence)||typeof r.recordedMonth!=='string'||!/^\d{4}-(0[1-9]|1[0-2])$/.test(r.recordedMonth)||['id','title','description','observedAt'].some(key=>Object.hasOwn(r,key)))throw Error('Ongeldig minimaal record');
+   if(!exactFields(r,minimalKeys)||!Number.isInteger(r.sequence)||r.sequence<1||sequences.has(r.sequence)||typeof r.recordedMonth!=='string'||!/^\d{4}-(0[1-9]|1[0-2])$/.test(r.recordedMonth))throw Error('Ongeldig minimaal record');
    sequences.add(r.sequence);
   }else{
-   if(typeof r.id!=='string'||!r.id.trim()||r.id.length>120||ids.has(r.id)||typeof r.title!=='string'||!r.title.trim()||r.title.length>100||typeof r.description!=='string'||r.description.length>2000||typeof r.observedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(r.observedAt)||!Number.isFinite(Date.parse(r.observedAt))||Date.parse(r.observedAt)>Date.now()+86400000)throw Error('Ongeldig volledig record');
+   if(!exactFields(r,fullKeys)||typeof r.id!=='string'||!r.id.trim()||r.id.length>120||ids.has(r.id)||typeof r.title!=='string'||!r.title.trim()||r.title.length>100||typeof r.description!=='string'||r.description.length>2000||typeof r.observedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(r.observedAt)||!Number.isFinite(Date.parse(r.observedAt))||Date.parse(r.observedAt)>Date.now()+86400000)throw Error('Ongeldig volledig record');
    ids.add(r.id);
   }
  }
