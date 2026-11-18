@@ -17,7 +17,8 @@ const routes=[
  ["Release Control Center","atlas-release-control.html"],
  ["Release Integrity & Recovery","atlas-release-integrity.html"],
  ["Release Package Audit","atlas-package-audit.html"],
- ["Dependency & Security Audit","atlas-security-audit.html"]
+ ["Dependency & Security Audit","atlas-security-audit.html"],
+ ["Release Evidence & Traceability","atlas-traceability.html"]
 ];
 test("alle tien Atlas-pagina's laden lokaal zonder script- of netwerkfouten",async({page})=>{
  const failures=[];
@@ -75,11 +76,11 @@ test("offlinemodus bewaart alleen de vaste Atlas-shell en opent archief zonder n
  await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
  await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
  const paths=await page.evaluate(async()=>{
-  const cache=await caches.open("palaco-atlas-shell-v1-rc10");
+  const cache=await caches.open("palaco-atlas-shell-v1-rc11");
   const keys=await cache.keys();
   return keys.map(r=>new URL(r.url).pathname);
  });
- expect(paths).toHaveLength(34);
+ expect(paths).toHaveLength(36);
  expect(paths.every(p=>p.startsWith("/wereldatlas/"))).toBe(true);
  expect(paths.some(p=>p.endsWith(".json")||p.includes("admin")||p.includes("api/"))).toBe(false);
  await context.setOffline(true);
@@ -293,7 +294,7 @@ test("Package Audit toont ontbrekende modules zonder ongeoorloofde claim",async(
  await expect(page.locator("#audit")).toBeEnabled();
  await page.locator("#audit").click();
  await expect(page.locator("#audit-status")).toContainText("ONVOLLEDIG");
- await expect(page.locator("#audit-status")).toContainText("Ontbrekend 32");
+ await expect(page.locator("#audit-status")).toContainText("Ontbrekend 34");
  await expect(page.locator("#download")).toBeEnabled();
 });
 test("Package Audit werkt offline na installatie",async({page,context})=>{
@@ -312,8 +313,8 @@ test("Dependency & Security Audit inspecteert Atlasbronnen lokaal zonder vrijgav
  await expect(page.locator("#export")).toBeDisabled();
  await page.locator("#run").click();
  await expect(page.locator("#audit-status")).toContainText("HOLD / DENY");
- await expect(page.locator("#summary")).toContainText("Bronnen: 33 / 33");
- await expect(page.locator("#summary")).toContainText("Offlinebronnencontract: 34");
+ await expect(page.locator("#summary")).toContainText("Bronnen: 35 / 35");
+ await expect(page.locator("#summary")).toContainText("Offlinebronnencontract: 36");
  await expect(page.locator("#export")).toBeEnabled();
 });
 test("Dependency & Security Audit opent en werkt zonder netwerk",async({page,context})=>{
@@ -324,6 +325,43 @@ test("Dependency & Security Audit opent en werkt zonder netwerk",async({page,con
  await context.setOffline(true);
  await page.goto(root+"atlas-security-audit.html");
  await page.locator("#run").click();
- await expect(page.locator("#summary")).toContainText("Bronnen: 33 / 33");
+ await expect(page.locator("#summary")).toContainText("Bronnen: 35 / 35");
  await expect(page.locator("#audit-status")).toContainText("HOLD / DENY");
+});
+
+test("Traceerbaarheidskamer verbindt module, poort en bestandsbewijs zonder GO",async({page})=>{
+ await page.goto(root+"atlas-traceability.html");
+ await page.locator("#evidence-id").fill("ATLAS-TRACE-001");
+ await page.locator("#reference").fill("CI-voorbeeld niet geattesteerd");
+ await page.locator("#result").selectOption("SELF_REPORTED_PASS");
+ await page.locator("#add").click();
+ await expect(page.locator("#entries .entry")).toHaveCount(1);
+ await expect(page.locator("#summary")).toContainText("Bewijsreferenties: 1");
+ await expect(page.locator("#summary")).toContainText("HOLD / DENY");
+ await expect(page.locator("#entries")).toContainText("UNVERIFIED");
+});
+test("Traceerbaarheidskamer weigert ongeldige versie en dubbele referenties",async({page})=>{
+ await page.goto(root+"atlas-traceability.html");
+ await page.locator("#commit").fill("BAD");
+ await page.locator("#version").click();
+ await expect(page.locator("#status")).toContainText("AFGEWEZEN");
+ await page.locator("#evidence-id").fill("DUP-001");
+ await page.locator("#reference").fill("lokaal label");
+ await page.locator("#add").click();
+ await page.locator("#add").click();
+ await expect(page.locator("#entries .entry")).toHaveCount(1);
+ await expect(page.locator("#status")).toContainText("AFGEWEZEN");
+});
+test("Traceerbaarheidskamer blijft zonder netwerk beschikbaar",async({page,context})=>{
+ await page.goto(root+"atlas-integratie.html");
+ await page.locator("#offline-enable").click();
+ await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
+ await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+ await context.setOffline(true);
+ await page.goto(root+"atlas-traceability.html");
+ await page.locator("#evidence-id").fill("OFFLINE-001");
+ await page.locator("#reference").fill("offline notitie");
+ await page.locator("#add").click();
+ await expect(page.locator("#entries .entry")).toHaveCount(1);
+ await expect(page.locator("#summary")).toContainText("HOLD / DENY");
 });
