@@ -48,6 +48,15 @@ test('Atelier: portable backup, veilig herstel en ontoegankelijke bevoegdheid', 
   expect(shaText).toContain('SHA-256: '+expectedHash);
   expect(shaText).toContain('Bestand: PALACO-Atelier-Compleet-Project-DRAFT.json');
   expect(shaText).toContain('geen digitale handtekening');
+  await expect(page.locator('#checkExportFile')).toBeEnabled();
+  await page.locator('#checkExportFile').setInputFiles({name:'gedownload.json',mimeType:'application/json',buffer});
+  await expect(page.locator('#exportCheckStatus')).toContainText('CONTROLE GESLAAGD');
+  await expect(page.locator('#exportCheckStatus')).toContainText(expectedHash);
+  const changed=Buffer.from(JSON.stringify({...parsed,note:'Andere DRAFT versie'},null,2));
+  await page.locator('#checkExportFile').setInputFiles({name:'aangepast.json',mimeType:'application/json',buffer:changed});
+  await expect(page.locator('#exportCheckStatus')).toContainText('WAARSCHUWING');
+  await page.locator('#checkExportFile').setInputFiles({name:'onbevoegd.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({...parsed,authority:'OWNER'}))});
+  await expect(page.locator('#exportCheckStatus')).toContainText('Exportcontrole geweigerd');
 
 
   await page.goto('/atelier/studio.html');
@@ -344,4 +353,28 @@ test('Atelier: nieuwe projectexport maakt oude SHA-256-export ongeldig',async ({
  const saved=await receipt;
  const txt=(await (await import('node:fs/promises')).readFile(await saved.path())).toString('utf8');
  expect(txt).toContain(expected);
+});
+
+test('Atelier: vorige downloadcontrole wordt genegeerd bij nieuwe projectexport',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ let done=page.waitForEvent('download');
+ await page.locator('#bundleSave').click();const original=await done;
+ const bytes=await (await import('node:fs/promises')).readFile(await original.path());
+ await expect(page.locator('#checkExportFile')).toBeEnabled();
+ await page.evaluate(()=>{
+   const read=File.prototype.arrayBuffer;
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='oud-langzaam.json')return new Promise((resolve,reject)=>{
+       window.finishOldExportCheck=()=>read.call(this).then(resolve,reject);
+     });
+     return read.call(this);
+   };
+ });
+ await page.locator('#checkExportFile').setInputFiles({name:'oud-langzaam.json',mimeType:'application/json',buffer:bytes});
+ await expect(page.locator('#exportCheckStatus')).toContainText('opnieuw controleren');
+ await page.locator('#statement').fill('Nieuw lokaal ontwerp');
+ done=page.waitForEvent('download');await page.locator('#bundleSave').click();await done;
+ await expect(page.locator('#exportCheckStatus')).toContainText('Selecteer het zojuist gedownloade JSON');
+ await page.evaluate(()=>window.finishOldExportCheck());
+ await expect(page.locator('#exportCheckStatus')).toContainText('Selecteer het zojuist gedownloade JSON');
 });
