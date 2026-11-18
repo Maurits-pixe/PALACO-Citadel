@@ -16,7 +16,8 @@ const routes=[
  ["Release Readiness","atlas-readiness.html"],
  ["Release Control Center","atlas-release-control.html"],
  ["Release Integrity & Recovery","atlas-release-integrity.html"],
- ["Release Package Audit","atlas-package-audit.html"]
+ ["Release Package Audit","atlas-package-audit.html"],
+ ["Dependency & Security Audit","atlas-security-audit.html"]
 ];
 test("alle tien Atlas-pagina's laden lokaal zonder script- of netwerkfouten",async({page})=>{
  const failures=[];
@@ -74,11 +75,11 @@ test("offlinemodus bewaart alleen de vaste Atlas-shell en opent archief zonder n
  await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
  await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
  const paths=await page.evaluate(async()=>{
-  const cache=await caches.open("palaco-atlas-shell-v1-rc9");
+  const cache=await caches.open("palaco-atlas-shell-v1-rc10");
   const keys=await cache.keys();
   return keys.map(r=>new URL(r.url).pathname);
  });
- expect(paths).toHaveLength(32);
+ expect(paths).toHaveLength(34);
  expect(paths.every(p=>p.startsWith("/wereldatlas/"))).toBe(true);
  expect(paths.some(p=>p.endsWith(".json")||p.includes("admin")||p.includes("api/"))).toBe(false);
  await context.setOffline(true);
@@ -292,7 +293,7 @@ test("Package Audit toont ontbrekende modules zonder ongeoorloofde claim",async(
  await expect(page.locator("#audit")).toBeEnabled();
  await page.locator("#audit").click();
  await expect(page.locator("#audit-status")).toContainText("ONVOLLEDIG");
- await expect(page.locator("#audit-status")).toContainText("Ontbrekend 30");
+ await expect(page.locator("#audit-status")).toContainText("Ontbrekend 32");
  await expect(page.locator("#download")).toBeEnabled();
 });
 test("Package Audit werkt offline na installatie",async({page,context})=>{
@@ -304,4 +305,25 @@ test("Package Audit werkt offline na installatie",async({page,context})=>{
  await page.goto(root+"atlas-package-audit.html");
  await expect(page.locator("h1")).toContainText("Pakketaudit");
  await expect(page.locator("#audit")).toBeDisabled();
+});
+
+test("Dependency & Security Audit inspecteert Atlasbronnen lokaal zonder vrijgave",async({page})=>{
+ await page.goto(root+"atlas-security-audit.html");
+ await expect(page.locator("#export")).toBeDisabled();
+ await page.locator("#run").click();
+ await expect(page.locator("#audit-status")).toContainText("HOLD / DENY");
+ await expect(page.locator("#summary")).toContainText("Bronnen: 33 / 33");
+ await expect(page.locator("#summary")).toContainText("Offlinebronnencontract: 34");
+ await expect(page.locator("#export")).toBeEnabled();
+});
+test("Dependency & Security Audit opent en werkt zonder netwerk",async({page,context})=>{
+ await page.goto(root+"atlas-integratie.html");
+ await page.locator("#offline-enable").click();
+ await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
+ await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+ await context.setOffline(true);
+ await page.goto(root+"atlas-security-audit.html");
+ await page.locator("#run").click();
+ await expect(page.locator("#summary")).toContainText("Bronnen: 33 / 33");
+ await expect(page.locator("#audit-status")).toContainText("HOLD / DENY");
 });
