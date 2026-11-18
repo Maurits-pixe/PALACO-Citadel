@@ -38,6 +38,17 @@ test('Atelier: portable backup, veilig herstel en ontoegankelijke bevoegdheid', 
   expect(parsed.authority).toBe('NONE');
   expect(parsed.exterior.cells[3]).toBe('royal');
   expect(parsed.note).toBe('De levende tuin van Locus Amoenus');
+  await expect(page.locator('#exportBundleReceipt')).toBeEnabled();
+  const shaDownloadPromise=page.waitForEvent('download');
+  await page.locator('#exportBundleReceipt').click();
+  const shaDownload=await shaDownloadPromise;
+  const shaText=(await (await import('node:fs/promises')).readFile(await shaDownload.path())).toString('utf8');
+  const {createHash}=await import('node:crypto');
+  const expectedHash=createHash('sha256').update(buffer).digest('hex');
+  expect(shaText).toContain('SHA-256: '+expectedHash);
+  expect(shaText).toContain('Bestand: PALACO-Atelier-Compleet-Project-DRAFT.json');
+  expect(shaText).toContain('geen digitale handtekening');
+
 
   await page.goto('/atelier/studio.html');
   await page.locator('#map .cell').nth(4).click();
@@ -312,4 +323,25 @@ test('Atelier: veranderde referentie invalideert vertraagde bestandscontrole',as
  await page.evaluate(()=>window.releasePendingVerification());
  await expect(page.locator('#verifyStatus')).toContainText('referentie aangepast');
  await expect(page.locator('#exportFingerprint')).toBeDisabled();
+});
+
+test('Atelier: nieuwe projectexport maakt oude SHA-256-export ongeldig',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await expect(page.locator('#exportBundleReceipt')).toBeDisabled();
+ const first=page.waitForEvent('download');
+ await page.locator('#bundleSave').click();
+ await first;
+ await expect(page.locator('#exportBundleReceipt')).toBeEnabled();
+ await page.locator('#statement').fill('Tweede DRAFT versie');
+ const second=page.waitForEvent('download');
+ await page.locator('#bundleSave').click();
+ const file=await second;
+ const bytes=await (await import('node:fs/promises')).readFile(await file.path());
+ const expected=(await import('node:crypto')).createHash('sha256').update(bytes).digest('hex');
+ await expect(page.locator('#bundleReceiptStatus')).toContainText(expected);
+ const receipt=page.waitForEvent('download');
+ await page.locator('#exportBundleReceipt').click();
+ const saved=await receipt;
+ const txt=(await (await import('node:fs/promises')).readFile(await saved.path())).toString('utf8');
+ expect(txt).toContain(expected);
 });
