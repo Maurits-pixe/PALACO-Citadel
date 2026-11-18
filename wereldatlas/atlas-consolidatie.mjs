@@ -15,7 +15,7 @@ export function reviewSnapshot({candidateSha="",reviewReference=""}={}){
  if(!safeText(reviewReference))throw Error("Ongeldige reviewreferentie.");
  const integrity=validateIntegration();
  const distinct=new Set(WORKFLOWS.flatMap(x=>x.links));
- const expected=[...MODULES.map(x=>x.href),"./atlas-acceptatie.html","./atlas-release-review.html",
+ const expected=[...MODULES.map(x=>x.href),"./atlas-integratie.html","./atlas-acceptatie.html","./atlas-release-review.html",
  "./atlas-readiness.html","./atlas-release-control.html","./atlas-release-integrity.html","./atlas-package-audit.html",
  "./atlas-security-audit.html","./atlas-traceability.html","./atlas-attestation.html"];
  const errors=[...integrity.errors];
