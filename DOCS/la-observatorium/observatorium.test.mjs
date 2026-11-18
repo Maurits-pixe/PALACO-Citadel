@@ -188,7 +188,7 @@ test('orphaned notes are removed at startup without explicit consent marker',()=
 
 test('malformed or duplicate offline journals quarantine rather than overwrite the original',()=>{
  assert.match(html,/function validStoredNotes\(value\)/);
- assert.match(html,/value\.every\(valid\)/);
+ assert.match(html,/value\.every\(n=>ownKeysEqual\(n,\["id","at","subject","kind","reference","notes"\]\)&&valid\(n\)\)/);
  assert.match(html,/new Set\(value\.map\(n=>n\.id\)\)\.size===value\.length/);
  assert.match(html,/storageRecoveryBlocked=true;storageEnabled=false;notes=\[\]/);
  assert.match(html,/if\(storageRecoveryBlocked\)\{status\("Opslag geblokkeerd/);
@@ -280,4 +280,12 @@ test('browser acceptance records CI-only screenshots and runtime errors when a j
  assert.match(browser,/pageerrors=/);
  assert.match(browser,/throw error;/);
  assert.match(browser,/test-results/);
+});
+
+test('stored offline memory uses strict note schema and size cap before JSON parsing',()=>{
+ assert.match(html,/function validStoredNotes\(value\)/);
+ assert.match(html,/value\.every\(n=>ownKeysEqual\(n,\["id","at","subject","kind","reference","notes"\]\)&&valid\(n\)\)/);
+ assert.match(html,/if\(new TextEncoder\(\)\.encode\(raw\)\.length>262144\)throw new Error/);
+ assert.match(html,/const value=JSON\.parse\(raw\)/);
+ assert.ok(html.indexOf('encode(raw).length>262144')<html.indexOf('const value=JSON.parse(raw)'));
 });
