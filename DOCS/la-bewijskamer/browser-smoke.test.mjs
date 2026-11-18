@@ -559,7 +559,8 @@ test("Web Locks unavailable: vault write is refused without unencrypted fallback
  await page.locator("#entryForm button[type=submit]").click();
  await page.locator("#archivePassphrase").fill("Wachtzin zonder browser-lock 123");
  await page.locator("#vaultSave").click();
- await page.waitForFunction(()=>document.querySelector("#message").textContent.includes("Kluisopslag mislukt"));
+ await page.waitForFunction(()=>document.querySelector("#message").textContent.includes("Kluisopslag geweigerd"));
+ assert.match(await page.locator("#message").innerText(),/Web Locks/);
  assert.equal(await page.evaluate(()=>localStorage.length),0);
  assert.equal(await page.locator("#count").innerText(),"1");
  await context.close();
