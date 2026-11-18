@@ -56,6 +56,9 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/fingerprint===reference\.toLowerCase\(\)/);
   assert.match(read('regiekamer.html'),/WAARSCHUWING: SHA-256 KOMT NIET OVEREEN/);
   assert.match(read('regiekamer.html'),/id="exportFingerprint" disabled/);
+  assert.match(read('regiekamer.html'),/id="exportBundleReceipt" disabled/);
+  assert.match(read('regiekamer.html'),/new TextEncoder\(\)\.encode\(serialized\)/);
+  assert.match(read('regiekamer.html'),/lastExportFingerprint=\{hash\}/);
   assert.match(read('regiekamer.html'),/verifiedFingerprint=null/);
   assert.match(read('regiekamer.html'),/PALACO-Atelier-SHA256-Referentie-DRAFT\.txt/);
   assert.match(read('regiekamer.html'),/id="fingerprintReceipt"/);
