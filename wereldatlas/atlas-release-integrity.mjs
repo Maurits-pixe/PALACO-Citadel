@@ -2,7 +2,7 @@
 // Local byte-integrity only; NO trusted signature, deployment, rollback or authorization.
 export const MANIFEST_SCHEMA="palaco.atlas.release-integrity.draft.v1";
 export const RECOVERY_SCHEMA="palaco.atlas.recovery-plan.draft.v1";
-export const MAX_FILES=40,MAX_FILE_SIZE=2*1024*1024,MAX_MANIFEST_BYTES=32768;
+export const MAX_FILES=48,MAX_FILE_SIZE=2*1024*1024,MAX_MANIFEST_BYTES=32768;
 const HEX=/^[0-9a-f]{64}$/;
 const plain=x=>x!==null&&typeof x==="object"&&!Array.isArray(x);
 const keys=(x,k)=>plain(x)&&Object.keys(x).length===k.length&&Object.keys(x).every(v=>k.includes(v));
@@ -11,7 +11,7 @@ export function validateManifest(manifest){
  const errors=[];
  if(!keys(manifest,["schema","state","verified","authorization","signature","files"]))return {ok:false,errors:["Ongeldige manifeststructuur."]};
  if(manifest.schema!==MANIFEST_SCHEMA||manifest.state!=="DRAFT"||manifest.verified!==false||manifest.authorization!=="DENY"||manifest.signature!==null)errors.push("Manifest mag geen bevoegdheid of handtekening claimen.");
- if(!Array.isArray(manifest.files)||manifest.files.length<1||manifest.files.length>MAX_FILES)return {ok:false,errors:["Manifest moet 1 tot 40 bestanden bevatten."]};
+ if(!Array.isArray(manifest.files)||manifest.files.length<1||manifest.files.length>MAX_FILES)return {ok:false,errors:["Manifest moet 1 tot 48 bestanden bevatten."]};
  const seen=new Set();
  for(const f of manifest.files){
   if(!keys(f,["name","size","sha256"])){errors.push("Ongeldige bestandsvelden.");continue}
@@ -33,7 +33,7 @@ async function readFile(file){
  return {name:file.name,size:file.size,sha256:await digest(bytes)};
 }
 export async function makeManifest(files){
- if(!Array.isArray(files)||files.length<1||files.length>MAX_FILES)throw Error("Selecteer 1 tot 32 bestanden.");
+ if(!Array.isArray(files)||files.length<1||files.length>MAX_FILES)throw Error("Selecteer 1 tot 48 bestanden.");
  const entries=[];
  for(const f of files)entries.push(await readFile(f));
  entries.sort((a,b)=>a.name.localeCompare(b.name,"en"));
