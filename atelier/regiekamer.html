@@ -192,8 +192,8 @@ $('pairVerify').addEventListener('change',async event=>{
  status.textContent='Beide bestanden veilig controleren…';
  try{
    if(files.length!==2)throw Error('Selecteer precies twee bestanden: één JSON en één TXT');
-   const jsonFiles=files.filter(file=>/\\.json$/i.test(file.name));
-   const txtFiles=files.filter(file=>/\\.txt$/i.test(file.name));
+   const jsonFiles=files.filter(file=>/\.json$/i.test(file.name));
+   const txtFiles=files.filter(file=>/\.txt$/i.test(file.name));
    if(jsonFiles.length!==1||txtFiles.length!==1)throw Error('Eén .json en één .txt-bestand vereist');
    const json=jsonFiles[0],txt=txtFiles[0];
    if(json.size>150000||txt.size>4096)throw Error('Bestand te groot (JSON 150 KB, TXT 4 KB)');
@@ -204,7 +204,7 @@ $('pairVerify').addEventListener('change',async event=>{
    if(!api)throw Error('Atelier-validatiemodule niet geladen');
    const archive=api.parse(decode.decode(jsonBytes));
    const receipt=decode.decode(txtBytes);
-   const lines=receipt.split(/\\r?\\n/).filter(line=>line.startsWith('SHA-256: '));
+   const lines=receipt.split(/\r?\n/).filter(line=>line.startsWith('SHA-256: '));
    if(lines.length!==1)throw Error('Het TXT-bewijs moet precies één SHA-256-regel bevatten');
    const expected=lines[0].slice(9).trim().toLowerCase();
    if(!/^[0-9a-f]{64}$/.test(expected))throw Error('Ongeldige SHA-256-referentie');
