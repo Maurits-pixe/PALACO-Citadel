@@ -1,4 +1,4 @@
-# PALACO Citadel — Samenleving & Natuur: overdrachtscontract v0.9
+# PALACO Citadel — Samenleving & Natuur: overdrachtscontract v1.0-rc10
 
 Status: **DRAFT / HOLD**. Dit is een lokaal import/export-contract, geen serverprotocol, digitale handtekening, formeel bewijs of automatische koppeling met Wereldatlas/Geheugenkamer.
 
@@ -17,7 +17,13 @@ Gegevens blijven standaard op het apparaat. Uitwisseling vindt uitsluitend plaat
 - `privacy`: `minimal-user-controlled` (standaard) of `full-user-controlled`;
 - `authority`: `unverified-user-observations` (informatief, geen ondertekend bewijs);
 - `records`: ten hoogste 500 items;
+- `intendedRecipient`: expliciet `wereldatlas` of `geheugenkamer` bij nieuwe exports;
+- `transferMode`: `manual-file-preview-only` — uitsluitend lokale overdracht via een door de gebruiker gekozen bestand;
 - `summary`: per conceptueel leefgebied geaggregeerde tellingen, geen geografische coördinaten.
+
+Compatibiliteit: oudere handoff-v1-pakketten zonder deze twee aanvullende velden blijven leesbaar. Bij aanwezigheid worden beide velden strikt gevalideerd. De bestemming is **een intentieveld**, geen routering, authenticatie of bewijs van verwerking door de ontvangende module.
+
+Bij beschadigde of incompatibele lokale opslag zijn gewone back-up- en handoff-exports geblokkeerd. Alleen de ruwe originele opslag kan dan als tekst worden veiliggesteld; een misleidend leeg exportpakket wordt voorkomen.
 
 Minimaal record: `sequence` (integer vanaf 1), `category`, `conceptualArea`, `verification`, `recordedMonth` (YYYY-MM). Dit type is **alleen ter inzage** en kan nooit automatisch tot volledige observaties worden verheven.
 
@@ -40,7 +46,7 @@ De repository bevat `module.spec.mjs` met Playwright-regressies voor navigatie, 
 Vanaf de repository-root met devDependencies en browser geïnstalleerd:
 
 ```sh
-npx playwright test modules/samenleving-natuur/module.spec.mjs
+npx playwright test --config modules/samenleving-natuur/playwright.config.mjs
 ```
 
 De ingebouwde tien controles in de Ontvangstruimte kunnen zonder wijzigingen aan gebruikersdata worden uitgevoerd en als JSON-rapport worden geëxporteerd. **Een aanwezige test is geen geslaagde test**: registreer runnerresultaten en browser-/mobiele evidence voordat HOLD wordt heroverwogen.
