@@ -44,6 +44,7 @@ button[aria-current=page],.primary{background:var(--gold);color:#122018;font-wei
 <div class="stats"><div class="stat"><strong id="atlasTotal">0</strong><small>Observaties</small></div><div class="stat"><strong id="atlasAreas">0</strong><small>Gebieden met registraties</small></div><div class="stat"><strong id="atlasPending">0</strong><small>Niet door gebruiker geverifieerd</small></div></div>
 <div id="atlasZones" class="grid panel" aria-live="polite"></div>
 <h2>Overdracht naar andere hoofdstukken</h2>
+<p><a href="recipient-preview.html">Open lokale ontvangstpreview voor Wereldatlas en Geheugenkamer</a> — een afzonderlijke, alleen-lezen testomgeving zonder opslag of netwerkverzending.</p>
 <p>Maak een overdraagbaar JSON-pakket voor een toekomstige importfunctie in de Wereldatlas of Geheugenkamer. Het bestand wordt lokaal aangemaakt, niet automatisch verstuurd. De ontvangende modules moeten het formaat nog ondersteunen.</p>
 <div class="notice panel"><strong>Privacy en bewijs</strong><p>Controleer observatieteksten voordat je een bestand deelt. Identificeerbare persoonsgegevens en precieze locaties van kwetsbare soorten horen niet in een publiek dossier. Een export is geen bewijs van authenticiteit, en een gekozen verificatiestatus is geen onafhankelijke validatie.</p></div>
 <label for="packetMinimal" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="packetMinimal" checked style="width:auto"> Minimale export (aanbevolen): laat titels, beschrijvingen, record-ID's en exacte tijdstippen weg</label>
@@ -77,7 +78,7 @@ button[aria-current=page],.primary{background:var(--gold);color:#122018;font-wei
 <label for="notes">Beschrijving</label><textarea id="notes" maxlength="2000" placeholder="Wat is waargenomen? Vermijd precieze locaties van kwetsbare soorten."></textarea>
 <div class="actions"><button class="primary" type="submit">Bewaar observatie</button></div></form>
 <div class="card"><h3>Mijn registraties</h3><label for="filter">Filter categorie</label><select id="filter"><option value="Alle">Alle</option><option>Flora</option><option>Fauna</option><option>Water</option><option>Landschap</option><option>Samenleving</option></select><div id="records" aria-label="Lokale observaties"></div><div class="actions"><button id="export" type="button">Exporteer JSON</button><button id="importBtn" type="button">Importeer JSON</button><input id="importFile" type="file" accept=".json,application/json" class="hidden"><button id="clear" type="button">Wis lokaal register</button></div></div></div><p id="message" role="status" aria-live="polite"></p>
-</section></main><footer>PALACO · Samenleving & Natuur · prototype v1.0-rc10 · Geen publicatie, synchronisatie of identiteitsuitgifte.</footer></div>
+</section></main><footer>PALACO · Samenleving & Natuur · prototype v1.0-rc11 · Geen publicatie, synchronisatie of identiteitsuitgifte.</footer></div>
 <script>
 (()=>{'use strict';
 const KEY='palaco.citadel.samenleving-natuur.v1',MAX=500;
