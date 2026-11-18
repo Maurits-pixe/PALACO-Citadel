@@ -289,3 +289,11 @@ test('stored offline memory uses strict note schema and size cap before JSON par
  assert.match(html,/const value=JSON\.parse\(raw\)/);
  assert.ok(html.indexOf('encode(raw).length>262144')<html.indexOf('const value=JSON.parse(raw)'));
 });
+
+test('persistent journal enforces UTF-8 byte limit before replacing stored data',()=>{
+ assert.match(html,/const serialized=JSON\.stringify\(notes\)/);
+ assert.match(html,/if\(new TextEncoder\(\)\.encode\(serialized\)\.length>262144\)/);
+ assert.match(html,/OPSLAGLIMIET BEREIKT/);
+ assert.match(html,/meer dan 256 KiB; bestaande opgeslagen kopie niet overschreven/);
+ assert.ok(html.indexOf('encode(serialized).length>262144')<html.indexOf('localStorage.setItem(KEY,serialized)'));
+});
