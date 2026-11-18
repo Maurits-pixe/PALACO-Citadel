@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Strikte opstartcontrole van lokale opslag (v2.5)
+Een opgeslagen notitielogboek met actieve bewaartoestemming wordt vóór gebruik gecontroleerd op een bovengrens van 256 KiB aan UTF-8-bytes, maximaal 100 notities, een exact toegestaan notitieschema, geldige veldwaarden en unieke ID's. Extra velden zoals `verified`, `authority` of ongedocumenteerde attributen worden niet stilzwijgend weggefilterd. Een te groot of niet-conform logboek wordt **quarantaine**: de originele kopie blijft lokaal aanwezig, permanente opslag is geblokkeerd en een expliciete herstel-/downloadroute blijft beschikbaar.
+
+Twee afzonderlijke Chromium-tests controleren opslag met een verborgen verificatieclaim en een bestand groter dan de ingestelde bytegrens. Deze codewijzigingen betekenen geen geslaagde browseracceptatie totdat de afzonderlijke Chromium-job is geverifieerd. De officiële bewijs-, identiteit- en mandaatstatus blijft ongewijzigd; release HOLD.
+
 ## Controleerbare Chromium-testresultaten (v2.4)
 De browser-acceptatiejob bewaart de volledige TAP-uitvoer bij zowel succes als falen. Bij een testfout maakt het browserharnas in CI bovendien een schermafbeelding van de huidige pagina en een tekstbestand met viewport, URL, foutmelding en JavaScript-runtimefouten. GitHub Actions uploadt deze gegevens met `actions/upload-artifact@v4` onder de naam `la-observatorium-browser-diagnostics`, bewaartermijn 14 dagen. Met `set -o pipefail` blijft een falende testjob werkelijk rood, ook als het log met `tee` wordt vastgelegd.
 
