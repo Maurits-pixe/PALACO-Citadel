@@ -400,3 +400,62 @@ test('damaged local storage blocks misleading standard exports', async ({page}) 
   expect(downloads).toBe(0);
   expect(await page.evaluate(key=>localStorage.getItem(key),key)).toBe('{DAMAGED');
 });
+
+test('receiver preview reads minimal Atlas transfer without saving data', async ({page}) => {
+  await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+  const before=await page.evaluate(()=>({...localStorage}));
+  const packet={
+    schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
+    intendedRecipient:'wereldatlas',transferMode:'manual-file-preview-only',
+    privacy:'minimal-user-controlled',
+    records:[{sequence:1,category:'Flora',conceptualArea:'Het Woud',
+      verification:'persoonlijke observatie',recordedMonth:'2026-11'}]
+  };
+  await page.locator('#packet').setInputFiles({
+    name:'atlas.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(packet))
+  });
+  await expect(page.locator('#preview')).toBeVisible();
+  await expect(page.locator('#actualRecipient')).toHaveText('Wereldatlas');
+  await expect(page.locator('#records')).toContainText('Observatie 1');
+  await expect(page.locator('#records')).not.toContainText('title');
+  expect(await page.evaluate(()=>({...localStorage}))).toEqual(before);
+  await page.locator('#discard').click();
+  await expect(page.locator('#preview')).toBeHidden();
+});
+
+test('receiver preview rejects wrongly addressed file', async ({page}) => {
+  await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+  await page.locator('#recipient').selectOption('geheugenkamer');
+  const packet={
+    schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
+    intendedRecipient:'wereldatlas',transferMode:'manual-file-preview-only',
+    privacy:'minimal-user-controlled',records:[]
+  };
+  await page.locator('#packet').setInputFiles({
+    name:'wrong.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(packet))
+  });
+  await expect(page.locator('#status')).toContainText('Pakket afgewezen');
+  await expect(page.locator('#preview')).toBeHidden();
+});
+
+test('Geheugenkamer preview shows full text safely and requires no authority', async ({page}) => {
+  await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+  await page.locator('#recipient').selectOption('geheugenkamer');
+  const packet={
+    schema:'palaco-citadel-handoff-v1',source:'citadel/samenleving-natuur',
+    intendedRecipient:'geheugenkamer',transferMode:'manual-file-preview-only',
+    privacy:'full-user-controlled',
+    records:[{id:'preview-1',title:'<img src=x onerror=alert(1)>',
+      category:'Flora',conceptualArea:'Het Woud',verification:'nog te verifiëren',
+      description:'<script>window.citadelInjection=1</script>',observedAt:'2026-11-01T12:00:00Z'}]
+  };
+  await page.locator('#packet').setInputFiles({
+    name:'memory.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(packet))
+  });
+  await expect(page.locator('#preview')).toBeVisible();
+  await expect(page.locator('#actualRecipient')).toHaveText('Geheugenkamer');
+  await expect(page.locator('#records')).toContainText('<img src=x onerror=alert(1)>');
+  await expect(page.locator('#records')).toContainText('<script>window.citadelInjection=1</script>');
+  await expect(page.locator('#records img, #records script')).toHaveCount(0);
+  expect(await page.evaluate(()=>window.citadelInjection)).toBeUndefined();
+});
