@@ -1,5 +1,5 @@
 /* PALACO Atlas offline shell v1.0 RC. No user content, credentials or API caching. */
-const CACHE = "palaco-atlas-shell-v1-rc10";
+const CACHE = "palaco-atlas-shell-v1-rc11";
 const PREFIX = "palaco-atlas-shell-";
 const ASSETS = [
   "./",
@@ -20,6 +20,7 @@ const ASSETS = [
   "./atlas-release-integrity.html",
   "./atlas-package-audit.html",
   "./atlas-security-audit.html",
+  "./atlas-traceability.html",
   "./atlas-contract.mjs",
   "./wereldregister.mjs",
   "./atlas-archief.mjs",
@@ -35,7 +36,8 @@ const ASSETS = [
   "./atlas-release-control.mjs",
   "./atlas-release-integrity.mjs",
   "./atlas-package-audit.mjs",
-  "./atlas-security-audit.mjs"
+  "./atlas-security-audit.mjs",
+  "./atlas-traceability.mjs"
 ];
 const urls = ASSETS.map(asset => new URL(asset, self.registration.scope));
 const allowed = new Set(urls.map(url => url.pathname));
