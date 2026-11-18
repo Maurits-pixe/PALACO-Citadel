@@ -20,7 +20,8 @@ const routes=[
  ["Dependency & Security Audit","atlas-security-audit.html"],
  ["Release Evidence & Traceability","atlas-traceability.html"],
  ["Attestation Preparation","atlas-attestation.html"],
- ["Wereldatlas v2.0 Consolidatie","atlas-consolidatie.html"]
+ ["Wereldatlas v2.0 Consolidatie","atlas-consolidatie.html"],
+ ["Mobiele Gebruikersacceptatie","atlas-device-acceptance.html"]
 ];
 test("alle tien Atlas-pagina's laden lokaal zonder script- of netwerkfouten",async({page})=>{
  const failures=[];
@@ -78,11 +79,11 @@ test("offlinemodus bewaart alleen de vaste Atlas-shell en opent archief zonder n
  await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
  await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
  const paths=await page.evaluate(async()=>{
-  const cache=await caches.open("palaco-atlas-shell-v1-rc13");
+  const cache=await caches.open("palaco-atlas-shell-v1-rc14");
   const keys=await cache.keys();
   return keys.map(r=>new URL(r.url).pathname);
  });
- expect(paths).toHaveLength(40);
+ expect(paths).toHaveLength(42);
  expect(paths.every(p=>p.startsWith("/wereldatlas/"))).toBe(true);
  expect(paths.some(p=>p.endsWith(".json")||p.includes("admin")||p.includes("api/"))).toBe(false);
  await context.setOffline(true);
@@ -296,7 +297,7 @@ test("Package Audit toont ontbrekende modules zonder ongeoorloofde claim",async(
  await expect(page.locator("#audit")).toBeEnabled();
  await page.locator("#audit").click();
  await expect(page.locator("#audit-status")).toContainText("ONVOLLEDIG");
- await expect(page.locator("#audit-status")).toContainText("Ontbrekend 38");
+ await expect(page.locator("#audit-status")).toContainText("Ontbrekend 40");
  await expect(page.locator("#download")).toBeEnabled();
 });
 test("Package Audit werkt offline na installatie",async({page,context})=>{
@@ -315,8 +316,8 @@ test("Dependency & Security Audit inspecteert Atlasbronnen lokaal zonder vrijgav
  await expect(page.locator("#export")).toBeDisabled();
  await page.locator("#run").click();
  await expect(page.locator("#audit-status")).toContainText("HOLD / DENY");
- await expect(page.locator("#summary")).toContainText("Bronnen: 39 / 39");
- await expect(page.locator("#summary")).toContainText("Offlinebronnencontract: 40");
+ await expect(page.locator("#summary")).toContainText("Bronnen: 41 / 41");
+ await expect(page.locator("#summary")).toContainText("Offlinebronnencontract: 42");
  await expect(page.locator("#export")).toBeEnabled();
 });
 test("Dependency & Security Audit opent en werkt zonder netwerk",async({page,context})=>{
@@ -327,7 +328,7 @@ test("Dependency & Security Audit opent en werkt zonder netwerk",async({page,con
  await context.setOffline(true);
  await page.goto(root+"atlas-security-audit.html");
  await page.locator("#run").click();
- await expect(page.locator("#summary")).toContainText("Bronnen: 39 / 39");
+ await expect(page.locator("#summary")).toContainText("Bronnen: 41 / 41");
  await expect(page.locator("#audit-status")).toContainText("HOLD / DENY");
 });
 
@@ -432,4 +433,31 @@ test("Wereldatlas v2.0 offline behoudt alle navigatiehoofdstukken",async({page,c
  await expect(page.locator("#workflows section")).toHaveCount(3);
  await expect(page.locator("#workflows a")).toHaveCount(19);
  await expect(page.locator("#navigation-status")).toContainText("HOLD / DENY");
+});
+
+test("Mobiele acceptatiekamer toont zeven ongeteste stappen en HOLD",async({page})=>{
+ await page.goto(root+"atlas-device-acceptance.html");
+ await expect(page.locator("#steps .step")).toHaveCount(7);
+ await expect(page.locator("#summary")).toContainText("NOT_TESTED 7");
+ await expect(page.locator("#summary")).toContainText("HOLD / DENY");
+ await page.locator("#status-DEVICE-01").selectOption("PASS");
+ await page.locator("#steps .step").first().getByRole("button",{name:"Bewaar stap lokaal"}).click();
+ await expect(page.locator("#summary")).toContainText("PASS 1");
+ await expect(page.locator("#summary")).toContainText("HOLD / DENY");
+});
+test("Mobiele acceptatiekamer weigert gefingeerde geverifieerde import",async({page})=>{
+ await page.goto(root+"atlas-device-acceptance.html");
+ await page.locator("#import-file").setInputFiles({name:"forged.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify({schema:"palaco.atlas.mobile-acceptance.self-report.v2.1",authorization:"ALLOW",verified:true}))});
+ await expect(page.locator("#status")).toContainText("AFGEWEZEN");
+ await expect(page.locator("#summary")).toContainText("NOT_TESTED 7");
+});
+test("Mobiele acceptatiekamer is offline beschikbaar",async({page,context})=>{
+ await page.goto(root+"atlas-integratie.html");
+ await page.locator("#offline-enable").click();
+ await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
+ await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+ await context.setOffline(true);
+ await page.goto(root+"atlas-device-acceptance.html");
+ await expect(page.locator("#steps .step")).toHaveCount(7);
+ await expect(page.locator("#summary")).toContainText("HOLD / DENY");
 });
