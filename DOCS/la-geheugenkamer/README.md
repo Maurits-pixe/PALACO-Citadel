@@ -56,6 +56,12 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Mobiele foutafhandeling en gegevensbehoud · v2.5
+- Twee extra Chromium-touchtests controleren of een **verkeerde kluiswachtzin** en een **gewijzigde ciphertext** worden geweigerd zonder de bestaande herinneringen te veranderen.
+- Bij een foutieve kluiswachtzin blijft zowel het actieve geheugen als de versleutelde kluisblob ongewijzigd; na de poging staat de wachtzininvoer leeg.
+- Bij import van een beschadigd AES-256-GCM-bestand blijven reeds ingevoerde herinneringen zichtbaar en wordt geen nieuwe onversleutelde browseropslag gemaakt.
+- Dit zijn negatieve regressieproeven in een gesimuleerde mobiele browser. Ze vervangen geen onafhankelijke cryptografische veiligheidsbeoordeling of acceptatie op een fysiek apparaat.
+
 ## Mobiele herstelbeveiliging · v2.4
 - De asynchrone JSON-import bewaakt nu het oorspronkelijke geheugen en een operatietoken. Een tussentijdse wijziging of vergrendeling annuleert de nog lopende import voordat records worden samengevoegd.
 - De beveiliging geldt ook tijdens trage AES-256-GCM-ontsleuteling: een vergrendelde mobiele tab mag niet door een eerder gestarte bestandsimport opnieuw worden gevuld.
