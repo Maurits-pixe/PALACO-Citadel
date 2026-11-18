@@ -198,6 +198,11 @@ function save(){
  try{
   if(wantsStorage){
    const serialized=JSON.stringify(notes);
+   if(new TextEncoder().encode(serialized).length>262144){
+    $("storage").textContent="OPSLAGLIMIET BEREIKT: notities blijven in dit tabblad; exporteer het Geheugen.";
+    status("Lokale opslag geweigerd: meer dan 256 KiB; bestaande opgeslagen kopie niet overschreven.");
+    return false;
+   }
    localStorage.setItem(KEY,serialized);
    localStorage.setItem(CONSENT,"yes");
    if(localStorage.getItem(KEY)!==serialized||localStorage.getItem(CONSENT)!=="yes")throw new Error("Opslag niet bevestigd");
