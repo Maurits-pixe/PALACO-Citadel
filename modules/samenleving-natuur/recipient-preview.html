@@ -33,6 +33,16 @@ small{color:#c2d1c5}.hidden{display:none!important}
 <p class="notice">De gegevens blijven alleen tijdelijk in dit browsertabblad. Er wordt niets naar de Wereldatlas, Geheugenkamer of een server verzonden.</p>
 <dl><dt>Ontvanger</dt><dd id="actualRecipient"></dd><dt>Privacy</dt><dd id="privacy"></dd><dt>Records</dt><dd id="total"></dd><dt>Herkomststatus</dt><dd>Niet onafhankelijk geverifieerd</dd></dl>
 <h2>Inhoud</h2><div id="records"></div>
+<div class="card">
+<h2>Digitale handtekening · lokaal laboratorium</h2>
+<p>Optionele controle met een apart handtekeningbestand en een handmatig aangeleverde publieke sleutel (JWK). Een correcte ECDSA-handtekening bewijst alleen dat de bijbehorende privésleutel is gebruikt — <strong>niet</strong> dat de sleutel vertrouwd of door PALACO uitgegeven is.</p>
+<label for="signatureFile">Handtekeningbestand (.json, maximaal 20 KB)</label>
+<input id="signatureFile" type="file" accept=".json,application/json">
+<label for="publicKey">Publieke sleutel (EC P-256 JWK, JSON)</label>
+<textarea id="publicKey" rows="5" style="width:100%;background:#0b1c15;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:12px" placeholder='{"kty":"EC","crv":"P-256","x":"…","y":"…"}'></textarea>
+<button id="verifySignature" type="button">Verifieer handtekening</button>
+<p id="signatureStatus" role="status" aria-live="polite">Geen handtekening geverifieerd. Vertrouwensstatus: NIET VASTGESTELD.</p>
+</div>
 <button id="discard" type="button">Voorvertoning wissen</button>
 </section>
 <small>Contract palaco-citadel-handoff-v1 · ontwerpstatus DRAFT / HOLD · offline-first</small>
@@ -47,11 +57,11 @@ const states=['persoonlijke observatie','nog te verifiëren','geverifieerd door 
 const minimalKeys=['sequence','category','conceptualArea','verification','recordedMonth'];
 const fullKeys=['id','title','category','conceptualArea','verification','description','observedAt'];
 function exactFields(record,allowed){return Object.keys(record).length===allowed.length&&Object.keys(record).every(key=>allowed.includes(key))}
-let ticket=0;
+let ticket=0,currentPacket=null;
 function canonicalJson(value){if(Array.isArray(value))return '['+value.map(canonicalJson).join(',')+']';if(value&&typeof value==='object')return '{'+Object.keys(value).sort().map(key=>JSON.stringify(key)+':'+canonicalJson(value[key])).join(',')+'}';return JSON.stringify(value)}
 async function verifyIntegrity(data){if(data.integrity===undefined)return false;const info=data.integrity;if(!info||typeof info!=='object'||Array.isArray(info)||Object.keys(info).length!==3||info.algorithm!=='SHA-256'||info.canonicalization!=='palaco-sorted-json-v1'||typeof info.digest!=='string'||! /^[0-9a-f]{64}$/.test(info.digest))throw Error('Onbekende integriteitsmethode');const packet={...data};delete packet.integrity;const bytes=new TextEncoder().encode(canonicalJson(packet));const hash=await crypto.subtle.digest('SHA-256',bytes);const observed=Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('');if(observed!==info.digest)throw Error('Hash komt niet overeen');return true}
 
-function clear(message){$('preview').classList.add('hidden');$('records').replaceChildren();$('actualRecipient').textContent='';$('privacy').textContent='';$('total').textContent='';$('status').textContent=message}
+function clear(message){currentPacket=null;$('signatureFile').value='';$('publicKey').value='';$('signatureStatus').textContent='Geen handtekening geverifieerd. Vertrouwensstatus: NIET VASTGESTELD.';$('preview').classList.add('hidden');$('records').replaceChildren();$('actualRecipient').textContent='';$('privacy').textContent='';$('total').textContent='';$('status').textContent=message}
 function validate(data,recipient){
  if(!data||data.schema!=='palaco-citadel-handoff-v1'||data.source!=='citadel/samenleving-natuur'||!['wereldatlas','geheugenkamer'].includes(recipient))throw Error('Ongeldig contract');
  if(!Array.isArray(data.records)||data.records.length>500||!['minimal-user-controlled','full-user-controlled'].includes(data.privacy))throw Error('Ongeldige inhoud');
@@ -87,7 +97,7 @@ function validate(data,recipient){
  return minimal;
 }
 function field(tag,value){const n=document.createElement(tag);n.textContent=value;return n}
-function render(data,recipient,minimal,verified){
+function render(data,recipient,minimal,verified){currentPacket=data;
  $('actualRecipient').textContent=recipient==='wereldatlas'?'Wereldatlas':'Geheugenkamer';
  $('privacy').textContent=minimal?'Minimaal — zonder vrije tekst':'Volledig — bevat mogelijk gevoelige beschrijvingen';
  $('total').textContent=String(data.records.length);
@@ -120,6 +130,29 @@ $('packet').addEventListener('change',async e=>{
   render(data,recipient,minimal,verified);
  }catch{if(id===ticket)clear('Pakket afgewezen: onjuist contract, bestemming of record.')}
 });
+function b64ToBytes(input){if(typeof input!=='string'||! /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(input)||input.length>1024)throw Error('Ongeldige handtekeningcodering');return Uint8Array.from(atob(input),ch=>ch.charCodeAt(0))}
+function hex(bytes){return Array.from(new Uint8Array(bytes),n=>n.toString(16).padStart(2,'0')).join('')}
+$('verifySignature').addEventListener('click',async()=>{
+ const id=ticket,packet=currentPacket,signatureFile=$('signatureFile').files?.[0],keyText=$('publicKey').value;
+ $('signatureStatus').textContent='Handtekeningcontrole loopt; geen vertrouwde sleutel geregistreerd.';
+ if(!packet||!signatureFile||signatureFile.size>20000||keyText.length>4000){$('signatureStatus').textContent='Handtekening niet geverifieerd: bestand of publieke sleutel ontbreekt/te groot. Vertrouwensstatus: NIET VASTGESTELD.';return}
+ try{
+  const detached=JSON.parse(await signatureFile.text());
+  const jwk=JSON.parse(keyText);
+  if(id!==ticket||currentPacket!==packet)return;
+  if(!detached||Object.keys(detached).sort().join(',')!=='algorithm,keyFingerprint,schema,signature'||detached.schema!=='palaco-citadel-signature-v1'||detached.algorithm!=='ECDSA-P256-SHA256'||typeof detached.keyFingerprint!=='string'||! /^[a-f0-9]{64}$/.test(detached.keyFingerprint))throw Error('Ongeldig handtekeningcontract');
+  if(!jwk||typeof jwk!=='object'||jwk.kty!=='EC'||jwk.crv!=='P-256'||typeof jwk.x!=='string'||typeof jwk.y!=='string'||'d'in jwk)throw Error('Ongeldige publieke sleutel');
+  const publicJwk={kty:'EC',crv:'P-256',x:jwk.x,y:jwk.y};
+  const computed=hex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonicalJson(publicJwk))));
+  if(computed!==detached.keyFingerprint)throw Error('Sleutelvingerafdruk wijkt af');
+  const key=await crypto.subtle.importKey('jwk',publicJwk,{name:'ECDSA',namedCurve:'P-256'},false,['verify']);
+  const valid=await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},key,b64ToBytes(detached.signature),new TextEncoder().encode(canonicalJson(packet)));
+  if(id!==ticket||currentPacket!==packet)return;
+  $('signatureStatus').textContent=valid?'ECDSA P-256-handtekening cryptografisch GELDIG; publieke sleutel NIET VERTROUWD. Geen PALACO-autorisatie.':'Handtekening ONGELDIG. Geen PALACO-autorisatie.';
+ }catch{if(id===ticket)$('signatureStatus').textContent='Handtekening niet geldig of niet verifieerbaar. Vertrouwensstatus: NIET VASTGESTELD.'}
+});
+$('signatureFile').addEventListener('change',()=>{$('signatureStatus').textContent='Handtekening gewijzigd; opnieuw verifiëren vereist.'});
+$('publicKey').addEventListener('input',()=>{$('signatureStatus').textContent='Publieke sleutel gewijzigd; opnieuw verifiëren vereist.'});
 $('recipient').addEventListener('change',()=>{ticket++;$('packet').value='';clear('Ontvanger gewijzigd; kies opnieuw een passend pakket.')});
 $('allowLegacy').addEventListener('change',()=>{ticket++;$('packet').value='';clear('Integriteitsbeleid gewijzigd; kies het bestand opnieuw.')});
 $('discard').addEventListener('click',()=>{ticket++;$('packet').value='';clear('Voorvertoning gewist. Er is niets opgeslagen.')});
