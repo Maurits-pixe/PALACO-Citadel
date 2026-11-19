@@ -954,3 +954,54 @@ test('legacy timestamp-only pin blocks ambiguous equal-date v2 replacement',asyn
  await expect(page.locator('#signatureStatus')).toContainText('ROLLBACK GEBLOKKEERD');
  await expect(page.locator('#pinRevocation')).toBeDisabled();
 });
+
+async function rotationFixture(page,{tamper=false,mismatch=false}={}){
+ return page.evaluate(async ({tamper,mismatch})=>{
+  const canonical=v=>Array.isArray(v)?'['+v.map(canonical).join(',')+']':v&&typeof v==='object'?'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canonical(v[k])).join(',')+'}':JSON.stringify(v);
+  const old=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
+  const next=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
+  const oldJwk=await crypto.subtle.exportKey('jwk',old.publicKey),newJwk=await crypto.subtle.exportKey('jwk',next.publicKey);
+  const oldKey={kty:'EC',crv:'P-256',x:oldJwk.x,y:oldJwk.y};
+  const newKey={kty:'EC',crv:'P-256',x:newJwk.x,y:newJwk.y};
+  const fingerprint=async k=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonical(k)))),b=>b.toString(16).padStart(2,'0')).join('');
+  const doc={schema:'palaco-citadel-key-rotation-v1',epoch:2,issuedAt:new Date(Date.now()-60000).toISOString(),
+    oldFingerprint:await fingerprint(oldKey),newFingerprint:await fingerprint(newKey)};
+  const sig=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},old.privateKey,new TextEncoder().encode(canonical(doc)));
+  const rotation={...doc,signature:btoa(String.fromCharCode(...new Uint8Array(sig)))};
+  if(tamper)rotation.epoch=3;
+  if(mismatch)rotation.newFingerprint='0'.repeat(64);
+  return {oldKey,newKey,rotation};
+ },{tamper,mismatch});
+}
+
+test('signed key rotation proves succession but grants no trust',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await rotationFixture(page);
+ await page.locator('#rotationOldKey').fill(JSON.stringify(fixture.oldKey));
+ await page.locator('#rotationNewKey').fill(JSON.stringify(fixture.newKey));
+ await page.locator('#rotationFile').setInputFiles({name:'rotation.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.rotation))});
+ await page.locator('#verifyRotation').click();
+ await expect(page.locator('#rotationStatus')).toContainText('CRYPTOGRAFISCH GELDIG');
+ await expect(page.locator('#rotationStatus')).toContainText('NIET VERTROUWD');
+ await expect(page.locator('#rotationStatus')).toContainText('Geen PALACO-autorisatie');
+});
+
+test('mutated key rotation epoch invalidates signature',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await rotationFixture(page,{tamper:true});
+ await page.locator('#rotationOldKey').fill(JSON.stringify(fixture.oldKey));
+ await page.locator('#rotationNewKey').fill(JSON.stringify(fixture.newKey));
+ await page.locator('#rotationFile').setInputFiles({name:'tamper.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.rotation))});
+ await page.locator('#verifyRotation').click();
+ await expect(page.locator('#rotationStatus')).toContainText('SLEUTELOPVOLGING ONGELDIG');
+});
+
+test('key rotation with a mismatching successor fingerprint is rejected',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await rotationFixture(page,{mismatch:true});
+ await page.locator('#rotationOldKey').fill(JSON.stringify(fixture.oldKey));
+ await page.locator('#rotationNewKey').fill(JSON.stringify(fixture.newKey));
+ await page.locator('#rotationFile').setInputFiles({name:'mismatch.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.rotation))});
+ await page.locator('#verifyRotation').click();
+ await expect(page.locator('#rotationStatus')).toContainText('niet geldig of niet verifieerbaar');
+});
