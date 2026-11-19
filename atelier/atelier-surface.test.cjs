@@ -63,9 +63,12 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/id="pairReportSave"[^>]*disabled/);
   assert.match(read('regiekamer.html'),/id="reportVerify"/);
   assert.match(read('regiekamer.html'),/DRIEVOUDIGE CONTROLE GESLAAGD/);
-  assert.match(read('regiekamer.html'),/function validateReceiptFilename\(/);
-  assert.match(read('regiekamer.html'),/validateReceiptFilename\(receipt,projectEntry\.file\.name\)/);
-  assert.match(read('regiekamer.html'),/validateReceiptFilename\(receipt,json\.name\)/);
+  assert.match(read('regiekamer.html'),/function parseBoundReceipt\(/);
+  assert.match(read('regiekamer.html'),/allowedNotes\.includes\(line\)/);
+  assert.match(read('regiekamer.html'),/onbekende of misleidende regel/);
+  assert.match(read('regiekamer.html'),/ongeldige besturingstekens/);
+  assert.match(read('regiekamer.html'),/parseBoundReceipt\(receipt,projectEntry\.file\.name\)/);
+  assert.match(read('regiekamer.html'),/parseBoundReceipt\(receipt,json\.name\)/);
   assert.match(read('regiekamer.html'),/if\(revision!==reportVerifyRevision\)return/);
   assert.match(read('regiekamer.html'),/report\.authority!=='NONE'/);
   assert.match(read('regiekamer.html'),/reportFields\.includes\(key\)/);
