@@ -438,10 +438,31 @@ else journalRevision++;
 render();
 status(cleared?"Lokale notities, opgeslagen kopie en bewaartoestemming aantoonbaar verwijderd.":"Wissen NIET bevestigd; de notities blijven in dit tabblad beschikbaar voor export of herstel.");
 });
+function exportJournalParts(items,exportedAt){
+ const makePacket=batch=>({format:"palaco-la-observatory-local-v1",exported_at:exportedAt,authority:"SELF_REPORTED_NOT_VERIFIED",notes:batch});
+ const bytes=packet=>new TextEncoder().encode(JSON.stringify(packet,null,2)).length;
+ const parts=[];let current=[];
+ for(const note of items){
+  const candidate=current.concat(note);
+  if(bytes(makePacket(candidate))>262144){
+   if(!current.length)return null;
+   parts.push(makePacket(current));current=[note];
+   if(bytes(makePacket(current))>262144)return null;
+  }else current=candidate;
+ }
+ parts.push(makePacket(current));
+ return parts;
+}
 $("export").addEventListener("click",()=>{
-const payload={format:"palaco-la-observatory-local-v1",exported_at:new Date().toISOString(),authority:"SELF_REPORTED_NOT_VERIFIED",notes};
-const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
-a.href=url;a.download="la-observatorium-lokale-waarnemingen.json";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);status("JSON-export aangemaakt.");
+const parts=exportJournalParts(notes,new Date().toISOString());
+if(!parts){status("JSON-export geweigerd: één waarneming overschrijdt de veilige importgrens.");return;}
+try{
+ parts.forEach((packet,index)=>{
+  const filename=parts.length===1?"la-observatorium-lokale-waarnemingen.json":"la-observatorium-lokale-waarnemingen-deel-"+String(index+1).padStart(2,"0")+"-van-"+String(parts.length).padStart(2,"0")+".json";
+  downloadJSON(packet,filename);
+ });
+ status(parts.length===1?"JSON-export aangemaakt; bestand past binnen de importgrens.":parts.length+" JSON-delen aangemaakt. Bewaar en importeer elk deel afzonderlijk; controleer de downloads.");
+}catch(_){status("Export kon niet volledig worden gestart; controleer de downloads vóór herladen.");}
 });
 render();if(storageEnabled)save();
 })();
