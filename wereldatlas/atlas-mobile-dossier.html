@@ -4,7 +4,7 @@
 <div class="grid"><section class="panel"><h2>Bronbestanden</h2><label for="comparison-file">1 · Mobiele hertoetsing (JSON, max 128 KiB)<input id="comparison-file" type="file" accept=".json,application/json"></label><label for="triage-file">2 · Herstelregie (JSON, max 128 KiB)<input id="triage-file" type="file" accept=".json,application/json"></label><label for="latest-file">3 · Nieuw telefoonacceptatierapport (JSON, max 32 KiB)<input id="latest-file" type="file" accept=".json,application/json"></label><label for="verification-file">4 · Herstelverificatie (JSON, max 128 KiB)<input id="verification-file" type="file" accept=".json,application/json"></label><label for="case-reference">Dossierreferentie (optioneel)<input id="case-reference" maxlength="240" placeholder="ATLAS-ACCEPTATIE-001"></label><button id="consolidate" disabled type="button">Controleer en consolideer bronnen</button><button id="export" disabled type="button">Download DRAFT-acceptatiedossier</button><p id="status" role="status" aria-live="polite">Nog geen brondossiers geladen.</p></section>
 <section class="panel"><h2>Acceptatieoverzicht</h2><p id="summary" role="status" aria-live="polite">Geen consolidatie uitgevoerd.</p><div id="results"></div><h2>Onafhankelijke review vereist</h2><div id="requirements"></div></section></div><p class="muted">De input blijft in de browsersessie. Exporteer het DRAFT-rapport bewust naar je apparaat; er worden geen gegevens geüpload of automatisch bewaard.</p></main><footer>PALACO INDUSTRIE · Atlas v2.5 RC · Offline-first · Lokale reviewvoorbereiding zonder vrijgave</footer>
 <script type="module">
-import {parseInput} from "./atlas-device-retest.mjs";
+import {validatePhoneComparison} from "./atlas-device-retest.mjs";
 import {parseDeviceReport} from "./atlas-device-acceptance.mjs";
 import {validateTriage} from "./atlas-device-triage.mjs";
 import {validateRecoveryVerification} from "./atlas-recovery-verification.mjs";
@@ -19,7 +19,8 @@ function render(){const complete=Object.values(values).every(Boolean);$("consoli
 }
 async function load(which){const current=++serial[which];values[which]=null;dossier=null;render();
  const file=$(which+"-file").files?.[0],limit=which==="latest"?32768:MAX_JSON_BYTES;if(!file||file.size>limit){$("status").textContent="AFGEWEZEN: bestand ontbreekt of is te groot.";return}
- try{const raw=await file.text();const parsed=which==="comparison"?parseInput(raw):which==="latest"?parseDeviceReport(raw):parseLocalJSON(raw,limit);
+ try{const raw=await file.text();const parsed=which==="latest"?parseDeviceReport(raw):parseLocalJSON(raw,limit);
+ if(which==="comparison"&&!validatePhoneComparison(parsed).ok)throw Error("Hertoetsingsvergelijking ongeldig.");
  if(current!==serial[which])return;values[which]=parsed;render();$("status").textContent="Lokaal bestand geladen; onderlinge consistentie nog niet gecontroleerd."}
  catch(e){if(current===serial[which])$("status").textContent="AFGEWEZEN: "+e.message}}
 for(const key of Object.keys(values))$(key+"-file").addEventListener("change",()=>load(key));
