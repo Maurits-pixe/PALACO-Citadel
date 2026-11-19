@@ -580,3 +580,27 @@ test('recovery reset refuses to erase a copy replaced by another tab',{timeout:6
   assert.match(await page.locator('#storage').innerText(),/CONFLICT MET ANDER TABBLAD/);
  });
 });
+
+test('external consent revocation invalidates the first tabs saved-note claims',{timeout:90000},async()=>{
+ await withPage({width:390,height:800},async first=>{
+  await first.locator('#tab-atelier').click();
+  await first.locator('#persist').check();
+  await first.locator('#subject').fill('Bevestigd in tab A');
+  await first.locator('#notes').fill('Wordt tijdelijk na intrekken door tab B');
+  await first.locator('#form button[type="submit"]').click();
+  assert.match(await first.locator('#pending').innerText(),/Alle aanwezige notities opgeslagen/);
+  const second=await first.context().newPage();
+  await second.goto(first.url());
+  await second.locator('#tab-atelier').click();
+  assert.equal(await second.locator('#persist').isChecked(),true);
+  await second.locator('#persist').uncheck();
+  await first.waitForFunction(()=>document.querySelector('#storage')?.textContent?.includes('CONFLICT MET ANDER TABBLAD'));
+  assert.equal(await first.locator('#persist').isDisabled(),true);
+  assert.match(await first.locator('#pending').innerText(),/1 notitie\(s\) alleen in dit tabblad/);
+  assert.equal(await first.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),null);
+  assert.equal(await first.evaluate(()=>localStorage.getItem('palaco_la_observatory_consent_v1')),null);
+  await first.locator('#tab-geheugen').click();
+  assert.match(await first.locator('#count').innerText(),/1 \/ 1/);
+  await second.close();
+ });
+});
