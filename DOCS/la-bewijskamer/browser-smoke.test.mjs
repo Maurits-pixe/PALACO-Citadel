@@ -730,3 +730,39 @@ test("mobile recovery: tampered encrypted file cannot alter an existing local me
  assert.equal(await b.evaluate(()=>localStorage.length),0);
  await source.close();await target.close();
 });
+
+test("mobile vault status is read-only across save, reload, unlock and delete",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true});
+ const p=await c.newPage();await p.goto(base+"/DOCS/la-geheugenkamer/");
+ assert.match(await p.locator("#vaultStatus").innerText(),/niet aanwezig/);
+ assert.equal(await p.locator("#count").innerText(),"0");
+ await p.locator("#title").fill("Status zonder blootstelling");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Privé");
+ await p.locator("#entryForm button[type=submit]").tap();
+ await p.locator("#archivePassphrase").fill("Status test wachtzin mobiel 123");
+ await p.locator("#vaultSave").tap();
+ await p.waitForFunction(()=>document.querySelector("#vaultStatus").textContent.includes("versie 1"));
+ assert.doesNotMatch(await p.locator("#vaultStatus").innerText(),/Status zonder blootstelling/);
+ await p.reload();
+ assert.match(await p.locator("#vaultStatus").innerText(),/Gesloten na herladen/);
+ assert.equal(await p.locator("#count").innerText(),"0");
+ await p.locator("#archivePassphrase").fill("Status test wachtzin mobiel 123");
+ await p.locator("#vaultUnlock").tap();
+ await p.waitForFunction(()=>document.querySelector("#count").textContent==="1");
+ p.once("dialog",d=>d.accept());
+ await p.locator("#vaultDelete").tap();
+ await p.waitForFunction(()=>document.querySelector("#vaultStatus").textContent.includes("niet aanwezig"));
+ assert.equal(await p.locator("#count").innerText(),"1");
+ await c.close();
+});
+
+test("mobile vault status handles invalid storage without revealing sensitive data",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true});
+ const p=await c.newPage();await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.evaluate(()=>localStorage.setItem("palaco.citadel.geheugenkamer.vault.v1","not-json-private-secret"));
+ await p.reload();
+ assert.match(await p.locator("#vaultStatus").innerText(),/beschadigd/);
+ assert.doesNotMatch(await p.locator("#vaultStatus").innerText(),/not-json-private-secret/);
+ assert.equal(await p.locator("#count").innerText(),"0");
+ await c.close();
+});
