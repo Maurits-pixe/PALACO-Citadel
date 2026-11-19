@@ -1031,3 +1031,57 @@ test("legacy malformed or oversized vault cannot be migrated",async()=>{
  assert.equal((await p.evaluate(k=>localStorage.getItem(k).length,key)),256*1024+1);
  await c.close();
 });
+
+test("vault overwrite refuses a conflicting historical record with the same ID",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true});
+ await c.addInitScript(()=>Object.defineProperty(crypto,"randomUUID",{value:()=>"citadel-historic-fixed-id",configurable:true}));
+ const p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Historische originele titel");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Originele ongewijzigde inhoud");
+ await p.locator("#entryForm button[type=submit]").tap();
+ await p.locator("#archivePassphrase").fill("Lineage conflict wachtzin 123");
+ await p.locator("#vaultSave").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde kluis bewust opgeslagen"));
+ const original=await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1"));
+ p.once("dialog",d=>d.accept());
+ await p.locator("#clear").tap();
+ await p.locator("#title").fill("Vervalste titel hetzelfde ID");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Conflicterende inhoud");
+ await p.locator("#entryForm button[type=submit]").tap();
+ assert.equal(await p.locator("#count").innerText(),"1");
+ await p.locator("#archivePassphrase").fill("Lineage conflict wachtzin 123");
+ p.once("dialog",d=>d.accept());
+ await p.locator("#vaultSave").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("afwijkende inhoud"));
+ assert.equal(await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),original);
+ assert.match(await p.locator("#timeline").innerText(),/Vervalste titel hetzelfde ID/);
+ await c.close();
+});
+
+test("encrypted vault unlock refuses conflicting local record with the same ID",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true});
+ await c.addInitScript(()=>Object.defineProperty(crypto,"randomUUID",{value:()=>"citadel-historic-fixed-id",configurable:true}));
+ const p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Origineel lineage-record");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Oude inhoud");
+ await p.locator("#entryForm button[type=submit]").tap();
+ await p.locator("#archivePassphrase").fill("Lineage merge wachtzin 123");
+ await p.locator("#vaultSave").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde kluis bewust opgeslagen"));
+ const original=await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1"));
+ p.once("dialog",d=>d.accept());
+ await p.locator("#clear").tap();
+ await p.locator("#title").fill("Niet-identieke lokale versie");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Nieuwe andere inhoud");
+ await p.locator("#entryForm button[type=submit]").tap();
+ await p.locator("#archivePassphrase").fill("Lineage merge wachtzin 123");
+ p.once("dialog",d=>d.accept());
+ await p.locator("#vaultUnlock").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("conflicterende IDs"));
+ assert.equal(await p.locator("#count").innerText(),"1");
+ assert.match(await p.locator("#timeline").innerText(),/Niet-identieke lokale versie/);
+ assert.equal(await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),original);
+ await c.close();
+});
