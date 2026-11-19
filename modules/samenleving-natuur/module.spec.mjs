@@ -772,3 +772,53 @@ test('tampered detached signature fails while read-only packet remains intact',a
   await page.locator('#discard').click();
   await expect(page.locator('#preview')).toBeHidden();
 });
+
+test('locally listed revoked fingerprint blocks an otherwise valid signature',async ({page})=>{
+ const fixture=await signedPreviewFixture(page);
+ await page.locator('#signatureFile').setInputFiles({
+  name:'signature.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.detached))
+ });
+ await page.locator('#revocations').setInputFiles({
+  name:'revocations.json',mimeType:'application/json',
+  buffer:Buffer.from(JSON.stringify({
+   schema:'palaco-citadel-revocations-v1',fingerprints:[fixture.detached.keyFingerprint]
+  }))
+ });
+ await page.locator('#verifySignature').click();
+ await expect(page.locator('#signatureStatus')).toContainText('SLEUTEL INGETROKKEN');
+ await expect(page.locator('#signatureStatus')).toContainText('geen PALACO-autorisatie');
+ await expect(page.locator('#preview')).toBeVisible();
+});
+
+test('unlisted signature remains cryptographically valid but explicitly untrusted',async ({page})=>{
+ const fixture=await signedPreviewFixture(page);
+ await page.locator('#signatureFile').setInputFiles({
+  name:'signature.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.detached))
+ });
+ await page.locator('#revocations').setInputFiles({
+  name:'empty-revocations.json',mimeType:'application/json',
+  buffer:Buffer.from(JSON.stringify({schema:'palaco-citadel-revocations-v1',fingerprints:[]}))
+ });
+ await page.locator('#verifySignature').click();
+ await expect(page.locator('#signatureStatus')).toContainText('cryptografisch GELDIG');
+ await expect(page.locator('#signatureStatus')).toContainText('NIET VERTROUWD');
+});
+
+test('changing revocation list invalidates a previous signature result',async ({page})=>{
+ const fixture=await signedPreviewFixture(page);
+ await page.locator('#signatureFile').setInputFiles({
+  name:'signature.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.detached))
+ });
+ await page.locator('#verifySignature').click();
+ await expect(page.locator('#signatureStatus')).toContainText('cryptografisch GELDIG');
+ await page.locator('#revocations').setInputFiles({
+  name:'revocations.json',mimeType:'application/json',
+  buffer:Buffer.from(JSON.stringify({
+   schema:'palaco-citadel-revocations-v1',fingerprints:[fixture.detached.keyFingerprint]
+  }))
+ });
+ await expect(page.locator('#signatureStatus')).toContainText('Intrekkingslijst gewijzigd');
+ await expect(page.locator('#signatureStatus')).not.toContainText('cryptografisch GELDIG');
+ await page.locator('#verifySignature').click();
+ await expect(page.locator('#signatureStatus')).toContainText('SLEUTEL INGETROKKEN');
+});
