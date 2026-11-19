@@ -56,6 +56,14 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Versleutelde kluis-migratie · v3.0
+- De bestaande, oudere **platte AES-256-GCM-kluisblob** blijft op een nieuwe pagina gesloten. De status noemt het oude formaat, maar het openen vereist altijd de juiste wachtzin.
+- Ontgrendelen ontsleutelt en valideert het legacy archief, zonder de opgeslagen bytes automatisch te veranderen. Er vindt **geen automatische migratie** plaats.
+- Na expliciete ontgrendeling kan de gebruiker met dezelfde oorspronkelijke wachtzin de bestaande kluis handmatig opnieuw opslaan als `PALACO-CITADEL-VAULT-2`. De nieuwe envelop krijgt revisie **2** en een SHA-256 `parentDigest` van de oorspronkelijke kluisblob.
+- Een afwijkende wachtzin blokkeert de migratie zonder de oude ciphertext te vervangen. Alle oude record-ID's moeten in het actieve geheugen aanwezig blijven.
+- Twee aanvullende mobiele Chromium-proeven controleren (1) gesloten legacy-kluis, handmatig openen, migratie, bewaarde dossierinhoud en opnieuw openen na herladen, en (2) blokkade bij foutieve wachtzin.
+- Bestaande gegevens van testgebruikers mogen niet zonder back-up of fysieke acceptatie naar een andere browser worden gekopieerd. Ook deze migratie bewijst **geen** identiteit, bronherkomst of ERA/EDTR-autorisatie.
+
 ## Verifieer wachtzin vóór definitief verwijderen · v2.9
 - De handeling **Verwijder apparaatkluis** vereist voortaan twee expliciete controles: een definitieve bevestiging **en een opnieuw ingevoerde wachtzin** waarmee het bestaande AES-256-GCM-archief daadwerkelijk kan worden ontsleuteld en op SHA-256-integriteit wordt gecontroleerd.
 - De wachtzininvoer wordt direct leeggemaakt; de wachtzin wordt niet in browseropslag vastgelegd. Onjuiste wachtzin, beschadigde kluis, een ingetrokken tab-autorisatie of tussentijdse wijziging weigert de verwijdering zonder de bestaande ciphertext aan te passen.
