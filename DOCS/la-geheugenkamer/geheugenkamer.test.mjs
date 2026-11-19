@@ -24,7 +24,7 @@ function harness(initialArchive=null){
     reset(){for(const id of ['title','who','what','where','why','how','source'])nodes.get('#'+id).value='';nodes.get('#category').value='Persoonlijk'}
     click(){if(this.tagName==='a')this.clicked=true;else if(this.listeners.has('click'))return this.dispatch('click')}
   }
-  const names=['message','count','utc','entryForm','persist','title','who','what','where','why','how','source','category','search','filter','sort','timeline','collections','dossier','dossierDetails','dossierExport','dossierClose','handoffConsent','contractExport','clear','restore','proof','export','encryptedExport','archivePassphrase','vaultSave','vaultUnlock','vaultLock','vaultDelete','importBtn','file'];
+  const names=['message','count','utc','entryForm','persist','title','who','what','where','why','how','source','category','search','filter','sort','timeline','collections','dossier','dossierDetails','dossierExport','dossierClose','handoffConsent','contractExport','clear','restore','proof','export','encryptedExport','archivePassphrase','vaultSave','vaultUnlock','vaultLock','vaultDelete','vaultStatus','importBtn','file'];
   for(const n of names)nodes.set('#'+n,new Element());
   nodes.get('#category').value='Persoonlijk';
   const storage=new Map(),intervals=[];if(initialArchive!==null)storage.set('palaco.citadel.geheugenkamer.v1',JSON.stringify(initialArchive));
