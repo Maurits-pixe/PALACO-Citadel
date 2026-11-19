@@ -638,8 +638,10 @@ test("v2.5 bundelt vier samenhangende mobiele rapporten tot HOLD dossier",async(
   const verification=makeRecoveryVerification(comparison,triage,latest);
   return {comparison,triage,latest,verification};
  });
- for(const [name,data] of Object.entries(sources))
+ for(const [name,data] of Object.entries(sources)){
    await page.locator("#"+name+"-file").setInputFiles({name:name+".json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(data))});
+   await expect(page.locator("#status"),"Import van "+name).toContainText("Lokaal bestand geladen");
+ }
  await expect(page.locator("#consolidate")).toBeEnabled();
  await page.locator("#consolidate").click();
  await expect(page.locator("#summary")).toContainText("HOLD / DENY");
