@@ -508,6 +508,7 @@ test("Web Locks: deleting a known vault waits for exclusive lock and then remove
    });
  });
  await holder.waitForFunction(()=>window.__held);
+ await page.locator("#archivePassphrase").fill("Verwijder wachtzin lokaal 123!");
  page.once("dialog",d=>d.accept());
  await page.locator("#vaultDelete").click();
  await page.waitForFunction(async()=>{const q=await navigator.locks.query();return q.pending.some(x=>x.name==="palaco.citadel.geheugenkamer.vault.write")});
@@ -749,6 +750,7 @@ test("mobile vault status is read-only across save, reload, unlock and delete",a
  await p.locator("#archivePassphrase").fill("Status test wachtzin mobiel 123");
  await p.locator("#vaultUnlock").tap();
  await p.waitForFunction(()=>document.querySelector("#count").textContent==="1");
+ await p.locator("#archivePassphrase").fill("Status test wachtzin mobiel 123");
  p.once("dialog",d=>d.accept());
  await p.locator("#vaultDelete").tap();
  await p.waitForFunction(()=>document.querySelector("#vaultStatus").textContent.includes("niet aanwezig"));
@@ -809,6 +811,7 @@ test("mobile lock revokes deletion privilege until original vault is unlocked ag
  await p.locator("#archivePassphrase").fill("Oorspronkelijke kluiswachtzin 123");
  await p.locator("#vaultUnlock").tap();
  await p.waitForFunction(()=>document.querySelector("#count").textContent==="1");
+ await p.locator("#archivePassphrase").fill("Oorspronkelijke kluiswachtzin 123");
  p.once("dialog",d=>d.accept());
  await p.locator("#vaultDelete").tap();
  await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde apparaatkluis verwijderd"));
@@ -861,5 +864,61 @@ test("vault overwrite refuses losing records from previously encrypted snapshot"
  await p.locator("#vaultSave").tap();
  await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("eerder opgeslagen herinneringen ontbreken"));
  assert.equal(await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),original);
+ await c.close();
+});
+
+test("vault deletion refuses wrong passphrase and preserves original ciphertext",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Kluis blijft na fout");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Geen verwijdering");
+ await p.locator("#entryForm button[type=submit]").tap();
+ await p.locator("#archivePassphrase").fill("Oorspronkelijke verwijderwachtzin 123");
+ await p.locator("#vaultSave").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde kluis bewust opgeslagen"));
+ const original=await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1"));
+ await p.locator("#archivePassphrase").fill("Verkeerde verwijderwachtzin 456");
+ p.once("dialog",d=>d.accept());
+ await p.locator("#vaultDelete").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("onjuiste wachtzin"));
+ assert.equal(await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),original);
+ assert.equal(await p.locator("#archivePassphrase").inputValue(),"");
+ assert.equal(await p.locator("#count").innerText(),"1");
+ await p.locator("#archivePassphrase").fill("Oorspronkelijke verwijderwachtzin 123");
+ p.once("dialog",d=>d.accept());
+ await p.locator("#vaultDelete").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde apparaatkluis verwijderd"));
+ assert.equal(await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),null);
+ await c.close();
+});
+
+test("vault deletion interrupted by tab lock during slow authentication keeps the vault",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Verwijdering mag niet doorgaan");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Slot verbreekt de operatie");
+ await p.locator("#entryForm button[type=submit]").tap();
+ await p.locator("#archivePassphrase").fill("Wachtzin onder tijdslot 123");
+ await p.locator("#vaultSave").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde kluis bewust opgeslagen"));
+ const original=await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1"));
+ await p.evaluate(()=>{
+   const original=SubtleCrypto.prototype.deriveKey;
+   window.__pendingDelete=false;
+   SubtleCrypto.prototype.deriveKey=function(...args){
+     window.__pendingDelete=true;
+     return new Promise((resolve,reject)=>{window.__releaseDelete=()=>original.apply(this,args).then(resolve,reject)});
+   };
+ });
+ await p.locator("#archivePassphrase").fill("Wachtzin onder tijdslot 123");
+ p.once("dialog",d=>d.accept());
+ await p.locator("#vaultDelete").tap();
+ await p.waitForFunction(()=>window.__pendingDelete);
+ p.once("dialog",d=>d.accept());
+ await p.locator("#vaultLock").tap();
+ await p.evaluate(()=>window.__releaseDelete());
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("Verwijderen geweigerd"));
+ assert.equal(await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),original);
+ assert.equal(await p.locator("#count").innerText(),"0");
  await c.close();
 });
