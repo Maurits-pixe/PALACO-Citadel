@@ -56,6 +56,13 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Leesbare kluisstatus en fysieke apparaatacceptatie · v2.6
+- De Geheugenkamer toont een **alleen-lezen kluisstatus** met `role=status` en `aria-live=polite`. De status vermeldt uitsluitend aanwezigheid en, bij een geldige revisie-envelop, een versienummer; er worden geen herinneringen of wachtzinnen ontsloten.
+- Bij herladen wordt een aanwezige kluis nog altijd **niet automatisch ontgrendeld**. De status verwerkt ook ontbrekende, beschadigde, onbekende of te grote opslag en wordt bijgewerkt na bewaren, verwijderen en externe browser-tabwijzigingen.
+- Twee Chromium-testscenario's simuleren mobiele statusovergangen en een beschadigde opslagblob zonder privégegevens in de melding.
+- Het document [MOBIELE-ACCEPTATIE-v2.6.md](MOBIELE-ACCEPTATIE-v2.6.md) bevat een concreet 9-stappenprotocol voor echte Android/Chrome- en iPhone/Safari-apparaten, inclusief bewijsvelden en een expliciete HOLD-gate.
+- De fysieke apparaten zijn **niet** via deze CI getest; de broncode blijft DRAFT en ongepubliceerd op de live Citadel-site.
+
 ## Mobiele foutafhandeling en gegevensbehoud · v2.5
 - Twee extra Chromium-touchtests controleren of een **verkeerde kluiswachtzin** en een **gewijzigde ciphertext** worden geweigerd zonder de bestaande herinneringen te veranderen.
 - Bij een foutieve kluiswachtzin blijft zowel het actieve geheugen als de versleutelde kluisblob ongewijzigd; na de poging staat de wachtzininvoer leeg.
