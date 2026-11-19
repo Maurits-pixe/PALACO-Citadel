@@ -56,6 +56,12 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Legacy-format hardening · v3.1
+- Onbekende of niet-objectvormige kluisschema's worden bij expliciete ontgrendeling meteen geweigerd zonder ze te openen of gegevens te importeren.
+- Een bestaande kluis groter dan 256 KB mag niet worden overschreven; ongeldige revisie-enveloppen met verkeerd getypeerd revisienummer of ongeldig `parentDigest` worden vóór migratie afgewezen.
+- Twee extra mobiele Chromium-proeven testen onbekende schema's, een beschadigde revisie-envelop en een te grote kluis; na weigering blijven kluisbytes en actieve herinneringen onaangetast.
+- De controles wijzigen geen bestaande kluis automatisch en vervangen geen onafhankelijke securityreview of fysieke apparaattests.
+
 ## Versleutelde kluis-migratie · v3.0
 - De bestaande, oudere **platte AES-256-GCM-kluisblob** blijft op een nieuwe pagina gesloten. De status noemt het oude formaat, maar het openen vereist altijd de juiste wachtzin.
 - Ontgrendelen ontsleutelt en valideert het legacy archief, zonder de opgeslagen bytes automatisch te veranderen. Er vindt **geen automatische migratie** plaats.
