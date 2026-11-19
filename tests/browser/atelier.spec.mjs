@@ -392,6 +392,15 @@ test('Atelier: JSON en TXT samen controleren zonder het huidige ontwerp te wijzi
  await page.locator('#pairVerify').setInputFiles([jsonFile,txtFile]);
  await expect(page.locator('#pairStatus')).toContainText('PAARCONTROLE GESLAAGD');
  await expect(page.locator('#pairStatus')).toContainText(hash);
+ const misleadingTxt={...txtFile,buffer:Buffer.from('SHA-256: '+hash+'\nBestand: ander-project.json\n')};
+ await page.locator('#pairVerify').setInputFiles([jsonFile,misleadingTxt]);
+ await expect(page.locator('#pairStatus')).toContainText('Bestandsnaam in SHA-256-TXT komt niet overeen');
+ await expect(page.locator('#pairReportSave')).toBeDisabled();
+ const missingFilename={...txtFile,buffer:Buffer.from('SHA-256: '+hash+'\n')};
+ await page.locator('#pairVerify').setInputFiles([jsonFile,missingFilename]);
+ await expect(page.locator('#pairStatus')).toContainText('precies één Bestand-regel');
+ await page.locator('#pairVerify').setInputFiles([jsonFile,txtFile]);
+ await expect(page.locator('#pairStatus')).toContainText('PAARCONTROLE GESLAAGD');
  await expect(page.locator('#pairReportSave')).toBeEnabled();
  const reportPromise=page.waitForEvent('download');
  await page.locator('#pairReportSave').click();
@@ -439,6 +448,10 @@ test('Atelier: inspectierapport kan met project en TXT opnieuw worden geverifiee
  await page.locator('#reportVerify').setInputFiles([reportFile,txtFile,jsonFile]);
  await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
  await expect(page.locator('#reportVerifyStatus')).toContainText(hash);
+ await page.locator('#reportVerify').setInputFiles([reportFile,jsonFile,{...txtFile,buffer:Buffer.from('SHA-256: '+hash+'\nBestand: ander-project.json\n')}]);
+ await expect(page.locator('#reportVerifyStatus')).toContainText('Bestandsnaam in SHA-256-TXT komt niet overeen');
+ await page.locator('#reportVerify').setInputFiles([reportFile,jsonFile,{...txtFile,buffer:Buffer.from('SHA-256: '+hash+'\nBestand: creative.json\nBestand: creative.json\n')}]);
+ await expect(page.locator('#reportVerifyStatus')).toContainText('precies één Bestand-regel');
  const wrong={...JSON.parse(reportBytes.toString('utf8')),exteriorUsed:999};
  await page.locator('#reportVerify').setInputFiles([jsonFile,txtFile,{...reportFile,buffer:Buffer.from(JSON.stringify(wrong))}]);
  await expect(page.locator('#reportVerifyStatus')).toContainText('Drievoudige controle geweigerd');
