@@ -137,7 +137,7 @@ $("clock").textContent=new Date().toLocaleString("nl-NL",{dateStyle:"medium",tim
 let notes=[];
 let journalRevision=0;
 let selectedId=null;
-let storageEnabled=false,storageRecoveryBlocked=false;
+let storageEnabled=false,storageRecoveryBlocked=false,storageConflictBlocked=false;
 function validStoredNotes(value){
 return Array.isArray(value)&&value.length<=max&&value.every(n=>ownKeysEqual(n,["id","at","subject","kind","reference","notes"])&&valid(n))&&new Set(value.map(n=>n.id)).size===value.length;
 }
@@ -154,6 +154,23 @@ try{
  }else{localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);}
 }catch(_){storageRecoveryBlocked=true;storageEnabled=false;notes=[];}
 let persistedNoteIds=new Set(storageEnabled?notes.map(n=>n.id):[]);
+let storedSnapshot=null;
+try{storedSnapshot={raw:localStorage.getItem(KEY),consent:localStorage.getItem(CONSENT)};}catch(_){storageRecoveryBlocked=true;storageEnabled=false;}
+function markStorageConflict(){
+ storageConflictBlocked=true;
+ $("persist").disabled=true;
+ $("storage").textContent="CONFLICT MET ANDER TABBLAD: deze sessie mag de externe wijzigingen niet overschrijven.";
+ status("Opslagconflict: exporteer eerst je lokale notities en herlaad daarna om de actuele opslag te lezen.");
+}
+function storageMatchesSnapshot(){
+ return storedSnapshot!==null&&localStorage.getItem(KEY)===storedSnapshot.raw&&localStorage.getItem(CONSENT)===storedSnapshot.consent;
+}
+window.addEventListener("storage",event=>{
+ if((event.key===KEY||event.key===CONSENT||event.key===null)&&!storageRecoveryBlocked){
+  try{if(!storageMatchesSnapshot())markStorageConflict();}
+  catch(_){markStorageConflict();}
+ }
+});
 function updatePendingStatus(){
  const unpersisted=notes.filter(n=>!persistedNoteIds.has(n.id)).length;
  $("pending").textContent=unpersisted?unpersisted+" notitie(s) alleen in dit tabblad; exporteer JSON vóór herladen.":"Alle aanwezige notities opgeslagen of geen notities aanwezig.";
@@ -189,7 +206,8 @@ $("storage-reset").addEventListener("click",()=>{
  try{
   localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);
   if(localStorage.getItem(KEY)!==null||localStorage.getItem(CONSENT)!==null)throw new Error("Wissen niet bevestigd");
-  storageRecoveryBlocked=false;storageEnabled=false;notes=[];journalRevision++;persistedNoteIds.clear();
+  storageRecoveryBlocked=false;storageConflictBlocked=false;storageEnabled=false;notes=[];journalRevision++;persistedNoteIds.clear();
+  storedSnapshot={raw:null,consent:null};
   $("persist").checked=false;$("persist").disabled=false;
   $("storage-reset").classList.add("hidden");
   $("storage-backup").classList.add("hidden");
@@ -199,6 +217,9 @@ $("storage-reset").addEventListener("click",()=>{
 });
 function save(){
  if(storageRecoveryBlocked){status("Opslag geblokkeerd: herstel eerst de onleesbare lokale kopie.");return false;}
+ if(storageConflictBlocked){status("Opslagconflict: eerst exporteren en herladen; geen externe wijzigingen overschreven.");return false;}
+ try{if(!storageMatchesSnapshot()){markStorageConflict();return false;}}
+ catch(_){markStorageConflict();return false;}
  const wantsStorage=$("persist").checked;
  try{
   if(wantsStorage){
@@ -211,12 +232,14 @@ function save(){
    localStorage.setItem(KEY,serialized);
    localStorage.setItem(CONSENT,"yes");
    if(localStorage.getItem(KEY)!==serialized||localStorage.getItem(CONSENT)!=="yes")throw new Error("Opslag niet bevestigd");
+   storedSnapshot={raw:serialized,consent:"yes"};
    storageEnabled=true;
    persistedNoteIds=new Set(notes.map(n=>n.id));
    $("storage").textContent="Opslag: lokaal op dit apparaat (toestemming actief)";
   }else{
    localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);
    if(localStorage.getItem(KEY)!==null||localStorage.getItem(CONSENT)!==null)throw new Error("Wissen niet bevestigd");
+   storedSnapshot={raw:null,consent:null};
    storageEnabled=false;
    persistedNoteIds.clear();
    $("storage").textContent="Opslag: alleen huidig tabblad";
