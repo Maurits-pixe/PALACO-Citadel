@@ -385,13 +385,14 @@ $("filter").addEventListener("change",render);
 $("search").addEventListener("input",render);
 $("import").addEventListener("click",async()=>{
 if(storageRecoveryBlocked){status("Import geblokkeerd: stel eerst de bestaande onleesbare lokale kopie veilig en herstel de opslag.");return;}
+if(storageConflictBlocked){status("Import geblokkeerd: conflict met ander tabblad; exporteer eerst en herlaad.");return;}
 const startedAtRevision=journalRevision;
 const file=$("import-file").files[0];
 if(!file){status("Selecteer eerst een JSON-bestand.");return;}
 if(file.size===0||file.size>262144){status("Import geweigerd: bestand leeg of groter dan 256 KB.");return;}
 try{
 const raw=await file.text();
-if(storageRecoveryBlocked||journalRevision!==startedAtRevision){status("Import afgebroken: lokaal Geheugen is tijdens het lezen gewijzigd.");return;}
+if(storageRecoveryBlocked||storageConflictBlocked||journalRevision!==startedAtRevision){status("Import afgebroken: lokaal Geheugen of externe opslag is tijdens het lezen gewijzigd.");return;}
 if(new TextEncoder().encode(raw).length>262144){status("Import geweigerd: ingelezen inhoud te groot.");return;}
 const data=JSON.parse(raw);
 if(!ownKeysEqual(data,["format","exported_at","authority","notes"])||data.format!=="palaco-la-observatory-local-v1"||data.authority!=="SELF_REPORTED_NOT_VERIFIED"||typeof data.exported_at!=="string"||!Number.isFinite(Date.parse(data.exported_at))||!Array.isArray(data.notes)||data.notes.length>max||!data.notes.every(n=>ownKeysEqual(n,["id","at","subject","kind","reference","notes"])&&valid(n))){
@@ -409,7 +410,7 @@ if(!existing||["at","subject","kind","reference","notes"].some(key=>existing[key
 if(notes.length+incoming.length>max){status("Import geweigerd: limiet van 100 notities overschreden.");return;}
 if(!incoming.length){status("Geen nieuwe notities: alle IDs waren al aanwezig.");return;}
 if(!confirm(incoming.length+" notities alleen als ONGEVERIFIEERDE lokale waarnemingen toevoegen?")){status("Import geannuleerd; er zijn geen notities toegevoegd.");return;}
-if(storageRecoveryBlocked||journalRevision!==startedAtRevision){status("Import afgebroken: lokaal Geheugen is tijdens de bevestiging gewijzigd.");return;}
+if(storageRecoveryBlocked||storageConflictBlocked||journalRevision!==startedAtRevision){status("Import afgebroken: lokaal Geheugen of externe opslag is tijdens de bevestiging gewijzigd.");return;}
 notes=notes.concat(incoming);journalRevision++;
 const persisted=save();render();
 status(persisted?incoming.length+" zelfgerapporteerde notities geïmporteerd; niet geverifieerd.":incoming.length+" notities uitsluitend in dit tabblad geïmporteerd; blijvende opslag NIET bevestigd.");
