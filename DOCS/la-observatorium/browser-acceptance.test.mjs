@@ -660,3 +660,34 @@ test('beforeunload warns only while session has unpersisted observations',{timeo
   assert.equal(await isBlocked(),true,'Withdrawing storage consent restores the exit warning');
  });
 });
+
+test('large journal is partitioned into import-compatible JSON with no lost notes',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  const report=await page.evaluate(()=>{
+   const entries=Array.from({length:100},(_,i)=>({
+    id:'roundtrip-'+i,at:'2026-11-19T10:00:00.000Z',
+    subject:'Offline waarneming '+i,kind:'OBSERVED',reference:'',notes:'😀'.repeat(750)
+   }));
+   const parts=exportJournalParts(entries,'2026-11-19T10:00:00.000Z');
+   if(!parts)return null;
+   return {parts:parts.map(packet=>({
+    bytes:new TextEncoder().encode(JSON.stringify(packet,null,2)).length,
+    count:packet.notes.length,
+    schema:packet.format,
+    authority:packet.authority,
+    exported_at:packet.exported_at,
+    ids:packet.notes.map(note=>note.id)
+   }))};
+  });
+  assert.ok(report,'Splitting must succeed');
+  assert.ok(report.parts.length>1,'Large journal should require multiple parts');
+  assert.ok(report.parts.every(part=>part.bytes<=262144),'Every part must pass the 256 KiB import cap');
+  assert.ok(report.parts.every(part=>part.schema==='palaco-la-observatory-local-v1'));
+  assert.ok(report.parts.every(part=>part.authority==='SELF_REPORTED_NOT_VERIFIED'));
+  assert.ok(report.parts.every(part=>part.exported_at==='2026-11-19T10:00:00.000Z'));
+  const ids=report.parts.flatMap(part=>part.ids);
+  assert.equal(ids.length,100);
+  assert.equal(new Set(ids).size,100);
+  assert.deepEqual(ids,Array.from({length:100},(_,i)=>'roundtrip-'+i));
+ });
+});
