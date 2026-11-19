@@ -875,3 +875,36 @@ test('tampered signed revocation v2 fails closed',async ({page})=>{
  await expect(page.locator('#signatureStatus')).toContainText('niet geldig of niet verifieerbaar');
  await expect(page.locator('#signatureStatus')).not.toContainText('cryptografisch GELDIG');
 });
+
+test('explicitly pinned signed revocation v2 persists a local per-issuer rollback floor',async ({page})=>{
+ const fixture=await signedPreviewFixture(page);
+ const signed=await signedRevocationFixture(page,fixture.detached.keyFingerprint);
+ await page.locator('#signatureFile').setInputFiles({name:'sig.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.detached))});
+ await page.locator('#revocationIssuerKey').fill(JSON.stringify(signed.publicKey));
+ await page.locator('#revocations').setInputFiles({name:'v2.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(signed.signed))});
+ await expect(page.locator('#pinRevocation')).toBeDisabled();
+ await page.locator('#verifySignature').click();
+ await expect(page.locator('#signatureStatus')).toContainText('SLEUTEL INGETROKKEN');
+ await expect(page.locator('#pinRevocation')).toBeEnabled();
+ page.once('dialog',d=>d.accept());
+ await page.locator('#pinRevocation').click();
+ await expect(page.locator('#signatureStatus')).toContainText('ANTI-ROLLBACK VASTGELEGD');
+ await expect(page.locator('#pinRevocation')).toBeDisabled();
+ const key='palaco.citadel.revocation-pin.v1.'+signed.signed.issuerFingerprint;
+ expect(await page.evaluate(key=>localStorage.getItem(key),key)).toBe(signed.signed.issuedAt);
+});
+
+test('rollback floor blocks previously signed revocation v2 with older timestamp',async ({page})=>{
+ const fixture=await signedPreviewFixture(page);
+ const signed=await signedRevocationFixture(page,fixture.detached.keyFingerprint);
+ const key='palaco.citadel.revocation-pin.v1.'+signed.signed.issuerFingerprint;
+ const newer=new Date(Date.parse(signed.signed.issuedAt)+3600000).toISOString();
+ await page.evaluate(([key,value])=>localStorage.setItem(key,value),[key,newer]);
+ await page.locator('#signatureFile').setInputFiles({name:'sig.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.detached))});
+ await page.locator('#revocationIssuerKey').fill(JSON.stringify(signed.publicKey));
+ await page.locator('#revocations').setInputFiles({name:'v2-older.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(signed.signed))});
+ await page.locator('#verifySignature').click();
+ await expect(page.locator('#signatureStatus')).toContainText('ROLLBACK GEBLOKKEERD');
+ await expect(page.locator('#pinRevocation')).toBeDisabled();
+ expect(await page.evaluate(key=>localStorage.getItem(key),key)).toBe(newer);
+});
