@@ -50,6 +50,18 @@ small{color:#c2d1c5}.hidden{display:none!important}
 <p><small>Alleen na expliciete bevestiging. Dit onthoudt het laatst gecontroleerde v2-uitgiftetijdstip per uitgeverssleutel op dit apparaat. Het is geen betrouwbaar of onveranderbaar register.</small></p>
 <p id="signatureStatus" role="status" aria-live="polite">Geen handtekening geverifieerd. Vertrouwensstatus: NIET VASTGESTELD.</p>
 </div>
+<div class="card">
+<h2>Sleutelrotatie · lokaal verificatielaboratorium</h2>
+<p>Controleer een opvolgingsverklaring die door de <strong>oude</strong> sleutel is ondertekend. Dit verleent de nieuwe sleutel geen vertrouwen of PALACO-rechten.</p>
+<label for="rotationFile">Getekende rotatieverklaring (JSON, maximaal 20 KB)</label>
+<input id="rotationFile" type="file" accept=".json,application/json">
+<label for="rotationOldKey">Oude publieke sleutel (P-256 JWK)</label>
+<textarea id="rotationOldKey" rows="3" style="width:100%;background:#0b1c15;color:var(--text);border:1px solid var(--line);padding:10px;border-radius:9px"></textarea>
+<label for="rotationNewKey">Nieuwe publieke sleutel (P-256 JWK)</label>
+<textarea id="rotationNewKey" rows="3" style="width:100%;background:#0b1c15;color:var(--text);border:1px solid var(--line);padding:10px;border-radius:9px"></textarea>
+<button id="verifyRotation" type="button">Controleer sleutelopvolging</button>
+<p id="rotationStatus" role="status" aria-live="polite">Geen sleutelrotatie gecontroleerd. Vertrouwensstatus: NIET VASTGESTELD.</p>
+</div>
 <button id="discard" type="button">Voorvertoning wissen</button>
 </section>
 <small>Contract palaco-citadel-handoff-v1 · ontwerpstatus DRAFT / HOLD · offline-first</small>
@@ -64,14 +76,14 @@ const states=['persoonlijke observatie','nog te verifiëren','geverifieerd door 
 const minimalKeys=['sequence','category','conceptualArea','verification','recordedMonth'];
 const fullKeys=['id','title','category','conceptualArea','verification','description','observedAt'];
 function exactFields(record,allowed){return Object.keys(record).length===allowed.length&&Object.keys(record).every(key=>allowed.includes(key))}
-let ticket=0,currentPacket=null,signatureRevision=0,pinCandidate=null;
+let ticket=0,currentPacket=null,signatureRevision=0,pinCandidate=null,rotationRevision=0;
 const PIN_PREFIX='palaco.citadel.revocation-pin.v1.';
 function readPin(raw){if(raw===null)return null;let v;try{v=JSON.parse(raw)}catch{v=raw}if(typeof v==='string'){if(!/^\d{4}-\d{2}-\d{2}T/.test(v)||!Number.isFinite(Date.parse(v)))throw Error('Ongeldige oudere pin');return {issuedAt:v,digest:null}}if(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).sort().join(',')!=='digest,issuedAt'||typeof v.issuedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(v.issuedAt)||!Number.isFinite(Date.parse(v.issuedAt))||typeof v.digest!=='string'||!/^[a-f0-9]{64}$/.test(v.digest))throw Error('Ongeldig lokaal pincontract');return v}
 function invalidatePin(){pinCandidate=null;$('pinRevocation').disabled=true}
 function canonicalJson(value){if(Array.isArray(value))return '['+value.map(canonicalJson).join(',')+']';if(value&&typeof value==='object')return '{'+Object.keys(value).sort().map(key=>JSON.stringify(key)+':'+canonicalJson(value[key])).join(',')+'}';return JSON.stringify(value)}
 async function verifyIntegrity(data){if(data.integrity===undefined)return false;const info=data.integrity;if(!info||typeof info!=='object'||Array.isArray(info)||Object.keys(info).length!==3||info.algorithm!=='SHA-256'||info.canonicalization!=='palaco-sorted-json-v1'||typeof info.digest!=='string'||! /^[0-9a-f]{64}$/.test(info.digest))throw Error('Onbekende integriteitsmethode');const packet={...data};delete packet.integrity;const bytes=new TextEncoder().encode(canonicalJson(packet));const hash=await crypto.subtle.digest('SHA-256',bytes);const observed=Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('');if(observed!==info.digest)throw Error('Hash komt niet overeen');return true}
 
-function clear(message){invalidatePin();signatureRevision++;currentPacket=null;$('revocations').value='';$('revocationIssuerKey').value='';$('signatureFile').value='';$('publicKey').value='';$('signatureStatus').textContent='Geen handtekening geverifieerd. Vertrouwensstatus: NIET VASTGESTELD.';$('preview').classList.add('hidden');$('records').replaceChildren();$('actualRecipient').textContent='';$('privacy').textContent='';$('total').textContent='';$('status').textContent=message}
+function clear(message){rotationRevision++;$('rotationFile').value='';$('rotationOldKey').value='';$('rotationNewKey').value='';$('rotationStatus').textContent='Geen sleutelrotatie gecontroleerd. Vertrouwensstatus: NIET VASTGESTELD.';invalidatePin();signatureRevision++;currentPacket=null;$('revocations').value='';$('revocationIssuerKey').value='';$('signatureFile').value='';$('publicKey').value='';$('signatureStatus').textContent='Geen handtekening geverifieerd. Vertrouwensstatus: NIET VASTGESTELD.';$('preview').classList.add('hidden');$('records').replaceChildren();$('actualRecipient').textContent='';$('privacy').textContent='';$('total').textContent='';$('status').textContent=message}
 function validate(data,recipient){
  if(!data||data.schema!=='palaco-citadel-handoff-v1'||data.source!=='citadel/samenleving-natuur'||!['wereldatlas','geheugenkamer'].includes(recipient))throw Error('Ongeldig contract');
  if(!Array.isArray(data.records)||data.records.length>500||!['minimal-user-controlled','full-user-controlled'].includes(data.privacy))throw Error('Ongeldige inhoud');
@@ -217,6 +229,34 @@ $('pinRevocation').addEventListener('click',()=>{
  }catch{$('signatureStatus').textContent='Vastleggen MISLUKT; geen anti-rollback-garantie en geen PALACO-autorisatie.'}
  invalidatePin();
 });
+function publicRotationKey(text){
+ if(typeof text!=='string'||text.length>4000)throw Error('Sleutel te groot');
+ const key=JSON.parse(text);
+ if(!key||typeof key!=='object'||Array.isArray(key)||key.kty!=='EC'||key.crv!=='P-256'||typeof key.x!=='string'||typeof key.y!=='string'||'d'in key)throw Error('Ongeldige publieke sleutel');
+ return {kty:'EC',crv:'P-256',x:key.x,y:key.y};
+}
+$('verifyRotation').addEventListener('click',async()=>{
+ const id=ticket,revision=++rotationRevision,packet=currentPacket,file=$('rotationFile').files?.[0];
+ $('rotationStatus').textContent='Rotatie wordt gecontroleerd; geen vertrouwensstatus vastgesteld.';
+ if(!packet||!file||file.size>20000){$('rotationStatus').textContent='Rotatie niet verifieerbaar. Geen PALACO-autorisatie.';return}
+ try{
+  const oldKey=publicRotationKey($('rotationOldKey').value),newKey=publicRotationKey($('rotationNewKey').value);
+  const rotation=JSON.parse(await file.text());
+  if(id!==ticket||revision!==rotationRevision||currentPacket!==packet)return;
+  if(!rotation||typeof rotation!=='object'||Array.isArray(rotation)||Object.keys(rotation).sort().join(',')!=='epoch,issuedAt,newFingerprint,oldFingerprint,schema,signature'||rotation.schema!=='palaco-citadel-key-rotation-v1'||!Number.isSafeInteger(rotation.epoch)||rotation.epoch<1||typeof rotation.issuedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(rotation.issuedAt)||!Number.isFinite(Date.parse(rotation.issuedAt))||Date.parse(rotation.issuedAt)>Date.now()+300000)throw Error('Ongeldig rotatiecontract');
+  const oldFp=hex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonicalJson(oldKey))));
+  const newFp=hex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonicalJson(newKey))));
+  if(oldFp===newFp||oldFp!==rotation.oldFingerprint||newFp!==rotation.newFingerprint)throw Error('Sleutelvingerafdrukken komen niet overeen');
+  const imported=await crypto.subtle.importKey('jwk',oldKey,{name:'ECDSA',namedCurve:'P-256'},false,['verify']);
+  const unsigned={...rotation};delete unsigned.signature;
+  const valid=await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},imported,b64ToBytes(rotation.signature),new TextEncoder().encode(canonicalJson(unsigned)));
+  if(id!==ticket||revision!==rotationRevision||currentPacket!==packet)return;
+  $('rotationStatus').textContent=valid?'SLEUTELOPVOLGING CRYPTOGRAFISCH GELDIG (epoch '+rotation.epoch+'); oude en nieuwe sleutel NIET VERTROUWD. Geen PALACO-autorisatie.':'SLEUTELOPVOLGING ONGELDIG. Geen PALACO-autorisatie.';
+ }catch{if(id===ticket&&revision===rotationRevision)$('rotationStatus').textContent='Rotatie niet geldig of niet verifieerbaar. Vertrouwensstatus: NIET VASTGESTELD.'}
+});
+for(const inputId of ['rotationFile','rotationOldKey','rotationNewKey']){
+ $(inputId).addEventListener(inputId==='rotationFile'?'change':'input',()=>{rotationRevision++;$('rotationStatus').textContent='Rotatie-input gewijzigd; opnieuw verifiëren vereist.'});
+}
 $('recipient').addEventListener('change',()=>{ticket++;$('packet').value='';clear('Ontvanger gewijzigd; kies opnieuw een passend pakket.')});
 $('allowLegacy').addEventListener('change',()=>{ticket++;$('packet').value='';clear('Integriteitsbeleid gewijzigd; kies het bestand opnieuw.')});
 $('discard').addEventListener('click',()=>{ticket++;$('packet').value='';clear('Voorvertoning gewist. Er is niets opgeslagen.')});
