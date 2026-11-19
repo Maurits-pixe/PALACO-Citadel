@@ -229,7 +229,7 @@ test('damaged offline journal can be backed up without mutation before destructi
 
 test('normal import and clear cannot bypass protected corrupt-storage recovery',()=>{
  assert.match(html,/if\(storageRecoveryBlocked\)\{status\("Import geblokkeerd/);
- assert.match(html,/if\(storageRecoveryBlocked\|\|journalRevision!==startedAtRevision\)\{status\("Import afgebroken/);
+ assert.match(html,/if\(storageRecoveryBlocked\|\|storageConflictBlocked\|\|journalRevision!==startedAtRevision\)\{status\("Import afgebroken/);
  assert.match(html,/if\(storageRecoveryBlocked\)\{status\("Wissen geblokkeerd/);
  assert.match(html,/const persisted=save\(\);render\(\)/);
  assert.match(html,/blijvende opslag NIET bevestigd/);
@@ -252,8 +252,8 @@ test('asynchronous import aborts when local journal changes during file reading 
  assert.match(html,/let journalRevision=0/);
  assert.match(html,/const startedAtRevision=journalRevision/);
  assert.match(html,/journalRevision!==startedAtRevision/);
- assert.match(html,/Import afgebroken: lokaal Geheugen is tijdens het lezen gewijzigd/);
- assert.match(html,/Import afgebroken: lokaal Geheugen is tijdens de bevestiging gewijzigd/);
+ assert.match(html,/Import afgebroken: lokaal Geheugen of externe opslag is tijdens het lezen gewijzigd/);
+ assert.match(html,/Import afgebroken: lokaal Geheugen of externe opslag is tijdens de bevestiging gewijzigd/);
  assert.match(html,/notes\.push\(n\);journalRevision\+\+/);
  assert.match(html,/notes=notes\.concat\(incoming\);journalRevision\+\+/);
  assert.match(html,/else journalRevision\+\+/);
@@ -343,4 +343,13 @@ test('cross-tab consent checkbox represents confirmed revocation without misread
  const browser=readFileSync(new URL('./browser-acceptance.test.mjs',import.meta.url),'utf8');
  assert.match(browser,/Revoked consent must not remain visibly enabled/);
  assert.match(browser,/Journal-only conflict does not imply withdrawn consent/);
+});
+
+test('cross-tab conflicts abort in-flight journal imports before mutating current session',()=>{
+ assert.match(html,/if\(storageConflictBlocked\)\{status\("Import geblokkeerd: conflict met ander tabblad/);
+ assert.match(html,/if\(storageRecoveryBlocked\|\|storageConflictBlocked\|\|journalRevision!==startedAtRevision\)\{status\("Import afgebroken/);
+ assert.match(html,/Import afgebroken: lokaal Geheugen of externe opslag is tijdens het lezen gewijzigd/);
+ assert.match(html,/Import afgebroken: lokaal Geheugen of externe opslag is tijdens de bevestiging gewijzigd/);
+ const importBody=html.slice(html.indexOf('$("import").addEventListener'),html.indexOf('$("persist").addEventListener'));
+ assert.ok(importBody.lastIndexOf('storageConflictBlocked')<importBody.indexOf('notes=notes.concat(incoming)'), 'Guard before imported notes are added');
 });
