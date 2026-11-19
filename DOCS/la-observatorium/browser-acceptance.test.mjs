@@ -557,3 +557,26 @@ test('second tab cannot silently overwrite journal updated in first tab',{timeou
   await second.close();
  });
 });
+
+test('recovery reset refuses to erase a copy replaced by another tab',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  const original='not-valid-json';
+  await page.evaluate(raw=>{
+   localStorage.setItem('palaco_la_observatory_consent_v1','yes');
+   localStorage.setItem('palaco_la_observatory_notes_v1',raw);
+  },original);
+  await page.reload();
+  assert.equal(await page.locator('#persist').isDisabled(),true);
+  const newer='newer-copy-preserved-from-other-tab';
+  const second=await page.context().newPage();
+  await second.goto(page.url());
+  await second.evaluate(raw=>localStorage.setItem('palaco_la_observatory_notes_v1',raw),newer);
+  await second.close();
+  page.once('dialog',dialog=>dialog.accept());
+  await page.locator('#storage-reset').click();
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),newer);
+  assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_consent_v1')),'yes');
+  assert.match(await page.locator('#announce').innerText(),/Herstelreset geweigerd/);
+  assert.match(await page.locator('#storage').innerText(),/CONFLICT MET ANDER TABBLAD/);
+ });
+});
