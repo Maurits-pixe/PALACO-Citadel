@@ -1005,3 +1005,49 @@ test('key rotation with a mismatching successor fingerprint is rejected',async (
  await page.locator('#verifyRotation').click();
  await expect(page.locator('#rotationStatus')).toContainText('niet geldig of niet verifieerbaar');
 });
+
+test('read-only key registry accepts matching active fingerprint and preceding epoch without activation',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await rotationFixture(page);
+ await page.locator('#rotationOldKey').fill(JSON.stringify(fixture.oldKey));
+ await page.locator('#rotationNewKey').fill(JSON.stringify(fixture.newKey));
+ await page.locator('#rotationFile').setInputFiles({name:'rotation.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.rotation))});
+ const registry={schema:'palaco-citadel-key-registry-v1',epoch:fixture.rotation.epoch-1,
+   activeFingerprint:fixture.rotation.oldFingerprint,status:'active'};
+ await page.locator('#rotationRegistry').setInputFiles({name:'registry.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(registry))});
+ const before=await page.evaluate(()=>({...localStorage}));
+ await page.locator('#verifyRotation').click();
+ await expect(page.locator('#rotationStatus')).toContainText('CRYPTOGRAFISCH GELDIG');
+ await expect(page.locator('#rotationStatus')).toContainText('NIET VERTROUWD');
+ expect(await page.evaluate(()=>({...localStorage}))).toEqual(before);
+});
+
+test('key registry blocks stale epoch during rotation',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await rotationFixture(page);
+ await page.locator('#rotationOldKey').fill(JSON.stringify(fixture.oldKey));
+ await page.locator('#rotationNewKey').fill(JSON.stringify(fixture.newKey));
+ await page.locator('#rotationFile').setInputFiles({name:'rotation.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.rotation))});
+ const registry={schema:'palaco-citadel-key-registry-v1',epoch:fixture.rotation.epoch,
+   activeFingerprint:fixture.rotation.oldFingerprint,status:'active'};
+ await page.locator('#rotationRegistry').setInputFiles({name:'stale.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(registry))});
+ await page.locator('#verifyRotation').click();
+ await expect(page.locator('#rotationStatus')).toContainText('REGISTERCONFLICT');
+});
+
+test('key registry rejects disabled old key and invalidates previous result on changes',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await rotationFixture(page);
+ await page.locator('#rotationOldKey').fill(JSON.stringify(fixture.oldKey));
+ await page.locator('#rotationNewKey').fill(JSON.stringify(fixture.newKey));
+ await page.locator('#rotationFile').setInputFiles({name:'rotation.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.rotation))});
+ await page.locator('#verifyRotation').click();
+ await expect(page.locator('#rotationStatus')).toContainText('CRYPTOGRAFISCH GELDIG');
+ const registry={schema:'palaco-citadel-key-registry-v1',epoch:fixture.rotation.epoch-1,
+   activeFingerprint:fixture.rotation.oldFingerprint,status:'revoked'};
+ await page.locator('#rotationRegistry').setInputFiles({name:'revoked.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(registry))});
+ await expect(page.locator('#rotationStatus')).toContainText('opnieuw verifiëren vereist');
+ await page.locator('#verifyRotation').click();
+ await expect(page.locator('#rotationStatus')).toContainText('niet geldig of niet verifieerbaar');
+ await expect(page.locator('#rotationStatus')).not.toContainText('CRYPTOGRAFISCH GELDIG');
+});
