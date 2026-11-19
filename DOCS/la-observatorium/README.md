@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Veilige herstelreset bij wijzigingen uit een ander tabblad (v2.9)
+Ook de destructieve herstelreset van een onleesbare lokale opslagkopie controleert vanaf nu de actuele inhoud en bewaartoestemming **ná bevestiging maar vóór het verwijderen**. Als een ander tabblad de opgeslagen gegevens of toestemming ondertussen heeft aangepast, wordt de reset geweigerd en blijven de externe gegevens intact. De interface meldt `Herstelreset geweigerd` en markeert het tabblad als conflicterend. Lokale waarnemingen kunnen desgewenst worden geëxporteerd, waarna de gebruiker herlaadt om de actuele opslagstatus te lezen.
+
+De nieuwe Chromium-test opent twee tabbladen, start het eerste in herstelmodus, vervangt de onleesbare opslaginhoud vanuit het tweede tabblad en bevestigt vervolgens de reset in het eerste. De test verwacht dat noch de gewijzigde kopie noch de toestemmingsmarkering worden gewist. Dit is een check vóór wissen, geen volledig atomaire opslagtransactie. De release blijft HOLD tot de browseracceptatie daadwerkelijk is geslaagd.
+
 ## Bescherming tegen schrijvende tweede tabbladen (v2.8)
 Wanneer meerdere tabbladen hetzelfde offline Observatorium openen, kan een verouderd tabblad anders een recentere lokale kopie overschrijven. De applicatie onthoudt daarom de laatst waargenomen opslaginhoud en toestemmingsmarkering. Vóór **iedere** schrijfactie of verwijdering worden de actuele waarden daarmee vergeleken. Een verschil activeert **CONFLICT MET ANDER TABBLAD** en blokkeert nieuwe permanente wijzigingen. Browser-`storage`-events geven bovendien onmiddellijk een waarschuwing wanneer een ander tabblad de lokale kopie of toestemming wijzigt.
 
