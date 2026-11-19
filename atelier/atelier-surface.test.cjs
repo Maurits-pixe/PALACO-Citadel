@@ -64,6 +64,10 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/id="reportVerify"/);
   assert.match(read('regiekamer.html'),/DRIEVOUDIGE CONTROLE GESLAAGD/);
   assert.match(read('regiekamer.html'),/function parseBoundReceipt\(/);
+  assert.match(read('regiekamer.html'),/function parseReceiptFields\(/);
+  assert.match(read('regiekamer.html'),/const reference=parseReceiptFields\(content\)/);
+  assert.match(read('regiekamer.html'),/let loadedReceiptFilename=null/);
+  assert.match(read('regiekamer.html'),/Bestandsnaam in ingeladen SHA-256-referentie komt niet overeen/);
   assert.match(read('regiekamer.html'),/allowedNotes\.includes\(line\)/);
   assert.match(read('regiekamer.html'),/onbekende of misleidende regel/);
   assert.match(read('regiekamer.html'),/ongeldige besturingstekens/);
