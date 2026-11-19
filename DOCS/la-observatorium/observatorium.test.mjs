@@ -308,3 +308,16 @@ test('unsaved journal notes remain visible until local storage is confirmed',()=
  assert.match(html,/persistedNoteIds\.clear\(\)/);
  assert.match(html,/function render\(\)\{updatePendingStatus\(\)/);
 });
+
+test('cross-tab storage changes block stale write or revoke attempts',()=>{
+ assert.match(html,/let storedSnapshot=null/);
+ assert.match(html,/function storageMatchesSnapshot\(\)/);
+ assert.match(html,/function markStorageConflict\(\)/);
+ assert.match(html,/window\.addEventListener\("storage",event=>/);
+ assert.match(html,/event\.key===KEY\|\|event\.key===CONSENT\|\|event\.key===null/);
+ assert.match(html,/if\(!storageMatchesSnapshot\(\)\)\{markStorageConflict\(\);return false;\}/);
+ assert.match(html,/storageConflictBlocked=true/);
+ assert.match(html,/CONFLICT MET ANDER TABBLAD/);
+ assert.match(html,/storedSnapshot=\{raw:serialized,consent:"yes"\}/);
+ assert.match(html,/storedSnapshot=\{raw:null,consent:null\}/);
+});
