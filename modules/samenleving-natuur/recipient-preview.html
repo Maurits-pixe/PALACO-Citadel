@@ -46,6 +46,8 @@ small{color:#c2d1c5}.hidden{display:none!important}
 <textarea id="revocationIssuerKey" rows="3" style="width:100%;background:#0b1c15;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:12px" placeholder='{"kty":"EC","crv":"P-256","x":"…","y":"…"}'></textarea>
 <p><small>Een lokaal intrekkingsbestand kan sleutels blokkeren, maar kan nooit zelfstandig vertrouwen toekennen. Zonder vertrouwd en actueel register blijft de sleutelstatus onbekend.</small></p>
 <button id="verifySignature" type="button">Verifieer handtekening</button>
+<button id="pinRevocation" type="button" disabled>Leg gecontroleerde v2-versie lokaal vast (anti-rollback)</button>
+<p><small>Alleen na expliciete bevestiging. Dit onthoudt het laatst gecontroleerde v2-uitgiftetijdstip per uitgeverssleutel op dit apparaat. Het is geen betrouwbaar of onveranderbaar register.</small></p>
 <p id="signatureStatus" role="status" aria-live="polite">Geen handtekening geverifieerd. Vertrouwensstatus: NIET VASTGESTELD.</p>
 </div>
 <button id="discard" type="button">Voorvertoning wissen</button>
@@ -62,11 +64,13 @@ const states=['persoonlijke observatie','nog te verifiëren','geverifieerd door 
 const minimalKeys=['sequence','category','conceptualArea','verification','recordedMonth'];
 const fullKeys=['id','title','category','conceptualArea','verification','description','observedAt'];
 function exactFields(record,allowed){return Object.keys(record).length===allowed.length&&Object.keys(record).every(key=>allowed.includes(key))}
-let ticket=0,currentPacket=null,signatureRevision=0;
+let ticket=0,currentPacket=null,signatureRevision=0,pinCandidate=null;
+const PIN_PREFIX='palaco.citadel.revocation-pin.v1.';
+function invalidatePin(){pinCandidate=null;$('pinRevocation').disabled=true}
 function canonicalJson(value){if(Array.isArray(value))return '['+value.map(canonicalJson).join(',')+']';if(value&&typeof value==='object')return '{'+Object.keys(value).sort().map(key=>JSON.stringify(key)+':'+canonicalJson(value[key])).join(',')+'}';return JSON.stringify(value)}
 async function verifyIntegrity(data){if(data.integrity===undefined)return false;const info=data.integrity;if(!info||typeof info!=='object'||Array.isArray(info)||Object.keys(info).length!==3||info.algorithm!=='SHA-256'||info.canonicalization!=='palaco-sorted-json-v1'||typeof info.digest!=='string'||! /^[0-9a-f]{64}$/.test(info.digest))throw Error('Onbekende integriteitsmethode');const packet={...data};delete packet.integrity;const bytes=new TextEncoder().encode(canonicalJson(packet));const hash=await crypto.subtle.digest('SHA-256',bytes);const observed=Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('');if(observed!==info.digest)throw Error('Hash komt niet overeen');return true}
 
-function clear(message){signatureRevision++;currentPacket=null;$('revocations').value='';$('revocationIssuerKey').value='';$('signatureFile').value='';$('publicKey').value='';$('signatureStatus').textContent='Geen handtekening geverifieerd. Vertrouwensstatus: NIET VASTGESTELD.';$('preview').classList.add('hidden');$('records').replaceChildren();$('actualRecipient').textContent='';$('privacy').textContent='';$('total').textContent='';$('status').textContent=message}
+function clear(message){invalidatePin();signatureRevision++;currentPacket=null;$('revocations').value='';$('revocationIssuerKey').value='';$('signatureFile').value='';$('publicKey').value='';$('signatureStatus').textContent='Geen handtekening geverifieerd. Vertrouwensstatus: NIET VASTGESTELD.';$('preview').classList.add('hidden');$('records').replaceChildren();$('actualRecipient').textContent='';$('privacy').textContent='';$('total').textContent='';$('status').textContent=message}
 function validate(data,recipient){
  if(!data||data.schema!=='palaco-citadel-handoff-v1'||data.source!=='citadel/samenleving-natuur'||!['wereldatlas','geheugenkamer'].includes(recipient))throw Error('Ongeldig contract');
  if(!Array.isArray(data.records)||data.records.length>500||!['minimal-user-controlled','full-user-controlled'].includes(data.privacy))throw Error('Ongeldige inhoud');
@@ -138,7 +142,7 @@ $('packet').addEventListener('change',async e=>{
 function b64ToBytes(input){if(typeof input!=='string'||! /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(input)||input.length>1024)throw Error('Ongeldige handtekeningcodering');return Uint8Array.from(atob(input),ch=>ch.charCodeAt(0))}
 function hex(bytes){return Array.from(new Uint8Array(bytes),n=>n.toString(16).padStart(2,'0')).join('')}
 $('verifySignature').addEventListener('click',async()=>{
- const id=ticket,revision=++signatureRevision,packet=currentPacket,signatureFile=$('signatureFile').files?.[0],revocationsFile=$('revocations').files?.[0],issuerText=$('revocationIssuerKey').value,keyText=$('publicKey').value;
+ invalidatePin();const id=ticket,revision=++signatureRevision,packet=currentPacket,signatureFile=$('signatureFile').files?.[0],revocationsFile=$('revocations').files?.[0],issuerText=$('revocationIssuerKey').value,keyText=$('publicKey').value;
  $('signatureStatus').textContent='Handtekeningcontrole loopt; geen vertrouwde sleutel geregistreerd.';
  if(!packet||!signatureFile||signatureFile.size>20000||keyText.length>4000){$('signatureStatus').textContent='Handtekening niet geverifieerd: bestand of publieke sleutel ontbreekt/te groot. Vertrouwensstatus: NIET VASTGESTELD.';return}
  try{
@@ -172,6 +176,13 @@ $('verifySignature').addEventListener('click',async()=>{
     const isSigned=await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},issuerKey,b64ToBytes(revocations.signature),new TextEncoder().encode(canonicalJson(unsigned)));
     if(id!==ticket||revision!==signatureRevision||currentPacket!==packet)return;
     if(!isSigned)throw Error('Ongeldige intrekkingslijsthandtekening');
+    const storageKey=PIN_PREFIX+fp;
+    let pinned;
+    try{pinned=localStorage.getItem(storageKey)}catch{throw Error('Lokaal anti-rollback-register niet leesbaar')}
+    if(pinned!==null&&(!/^\\d{4}-\\d{2}-\\d{2}T/.test(pinned)||!Number.isFinite(Date.parse(pinned))))throw Error('Lokaal anti-rollback-register ongeldig');
+    if(pinned!==null&&Date.parse(revocations.issuedAt)<Date.parse(pinned)){$('signatureStatus').textContent='ROLLBACK GEBLOKKEERD: oudere getekende intrekkingslijst dan lokaal vastgelegde versie. Geen PALACO-autorisatie.';return}
+    pinCandidate={issuer:fp,issuedAt:revocations.issuedAt,revision,id,packet};
+    $('pinRevocation').disabled=false;
     revocationNotice='volgens getekende maar NIET VERTROUWDE lokale v2-lijst';
    }else throw Error('Onbekend intrekkingsschema');
    if(id!==ticket||revision!==signatureRevision||currentPacket!==packet)return;
@@ -183,10 +194,23 @@ $('verifySignature').addEventListener('click',async()=>{
   $('signatureStatus').textContent=valid?'ECDSA P-256-handtekening cryptografisch GELDIG; publieke sleutel NIET VERTROUWD. Geen PALACO-autorisatie.':'Handtekening ONGELDIG. Geen PALACO-autorisatie.';
  }catch{if(id===ticket&&revision===signatureRevision)$('signatureStatus').textContent='Handtekening niet geldig of niet verifieerbaar. Vertrouwensstatus: NIET VASTGESTELD.'}
 });
-$('signatureFile').addEventListener('change',()=>{signatureRevision++;$('signatureStatus').textContent='Handtekening gewijzigd; opnieuw verifiëren vereist.'});
-$('publicKey').addEventListener('input',()=>{signatureRevision++;$('signatureStatus').textContent='Publieke sleutel gewijzigd; opnieuw verifiëren vereist.'});
-$('revocations').addEventListener('change',()=>{signatureRevision++;$('signatureStatus').textContent='Intrekkingslijst gewijzigd; opnieuw verifiëren vereist.'});
-$('revocationIssuerKey').addEventListener('input',()=>{signatureRevision++;$('signatureStatus').textContent='Uitgeverssleutel gewijzigd; opnieuw verifiëren vereist.'});
+$('signatureFile').addEventListener('change',()=>{invalidatePin();signatureRevision++;$('signatureStatus').textContent='Handtekening gewijzigd; opnieuw verifiëren vereist.'});
+$('publicKey').addEventListener('input',()=>{invalidatePin();signatureRevision++;$('signatureStatus').textContent='Publieke sleutel gewijzigd; opnieuw verifiëren vereist.'});
+$('revocations').addEventListener('change',()=>{invalidatePin();signatureRevision++;$('signatureStatus').textContent='Intrekkingslijst gewijzigd; opnieuw verifiëren vereist.'});
+$('revocationIssuerKey').addEventListener('input',()=>{invalidatePin();signatureRevision++;$('signatureStatus').textContent='Uitgeverssleutel gewijzigd; opnieuw verifiëren vereist.'});
+$('pinRevocation').addEventListener('click',()=>{
+ const c=pinCandidate;
+ if(!c||c.id!==ticket||c.revision!==signatureRevision||c.packet!==currentPacket){invalidatePin();return}
+ if(!confirm('Het uitgiftetijdstip van deze cryptografisch gecontroleerde, maar NIET VERTROUWDE v2-lijst op dit apparaat vastleggen? Oudere lijsten van dezelfde sleutel worden geblokkeerd.'))return;
+ try{
+  const key=PIN_PREFIX+c.issuer,old=localStorage.getItem(key);
+  if(old!==null&&(!Number.isFinite(Date.parse(old))||Date.parse(old)>Date.parse(c.issuedAt)))throw Error('Bestaande hogere versie of onleesbare opslag');
+  localStorage.setItem(key,c.issuedAt);
+  if(localStorage.getItem(key)!==c.issuedAt)throw Error('Opslag niet bevestigd');
+  $('signatureStatus').textContent='ANTI-ROLLBACK VASTGELEGD voor lokale uitgeversvingerafdruk; sleutel NIET VERTROUWD. Geen PALACO-autorisatie.';
+ }catch{$('signatureStatus').textContent='Vastleggen MISLUKT; geen anti-rollback-garantie en geen PALACO-autorisatie.'}
+ invalidatePin();
+});
 $('recipient').addEventListener('change',()=>{ticket++;$('packet').value='';clear('Ontvanger gewijzigd; kies opnieuw een passend pakket.')});
 $('allowLegacy').addEventListener('change',()=>{ticket++;$('packet').value='';clear('Integriteitsbeleid gewijzigd; kies het bestand opnieuw.')});
 $('discard').addEventListener('click',()=>{ticket++;$('packet').value='';clear('Voorvertoning gewist. Er is niets opgeslagen.')});
