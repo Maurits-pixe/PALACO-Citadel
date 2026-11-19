@@ -158,9 +158,11 @@ let storedSnapshot=null;
 try{storedSnapshot={raw:localStorage.getItem(KEY),consent:localStorage.getItem(CONSENT)};}catch(_){storageRecoveryBlocked=true;storageEnabled=false;}
 function markStorageConflict(){
  storageConflictBlocked=true;
+ persistedNoteIds.clear();
  $("persist").disabled=true;
- $("storage").textContent="CONFLICT MET ANDER TABBLAD: deze sessie mag de externe wijzigingen niet overschrijven.";
- status("Opslagconflict: exporteer eerst je lokale notities en herlaad daarna om de actuele opslag te lezen.");
+ $("storage").textContent="CONFLICT MET ANDER TABBLAD: de eerdere opslagbevestiging is vervallen; externe wijzigingen blijven behouden.";
+ updatePendingStatus();
+ status("Opslagconflict: eerdere opslag niet meer bevestigd; exporteer eerst je lokale notities en herlaad daarna.");
 }
 function storageMatchesSnapshot(){
  return storedSnapshot!==null&&localStorage.getItem(KEY)===storedSnapshot.raw&&localStorage.getItem(CONSENT)===storedSnapshot.consent;
