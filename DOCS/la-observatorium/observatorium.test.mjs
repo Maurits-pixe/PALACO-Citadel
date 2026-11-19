@@ -321,3 +321,10 @@ test('cross-tab storage changes block stale write or revoke attempts',()=>{
  assert.match(html,/storedSnapshot=\{raw:serialized,consent:"yes"\}/);
  assert.match(html,/storedSnapshot=\{raw:null,consent:null\}/);
 });
+
+test('recovery reset refuses stale cross-tab storage before destructive removal',()=>{
+ assert.match(html,/Herstelreset geweigerd: de lokale kopie is door een ander tabblad gewijzigd; er is niets gewist/);
+ assert.match(html,/if\(!storageMatchesSnapshot\(\)\)\{\s*markStorageConflict\(\);\s*status\("Herstelreset geweigerd/);
+ const reset=html.slice(html.indexOf('$("storage-reset").addEventListener'),html.indexOf('function save()'));
+ assert.ok(reset.indexOf('if(!storageMatchesSnapshot())')<reset.indexOf('localStorage.removeItem(KEY)'), 'Snapshot must be checked before reset removes data');
+});
