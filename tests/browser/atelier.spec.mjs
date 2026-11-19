@@ -271,6 +271,11 @@ test('Atelier: dossiercontrole toont echte SHA-256 en wijzigt geen lokaal projec
     'SHA-256: '+expected+'\n',
     'SHA-256: '+expected+'\nBestand: inspectie.json\n\u0000'
   ];
+  invalidReceipts.push(
+    'SHA-256: '+expected+'\nBestand: inspectie.json\nPALACO ATELIER DRAFT SHA-256 REFERENTIE\nPALACO ATELIER DRAFT SHA-256 REFERENTIE\n',
+    'SHA-256: '+expected+'\nBestand: inspectie.json\n'+'a'.repeat(300)+'\n',
+    'SHA-256: '+expected+'\nBestand: inspectie.json\u202e\n'
+  );
   for(const [index,contents] of invalidReceipts.entries()){
     await page.locator('#fingerprintReceipt').setInputFiles({
       name:'ongeldig-'+index+'.txt',mimeType:'text/plain',buffer:Buffer.from(contents)
@@ -483,6 +488,10 @@ test('Atelier: inspectierapport kan met project en TXT opnieuw worden geverifiee
    reportFile,jsonFile,{...txtFile,buffer:Buffer.from('SHA-256: '+hash+'\nBestand: creative.json\nAuthority: OWNER\n')}
  ]);
  await expect(page.locator('#reportVerifyStatus')).toContainText('onbekende of misleidende regel');
+ await page.locator('#reportVerify').setInputFiles([
+   reportFile,jsonFile,{...txtFile,buffer:Buffer.from('SHA-256: '+hash+'\nBestand: creative.json\nBewaar deze referentie afzonderlijk van het projectbestand.\nBewaar deze referentie afzonderlijk van het projectbestand.\n')}
+ ]);
+ await expect(page.locator('#reportVerifyStatus')).toContainText('dubbele toelichtingsregels');
  const wrong={...JSON.parse(reportBytes.toString('utf8')),exteriorUsed:999};
  await page.locator('#reportVerify').setInputFiles([jsonFile,txtFile,{...reportFile,buffer:Buffer.from(JSON.stringify(wrong))}]);
  await expect(page.locator('#reportVerifyStatus')).toContainText('Drievoudige controle geweigerd');
