@@ -56,6 +56,13 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Verifieer wachtzin vóór definitief verwijderen · v2.9
+- De handeling **Verwijder apparaatkluis** vereist voortaan twee expliciete controles: een definitieve bevestiging **en een opnieuw ingevoerde wachtzin** waarmee het bestaande AES-256-GCM-archief daadwerkelijk kan worden ontsleuteld en op SHA-256-integriteit wordt gecontroleerd.
+- De wachtzininvoer wordt direct leeggemaakt; de wachtzin wordt niet in browseropslag vastgelegd. Onjuiste wachtzin, beschadigde kluis, een ingetrokken tab-autorisatie of tussentijdse wijziging weigert de verwijdering zonder de bestaande ciphertext aan te passen.
+- De finale opslagwijziging valt nog altijd binnen de exclusieve Web Lock en toetst opnieuw het operatietoken en de exacte originele kluisblob.
+- De bestaande verwijderproeven zijn uitgebreid met de noodzakelijke wachtzininvoer. Twee aanvullende mobiele Chromium-proeven testen onjuiste wachtzinnen en de onderbreking van een vertraagde verwijdering door het vergrendelen van de tab.
+- Dit betreft browsergerichte beveiliging, **geen** bescherming tegen onbevoegde toegang tot het volledige browserprofiel, directe opslagmanipulatie of schadelijke scripts op dezelfde origin.
+
 ## Geverifieerde kluisoverschrijving en gegevensbehoud · v2.8
 - Bij het vervangen van een bestaande versleutelde apparaatkluis wordt de opgegeven wachtzin **eerst gecontroleerd door het bestaande archief daadwerkelijk te ontsleutelen** en de SHA-256-integriteit te valideren. Een verkeerde wachtzin wordt geweigerd voordat een nieuwe kluisblob wordt opgeslagen.
 - Vooraf wordt gecontroleerd of **alle record-ID's uit de vorige versleutelde momentopname** nog aanwezig zijn in het actieve geheugen. Onbedoeld verlies van eerder opgeslagen dossiers door een onvolledige momentopname wordt geweigerd. Voor bewust archiefverwijdering bestaat een afzonderlijke bevestigde handeling.
