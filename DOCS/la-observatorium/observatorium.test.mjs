@@ -334,3 +334,13 @@ test('cross-tab invalidation withdraws stale saved-note claims before rendering'
  assert.match(html,/CONFLICT MET ANDER TABBLAD: de eerdere opslagbevestiging is vervallen/);
  assert.match(html,/updatePendingStatus\(\);\s*status\("Opslagconflict: eerdere opslag niet meer bevestigd/);
 });
+
+test('cross-tab consent checkbox represents confirmed revocation without misreading journal changes',()=>{
+ assert.match(html,/function markStorageConflict\(\)\{/);
+ assert.match(html,/if\(localStorage\.getItem\(CONSENT\)!=="yes"\)\$\("persist"\)\.checked=false/);
+ assert.match(html,/catch\(_\)\{\$\("persist"\)\.checked=false;\}/);
+ assert.match(html,/\$\("persist"\)\.disabled=true/);
+ const browser=readFileSync(new URL('./browser-acceptance.test.mjs',import.meta.url),'utf8');
+ assert.match(browser,/Revoked consent must not remain visibly enabled/);
+ assert.match(browser,/Journal-only conflict does not imply withdrawn consent/);
+});
