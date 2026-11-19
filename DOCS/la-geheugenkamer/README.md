@@ -56,6 +56,13 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Historische dossierconflicten · v3.2
+- De controle vóór het vervangen van een versleutelde kluis vereist naast behoud van alle eerdere record-ID's voortaan ook **exact gelijkblijvende inhoud van elk eerder opgeslagen record**.
+- Een bestaand ID met gewijzigde velden wordt expliciet geweigerd: oudere herinneringen mogen niet stilzwijgend worden herschreven door een lokaal conflicterende versie.
+- De reeds bestaande mergecontrole bij kluisontgrendeling wijst niet-identieke records met hetzelfde ID eveneens af.
+- Twee aanvullende mobiele Chromium-regressies testen een inhoudsconflict bij kluisoverschrijving en bij ontgrendeling. De opgeslagen versleutelde bytes moeten in beide gevallen behouden blijven.
+- Voor bewuste wijzigingen gebruikt de Geheugenkamer de bestaande functie **Nieuwe versie**, die een nieuw record toevoegt met een verwijzing naar zijn voorganger. Fysieke apparaattests en onafhankelijke securityreview blijven HOLD.
+
 ## Legacy-format hardening · v3.1
 - Onbekende of niet-objectvormige kluisschema's worden bij expliciete ontgrendeling meteen geweigerd zonder ze te openen of gegevens te importeren.
 - Een bestaande kluis groter dan 256 KB mag niet worden overschreven; ongeldige revisie-enveloppen met verkeerd getypeerd revisienummer of ongeldig `parentDigest` worden vóór migratie afgewezen.
