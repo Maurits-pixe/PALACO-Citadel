@@ -229,7 +229,7 @@ $('reportVerify').addEventListener('change',async event=>{
    if(!Array.isArray(report.limitations)||report.limitations.length!==requiredLimitations.length||
      requiredLimitations.some(value=>!report.limitations.includes(value)))
      throw Error('Inspectierapport mist verplichte beperkingen');
-   if(typeof report.checkedAt!=='string'||!/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$/.test(report.checkedAt)||
+   if(typeof report.checkedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(report.checkedAt)||
      !Number.isFinite(Date.parse(report.checkedAt))||new Date(report.checkedAt).toISOString()!==report.checkedAt)
      throw Error('Inspectierapport heeft een ongeldig lokaal controletijdstip');
    if(report.state!=='DRAFT'||report.authority!=='NONE'||report.purpose!=='LOCAL_INTEGRITY_COMPARISON_ONLY'||report.result!=='MATCH')
