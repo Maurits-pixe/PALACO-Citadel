@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Bescherming tegen schrijvende tweede tabbladen (v2.8)
+Wanneer meerdere tabbladen hetzelfde offline Observatorium openen, kan een verouderd tabblad anders een recentere lokale kopie overschrijven. De applicatie onthoudt daarom de laatst waargenomen opslaginhoud en toestemmingsmarkering. Vóór **iedere** schrijfactie of verwijdering worden de actuele waarden daarmee vergeleken. Een verschil activeert **CONFLICT MET ANDER TABBLAD** en blokkeert nieuwe permanente wijzigingen. Browser-`storage`-events geven bovendien onmiddellijk een waarschuwing wanneer een ander tabblad de lokale kopie of toestemming wijzigt.
+
+Notities in het conflicterende tabblad blijven beschikbaar voor handmatige JSON-export. De gebruiker moet daarna herladen om de recentere lokale opslag op te halen; automatische samenvoeging of autorisatie vindt niet plaats. De Chromium-test opent twee tabbladen binnen dezelfde browsercontext, schrijft in tab A en controleert dat tab B de nieuwe kopie niet overschrijft. **Beperking:** `localStorage` biedt geen atomaire transacties tussen tabbladen; deze controle vermindert stille conflicten, maar garandeert niet dat twee exact gelijktijdige schrijfacties nooit botsen. Release blijft HOLD.
+
 ## Zichtbare niet-opgeslagen notities (v2.7)
 Het Atelier toont nu een toegankelijke live-status van notities die in het huidige tabblad bestaan maar niet tot de laatst bevestigde lokaal opgeslagen verzameling behoren. Deze teller gebruikt de unieke lokale IDs van de laatst succesvol bewaarde kopie. Een mislukte of door de 256 KiB-grens geweigerde schrijfoperatie verandert deze bevestigde set niet. De interface blijft daarom expliciet vermelden hoeveel nieuwe waarnemingen bij herladen verloren kunnen gaan en adviseert een JSON-export vóór herladen.
 
