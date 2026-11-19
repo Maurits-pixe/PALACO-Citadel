@@ -18,6 +18,7 @@
 <section class="panel"><h2>v2.1 Mobiele Gebruikersacceptatie</h2><p class="muted">Begeleide praktijkcontrole op een fysieke telefoon, met lokale waarnemingen en JSON-zelfrapportage. Een PASS verleent geen autorisatie.</p><p><a href="./atlas-device-acceptance.html">Open de Telefoonacceptatie →</a></p></section>
 <section class="panel"><h2>v2.2 Mobiele Acceptatieoverdracht</h2><p class="muted">Importeer een echt zelfgerapporteerd telefoonrapport, identificeer ontbrekend bewijs en maak een lokaal DRAFT-reviewverzoek. Geen onafhankelijke GO.</p><p><a href="./atlas-device-handover.html">Open de Mobiele Overdracht →</a></p></section>
 <section class="panel"><h2>Mobiele Hertoetsingsvergelijking</h2><p class="muted">Vergelijk twee telefoonzelfrapportages en herken nieuwe regressies en afwijkingen; geen automatische vrijgave.</p><p><a href="./atlas-device-retest.html">Open Mobiele Hertoetsing →</a></p></section>
+<section class="panel"><h2>v2.3 Mobiele Herstelregie</h2><p class="muted">Prioriteer regressies uit twee telefoonzelfrapportages en bereid concrete herstelcontroles voor, zonder automatische wijzigingen of GO.</p><p><a href="./atlas-device-triage.html">Open Mobiele Herstelregie →</a></p></section>
 <div class="notice"><strong>Constitutioneel contract:</strong> alle interfaces blijven DRAFT en zonder schrijfrechten. De integratiekern aggregeert uitsluitend lokale conceptdata; een groen intern resultaat is geen productie-autorisatie, externe verificatie of toestemming om een release te publiceren.</div></main><footer>PALACO INDUSTRIE · Atlas v1.0 RC · Offline-capabel na laden · Geen externe scripts, API-calls of accounttoegang</footer>
 <script type="module">
 import {MODULES,EXTERNAL,validateIntegration,snapshot,selectedWorld} from "./atlas-integratie.mjs";
@@ -44,10 +45,10 @@ async function offlineAction(action){
    const reg=await navigator.serviceWorker.register("./atlas-offline-sw.js",{scope:"./"});
    await navigator.serviceWorker.ready;
    if(!reg.active)throw Error("Offline worker is niet geactiveerd.");
-   const cache=await caches.open("palaco-atlas-shell-v1-rc16");
+   const cache=await caches.open("palaco-atlas-shell-v1-rc17");
    const cached=await cache.keys();
-   if(cached.length!==46)throw Error("Offlinepakket onvolledig; geen offlinegarantie.");
-   offlineStatus.textContent="Offlinepakket gereed: 46 vaste Atlasbronnen beschikbaar op dit apparaat. Proef offline na herladen.";
+   if(cached.length!==48)throw Error("Offlinepakket onvolledig; geen offlinegarantie.");
+   offlineStatus.textContent="Offlinepakket gereed: 48 vaste Atlasbronnen beschikbaar op dit apparaat. Proef offline na herladen.";
   } else {
    const reg=await navigator.serviceWorker.getRegistration("./");
    if(reg)await reg.unregister();
