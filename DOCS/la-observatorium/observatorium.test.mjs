@@ -353,3 +353,12 @@ test('cross-tab conflicts abort in-flight journal imports before mutating curren
  const importBody=html.slice(html.indexOf('$("import").addEventListener'),html.indexOf('$("persist").addEventListener'));
  assert.ok(importBody.lastIndexOf('storageConflictBlocked')<importBody.indexOf('notes=notes.concat(incoming)'), 'Guard before imported notes are added');
 });
+
+test('unpersisted session notes trigger navigation-loss warning, saved notes do not',()=>{
+ assert.match(html,/function unpersistedNoteCount\(\)/);
+ assert.match(html,/window\.addEventListener\("beforeunload",event=>/);
+ assert.match(html,/if\(!unpersistedNoteCount\(\)\)return/);
+ assert.match(html,/event\.preventDefault\(\)/);
+ assert.match(html,/event\.returnValue=""/);
+ assert.match(html,/const unpersisted=unpersistedNoteCount\(\)/);
+});
