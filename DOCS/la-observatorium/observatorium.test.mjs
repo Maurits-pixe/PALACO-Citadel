@@ -362,3 +362,14 @@ test('unpersisted session notes trigger navigation-loss warning, saved notes do 
  assert.match(html,/event\.returnValue=""/);
  assert.match(html,/const unpersisted=unpersistedNoteCount\(\)/);
 });
+
+test('offline journal exports split into lossless import-sized packets',()=>{
+ assert.match(html,/function exportJournalParts\(items,exportedAt\)/);
+ assert.match(html,/const makePacket=batch=>/);
+ assert.match(html,/const bytes=packet=>new TextEncoder\(\)\.encode\(JSON\.stringify\(packet,null,2\)\)\.length/);
+ assert.match(html,/if\(bytes\(makePacket\(candidate\)\)>262144\)/);
+ assert.match(html,/parts\.push\(makePacket\(current\)\)/);
+ assert.match(html,/downloadJSON\(packet,filename\)/);
+ assert.match(html,/Bewaar en importeer elk deel afzonderlijk/);
+ assert.match(html,/SELF_REPORTED_NOT_VERIFIED/);
+});
