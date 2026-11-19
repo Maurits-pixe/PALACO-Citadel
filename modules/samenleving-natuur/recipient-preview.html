@@ -179,7 +179,7 @@ $('verifySignature').addEventListener('click',async()=>{
     const storageKey=PIN_PREFIX+fp;
     let pinned;
     try{pinned=localStorage.getItem(storageKey)}catch{throw Error('Lokaal anti-rollback-register niet leesbaar')}
-    if(pinned!==null&&(!/^\\d{4}-\\d{2}-\\d{2}T/.test(pinned)||!Number.isFinite(Date.parse(pinned))))throw Error('Lokaal anti-rollback-register ongeldig');
+    if(pinned!==null&&(!/^\d{4}-\d{2}-\d{2}T/.test(pinned)||!Number.isFinite(Date.parse(pinned))))throw Error('Lokaal anti-rollback-register ongeldig');
     if(pinned!==null&&Date.parse(revocations.issuedAt)<Date.parse(pinned)){$('signatureStatus').textContent='ROLLBACK GEBLOKKEERD: oudere getekende intrekkingslijst dan lokaal vastgelegde versie. Geen PALACO-autorisatie.';return}
     pinCandidate={issuer:fp,issuedAt:revocations.issuedAt,revision,id,packet};
     $('pinRevocation').disabled=false;
