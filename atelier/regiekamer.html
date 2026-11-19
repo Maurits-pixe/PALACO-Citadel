@@ -41,6 +41,9 @@
 <input type="file" id="pairVerify" accept=".json,.txt,application/json,text/plain" multiple style="max-width:100%;font-size:13px">
 <p class="small" id="pairStatus" role="status" aria-live="polite">Selecteer precies één DRAFT JSON-project en één SHA-256 TXT-bewijs. Beide bestanden blijven lokaal; er wordt niets geïmporteerd.</p>
 <div class="actions"><button type="button" id="pairReportSave" class="action" disabled>↓ Bewaar inspectierapport (JSON)</button></div>
+<label for="reportVerify" class="eyebrow" style="display:block;margin:18px 0 9px">Hercontroleer project, SHA-256-TXT en inspectierapport samen</label>
+<input type="file" id="reportVerify" accept=".json,.txt,application/json,text/plain" multiple style="max-width:100%;font-size:13px">
+<p class="small" id="reportVerifyStatus" role="status" aria-live="polite">Selecteer één creatief project-JSON, één SHA-256-TXT en één inspectierapport-JSON. De controle verandert niets aan je ontwerp.</p>
 <label for="bundleVerify" class="eyebrow" style="display:block;margin:18px 0 9px">Controleer een projectbestand zonder import</label>
 <input type="file" id="bundleVerify" accept=".json,application/json" style="max-width:100%;font-size:13px">
 <label for="expectedFingerprint" class="eyebrow" style="display:block;margin:12px 0 8px">Eerder vastgelegde SHA-256-referentie (optioneel)</label>
@@ -184,6 +187,64 @@ $('bundleSave').addEventListener('click',async ()=>{
    $('bundleReceiptStatus').textContent='SHA-256-referentie niet beschikbaar: '+err.message;
    if(!lastExportFingerprint)$('bundleStatus').textContent='Projectexport uitgevoerd of geweigerd; controleer het gedownloade bestand voordat je het gebruikt.';
  }
+});
+let reportVerifyRevision=0;
+$('reportVerify').addEventListener('change',async event=>{
+ const files=Array.from(event.target.files||[]);
+ const revision=++reportVerifyRevision;
+ const status=$('reportVerifyStatus');
+ status.textContent='Project, referentie en inspectierapport hercontroleren…';
+ try{
+   if(files.length!==3)throw Error('Selecteer precies drie bestanden (twee JSON, één TXT)');
+   const jsonFiles=files.filter(file=>file.name.toLowerCase().endsWith('.json'));
+   const txtFiles=files.filter(file=>file.name.toLowerCase().endsWith('.txt'));
+   if(jsonFiles.length!==2||txtFiles.length!==1)throw Error('Twee JSON-bestanden en één TXT vereist');
+   if(jsonFiles.some(file=>file.size>150000)||txtFiles[0].size>4096)throw Error('Bestand te groot');
+   const [aBytes,bBytes,txtBytes]=await Promise.all([
+     jsonFiles[0].arrayBuffer(),jsonFiles[1].arrayBuffer(),txtFiles[0].arrayBuffer()
+   ]);
+   if(revision!==reportVerifyRevision)return;
+   const decoder=new TextDecoder('utf-8',{fatal:true});
+   const entries=[{file:jsonFiles[0],bytes:aBytes},{file:jsonFiles[1],bytes:bBytes}].map(item=>({
+     ...item,value:JSON.parse(decoder.decode(item.bytes))
+   }));
+   const isReport=item=>item.value?.schema==='palaco.citadel.atelier.inspection/1';
+   const reports=entries.filter(isReport);
+   if(reports.length!==1)throw Error('Precies één geldig aangeduid inspectierapport vereist');
+   const report=reports[0].value;
+   const projectEntry=entries.find(item=>!isReport(item));
+   const api=window.PalacoAtelierBundle;
+   if(!api)throw Error('Atelier-projectvalidatie niet beschikbaar');
+   const project=api.parse(decoder.decode(projectEntry.bytes));
+   const receipt=decoder.decode(txtBytes);
+   const matchingLines=receipt.split(/\r?\n/).filter(line=>line.startsWith('SHA-256: '));
+   if(matchingLines.length!==1)throw Error('TXT moet precies één SHA-256-regel bevatten');
+   const expected=matchingLines[0].slice('SHA-256: '.length).trim().toLowerCase();
+   if(!/^[0-9a-f]{64}$/.test(expected))throw Error('Ongeldige SHA-256 in TXT');
+   if(report.state!=='DRAFT'||report.authority!=='NONE'||report.purpose!=='LOCAL_INTEGRITY_COMPARISON_ONLY'||report.result!=='MATCH')
+     throw Error('Inspectierapport heeft een ongeldig DRAFT/NONE-contract');
+   if(typeof report.sha256!=='string'||!/^[0-9a-f]{64}$/.test(report.sha256))
+     throw Error('Inspectierapport heeft een ongeldige SHA-256');
+   if(!Number.isInteger(report.exteriorUsed)||!Number.isInteger(report.interiorUsed)||!Number.isInteger(report.noteLength))
+     throw Error('Inspectierapport mist geldige ontwerptellingen');
+   const safeName=value=>value.replace(/[\x00-\x1f\x7f]/g,' ').slice(0,120);
+   if(report.jsonFile!==safeName(projectEntry.file.name)||report.receiptFile!==safeName(txtFiles[0].name))
+     throw Error('Bestandsnamen komen niet overeen met het inspectierapport');
+   const ex=project.exterior?project.exterior.cells.filter(Boolean).length:0;
+   const inn=project.interior?project.interior.floors.flat().filter(Boolean).length:0;
+   if(report.exteriorUsed!==ex||report.interiorUsed!==inn||report.noteLength!==project.note.length)
+     throw Error('Ontwerptellingen komen niet overeen met het inspectierapport');
+   if(!crypto?.subtle?.digest)throw Error('SHA-256 niet beschikbaar');
+   const digest=await crypto.subtle.digest('SHA-256',projectEntry.bytes);
+   if(revision!==reportVerifyRevision)return;
+   const actual=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
+   status.textContent=actual===expected&&actual===report.sha256
+      ?'DRIEVOUDIGE CONTROLE GESLAAGD: JSON, SHA-256-TXT en DRAFT-inspectierapport komen inhoudelijk overeen. SHA-256: '+actual+'. Dit bewijst geen herkomst of bevoegdheid.'
+      :'WAARSCHUWING: DE DRIE BESTANDEN KOMEN NIET OVEREEN. Geen gegevens geïmporteerd.';
+ }catch(err){
+   if(revision!==reportVerifyRevision)return;
+   status.textContent='Drievoudige controle geweigerd: '+err.message+'. Geen gegevens geïmporteerd.';
+ }finally{event.target.value='';}
 });
 let pairRevision=0;
 let lastPairReport=null;
