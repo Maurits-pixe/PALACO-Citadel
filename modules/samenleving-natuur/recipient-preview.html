@@ -66,6 +66,7 @@ const fullKeys=['id','title','category','conceptualArea','verification','descrip
 function exactFields(record,allowed){return Object.keys(record).length===allowed.length&&Object.keys(record).every(key=>allowed.includes(key))}
 let ticket=0,currentPacket=null,signatureRevision=0,pinCandidate=null;
 const PIN_PREFIX='palaco.citadel.revocation-pin.v1.';
+function readPin(raw){if(raw===null)return null;let v;try{v=JSON.parse(raw)}catch{v=raw}if(typeof v==='string'){if(!/^\d{4}-\d{2}-\d{2}T/.test(v)||!Number.isFinite(Date.parse(v)))throw Error('Ongeldige oudere pin');return {issuedAt:v,digest:null}}if(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).sort().join(',')!=='digest,issuedAt'||typeof v.issuedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(v.issuedAt)||!Number.isFinite(Date.parse(v.issuedAt))||typeof v.digest!=='string'||!/^[a-f0-9]{64}$/.test(v.digest))throw Error('Ongeldig lokaal pincontract');return v}
 function invalidatePin(){pinCandidate=null;$('pinRevocation').disabled=true}
 function canonicalJson(value){if(Array.isArray(value))return '['+value.map(canonicalJson).join(',')+']';if(value&&typeof value==='object')return '{'+Object.keys(value).sort().map(key=>JSON.stringify(key)+':'+canonicalJson(value[key])).join(',')+'}';return JSON.stringify(value)}
 async function verifyIntegrity(data){if(data.integrity===undefined)return false;const info=data.integrity;if(!info||typeof info!=='object'||Array.isArray(info)||Object.keys(info).length!==3||info.algorithm!=='SHA-256'||info.canonicalization!=='palaco-sorted-json-v1'||typeof info.digest!=='string'||! /^[0-9a-f]{64}$/.test(info.digest))throw Error('Onbekende integriteitsmethode');const packet={...data};delete packet.integrity;const bytes=new TextEncoder().encode(canonicalJson(packet));const hash=await crypto.subtle.digest('SHA-256',bytes);const observed=Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('');if(observed!==info.digest)throw Error('Hash komt niet overeen');return true}
@@ -179,9 +180,12 @@ $('verifySignature').addEventListener('click',async()=>{
     const storageKey=PIN_PREFIX+fp;
     let pinned;
     try{pinned=localStorage.getItem(storageKey)}catch{throw Error('Lokaal anti-rollback-register niet leesbaar')}
-    if(pinned!==null&&(!/^\d{4}-\d{2}-\d{2}T/.test(pinned)||!Number.isFinite(Date.parse(pinned))))throw Error('Lokaal anti-rollback-register ongeldig');
-    if(pinned!==null&&Date.parse(revocations.issuedAt)<Date.parse(pinned)){$('signatureStatus').textContent='ROLLBACK GEBLOKKEERD: oudere getekende intrekkingslijst dan lokaal vastgelegde versie. Geen PALACO-autorisatie.';return}
-    pinCandidate={issuer:fp,issuedAt:revocations.issuedAt,revision,id,packet};
+    const floor=readPin(pinned);
+    const listDigest=hex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonicalJson(revocations))));
+    if(id!==ticket||revision!==signatureRevision||currentPacket!==packet)return;
+    if(floor&&Date.parse(revocations.issuedAt)<Date.parse(floor.issuedAt)){$('signatureStatus').textContent='ROLLBACK GEBLOKKEERD: oudere getekende intrekkingslijst dan lokaal vastgelegde versie. Geen PALACO-autorisatie.';return}
+    if(floor&&Date.parse(revocations.issuedAt)===Date.parse(floor.issuedAt)&&(floor.digest===null||floor.digest!==listDigest)){$('signatureStatus').textContent='ROLLBACK GEBLOKKEERD: hetzelfde uitgiftetijdstip met andere of onbekende inhoud. Geen PALACO-autorisatie.';return}
+    pinCandidate={issuer:fp,issuedAt:revocations.issuedAt,digest:listDigest,revision,id,packet};
     $('pinRevocation').disabled=false;
     revocationNotice='volgens getekende maar NIET VERTROUWDE lokale v2-lijst';
    }else throw Error('Onbekend intrekkingsschema');
@@ -204,9 +208,11 @@ $('pinRevocation').addEventListener('click',()=>{
  if(!confirm('Het uitgiftetijdstip van deze cryptografisch gecontroleerde, maar NIET VERTROUWDE v2-lijst op dit apparaat vastleggen? Oudere lijsten van dezelfde sleutel worden geblokkeerd.'))return;
  try{
   const key=PIN_PREFIX+c.issuer,old=localStorage.getItem(key);
-  if(old!==null&&(!Number.isFinite(Date.parse(old))||Date.parse(old)>Date.parse(c.issuedAt)))throw Error('Bestaande hogere versie of onleesbare opslag');
-  localStorage.setItem(key,c.issuedAt);
-  if(localStorage.getItem(key)!==c.issuedAt)throw Error('Opslag niet bevestigd');
+  const floor=readPin(old);
+  if(floor&&(Date.parse(floor.issuedAt)>Date.parse(c.issuedAt)||(Date.parse(floor.issuedAt)===Date.parse(c.issuedAt)&&(floor.digest===null||floor.digest!==c.digest))))throw Error('Bestaande hogere of tegenstrijdige versie');
+  const value=JSON.stringify({issuedAt:c.issuedAt,digest:c.digest});
+  localStorage.setItem(key,value);
+  if(localStorage.getItem(key)!==value)throw Error('Opslag niet bevestigd');
   $('signatureStatus').textContent='ANTI-ROLLBACK VASTGELEGD voor lokale uitgeversvingerafdruk; sleutel NIET VERTROUWD. Geen PALACO-autorisatie.';
  }catch{$('signatureStatus').textContent='Vastleggen MISLUKT; geen anti-rollback-garantie en geen PALACO-autorisatie.'}
  invalidatePin();
