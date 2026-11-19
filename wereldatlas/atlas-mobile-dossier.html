@@ -22,7 +22,6 @@ async function load(which){const current=++serial[which];values[which]=null;doss
  try{const raw=await file.text();const parsed=which==="comparison"?parseInput(raw):which==="latest"?parseDeviceReport(raw):parseLocalJSON(raw,limit);
  if(current!==serial[which])return;values[which]=parsed;render();$("status").textContent="Lokaal bestand geladen; onderlinge consistentie nog niet gecontroleerd."}
  catch(e){if(current===serial[which])$("status").textContent="AFGEWEZEN: "+e.message}}
-}
 for(const key of Object.keys(values))$(key+"-file").addEventListener("change",()=>load(key));
 $("consolidate").addEventListener("click",()=>{try{const {comparison,triage,latest,verification}=values;
  if(!validateTriage(triage,comparison).ok)throw Error("Herstelregie hoort niet bij hertoetsing.");
