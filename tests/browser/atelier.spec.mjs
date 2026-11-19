@@ -450,5 +450,18 @@ test('Atelier: inspectierapport kan met project en TXT opnieuw worden geverifiee
  await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
  await page.locator('#reportVerify').setInputFiles([jsonFile,txtFile,{...reportFile,buffer:Buffer.from(JSON.stringify({...JSON.parse(reportBytes.toString('utf8')),authority:'OWNER'}))}]);
  await expect(page.locator('#reportVerifyStatus')).toContainText('Drievoudige controle geweigerd');
+ const base=JSON.parse(reportBytes.toString('utf8'));
+ const attempts=[
+   [{...base,permissions:['ADMIN']},'onbekende of ontbrekende velden'],
+   [{...base,limitations:[]},'verplichte beperkingen'],
+   [{...base,checkedAt:'2026-02-30T00:00:00.000Z'},'ongeldig lokaal controletijdstip'],
+   [{...base,checkedAt:'bad'},'ongeldig lokaal controletijdstip'],
+   [{...base,noteLength:-1},'ontwerptellingen']
+ ];
+ for(const [bad,expectedMessage] of attempts){
+   await page.locator('#reportVerify').setInputFiles([jsonFile,txtFile,{...reportFile,buffer:Buffer.from(JSON.stringify(bad))}]);
+   await expect(page.locator('#reportVerifyStatus')).toContainText('Drievoudige controle geweigerd');
+   await expect(page.locator('#reportVerifyStatus')).toContainText(expectedMessage);
+ }
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(original);
 });
