@@ -6,7 +6,7 @@ import {REQUIRED,DEPENDENCIES,AUDIT_SCHEMA,auditManifest,auditFiles,validateAudi
 if(!globalThis.crypto?.subtle)globalThis.crypto=webcrypto;
 const file=(name,text="x")=>{const b=new TextEncoder().encode(text);return {name,size:b.length,arrayBuffer:async()=>b.buffer.slice(b.byteOffset,b.byteOffset+b.length)}};
 const manifest=(names=REQUIRED)=>({schema:"palaco.atlas.release-integrity.draft.v1",state:"DRAFT",verified:false,authorization:"DENY",signature:null,files:[...names].map(name=>({name,size:1,sha256:"a".repeat(64)}))});
-test("55 vereiste unieke bestanden passen in manifestlimiet",()=>{assert.equal(REQUIRED.length,55);assert.equal(new Set(REQUIRED).size,55)});
+test("57 vereiste unieke bestanden passen in manifestlimiet",()=>{assert.equal(REQUIRED.length,57);assert.equal(new Set(REQUIRED).size,57)});
 test("alle dependencies verwijzen naar vereiste bestanden",()=>assert.ok(DEPENDENCIES.every(([p,c])=>REQUIRED.includes(p)&&REQUIRED.includes(c))));
 test("volledig manifest is structureel compleet maar HOLD",()=>{const a=auditManifest(manifest());assert.equal(a.schema,AUDIT_SCHEMA);assert.equal(a.packageComplete,true);assert.equal(a.verified,false);assert.equal(a.authorization,"DENY");assert.equal(a.decision,"HOLD");assert.equal(a.hashesCompared,false)});
 test("ontbrekend bestand wordt gesignaleerd",()=>{const a=auditManifest(manifest(REQUIRED.filter(x=>x!=="atlas-readiness.mjs")));assert.ok(a.missing.includes("atlas-readiness.mjs"));assert.equal(a.packageComplete,false)});
