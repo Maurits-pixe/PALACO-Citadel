@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Toestemmingsschakelaar volgt externe intrekking (v3.1)
+Bij een opslagconflict tussen tabbladen worden de lokaal bevestigde notities al als onbevestigd behandeld. De toestemmingsschakelaar volgt nu bovendien de daadwerkelijk leesbare browsermarkering: is `CONSENT` niet meer `yes`, dan wordt de schakelaar uitgevinkt en geblokkeerd. Als uitsluitend het notitielogboek wijzigt terwijl de markering `yes` blijft, wordt de schakelaar niet ten onrechte uitgezet; schrijven blijft uit veiligheid wel geblokkeerd tot herladen.
+
+De Chromium-scenario's testen beide situaties: ingetrokken toestemming en een wijziging van alleen het logboek. Dit is een weergave- en conflictbeveiliging, geen automatische hervatting of mandaatverhoging. Browseracceptatie en release blijven HOLD.
+
 ## Eerlijke opslagstatus na ingetrokken toestemming (v3.0)
 De status van als opgeslagen bevestigde waarnemingen wordt nu meteen ongeldig zodra een ander tabblad de bewaartoestemming of het offline logboek wijzigt. Het conflicterende tabblad schakelt zijn lijst met bevestigde lokale IDs leeg, toont het aantal nog zichtbare notities als niet bevestigd opgeslagen en blokkeert verdere opslagwijzigingen. De gegevens blijven in de huidige sessie inspecteerbaar en kunnen lokaal naar JSON worden geëxporteerd. Het tabblad mag niet impliceren dat de oude opslagbevestiging nog geldt.
 
