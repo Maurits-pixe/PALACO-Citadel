@@ -18,7 +18,7 @@ Status: **PREPARED / NOT EXECUTED / HOLD**. Dit is een begeleid protocol, **geen
 6. Exporteer één **versleuteld JSON-bestand** en controleer via de platform-bestandskiezer dat het bestand vindbaar en opnieuw importeerbaar is in een schoon testprofiel. Geen automatische plaintext-opslag; geen automatische autorisatie.
 7. Probeer een bewust beschadigde kopie van het testarchief te importeren. De import moet worden geweigerd terwijl een reeds bestaand synthetisch dossier intact blijft.
 8. Controleer toegankelijkheid: 320–390 px schermbreedte, schermrotatie, 200% zoom waar beschikbaar, virtueel toetsenbord, zichtbare focus, leesbare meldingen en bedienbare knoppen.
-9. Verwijder de versleutelde testkluis alleen na bevestiging; controleer dat de status daarna **niet aanwezig** aangeeft. Verwijder testbestanden uit gedeelde downloadlocaties.
+9. Probeer verwijdering van de testkluis met een **onjuiste wachtzin**: verwacht weigering en behoud van de versleutelde kluis. Voer daarna de **oorspronkelijke wachtzin opnieuw in**, bevestig de definitieve verwijdering en controleer dat de status **niet aanwezig** aangeeft. Verwijder testbestanden uit gedeelde downloadlocaties.
 
 ## Bewijsvelden per stap
 - Test-ID: `CITADEL-MOB-v2.6-{ANDROID|IOS}-{01..09}`
