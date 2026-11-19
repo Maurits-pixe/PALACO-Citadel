@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Importeerbare JSON-export bij volle offlineopslag (v3.4)
+Als het tabblad meer waarnemingen bevat dan in de 256 KiB-opslaggrens passen, kon een enkele JSON-export groter zijn dan de eigen importgrens. De exportfunctie maakt voortaan **meerdere afzonderlijke JSON-bestanden** met dezelfde canonieke velden (`format`, `exported_at`, `authority`, `notes`). Ieder deel blijft bij het exporteren binnen 262.144 UTF-8-bytes inclusief de ingesprongen JSON-opmaak. De originele volgorde en alle waarnemings-ID's blijven behouden; lege logboeken exporteren nog steeds één geldig bestand. Bij een groot logboek worden de bestandsnamen voorzien van een opeenvolgend deelnummer.
+
+Voor herstel moeten de delen **één voor één** worden geïmporteerd. Browsers kunnen meerdere opeenvolgende downloads blokkeren of om toestemming vragen: controleer daarom dat **ieder deel** daadwerkelijk is gedownload voordat het tabblad wordt gesloten. Een gedetecteerde exportfout geeft geen succesclaim. De browserregressie toetst de grootte, het schema en het behoud van 100 Unicode-waarnemingen, maar niet de gebruikersinstellingen voor meerdere downloads. Bewijs- en mandaatstatus blijven `SELF_REPORTED_NOT_VERIFIED` en `NONE`; browseracceptatie en release blijven HOLD.
+
 ## Waarschuwing vóór verlies van niet-opgeslagen waarnemingen (v3.3)
 Het Observatorium beschermt de huidige tabsessie nu ook bij herladen, sluiten of navigeren. Zodra er één of meer lokale notities aanwezig zijn die niet tot de laatst bevestigde bewaarde kopie behoren, vraagt de applicatie via de standaard `beforeunload`-browserbeveiliging aandacht vóór het verlaten van de pagina. De waarschuwing vervalt wanneer alle aanwezige notities aantoonbaar lokaal zijn opgeslagen en verschijnt opnieuw wanneer bewaartoestemming wordt ingetrokken of opslag als onbevestigd is gemarkeerd.
 
