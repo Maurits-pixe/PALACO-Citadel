@@ -640,3 +640,23 @@ test('cross-tab consent revocation aborts pending JSON import before adding note
   await second.close();
  });
 });
+
+test('beforeunload warns only while session has unpersisted observations',{timeout:60000},async()=>{
+ await withPage({width:390,height:800},async page=>{
+  await page.locator('#tab-atelier').click();
+  const isBlocked=()=>page.evaluate(()=>{
+   const event=new Event('beforeunload',{cancelable:true});
+   window.dispatchEvent(event);
+   return event.defaultPrevented;
+  });
+  assert.equal(await isBlocked(),false,'Empty journal must not block exit');
+  await page.locator('#subject').fill('Nog niet opgeslagen');
+  await page.locator('#notes').fill('Tijdelijke sessiewaarneming');
+  await page.locator('#form button[type="submit"]').click();
+  assert.equal(await isBlocked(),true,'Unsaved observation must trigger exit warning');
+  await page.locator('#persist').check();
+  assert.equal(await isBlocked(),false,'Confirmed storage removes the exit warning');
+  await page.locator('#persist').uncheck();
+  assert.equal(await isBlocked(),true,'Withdrawing storage consent restores the exit warning');
+ });
+});
