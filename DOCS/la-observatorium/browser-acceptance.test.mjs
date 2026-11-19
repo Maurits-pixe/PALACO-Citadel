@@ -548,6 +548,7 @@ test('second tab cannot silently overwrite journal updated in first tab',{timeou
   const saved=await first.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1'));
   await second.waitForFunction(()=>document.querySelector('#storage')?.textContent?.includes('CONFLICT MET ANDER TABBLAD'));
   assert.equal(await second.locator('#persist').isDisabled(),true);
+  assert.equal(await second.locator('#persist').isChecked(),true,'Journal-only conflict does not imply withdrawn consent');
   await second.locator('#subject').fill('Tijdelijke notitie uit tab B');
   await second.locator('#notes').fill('Geen overschrijving toestaan');
   await second.locator('#form button[type="submit"]').click();
@@ -596,6 +597,7 @@ test('external consent revocation invalidates the first tabs saved-note claims',
   await second.locator('#persist').uncheck();
   await first.waitForFunction(()=>document.querySelector('#storage')?.textContent?.includes('CONFLICT MET ANDER TABBLAD'));
   assert.equal(await first.locator('#persist').isDisabled(),true);
+  assert.equal(await first.locator('#persist').isChecked(),false,'Revoked consent must not remain visibly enabled');
   assert.match(await first.locator('#pending').innerText(),/1 notitie\(s\) alleen in dit tabblad/);
   assert.equal(await first.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),null);
   assert.equal(await first.evaluate(()=>localStorage.getItem('palaco_la_observatory_consent_v1')),null);
