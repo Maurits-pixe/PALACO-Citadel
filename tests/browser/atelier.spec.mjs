@@ -417,3 +417,38 @@ test('Atelier: JSON en TXT samen controleren zonder het huidige ontwerp te wijzi
  await expect(page.locator('#undoImport')).toBeDisabled();
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
 });
+
+test('Atelier: inspectierapport kan met project en TXT opnieuw worden geverifieerd',async ({page})=>{
+ const {createHash}=await import('node:crypto');
+ const fs=await import('node:fs/promises');
+ await page.goto('/atelier/regiekamer.html');
+ const data=await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage)));
+ const project=Buffer.from(data);
+ const hash=createHash('sha256').update(project).digest('hex');
+ const txt=Buffer.from('PALACO ATELIER DRAFT SHA-256 REFERENTIE\nSHA-256: '+hash+'\nBestand: creative.json\n');
+ const original=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const jsonFile={name:'creative.json',mimeType:'application/json',buffer:project};
+ const txtFile={name:'checksum.txt',mimeType:'text/plain',buffer:txt};
+ await page.locator('#pairVerify').setInputFiles([jsonFile,txtFile]);
+ await expect(page.locator('#pairReportSave')).toBeEnabled();
+ const dl=page.waitForEvent('download');
+ await page.locator('#pairReportSave').click();
+ const reportDownload=await dl;
+ const reportBytes=await fs.readFile(await reportDownload.path());
+ const reportFile={name:'inspection.json',mimeType:'application/json',buffer:reportBytes};
+ await page.locator('#reportVerify').setInputFiles([reportFile,txtFile,jsonFile]);
+ await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
+ await expect(page.locator('#reportVerifyStatus')).toContainText(hash);
+ const wrong={...JSON.parse(reportBytes.toString('utf8')),exteriorUsed:999};
+ await page.locator('#reportVerify').setInputFiles([jsonFile,txtFile,{...reportFile,buffer:Buffer.from(JSON.stringify(wrong))}]);
+ await expect(page.locator('#reportVerifyStatus')).toContainText('Drievoudige controle geweigerd');
+ await expect(page.locator('#reportVerifyStatus')).toContainText('Ontwerptellingen');
+ const wrongHash={...JSON.parse(reportBytes.toString('utf8')),sha256:'0'.repeat(64)};
+ await page.locator('#reportVerify').setInputFiles([jsonFile,txtFile,{...reportFile,buffer:Buffer.from(JSON.stringify(wrongHash))}]);
+ await expect(page.locator('#reportVerifyStatus')).toContainText('DE DRIE BESTANDEN KOMEN NIET OVEREEN');
+ await page.locator('#reportVerify').setInputFiles([jsonFile,txtFile,{...reportFile,name:'verkeerd.json'}]);
+ await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
+ await page.locator('#reportVerify').setInputFiles([jsonFile,txtFile,{...reportFile,buffer:Buffer.from(JSON.stringify({...JSON.parse(reportBytes.toString('utf8')),authority:'OWNER'}))}]);
+ await expect(page.locator('#reportVerifyStatus')).toContainText('Drievoudige controle geweigerd');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(original);
+});
