@@ -204,6 +204,11 @@ $("storage-reset").addEventListener("click",()=>{
  if(!storageRecoveryBlocked)return;
  if(!confirm("Onleesbare lokale kopie en toestemmingsmarkering definitief wissen? Deze inhoud kan niet worden hersteld vanuit het Observatorium."))return;
  try{
+  if(!storageMatchesSnapshot()){
+   markStorageConflict();
+   status("Herstelreset geweigerd: de lokale kopie is door een ander tabblad gewijzigd; er is niets gewist.");
+   return;
+  }
   localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);
   if(localStorage.getItem(KEY)!==null||localStorage.getItem(CONSENT)!==null)throw new Error("Wissen niet bevestigd");
   storageRecoveryBlocked=false;storageConflictBlocked=false;storageEnabled=false;notes=[];journalRevision++;persistedNoteIds.clear();
