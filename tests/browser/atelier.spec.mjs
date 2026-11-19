@@ -392,11 +392,26 @@ test('Atelier: JSON en TXT samen controleren zonder het huidige ontwerp te wijzi
  await page.locator('#pairVerify').setInputFiles([jsonFile,txtFile]);
  await expect(page.locator('#pairStatus')).toContainText('PAARCONTROLE GESLAAGD');
  await expect(page.locator('#pairStatus')).toContainText(hash);
+ await expect(page.locator('#pairReportSave')).toBeEnabled();
+ const reportPromise=page.waitForEvent('download');
+ await page.locator('#pairReportSave').click();
+ const reportFile=await reportPromise;
+ const reportData=JSON.parse((await (await import('node:fs/promises')).readFile(await reportFile.path())).toString('utf8'));
+ expect(reportData).toMatchObject({
+   schema:'palaco.citadel.atelier.inspection/1',
+   state:'DRAFT',authority:'NONE',purpose:'LOCAL_INTEGRITY_COMPARISON_ONLY',
+   result:'MATCH',jsonFile:'creative.json',receiptFile:'checksum.txt',sha256:hash
+ });
+ expect(reportData.limitations).toContain('No proof of source authenticity');
+ expect(reportData).not.toHaveProperty('exterior');
+ expect(reportData).not.toHaveProperty('interior');
  const altered=Buffer.from(JSON.stringify({...JSON.parse(draft),note:'ander creatief dossier'}));
  await page.locator('#pairVerify').setInputFiles([{...jsonFile,buffer:altered},txtFile]);
  await expect(page.locator('#pairStatus')).toContainText('JSON EN TXT KOMEN NIET OVEREEN');
+ await expect(page.locator('#pairReportSave')).toBeDisabled();
  await page.locator('#pairVerify').setInputFiles([{...jsonFile,buffer:Buffer.from(JSON.stringify({...JSON.parse(draft),authority:'OWNER'}))},txtFile]);
  await expect(page.locator('#pairStatus')).toContainText('Paarcontrole geweigerd');
+ await expect(page.locator('#pairReportSave')).toBeDisabled();
  await page.locator('#pairVerify').setInputFiles([jsonFile,{...txtFile,buffer:Buffer.from('SHA-256: '+hash+'\nSHA-256: '+hash+'\n')}]);
  await expect(page.locator('#pairStatus')).toContainText('precies één SHA-256-regel');
  await expect(page.locator('#undoImport')).toBeDisabled();
