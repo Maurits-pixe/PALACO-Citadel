@@ -27,7 +27,8 @@ const routes=[
  ["Mobiele Herstelregie","atlas-device-triage.html"],
  ["Herstelverificatie","atlas-recovery-verification.html"],
  ["Geconsolideerd Mobiel Acceptatiedossier","atlas-mobile-dossier.html"],
- ["Onafhankelijke Acceptatiereview","atlas-independent-review.html"]
+ ["Onafhankelijke Acceptatiereview","atlas-independent-review.html"],
+ ["Review Findings & Decision Register","atlas-review-findings.html"]
 ];
 test("alle tien Atlas-pagina's laden lokaal zonder script- of netwerkfouten",async({page})=>{
  const failures=[];
@@ -85,11 +86,11 @@ test("offlinemodus bewaart alleen de vaste Atlas-shell en opent archief zonder n
  await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
  await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
  const paths=await page.evaluate(async()=>{
-  const cache=await caches.open("palaco-atlas-shell-v1-rc20");
+  const cache=await caches.open("palaco-atlas-shell-v1-rc21");
   const keys=await cache.keys();
   return keys.map(r=>new URL(r.url).pathname);
  });
- expect(paths).toHaveLength(54);
+ expect(paths).toHaveLength(56);
  expect(paths.every(p=>p.startsWith("/wereldatlas/"))).toBe(true);
  expect(paths.some(p=>p.endsWith(".json")||p.includes("admin")||p.includes("api/"))).toBe(false);
  await context.setOffline(true);
@@ -303,7 +304,7 @@ test("Package Audit toont ontbrekende modules zonder ongeoorloofde claim",async(
  await expect(page.locator("#audit")).toBeEnabled();
  await page.locator("#audit").click();
  await expect(page.locator("#audit-status")).toContainText("ONVOLLEDIG");
- await expect(page.locator("#audit-status")).toContainText("Ontbrekend 52");
+ await expect(page.locator("#audit-status")).toContainText("Ontbrekend 54");
  await expect(page.locator("#download")).toBeEnabled();
 });
 test("Package Audit werkt offline na installatie",async({page,context})=>{
@@ -322,8 +323,8 @@ test("Dependency & Security Audit inspecteert Atlasbronnen lokaal zonder vrijgav
  await expect(page.locator("#export")).toBeDisabled();
  await page.locator("#run").click();
  await expect(page.locator("#audit-status")).toContainText("HOLD / DENY");
- await expect(page.locator("#summary")).toContainText("Bronnen: 53 / 53");
- await expect(page.locator("#summary")).toContainText("Offlinebronnencontract: 54");
+ await expect(page.locator("#summary")).toContainText("Bronnen: 55 / 55");
+ await expect(page.locator("#summary")).toContainText("Offlinebronnencontract: 56");
  await expect(page.locator("#export")).toBeEnabled();
 });
 test("Dependency & Security Audit opent en werkt zonder netwerk",async({page,context})=>{
@@ -334,7 +335,7 @@ test("Dependency & Security Audit opent en werkt zonder netwerk",async({page,con
  await context.setOffline(true);
  await page.goto(root+"atlas-security-audit.html");
  await page.locator("#run").click();
- await expect(page.locator("#summary")).toContainText("Bronnen: 53 / 53");
+ await expect(page.locator("#summary")).toContainText("Bronnen: 55 / 55");
  await expect(page.locator("#audit-status")).toContainText("HOLD / DENY");
 });
 
@@ -709,4 +710,55 @@ test("v2.6 reviewkamer opent zonder netwerk",async({page,context})=>{
  await context.setOffline(true);await page.goto(root+"atlas-independent-review.html");
  await expect(page.locator("h1")).toContainText("Review voorbereiden");
  await expect(page.locator("#prepare")).toBeDisabled();
+});
+
+test("v2.7 registreert bevinding, bewijsaanvraag en niet-geautoriseerd voorstel",async({page})=>{
+ await page.goto(root+"atlas-review-findings.html");
+ const source=await page.evaluate(async()=>{
+  const {STEPS,newDeviceReport,updateDeviceReport}=await import("./atlas-device-acceptance.mjs");
+  const {comparePhoneReports}=await import("./atlas-device-retest.mjs");
+  const {makeTriage}=await import("./atlas-device-triage.mjs");
+  const {makeRecoveryVerification}=await import("./atlas-recovery-verification.mjs");
+  const {buildMobileDossier}=await import("./atlas-mobile-dossier.mjs");
+  const {prepareReview}=await import("./atlas-independent-review.mjs");
+  const before=updateDeviceReport(newDeviceReport(),STEPS[0].id,{status:"PASS",note:"first",evidenceReference:"REF-1"});
+  const retry=updateDeviceReport(before,STEPS[0].id,{status:"FAIL",note:"missing",evidenceReference:"REF-2"});
+  const latest=updateDeviceReport(retry,STEPS[0].id,{status:"PASS",note:"again",evidenceReference:"REF-3"});
+  const comparison=comparePhoneReports(before,retry),triage=makeTriage(comparison),verification=makeRecoveryVerification(comparison,triage,latest);
+  const dossier=buildMobileDossier(comparison,triage,latest,verification,{caseReference:"DOS-001"});
+  return {dossier,review:prepareReview(dossier,{reviewReference:"REV-001"})};
+ });
+ await page.locator("#dossier-file").setInputFiles({name:"dossier.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(source.dossier))});
+ await expect(page.locator("#status")).toContainText("Lokaal DRAFT-bronbestand");
+ await page.locator("#review-file").setInputFiles({name:"review.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(source.review))});
+ await expect(page.locator("#initialize")).toBeEnabled();
+ await page.locator("#proposal").selectOption("REQUEST_INDEPENDENT_REVIEW");
+ await page.locator("#initialize").click();
+ await page.locator("#finding-id").fill("F-001");
+ await page.locator("#note").fill("Nog geen onafhankelijke beveiligingsreview");
+ await page.locator("#finding-status").selectOption("EVIDENCE_REQUESTED");
+ await page.locator("#add").click();
+ await expect(page.locator("#summary")).toContainText("1 bevindingen");
+ await expect(page.locator("#summary")).toContainText("HOLD / DENY");
+ await expect(page.locator("#checks .line")).toHaveCount(5);
+ await expect(page.locator("#export")).toBeEnabled();
+ const download=page.waitForEvent("download");await page.locator("#export").click();
+ const fs=await import("node:fs/promises"),out=JSON.parse(await fs.readFile(await (await download).path(),"utf8"));
+ expect(out.proposal).toBe("REQUEST_INDEPENDENT_REVIEW");expect(out.decision).toBe("HOLD");expect(out.authorization).toBe("DENY");
+});
+test("v2.7 weigert vervalste reviewbron en houdt register uitgeschakeld",async({page})=>{
+ await page.goto(root+"atlas-review-findings.html");
+ await page.locator("#dossier-file").setInputFiles({name:"forged.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify({authorization:"ALLOW",verified:true}))});
+ await expect(page.locator("#status")).toContainText("AFGEWEZEN");
+ await expect(page.locator("#initialize")).toBeDisabled();
+});
+test("v2.7 register is offline bereikbaar",async({page,context})=>{
+ await page.goto(root+"atlas-integratie.html");
+ await page.locator("#offline-enable").click();
+ await expect(page.locator("#offline-status")).toContainText("Offlinepakket gereed");
+ await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+ await context.setOffline(true);
+ await page.goto(root+"atlas-review-findings.html");
+ await expect(page.locator("h1")).toContainText("Bevindingen- en besluitregister");
+ await expect(page.locator("#initialize")).toBeDisabled();
 });
