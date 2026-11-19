@@ -56,6 +56,12 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Hervergrendeling trekt schrijf- en verwijderrechten in · v2.7
+- Handmatig **Vergrendel deze tab** wist behalve het actieve geheugen nu ook de in deze tab onthouden kluisbasis (`vaultBaseRaw`); het eerder ontgrendelde kluisexemplaar mag niet meer worden overschreven of verwijderd.
+- Zolang een bestaande kluis aanwezig is, kan pas na opnieuw ontgrendelen met de wachtzin bewust worden opgeslagen of verwijderd. Een nieuwe losse notitie na vergrendeling geeft geen toestemming om de opgeslagen kluis te vervangen.
+- Twee Chromium-touchregressies toetsen dat vergrendelen een bestaande kluis beschermt tegen zowel overschrijven als verwijderen en dat na expliciete herontgrendeling bewust verwijderen opnieuw mogelijk is.
+- Deze wijziging is lokale gebruikersinterface- en opslagbeveiliging, geen bestandssysteemautorisatie of beveiliging tegen kwaadaardige scripts. Fysieke mobiele acceptatie en onafhankelijke securityreview blijven HOLD.
+
 ## Leesbare kluisstatus en fysieke apparaatacceptatie · v2.6
 - De Geheugenkamer toont een **alleen-lezen kluisstatus** met `role=status` en `aria-live=polite`. De status vermeldt uitsluitend aanwezigheid en, bij een geldige revisie-envelop, een versienummer; er worden geen herinneringen of wachtzinnen ontsloten.
 - Bij herladen wordt een aanwezige kluis nog altijd **niet automatisch ontgrendeld**. De status verwerkt ook ontbrekende, beschadigde, onbekende of te grote opslag en wordt bijgewerkt na bewaren, verwijderen en externe browser-tabwijzigingen.
