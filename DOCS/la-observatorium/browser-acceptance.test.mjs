@@ -606,3 +606,37 @@ test('external consent revocation invalidates the first tabs saved-note claims',
   await second.close();
  });
 });
+
+test('cross-tab consent revocation aborts pending JSON import before adding notes',{timeout:90000},async()=>{
+ await withPage({width:390,height:800},async first=>{
+  await first.locator('#tab-atelier').click();
+  await first.locator('#persist').check();
+  const second=await first.context().newPage();
+  await second.goto(first.url());
+  await second.locator('#tab-atelier').click();
+  const journal={format:'palaco-la-observatory-local-v1',exported_at:'2026-11-19T05:00:00.000Z',
+   authority:'SELF_REPORTED_NOT_VERIFIED',notes:[{id:'concurrent-import',at:'2026-11-19T05:00:00.000Z',
+    subject:'Niet toe te voegen',kind:'OBSERVED',reference:'',notes:'Import tijdens externe intrekking'}]};
+  await first.locator('#import-file').setInputFiles({
+   name:'pending.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(journal))});
+  await first.evaluate(()=>{
+   const original=File.prototype.text;
+   window.__crossTabReadStarted=false;
+   File.prototype.text=function(){
+    window.__crossTabReadStarted=true;
+    return new Promise(resolve=>{window.__finishCrossTabRead=async()=>resolve(await original.call(this));});
+   };
+  });
+  await first.locator('#import').click();
+  await first.waitForFunction(()=>window.__crossTabReadStarted===true);
+  await second.locator('#persist').uncheck();
+  await first.waitForFunction(()=>document.querySelector('#storage')?.textContent?.includes('CONFLICT MET ANDER TABBLAD'));
+  await first.evaluate(()=>window.__finishCrossTabRead());
+  await first.waitForFunction(()=>document.querySelector('#announce')?.textContent?.includes('Import afgebroken'));
+  await first.locator('#tab-geheugen').click();
+  assert.match(await first.locator('#count').innerText(),/0 \/ 0/);
+  assert.equal(await first.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),null);
+  assert.equal(await first.evaluate(()=>localStorage.getItem('palaco_la_observatory_consent_v1')),null);
+  await second.close();
+ });
+});
