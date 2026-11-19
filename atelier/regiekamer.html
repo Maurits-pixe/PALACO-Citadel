@@ -188,7 +188,7 @@ $('bundleSave').addEventListener('click',async ()=>{
    if(!lastExportFingerprint)$('bundleStatus').textContent='Projectexport uitgevoerd of geweigerd; controleer het gedownloade bestand voordat je het gebruikt.';
  }
 });
-function parseBoundReceipt(receipt,projectFilename){
+function parseReceiptFields(receipt){
  const lines=receipt.split(/\r?\n/).filter(line=>line!=='');
  if(lines.some(line=>/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(line)))
    throw Error('TXT-bewijs bevat ongeldige besturingstekens');
@@ -204,12 +204,15 @@ function parseBoundReceipt(receipt,projectFilename){
  if(hashLines.length!==1)throw Error('TXT moet precies één SHA-256-regel bevatten');
  const nameLines=lines.filter(line=>line.startsWith('Bestand: '));
  if(nameLines.length!==1)throw Error('TXT-bewijs moet precies één Bestand-regel bevatten');
- const expected=projectFilename.replace(/[\x00-\x1f\x7f]/g,' ').slice(0,120);
- if(nameLines[0].slice('Bestand: '.length)!==expected)
-   throw Error('Bestandsnaam in SHA-256-TXT komt niet overeen met gekozen JSON-project');
  const hash=hashLines[0].slice('SHA-256: '.length);
  if(!/^[0-9a-fA-F]{64}$/.test(hash))throw Error('Ongeldige SHA-256 in TXT');
- return hash.toLowerCase();
+ return {hash:hash.toLowerCase(),filename:nameLines[0].slice('Bestand: '.length)};
+}
+function parseBoundReceipt(receipt,projectFilename){
+ const fields=parseReceiptFields(receipt);
+ const expected=projectFilename.replace(/[\x00-\x1f\x7f]/g,' ').slice(0,120);
+ if(fields.filename!==expected)throw Error('Bestandsnaam in SHA-256-TXT komt niet overeen met gekozen JSON-project');
+ return fields.hash;
 }
 let reportVerifyRevision=0;
 $('reportVerify').addEventListener('change',async event=>{
@@ -335,9 +338,11 @@ $('pairVerify').addEventListener('change',async event=>{
  }finally{event.target.value='';}
 });
 let verifiedFingerprint=null;
+let loadedReceiptFilename=null;
 let dossierRevision=0;
 $('expectedFingerprint').addEventListener('input',()=>{
  dossierRevision++;
+ loadedReceiptFilename=null;
  verifiedFingerprint=null;
  $('exportFingerprint').disabled=true;
  $('verifyStatus').textContent='SHA-256-referentie aangepast. Kies het JSON-projectbestand opnieuw voor een verse controle.';
@@ -366,12 +371,10 @@ $('fingerprintReceipt').addEventListener('change',async event=>{
    if(file.size>4096)throw Error('Referentiebestand te groot (maximaal 4 KB)');
    const content=new TextDecoder('utf-8',{fatal:true}).decode(await file.arrayBuffer());
    if(revision!==dossierRevision)return;
-   const line=content.split(/\r?\n/).find(value=>value.startsWith('SHA-256: '));
-   if(!line)throw Error('SHA-256-regel ontbreekt');
-   const hash=line.slice('SHA-256: '.length).trim();
-   if(!/^[0-9a-fA-F]{64}$/.test(hash))throw Error('Referentie bevat geen geldige SHA-256');
-   $('expectedFingerprint').value=hash.toLowerCase();
-   status.textContent='SHA-256-referentie geladen. Selecteer nu opnieuw het JSON-projectbestand voor een verse vergelijking. De referentie is niet geauthenticeerd.';
+   const reference=parseReceiptFields(content);
+   loadedReceiptFilename=reference.filename;
+   $('expectedFingerprint').value=reference.hash;
+   status.textContent='SHA-256-referentie geladen voor '+loadedReceiptFilename+'. Selecteer exact dit JSON-projectbestand voor een verse vergelijking. De referentie is niet geauthenticeerd.';
    // A prior successful verification is not valid for a newly loaded reference.
    verifiedFingerprint=null;
    $('exportFingerprint').disabled=true;
@@ -379,6 +382,7 @@ $('fingerprintReceipt').addEventListener('change',async event=>{
  }catch(err){
    if(revision!==dossierRevision)return;
    $('expectedFingerprint').value='';
+   loadedReceiptFilename=null;
    verifiedFingerprint=null;
    $('exportFingerprint').disabled=true;
    status.textContent='Referentie geweigerd: '+err.message;
@@ -397,6 +401,8 @@ $('bundleVerify').addEventListener('change',async event=>{
    if(!api)throw Error('Projectpakket-functie niet geladen');
    if(file.size>150000)throw Error('Bestand groter dan 150 KB');
    const reference=$('expectedFingerprint').value.trim();
+   if(loadedReceiptFilename!==null&&file.name.replace(/[\x00-\x1f\x7f]/g,' ').slice(0,120)!==loadedReceiptFilename)
+     throw Error('Bestandsnaam in ingeladen SHA-256-referentie komt niet overeen met gekozen JSON-project');
    if(reference!==''&&!/^[0-9a-fA-F]{64}$/.test(reference))throw Error('Referentie moet precies 64 hexadecimale SHA-256-tekens bevatten');
    const bytes=await file.arrayBuffer();
    if(revision!==dossierRevision)return;
