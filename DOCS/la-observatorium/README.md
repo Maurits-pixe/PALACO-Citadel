@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Eerlijke opslagstatus na ingetrokken toestemming (v3.0)
+De status van als opgeslagen bevestigde waarnemingen wordt nu meteen ongeldig zodra een ander tabblad de bewaartoestemming of het offline logboek wijzigt. Het conflicterende tabblad schakelt zijn lijst met bevestigde lokale IDs leeg, toont het aantal nog zichtbare notities als niet bevestigd opgeslagen en blokkeert verdere opslagwijzigingen. De gegevens blijven in de huidige sessie inspecteerbaar en kunnen lokaal naar JSON worden geëxporteerd. Het tabblad mag niet impliceren dat de oude opslagbevestiging nog geldt.
+
+Een Chromium-test maakt een lokale waarneming in tab A, opent tab B met dezelfde opslag, trekt daar de toestemming in en controleert dat tab A het verlies van de opslagbevestiging toont, terwijl de inhoud tijdelijk beschikbaar blijft. Dit is een conservatieve status: de app garandeert geen atomaire transacties tussen tabbladen en verleent nooit bewijsstatus of mandaat. Release blijft HOLD.
+
 ## Veilige herstelreset bij wijzigingen uit een ander tabblad (v2.9)
 Ook de destructieve herstelreset van een onleesbare lokale opslagkopie controleert vanaf nu de actuele inhoud en bewaartoestemming **ná bevestiging maar vóór het verwijderen**. Als een ander tabblad de opgeslagen gegevens of toestemming ondertussen heeft aangepast, wordt de reset geweigerd en blijven de externe gegevens intact. De interface meldt `Herstelreset geweigerd` en markeert het tabblad als conflicterend. Lokale waarnemingen kunnen desgewenst worden geëxporteerd, waarna de gebruiker herlaadt om de actuele opslagstatus te lezen.
 
