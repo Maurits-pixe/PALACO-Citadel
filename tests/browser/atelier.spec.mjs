@@ -442,7 +442,7 @@ test('Atelier: inspectierapport kan met project en TXT opnieuw worden geverifiee
  const wrong={...JSON.parse(reportBytes.toString('utf8')),exteriorUsed:999};
  await page.locator('#reportVerify').setInputFiles([jsonFile,txtFile,{...reportFile,buffer:Buffer.from(JSON.stringify(wrong))}]);
  await expect(page.locator('#reportVerifyStatus')).toContainText('Drievoudige controle geweigerd');
- await expect(page.locator('#reportVerifyStatus')).toContainText('Ontwerptellingen');
+ await expect(page.locator('#reportVerifyStatus')).toContainText('ontwerptellingen');
  const wrongHash={...JSON.parse(reportBytes.toString('utf8')),sha256:'0'.repeat(64)};
  await page.locator('#reportVerify').setInputFiles([jsonFile,txtFile,{...reportFile,buffer:Buffer.from(JSON.stringify(wrongHash))}]);
  await expect(page.locator('#reportVerifyStatus')).toContainText('DE DRIE BESTANDEN KOMEN NIET OVEREEN');
