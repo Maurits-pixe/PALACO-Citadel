@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Import afbreken bij gelijktijdige opslagconflicten (v3.2)
+Ook asynchrone JSON-imports worden nu stilgezet wanneer de browser een conflict met een ander tabblad vaststelt. De applicatie controleert vóór het starten, na het lezen van het gekozen bestand en opnieuw direct vóór het toevoegen van notities of de opslagconflictstatus is veranderd. Een wijziging van de lokale kopie of het intrekken van bewaartoestemming in een ander tabblad zorgt dat de lopende import **wordt afgebroken voordat nieuwe notities aan de sessie worden toegevoegd**. Een opnieuw te starten import vereist eerst export van eventuele sessienotities en het herladen van de actuele opslagcontext.
+
+De aanvullende Chromium-test pauzeert de bestandstoegang, trekt vanuit een tweede tabblad de bewaartoestemming in en controleert vervolgens dat de import geen lokale notities toevoegt en de externe verwijdering intact laat. Dit beperkt ongewenste wijzigingen, maar is geen atomaire opslagtransactie. Release blijft HOLD zolang de afzonderlijke Chromium-job niet als geslaagd is bevestigd.
+
 ## Toestemmingsschakelaar volgt externe intrekking (v3.1)
 Bij een opslagconflict tussen tabbladen worden de lokaal bevestigde notities al als onbevestigd behandeld. De toestemmingsschakelaar volgt nu bovendien de daadwerkelijk leesbare browsermarkering: is `CONSENT` niet meer `yes`, dan wordt de schakelaar uitgevinkt en geblokkeerd. Als uitsluitend het notitielogboek wijzigt terwijl de markering `yes` blijft, wordt de schakelaar niet ten onrechte uitgezet; schrijven blijft uit veiligheid wel geblokkeerd tot herladen.
 
