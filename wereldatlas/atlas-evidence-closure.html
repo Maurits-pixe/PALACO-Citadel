@@ -22,7 +22,6 @@ async function load(key){const id=++serial[key];data[key]=null;closure=null;
   if(key==="register"&&(!data.review||!validateRegister(v,data.dossier,data.review).ok))throw Error("Register niet gekoppeld aan de juiste bronketen.");
   data[key]=v;render();$("status").textContent="Lokaal DRAFT-bronrapport geaccepteerd, geen onafhankelijke attestatie.";
  }catch(e){if(id===serial[key])$("status").textContent="AFGEWEZEN: "+e.message}}
-}
 for(const key of Object.keys(data))$(key+"-file").addEventListener("change",()=>load(key));
 $("prepare").addEventListener("click",()=>{try{closure=makeClosure(data.dossier,data.review,data.register,{handoverReference:$("reference").value,recipientLabel:$("recipient").value});if(!validateClosure(closure,data.dossier,data.review,data.register).ok)throw Error("Overdrachtsrapport ongeldig.");
  render();$("status").textContent="DRAFT-overdracht voorbereid. Geen bevoegde vrijgave; HOLD / DENY."}catch(e){closure=null;render();$("status").textContent="AFGEWEZEN: "+e.message}});
