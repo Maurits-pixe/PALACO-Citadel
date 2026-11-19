@@ -65,6 +65,9 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/DRIEVOUDIGE CONTROLE GESLAAGD/);
   assert.match(read('regiekamer.html'),/if\(revision!==reportVerifyRevision\)return/);
   assert.match(read('regiekamer.html'),/report\.authority!=='NONE'/);
+  assert.match(read('regiekamer.html'),/reportFields\.includes\(key\)/);
+  assert.match(read('regiekamer.html'),/requiredLimitations/);
+  assert.match(read('regiekamer.html'),/new Date\(report\.checkedAt\)\.toISOString\(\)/);
   assert.match(read('regiekamer.html'),/LOCAL_INTEGRITY_COMPARISON_ONLY/);
   assert.match(read('regiekamer.html'),/lastPairReport=null/);
   assert.match(read('regiekamer.html'),/JSON EN TXT KOMEN NIET OVEREEN/);
