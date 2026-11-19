@@ -159,6 +159,9 @@ try{storedSnapshot={raw:localStorage.getItem(KEY),consent:localStorage.getItem(C
 function markStorageConflict(){
  storageConflictBlocked=true;
  persistedNoteIds.clear();
+ try{
+  if(localStorage.getItem(CONSENT)!=="yes")$("persist").checked=false;
+ }catch(_){$("persist").checked=false;}
  $("persist").disabled=true;
  $("storage").textContent="CONFLICT MET ANDER TABBLAD: de eerdere opslagbevestiging is vervallen; externe wijzigingen blijven behouden.";
  updatePendingStatus();
