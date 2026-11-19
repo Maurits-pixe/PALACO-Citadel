@@ -60,6 +60,9 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/id="checkExportFile"[^>]*disabled/);
   assert.match(read('regiekamer.html'),/id="pairVerify"/);
   assert.match(read('regiekamer.html'),/PAARCONTROLE GESLAAGD/);
+  assert.match(read('regiekamer.html'),/id="pairReportSave"[^>]*disabled/);
+  assert.match(read('regiekamer.html'),/LOCAL_INTEGRITY_COMPARISON_ONLY/);
+  assert.match(read('regiekamer.html'),/lastPairReport=null/);
   assert.match(read('regiekamer.html'),/JSON EN TXT KOMEN NIET OVEREEN/);
   assert.match(read('regiekamer.html'),/api\.parse\(decode\.decode\(jsonBytes\)\)/);
   assert.match(read('regiekamer.html'),/CONTROLE GESLAAGD/);
