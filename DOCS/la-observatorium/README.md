@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Waarschuwing vóór verlies van niet-opgeslagen waarnemingen (v3.3)
+Het Observatorium beschermt de huidige tabsessie nu ook bij herladen, sluiten of navigeren. Zodra er één of meer lokale notities aanwezig zijn die niet tot de laatst bevestigde bewaarde kopie behoren, vraagt de applicatie via de standaard `beforeunload`-browserbeveiliging aandacht vóór het verlaten van de pagina. De waarschuwing vervalt wanneer alle aanwezige notities aantoonbaar lokaal zijn opgeslagen en verschijnt opnieuw wanneer bewaartoestemming wordt ingetrokken of opslag als onbevestigd is gemarkeerd.
+
+Een Chromium-scenario controleert de condities zonder een daadwerkelijke sluiting af te dwingen. De browser bepaalt zelf of en hoe het bevestigingsvenster wordt getoond; sommige browsers vereisen voorafgaande gebruikersinteractie en op mobiele systemen is deze beveiliging niet gegarandeerd. **Maak daarom vóór herladen of sluiten een JSON-export** als de teller nog niet-opgeslagen notities aangeeft. Dit is een aanvullende bescherming, geen garantie tegen verlies, en laat de release op HOLD.
+
 ## Import afbreken bij gelijktijdige opslagconflicten (v3.2)
 Ook asynchrone JSON-imports worden nu stilgezet wanneer de browser een conflict met een ander tabblad vaststelt. De applicatie controleert vóór het starten, na het lezen van het gekozen bestand en opnieuw direct vóór het toevoegen van notities of de opslagconflictstatus is veranderd. Een wijziging van de lokale kopie of het intrekken van bewaartoestemming in een ander tabblad zorgt dat de lopende import **wordt afgebroken voordat nieuwe notities aan de sessie worden toegevoegd**. Een opnieuw te starten import vereist eerst export van eventuele sessienotities en het herladen van de actuele opslagcontext.
 
