@@ -176,10 +176,18 @@ window.addEventListener("storage",event=>{
   catch(_){markStorageConflict();}
  }
 });
+function unpersistedNoteCount(){
+ return notes.filter(n=>!persistedNoteIds.has(n.id)).length;
+}
 function updatePendingStatus(){
- const unpersisted=notes.filter(n=>!persistedNoteIds.has(n.id)).length;
+ const unpersisted=unpersistedNoteCount();
  $("pending").textContent=unpersisted?unpersisted+" notitie(s) alleen in dit tabblad; exporteer JSON vóór herladen.":"Alle aanwezige notities opgeslagen of geen notities aanwezig.";
 }
+window.addEventListener("beforeunload",event=>{
+ if(!unpersistedNoteCount())return;
+ event.preventDefault();
+ event.returnValue="";
+});
 function valid(n){return n&&typeof n==="object"&&!Array.isArray(n)&&typeof n.id==="string"&&n.id.length>0&&n.id.length<=100&&typeof n.at==="string"&&Number.isFinite(Date.parse(n.at))&&typeof n.subject==="string"&&n.subject.trim().length>0&&n.subject.length<=100&&typeof n.notes==="string"&&n.notes.trim().length>0&&n.notes.length<=1500&&typeof n.kind==="string"&&["OBSERVED","RECORDED","DERIVED","INFERRED","HYPOTHESIS"].includes(n.kind)&&typeof n.reference==="string"&&n.reference.length<=200;}
 $("persist").checked=storageEnabled;
 $("persist").disabled=storageRecoveryBlocked;
