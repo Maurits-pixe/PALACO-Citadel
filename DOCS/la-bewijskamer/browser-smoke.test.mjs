@@ -922,3 +922,74 @@ test("vault deletion interrupted by tab lock during slow authentication keeps th
  assert.equal(await p.locator("#count").innerText(),"0");
  await c.close();
 });
+
+test("legacy encrypted vault unlocks read-only and migrates on explicit authenticated save",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Historische herinnering");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Mag nooit verdwijnen");
+ await p.locator("#entryForm button[type=submit]").tap();
+ await p.locator("#archivePassphrase").fill("Erfgoed wachtzin kluis 123!");
+ await p.locator("#vaultSave").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde kluis bewust opgeslagen"));
+ const legacy=await p.evaluate(()=>{
+   const key="palaco.citadel.geheugenkamer.vault.v1";
+   const old=JSON.parse(localStorage.getItem(key)).encrypted;
+   const serialized=JSON.stringify(old);
+   localStorage.setItem(key,serialized);
+   return serialized;
+ });
+ await p.reload();
+ assert.match(await p.locator("#vaultStatus").innerText(),/ouder formaat/i);
+ assert.equal(await p.locator("#count").innerText(),"0");
+ assert.equal(await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),legacy);
+ await p.locator("#archivePassphrase").fill("Erfgoed wachtzin kluis 123!");
+ await p.locator("#vaultUnlock").tap();
+ await p.waitForFunction(()=>document.querySelector("#count").textContent==="1");
+ assert.match(await p.locator("#timeline").innerText(),/Historische herinnering/);
+ assert.match(await p.locator("#message").innerText(),/oud formaat/);
+ assert.equal(await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),legacy,"unlock must not migrate");
+ await p.locator("#archivePassphrase").fill("Erfgoed wachtzin kluis 123!");
+ p.once("dialog",d=>d.accept());
+ await p.locator("#vaultSave").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("versie 2"));
+ const upgraded=await p.evaluate(()=>JSON.parse(localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")));
+ assert.equal(upgraded.schema,"PALACO-CITADEL-VAULT-2");
+ assert.equal(upgraded.revision,2);
+ assert.match(upgraded.parentDigest,/^[0-9a-f]{64}$/);
+ assert.match(await p.locator("#vaultStatus").innerText(),/versie 2/);
+ await p.reload();
+ assert.equal(await p.locator("#count").innerText(),"0");
+ await p.locator("#archivePassphrase").fill("Erfgoed wachtzin kluis 123!");
+ await p.locator("#vaultUnlock").tap();
+ await p.waitForFunction(()=>document.querySelector("#count").textContent==="1");
+ assert.match(await p.locator("#timeline").innerText(),/Historische herinnering/);
+ await c.close();
+});
+
+test("legacy encrypted vault cannot migrate with wrong password",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Legacy niet overschrijven");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Blijft");
+ await p.locator("#entryForm button[type=submit]").tap();
+ await p.locator("#archivePassphrase").fill("Correcte erfgoedzin 123!");
+ await p.locator("#vaultSave").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde kluis bewust opgeslagen"));
+ const legacy=await p.evaluate(()=>{
+   const key="palaco.citadel.geheugenkamer.vault.v1";
+   const old=JSON.parse(localStorage.getItem(key)).encrypted;
+   localStorage.setItem(key,JSON.stringify(old));
+   return JSON.stringify(old);
+ });
+ await p.reload();
+ await p.locator("#archivePassphrase").fill("Correcte erfgoedzin 123!");
+ await p.locator("#vaultUnlock").tap();
+ await p.waitForFunction(()=>document.querySelector("#count").textContent==="1");
+ await p.locator("#archivePassphrase").fill("Verkeerde erfgoedzin 456!");
+ p.once("dialog",d=>d.accept());
+ await p.locator("#vaultSave").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("oorspronkelijke wachtzin"));
+ assert.equal(await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),legacy);
+ await c.close();
+});
