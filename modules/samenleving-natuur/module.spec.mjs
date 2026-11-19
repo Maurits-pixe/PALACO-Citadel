@@ -822,3 +822,56 @@ test('changing revocation list invalidates a previous signature result',async ({
  await page.locator('#verifySignature').click();
  await expect(page.locator('#signatureStatus')).toContainText('SLEUTEL INGETROKKEN');
 });
+
+async function signedRevocationFixture(page,fingerprint,{expired=false,tamper=false}={}){
+ return page.evaluate(async ({fingerprint,expired,tamper})=>{
+   const canonical=v=>Array.isArray(v)?'['+v.map(canonical).join(',')+']':v&&typeof v==='object'?'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canonical(v[k])).join(',')+'}':JSON.stringify(v);
+   const keys=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
+   const jwk=await crypto.subtle.exportKey('jwk',keys.publicKey);
+   const publicKey={kty:'EC',crv:'P-256',x:jwk.x,y:jwk.y};
+   const h=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonical(publicKey)));
+   const issuerFingerprint=Array.from(new Uint8Array(h),b=>b.toString(16).padStart(2,'0')).join('');
+   const t=Date.now(),day=86400000;
+   const list={schema:'palaco-citadel-revocations-v2',issuerFingerprint,
+     issuedAt:new Date(t-(expired?3:1)*day).toISOString(),
+     expiresAt:new Date(t+(expired?-1:1)*day).toISOString(),
+     fingerprints:[fingerprint]};
+   const signature=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},keys.privateKey,new TextEncoder().encode(canonical(list)));
+   const signed={...list,signature:btoa(String.fromCharCode(...new Uint8Array(signature)))};
+   if(tamper)signed.fingerprints=[];
+   return {publicKey,signed};
+ },{fingerprint,expired,tamper});
+}
+
+test('signed local revocation v2 denies listed key but never grants trust',async ({page})=>{
+ const fixture=await signedPreviewFixture(page);
+ const signed=await signedRevocationFixture(page,fixture.detached.keyFingerprint);
+ await page.locator('#signatureFile').setInputFiles({name:'sig.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.detached))});
+ await page.locator('#revocationIssuerKey').fill(JSON.stringify(signed.publicKey));
+ await page.locator('#revocations').setInputFiles({name:'v2.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(signed.signed))});
+ await page.locator('#verifySignature').click();
+ await expect(page.locator('#signatureStatus')).toContainText('SLEUTEL INGETROKKEN');
+ await expect(page.locator('#signatureStatus')).toContainText('NIET VERTROUWDE');
+});
+
+test('expired signed revocation v2 fails closed',async ({page})=>{
+ const fixture=await signedPreviewFixture(page);
+ const signed=await signedRevocationFixture(page,fixture.detached.keyFingerprint,{expired:true});
+ await page.locator('#signatureFile').setInputFiles({name:'sig.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.detached))});
+ await page.locator('#revocationIssuerKey').fill(JSON.stringify(signed.publicKey));
+ await page.locator('#revocations').setInputFiles({name:'expired.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(signed.signed))});
+ await page.locator('#verifySignature').click();
+ await expect(page.locator('#signatureStatus')).toContainText('niet geldig of niet verifieerbaar');
+ await expect(page.locator('#signatureStatus')).not.toContainText('cryptografisch GELDIG');
+});
+
+test('tampered signed revocation v2 fails closed',async ({page})=>{
+ const fixture=await signedPreviewFixture(page);
+ const signed=await signedRevocationFixture(page,fixture.detached.keyFingerprint,{tamper:true});
+ await page.locator('#signatureFile').setInputFiles({name:'sig.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.detached))});
+ await page.locator('#revocationIssuerKey').fill(JSON.stringify(signed.publicKey));
+ await page.locator('#revocations').setInputFiles({name:'tampered.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(signed.signed))});
+ await page.locator('#verifySignature').click();
+ await expect(page.locator('#signatureStatus')).toContainText('niet geldig of niet verifieerbaar');
+ await expect(page.locator('#signatureStatus')).not.toContainText('cryptografisch GELDIG');
+});
