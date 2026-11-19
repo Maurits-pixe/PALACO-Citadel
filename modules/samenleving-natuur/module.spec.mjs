@@ -722,3 +722,53 @@ test('SHA-256 handoff is readable without legacy exception',async ({page})=>{
  await expect(page.locator('#preview')).toBeVisible();
  await expect(page.locator('#status')).toContainText('SHA-256-integriteit klopt');
 });
+
+async function signedPreviewFixture(page){
+  await page.getByRole('button',{name:'Leefwereldatlas'}).click();
+  const pending=page.waitForEvent('download');
+  await page.locator('#packetExport').click();
+  const exported=await pending;
+  const {readFile}=await import('node:fs/promises');
+  const bytes=await readFile(await exported.path());
+  await page.goto('http://127.0.0.1:4177/recipient-preview.html');
+  await page.locator('#packet').setInputFiles({name:'packet.json',mimeType:'application/json',buffer:bytes});
+  await expect(page.locator('#preview')).toBeVisible();
+  const fixture=await page.evaluate(async data=>{
+    const canonical=value=>Array.isArray(value)?'['+value.map(canonical).join(',')+']':value&&typeof value==='object'?'{'+Object.keys(value).sort().map(k=>JSON.stringify(k)+':'+canonical(value[k])).join(',')+'}':JSON.stringify(value);
+    const kp=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
+    const full=await crypto.subtle.exportKey('jwk',kp.publicKey);
+    const jwk={kty:'EC',crv:'P-256',x:full.x,y:full.y};
+    const fingerprint=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonical(jwk)));
+    const digest=Array.from(new Uint8Array(fingerprint),v=>v.toString(16).padStart(2,'0')).join('');
+    const signature=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},kp.privateKey,new TextEncoder().encode(canonical(data)));
+    const encoded=btoa(String.fromCharCode(...new Uint8Array(signature)));
+    return {jwk,detached:{schema:'palaco-citadel-signature-v1',algorithm:'ECDSA-P256-SHA256',keyFingerprint:digest,signature:encoded}};
+  },JSON.parse(bytes.toString('utf8')));
+  await page.locator('#publicKey').fill(JSON.stringify(fixture.jwk));
+  return fixture;
+}
+
+test('detached ECDSA P-256 signature verifies without granting PALACO trust',async ({page})=>{
+  const fixture=await signedPreviewFixture(page);
+  await page.locator('#signatureFile').setInputFiles({
+    name:'signature.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.detached))
+  });
+  await page.locator('#verifySignature').click();
+  await expect(page.locator('#signatureStatus')).toContainText('cryptografisch GELDIG');
+  await expect(page.locator('#signatureStatus')).toContainText('NIET VERTROUWD');
+  await expect(page.locator('#signatureStatus')).toContainText('Geen PALACO-autorisatie');
+});
+
+test('tampered detached signature fails while read-only packet remains intact',async ({page})=>{
+  const fixture=await signedPreviewFixture(page);
+  const raw=Buffer.from(fixture.detached.signature,'base64');raw[0]^=255;
+  fixture.detached.signature=raw.toString('base64');
+  await page.locator('#signatureFile').setInputFiles({
+    name:'tampered-signature.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.detached))
+  });
+  await page.locator('#verifySignature').click();
+  await expect(page.locator('#signatureStatus')).toContainText('Handtekening ONGELDIG');
+  await expect(page.locator('#preview')).toBeVisible();
+  await page.locator('#discard').click();
+  await expect(page.locator('#preview')).toBeHidden();
+});
