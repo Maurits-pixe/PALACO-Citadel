@@ -19,7 +19,6 @@ async function read(which){const id=++serial[which];if(which==="comparison")orig
  if(id!==serial[which])return;if(which==="comparison"){original=parsed;triage=null;}if(which==="triage")triage=parsed;if(which==="latest")latest=parsed;
  $("status").textContent="DRAFT-rapport gelezen. Geen onafhankelijke verificatie.";refresh()
  }catch(e){if(id===serial[which])$("status").textContent="AFGEWEZEN: "+e.message}}
-}
 $("comparison-file").addEventListener("change",()=>read("comparison"));
 $("triage-file").addEventListener("change",()=>read("triage"));
 $("latest-file").addEventListener("change",()=>read("latest"));
