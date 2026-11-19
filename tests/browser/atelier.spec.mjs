@@ -248,7 +248,10 @@ test('Atelier: dossiercontrole toont echte SHA-256 en wijzigt geen lokaal projec
   await expect(page.locator('#referenceStatus')).toContainText('SHA-256-referentie geladen');
   await expect(page.locator('#expectedFingerprint')).toHaveValue(expected);
   await expect(page.locator('#exportFingerprint')).toBeDisabled();
-  await page.locator('#bundleVerify').setInputFiles({name:'nogmaals.json',mimeType:'application/json',buffer:bytes});
+  await page.locator('#bundleVerify').setInputFiles({name:'ander-project.json',mimeType:'application/json',buffer:bytes});
+  await expect(page.locator('#verifyStatus')).toContainText('Bestandsnaam in ingeladen SHA-256-referentie komt niet overeen');
+  await expect(page.locator('#exportFingerprint')).toBeDisabled();
+  await page.locator('#bundleVerify').setInputFiles({name:'inspectie.json',mimeType:'application/json',buffer:bytes});
   await expect(page.locator('#verifyStatus')).toContainText('REFERENTIE KOMT OVEREEN');
   await expect(page.locator('#exportFingerprint')).toBeEnabled();
   await page.locator('#expectedFingerprint').fill('f'.repeat(64));
@@ -261,8 +264,21 @@ test('Atelier: dossiercontrole toont echte SHA-256 en wijzigt geen lokaal projec
   await expect(page.locator('#referenceStatus')).toContainText('Referentie geweigerd');
   await expect(page.locator('#expectedFingerprint')).toHaveValue('');
   await expect(page.locator('#exportFingerprint')).toBeDisabled();
-
-
+  const invalidReceipts=[
+    'SHA-256: '+expected+'\nBestand: inspectie.json\nAuthority: OWNER\n',
+    'SHA-256: '+expected+'\nBestand: inspectie.json\nSignature: TRUSTED\n',
+    'SHA-256: '+expected+'\nBestand: inspectie.json\nBestand: inspectie.json\n',
+    'SHA-256: '+expected+'\n',
+    'SHA-256: '+expected+'\nBestand: inspectie.json\n\u0000'
+  ];
+  for(const [index,contents] of invalidReceipts.entries()){
+    await page.locator('#fingerprintReceipt').setInputFiles({
+      name:'ongeldig-'+index+'.txt',mimeType:'text/plain',buffer:Buffer.from(contents)
+    });
+    await expect(page.locator('#referenceStatus')).toContainText('Referentie geweigerd');
+    await expect(page.locator('#expectedFingerprint')).toHaveValue('');
+    await expect(page.locator('#exportFingerprint')).toBeDisabled();
+  }
   await page.locator('#expectedFingerprint').fill(expected.toUpperCase());
   await page.locator('#bundleVerify').setInputFiles({name:'gelijk.json',mimeType:'application/json',buffer:bytes});
   await expect(page.locator('#verifyStatus')).toContainText('REFERENTIE KOMT OVEREEN');
