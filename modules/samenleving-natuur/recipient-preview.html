@@ -161,7 +161,7 @@ $('verifySignature').addEventListener('click',async()=>{
    }else if(revocations.schema==='palaco-citadel-revocations-v2'){
     if(Object.keys(revocations).sort().join(',')!=='expiresAt,fingerprints,issuedAt,issuerFingerprint,schema,signature'||typeof issuerText!=='string'||issuerText.length>4000||!issuerText.trim())throw Error('Ontbrekende uitgeverssleutel');
     const issued=Date.parse(revocations.issuedAt),expires=Date.parse(revocations.expiresAt),now=Date.now();
-    if(typeof revocations.issuedAt!=='string'||typeof revocations.expiresAt!=='string'||! /^\\d{4}-\\d{2}-\\d{2}T/.test(revocations.issuedAt)||! /^\\d{4}-\\d{2}-\\d{2}T/.test(revocations.expiresAt)||!Number.isFinite(issued)||!Number.isFinite(expires)||issued>now+300000||expires<=now||expires<=issued||expires-issued>31*86400000)throw Error('Intrekkingslijst buiten geldigheidsperiode');
+    if(typeof revocations.issuedAt!=='string'||typeof revocations.expiresAt!=='string'||! /^\d{4}-\d{2}-\d{2}T/.test(revocations.issuedAt)||! /^\d{4}-\d{2}-\d{2}T/.test(revocations.expiresAt)||!Number.isFinite(issued)||!Number.isFinite(expires)||issued>now+300000||expires<=now||expires<=issued||expires-issued>31*86400000)throw Error('Intrekkingslijst buiten geldigheidsperiode');
     const issuer=JSON.parse(issuerText);
     if(!issuer||issuer.kty!=='EC'||issuer.crv!=='P-256'||typeof issuer.x!=='string'||typeof issuer.y!=='string'||'d'in issuer)throw Error('Ongeldige uitgeverssleutel');
     const issuerPublic={kty:'EC',crv:'P-256',x:issuer.x,y:issuer.y};
