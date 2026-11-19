@@ -533,3 +533,27 @@ test('unsaved-note indicator follows consent and confirmed persistence',{timeout
   assert.equal(await page.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),null);
  });
 });
+
+test('second tab cannot silently overwrite journal updated in first tab',{timeout:90000},async()=>{
+ await withPage({width:390,height:800},async first=>{
+  await first.locator('#tab-atelier').click();
+  await first.locator('#persist').check();
+  const second=await first.context().newPage();
+  await second.goto(first.url());
+  await second.locator('#tab-atelier').click();
+  assert.equal(await second.locator('#persist').isChecked(),true);
+  await first.locator('#subject').fill('Waarneming uit tab A');
+  await first.locator('#notes').fill('Mag niet verloren gaan');
+  await first.locator('#form button[type="submit"]').click();
+  const saved=await first.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1'));
+  await second.waitForFunction(()=>document.querySelector('#storage')?.textContent?.includes('CONFLICT MET ANDER TABBLAD'));
+  assert.equal(await second.locator('#persist').isDisabled(),true);
+  await second.locator('#subject').fill('Tijdelijke notitie uit tab B');
+  await second.locator('#notes').fill('Geen overschrijving toestaan');
+  await second.locator('#form button[type="submit"]').click();
+  assert.equal(await second.evaluate(()=>localStorage.getItem('palaco_la_observatory_notes_v1')),saved);
+  assert.match(await second.locator('#pending').innerText(),/1 notitie\(s\) alleen in dit tabblad/);
+  assert.match(await second.locator('#announce').innerText(),/alleen in dit tabblad toegevoegd/);
+  await second.close();
+ });
+});
