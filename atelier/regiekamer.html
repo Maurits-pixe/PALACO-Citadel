@@ -188,12 +188,28 @@ $('bundleSave').addEventListener('click',async ()=>{
    if(!lastExportFingerprint)$('bundleStatus').textContent='Projectexport uitgevoerd of geweigerd; controleer het gedownloade bestand voordat je het gebruikt.';
  }
 });
-function validateReceiptFilename(receipt,projectFilename){
- const matches=receipt.split(/\r?\n/).filter(line=>line.startsWith('Bestand: '));
- if(matches.length!==1)throw Error('TXT-bewijs moet precies één Bestand-regel bevatten');
- const stated=matches[0].slice('Bestand: '.length);
+function parseBoundReceipt(receipt,projectFilename){
+ const lines=receipt.split(/\r?\n/).filter(line=>line!=='');
+ if(lines.some(line=>/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(line)))
+   throw Error('TXT-bewijs bevat ongeldige besturingstekens');
+ const allowedNotes=[
+   'PALACO ATELIER · DRAFT SHA-256 REFERENTIE',
+   'PALACO ATELIER DRAFT SHA-256 REFERENTIE',
+   'Controle: bestandsbytes, geen digitale handtekening of officiële goedkeuring.',
+   'Bewaar deze referentie afzonderlijk van het projectbestand.'
+ ];
+ if(lines.some(line=>!line.startsWith('SHA-256: ')&&!line.startsWith('Bestand: ')&&!allowedNotes.includes(line)))
+   throw Error('TXT-bewijs bevat een onbekende of misleidende regel');
+ const hashLines=lines.filter(line=>line.startsWith('SHA-256: '));
+ if(hashLines.length!==1)throw Error('TXT moet precies één SHA-256-regel bevatten');
+ const nameLines=lines.filter(line=>line.startsWith('Bestand: '));
+ if(nameLines.length!==1)throw Error('TXT-bewijs moet precies één Bestand-regel bevatten');
  const expected=projectFilename.replace(/[\x00-\x1f\x7f]/g,' ').slice(0,120);
- if(stated!==expected)throw Error('Bestandsnaam in SHA-256-TXT komt niet overeen met gekozen JSON-project');
+ if(nameLines[0].slice('Bestand: '.length)!==expected)
+   throw Error('Bestandsnaam in SHA-256-TXT komt niet overeen met gekozen JSON-project');
+ const hash=hashLines[0].slice('SHA-256: '.length);
+ if(!/^[0-9a-fA-F]{64}$/.test(hash))throw Error('Ongeldige SHA-256 in TXT');
+ return hash.toLowerCase();
 }
 let reportVerifyRevision=0;
 $('reportVerify').addEventListener('change',async event=>{
@@ -224,11 +240,7 @@ $('reportVerify').addEventListener('change',async event=>{
    if(!api)throw Error('Atelier-projectvalidatie niet beschikbaar');
    const project=api.parse(decoder.decode(projectEntry.bytes));
    const receipt=decoder.decode(txtBytes);
-   const matchingLines=receipt.split(/\r?\n/).filter(line=>line.startsWith('SHA-256: '));
-   if(matchingLines.length!==1)throw Error('TXT moet precies één SHA-256-regel bevatten');
-   validateReceiptFilename(receipt,projectEntry.file.name);
-   const expected=matchingLines[0].slice('SHA-256: '.length).trim().toLowerCase();
-   if(!/^[0-9a-f]{64}$/.test(expected))throw Error('Ongeldige SHA-256 in TXT');
+   const expected=parseBoundReceipt(receipt,projectEntry.file.name);
    // Reject unexpected properties: an inspection report is never a carrier for rights or commands.
    const reportFields=['schema','state','authority','purpose','result','checkedAt','jsonFile','receiptFile','sha256','exteriorUsed','interiorUsed','noteLength','limitations'];
    if(Object.keys(report).length!==reportFields.length||Object.keys(report).some(key=>!reportFields.includes(key)))
@@ -293,11 +305,7 @@ $('pairVerify').addEventListener('change',async event=>{
    if(!api)throw Error('Atelier-validatiemodule niet geladen');
    const archive=api.parse(decode.decode(jsonBytes));
    const receipt=decode.decode(txtBytes);
-   const lines=receipt.split(/\r?\n/).filter(line=>line.startsWith('SHA-256: '));
-   if(lines.length!==1)throw Error('Het TXT-bewijs moet precies één SHA-256-regel bevatten');
-   validateReceiptFilename(receipt,json.name);
-   const expected=lines[0].slice(9).trim().toLowerCase();
-   if(!/^[0-9a-f]{64}$/.test(expected))throw Error('Ongeldige SHA-256-referentie');
+   const expected=parseBoundReceipt(receipt,json.name);
    if(!crypto?.subtle?.digest)throw Error('SHA-256 niet beschikbaar in deze browser');
    const digest=await crypto.subtle.digest('SHA-256',jsonBytes);
    if(revision!==pairRevision)return;
