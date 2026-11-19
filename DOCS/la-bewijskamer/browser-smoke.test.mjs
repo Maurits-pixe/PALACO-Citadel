@@ -993,3 +993,41 @@ test("legacy encrypted vault cannot migrate with wrong password",async()=>{
  assert.equal(await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),legacy);
  await c.close();
 });
+
+test("legacy unknown vault schema is refused without mutation or opening",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ const raw=JSON.stringify({schema:"PALACO-CITADEL-VAULT-UNKNOWN",encrypted:{},note:"never expose"});
+ await p.evaluate(v=>localStorage.setItem("palaco.citadel.geheugenkamer.vault.v1",v),raw);
+ await p.reload();
+ await p.locator("#archivePassphrase").fill("Test unknown vault 123");
+ await p.locator("#vaultUnlock").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("onbekend of ongeldig kluisformaat"));
+ assert.equal(await p.locator("#count").innerText(),"0");
+ assert.equal(await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),raw);
+ assert.doesNotMatch(await p.locator("#message").innerText(),/never expose/);
+ await c.close();
+});
+
+test("legacy malformed or oversized vault cannot be migrated",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ const key="palaco.citadel.geheugenkamer.vault.v1";
+ const malformed=JSON.stringify({schema:"PALACO-CITADEL-VAULT-2",revision:"not-a-number",parentDigest:null,encrypted:{schema:"PALACO-CITADEL-GEHEUGEN-ENCRYPTED-1"}});
+ await p.evaluate(([k,v])=>localStorage.setItem(k,v),[key,malformed]);
+ await p.reload();
+ await p.locator("#archivePassphrase").fill("Malformed envelope pass 123");
+ await p.locator("#vaultUnlock").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("ongeldige kluisversie"));
+ assert.equal(await p.locator("#count").innerText(),"0");
+ assert.equal(await p.evaluate(k=>localStorage.getItem(k),key),malformed);
+ // A fully authenticated saved vault remains protected against size exhaustion.
+ await p.evaluate(k=>localStorage.setItem(k,"x".repeat(256*1024+1)),key);
+ await p.reload();
+ await p.locator("#archivePassphrase").fill("Oversized envelope pass 123");
+ await p.locator("#vaultUnlock").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("te groot"));
+ assert.equal(await p.locator("#count").innerText(),"0");
+ assert.equal((await p.evaluate(k=>localStorage.getItem(k).length,key)),256*1024+1);
+ await c.close();
+});
