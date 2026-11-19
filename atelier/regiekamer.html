@@ -40,6 +40,7 @@
 <label for="pairVerify" class="eyebrow" style="display:block;margin:18px 0 9px">Controleer JSON en SHA-256-TXT samen</label>
 <input type="file" id="pairVerify" accept=".json,.txt,application/json,text/plain" multiple style="max-width:100%;font-size:13px">
 <p class="small" id="pairStatus" role="status" aria-live="polite">Selecteer precies één DRAFT JSON-project en één SHA-256 TXT-bewijs. Beide bestanden blijven lokaal; er wordt niets geïmporteerd.</p>
+<div class="actions"><button type="button" id="pairReportSave" class="action" disabled>↓ Bewaar inspectierapport (JSON)</button></div>
 <label for="bundleVerify" class="eyebrow" style="display:block;margin:18px 0 9px">Controleer een projectbestand zonder import</label>
 <input type="file" id="bundleVerify" accept=".json,application/json" style="max-width:100%;font-size:13px">
 <label for="expectedFingerprint" class="eyebrow" style="display:block;margin:12px 0 8px">Eerder vastgelegde SHA-256-referentie (optioneel)</label>
@@ -185,9 +186,17 @@ $('bundleSave').addEventListener('click',async ()=>{
  }
 });
 let pairRevision=0;
+let lastPairReport=null;
+$('pairReportSave').addEventListener('click',()=>{
+ if(!lastPairReport)return;
+ download('PALACO-Atelier-Paarcontrole-DRAFT.json',JSON.stringify(lastPairReport,null,2),'application/json');
+});
+
 $('pairVerify').addEventListener('change',async event=>{
  const files=Array.from(event.target.files||[]);
  const revision=++pairRevision;
+ lastPairReport=null;
+ $('pairReportSave').disabled=true;
  const status=$('pairStatus');
  status.textContent='Beide bestanden veilig controleren…';
  try{
@@ -213,6 +222,21 @@ $('pairVerify').addEventListener('change',async event=>{
    if(revision!==pairRevision)return;
    const actual=Array.from(new Uint8Array(digest),value=>value.toString(16).padStart(2,'0')).join('');
    const count=(archive.exterior?archive.exterior.cells.filter(Boolean).length:0)+(archive.interior?archive.interior.floors.flat().filter(Boolean).length:0);
+   if(actual===expected){
+     lastPairReport={
+       schema:'palaco.citadel.atelier.inspection/1',
+       state:'DRAFT',authority:'NONE',purpose:'LOCAL_INTEGRITY_COMPARISON_ONLY',
+       result:'MATCH',checkedAt:new Date().toISOString(),
+       jsonFile:json.name.replace(/[\x00-\x1f\x7f]/g,' ').slice(0,120),
+       receiptFile:txt.name.replace(/[\x00-\x1f\x7f]/g,' ').slice(0,120),
+       sha256:actual,exteriorUsed:archive.exterior?archive.exterior.cells.filter(Boolean).length:0,
+       interiorUsed:archive.interior?archive.interior.floors.flat().filter(Boolean).length:0,
+       noteLength:archive.note.length,
+       limitations:['Not a digital signature','No official identity or authority','No proof of source authenticity','No server registration']
+     };
+     $('pairReportSave').disabled=false;
+   }
+
    status.textContent=actual===expected
     ?'PAARCONTROLE GESLAAGD: geldig creatief DRAFT-project, autoriteit NONE, '+count+' ingerichte vakken. SHA-256: '+actual+'. De referentie bewijst geen herkomst.'
     :'WAARSCHUWING: JSON EN TXT KOMEN NIET OVEREEN. Berekend: '+actual+' · verwacht: '+expected+'. Geen gegevens geïmporteerd.';
