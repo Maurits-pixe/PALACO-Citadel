@@ -56,6 +56,13 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Geverifieerde kluisoverschrijving en gegevensbehoud · v2.8
+- Bij het vervangen van een bestaande versleutelde apparaatkluis wordt de opgegeven wachtzin **eerst gecontroleerd door het bestaande archief daadwerkelijk te ontsleutelen** en de SHA-256-integriteit te valideren. Een verkeerde wachtzin wordt geweigerd voordat een nieuwe kluisblob wordt opgeslagen.
+- Vooraf wordt gecontroleerd of **alle record-ID's uit de vorige versleutelde momentopname** nog aanwezig zijn in het actieve geheugen. Onbedoeld verlies van eerder opgeslagen dossiers door een onvolledige momentopname wordt geweigerd. Voor bewust archiefverwijdering bestaat een afzonderlijke bevestigde handeling.
+- Het oude versleutelde bestand blijft bij een mislukte controle exact behouden. Nieuwe, niet-opgeslagen herinneringen in de geopende tab blijven eveneens staan.
+- Twee extra echte Chromium-touchtests controleren een verkeerde wachtzin bij overschrijven (en succesvolle latere opslag met de juiste wachtzin) en het weigeren van een snapshot waar eerder opgeslagen records ontbreken.
+- De controles zijn lokaal en vervangen geen onafhankelijke cryptografische/securityreview. De bestaande browser-lock- en kluisversiecontroles blijven gelden.
+
 ## Hervergrendeling trekt schrijf- en verwijderrechten in · v2.7
 - Handmatig **Vergrendel deze tab** wist behalve het actieve geheugen nu ook de in deze tab onthouden kluisbasis (`vaultBaseRaw`); het eerder ontgrendelde kluisexemplaar mag niet meer worden overschreven of verwijderd.
 - Zolang een bestaande kluis aanwezig is, kan pas na opnieuw ontgrendelen met de wachtzin bewust worden opgeslagen of verwijderd. Een nieuwe losse notitie na vergrendeling geeft geen toestemming om de opgeslagen kluis te vervangen.
