@@ -328,3 +328,9 @@ test('recovery reset refuses stale cross-tab storage before destructive removal'
  const reset=html.slice(html.indexOf('$("storage-reset").addEventListener'),html.indexOf('function save()'));
  assert.ok(reset.indexOf('if(!storageMatchesSnapshot())')<reset.indexOf('localStorage.removeItem(KEY)'), 'Snapshot must be checked before reset removes data');
 });
+
+test('cross-tab invalidation withdraws stale saved-note claims before rendering',()=>{
+ assert.match(html,/function markStorageConflict\(\)\{\s*storageConflictBlocked=true;\s*persistedNoteIds\.clear\(\)/);
+ assert.match(html,/CONFLICT MET ANDER TABBLAD: de eerdere opslagbevestiging is vervallen/);
+ assert.match(html,/updatePendingStatus\(\);\s*status\("Opslagconflict: eerdere opslag niet meer bevestigd/);
+});
