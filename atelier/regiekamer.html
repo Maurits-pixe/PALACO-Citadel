@@ -221,11 +221,22 @@ $('reportVerify').addEventListener('change',async event=>{
    if(matchingLines.length!==1)throw Error('TXT moet precies één SHA-256-regel bevatten');
    const expected=matchingLines[0].slice('SHA-256: '.length).trim().toLowerCase();
    if(!/^[0-9a-f]{64}$/.test(expected))throw Error('Ongeldige SHA-256 in TXT');
+   // Reject unexpected properties: an inspection report is never a carrier for rights or commands.
+   const reportFields=['schema','state','authority','purpose','result','checkedAt','jsonFile','receiptFile','sha256','exteriorUsed','interiorUsed','noteLength','limitations'];
+   if(Object.keys(report).length!==reportFields.length||Object.keys(report).some(key=>!reportFields.includes(key)))
+     throw Error('Inspectierapport bevat onbekende of ontbrekende velden');
+   const requiredLimitations=['Not a digital signature','No official identity or authority','No proof of source authenticity','No server registration'];
+   if(!Array.isArray(report.limitations)||report.limitations.length!==requiredLimitations.length||
+     requiredLimitations.some(value=>!report.limitations.includes(value)))
+     throw Error('Inspectierapport mist verplichte beperkingen');
+   if(typeof report.checkedAt!=='string'||!/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$/.test(report.checkedAt)||
+     !Number.isFinite(Date.parse(report.checkedAt))||new Date(report.checkedAt).toISOString()!==report.checkedAt)
+     throw Error('Inspectierapport heeft een ongeldig lokaal controletijdstip');
    if(report.state!=='DRAFT'||report.authority!=='NONE'||report.purpose!=='LOCAL_INTEGRITY_COMPARISON_ONLY'||report.result!=='MATCH')
      throw Error('Inspectierapport heeft een ongeldig DRAFT/NONE-contract');
    if(typeof report.sha256!=='string'||!/^[0-9a-f]{64}$/.test(report.sha256))
      throw Error('Inspectierapport heeft een ongeldige SHA-256');
-   if(!Number.isInteger(report.exteriorUsed)||!Number.isInteger(report.interiorUsed)||!Number.isInteger(report.noteLength))
+   if(!Number.isInteger(report.exteriorUsed)||!Number.isInteger(report.interiorUsed)||!Number.isInteger(report.noteLength)||report.exteriorUsed<0||report.exteriorUsed>96||report.interiorUsed<0||report.interiorUsed>240||report.noteLength<0||report.noteLength>6000)
      throw Error('Inspectierapport mist geldige ontwerptellingen');
    const safeName=value=>value.replace(/[\x00-\x1f\x7f]/g,' ').slice(0,120);
    if(report.jsonFile!==safeName(projectEntry.file.name)||report.receiptFile!==safeName(txtFiles[0].name))
