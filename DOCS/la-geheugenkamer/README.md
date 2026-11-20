@@ -56,6 +56,12 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Mobiele dossierweergave en toetsenbordfocus · v3.5
+- Op zeer smalle telefoons (320–480 px) staan actieknoppen onder elkaar, zijn ze minimaal 44 px hoog en kunnen lange teksten afbreken. De tijdlijn wordt op die schermen niet meer begrensd door een intern scrollvak.
+- De dossierinspectie heeft nu een expliciet gekoppelde kop (`aria-labelledby`). Bij het selecteren van een dossier verplaatst de focus naar die kop, zodat toetsenbord- en screenreadergebruikers niet onverwacht in de tijdlijn blijven staan.
+- Eén nieuwe Node-regressie controleert de focusovergang. Twee Chromium-browsertests controleren de 320px-breedte, touchdoelen, horizontale overflow en het openen met Enter.
+- Dit is gerichte toegankelijkheidshardening, **geen** volledige WCAG 2.2 AA-conformiteitsverklaring. Bevestiging op fysieke Android-/iOS-toestellen en onafhankelijke toegankelijkheidsreview blijven open.
+
 ## Zichtbare lineage-status in dossier en tijdlijn · v3.4
 - Iedere lokale herinnering krijgt een duidelijke **lineage-status** in de tijdlijn: lokaal compleet of onvolledig door een ontbrekende voorganger.
 - Het dossierinspectiepaneel toont dezelfde status en noemt bij een onvolledige keten expliciet het ontbrekende `previousId`.
