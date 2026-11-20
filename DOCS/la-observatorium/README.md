@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Herdownload van elk reeds gestart exportdeel (v3.7)
+De exportwachtrij toont nu een keuzelijst **Downloaddeel opnieuw kiezen**. Hiermee kan de gebruiker elk eerder gestart deel van dezelfde bevroren exportreeks selecteren en via **Download gekozen deel opnieuw** opnieuw downloaden. De keuzelijst bevat uitsluitend delen die eerder zijn gestart; nog niet gestarte delen blijven gereserveerd voor **Download volgend deel**. Een herdownload verandert de teller, de exportinhoud of de volgorde van de resterende delen niet.
+
+De bijbehorende Chromium-regressie voltooit eerst een meerdelige export, selecteert vervolgens opnieuw deel 1 en vergelijkt de bestandsnaam en bytes met het oorspronkelijke deel. De downloadactie bewijst nog niet dat de browser het bestand blijvend heeft bewaard; controleer daarom de werkelijke bestanden voordat u het tabblad verlaat. Release blijft HOLD totdat de afzonderlijke browseracceptatie is bevestigd.
+
 ## Herdownload van het laatste exportdeel (v3.6)
 Een download kan door browserinstellingen, een onderbroken opslagactie of een verkeerde mapkeuze ontbreken. Na het starten van een JSON-exportdeel verschijnt daarom ook **Download vorig deel opnieuw**. De knop vraagt opnieuw **exact dezelfde bevroren JSON-inhoud** met **dezelfde bestandsnaam** aan en verandert de positie van de volgende download niet. Bij het starten van een volledig nieuwe exportreeks wordt deze herdownloadknop verborgen totdat een eerste deel is aangevraagd.
 
