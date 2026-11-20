@@ -1,0 +1,15 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {WORLDS,REGIONS,SOURCES,EVENTS,checkRegister,getWorldDossier} from "./wereldregister.mjs";
+const copy=()=>({worlds:structuredClone(WORLDS),regions:structuredClone(REGIONS),sources:structuredClone(SOURCES),events:structuredClone(EVENTS)});
+test("basisregister heeft geldige referenties",()=>assert.deepEqual(checkRegister(),{ok:true,errors:[]}));
+test("zeven unieke wereldidentiteiten",()=>assert.deepEqual(WORLDS.map(w=>w.id),["W-0001","W-0002","W-0003","W-0004","W-0005","W-0006","W-0007"]));
+test("EARTH bevat beide geordende conceptregio's",()=>assert.deepEqual(getWorldDossier("W-0001").regions.map(r=>r.id),["REGION-LA-PAZ","REGION-LOCUS-AMOENUS"]));
+test("onbekende wereld heeft geen dossier",()=>assert.equal(getWorldDossier("W-0999"),null));
+test("tijdlijn is ongedateerd en conceptueel",()=>{const d=getWorldDossier("W-0001");assert.equal(d.events.length,4);assert.ok(d.events.every(e=>e.date===null&&e.status==="CONCEPT"));assert.deepEqual(d.events.map(e=>e.order),[1,2,3,4])});
+test("dubbele wereld wordt afgewezen",()=>{const x=copy();x.worlds.push(structuredClone(x.worlds[0]));assert.equal(checkRegister(x).ok,false)});
+test("ongekoppelde regio wordt afgewezen",()=>{const x=copy();x.regions[0].worldId="W-0900";assert.equal(checkRegister(x).ok,false)});
+test("regio hoort bij eigenaarwereld",()=>{const x=copy();x.regions[0].worldId="W-0002";assert.equal(checkRegister(x).ok,false)});
+test("ongeverifieerde bron blijft verplicht",()=>{const x=copy();x.sources[0].verified=true;assert.equal(checkRegister(x).ok,false)});
+test("tijdlijn accepteert geen echte datum als onbesproken claim",()=>{const x=copy();x.events[0].date="2026-11-17";assert.equal(checkRegister(x).ok,false)});
+test("verbroken bronverwijzing wordt afgewezen",()=>{const x=copy();x.events[0].sourceId="SRC-UNKNOWN";assert.equal(checkRegister(x).ok,false)});

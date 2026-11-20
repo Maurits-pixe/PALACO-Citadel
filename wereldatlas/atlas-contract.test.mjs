@@ -1,0 +1,11 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {CONTRACT,validateAtlasDraft} from "./atlas-contract.mjs";
+const sample=()=>({schema:CONTRACT,state:"DRAFT",verified:false,worlds:[{id:"W-0001",name:"EARTH",summary:"Conceptwereld.",regions:[{id:"REGION-LA-PAZ",name:"LA PAZ",summary:"Conceptregio.",source:"PALACO-concept",verified:false}]}]});
+test("accepteert strikt DRAFT-dossier",()=>assert.equal(validateAtlasDraft(sample()).ok,true));
+test("blokkeert autorisatie of verified=true",()=>{for(const patch of [{state:"ACTIVE"},{verified:true},{state:"ISSUED"}])assert.equal(validateAtlasDraft({...sample(),...patch}).ok,false)});
+test("blokkeert onbekende velden",()=>{const doc=sample();doc.authority="OWNER";assert.equal(validateAtlasDraft(doc).ok,false);doc.authority=undefined;delete doc.authority;doc.worlds[0].role="admin";assert.equal(validateAtlasDraft(doc).ok,false)});
+test("blokkeert dubbele wereld- en regio-ID's",()=>{let doc=sample();doc.worlds.push(structuredClone(doc.worlds[0]));assert.equal(validateAtlasDraft(doc).ok,false);doc=sample();doc.worlds[0].regions.push(structuredClone(doc.worlds[0].regions[0]));assert.equal(validateAtlasDraft(doc).ok,false)});
+test("blokkeert geografische autoriteitsvelden en regio verificatie",()=>{const doc=sample();doc.worlds[0].regions[0].verified=true;assert.equal(validateAtlasDraft(doc).ok,false);doc.worlds[0].regions[0].verified=false;doc.worlds[0].regions[0].latitude=52.1;assert.equal(validateAtlasDraft(doc).ok,false)});
+test("blokkeert misvormde en te grote collecties",()=>{assert.equal(validateAtlasDraft(null).ok,false);assert.equal(validateAtlasDraft({}).ok,false);const doc=sample();doc.worlds=[];assert.equal(validateAtlasDraft(doc).ok,false);doc.worlds=Array.from({length:101},(_,i)=>({id:"W-"+String(i).padStart(4,"0"),name:"World",summary:"Summary",regions:[]}));assert.equal(validateAtlasDraft(doc).ok,false)});
+test("blokkeert control characters en foute IDs",()=>{const doc=sample();doc.worlds[0].name="BAD\nNAME";assert.equal(validateAtlasDraft(doc).ok,false);doc.worlds[0].name="EARTH";doc.worlds[0].id="../unsafe";assert.equal(validateAtlasDraft(doc).ok,false)});

@@ -1,0 +1,58 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0a231c"><title>Atlas Release-acceptatiekamer · PALACO Citadel</title>
+<style>:root{color-scheme:dark;--bg:#091c16;--panel:#17392d;--edge:#66856a;--gold:#e8ce90;--muted:#c0d2c5;--mint:#a4e7c0}*{box-sizing:border-box}body{background:radial-gradient(circle at 78% 0,#30513c,var(--bg) 60%);margin:0;color:#f7f5eb;font:16px/1.55 system-ui,Segoe UI,sans-serif}header,main,footer{padding:20px;max-width:1060px;margin:auto}header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;border-bottom:1px solid var(--edge)}h1,h2{font-family:Georgia,serif;font-weight:400}h1{font-size:clamp(2.1rem,6vw,3.7rem)}h2{color:var(--gold)}a{color:var(--gold)}.eyebrow{color:var(--mint);font-size:.76rem;letter-spacing:.16em;font-weight:700}.muted{color:var(--muted)}.panel{background:var(--panel);border:1px solid var(--edge);border-radius:18px;padding:18px;margin:15px 0}.layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}.step{border-top:1px solid var(--edge);padding:16px 0}.step h3{margin:0 0 6px}label{display:grid;gap:6px;color:var(--muted);margin:10px 0}select,textarea,input,button{font:inherit;border:1px solid #98aa85;border-radius:10px;background:#102d23;color:#fff;padding:11px;width:100%}textarea{resize:vertical}button{cursor:pointer;background:#20513b}button:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}.buttons{display:flex;gap:12px;flex-wrap:wrap}.buttons button{flex:1;min-width:180px}pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;background:#102a21;border-radius:8px;font-size:.85rem}.notice{padding:14px;border-left:3px solid var(--gold);background:#304b3a}footer{border-top:1px solid var(--edge);font-size:.85rem;color:var(--muted)}@media(max-width:700px){.layout{grid-template-columns:1fr}header,main,footer{padding:14px}}</style></head><body>
+<header><div><div class="eyebrow">PALACO · CITADEL · WERELDATLAS</div><strong>Release-acceptatiekamer · v1.0 RC</strong></div><a href="./atlas-integratie.html">← Integratiekern</a></header><main><h1>De Acceptatiekamer</h1><p class="muted">Begeleide controle voor echte telefoons en desktopbrowsers. Waarnemingen blijven in deze geopende pagina en worden alleen bij een bewuste download als JSON opgeslagen. Geen upload, accountregistratie of automatische vrijgave.</p>
+<div class="notice"><strong>Releasepoort: HOLD / DENY</strong> — zelfs wanneer alle controles als PASS worden gemarkeerd, is dit uitsluitend een lokaal zelfgerapporteerd testrapport. Een onafhankelijk review- en autorisatiebesluit ontbreekt nog.</div>
+<div class="layout"><section class="panel"><h2>Begeleide test</h2><p class="muted">Volg de controles en registreer per stap PASS, FAIL of NOT_TESTED.</p><div id="steps"></div></section>
+<aside class="panel"><h2>Testresultaat</h2><div id="summary" role="status" aria-live="polite"></div><h2>Reviewstatus</h2><p><strong>HOLD</strong> — geen productievrijgave</p><p class="muted">Bronstatus: LOCAL_SELF_REPORTED_NOT_VERIFIED.</p><div class="buttons"><button type="button" id="download">Download lokaal DRAFT-rapport</button><button type="button" id="reset">Herstel lege waarnemingen</button></div><h2>Vergelijk met eerder rapport</h2><label for="baseline-file">Eerder lokaal DRAFT-rapport (.json, max 32 KiB)<input id="baseline-file" type="file" accept=".json,application/json"></label><p id="import-status" role="status" aria-live="polite" class="muted">Nog geen eerdere rapportage ingelezen.</p><label for="evidence-ref">Bewijsreferentie (optioneel; alleen lokaal bronlabel)<input id="evidence-ref" maxlength="300" placeholder="Bijvoorbeeld: ATLAS-MOB-001-screenshot"></label><div id="comparison" role="status" aria-live="polite" class="muted">Importeer eerst een eerder rapport om verschillen te vergelijken.</div><button type="button" id="dossier-export" disabled>Exporteer lokaal acceptatiedossier</button><h2>Voorbeeld van rapport</h2><pre id="preview"></pre><p class="muted">Geen automatische opslag in localStorage of servers. Bewaar geen wachtwoorden, medische gegevens of geheime tokens in notities.</p></aside></div></main><footer>PALACO INDUSTRIE · Atlas Acceptatie v1.0 RC · Zelfrapportage, niet bevoegd of geverifieerd</footer>
+<script type="module">
+import {CHECKS,newReport,setObservation,summarize} from "./atlas-acceptatie.mjs";
+import {parseImportedReport,makeAcceptanceDossier,validateAcceptanceDossier,compareReports,MAX_IMPORT_BYTES} from "./atlas-acceptatie-dossier.mjs";
+let report=newReport(),baseline=null,importToken=0;
+const $=id=>document.getElementById(id);
+function tag(name,value,cls){const n=document.createElement(name);if(value!==undefined)n.textContent=String(value);if(cls)n.className=cls;return n}
+function renderSummary(){const result=summarize(report),target=$("summary");target.replaceChildren();if(!result.valid){target.append(tag("p","Rapport ongeldig; HOLD / DENY."));return}
+target.append(tag("p","PASS: "+result.tally.PASS+" · FAIL: "+result.tally.FAIL+" · Niet getest: "+result.tally.NOT_TESTED),tag("p",result.localChecksPass?"Alle waarnemingen gemarkeerd als PASS; geen externe bevestiging.":"Acceptatie nog niet volledig of afwijkingen geregistreerd."),tag("p","Beslissing: HOLD · Autorisatie: DENY"));$("preview").textContent=JSON.stringify(report,null,2);renderComparison()}
+function render(){const root=$("steps");root.replaceChildren();for(const check of CHECKS){const item=report.observations.find(o=>o.id===check.id),section=tag("section",undefined,"step"),title=tag("h3",check.id+" · "+check.title),prompt=tag("p",check.prompt),label=tag("label","Uitkomst"),select=tag("select");for(const status of ["NOT_TESTED","PASS","FAIL"]){const option=tag("option",status);option.value=status;select.append(option)}select.value=item.status;select.setAttribute("aria-label",check.id+" uitkomst");
+const noteLabel=tag("label","Waarneming / bewijsreferentie (geen privégegevens)"),note=tag("textarea");note.rows=2;note.maxLength=1000;note.value=item.note;note.setAttribute("aria-label",check.id+" notitie");
+function write(){try{report=setObservation(report,check.id,select.value,note.value);renderSummary()}catch(e){$("summary").textContent="AFGEWEZEN: "+e.message}}
+select.addEventListener("change",write);note.addEventListener("input",write);label.append(select);noteLabel.append(note);section.append(title,prompt,label,noteLabel);root.append(section)}renderSummary()}
+$("download").addEventListener("click",()=>{const summary=summarize(report);if(!summary.valid)return;const url=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:"application/json"})),link=tag("a");link.href=url;link.download="palaco-atlas-acceptatie-v10-RC-HOLD.json";link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+$("reset").addEventListener("click",()=>{report=newReport();render()});
+
+function renderComparison(){
+ const result=$("comparison");result.replaceChildren();
+ $("dossier-export").disabled=!baseline;
+ if(!baseline){result.append(tag("p","Geen vergelijkbaar eerdere rapport beschikbaar."));return}
+ try{
+ const comparison=compareReports(baseline,report);
+ result.append(tag("p","Verschillende controles/notities: "+comparison.changedCount+" van "+CHECKS.length+"."));
+ for(const delta of comparison.differences.filter(d=>d.changed)){
+  result.append(tag("p",delta.id+": "+delta.previous+" → "+delta.current+(delta.notesChanged?" (notitie gewijzigd)":"")));
+ }
+ result.append(tag("p","Review: HOLD · Autorisatie: DENY · Geen onafhankelijke verificatie."));
+ }catch(error){$("dossier-export").disabled=true;result.append(tag("p","Vergelijking afgewezen: "+error.message))}
+}
+$("baseline-file").addEventListener("change",async()=>{
+ const token=++importToken;baseline=null;renderComparison();
+ const file=$("baseline-file").files?.[0];
+ if(!file||file.size>MAX_IMPORT_BYTES){$("import-status").textContent="Import afgewezen: ontbrekend of te groot bestand.";return}
+ try{
+  const value=parseImportedReport(await file.text());
+  if(token!==importToken)return;
+  baseline=value;$("import-status").textContent="Eerder zelfrapport lokaal ingelezen en gevalideerd. Geen onafhankelijke attestatie.";renderComparison();
+ }catch(error){if(token===importToken)$("import-status").textContent="Import afgewezen: "+error.message}
+});
+$("evidence-ref").addEventListener("input",()=>{if(baseline)renderComparison()});
+$("dossier-export").addEventListener("click",()=>{
+ if(!baseline)return;
+ try{
+  const dossier=makeAcceptanceDossier(baseline,report,{evidenceReference:$("evidence-ref").value});
+  if(!validateAcceptanceDossier(dossier).ok)throw Error("Integriteitscontrole van dossier afgewezen.");
+  const url=URL.createObjectURL(new Blob([JSON.stringify(dossier,null,2)],{type:"application/json"}));
+  const link=tag("a");link.href=url;link.download="palaco-atlas-acceptatiedossier-v11-RC-HOLD.json";link.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  $("import-status").textContent="Lokaal DRAFT-dossier aangeboden als download. Besluit HOLD / DENY.";
+ }catch(error){$("import-status").textContent="Dossierexport afgewezen: "+error.message}
+});
+render();
+</script></body></html>

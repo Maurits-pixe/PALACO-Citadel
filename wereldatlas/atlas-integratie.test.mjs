@@ -1,0 +1,12 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {MODULES,EXTERNAL,INTEGRATION_SCHEMA,GATE,validateIntegration,snapshot,selectedWorld} from "./atlas-integratie.mjs";
+test("integratiecontract is intern consistent",()=>assert.deepEqual(validateIntegration(),{ok:true,errors:[]}));
+test("negen unieke lokale moduleroutes",()=>{assert.equal(MODULES.length,9);assert.equal(new Set(MODULES.map(x=>x.href)).size,9);assert.ok(MODULES.every(x=>x.href.startsWith("./")))});
+test("geen externe verbinding wordt stilzwijgend geactiveerd",()=>{assert.deepEqual(EXTERNAL.map(x=>x.id),["MUNDO","QUAY","ERA","PALACO_ONE"]);assert.ok(EXTERNAL.every(x=>x.status==="NOT_CONNECTED"&&x.write===false))});
+test("snapshot blijft HOLD/DENY ondanks geslaagde integriteit",()=>{const s=snapshot();assert.equal(s.schema,INTEGRATION_SCHEMA);assert.equal(s.ready,true);assert.equal(s.gate,GATE);assert.equal(s.gate,"HOLD");assert.equal(s.authorization,"DENY");assert.equal(s.verified,false)});
+test("canonieke totalen zijn consistent met register",()=>{assert.deepEqual(snapshot().counts,{worlds:7,regions:2,events:4,dossiers:13,modules:9})});
+test("EARTH deeplinks verwijzen alleen naar lokale pagina's",()=>{const w=selectedWorld("W-0001");assert.equal(w.regionCount,2);assert.equal(w.registryHref,"./wereldregister.html?world=W-0001");assert.equal(w.profileHref,"./?world=W-0001")});
+test("onbekende wereld faalt gesloten",()=>assert.equal(selectedWorld("W-9000"),null));
+test("geen module heeft productie-autorisatie",()=>assert.ok(MODULES.every(m=>m.stage==="DRAFT")));
+test("alle externe systemen ontbreken in de write-capabilities",()=>assert.ok(!EXTERNAL.some(x=>x.write)));

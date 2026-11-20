@@ -1,0 +1,14 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {REPORT_SCHEMA,CHECKS,newReport,validateReport,setObservation,summarize} from "./atlas-acceptatie.mjs";
+test("nieuw rapport is volledig en fail-closed",()=>{const r=newReport();assert.equal(r.schema,REPORT_SCHEMA);assert.equal(r.decision,"HOLD");assert.equal(r.authorization,"DENY");assert.equal(r.verified,false);assert.equal(r.observations.length,8);assert.equal(validateReport(r).ok,true)});
+test("individuele PASS wijzigt geen vrijgave",()=>{const r=setObservation(newReport(),CHECKS[0].id,"PASS","Mobiel zichtbaar");assert.equal(r.observations[0].status,"PASS");assert.equal(summarize(r).decision,"HOLD");assert.equal(summarize(r).authorization,"DENY")});
+test("acht PASS blijven onbevestigde zelfrapportage",()=>{let r=newReport();for(const c of CHECKS)r=setObservation(r,c.id,"PASS","");const s=summarize(r);assert.equal(s.localChecksPass,true);assert.equal(s.tally.PASS,8);assert.equal(s.decision,"HOLD");assert.equal(r.source,"LOCAL_SELF_REPORTED_NOT_VERIFIED")});
+test("FAIL en NOT_TESTED laten acceptatie onvolledig",()=>{let r=setObservation(newReport(),CHECKS[0].id,"FAIL","Mismatch");assert.equal(summarize(r).localChecksPass,false);assert.equal(summarize(r).tally.FAIL,1)});
+test("APPROVED en ACTIVE worden geweigerd",()=>{for(const change of [{decision:"GO"},{authorization:"ALLOW"},{verified:true},{source:"INDEPENDENT_VERIFIED"},{release:"1.0"}])assert.equal(validateReport({...newReport(),...change}).ok,false)});
+test("extra velden worden geweigerd",()=>assert.equal(validateReport({...newReport(),userToken:"abc"}).ok,false));
+test("ontbrekende en dubbele stappen worden geweigerd",()=>{let r=newReport();r.observations.pop();assert.equal(validateReport(r).ok,false);r=newReport();r.observations[1]={...r.observations[0]};assert.equal(validateReport(r).ok,false)});
+test("onbekende stappen en status worden geweigerd",()=>{assert.throws(()=>setObservation(newReport(),"ATLAS-UNKNOWN","PASS",""));assert.throws(()=>setObservation(newReport(),CHECKS[0].id,"APPROVED",""))});
+test("notities met controlekarakters of overmatige lengte worden geweigerd",()=>{assert.throws(()=>setObservation(newReport(),CHECKS[0].id,"PASS","regel\nregel"));assert.throws(()=>setObservation(newReport(),CHECKS[0].id,"PASS","x".repeat(1001)))});
+test("inputrapport wordt niet gemuteerd",()=>{const a=newReport(),b=setObservation(a,CHECKS[0].id,"PASS","ok");assert.equal(a.observations[0].status,"NOT_TESTED");assert.equal(b.observations[0].status,"PASS")});
+test("ongeldig rapport kan niet worden bijgewerkt",()=>assert.throws(()=>setObservation({...newReport(),authorization:"ALLOW"},CHECKS[0].id,"PASS","")));

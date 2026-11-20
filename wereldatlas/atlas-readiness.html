@@ -1,0 +1,53 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#10291d"><title>Atlas Release Readiness · PALACO Citadel</title>
+<style>:root{color-scheme:dark;--bg:#0a2018;--panel:#173a2a;--line:#718e70;--gold:#eed4a0;--mint:#a2e9be;--muted:#c7d8cc}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#27513b,var(--bg) 65%);color:#f6f4e9;font:16px/1.52 system-ui,Segoe UI,sans-serif}header,main,footer{max-width:1140px;margin:auto;padding:20px}header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--line)}h1,h2{font-family:Georgia,serif;font-weight:400}h1{font-size:clamp(2rem,5vw,3.9rem);margin:12px 0}h2{color:var(--gold)}a{color:var(--gold)}.eyebrow{letter-spacing:.18em;font-size:.76rem;font-weight:700;color:var(--mint)}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:18px;margin:16px 0}.stat{display:inline-block;border:1px solid var(--gold);border-radius:20px;color:var(--gold);padding:4px 12px;font-size:.82rem}.entry{border-top:1px solid var(--line);padding:12px 0}.entry strong{display:block}.entry small{color:var(--muted)}label{display:grid;gap:6px;color:var(--muted);margin:12px 0}input,button{font:inherit;color:white;background:#102c21;border:1px solid #8eaa8a;padding:10px;border-radius:9px;width:100%}button{cursor:pointer;background:#20503b}button:disabled{opacity:.5;cursor:not-allowed}:focus-visible{outline:3px solid var(--gold);outline-offset:2px}.notice{background:#324b39;border-left:3px solid var(--gold);padding:14px}footer{border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}@media(max-width:740px){.grid{grid-template-columns:1fr}header,main,footer{padding:14px}}</style></head>
+<body><header><div><div class="eyebrow">PALACO · CITADEL · WERELDATLAS</div><strong>Release Readiness Dashboard · v1.3 RC</strong></div><a href="./atlas-release-review.html">← Evidence Review</a></header><main><h1>Release Readiness</h1><p class="muted">Overzicht van moduledekking, openstaande releasepoorten en lokaal aangeleverd acceptatiebewijs. GitHub CI-data worden niet live opgehaald: een eerdere technische PASS wordt hier nooit als actuele externe attestatie voorgesteld.</p><div class="notice"><strong>RELEASE HOLD · AUTHORIZATION DENY</strong> — onafhankelijke bewijscontrole, fysieke apparaatacceptatie, beveiligingsreview en bevoegd releasebesluit zijn afzonderlijk noodzakelijk.</div>
+<div class="grid"><section class="panel"><h2>Modules en grenzen</h2><p id="module-status" role="status">Lokaal contract wordt gecontroleerd.</p><div id="modules"></div><h2>Externe verbindingen</h2><div id="external"></div></section>
+<section class="panel"><h2>Bewijsdossiers</h2><label for="dossier-file">Acceptatiedossier (.json, maximaal 64 KiB)<input id="dossier-file" type="file" accept=".json,application/json"></label><label for="review-file">Bijbehorende Release Evidence Review (.json, maximaal 64 KiB)<input id="review-file" type="file" accept=".json,application/json"></label><p id="import-status" role="status" aria-live="polite">Geen dossier geladen. Release blijft HOLD.</p><label for="reference">Lokale bewijsreferentie (optioneel)<input id="reference" maxlength="300" placeholder="Bijvoorbeeld: CI-run of acceptatiereferentie, nog niet geattesteerd"></label><button type="button" id="download" disabled>Exporteer lokaal readiness-overzicht</button><p id="evidence-summary" aria-live="polite" class="muted"></p></section></div>
+<section class="panel"><h2>Openstaande releasepoorten</h2><p class="muted">Een technische CI-PASS is pas bruikbaar als de juiste commit, workflow en logs onafhankelijk zijn gecontroleerd. Alle poorten blijven OPEN/EVIDENCE_REQUIRED.</p><div id="gates"></div></section></main><footer>PALACO INDUSTRIE · v1.3 RC · Offline-first · Geen uploads of productieautorisatie</footer>
+<script type="module">
+import {readDossier} from "./atlas-release-review.mjs";
+import {assessReadiness,parseReview,makeReadinessExport,validateReadinessExport,GATES} from "./atlas-readiness.mjs";
+const $=id=>document.getElementById(id);const el=(tag,value)=>{const item=document.createElement(tag);if(value!==undefined)item.textContent=String(value);return item};
+let dossier=null,review=null,serial=0;
+async function textFile(file){if(!file||file.size>65536)throw Error("Bestand ontbreekt of overschrijdt 64 KiB.");return file.text()}
+function draw(){
+ const overview=assessReadiness(dossier,review);
+ $("module-status").textContent=overview.internalConsistent?"9 modulecontracten intern consistent (DRAFT, geen productiecontrole).":"ATLAS-CONTRACT GEBLOKKEERD";
+ $("modules").replaceChildren();
+ for(const m of overview.modules){const p=el("p");p.className="entry";const a=el("a",m.title+" →");a.href=m.href;p.append(a,el("small"," · DRAFT · niet productieverifieerd"));$("modules").append(p)}
+ $("external").replaceChildren();for(const e of overview.external){$("external").append(el("p",e.id+" · "+e.status+" · schrijfrecht NEE"))}
+ $("gates").replaceChildren();for(const gate of overview.gates){const p=el("p");p.className="entry";p.append(el("strong",gate.title+" · "+gate.status),el("small",gate.hint));$("gates").append(p)}
+ $("download").disabled=!(dossier&&review&&overview.reviewMatched);
+ $("evidence-summary").textContent=(dossier?"Dossier geladen; ":"Geen dossier; ")+(review?"review geladen; ":"geen review; ")+overview.observation.pending+" open controlepunten. Besluit HOLD · DENY.";
+ if(overview.errors.length)$("import-status").textContent="BLOKKADE: "+overview.errors.join("; ");
+}
+async function importFile(which){
+ const ticket=++serial;
+ if(which==="dossier"){dossier=null;review=null;$("review-file").value="";}
+ else review=null;
+ draw();
+ try{
+  const raw=await textFile($(which==="dossier"?"dossier-file":"review-file").files?.[0]);
+  const value=which==="dossier"?readDossier(raw):parseReview(raw);
+  if(ticket!==serial)return;
+  if(which==="dossier")dossier=value;else review=value;
+  const check=assessReadiness(dossier,review);
+  $("import-status").textContent=check.errors.length?"AFGEWEZEN: "+check.errors.join("; "):"Lokale gegevens geladen. Geen onafhankelijke attestatie of vrijgave.";
+ }catch(e){if(ticket===serial)$("import-status").textContent="AFGEWEZEN: "+e.message}
+ draw();
+}
+$("dossier-file").addEventListener("change",()=>importFile("dossier"));
+$("review-file").addEventListener("change",()=>importFile("review"));
+$("download").addEventListener("click",()=>{
+ if(!dossier||!review)return;
+ try{
+  const result=makeReadinessExport(dossier,review,{reference:$("reference").value});
+  if(!validateReadinessExport(result,dossier,review).ok)throw Error("Readiness-export ongeldig.");
+  const url=URL.createObjectURL(new Blob([JSON.stringify(result,null,2)],{type:"application/json"}));
+  const link=el("a");link.href=url;link.download="palaco-atlas-readiness-v13-RC-HOLD.json";link.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  $("import-status").textContent="DRAFT-readiness-overzicht lokaal aangeboden. Release blijft HOLD/DENY.";
+ }catch(e){$("import-status").textContent="EXPORT AFGEWEZEN: "+e.message}
+});
+draw();
+</script></body></html>

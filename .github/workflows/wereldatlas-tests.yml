@@ -1,0 +1,46 @@
+name: Wereldatlas contract tests
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'wereldatlas/**'
+      - '.github/workflows/wereldatlas-tests.yml'
+  push:
+    branches: [feature/citadel-wereldatlas-v01]
+    paths:
+      - 'wereldatlas/**'
+      - '.github/workflows/wereldatlas-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  atlas-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run all WORLD atlas contract regressions
+        run: node --test wereldatlas/*.test.mjs
+
+  atlas-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Test Atlas in desktop and mobile Chromium
+        run: npx playwright test --config wereldatlas/playwright.config.mjs
