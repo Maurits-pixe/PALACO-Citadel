@@ -88,6 +88,11 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/CONTROLE GESLAAGD/);
   assert.match(read('regiekamer.html'),/revision!==exportRevision/);
   assert.match(read('regiekamer.html'),/let exportCheckRevision=0/);
+  assert.match(read('regiekamer.html'),/id="clearInspections"/);
+  assert.match(read('regiekamer.html'),/\$\('clearInspections'\)\.addEventListener\('click'/);
+  assert.match(read('regiekamer.html'),/\+\+reportVerifyRevision/);
+  assert.match(read('regiekamer.html'),/\+\+dossierRevision/);
+  assert.match(read('regiekamer.html'),/lastPairReport=null/);
   assert.match(read('regiekamer.html'),/selection!==exportCheckRevision/);
   assert.match(read('regiekamer.html'),/revision===exportRevision&&selection===exportCheckRevision/);
   assert.match(read('regiekamer.html'),/revision===dossierRevision\)event\.target\.value/);
