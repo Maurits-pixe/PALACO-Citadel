@@ -387,3 +387,15 @@ test('browser exercise of segmented export uses real clicks and downloads',()=>{
  assert.match(browser,/page\.locator\('#export-next'\)\.click\(\)/);
  assert.doesNotMatch(browser,/page\.evaluate\(\(\)=>\{\s*const entries=Array\.from\(\{length:100\}/);
 });
+
+test('segmented export part may be retried without moving to the next part',()=>{
+ assert.match(html,/id="export-retry" type="button"/);
+ assert.match(html,/function journalExportFilename\(index\)/);
+ assert.match(html,/\$\("export-retry"\)\.addEventListener\("click",\(\)=>/);
+ assert.match(html,/const index=journalExportPosition-1/);
+ assert.match(html,/downloadJSON\(journalExportQueue\[index\],journalExportFilename\(index\)\)/);
+ assert.match(html,/de volgende downloadpositie blijft behouden/);
+ const browser=readFileSync(new URL('./browser-acceptance.test.mjs',import.meta.url),'utf8');
+ assert.match(browser,/page\.locator\('#export-retry'\)\.click\(\)/);
+ assert.match(browser,/Retry must not advance the remaining-parts counter/);
+});
