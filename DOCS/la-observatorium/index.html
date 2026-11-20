@@ -104,7 +104,7 @@ footer{border-top:1px solid #3d5046;padding:24px;text-align:center;color:#9eada4
 <label for="import-file">Importeer eerder lokaal observatielogboek (JSON, maximaal 256 KB)</label>
 <input id="import-file" type="file" accept=".json,application/json">
 <p class="muted">Import is uitsluitend een lokale kopie. Bestaande notities blijven behouden; dubbele ID's worden overgeslagen. Import verleent nooit bewijsstatus of mandaat.</p>
-<div class="actions"><button class="secondary" id="import" type="button">Controleer en importeer</button><button class="secondary" id="export" type="button">Exporteer JSON</button><button class="secondary hidden" id="export-next" type="button">Download volgend deel</button><button class="secondary hidden" id="export-retry" type="button">Download vorig deel opnieuw</button><button class="secondary" id="clear" type="button">Wis lokale notities</button></div>
+<div class="actions"><button class="secondary" id="import" type="button">Controleer en importeer</button><button class="secondary" id="export" type="button">Exporteer JSON</button><button class="secondary hidden" id="export-next" type="button">Download volgend deel</button><label class="hidden" id="export-retry-picker-label" for="export-retry-picker">Downloaddeel opnieuw kiezen <select id="export-retry-picker"></select></label><button class="secondary hidden" id="export-retry" type="button">Download gekozen deel opnieuw</button><button class="secondary" id="clear" type="button">Wis lokale notities</button></div>
 <p class="muted" id="export-progress" role="status" aria-live="polite"></p>
 <p class="muted" id="storage">Opslag: alleen huidig tabblad</p><p class="muted" id="pending" role="status" aria-live="polite">0 notities wachten op opslag.</p><div class="actions"><button class="secondary hidden" id="storage-backup" type="button">Download onleesbare kopie (lokaal)</button><button class="secondary hidden" id="storage-reset" type="button">Wis onleesbare lokale kopie (na bevestiging)</button></div>
 </div></div>
@@ -458,6 +458,17 @@ let journalExportQueue=[],journalExportPosition=0;
 function journalExportFilename(index){
  return journalExportQueue.length===1?"la-observatorium-lokale-waarnemingen.json":"la-observatorium-lokale-waarnemingen-deel-"+String(index+1).padStart(2,"0")+"-van-"+String(journalExportQueue.length).padStart(2,"0")+".json";
 }
+function updateJournalRetryPicker(){
+ const picker=$("export-retry-picker"),previous=picker.value;
+ picker.replaceChildren();
+ for(let i=0;i<journalExportPosition;i++){
+  const option=document.createElement("option");option.value=String(i);option.textContent="Deel "+(i+1)+" van "+journalExportQueue.length;
+  picker.append(option);
+ }
+ picker.value=previous!==""&&Number(previous)<journalExportPosition?previous:String(journalExportPosition-1);
+ $("export-retry-picker-label").classList.toggle("hidden",journalExportPosition===0);
+ $("export-retry").classList.toggle("hidden",journalExportPosition===0);
+}
 function downloadNextJournalPart(){
  if(journalExportPosition>=journalExportQueue.length)return;
  const index=journalExportPosition,packet=journalExportQueue[index];
@@ -465,7 +476,7 @@ function downloadNextJournalPart(){
  try{
   downloadJSON(packet,filename);
   journalExportPosition++;
-  $("export-retry").classList.remove("hidden");
+  updateJournalRetryPicker();
   const remaining=journalExportQueue.length-journalExportPosition;
   $("export-next").classList.toggle("hidden",remaining===0);
   $("export-progress").textContent=remaining?
@@ -479,7 +490,7 @@ $("export").addEventListener("click",()=>{
  if(!parts){status("JSON-export geweigerd: één waarneming overschrijdt de veilige importgrens.");return;}
  if(journalExportPosition<journalExportQueue.length&&!confirm("Er staan nog exportdelen klaar. Nieuwe export starten en de oude wachtrij vervangen?"))return;
  journalExportQueue=parts;journalExportPosition=0;
- $("export-retry").classList.add("hidden");
+ updateJournalRetryPicker();
  $("export-next").classList.add("hidden");
  $("export-progress").textContent="Nieuwe exportreeks gestart: 0 van "+parts.length+" downloads aangevraagd.";
  downloadNextJournalPart();
@@ -487,7 +498,8 @@ $("export").addEventListener("click",()=>{
 $("export-next").addEventListener("click",downloadNextJournalPart);
 $("export-retry").addEventListener("click",()=>{
  if(!journalExportPosition)return;
- const index=journalExportPosition-1;
+ const index=Number($("export-retry-picker").value);
+ if(!Number.isInteger(index)||index<0||index>=journalExportPosition){status("Kies eerst een eerder gestart exportdeel.");return;}
  try{
   downloadJSON(journalExportQueue[index],journalExportFilename(index));
   status("Download van deel "+(index+1)+" opnieuw gestart; de volgende downloadpositie blijft behouden.");
