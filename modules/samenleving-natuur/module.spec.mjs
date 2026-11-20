@@ -1326,3 +1326,36 @@ test('changing audit signer key revokes earlier verification result',async ({pag
  await expect(page.locator('#auditVerifyStatus')).toContainText('opnieuw controleren vereist');
  await expect(page.locator('#auditVerifyStatus')).not.toContainText('CRYPTOGRAFISCH GELDIG');
 });
+
+test('required audit signature policy refuses hash-only report',async ({page})=>{
+ const report=await exportedAuditFixture(page);
+ await page.locator('#auditVerifyFile').setInputFiles({name:'audit.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(report))});
+ await page.locator('#requireAuditSignature').check();
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
+ await expect(page.locator('#auditVerifyStatus')).not.toContainText('SHA-256 AUDITINTEGRITEIT GELDIG');
+});
+
+test('required audit signature policy accepts valid detached signature without granting trust',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ await page.locator('#auditVerifyFile').setInputFiles({name:'audit.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(report))});
+ await page.locator('#auditSignerKey').fill(JSON.stringify(fixture.publicKey));
+ await page.locator('#auditSignatureFile').setInputFiles({name:'signature.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.detached))});
+ await page.locator('#requireAuditSignature').check();
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT-HANDTEKENING CRYPTOGRAFISCH GELDIG');
+ await expect(page.locator('#auditVerifyStatus')).toContainText('NIET VERTROUWD');
+ await expect(page.locator('#auditVerifyStatus')).toContainText('Geen PALACO-autorisatie');
+});
+
+test('switching to required signature policy invalidates earlier hash-only result',async ({page})=>{
+ const report=await exportedAuditFixture(page);
+ await page.locator('#auditVerifyFile').setInputFiles({name:'audit.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(report))});
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('SHA-256 AUDITINTEGRITEIT GELDIG');
+ await page.locator('#requireAuditSignature').check();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('opnieuw controleren vereist');
+ await expect(page.locator('#auditVerifyStatus')).not.toContainText('SHA-256 AUDITINTEGRITEIT GELDIG');
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
+});
