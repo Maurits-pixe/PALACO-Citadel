@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Betrouwbaardere download per exportdeel (v3.5)
+Een browser kan meerdere automatisch gestarte downloads van één klik blokkeren. De export van grote lokale logboeken gebruikt daarom voortaan een **interactieve wachtrij**: de knop **Exporteer JSON** start alleen het eerste deel. Bij meerdelige exports wordt daarna **Download volgend deel** zichtbaar. Elke volgende download vereist een eigen bewuste klik. Een voortgangsregel laat het aantal gestarte downloads en resterende delen zien. De exportdelen worden bij de eerste klik bevroren, zodat een latere wijziging van de notities niet ongemerkt de inhoud van resterende delen verandert. Een nieuwe export starten tijdens een nog niet voltooide wachtrij vereist expliciete bevestiging.
+
+De Chromium-test doorloopt de Atelier-UI, vult 100 lokale waarnemingen, downloadt alle delen met afzonderlijke klikken en controleert het complete ID-overzicht, de bestandsnamen, de vier toegestane JSON-schemavelden en de 262.144-bytegrens. Het starten van een download betekent niet dat het bestand ook door de browser is opgeslagen: controleer na afloop de bestanden in de downloadmap. De volledige browseracceptatie blijft HOLD tot de betreffende GitHub Actions-job daadwerkelijk succesvol is.
+
 ## Importeerbare JSON-export bij volle offlineopslag (v3.4)
 Als het tabblad meer waarnemingen bevat dan in de 256 KiB-opslaggrens passen, kon een enkele JSON-export groter zijn dan de eigen importgrens. De exportfunctie maakt voortaan **meerdere afzonderlijke JSON-bestanden** met dezelfde canonieke velden (`format`, `exported_at`, `authority`, `notes`). Ieder deel blijft bij het exporteren binnen 262.144 UTF-8-bytes inclusief de ingesprongen JSON-opmaak. De originele volgorde en alle waarnemings-ID's blijven behouden; lege logboeken exporteren nog steeds één geldig bestand. Bij een groot logboek worden de bestandsnamen voorzien van een opeenvolgend deelnummer.
 
