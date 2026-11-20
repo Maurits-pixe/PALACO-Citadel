@@ -661,33 +661,52 @@ test('beforeunload warns only while session has unpersisted observations',{timeo
  });
 });
 
-test('large journal is partitioned into import-compatible JSON with no lost notes',{timeout:60000},async()=>{
+test('large journal exports each import-compatible JSON part through separate user clicks',{timeout:90000},async()=>{
  await withPage({width:390,height:800},async page=>{
-  const report=await page.evaluate(()=>{
-   const entries=Array.from({length:100},(_,i)=>({
-    id:'roundtrip-'+i,at:'2026-11-19T10:00:00.000Z',
-    subject:'Offline waarneming '+i,kind:'OBSERVED',reference:'',notes:'😀'.repeat(750)
+  const sample='😀'.repeat(750);
+  await page.evaluate(largeNotes=>{
+   const seed=Array.from({length:80},(_,i)=>({
+    id:'stored-'+i,at:'2026-11-19T10:00:00.000Z',subject:'Bron '+i,
+    kind:'OBSERVED',reference:'',notes:largeNotes
    }));
-   const parts=exportJournalParts(entries,'2026-11-19T10:00:00.000Z');
-   if(!parts)return null;
-   return {parts:parts.map(packet=>({
-    bytes:new TextEncoder().encode(JSON.stringify(packet,null,2)).length,
-    count:packet.notes.length,
-    schema:packet.format,
-    authority:packet.authority,
-    exported_at:packet.exported_at,
-    ids:packet.notes.map(note=>note.id)
-   }))};
-  });
-  assert.ok(report,'Splitting must succeed');
-  assert.ok(report.parts.length>1,'Large journal should require multiple parts');
-  assert.ok(report.parts.every(part=>part.bytes<=262144),'Every part must pass the 256 KiB import cap');
-  assert.ok(report.parts.every(part=>part.schema==='palaco-la-observatory-local-v1'));
-  assert.ok(report.parts.every(part=>part.authority==='SELF_REPORTED_NOT_VERIFIED'));
-  assert.ok(report.parts.every(part=>part.exported_at==='2026-11-19T10:00:00.000Z'));
-  const ids=report.parts.flatMap(part=>part.ids);
+   localStorage.setItem('palaco_la_observatory_notes_v1',JSON.stringify(seed));
+   localStorage.setItem('palaco_la_observatory_consent_v1','yes');
+  },sample);
+  await page.reload();
+  await page.locator('#tab-atelier').click();
+  for(let i=0;i<20;i++){
+   await page.locator('#subject').fill('Aanvulling '+i);
+   await page.locator('#notes').fill(sample);
+   await page.locator('#form button[type="submit"]').click();
+  }
+  assert.match(await page.locator('#count').innerText(),/100 \/ 100/);
+  const downloads=[];
+  let downloadPending=page.waitForEvent('download',{timeout:10000});
+  await page.locator('#export').click();
+  downloads.push(await downloadPending);
+  assert.equal(await page.locator('#export-next').isVisible(),true);
+  assert.match(await page.locator('#export-progress').innerText(),/1 van/);
+  for(let i=0;i<10&&await page.locator('#export-next').isVisible();i++){
+   downloadPending=page.waitForEvent('download',{timeout:10000});
+   await page.locator('#export-next').click();
+   downloads.push(await downloadPending);
+  }
+  assert.ok(downloads.length>1,'Large journal must split into multiple manually initiated downloads');
+  assert.equal(await page.locator('#export-next').isVisible(),false);
+  assert.match(await page.locator('#export-progress').innerText(),/Alle .* download\(s\) gestart/);
+  const parts=await Promise.all(downloads.map(async d=>{
+   const bytes=await readFile(await d.path());
+   assert.ok(bytes.length<=262144,'Each saved part must be within import cap');
+   const packet=JSON.parse(bytes.toString('utf8'));
+   assert.equal(packet.format,'palaco-la-observatory-local-v1');
+   assert.equal(packet.authority,'SELF_REPORTED_NOT_VERIFIED');
+   assert.equal(Object.keys(packet).length,4);
+   return packet;
+  }));
+  const ids=parts.flatMap(packet=>packet.notes.map(note=>note.id));
   assert.equal(ids.length,100);
   assert.equal(new Set(ids).size,100);
-  assert.deepEqual(ids,Array.from({length:100},(_,i)=>'roundtrip-'+i));
+  assert.deepEqual(ids.slice(0,80),Array.from({length:80},(_,i)=>'stored-'+i));
+  assert.ok(downloads.every((d,i)=>d.suggestedFilename().includes('deel-'+String(i+1).padStart(2,'0'))));
  });
 });
