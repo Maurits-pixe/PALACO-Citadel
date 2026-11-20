@@ -518,3 +518,64 @@ test('Atelier: inspectierapport kan met project en TXT opnieuw worden geverifiee
  }
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(original);
 });
+
+test('Atelier: trage oude exportcontrole wist nieuwere bestandsselectie niet',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const dl=page.waitForEvent('download');
+ await page.locator('#bundleSave').click();
+ const exported=await dl;
+ const bytes=await (await import('node:fs/promises')).readFile(await exported.path());
+ await expect(page.locator('#checkExportFile')).toBeEnabled();
+ await page.evaluate(()=>{
+   const original=File.prototype.arrayBuffer;
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='verouderd.json'||this.name==='nieuwste.json'){
+       const file=this;
+       return new Promise((resolve,reject)=>{
+         window[this.name==='verouderd.json'?'finishOldExportSelection':'finishNewExportSelection']=
+           ()=>original.call(file).then(resolve,reject);
+       });
+     }
+     return original.call(this);
+   };
+ });
+ const input=page.locator('#checkExportFile');
+ await input.setInputFiles({name:'verouderd.json',mimeType:'application/json',buffer:bytes});
+ await input.setInputFiles({name:'nieuwste.json',mimeType:'application/json',buffer:bytes});
+ await expect(input).toHaveValue(/nieuwste\.json/);
+ await page.evaluate(()=>window.finishOldExportSelection());
+ await expect(input).toHaveValue(/nieuwste\.json/);
+ await page.evaluate(()=>window.finishNewExportSelection());
+ await expect(page.locator('#exportCheckStatus')).toContainText('CONTROLE GESLAAGD');
+});
+
+test('Atelier: oude TXT-import kan nieuw geselecteerde referentie niet wissen',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const draft=await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage)));
+ const hash=(await import('node:crypto')).createHash('sha256').update(Buffer.from(draft)).digest('hex');
+ const content=name=>Buffer.from('SHA-256: '+hash+'\nBestand: '+name+'\n');
+ await page.evaluate(()=>{
+   const original=File.prototype.arrayBuffer;
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='oude-referentie.txt'||this.name==='nieuwe-referentie.txt'){
+       const file=this;
+       return new Promise((resolve,reject)=>{
+         window[this.name==='oude-referentie.txt'?'finishOldReceipt':'finishNewReceipt']=
+           ()=>original.call(file).then(resolve,reject);
+       });
+     }
+     return original.call(this);
+   };
+ });
+ const input=page.locator('#fingerprintReceipt');
+ await input.setInputFiles({name:'oude-referentie.txt',mimeType:'text/plain',buffer:content('oud.json')});
+ await input.setInputFiles({name:'nieuwe-referentie.txt',mimeType:'text/plain',buffer:content('nieuw.json')});
+ await expect(input).toHaveValue(/nieuwe-referentie\.txt/);
+ await page.evaluate(()=>window.finishOldReceipt());
+ await expect(input).toHaveValue(/nieuwe-referentie\.txt/);
+ await page.evaluate(()=>window.finishNewReceipt());
+ await expect(page.locator('#referenceStatus')).toContainText('nieuw.json');
+ await expect(page.locator('#expectedFingerprint')).toHaveValue(hash);
+ await page.locator('#bundleVerify').setInputFiles({name:'oud.json',mimeType:'application/json',buffer:Buffer.from(draft)});
+ await expect(page.locator('#verifyStatus')).toContainText('Bestandsnaam in ingeladen SHA-256-referentie komt niet overeen');
+});
