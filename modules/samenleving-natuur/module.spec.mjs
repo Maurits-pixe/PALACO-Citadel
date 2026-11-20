@@ -1106,3 +1106,56 @@ test('modified signed v2 registry snapshot fails signature verification',async (
  await expect(page.locator('#rotationStatus')).toContainText('niet geldig of niet verifieerbaar');
  await expect(page.locator('#rotationStatus')).not.toContainText('CRYPTOGRAFISCH GELDIG');
 });
+
+async function checkerApprovalFixture(page,snapshot,{tamper=false,sameKey=false}={}){
+ return page.evaluate(async ({snapshot,tamper,sameKey})=>{
+  const canonical=v=>Array.isArray(v)?'['+v.map(canonical).join(',')+']':v&&typeof v==='object'?'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canonical(v[k])).join(',')+'}':JSON.stringify(v);
+  const signer=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
+  const publicRaw=await crypto.subtle.exportKey('jwk',signer.publicKey);
+  const publicKey={kty:'EC',crv:'P-256',x:publicRaw.x,y:publicRaw.y};
+  const fingerprint=async v=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonical(v)))),b=>b.toString(16).padStart(2,'0')).join('');
+  const approval={schema:'palaco-citadel-registry-approval-v1',decision:'approve',
+   issuedAt:new Date(Date.parse(snapshot.issuedAt)+60000).toISOString(),
+   registryDigest:await fingerprint(snapshot),checkerFingerprint:await fingerprint(publicKey)};
+  const signature=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},signer.privateKey,new TextEncoder().encode(canonical(approval)));
+  const result={...approval,signature:btoa(String.fromCharCode(...new Uint8Array(signature)))};
+  if(tamper)result.registryDigest='0'.repeat(64);
+  return {publicKey,approval:result};
+ },{snapshot,tamper,sameKey});
+}
+
+test('maker checker validates two signatures without conferring trust',async ({page})=>{
+ await signedPreviewFixture(page);
+ const rotation=await rotationFixture(page),registry=await signedRegistryFixture(page,rotation.rotation);
+ const checker=await checkerApprovalFixture(page,registry.snapshot);
+ await uploadSignedRegistry(page,rotation,registry);
+ await page.locator('#requireChecker').check();
+ await page.locator('#checkerKey').fill(JSON.stringify(checker.publicKey));
+ await page.locator('#checkerFile').setInputFiles({name:'checker.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(checker.approval))});
+ await page.locator('#verifyRotation').click();
+ await expect(page.locator('#rotationStatus')).toContainText('CRYPTOGRAFISCH GELDIG');
+ await expect(page.locator('#rotationStatus')).toContainText('NIET VERTROUWD');
+ await expect(page.locator('#rotationStatus')).toContainText('Geen PALACO-autorisatie');
+});
+
+test('maker checker refuses approval bound to different registry digest',async ({page})=>{
+ await signedPreviewFixture(page);
+ const rotation=await rotationFixture(page),registry=await signedRegistryFixture(page,rotation.rotation);
+ const checker=await checkerApprovalFixture(page,registry.snapshot,{tamper:true});
+ await uploadSignedRegistry(page,rotation,registry);
+ await page.locator('#requireChecker').check();
+ await page.locator('#checkerKey').fill(JSON.stringify(checker.publicKey));
+ await page.locator('#checkerFile').setInputFiles({name:'checker-wrong.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(checker.approval))});
+ await page.locator('#verifyRotation').click();
+ await expect(page.locator('#rotationStatus')).toContainText('niet geldig of niet verifieerbaar');
+});
+
+test('maker checker refuses absent approval in strict mode',async ({page})=>{
+ await signedPreviewFixture(page);
+ const rotation=await rotationFixture(page),registry=await signedRegistryFixture(page,rotation.rotation);
+ await uploadSignedRegistry(page,rotation,registry);
+ await page.locator('#requireChecker').check();
+ await page.locator('#verifyRotation').click();
+ await expect(page.locator('#rotationStatus')).toContainText('niet geldig of niet verifieerbaar');
+ await expect(page.locator('#rotationStatus')).not.toContainText('CRYPTOGRAFISCH GELDIG');
+});
