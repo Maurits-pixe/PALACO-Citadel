@@ -56,6 +56,13 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Zichtbare lineage-status in dossier en tijdlijn · v3.4
+- Iedere lokale herinnering krijgt een duidelijke **lineage-status** in de tijdlijn: lokaal compleet of onvolledig door een ontbrekende voorganger.
+- Het dossierinspectiepaneel toont dezelfde status en noemt bij een onvolledige keten expliciet het ontbrekende `previousId`.
+- Ook bij een lokaal complete keten blijft **herkomst niet geverifieerd** zichtbaar. Een volledige lokale keten is nadrukkelijk geen authenticiteitsverklaring, tijdattest of EDTR-uitgifte.
+- Twee extra Node UI-regressies controleren de zichtbare status bij een hersteld gedeeltelijk historisch archief en bij een volledige oorsprong-opvolgerketen.
+- Alle inhoud wordt met `textContent` weergegeven; geïnjecteerde dossierinhoud wordt niet als HTML geïnterpreteerd. Fysieke apparaattests en onafhankelijke reviews blijven HOLD.
+
 ## Volledige historische voorgangerketen · v3.3
 - Een expliciete **versleutelde kluisopslag** weigert voortaan een geheugenmomentopname wanneer een versie een `previousId` noemt die niet in dezelfde momentopname aanwezig is. Bestaande validatie van revisienummers, chronologie, duplicaten en cirkelverwijzingen blijft gelden.
 - Een gedeeltelijk historisch importarchief mag zichtbaar blijven als lokaal concept voor onderzoek, maar mag **niet** stilzwijgend als complete versleutelde kluis worden verzegeld. Herstel eerst de ontbrekende voorgangers of gebruik een volledige export.
