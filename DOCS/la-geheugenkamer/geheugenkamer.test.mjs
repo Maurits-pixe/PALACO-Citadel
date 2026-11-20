@@ -205,3 +205,31 @@ test('selecting a different dossier cancels earlier export consent',()=>{
  h.nodes.get('#contractExport').dispatch('click');
  assert.equal(h.sandbox.latestBlob,undefined);
 });
+
+test('incomplete restored lineage is visibly flagged without claiming authenticity',()=>{
+ const orphan={id:'orphan-ui-v2',createdAt:'2026-11-17T12:00:00.000Z',previousId:'missing-parent-ui',version:2,trust:'SELF_REPORTED_NOT_VERIFIED',title:'Gedeeltelijk dossier',who:'W',what:'Onvolledig',where:'',why:'',how:'',source:'',category:'Persoonlijk'};
+ const h=harness([orphan]);
+ h.nodes.get('#restore').dispatch('click');
+ assert.equal(h.nodes.get('#count').textContent,1);
+ const card=h.nodes.get('#timeline').children[0];
+ assert.ok(card.children.some(x=>x.textContent.includes('Lineage onvolledig')));
+ card.children.at(-1).children[1].dispatch('click');
+ const details=h.nodes.get('#dossierDetails').children.map(x=>x.textContent).join('\n');
+ assert.match(details,/Lineage-status: ONVOLLEDIG/);
+ assert.match(details,/Onbekende voorganger: missing-parent-ui/);
+ assert.match(details,/Verificatie: NIET UITGEVOERD/);
+ assert.match(details,/EDTR: HOLD/);
+});
+test('complete root-to-successor lineage is marked only locally complete',()=>{
+ const h=harness();enter(h,'Lineage root');
+ h.nodes.get('#timeline').children[0].children.at(-1).children[0].dispatch('click');
+ h.nodes.get('#title').value='Lineage successor';
+ h.nodes.get('#entryForm').dispatch('submit');
+ const card=h.nodes.get('#timeline').children[0];
+ assert.ok(card.children.some(x=>x.textContent.includes('Lineage lokaal compleet')));
+ card.children.at(-1).children[1].dispatch('click');
+ const details=h.nodes.get('#dossierDetails').children.map(x=>x.textContent).join('\n');
+ assert.match(details,/Lineage-status: VOLLEDIG IN DIT LOKALE ARCHIEF/);
+ assert.match(details,/herkomst niet geverifieerd/);
+ assert.doesNotMatch(details,/Onbekende voorganger/);
+});
