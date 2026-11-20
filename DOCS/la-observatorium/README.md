@@ -61,6 +61,11 @@ node --test DOCS/la-observatorium/observatorium.test.mjs DOCS/la-observatorium/d
 ```
 De workflow `.github/workflows/la-observatorium.yml` is toegevoegd voor pull-requestcontroles zonder deployment of publicatie. Een geslaagde Node.js-test dekt geen browser- of mobiele downloadworkflow. Beslissing blijft HOLD tot daadwerkelijke CI-uitkomst en interactieve acceptatie bekend zijn.
 
+## Herdownload van het laatste exportdeel (v3.6)
+Een download kan door browserinstellingen, een onderbroken opslagactie of een verkeerde mapkeuze ontbreken. Na het starten van een JSON-exportdeel verschijnt daarom ook **Download vorig deel opnieuw**. De knop vraagt opnieuw **exact dezelfde bevroren JSON-inhoud** met **dezelfde bestandsnaam** aan en verandert de positie van de volgende download niet. Bij het starten van een volledig nieuwe exportreeks wordt deze herdownloadknop verborgen totdat een eerste deel is aangevraagd.
+
+De Chromium-regressie vraagt deel 1 opnieuw aan, vergelijkt de gedownloade bytes en bestandsnaam, en controleert dat de voortgangsregel niet opschuift. Deze knop biedt geen bewijs dat de browser het bestand blijvend heeft opgeslagen. Controleer alle delen op het apparaat vóór herladen. Voor oudere gemiste delen moet de gebruiker een nieuwe volledige export beginnen. Browseracceptatie en release blijven HOLD.
+
 ## Betrouwbaardere download per exportdeel (v3.5)
 Een browser kan meerdere automatisch gestarte downloads van één klik blokkeren. De export van grote lokale logboeken gebruikt daarom voortaan een **interactieve wachtrij**: de knop **Exporteer JSON** start alleen het eerste deel. Bij meerdelige exports wordt daarna **Download volgend deel** zichtbaar. Elke volgende download vereist een eigen bewuste klik. Een voortgangsregel laat het aantal gestarte downloads en resterende delen zien. De exportdelen worden bij de eerste klik bevroren, zodat een latere wijziging van de notities niet ongemerkt de inhoud van resterende delen verandert. Een nieuwe export starten tijdens een nog niet voltooide wachtrij vereist expliciete bevestiging.
 
