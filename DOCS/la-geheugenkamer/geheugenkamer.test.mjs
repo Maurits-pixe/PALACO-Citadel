@@ -20,11 +20,11 @@ function harness(initialArchive=null){
     append(...kids){this.children.push(...kids)}
     replaceChildren(...kids){this.children=[...kids]}
     setAttribute(name,value){this.attributes[name]=value}
-    focus(){}
+    focus(){this.focused=true}
     reset(){for(const id of ['title','who','what','where','why','how','source'])nodes.get('#'+id).value='';nodes.get('#category').value='Persoonlijk'}
     click(){if(this.tagName==='a')this.clicked=true;else if(this.listeners.has('click'))return this.dispatch('click')}
   }
-  const names=['message','count','utc','entryForm','persist','title','who','what','where','why','how','source','category','search','filter','sort','timeline','collections','dossier','dossierDetails','dossierExport','dossierClose','handoffConsent','contractExport','clear','restore','proof','export','encryptedExport','archivePassphrase','vaultSave','vaultUnlock','vaultLock','vaultDelete','vaultStatus','importBtn','file'];
+  const names=['message','count','utc','entryForm','persist','title','who','what','where','why','how','source','category','search','filter','sort','timeline','collections','dossier','dossierTitle','dossierDetails','dossierExport','dossierClose','handoffConsent','contractExport','clear','restore','proof','export','encryptedExport','archivePassphrase','vaultSave','vaultUnlock','vaultLock','vaultDelete','vaultStatus','importBtn','file'];
   for(const n of names)nodes.set('#'+n,new Element());
   nodes.get('#category').value='Persoonlijk';
   const storage=new Map(),intervals=[];if(initialArchive!==null)storage.set('palaco.citadel.geheugenkamer.v1',JSON.stringify(initialArchive));
@@ -232,4 +232,12 @@ test('complete root-to-successor lineage is marked only locally complete',()=>{
  assert.match(details,/Lineage-status: VOLLEDIG IN DIT LOKALE ARCHIEF/);
  assert.match(details,/herkomst niet geverifieerd/);
  assert.doesNotMatch(details,/Onbekende voorganger/);
+});
+
+test('opening a dossier focuses its accessible heading',()=>{
+ const h=harness();enter(h,'Toetsenbord dossier');
+ const inspect=h.nodes.get('#timeline').children[0].children.at(-1).children[1];
+ inspect.dispatch('click');
+ assert.equal(h.nodes.get('#dossierTitle').focused,true);
+ assert.equal(h.nodes.get('#dossier').className,'panel');
 });
