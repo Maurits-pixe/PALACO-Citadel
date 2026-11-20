@@ -665,3 +665,47 @@ test('Atelier: toegankelijke bestandskeuze en resetmelding op mobiele en desktop
  await expect(page.locator('#referenceStatus')).toContainText('Tijdelijke TXT-referentie gewist');
  await expect(page.locator('#referenceStatus')).toHaveAttribute('aria-live','polite');
 });
+
+test('Atelier: alle JSON-verificatieroutes weigeren misleidende bestandsnamen',async ({page})=>{
+ const {createHash}=await import('node:crypto');
+ await page.goto('/atelier/regiekamer.html');
+ const original=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const data=Buffer.from(await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage))));
+ const hash=createHash('sha256').update(data).digest('hex');
+ const badNames=['misleidend\u202e.json','map\\ontwerp.json','map/ontwerp.json','controle.txt','a'.repeat(121)+'.json'];
+ for(const name of badNames){
+   const file={name,mimeType:'application/json',buffer:data};
+   await page.locator('#bundleVerify').setInputFiles(file);
+   await expect(page.locator('#verifyStatus')).toContainText('Ongeldige of misleidende JSON-bestandsnaam');
+   await expect(page.locator('#exportFingerprint')).toBeDisabled();
+   await page.locator('#pairVerify').setInputFiles([
+     file,{name:'controle.txt',mimeType:'text/plain',buffer:Buffer.from('SHA-256: '+hash+'\nBestand: '+name+'\n')}
+   ]);
+   await expect(page.locator('#pairStatus')).toContainText('Paarcontrole geweigerd');
+   await expect(page.locator('#pairReportSave')).toBeDisabled();
+ }
+ const validFile={name:'geldig.json',mimeType:'application/json',buffer:data};
+ await page.locator('#bundleVerify').setInputFiles(validFile);
+ await expect(page.locator('#verifyStatus')).toContainText('Geldig creatief DRAFT-project');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(original);
+});
+
+test('Atelier: losse TXT-referentie weigert onveilige bestandsnaam zonder SHA-256 te activeren',async ({page})=>{
+ const {createHash}=await import('node:crypto');
+ await page.goto('/atelier/regiekamer.html');
+ const data=Buffer.from(await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage))));
+ const hash=createHash('sha256').update(data).digest('hex');
+ const names=['../overig.json','overig\\ontwerp.json','naam\u202e.json','eindigt-op.txt','a'.repeat(121)+'.json'];
+ for(const name of names){
+   await page.locator('#fingerprintReceipt').setInputFiles({
+     name:'bad-receipt.txt',mimeType:'text/plain',buffer:Buffer.from('SHA-256: '+hash+'\nBestand: '+name+'\n')
+   });
+   await expect(page.locator('#referenceStatus')).toContainText('Referentie geweigerd');
+   await expect(page.locator('#expectedFingerprint')).toHaveValue('');
+   await expect(page.locator('#exportFingerprint')).toBeDisabled();
+ }
+ await page.locator('#fingerprintReceipt').setInputFiles({
+   name:'valid-receipt.txt',mimeType:'text/plain',buffer:Buffer.from('SHA-256: '+hash+'\nBestand: veilig.json\n')
+ });
+ await expect(page.locator('#referenceStatus')).toContainText('SHA-256-referentie geladen');
+});
