@@ -29,3 +29,17 @@ De bestaande HTML-preview is uitgebreid met:
 De vergelijkingsgegevens worden via `textContent` opgebouwd uit de vaste previewlijst, zonder dynamische HTML-injectie. De Atlas vermeldt bekende namen en wereld-ID's als projectcontext, maar heeft geen geverifieerde geometrie, geografische kaart, eigendomsinformatie, wereldstatus of directe MUNDO-bron. Die velden worden daarom **niet geverifieerd** of **niet gekoppeld** genoemd. De vergelijking is uitsluitend sessielokale UI-toestand in geheugen, zonder `localStorage`, cookies, externe API's of hashroutering.
 
 De Atlas blijft zelfstandig en is niet in de originele privé-Sites-app geïnstalleerd. Voor werkelijk gebruik moet de Citadel-host authenticatie en autorisatie afhandelen voordat de component zichtbaar wordt. Functionele tests zijn op verzoek niet uitgevoerd. Geen merge, publicatie of autorisatievrijgave: **DRAFT/HOLD**.
+
+## MUNDO-WORLD-STUDIO-003 — hoofdstukken en schematische lagen
+
+De bestaande offline HTML Atlas is verder uitgebreid met een World Studio-gedeelte, zonder externe bibliotheken:
+- Drie selecteerbare hoofdstukken per bekende wereld: **Wereldidentiteit**, **Geografie**, **Herkomst & bewijs**.
+- Een omschrijvingspaneel dat op de geselecteerde wereld en het actieve hoofdstuk reageert; voor niet gekoppelde gegevens wordt expliciet "niet verbonden" vermeld.
+- Drie schakelbare *schematische* lagen: Register, Geografie en Bewijslijn. Het raster is decoratief en vormt nadrukkelijk **geen** werkelijke cartografie.
+- Toegankelijke knoppen met `aria-pressed`, bestaande live-aankondigingen, bruikbaarheid op mobiel en uitsluitend tekstveilige DOM-invulling via `textContent`.
+
+De Wereldidentiteit bevat uitsluitend de reeds bekende register-ID en naam. Er wordt **geen** eigendom, bewonersinformatie, persoonsgegeven, plaatscoördinaat, grens, wereldstatus, EDTR-uitgifte of cryptografisch bewijs geconstrueerd. Hoofdstuk- en laagkeuze bestaan alleen in tijdelijk JavaScript-geheugen. De applicatie maakt geen externe verbindingen en heeft geen `localStorage` of cookies.
+
+Dit is een voorbereide World Studio-implementatie, **niet** de eigenlijke Citadel Sites-frontend en evenmin een aangesloten MUNDO-database. Voor integratie moet de oorspronkelijke host de zichtbaarheid van de atlas en toekomstige data autoriseren en de MUNDO-bron- en bewijscontracten controleren. De schematische lagen mogen pas met werkelijke kaartlagen worden vervangen na bronverificatie en visuele acceptatie.
+
+**Status:** broncode bijgewerkt op dezelfde DRAFT PR #58. Geen functionele tests, merge, productiepublicatie of directe Sites-aanpassing uitgevoerd. **HOLD**.
