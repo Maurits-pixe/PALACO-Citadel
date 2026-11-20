@@ -17,3 +17,15 @@ Hostvereisten voor integratie:
 5. Laat uitsluitend de eigenaar de functionele acceptatie uitvoeren volgens de bestaande HOLD-procedure.
 
 **Niet uitgevoerd:** functionele tests, merge, live Sites-bewerking, publicatie, account- of rolwijzigingen. **DRAFT/HOLD.**
+
+## MUNDO-ATLAS-EXPLORER-002 — lokale navigatie en wereldvergelijking
+
+De bestaande HTML-preview is uitgebreid met:
+- Vorige/volgende wereldknoppen die cyclisch door de zeven bekende wereld-ID's bladeren.
+- Een dekkingsoverzicht: zeven lokaal bekende wereldnamen, nul aangesloten live dataverbindingen en geen persistente opslag.
+- Een expliciet te openen/sluiten vergelijkingspaneel waarin twee wereldprofielen naast elkaar staan.
+- Een toegankelijke selectie voor de tweede wereld, `aria-pressed` op de vergelijkingsknop, bestaande `aria-live`-meldingen bij het veranderen van de actieve wereld en mobiele éénkolomsweergave voor de vergelijkingskaarten.
+
+De vergelijkingsgegevens worden via `textContent` opgebouwd uit de vaste previewlijst, zonder dynamische HTML-injectie. De Atlas vermeldt bekende namen en wereld-ID's als projectcontext, maar heeft geen geverifieerde geometrie, geografische kaart, eigendomsinformatie, wereldstatus of directe MUNDO-bron. Die velden worden daarom **niet geverifieerd** of **niet gekoppeld** genoemd. De vergelijking is uitsluitend sessielokale UI-toestand in geheugen, zonder `localStorage`, cookies, externe API's of hashroutering.
+
+De Atlas blijft zelfstandig en is niet in de originele privé-Sites-app geïnstalleerd. Voor werkelijk gebruik moet de Citadel-host authenticatie en autorisatie afhandelen voordat de component zichtbaar wordt. Functionele tests zijn op verzoek niet uitgevoerd. Geen merge, publicatie of autorisatievrijgave: **DRAFT/HOLD**.
