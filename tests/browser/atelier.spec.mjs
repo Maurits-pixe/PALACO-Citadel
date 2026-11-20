@@ -579,3 +579,57 @@ test('Atelier: oude TXT-import kan nieuw geselecteerde referentie niet wissen',a
  await page.locator('#bundleVerify').setInputFiles({name:'oud.json',mimeType:'application/json',buffer:Buffer.from(draft)});
  await expect(page.locator('#verifyStatus')).toContainText('Bestandsnaam in ingeladen SHA-256-referentie komt niet overeen');
 });
+
+test('Atelier: wissen tijdelijke controles laat vertraagde bestandslezing niet terugschrijven',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const original=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const project=Buffer.from(await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage))));
+ const hash=(await import('node:crypto')).createHash('sha256').update(project).digest('hex');
+ await page.evaluate(()=>{
+   const originalRead=File.prototype.arrayBuffer;
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='wachtend.json'||this.name==='wachtend.txt'){
+       const file=this;
+       return new Promise((resolve,reject)=>{
+         window[file.name==='wachtend.json'?'finishClearedProject':'finishClearedReceipt']=
+           ()=>originalRead.call(file).then(resolve,reject);
+       });
+     }
+     return originalRead.call(this);
+   };
+ });
+ await page.locator('#bundleVerify').setInputFiles({name:'wachtend.json',mimeType:'application/json',buffer:project});
+ await page.locator('#fingerprintReceipt').setInputFiles({
+   name:'wachtend.txt',mimeType:'text/plain',buffer:Buffer.from('SHA-256: '+hash+'\nBestand: wachtend.json\n')
+ });
+ await expect(page.locator('#referenceStatus')).toContainText('controleren');
+ await page.locator('#clearInspections').click();
+ await expect(page.locator('#referenceStatus')).toContainText('Tijdelijke TXT-referentie gewist');
+ await expect(page.locator('#verifyStatus')).toContainText('Dossiercontrole gewist');
+ await expect(page.locator('#expectedFingerprint')).toHaveValue('');
+ await expect(page.locator('#exportFingerprint')).toBeDisabled();
+ await expect(page.locator('#pairReportSave')).toBeDisabled();
+ await expect(page.locator('#exportBundleReceipt')).toBeDisabled();
+ await page.evaluate(()=>{window.finishClearedProject();window.finishClearedReceipt();});
+ await expect(page.locator('#referenceStatus')).toContainText('Tijdelijke TXT-referentie gewist');
+ await expect(page.locator('#verifyStatus')).toContainText('Dossiercontrole gewist');
+ await expect(page.locator('#exportFingerprint')).toBeDisabled();
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(original);
+});
+
+test('Atelier: wissen na geslaagde export blokkeert oud SHA-256-bewijs en laat nieuwe export toe',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ let downloaded=page.waitForEvent('download');
+ await page.locator('#bundleSave').click();
+ await downloaded;
+ await expect(page.locator('#exportBundleReceipt')).toBeEnabled();
+ await expect(page.locator('#checkExportFile')).toBeEnabled();
+ await page.locator('#clearInspections').click();
+ await expect(page.locator('#exportBundleReceipt')).toBeDisabled();
+ await expect(page.locator('#checkExportFile')).toBeDisabled();
+ await expect(page.locator('#bundleReceiptStatus')).toContainText('Tijdelijke SHA-256-referentie gewist');
+ downloaded=page.waitForEvent('download');
+ await page.locator('#bundleSave').click();
+ await downloaded;
+ await expect(page.locator('#exportBundleReceipt')).toBeEnabled();
+});
