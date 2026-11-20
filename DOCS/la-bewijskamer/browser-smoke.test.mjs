@@ -1164,3 +1164,35 @@ test("keyboard dossier inspection moves focus to labelled dossier heading",async
  assert.match(await p.locator("#dossierDetails").innerText(),/EDTR: HOLD/);
  await c.close();
 });
+
+test("keyboard Escape closes mobile dossier and returns focus to its inspect action",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Historische focus");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Keyboard");
+ await p.locator("#entryForm button[type=submit]").tap();
+ const open=p.locator("#timeline button").filter({hasText:"Inspecteer dossier"});
+ await open.focus();
+ await p.keyboard.press("Enter");
+ assert.equal(await p.evaluate(()=>document.activeElement.id),"dossierTitle");
+ await p.keyboard.press("Escape");
+ assert.equal(await p.locator("#dossier").isVisible(),false);
+ assert.match(await p.evaluate(()=>document.activeElement.textContent),/Inspecteer dossier/);
+ await c.close();
+});
+
+test("dossier close falls back to timeline when the inspect button was removed",async()=>{
+ const c=await browser.newContext({viewport:{width:390,height:844}}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Selectie verdwijnt bij sorteren");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Nieuwe volgorde");
+ await p.locator("#entryForm button[type=submit]").click();
+ await p.locator("#timeline button").filter({hasText:"Inspecteer dossier"}).click();
+ assert.equal(await p.evaluate(()=>document.activeElement.id),"dossierTitle");
+ await p.locator("#sort").click();
+ assert.equal(await p.locator("#dossier").isVisible(),true);
+ await p.locator("#dossierClose").click();
+ assert.equal(await p.evaluate(()=>document.activeElement.id),"timeline");
+ assert.equal(await p.locator("#dossier").isVisible(),false);
+ await c.close();
+});
