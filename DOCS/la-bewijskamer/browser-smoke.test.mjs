@@ -1131,3 +1131,36 @@ test("vault save preserves complete root-to-successor chain across reload and un
  assert.match(await p.locator("#timeline").innerText(),/Lineage opvolger/);
  await c.close();
 });
+
+test("narrow 320px mobile dossier controls avoid horizontal overflow and retain touch targets",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Een lange titel voor mobiele toegankelijkheid");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Een lokaal concept");
+ await p.locator("#entryForm button[type=submit]").tap();
+ await p.locator("#timeline button").filter({hasText:"Inspecteer dossier"}).tap();
+ const metrics=await p.evaluate(()=>{
+  const controls=[...document.querySelectorAll("#dossier .actions button")];
+  return {viewport:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth,
+   controls:controls.map(e=>({width:e.getBoundingClientRect().width,height:e.getBoundingClientRect().height})),
+   detail:document.querySelector("#dossierDetails").textContent};
+ });
+ assert.ok(metrics.scroll<=metrics.viewport+1,JSON.stringify(metrics));
+ assert.ok(metrics.controls.every(x=>x.width>150&&x.height>=44),JSON.stringify(metrics.controls));
+ assert.match(metrics.detail,/Lineage-status/);
+ await c.close();
+});
+
+test("keyboard dossier inspection moves focus to labelled dossier heading",async()=>{
+ const c=await browser.newContext({viewport:{width:390,height:844}}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Toegankelijke dossiernavigatie");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Toetsenbord");
+ await p.locator("#entryForm button[type=submit]").click();
+ await p.locator("#timeline button").filter({hasText:"Inspecteer dossier"}).focus();
+ await p.keyboard.press("Enter");
+ assert.equal(await p.evaluate(()=>document.activeElement?.id),"dossierTitle");
+ assert.equal(await p.locator("#dossier").getAttribute("aria-labelledby"),"dossierTitle");
+ assert.match(await p.locator("#dossierDetails").innerText(),/EDTR: HOLD/);
+ await c.close();
+});
