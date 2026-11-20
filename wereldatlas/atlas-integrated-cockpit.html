@@ -1,0 +1,49 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0c291e"><title>PALACO Wereldatlas v3.0 · Geïntegreerde Cockpit</title><style>
+:root{color-scheme:dark;--bg:#081c15;--panel:#193b2b;--line:#779273;--gold:#f0d7a1;--mint:#b4edc8;--muted:#cad9cc}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:#f6f4e9;background:radial-gradient(circle at 85% 0,#315b42,var(--bg) 66%);font:16px/1.5 system-ui,Segoe UI,sans-serif}header,main,footer{max-width:1200px;margin:auto;padding:20px}header{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;border-bottom:1px solid var(--line)}h1,h2,h3{font-family:Georgia,serif;font-weight:400}h1{font-size:clamp(2.2rem,5vw,4rem);line-height:1.1}h2{font-size:1.65rem;color:var(--gold)}h3{font-size:1.22rem}a{color:var(--gold)}.eyebrow{font-size:.76rem;letter-spacing:.16em;color:var(--mint);font-weight:700}.muted{color:var(--muted)}.notice{border-left:3px solid var(--gold);padding:15px;background:#304a38}.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;margin:15px 0}.layout{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:12px}.step{border:1px solid var(--line);background:#173729;padding:15px;border-radius:13px;min-height:175px}.step a{display:inline-block;margin-top:8px;padding:9px 0;min-height:44px}.flag{font-size:.75rem;font-weight:700;letter-spacing:.08em;color:var(--mint)}.line{padding:12px 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}label{display:grid;gap:6px;margin:10px 0;color:var(--muted)}input,button{font:inherit;min-height:44px;width:100%;padding:10px;border:1px solid #9bb29a;border-radius:9px;background:#112e22;color:white}button{background:#25543c;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}footer{border-top:1px solid var(--line);color:var(--muted);font-size:.87rem}@media(max-width:790px){.layout{grid-template-columns:1fr}header,main,footer{padding:13px}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}</style></head><body>
+<header><div><div class="eyebrow">PALACO INDUSTRIE · CITADEL · WERELDATLAS</div><strong>Geïntegreerde Acceptatie- & Reviewcockpit · v3.0 RC</strong></div><a href="./">← Naar de Wereldatlas</a></header>
+<main><div class="eyebrow">DE VOLLEDIGE TEST- EN REVIEWROUTE</div><h1>Eén cockpit. Tien stappen. Volledige controle.</h1><p class="muted">Navigeer van echte telefoonacceptatie via herstel en bewijsafsluiting naar voorbereiding van een onafhankelijke beoordeling. Elke bestaande Atlasmodule blijft behouden en afzonderlijk bruikbaar.</p>
+<div class="notice"><strong>DRAFT · HOLD · DENY.</strong> Deze cockpit is een lokale toegang en statusweergave, geen autonome reviewer, handtekening, merge, fysieke telefoonmeting of productiepublicatie.</div>
+<section class="panel" aria-labelledby="route-title"><h2 id="route-title">Begeleide route</h2><p class="muted">Open iedere kamer om de betreffende stap handmatig uit te voeren. De koppeling hieronder registreert geen afgeronde test of review.</p><div class="steps" id="stages"></div><p id="navigation-status" role="status" aria-live="polite"></p></section>
+<div class="layout"><section class="panel"><h2>Gekoppeld dossieroverzicht</h2><p class="muted">Kies alleen bestaande lokale DRAFT-rapporten. Je kunt ze hier samen controleren zonder een eerdere beoordeling te overschrijven.</p>
+<label for="dossier-file">1 · Geconsolideerd acceptatiedossier (max 128 KiB)<input id="dossier-file" type="file" accept=".json,application/json"></label>
+<label for="review-file">2 · Reviewvoorbereiding (max 128 KiB)<input id="review-file" type="file" accept=".json,application/json"></label>
+<label for="register-file">3 · Bevindingenregister (max 128 KiB)<input id="register-file" type="file" accept=".json,application/json"></label>
+<label for="closure-file">4 · Evidence Closure (max 128 KiB)<input id="closure-file" type="file" accept=".json,application/json"></label>
+<label for="session">Sessiereferentie (optioneel)<input id="session" maxlength="240" placeholder="ATLAS-COCKPIT-001"></label>
+<button type="button" id="analyse" disabled>Bereken lokaal reviewoverzicht</button><button type="button" id="export" disabled>Download DRAFT-cockpitrapport</button><p id="status" role="status" aria-live="polite">Geen dossiers ingelezen.</p></section>
+<section class="panel"><h2>Openstaande onafhankelijke voorwaarden</h2><p id="summary" role="status" aria-live="polite">Importeer vier samenhangende dossiers voor een statusoverzicht.</p><h3>Releaseblokkades</h3><div id="blockers"></div><h3>Vijf onafhankelijke reviewpoorten</h3><div id="gates"></div><p class="muted">Geen van deze voorwaarden kan in de cockpit worden afgetekend; dat moet via werkelijke, onafhankelijk controleerbare procedures.</p></section></div></main>
+<footer>PALACO INDUSTRIE · Wereldatlas v3.0 RC · Offline-first · VORM9EVIN9 · Geen GO zonder bevoegdheid en bewijs</footer>
+<script type="module">
+import {STAGES,auditCockpitNavigation,createCockpitReport,validateCockpitReport} from "./atlas-integrated-cockpit.mjs";
+import {parseReviewDossier,validatePreparedReview} from "./atlas-independent-review.mjs";
+import {parseLocalRecord,validateRegister} from "./atlas-review-findings.mjs";
+import {validateClosure} from "./atlas-evidence-closure.mjs";
+import {parseReadinessSource} from "./atlas-review-readiness.mjs";
+const $=id=>document.getElementById(id),el=(tag,value)=>{const node=document.createElement(tag);if(value!==undefined)node.textContent=String(value);return node};
+const reports={dossier:null,review:null,register:null,closure:null},serial={dossier:0,review:0,register:0,closure:0};let result=null;
+for(const s of STAGES){const box=el("section");box.className="step";box.append(el("div","OPEN VOOR HANDMATIGE UITVOERING"),el("h3",s.title),el("p",s.description));box.firstChild.className="flag";const a=el("a","Open deze test- of reviewkamer");a.href="./"+s.route;box.append(a);$("stages").append(box)}
+const nav=auditCockpitNavigation();$("navigation-status").textContent=nav.ok?nav.total+" bestaande kamers gekoppeld; geen voortgang of goedkeuring geclaimd.":nav.errors.join("; ");
+function render(){$("analyse").disabled=!Object.values(reports).every(Boolean);$("export").disabled=!result;
+ $("blockers").replaceChildren();$("gates").replaceChildren();if(!result){$("summary").textContent="Importeer vier samenhangende dossiers voor een statusoverzicht.";return}
+ const s=result.overview;$("summary").textContent=s.openBlockerCategories+" open categorieën · "+s.evidenceMissing+" ontbrekende bewijslabels · "+s.findingsToReview+" bevindingen voor review · HOLD / DENY.";
+ for(const b of result.blockers){const p=el("p",b.id+" · "+(b.open?"OPEN":"GEEN GEMELDE AFWIJKING")+" · "+b.reason);p.className="line";$("blockers").append(p)}
+ for(const g of result.independentGates){const p=el("p",g.id+" · "+g.status);p.className="line";$("gates").append(p)}
+}
+async function load(key){const token=++serial[key];reports[key]=null;result=null;
+ const order=["dossier","review","register","closure"];for(const next of order.slice(order.indexOf(key)+1)){reports[next]=null;serial[next]++}
+ render();const f=$(key+"-file").files?.[0];if(!f||f.size>131072){$("status").textContent="AFGEWEZEN: bron ontbreekt of is te groot.";return}
+ try{const raw=await f.text();const value=key==="dossier"?parseReviewDossier(raw):key==="closure"?parseReadinessSource(raw):parseLocalRecord(raw);if(token!==serial[key])return;
+ if(key==="review"&&(!reports.dossier||!validatePreparedReview(value,reports.dossier).ok))throw Error("Review hoort niet bij dit dossier.");
+ if(key==="register"&&(!reports.review||!validateRegister(value,reports.dossier,reports.review).ok))throw Error("Bevindingenregister hoort niet bij dit dossier.");
+ if(key==="closure"&&(!reports.register||!validateClosure(value,reports.dossier,reports.review,reports.register).ok))throw Error("Evidence Closure hoort niet bij de bronketen.");
+ reports[key]=value;render();$("status").textContent="DRAFT-bronbestand lokaal gekoppeld; nog niet onafhankelijk geverifieerd.";
+ }catch(e){if(token===serial[key])$("status").textContent="AFGEWEZEN: "+e.message}
+}
+for(const key of Object.keys(reports))$(key+"-file").addEventListener("change",()=>load(key));
+$("analyse").addEventListener("click",()=>{try{result=createCockpitReport(reports.dossier,reports.review,reports.register,reports.closure,{sessionReference:$("session").value});
+ if(!validateCockpitReport(result,reports.dossier,reports.review,reports.register,reports.closure).ok)throw Error("Cockpitcontract ongeldig.");render();$("status").textContent="Lokaal DRAFT-overzicht opgesteld. Geen productieautorisatie; HOLD / DENY."}
+ catch(e){result=null;render();$("status").textContent="AFGEWEZEN: "+e.message}});
+$("export").addEventListener("click",()=>{if(!result||!validateCockpitReport(result,reports.dossier,reports.review,reports.register,reports.closure).ok)return;
+ const url=URL.createObjectURL(new Blob([JSON.stringify(result,null,2)],{type:"application/json"})),a=el("a");a.href=url;a.download="palaco-atlas-v30-integrated-cockpit-HOLD.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+render();
+</script></body></html>
