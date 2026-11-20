@@ -1051,3 +1051,58 @@ test('key registry rejects disabled old key and invalidates previous result on c
  await expect(page.locator('#rotationStatus')).toContainText('niet geldig of niet verifieerbaar');
  await expect(page.locator('#rotationStatus')).not.toContainText('CRYPTOGRAFISCH GELDIG');
 });
+
+async function signedRegistryFixture(page,rotation,{expired=false,tampered=false}={}){
+ return page.evaluate(async ({rotation,expired,tampered})=>{
+  const canonical=v=>Array.isArray(v)?'['+v.map(canonical).join(',')+']':v&&typeof v==='object'?'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canonical(v[k])).join(',')+'}':JSON.stringify(v);
+  const keys=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
+  const pub=await crypto.subtle.exportKey('jwk',keys.publicKey),issuer={kty:'EC',crv:'P-256',x:pub.x,y:pub.y};
+  const h=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonical(issuer)));
+  const issuerFingerprint=Array.from(new Uint8Array(h),b=>b.toString(16).padStart(2,'0')).join('');
+  const t=Date.now(),day=86400000;
+  const data={schema:'palaco-citadel-key-registry-v2',epoch:rotation.epoch-1,
+    activeFingerprint:rotation.oldFingerprint,status:'active',issuerFingerprint,
+    issuedAt:new Date(t-(expired?3:1)*day).toISOString(),
+    expiresAt:new Date(t+(expired?-1:1)*day).toISOString()};
+  const signature=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},keys.privateKey,new TextEncoder().encode(canonical(data)));
+  const snapshot={...data,signature:btoa(String.fromCharCode(...new Uint8Array(signature)))};
+  if(tampered)snapshot.epoch=rotation.epoch;
+  return {issuer,snapshot};
+ },{rotation,expired,tampered});
+}
+
+async function uploadSignedRegistry(page,fixture,snapshot){
+ await page.locator('#rotationOldKey').fill(JSON.stringify(fixture.oldKey));
+ await page.locator('#rotationNewKey').fill(JSON.stringify(fixture.newKey));
+ await page.locator('#rotationFile').setInputFiles({name:'rotation.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.rotation))});
+ await page.locator('#registryIssuerKey').fill(JSON.stringify(snapshot.issuer));
+ await page.locator('#rotationRegistry').setInputFiles({name:'signed-registry.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(snapshot.snapshot))});
+}
+
+test('signed v2 registry matches rotation but does not grant PALACO trust',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await rotationFixture(page),snapshot=await signedRegistryFixture(page,fixture.rotation);
+ await uploadSignedRegistry(page,fixture,snapshot);
+ await page.locator('#verifyRotation').click();
+ await expect(page.locator('#rotationStatus')).toContainText('CRYPTOGRAFISCH GELDIG');
+ await expect(page.locator('#rotationStatus')).toContainText('NIET VERTROUWD');
+ await expect(page.locator('#rotationStatus')).toContainText('Geen PALACO-autorisatie');
+});
+
+test('expired signed v2 registry snapshot fails closed',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await rotationFixture(page),snapshot=await signedRegistryFixture(page,fixture.rotation,{expired:true});
+ await uploadSignedRegistry(page,fixture,snapshot);
+ await page.locator('#verifyRotation').click();
+ await expect(page.locator('#rotationStatus')).toContainText('niet geldig of niet verifieerbaar');
+ await expect(page.locator('#rotationStatus')).not.toContainText('CRYPTOGRAFISCH GELDIG');
+});
+
+test('modified signed v2 registry snapshot fails signature verification',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await rotationFixture(page),snapshot=await signedRegistryFixture(page,fixture.rotation,{tampered:true});
+ await uploadSignedRegistry(page,fixture,snapshot);
+ await page.locator('#verifyRotation').click();
+ await expect(page.locator('#rotationStatus')).toContainText('niet geldig of niet verifieerbaar');
+ await expect(page.locator('#rotationStatus')).not.toContainText('CRYPTOGRAFISCH GELDIG');
+});
