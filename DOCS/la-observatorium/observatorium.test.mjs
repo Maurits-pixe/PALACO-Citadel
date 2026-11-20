@@ -370,6 +370,20 @@ test('offline journal exports split into lossless import-sized packets',()=>{
  assert.match(html,/if\(bytes\(makePacket\(candidate\)\)>262144\)/);
  assert.match(html,/parts\.push\(makePacket\(current\)\)/);
  assert.match(html,/downloadJSON\(packet,filename\)/);
+ assert.match(html,/id="export-next" type="button"/);
+ assert.match(html,/id="export-progress" role="status" aria-live="polite"/);
+ assert.match(html,/function downloadNextJournalPart\(\)/);
+ assert.match(html,/journalExportPosition\+\+/);
+ assert.match(html,/journalExportQueue\.length-journalExportPosition/);
+ assert.match(html,/\$\("export-next"\)\.addEventListener\("click",downloadNextJournalPart\)/);
  assert.match(html,/Bewaar en importeer elk deel afzonderlijk/);
  assert.match(html,/SELF_REPORTED_NOT_VERIFIED/);
+});
+
+test('browser exercise of segmented export uses real clicks and downloads',()=>{
+ const browser=readFileSync(new URL('./browser-acceptance.test.mjs',import.meta.url),'utf8');
+ assert.match(browser,/large journal exports each import-compatible JSON part through separate user clicks/);
+ assert.match(browser,/page\.waitForEvent\('download'/);
+ assert.match(browser,/page\.locator\('#export-next'\)\.click\(\)/);
+ assert.doesNotMatch(browser,/page\.evaluate\(\(\)=>\{\s*const entries=Array\.from\(\{length:100\}/);
 });
