@@ -392,10 +392,23 @@ test('segmented export part may be retried without moving to the next part',()=>
  assert.match(html,/id="export-retry" type="button"/);
  assert.match(html,/function journalExportFilename\(index\)/);
  assert.match(html,/\$\("export-retry"\)\.addEventListener\("click",\(\)=>/);
- assert.match(html,/const index=journalExportPosition-1/);
+ assert.match(html,/const index=Number\(\$\("export-retry-picker"\)\.value\)/);
+ assert.match(html,/function updateJournalRetryPicker\(\)/);
+ assert.match(html,/id="export-retry-picker"/);
+ assert.match(html,/i<journalExportPosition/);
+ assert.match(html,/index>=journalExportPosition/);
  assert.match(html,/downloadJSON\(journalExportQueue\[index\],journalExportFilename\(index\)\)/);
  assert.match(html,/de volgende downloadpositie blijft behouden/);
  const browser=readFileSync(new URL('./browser-acceptance.test.mjs',import.meta.url),'utf8');
  assert.match(browser,/page\.locator\('#export-retry'\)\.click\(\)/);
  assert.match(browser,/Retry must not advance the remaining-parts counter/);
+});
+
+test('redownload picker exposes only started export parts and never advances queue',()=>{
+ assert.match(html,/id="export-retry-picker-label"/);
+ assert.match(html,/option\.value=String\(i\)/);
+ assert.match(html,/option\.textContent="Deel "\+\(i\+1\)/);
+ assert.match(html,/picker\.value=previous!==""/);
+ assert.match(html,/updateJournalRetryPicker\(\);/);
+ assert.match(html,/downloadJSON\(journalExportQueue\[index\],journalExportFilename\(index\)\)/);
 });
