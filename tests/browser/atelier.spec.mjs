@@ -633,3 +633,35 @@ test('Atelier: wissen na geslaagde export blokkeert oud SHA-256-bewijs en laat n
  await downloaded;
  await expect(page.locator('#exportBundleReceipt')).toBeEnabled();
 });
+
+test('Atelier: toegankelijke bestandskeuze en resetmelding op mobiele en desktopweergave',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const entries=[
+   ['checkExportFile','exportCheckStatus'],
+   ['pairVerify','pairStatus'],
+   ['reportVerify','reportVerifyStatus'],
+   ['bundleVerify','verifyStatus'],
+   ['fingerprintReceipt','referenceStatus']
+ ];
+ for(const [id,description] of entries){
+   const input=page.locator('#'+id);
+   await expect(input).toHaveAttribute('aria-describedby',description);
+   const metrics=await input.evaluate(el=>({
+     height:el.getBoundingClientRect().height,
+     width:el.getBoundingClientRect().width,
+     viewport:document.documentElement.clientWidth,
+     minHeight:getComputedStyle(el).minHeight
+   }));
+   expect(metrics.height).toBeGreaterThanOrEqual(44);
+   expect(metrics.width).toBeLessThanOrEqual(metrics.viewport+2);
+   expect(metrics.minHeight).toBe('44px');
+ }
+ const nameInput=page.locator('#fingerprintReceipt');
+ await nameInput.focus();
+ expect(await nameInput.evaluate(el=>getComputedStyle(el).outlineStyle)).not.toBe('none');
+ await expect(page.locator('#clearInspections')).toHaveAttribute('aria-describedby','clearExplanation');
+ await page.locator('#clearInspections').click();
+ await expect(page.locator('#referenceStatus')).toBeFocused();
+ await expect(page.locator('#referenceStatus')).toContainText('Tijdelijke TXT-referentie gewist');
+ await expect(page.locator('#referenceStatus')).toHaveAttribute('aria-live','polite');
+});
