@@ -376,7 +376,7 @@ test('offline journal exports split into lossless import-sized packets',()=>{
  assert.match(html,/journalExportPosition\+\+/);
  assert.match(html,/journalExportQueue\.length-journalExportPosition/);
  assert.match(html,/\$\("export-next"\)\.addEventListener\("click",downloadNextJournalPart\)/);
- assert.match(html,/Bewaar en importeer elk deel afzonderlijk/);
+ assert.match(html,/Gebruik 'Download volgend deel' om de overige bestanden één voor één op te slaan/);
  assert.match(html,/SELF_REPORTED_NOT_VERIFIED/);
 });
 
