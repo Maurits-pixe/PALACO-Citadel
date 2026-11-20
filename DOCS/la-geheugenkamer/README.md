@@ -56,6 +56,12 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Focusherstel bij dossier sluiten · v3.6
+- De dossierinspectie ondersteunt naast de knop **Sluit dossier** nu ook de `Escape`-toets zolang de toetsenbordfocus zich in het dossier bevindt.
+- Bij sluiten keert de focus terug naar de knop **Inspecteer dossier** waarmee de selectie is geopend. Als de tijdlijn ondertussen opnieuw is gerenderd en de oorspronkelijke knop niet meer in het document bestaat, gaat de focus veilig naar de tijdlijn zelf (programmeerbaar focuspunt).
+- Twee Node UI-tests en twee Chromium-tests controleren terugkeer naar de opener, sluiten met Escape en de fallback bij opnieuw gerenderde tijdlijn.
+- Er is **geen** gebruikersdata gewijzigd en er is geen automatische verificatie, autorisatie of ERA/EDTR-uitgifte toegevoegd. Tests op fysieke toestellen en onafhankelijke WCAG-review blijven vereist.
+
 ## Mobiele dossierweergave en toetsenbordfocus · v3.5
 - Op zeer smalle telefoons (320–480 px) staan actieknoppen onder elkaar, zijn ze minimaal 44 px hoog en kunnen lange teksten afbreken. De tijdlijn wordt op die schermen niet meer begrensd door een intern scrollvak.
 - De dossierinspectie heeft nu een expliciet gekoppelde kop (`aria-labelledby`). Bij het selecteren van een dossier verplaatst de focus naar die kop, zodat toetsenbord- en screenreadergebruikers niet onverwacht in de tijdlijn blijven staan.
