@@ -104,7 +104,8 @@ footer{border-top:1px solid #3d5046;padding:24px;text-align:center;color:#9eada4
 <label for="import-file">Importeer eerder lokaal observatielogboek (JSON, maximaal 256 KB)</label>
 <input id="import-file" type="file" accept=".json,application/json">
 <p class="muted">Import is uitsluitend een lokale kopie. Bestaande notities blijven behouden; dubbele ID's worden overgeslagen. Import verleent nooit bewijsstatus of mandaat.</p>
-<div class="actions"><button class="secondary" id="import" type="button">Controleer en importeer</button><button class="secondary" id="export" type="button">Exporteer JSON</button><button class="secondary" id="clear" type="button">Wis lokale notities</button></div>
+<div class="actions"><button class="secondary" id="import" type="button">Controleer en importeer</button><button class="secondary" id="export" type="button">Exporteer JSON</button><button class="secondary hidden" id="export-next" type="button">Download volgend deel</button><button class="secondary" id="clear" type="button">Wis lokale notities</button></div>
+<p class="muted" id="export-progress" role="status" aria-live="polite"></p>
 <p class="muted" id="storage">Opslag: alleen huidig tabblad</p><p class="muted" id="pending" role="status" aria-live="polite">0 notities wachten op opslag.</p><div class="actions"><button class="secondary hidden" id="storage-backup" type="button">Download onleesbare kopie (lokaal)</button><button class="secondary hidden" id="storage-reset" type="button">Wis onleesbare lokale kopie (na bevestiging)</button></div>
 </div></div>
 </section>
@@ -453,17 +454,30 @@ function exportJournalParts(items,exportedAt){
  parts.push(makePacket(current));
  return parts;
 }
-$("export").addEventListener("click",()=>{
-const parts=exportJournalParts(notes,new Date().toISOString());
-if(!parts){status("JSON-export geweigerd: één waarneming overschrijdt de veilige importgrens.");return;}
-try{
- parts.forEach((packet,index)=>{
-  const filename=parts.length===1?"la-observatorium-lokale-waarnemingen.json":"la-observatorium-lokale-waarnemingen-deel-"+String(index+1).padStart(2,"0")+"-van-"+String(parts.length).padStart(2,"0")+".json";
+let journalExportQueue=[],journalExportPosition=0;
+function downloadNextJournalPart(){
+ if(journalExportPosition>=journalExportQueue.length)return;
+ const index=journalExportPosition,packet=journalExportQueue[index];
+ const filename=journalExportQueue.length===1?"la-observatorium-lokale-waarnemingen.json":"la-observatorium-lokale-waarnemingen-deel-"+String(index+1).padStart(2,"0")+"-van-"+String(journalExportQueue.length).padStart(2,"0")+".json";
+ try{
   downloadJSON(packet,filename);
- });
- status(parts.length===1?"JSON-export aangemaakt; bestand past binnen de importgrens.":parts.length+" JSON-delen aangemaakt. Bewaar en importeer elk deel afzonderlijk; controleer de downloads.");
-}catch(_){status("Export kon niet volledig worden gestart; controleer de downloads vóór herladen.");}
+  journalExportPosition++;
+  const remaining=journalExportQueue.length-journalExportPosition;
+  $("export-next").classList.toggle("hidden",remaining===0);
+  $("export-progress").textContent=remaining?
+   "Download "+journalExportPosition+" van "+journalExportQueue.length+" gestart; "+remaining+" deel/delen wachten op afzonderlijke download.":
+   "Alle "+journalExportQueue.length+" download(s) gestart; controleer of elk bestand is opgeslagen.";
+  status(remaining?"Gebruik 'Download volgend deel' om de overige bestanden één voor één op te slaan.":"Alle downloadacties gestart; controleer de bestanden vóór herladen.");
+ }catch(_){status("Download van dit deel mislukt; probeer hetzelfde deel opnieuw.");}
+}
+$("export").addEventListener("click",()=>{
+ const parts=exportJournalParts(notes,new Date().toISOString());
+ if(!parts){status("JSON-export geweigerd: één waarneming overschrijdt de veilige importgrens.");return;}
+ if(journalExportPosition<journalExportQueue.length&&!confirm("Er staan nog exportdelen klaar. Nieuwe export starten en de oude wachtrij vervangen?"))return;
+ journalExportQueue=parts;journalExportPosition=0;
+ downloadNextJournalPart();
 });
+$("export-next").addEventListener("click",downloadNextJournalPart);
 render();if(storageEnabled)save();
 })();
 </script></body></html>
