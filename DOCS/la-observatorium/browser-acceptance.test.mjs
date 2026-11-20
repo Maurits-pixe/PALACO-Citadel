@@ -703,6 +703,16 @@ test('large journal exports each import-compatible JSON part through separate us
   assert.ok(downloads.length>1,'Large journal must split into multiple manually initiated downloads');
   assert.equal(await page.locator('#export-next').isVisible(),false);
   assert.match(await page.locator('#export-progress').innerText(),/Alle .* download\(s\) gestart/);
+  assert.equal(await page.locator('#export-retry-picker').locator('option').count(),downloads.length);
+  const finishedProgress=await page.locator('#export-progress').innerText();
+  await page.locator('#export-retry-picker').selectOption('0');
+  const firstAgainPending=page.waitForEvent('download',{timeout:10000});
+  await page.locator('#export-retry').click();
+  const firstAgain=await firstAgainPending;
+  assert.equal(firstAgain.suggestedFilename(),downloads[0].suggestedFilename());
+  assert.deepEqual(await readFile(await firstAgain.path()),await readFile(await downloads[0].path()));
+  assert.equal(await page.locator('#export-progress').innerText(),finishedProgress,
+   'Retrying first part after completing downloads must not move queue');
   const parts=await Promise.all(downloads.map(async d=>{
    const bytes=await readFile(await d.path());
    assert.ok(bytes.length<=262144,'Each saved part must be within import cap');
