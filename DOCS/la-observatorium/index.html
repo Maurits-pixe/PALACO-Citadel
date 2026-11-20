@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark"><title>L.A. | Het Observatorium — PALACO Citadel</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color:#ece8dc;background:#0a1212;font-size:16px}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#1b302b 0,transparent 46%),#0a1212;min-height:100vh}
+a{color:#d9bd79}button,input,select,textarea{font:inherit}button{cursor:pointer}
+.skip{position:absolute;top:-100px;left:16px}.skip:focus{top:12px;background:#fff;color:#111;padding:12px;z-index:10}
+header{border-bottom:1px solid #6e654533;padding:18px clamp(16px,4vw,54px);display:flex;gap:22px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.brand{font-size:.78rem;letter-spacing:.22em;color:#ddc483;font-weight:700}header .tag{max-width:100%;overflow-wrap:anywhere}header>div{min-width:0;overflow-wrap:anywhere}.muted{color:#a9b6af}.tag{border:1px solid #bba76b88;color:#dccc9e;border-radius:20px;padding:6px 10px;font-size:.73rem}
+main{max-width:1300px;padding:40px 22px 80px;margin:auto}.eyebrow{letter-spacing:.24em;color:#cfb778;text-transform:uppercase;font-size:.74rem}
+h1{font-family:Georgia,serif;font-weight:400;font-size:clamp(2.4rem,6vw,5rem);margin:10px 0}h2{font-family:Georgia,serif;font-weight:400;font-size:1.7rem;margin:0 0 12px}
+p{line-height:1.6}.lead{font-size:1.07rem;color:#c0cbc5;max-width:760px}
+.bar,.tabs{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0}.pill,.tab{background:#122220;color:#d4ded5;border:1px solid #385049;border-radius:32px;padding:10px 16px}
+.tab[aria-selected=true]{color:#0b1816;background:#dbc486;border-color:#dbc486}
+.tab:focus-visible,.primary:focus-visible,.secondary:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #efdcab;outline-offset:3px}
+.tab{min-height:44px}
+.panel{background:linear-gradient(155deg,#172723,#0f1b1b);border:1px solid #3d5046;border-radius:18px;padding:24px;min-width:0}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.wide{grid-column:span 2}
+.metric{font-size:1.45rem;margin:12px 0;color:#edd498}.label{font-size:.77rem;text-transform:uppercase;letter-spacing:.14em;color:#afc1b3}
+.bad{color:#f3b6a8}.ok{color:#bbdec8}.unknown{color:#e8cf93}
+.section{margin:28px 0}.hidden{display:none!important}.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+.primary{background:#d9c385;border:1px solid #d9c385;color:#17211d;border-radius:10px;padding:11px 16px;font-weight:700}
+.secondary{background:transparent;border:1px solid #849285;color:#eee;border-radius:10px;padding:11px 16px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+ul.events{list-style:none;margin:0;padding:0}.events li{padding:15px 0;border-top:1px solid #385049;overflow-wrap:anywhere}.events small{display:block;color:#b0bcb4;margin-top:4px}
+.kicker{color:#dec787;font-size:.75rem;letter-spacing:.15em;text-transform:uppercase}
+label{display:block;margin:14px 0 5px;color:#d5e2d6}
+input:not([type=checkbox]),select,textarea{width:100%;background:#091817;color:#f3f4ee;border:1px solid #687a6e;border-radius:9px;padding:11px}
+textarea{min-height:100px;resize:vertical}input[type=checkbox]{width:auto}
+fieldset{border:1px solid #3d5046;border-radius:12px;margin:16px 0;padding:14px}
+footer{border-top:1px solid #3d5046;padding:24px;text-align:center;color:#9eada4;font-size:.82rem}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+@media(max-width:820px){.grid{grid-template-columns:1fr}.wide{grid-column:span 1}main{padding-top:25px}.panel{padding:18px}}
+@media(prefers-reduced-motion:no-preference){button{transition:background .15s,border-color .15s}button:hover{border-color:#ead29b}}
+</style></head>
+<body>
+<a class="skip" href="#main">Ga naar inhoud</a>
+<header><div><div class="brand">PALACO · CITADEL</div><div class="muted">L.A. / LOCUS AMOENUS / OBSERVATORIUM</div></div><span class="tag">LOKALE PROEFMODULE · GEEN LIVE TELEMETRIE</span></header>
+<main id="main">
+<p class="muted"><a href="../../index.html">← Terug naar Citadel</a></p>
+<div class="eyebrow">De kroon · De uitkijk · De herinnering</div>
+<h1>Het Observatorium</h1>
+<p class="lead">Een rustige plaats om constitutionele gebeurtenissen te observeren, herkomst te volgen en bewijsgrenzen zichtbaar te houden. Waarneming ≠ bewijs ≠ definitief besluit.</p>
+<div class="bar"><span class="tag">Modus: PROTOTYPE</span><span class="tag">Bevoegdheid: READ ONLY</span><span class="tag">Live verbinding: NIET AANGESLOTEN</span></div>
+<nav class="tabs" role="tablist" aria-label="Observatorium hoofdstukken">
+<button class="tab" id="tab-uitkijk" role="tab" type="button" data-tab="uitkijk" aria-controls="uitkijk" aria-selected="true" tabindex="0">De Uitkijk</button>
+<button class="tab" id="tab-bewijs" role="tab" type="button" data-tab="bewijs" aria-controls="bewijs" aria-selected="false" tabindex="-1">De Bewijskamer</button>
+<button class="tab" id="tab-geheugen" role="tab" type="button" data-tab="geheugen" aria-controls="geheugen" aria-selected="false" tabindex="-1">Het Geheugen</button>
+<button class="tab" id="tab-wacht" role="tab" type="button" data-tab="wacht" aria-controls="wacht" aria-selected="false" tabindex="-1">De Wachttoren</button>
+<button class="tab" id="tab-atelier" role="tab" type="button" data-tab="atelier" aria-controls="atelier" aria-selected="false" tabindex="-1">Het Atelier</button>
+</nav>
+<section id="uitkijk" class="section" role="tabpanel" aria-labelledby="tab-uitkijk" tabindex="0">
+<div class="grid">
+<article class="panel"><div class="label">Referentie-Citadel</div><div class="metric">L.A. · W-0001</div><p class="muted">Locus Amoenus; referentiepresentatie, geen gezagsbron.</p></article>
+<article class="panel"><div class="label">Systeemstatus</div><div class="metric unknown">ONBEKEND</div><p class="muted">Geen geauthenticeerde live bron gekoppeld. Niet interpreteren als gezond of operationeel.</p></article>
+<article class="panel"><div class="label">Bewijsstatus</div><div class="metric unknown">NIET GEVERIFIEERD</div><p class="muted">Lokale waarnemingen vormen op zichzelf geen bewijs.</p></article>
+<article class="panel wide"><div class="label">Architectuur · De vier torens</div><p>Identiteit · Bewijs · Bestuur · Evolutie</p><p class="muted">Beacon = tijd/ruimte; Crown = legitimiteit/continuïteit; Citadel = bescherming; Locus Amoenus = menselijke leefomgeving.</p></article>
+<article class="panel"><div class="label">Lokale tijdsaanduiding</div><div class="metric" id="clock">—</div><p class="muted">Apparaattijd, geen EDTR- of WATERMERK-verificatie.</p></article>
+</div>
+</section>
+<section id="bewijs" class="section hidden" role="tabpanel" aria-labelledby="tab-bewijs" tabindex="0">
+<div class="grid">
+<article class="panel"><div class="label">WATERMERK</div><div class="metric unknown">BRON ONTBREEKT</div><p class="muted">Geen ketencontrole, handtekening of monotone lineage aangeleverd.</p></article>
+<article class="panel"><div class="label">Mandaat / bevoegdheid</div><div class="metric unknown">ONBEKEND</div><p class="muted">De module verleent of verandert geen mandaten.</p></article>
+<article class="panel"><div class="label">Provenance · Quay</div><div class="metric unknown">NIET AANGESLOTEN</div><p class="muted">Geen externe eventstream, replay of auditbron actief.</p></article>
+</div>
+<div class="panel section" id="inspection" aria-live="polite"><h2>Geselecteerde waarneming</h2><p class="muted" id="inspection-empty">Selecteer een lokale waarneming in Het Geheugen om de bewijsketen te inspecteren.</p><div id="inspection-fields" class="hidden"><p><strong id="inspection-subject"></strong></p><p id="inspection-notes"></p><p><span class="label">Classificatie</span> <span id="inspection-kind"></span></p><p><span class="label">Bronverwijzing</span> <span id="inspection-reference"></span></p><p><span class="label">Referentietype</span> <span id="inspection-reference-type"></span></p><p><span class="label">Referentiecontrole</span> <strong id="inspection-reference-state">NIET GEVERIFIEERD</strong></p><p><span class="label">Apparaattijd</span> <span id="inspection-time"></span></p><p><span class="label">Herkomst</span> <strong>SELF_REPORTED_NOT_VERIFIED</strong></p><p class="unknown">Quay: NIET AANGESLOTEN · ERA/EDTR: NIET GECONTROLEERD · WATERMERK: GEEN VALIDATIE · Mandaat: GEEN</p><p class="muted">Een SHA-256-controlesom controleert alleen de bestandsinhoud; dit is geen handtekening, bronattestatie of bewijs van authenticiteit.</p><div class="actions"><button id="inspection-export" type="button" class="primary">Exporteer lokaal inspectiedossier</button><button id="inspection-back" type="button" class="secondary">Terug naar Geheugen</button></div></div></div>
+<div class="panel section"><h2>Lokale dossiercontroleur</h2><p class="muted">Controleer een eerder geëxporteerd inspectiedossier op SHA-256-bestandsinhoud. De controle verandert geen notities, bronstatus of bevoegdheden.</p>
+<label for="dossier-file">Selecteer inspectiedossier (JSON, maximaal 256 KB)</label><input id="dossier-file" type="file" accept=".json,application/json">
+<div class="actions"><button class="secondary" id="verify-dossier" type="button">Controleer integriteit</button></div>
+<p id="dossier-verdict" role="status" aria-live="polite">Nog geen dossier gecontroleerd.</p>
+<p class="muted">Bij gelijke hash: INTEGRITEIT KOMT OVEREEN, maar authenticiteit blijft NIET GEVERIFIEERD. Bij afwijking: INTEGRITEIT AFGEWEZEN.</p></div>
+<div class="panel section"><h2>Bewijsladder</h2><p>Bron → Herkomst → Bewijs → Regels → Replay → Reconstructie → Beoordeling.</p><p class="muted">Elke ontbrekende schakel blijft zichtbaar. Uitkomsten mogen pas PASS, REJECT of UNRESOLVED heten na een afzonderlijke, aantoonbare beoordeling. Deze presentatie beoordeelt niets.</p></div>
+</section>
+<section id="geheugen" class="section hidden" role="tabpanel" aria-labelledby="tab-geheugen" tabindex="0">
+<div class="panel"><div class="row"><h2>Lokale waarnemingstijdlijn</h2><span id="count" class="tag">0 notities</span></div>
+<label for="search">Zoek in onderwerp, beschrijving of bronverwijzing</label><input id="search" type="search" maxlength="120" autocomplete="off" placeholder="Zoek in dit lokale geheugen">
+<label for="filter">Filter op classificatie</label><select id="filter"><option value="ALL">Alle classificaties</option><option value="OBSERVED">OBSERVED</option><option value="RECORDED">RECORDED</option><option value="DERIVED">DERIVED</option><option value="INFERRED">INFERRED</option><option value="HYPOTHESIS">HYPOTHESIS</option></select>
+<p class="muted">Alleen handmatig vastgelegde notities. Geen officiële Quay-events; bewerken of verwijderen hier verandert nooit de canonieke geschiedenis. Alle resultaten zijn <strong>SELF_REPORTED_NOT_VERIFIED</strong>.</p>
+<ul class="events" id="events"><li>Er zijn nog geen lokale waarnemingen.</li></ul></div>
+</section>
+<section id="wacht" class="section hidden" role="tabpanel" aria-labelledby="tab-wacht" tabindex="0">
+<div class="grid">
+<article class="panel"><div class="kicker">Zichtbare grens</div><h2>Geen live bron</h2><p class="bad">BLOKKADE</p><p class="muted">Drift en echte incidenten kunnen niet worden bepaald zonder geverifieerde feed.</p></article>
+<article class="panel"><div class="kicker">Historische integriteit</div><h2>Replay ontbreekt</h2><p class="unknown">ONOPGELOST</p><p class="muted">Geen bronhistorie of reproduceerbare checkpoint ontvangen.</p></article>
+<article class="panel"><div class="kicker">Veiligheidsgrens</div><h2>Geen autorisatie</h2><p class="ok">READ ONLY</p><p class="muted">Geen uitvoering, uitgifte, goedkeuring of wijziging van bevoegdheden.</p></article>
+</div></section>
+<section id="atelier" class="section hidden" role="tabpanel" aria-labelledby="tab-atelier" tabindex="0">
+<div class="grid"><div class="panel wide">
+<h2>Leg een waarneming vast</h2><p class="muted">Een notitie is zelfgerapporteerd, niet onafhankelijk geverifieerd. Vul geen geheimen, identiteitsbewijzen of toegangstokens in.</p>
+<form id="form">
+<label for="subject">Onderwerp</label><input id="subject" name="subject" required maxlength="100" placeholder="Bijv. WATERMERK-status in lokale proefomgeving">
+<label for="kind">Classificatie</label><select id="kind" name="kind"><option>OBSERVED</option><option>RECORDED</option><option>DERIVED</option><option>INFERRED</option><option>HYPOTHESIS</option></select>
+<label for="reference">Bronverwijzing (optioneel)</label><input id="reference" name="reference" maxlength="200" placeholder="Bijv. QUAY: event-123, ERA: dossier-4 of WATERMERK: ref-5"><p class="muted">De aanduidingen QUAY:, ERA: en WATERMERK: zijn alleen labels. De bron en het bewijs worden niet automatisch gecontroleerd.</p>
+<label for="notes">Beschrijving</label><textarea id="notes" name="notes" maxlength="1500" required placeholder="Wat is daadwerkelijk waargenomen, en wat is onzeker?"></textarea>
+<div class="actions"><button class="primary" type="submit">Voeg lokale waarneming toe</button></div>
+</form>
+</div><div class="panel">
+<h2>Privacy & export</h2><p class="muted">Standaard alleen in dit geopende tabblad; bij herladen vervallen niet-opgeslagen notities.</p>
+<label><input type="checkbox" id="persist"> Sta opslag op dit apparaat toe</label>
+<label for="import-file">Importeer eerder lokaal observatielogboek (JSON, maximaal 256 KB)</label>
+<input id="import-file" type="file" accept=".json,application/json">
+<p class="muted">Import is uitsluitend een lokale kopie. Bestaande notities blijven behouden; dubbele ID's worden overgeslagen. Import verleent nooit bewijsstatus of mandaat.</p>
+<div class="actions"><button class="secondary" id="import" type="button">Controleer en importeer</button><button class="secondary" id="export" type="button">Exporteer JSON</button><button class="secondary hidden" id="export-next" type="button">Download volgend deel</button><label class="hidden" id="export-retry-picker-label" for="export-retry-picker">Downloaddeel opnieuw kiezen <select id="export-retry-picker"></select></label><button class="secondary hidden" id="export-retry" type="button">Download gekozen deel opnieuw</button><button class="secondary" id="clear" type="button">Wis lokale notities</button></div>
+<p class="muted" id="export-progress" role="status" aria-live="polite"></p>
+<p class="muted" id="storage">Opslag: alleen huidig tabblad</p><p class="muted" id="pending" role="status" aria-live="polite">0 notities wachten op opslag.</p><div class="actions"><button class="secondary hidden" id="storage-backup" type="button">Download onleesbare kopie (lokaal)</button><button class="secondary hidden" id="storage-reset" type="button">Wis onleesbare lokale kopie (na bevestiging)</button></div>
+</div></div>
+</section>
+<p class="sr" role="status" aria-live="polite" id="announce"></p>
+</main><footer>PALACO · Locus Amoenus · Observatory prototype · Niet verbonden met live Citadel · Geen besluit- of bewijsautoriteit</footer>
+<script>
+(function(){
+"use strict";
+const KEY="palaco_la_observatory_notes_v1", CONSENT="palaco_la_observatory_consent_v1", max=100, $=id=>document.getElementById(id);
+const tabs=Array.from(document.querySelectorAll("[data-tab]"));
+function activateTab(btn){
+ tabs.forEach(b=>{
+  const active=b===btn;b.setAttribute("aria-selected",String(active));b.tabIndex=active?0:-1;
+  $(b.dataset.tab).classList.toggle("hidden",!active);
+ });
+}
+tabs.forEach((btn,i)=>{
+ btn.addEventListener("click",()=>activateTab(btn));
+ btn.addEventListener("keydown",e=>{
+  let next;
+  if(e.key==="ArrowRight")next=(i+1)%tabs.length;
+  else if(e.key==="ArrowLeft")next=(i+tabs.length-1)%tabs.length;
+  else if(e.key==="Home")next=0;
+  else if(e.key==="End")next=tabs.length-1;
+  else return;
+  e.preventDefault();const selected=tabs[next];activateTab(selected);selected.focus();
+ });
+});
+$("clock").textContent=new Date().toLocaleString("nl-NL",{dateStyle:"medium",timeStyle:"short"});
+let notes=[];
+let journalRevision=0;
+let selectedId=null;
+let storageEnabled=false,storageRecoveryBlocked=false,storageConflictBlocked=false;
+function validStoredNotes(value){
+return Array.isArray(value)&&value.length<=max&&value.every(n=>ownKeysEqual(n,["id","at","subject","kind","reference","notes"])&&valid(n))&&new Set(value.map(n=>n.id)).size===value.length;
+}
+try{
+ storageEnabled=localStorage.getItem(CONSENT)==="yes";
+ if(storageEnabled){
+  const raw=localStorage.getItem(KEY);
+  if(raw!==null){
+   if(new TextEncoder().encode(raw).length>262144)throw new Error("Lokale kopie overschrijdt veilige grootte");
+   const value=JSON.parse(raw);
+   if(!validStoredNotes(value))throw new Error("Lokale kopie heeft een ongeldig schema");
+   notes=value.map(n=>({id:n.id,at:n.at,subject:n.subject,kind:n.kind,reference:n.reference,notes:n.notes}));
+  }
+ }else{localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);}
+}catch(_){storageRecoveryBlocked=true;storageEnabled=false;notes=[];}
+let persistedNoteIds=new Set(storageEnabled?notes.map(n=>n.id):[]);
+let storedSnapshot=null;
+try{storedSnapshot={raw:localStorage.getItem(KEY),consent:localStorage.getItem(CONSENT)};}catch(_){storageRecoveryBlocked=true;storageEnabled=false;}
+function markStorageConflict(){
+ storageConflictBlocked=true;
+ persistedNoteIds.clear();
+ try{
+  if(localStorage.getItem(CONSENT)!=="yes")$("persist").checked=false;
+ }catch(_){$("persist").checked=false;}
+ $("persist").disabled=true;
+ $("storage").textContent="CONFLICT MET ANDER TABBLAD: de eerdere opslagbevestiging is vervallen; externe wijzigingen blijven behouden.";
+ updatePendingStatus();
+ status("Opslagconflict: eerdere opslag niet meer bevestigd; exporteer eerst je lokale notities en herlaad daarna.");
+}
+function storageMatchesSnapshot(){
+ return storedSnapshot!==null&&localStorage.getItem(KEY)===storedSnapshot.raw&&localStorage.getItem(CONSENT)===storedSnapshot.consent;
+}
+window.addEventListener("storage",event=>{
+ if((event.key===KEY||event.key===CONSENT||event.key===null)&&!storageRecoveryBlocked){
+  try{if(!storageMatchesSnapshot())markStorageConflict();}
+  catch(_){markStorageConflict();}
+ }
+});
+function unpersistedNoteCount(){
+ return notes.filter(n=>!persistedNoteIds.has(n.id)).length;
+}
+function updatePendingStatus(){
+ const unpersisted=unpersistedNoteCount();
+ $("pending").textContent=unpersisted?unpersisted+" notitie(s) alleen in dit tabblad; exporteer JSON vóór herladen.":"Alle aanwezige notities opgeslagen of geen notities aanwezig.";
+}
+window.addEventListener("beforeunload",event=>{
+ if(!unpersistedNoteCount())return;
+ event.preventDefault();
+ event.returnValue="";
+});
+function valid(n){return n&&typeof n==="object"&&!Array.isArray(n)&&typeof n.id==="string"&&n.id.length>0&&n.id.length<=100&&typeof n.at==="string"&&Number.isFinite(Date.parse(n.at))&&typeof n.subject==="string"&&n.subject.trim().length>0&&n.subject.length<=100&&typeof n.notes==="string"&&n.notes.trim().length>0&&n.notes.length<=1500&&typeof n.kind==="string"&&["OBSERVED","RECORDED","DERIVED","INFERRED","HYPOTHESIS"].includes(n.kind)&&typeof n.reference==="string"&&n.reference.length<=200;}
+$("persist").checked=storageEnabled;
+$("persist").disabled=storageRecoveryBlocked;
+if(storageRecoveryBlocked){
+ $("storage").textContent="HERSTEL VEREIST: lokale opslag niet leesbaar. Bestaande kopie blijft behouden.";
+ $("storage-reset").classList.remove("hidden");
+ $("storage-backup").classList.remove("hidden");
+}
+function status(msg){$("announce").textContent=msg;}
+$("storage-backup").addEventListener("click",()=>{
+ if(!storageRecoveryBlocked)return;
+ try{
+  const raw=localStorage.getItem(KEY);
+  if(raw===null){status("Geen lokale notitiekopie om te downloaden.");return;}
+  const blob=new Blob([raw],{type:"application/octet-stream"});
+  const url=URL.createObjectURL(blob),link=document.createElement("a");
+  try{
+   link.href=url;link.download="la-observatorium-onleesbare-kopie.txt";
+   document.body.append(link);link.click();
+  }finally{
+   link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
+  status("Onleesbare kopie lokaal gedownload; geen validatie of bewijsstatus.");
+ }catch(_){status("Download van de onleesbare kopie mislukt; originele lokale gegevens niet gewist.");}
+});
+$("storage-reset").addEventListener("click",()=>{
+ if(!storageRecoveryBlocked)return;
+ if(!confirm("Onleesbare lokale kopie en toestemmingsmarkering definitief wissen? Deze inhoud kan niet worden hersteld vanuit het Observatorium."))return;
+ try{
+  if(!storageMatchesSnapshot()){
+   markStorageConflict();
+   status("Herstelreset geweigerd: de lokale kopie is door een ander tabblad gewijzigd; er is niets gewist.");
+   return;
+  }
+  localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);
+  if(localStorage.getItem(KEY)!==null||localStorage.getItem(CONSENT)!==null)throw new Error("Wissen niet bevestigd");
+  storageRecoveryBlocked=false;storageConflictBlocked=false;storageEnabled=false;notes=[];journalRevision++;persistedNoteIds.clear();
+  storedSnapshot={raw:null,consent:null};
+  $("persist").checked=false;$("persist").disabled=false;
+  $("storage-reset").classList.add("hidden");
+  $("storage-backup").classList.add("hidden");
+  $("storage").textContent="Opslag: alleen huidig tabblad";
+  render();status("Onleesbare lokale kopie na bevestiging gewist. Geen notities hersteld.");
+ }catch(_){status("Wissen mislukt: onleesbare lokale kopie blijft geblokkeerd.");}
+});
+function save(){
+ if(storageRecoveryBlocked){status("Opslag geblokkeerd: herstel eerst de onleesbare lokale kopie.");return false;}
+ if(storageConflictBlocked){status("Opslagconflict: eerst exporteren en herladen; geen externe wijzigingen overschreven.");return false;}
+ try{if(!storageMatchesSnapshot()){markStorageConflict();return false;}}
+ catch(_){markStorageConflict();return false;}
+ const wantsStorage=$("persist").checked;
+ try{
+  if(wantsStorage){
+   const serialized=JSON.stringify(notes);
+   if(new TextEncoder().encode(serialized).length>262144){
+    $("storage").textContent="OPSLAGLIMIET BEREIKT: notities blijven in dit tabblad; exporteer het Geheugen.";
+    status("Lokale opslag geweigerd: meer dan 256 KiB; bestaande opgeslagen kopie niet overschreven.");
+    return false;
+   }
+   localStorage.setItem(KEY,serialized);
+   localStorage.setItem(CONSENT,"yes");
+   if(localStorage.getItem(KEY)!==serialized||localStorage.getItem(CONSENT)!=="yes")throw new Error("Opslag niet bevestigd");
+   storedSnapshot={raw:serialized,consent:"yes"};
+   storageEnabled=true;
+   persistedNoteIds=new Set(notes.map(n=>n.id));
+   $("storage").textContent="Opslag: lokaal op dit apparaat (toestemming actief)";
+  }else{
+   localStorage.removeItem(KEY);localStorage.removeItem(CONSENT);
+   if(localStorage.getItem(KEY)!==null||localStorage.getItem(CONSENT)!==null)throw new Error("Wissen niet bevestigd");
+   storedSnapshot={raw:null,consent:null};
+   storageEnabled=false;
+   persistedNoteIds.clear();
+   $("storage").textContent="Opslag: alleen huidig tabblad";
+  }
+  return true;
+ }catch(_){
+  storageRecoveryBlocked=true;
+  $("persist").disabled=true;
+  $("storage-reset").classList.remove("hidden");
+  $("storage-backup").classList.remove("hidden");
+  $("storage").textContent=wantsStorage?"OPSLAG ONBEVESTIGD: controleer lokaal herstel.":"WISSEN NIET BEVESTIGD: controleer lokaal herstel.";
+  status("Lokale opslagstatus onbekend; geen succesvolle bewaar- of wisactie bevestigd.");
+  return false;
+ }
+}
+function showTab(id){const btn=tabs.find(b=>b.dataset.tab===id);if(btn)btn.click();}
+function referenceDescriptor(reference){
+const value=reference.trim();if(!value)return {type:"GEEN REFERENTIE",state:"BRON ONTBREEKT"};
+const match=/^(QUAY|ERA|WATERMERK):\s*(\S[\s\S]*)$/i.exec(value);
+if(!match)return {type:"LOKALE / ONGESPECIFICEERDE REFERENTIE",state:"NIET GEVERIFIEERD"};
+return {type:match[1].toUpperCase()+" (HANDMATIG LABEL)",state:"NIET GEVERIFIEERD"};
+}
+function inspectNote(id){const n=notes.find(x=>x.id===id);if(!n){selectedId=null;clearInspection();status("Waarneming niet meer beschikbaar.");return;}
+selectedId=id;$("inspection-empty").classList.add("hidden");$("inspection-fields").classList.remove("hidden");
+$("inspection-subject").textContent=n.subject;$("inspection-notes").textContent=n.notes;
+$("inspection-kind").textContent=n.kind;$("inspection-reference").textContent=n.reference||"Geen bronverwijzing";
+const reference=referenceDescriptor(n.reference);$("inspection-reference-type").textContent=reference.type;$("inspection-reference-state").textContent=reference.state;
+$("inspection-time").textContent=new Date(n.at).toLocaleString("nl-NL")+" (apparaat of geïmporteerd, niet geattesteerd)";
+showTab("bewijs");$("inspection-subject").setAttribute("tabindex","-1");$("inspection-subject").focus();status("Lokale bewijsketen weergegeven; geen onafhankelijke verificatie.");}
+function inspectionContent(n){
+return {schema:"palaco-la-inspection-v1",observation:{id:n.id,at:n.at,subject:n.subject,kind:n.kind,reference:n.reference,notes:n.notes},source_status:"SELF_REPORTED_NOT_VERIFIED",verification:{quay:"NOT_CONNECTED",era_edtr:"NOT_CHECKED",watermerk:"NOT_VALIDATED",authority:"NONE"}};
+}
+function ownKeysEqual(value,keys){
+return value!==null&&typeof value==="object"&&!Array.isArray(value)&&Object.keys(value).length===keys.length&&keys.every(k=>Object.prototype.hasOwnProperty.call(value,k));
+}
+async function digestContent(content){
+const bytes=new TextEncoder().encode(JSON.stringify(content));
+const hash=await crypto.subtle.digest("SHA-256",bytes);
+return Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,"0")).join("");
+}
+function validateDossier(packet){
+if(!ownKeysEqual(packet,["schema","observation","source_status","verification","integrity"]))return false;
+if(packet.schema!=="palaco-la-inspection-v1"||packet.source_status!=="SELF_REPORTED_NOT_VERIFIED")return false;
+if(!ownKeysEqual(packet.observation,["id","at","subject","kind","reference","notes"])||!valid(packet.observation))return false;
+if(!ownKeysEqual(packet.verification,["quay","era_edtr","watermerk","authority"]))return false;
+if(packet.verification.quay!=="NOT_CONNECTED"||packet.verification.era_edtr!=="NOT_CHECKED"||packet.verification.watermerk!=="NOT_VALIDATED"||packet.verification.authority!=="NONE")return false;
+if(!ownKeysEqual(packet.integrity,["algorithm","scope","digest","meaning"]))return false;
+return packet.integrity.algorithm==="SHA-256"&&packet.integrity.scope==="UTF8_JSON_STRINGIFY_CONTENT_V1"&&packet.integrity.meaning==="INTEGRITY_ONLY_NOT_AUTHENTICITY"&&typeof packet.integrity.digest==="string"&&/^[0-9a-f]{64}$/.test(packet.integrity.digest);
+}
+let dossierVerificationRun=0;
+$("dossier-file").addEventListener("change",()=>{dossierVerificationRun++;$("dossier-verdict").textContent="Nieuw dossier geselecteerd · controle nog niet uitgevoerd.";});
+async function verifyDossier(){
+const run=++dossierVerificationRun;
+const output=$("dossier-verdict"),file=$("dossier-file").files[0];
+output.textContent="Geen integriteitscontrole uitgevoerd.";
+if(!file){output.textContent="Selecteer eerst een inspectiedossier.";return;}
+if(file.size===0||file.size>262144){output.textContent="AFGEWEZEN: leeg of te groot bestand.";return;}
+if(!globalThis.crypto||!crypto.subtle||typeof crypto.subtle.digest!=="function"){output.textContent="ONBEKEND: SHA-256 niet beschikbaar; geen controle mogelijk.";return;}
+try{
+const raw=await file.text();
+if(run!==dossierVerificationRun)return;
+if(new TextEncoder().encode(raw).length>262144){output.textContent="AFGEWEZEN: dossierinhoud te groot.";return;}
+const packet=JSON.parse(raw);
+if(!validateDossier(packet)){output.textContent="AFGEWEZEN: dossierformaat of status ongeldig.";return;}
+const n=packet.observation;
+const content=inspectionContent(n);
+const current=await digestContent(content);
+if(run!==dossierVerificationRun)return;
+output.textContent=current===packet.integrity.digest?"INTEGRITEIT KOMT OVEREEN · authenticiteit NIET GEVERIFIEERD · geen mandaat":"INTEGRITEIT AFGEWEZEN · hash wijkt af; geen bewijs of mandaat";
+}catch(_){if(run===dossierVerificationRun)output.textContent="AFGEWEZEN: dossier kon niet worden verwerkt.";}
+finally{if(run===dossierVerificationRun)$("dossier-file").value="";}
+}
+$("verify-dossier").addEventListener("click",verifyDossier);
+function downloadJSON(data,name){
+const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+try{a.href=url;a.download=name;document.body.append(a);a.click();}finally{a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+}
+let inspectionExportRun=0;
+async function exportInspection(){
+const run=++inspectionExportRun;
+const inspectedId=selectedId,startedAtRevision=journalRevision;
+const n=notes.find(item=>item.id===inspectedId);
+if(!n){clearInspection();status("Export geweigerd: waarneming ontbreekt.");return;}
+if(!globalThis.crypto||!crypto.subtle||typeof crypto.subtle.digest!=="function"){status("Export geweigerd: veilige SHA-256-functie niet beschikbaar. Geen dossier zonder controlesom.");return;}
+const content=inspectionContent(n);
+try{
+const sha256=await digestContent(content);
+if(run!==inspectionExportRun||selectedId!==inspectedId||journalRevision!==startedAtRevision||storageRecoveryBlocked){
+ status("Export afgebroken: selectie, Geheugen of opslagstatus is tussentijds gewijzigd.");
+ return;
+}
+const packet={...content,integrity:{algorithm:"SHA-256",scope:"UTF8_JSON_STRINGIFY_CONTENT_V1",digest:sha256,meaning:"INTEGRITY_ONLY_NOT_AUTHENTICITY"}};
+downloadJSON(packet,"la-observatorium-inspectiedossier.json");
+status("Lokaal inspectiedossier geëxporteerd. SHA-256 is geen verificatie van de bron.");
+}catch(_){if(run===inspectionExportRun)status("Export mislukt; geen betrouwbaar inspectiedossier aangemaakt.");}
+}
+$("inspection-export").addEventListener("click",exportInspection);
+function clearInspection(){selectedId=null;$("inspection-fields").classList.add("hidden");$("inspection-empty").classList.remove("hidden");}
+$("inspection-back").addEventListener("click",()=>showTab("geheugen"));
+function render(){updatePendingStatus();if(selectedId&&!notes.some(x=>x.id===selectedId))clearInspection();
+const list=$("events");list.replaceChildren();const selected=$("filter").value,term=$("search").value.trim().toLocaleLowerCase("nl-NL");const visible=notes.filter(n=>(selected==="ALL"||n.kind===selected)&&(!term||[n.subject,n.notes,n.reference].some(v=>v.toLocaleLowerCase("nl-NL").includes(term))));$("count").textContent=visible.length+" / "+notes.length+" notities";
+if(!visible.length){const li=document.createElement("li");li.textContent=notes.length?"Geen waarnemingen voor de huidige zoekopdracht of classificatie.":"Er zijn nog geen lokale waarnemingen.";list.append(li);return;}
+visible.slice().reverse().forEach(n=>{
+const li=document.createElement("li"),strong=document.createElement("strong"),small=document.createElement("small"),p=document.createElement("p");
+strong.textContent=n.subject;small.textContent=n.kind+" · "+new Date(n.at).toLocaleString("nl-NL")+" · "+(n.reference||"Geen bronverwijzing")+" · SELF_REPORTED_NOT_VERIFIED";p.textContent=n.notes;
+const inspect=document.createElement("button");inspect.type="button";inspect.className="secondary";inspect.textContent="Inspecteer bewijsketen";inspect.setAttribute("aria-label","Inspecteer "+n.subject);inspect.addEventListener("click",()=>inspectNote(n.id));
+li.append(strong,small,p,inspect);list.append(li);
+});}
+let localIdCounter=0;
+function nextLocalId(){
+ const random=globalThis.crypto;
+ if(random&&typeof random.randomUUID==="function"){
+  const uuid=random.randomUUID();
+  if(!notes.some(n=>n.id===uuid))return uuid;
+ }
+ let id;
+ do{id="local-"+Date.now().toString(36)+"-"+(++localIdCounter).toString(36);}
+ while(notes.some(n=>n.id===id));
+ return id;
+}
+$("form").addEventListener("submit",e=>{
+ e.preventDefault();
+ if(notes.length>=max){status("Maximum van 100 notities bereikt; exporteer en wis notities.");return;}
+ const f=e.currentTarget,field=name=>f.elements.namedItem(name);
+ const n={id:nextLocalId(),at:new Date().toISOString(),subject:field("subject").value.trim(),kind:field("kind").value,reference:field("reference").value.trim(),notes:field("notes").value.trim()};
+ if(!n.subject||!n.notes)return;
+ notes.push(n);journalRevision++;
+ const persisted=save();
+ render();f.reset();
+ status(persisted?"Lokale waarneming toegevoegd, niet geverifieerd.":"Waarneming alleen in dit tabblad toegevoegd; opslag is geblokkeerd of niet bevestigd.");
+});
+$("filter").addEventListener("change",render);
+$("search").addEventListener("input",render);
+$("import").addEventListener("click",async()=>{
+if(storageRecoveryBlocked){status("Import geblokkeerd: stel eerst de bestaande onleesbare lokale kopie veilig en herstel de opslag.");return;}
+if(storageConflictBlocked){status("Import geblokkeerd: conflict met ander tabblad; exporteer eerst en herlaad.");return;}
+const startedAtRevision=journalRevision;
+const file=$("import-file").files[0];
+if(!file){status("Selecteer eerst een JSON-bestand.");return;}
+if(file.size===0||file.size>262144){status("Import geweigerd: bestand leeg of groter dan 256 KB.");return;}
+try{
+const raw=await file.text();
+if(storageRecoveryBlocked||storageConflictBlocked||journalRevision!==startedAtRevision){status("Import afgebroken: lokaal Geheugen of externe opslag is tijdens het lezen gewijzigd.");return;}
+if(new TextEncoder().encode(raw).length>262144){status("Import geweigerd: ingelezen inhoud te groot.");return;}
+const data=JSON.parse(raw);
+if(!ownKeysEqual(data,["format","exported_at","authority","notes"])||data.format!=="palaco-la-observatory-local-v1"||data.authority!=="SELF_REPORTED_NOT_VERIFIED"||typeof data.exported_at!=="string"||!Number.isFinite(Date.parse(data.exported_at))||!Array.isArray(data.notes)||data.notes.length>max||!data.notes.every(n=>ownKeysEqual(n,["id","at","subject","kind","reference","notes"])&&valid(n))){
+status("Import geweigerd: formaat, bewijsgrens of inhoud ongeldig.");return;
+}
+const ids=new Set(notes.map(n=>n.id)),incoming=[],fileIds=new Set();
+for(const n of data.notes){
+if(fileIds.has(n.id)){status("Import geweigerd: dubbele IDs in bestand.");return;}
+fileIds.add(n.id);
+if(ids.has(n.id)){
+const existing=notes.find(item=>item.id===n.id);
+if(!existing||["at","subject","kind","reference","notes"].some(key=>existing[key]!==n[key])){status("Import geweigerd: bestaand ID heeft tegenstrijdige gegevens.");return;}
+}else{incoming.push({id:n.id,at:n.at,subject:n.subject,kind:n.kind,reference:n.reference,notes:n.notes});}
+}
+if(notes.length+incoming.length>max){status("Import geweigerd: limiet van 100 notities overschreden.");return;}
+if(!incoming.length){status("Geen nieuwe notities: alle IDs waren al aanwezig.");return;}
+if(!confirm(incoming.length+" notities alleen als ONGEVERIFIEERDE lokale waarnemingen toevoegen?")){status("Import geannuleerd; er zijn geen notities toegevoegd.");return;}
+if(storageRecoveryBlocked||storageConflictBlocked||journalRevision!==startedAtRevision){status("Import afgebroken: lokaal Geheugen of externe opslag is tijdens de bevestiging gewijzigd.");return;}
+notes=notes.concat(incoming);journalRevision++;
+const persisted=save();render();
+status(persisted?incoming.length+" zelfgerapporteerde notities geïmporteerd; niet geverifieerd.":incoming.length+" notities uitsluitend in dit tabblad geïmporteerd; blijvende opslag NIET bevestigd.");
+}catch(_){status("Import geweigerd: bestand kan niet veilig worden verwerkt.");}
+finally{$("import-file").value="";}
+});
+$("persist").addEventListener("change",()=>{if(save())status($("persist").checked?"Lokale opslag bevestigd.":"Lokale kopie en toestemming aantoonbaar verwijderd.");updatePendingStatus();});
+$("clear").addEventListener("click",()=>{
+if(storageRecoveryBlocked){status("Wissen geblokkeerd: onleesbare kopie blijft beschermd; gebruik de afzonderlijke herstelprocedure.");return;}
+if(!confirm("Alle lokale waarnemingen in dit tabblad en de lokale opslag wissen? Ook de bewaartoestemming wordt ingetrokken."))return;
+const pendingNotes=notes;
+notes=[];
+$("persist").checked=false;
+const cleared=save();
+if(!cleared)notes=pendingNotes;
+else journalRevision++;
+render();
+status(cleared?"Lokale notities, opgeslagen kopie en bewaartoestemming aantoonbaar verwijderd.":"Wissen NIET bevestigd; de notities blijven in dit tabblad beschikbaar voor export of herstel.");
+});
+function exportJournalParts(items,exportedAt){
+ const makePacket=batch=>({format:"palaco-la-observatory-local-v1",exported_at:exportedAt,authority:"SELF_REPORTED_NOT_VERIFIED",notes:batch});
+ const bytes=packet=>new TextEncoder().encode(JSON.stringify(packet,null,2)).length;
+ const parts=[];let current=[];
+ for(const note of items){
+  const candidate=current.concat(note);
+  if(bytes(makePacket(candidate))>262144){
+   if(!current.length)return null;
+   parts.push(makePacket(current));current=[note];
+   if(bytes(makePacket(current))>262144)return null;
+  }else current=candidate;
+ }
+ parts.push(makePacket(current));
+ return parts;
+}
+let journalExportQueue=[],journalExportPosition=0;
+function journalExportFilename(index){
+ return journalExportQueue.length===1?"la-observatorium-lokale-waarnemingen.json":"la-observatorium-lokale-waarnemingen-deel-"+String(index+1).padStart(2,"0")+"-van-"+String(journalExportQueue.length).padStart(2,"0")+".json";
+}
+function updateJournalRetryPicker(){
+ const picker=$("export-retry-picker"),previous=picker.value;
+ picker.replaceChildren();
+ for(let i=0;i<journalExportPosition;i++){
+  const option=document.createElement("option");option.value=String(i);option.textContent="Deel "+(i+1)+" van "+journalExportQueue.length;
+  picker.append(option);
+ }
+ picker.value=previous!==""&&Number(previous)<journalExportPosition?previous:String(journalExportPosition-1);
+ $("export-retry-picker-label").classList.toggle("hidden",journalExportPosition===0);
+ $("export-retry").classList.toggle("hidden",journalExportPosition===0);
+}
+function downloadNextJournalPart(){
+ if(journalExportPosition>=journalExportQueue.length)return;
+ const index=journalExportPosition,packet=journalExportQueue[index];
+ const filename=journalExportFilename(index);
+ try{
+  downloadJSON(packet,filename);
+  journalExportPosition++;
+  updateJournalRetryPicker();
+  const remaining=journalExportQueue.length-journalExportPosition;
+  $("export-next").classList.toggle("hidden",remaining===0);
+  $("export-progress").textContent=remaining?
+   "Download "+journalExportPosition+" van "+journalExportQueue.length+" gestart; "+remaining+" deel/delen wachten op afzonderlijke download.":
+   "Alle "+journalExportQueue.length+" download(s) gestart; controleer of elk bestand is opgeslagen.";
+  status(remaining?"Gebruik 'Download volgend deel' om de overige bestanden één voor één op te slaan.":"Alle downloadacties gestart; controleer de bestanden vóór herladen.");
+ }catch(_){status("Download van dit deel mislukt; probeer hetzelfde deel opnieuw.");}
+}
+$("export").addEventListener("click",()=>{
+ const parts=exportJournalParts(notes,new Date().toISOString());
+ if(!parts){status("JSON-export geweigerd: één waarneming overschrijdt de veilige importgrens.");return;}
+ if(journalExportPosition<journalExportQueue.length&&!confirm("Er staan nog exportdelen klaar. Nieuwe export starten en de oude wachtrij vervangen?"))return;
+ journalExportQueue=parts;journalExportPosition=0;
+ updateJournalRetryPicker();
+ $("export-next").classList.add("hidden");
+ $("export-progress").textContent="Nieuwe exportreeks gestart: 0 van "+parts.length+" downloads aangevraagd.";
+ downloadNextJournalPart();
+});
+$("export-next").addEventListener("click",downloadNextJournalPart);
+$("export-retry").addEventListener("click",()=>{
+ if(!journalExportPosition)return;
+ const index=Number($("export-retry-picker").value);
+ if(!Number.isInteger(index)||index<0||index>=journalExportPosition){status("Kies eerst een eerder gestart exportdeel.");return;}
+ try{
+  downloadJSON(journalExportQueue[index],journalExportFilename(index));
+  status("Download van deel "+(index+1)+" opnieuw gestart; de volgende downloadpositie blijft behouden.");
+ }catch(_){status("Opnieuw downloaden mislukt; de exportreeks is ongewijzigd.");}
+});
+render();if(storageEnabled)save();
+})();
+</script></body></html>
