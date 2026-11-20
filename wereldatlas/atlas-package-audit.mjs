@@ -9,7 +9,7 @@ export const REQUIRED=Object.freeze([
 "atlas-contract.mjs","wereldregister.mjs","atlas-archief.mjs","atlas-verificatie.mjs",
 "atlas-bewijs.mjs","atlas-provenance.mjs","atlas-trust-gateway.mjs","atlas-integratie.mjs",
 "atlas-acceptatie.mjs","atlas-acceptatie-dossier.mjs","atlas-release-review.mjs",
-"atlas-readiness.mjs","atlas-release-control.mjs","atlas-release-integrity.mjs","atlas-package-audit.mjs","atlas-security-audit.html","atlas-security-audit.mjs","atlas-traceability.html","atlas-traceability.mjs","atlas-attestation.html","atlas-attestation.mjs","atlas-consolidatie.html","atlas-consolidatie.mjs","atlas-device-acceptance.html","atlas-device-acceptance.mjs","atlas-device-handover.html","atlas-device-handover.mjs","atlas-device-retest.html","atlas-device-retest.mjs","atlas-device-triage.html","atlas-device-triage.mjs","atlas-recovery-verification.html","atlas-recovery-verification.mjs","atlas-mobile-dossier.html","atlas-mobile-dossier.mjs","atlas-independent-review.html","atlas-independent-review.mjs","atlas-review-findings.html","atlas-review-findings.mjs","atlas-evidence-closure.html","atlas-evidence-closure.mjs","atlas-review-readiness.html","atlas-review-readiness.mjs"
+"atlas-readiness.mjs","atlas-release-control.mjs","atlas-release-integrity.mjs","atlas-package-audit.mjs","atlas-security-audit.html","atlas-security-audit.mjs","atlas-traceability.html","atlas-traceability.mjs","atlas-attestation.html","atlas-attestation.mjs","atlas-consolidatie.html","atlas-consolidatie.mjs","atlas-device-acceptance.html","atlas-device-acceptance.mjs","atlas-device-handover.html","atlas-device-handover.mjs","atlas-device-retest.html","atlas-device-retest.mjs","atlas-device-triage.html","atlas-device-triage.mjs","atlas-recovery-verification.html","atlas-recovery-verification.mjs","atlas-mobile-dossier.html","atlas-mobile-dossier.mjs","atlas-independent-review.html","atlas-independent-review.mjs","atlas-review-findings.html","atlas-review-findings.mjs","atlas-evidence-closure.html","atlas-evidence-closure.mjs","atlas-review-readiness.html","atlas-review-readiness.mjs","atlas-integrated-cockpit.html","atlas-integrated-cockpit.mjs"
 ]);
 export const DEPENDENCIES=Object.freeze([
 ["atlas-integratie.html","atlas-integratie.mjs"],["atlas-integratie.mjs","wereldregister.mjs"],["atlas-integratie.mjs","atlas-archief.mjs"],
@@ -32,7 +32,8 @@ export const DEPENDENCIES=Object.freeze([
 ["atlas-independent-review.html","atlas-independent-review.mjs"],["atlas-independent-review.mjs","atlas-mobile-dossier.mjs"],["atlas-independent-review.mjs","atlas-device-acceptance.mjs"],
 ["atlas-review-findings.html","atlas-review-findings.mjs"],["atlas-review-findings.mjs","atlas-independent-review.mjs"],
 ["atlas-evidence-closure.html","atlas-evidence-closure.mjs"],["atlas-evidence-closure.mjs","atlas-review-findings.mjs"],
-["atlas-review-readiness.html","atlas-review-readiness.mjs"],["atlas-review-readiness.mjs","atlas-evidence-closure.mjs"]
+["atlas-review-readiness.html","atlas-review-readiness.mjs"],["atlas-review-readiness.mjs","atlas-evidence-closure.mjs"],
+["atlas-integrated-cockpit.html","atlas-integrated-cockpit.mjs"],["atlas-integrated-cockpit.mjs","atlas-review-readiness.mjs"],["atlas-integrated-cockpit.mjs","atlas-package-audit.mjs"]
 ]);
 export const MAX_EVIDENCE=12;
 const sane=s=>typeof s==="string"&&s.length<=240&&!/[\u0000-\u001f\u007f]/.test(s);
