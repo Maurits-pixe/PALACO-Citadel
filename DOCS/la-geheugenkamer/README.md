@@ -56,6 +56,13 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Volledige historische voorgangerketen · v3.3
+- Een expliciete **versleutelde kluisopslag** weigert voortaan een geheugenmomentopname wanneer een versie een `previousId` noemt die niet in dezelfde momentopname aanwezig is. Bestaande validatie van revisienummers, chronologie, duplicaten en cirkelverwijzingen blijft gelden.
+- Een gedeeltelijk historisch importarchief mag zichtbaar blijven als lokaal concept voor onderzoek, maar mag **niet** stilzwijgend als complete versleutelde kluis worden verzegeld. Herstel eerst de ontbrekende voorgangers of gebruik een volledige export.
+- De beslissing over import of het bekijken van oudere gedeeltelijke archieven wordt hierdoor niet onbedoeld veranderd. De aanvullende controle vindt plaats bij het opslaan van een nieuwe versleutelde kluismomentopname.
+- Twee nieuwe mobiele Chromium-testgevallen controleren (1) weigering van een verweesde versie na gedeeltelijke legacy-import, zonder wijziging van opslag, en (2) succesvol bewaren en opnieuw ontsluiten van een complete keten met oorsprong en opvolger.
+- Dit is volledigheidscontrole van lokale conceptdossiers, **geen** authenticiteitsverklaring, tijdattest of EDTR-uitgifte. Onafhankelijke review en fysieke mobiele acceptatie blijven HOLD.
+
 ## Historische dossierconflicten · v3.2
 - De controle vóór het vervangen van een versleutelde kluis vereist naast behoud van alle eerdere record-ID's voortaan ook **exact gelijkblijvende inhoud van elk eerder opgeslagen record**.
 - Een bestaand ID met gewijzigde velden wordt expliciet geweigerd: oudere herinneringen mogen niet stilzwijgend worden herschreven door een lokaal conflicterende versie.
