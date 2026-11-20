@@ -1159,3 +1159,64 @@ test('maker checker refuses absent approval in strict mode',async ({page})=>{
  await expect(page.locator('#rotationStatus')).toContainText('niet geldig of niet verifieerbaar');
  await expect(page.locator('#rotationStatus')).not.toContainText('CRYPTOGRAFISCH GELDIG');
 });
+
+test('successful verification exports a local audit with explicit DENY and file fingerprints',async ({page})=>{
+ await signedPreviewFixture(page);
+ const rotation=await rotationFixture(page),registry=await signedRegistryFixture(page,rotation.rotation);
+ const checker=await checkerApprovalFixture(page,registry.snapshot);
+ await uploadSignedRegistry(page,rotation,registry);
+ await page.locator('#requireChecker').check();
+ await page.locator('#checkerKey').fill(JSON.stringify(checker.publicKey));
+ await page.locator('#checkerFile').setInputFiles({name:'checker.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(checker.approval))});
+ await page.locator('#verifyRotation').click();
+ await expect(page.locator('#rotationStatus')).toContainText('CRYPTOGRAFISCH GELDIG');
+ await expect(page.locator('#exportRotationAudit')).toBeEnabled();
+ const downloadPromise=page.waitForEvent('download');
+ await page.locator('#exportRotationAudit').click();
+ const download=await downloadPromise;
+ const {readFile}=await import('node:fs/promises');
+ const report=JSON.parse(await readFile(await download.path(),'utf8'));
+ expect(report.schema).toBe('palaco-citadel-rotation-audit-v1');
+ expect(report.result).toBe('CRYPTOGRAPHICALLY_VALID_UNTRUSTED');
+ expect(report.policy).toBe('maker-checker-required');
+ expect(report.authorization).toBe('DENY');
+ expect(report.issuance).toBe('HOLD');
+ expect(report.trust).toBe('untrusted-local-inputs');
+ expect(report.epoch).toBe(rotation.rotation.epoch);
+ expect(report.fileSha256.rotation).toMatch(/^[a-f0-9]{64}$/);
+ expect(report.fileSha256.registry).toMatch(/^[a-f0-9]{64}$/);
+ expect(report.fileSha256.checker).toMatch(/^[a-f0-9]{64}$/);
+ expect(JSON.stringify(report)).not.toContain('"d":');
+});
+
+test('rejected signature still exports a denied audit with no authority',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await rotationFixture(page,{tamper:true});
+ await page.locator('#rotationOldKey').fill(JSON.stringify(fixture.oldKey));
+ await page.locator('#rotationNewKey').fill(JSON.stringify(fixture.newKey));
+ await page.locator('#rotationFile').setInputFiles({name:'invalid-rotation.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.rotation))});
+ await page.locator('#verifyRotation').click();
+ await expect(page.locator('#rotationStatus')).toContainText('SLEUTELOPVOLGING ONGELDIG');
+ const promise=page.waitForEvent('download');
+ await page.locator('#exportRotationAudit').click();
+ const download=await promise;
+ const {readFile}=await import('node:fs/promises');
+ const report=JSON.parse(await readFile(await download.path(),'utf8'));
+ expect(report.result).toBe('DENIED_SIGNATURE');
+ expect(report.authorization).toBe('DENY');
+ expect(report.issuance).toBe('HOLD');
+ expect(report.fileSha256.rotation).toMatch(/^[a-f0-9]{64}$/);
+});
+
+test('audit is invalidated when signer input changes',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await rotationFixture(page);
+ await page.locator('#rotationOldKey').fill(JSON.stringify(fixture.oldKey));
+ await page.locator('#rotationNewKey').fill(JSON.stringify(fixture.newKey));
+ await page.locator('#rotationFile').setInputFiles({name:'rotation.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.rotation))});
+ await page.locator('#verifyRotation').click();
+ await expect(page.locator('#exportRotationAudit')).toBeEnabled();
+ await page.locator('#rotationOldKey').fill('{"kty":"EC"}');
+ await expect(page.locator('#exportRotationAudit')).toBeDisabled();
+ await expect(page.locator('#rotationStatus')).toContainText('opnieuw verifiëren vereist');
+});
