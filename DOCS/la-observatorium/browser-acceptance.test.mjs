@@ -685,7 +685,16 @@ test('large journal exports each import-compatible JSON part through separate us
   await page.locator('#export').click();
   downloads.push(await downloadPending);
   assert.equal(await page.locator('#export-next').isVisible(),true);
+  assert.equal(await page.locator('#export-retry').isVisible(),true);
   assert.match(await page.locator('#export-progress').innerText(),/1 van/);
+  const progressBeforeRetry=await page.locator('#export-progress').innerText();
+  const repeatedDownload=page.waitForEvent('download',{timeout:10000});
+  await page.locator('#export-retry').click();
+  const repeated=await repeatedDownload;
+  assert.equal(repeated.suggestedFilename(),downloads[0].suggestedFilename());
+  assert.deepEqual(await readFile(await repeated.path()),await readFile(await downloads[0].path()));
+  assert.equal(await page.locator('#export-progress').innerText(),progressBeforeRetry,
+   'Retry must not advance the remaining-parts counter');
   for(let i=0;i<10&&await page.locator('#export-next').isVisible();i++){
    downloadPending=page.waitForEvent('download',{timeout:10000});
    await page.locator('#export-next').click();
