@@ -19,6 +19,9 @@ button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus
 
 /* World Studio III: chapters and non-geographic schematic layers. */
 .studio{margin-top:1.1rem;padding:1.3rem}.studio-columns{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:1rem}.studio-label{color:var(--gold);text-transform:uppercase;font-size:.72rem;letter-spacing:.14em}.chapters{display:grid;gap:.55rem;margin-top:.8rem}.chapter{padding:.85rem 1rem;text-align:left;color:var(--text);border-radius:12px;border:1px solid var(--line);background:#0a2824}.chapter[aria-pressed="true"]{border-color:var(--gold);background:#1b4034}.chapter small{display:block;color:var(--muted);font-size:.75rem}.chapter-detail{min-height:220px;border-radius:14px;background:#0b2522;padding:1.1rem;border:1px solid var(--line)}.chapter-detail h3{font-family:Georgia,serif;font-size:1.45rem;font-weight:400;margin:.25rem 0 .65rem}.chapter-detail p{color:var(--muted);margin:.5rem 0}.layer-row{display:flex;flex-wrap:wrap;gap:.55rem;margin:.9rem 0}.layer-button{background:#0b2825;border:1px solid #638478;border-radius:2rem;color:var(--text);padding:.45rem .85rem}.layer-button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}.layer-board{border:1px solid #557568;border-radius:14px;min-height:130px;padding:1.25rem;background:repeating-linear-gradient(0deg,transparent 0 31px,#b3d1b911 32px),repeating-linear-gradient(90deg,transparent 0 31px,#b3d1b911 32px),#0a2422;display:flex;align-items:center;justify-content:center;text-align:center}.layer-board strong{color:var(--gold)}.layer-board p{color:var(--muted);font-size:.88rem;max-width:44ch;margin:.45rem auto}.panel[hidden]{display:none}@media(max-width:690px){.studio-columns{grid-template-columns:1fr}}
+
+/* Explorer 004: constellation index and session-only discoveries. */
+.discovery{padding:1.35rem;margin-top:1.1rem}.discovery-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(245px,.8fr);gap:1rem}.constellation{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:.45rem;margin:1.1rem 0}.star{min-width:0;border:1px solid var(--line);background:#12352e;color:var(--text);border-radius:12px;padding:.85rem .3rem;text-align:center}.star .glyph{display:block;font-size:1.45rem;color:var(--gold)}.star small{display:block;color:var(--muted);font-size:.65rem}.star[aria-current="true"]{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold);background:#265244}.star.visited:not([aria-current="true"]){border-color:#88ab96}.trail{display:flex;flex-wrap:wrap;gap:.55rem;margin:.8rem 0}.trail button{border:1px solid var(--line);background:#102e29;color:var(--text);border-radius:20px;padding:.4rem .75rem}.trail-empty{color:var(--muted);font-size:.9rem}.progress{height:.45rem;border-radius:1rem;background:#28433b;overflow:hidden}.progress>div{height:100%;width:0;background:var(--gold);transition:width .2s}.progress-label{font-size:.8rem;color:var(--muted);margin-top:.4rem}.shortcut{font-size:.8rem;color:var(--muted)}@media(max-width:860px){.discovery-grid{grid-template-columns:1fr}.constellation{grid-template-columns:repeat(4,minmax(0,1fr))}}@media(max-width:420px){.constellation{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(prefers-reduced-motion:reduce){.progress>div{transition:none}}
 @media(max-width:820px){.layout{grid-template-columns:1fr}.universe{min-height:320px}.worlds{max-height:none}.tiles{grid-template-columns:1fr}header{align-items:flex-start}.shield{white-space:nowrap}}
 @media(prefers-reduced-motion:reduce){.globe{transition:none}}
 </style>
@@ -35,6 +38,7 @@ button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus
 <section class="panel controls" aria-labelledby="world-list-title"><div class="eyebrow">Atlasregister</div><h2 id="world-list-title">Kies een wereld</h2><label for="world-search">Zoek op naam of wereld-ID</label><input id="world-search" class="search" type="search" autocomplete="off" placeholder="Bijvoorbeeld W-0003 of EVA"><div id="worlds" class="worlds" role="group" aria-label="Beschikbare conceptwerelden"></div><p class="empty" id="empty" hidden>Geen wereld gevonden.</p></section>
 </div>
 <div class="metric-strip" aria-label="Atlasdekking"><div class="metric"><strong>7</strong> bekende wereldnamen in deze preview</div><div class="metric"><strong>0</strong> live dataverbindingen</div><div class="metric">Publieke demonstratie · zonder opslag</div></div>
+<section class="panel discovery" aria-labelledby="discovery-heading"><div class="eyebrow">Atlas · sterrenregister</div><h2 id="discovery-heading">Ontdekkingspad</h2><p class="explainer">Navigeer tussen de zeven bekende werelden. Je ontdekkingstocht blijft alleen in het geheugen van dit geopende tabblad en verdwijnt na herladen.</p><div class="discovery-grid"><div><div class="studio-label">Constellatie-index</div><div class="constellation" id="constellation" role="group" aria-label="Zeven wereldvermeldingen"></div><p class="shortcut">Toetsenbord: gebruik de pijltjestoetsen op een wereldknop, Home voor de eerste en End voor de laatste.</p></div><div><div class="studio-label">Bezochte werelden</div><div id="discovery-trail" class="trail" aria-label="Selectiegeschiedenis"></div><div class="progress" role="progressbar" aria-label="Werelden bezocht" aria-valuemin="0" aria-valuemax="7" aria-valuenow="1" id="discovery-progress"><div id="discovery-bar"></div></div><p id="discovery-count" class="progress-label">1 van 7 werelden bekeken</p><button type="button" class="action" id="clear-discoveries">Wis ontdekkingspad</button></div></div></section>
 <section class="panel detail" aria-labelledby="selected-title"><div class="eyebrow">Geselecteerde wereld</div><h2 id="selected-title">EARTH</h2><div class="kv"><span>Wereld-ID</span><strong id="selected-id">W-0001</strong></div><div class="kv"><span>Atlasstatus</span><strong id="selected-status">Conceptuele preview</strong></div><div class="kv"><span>Dataverbinding</span><strong>Nog niet gekoppeld</strong></div><p id="selected-description" class="lede">Canoniek geregistreerde wereldnaam; geografische en bestuurlijke gegevens zijn in deze preview niet aangesloten.</p><p class="note">Dit is een openbare conceptpresentatie zonder login of toegang tot Citadel. Zij doet geen uitspraken over bestaande wereldinhoud of eigendom. Live gegevens vereisen de gecontroleerde MUNDO/Citadel-bron.</p><div class="atlas-tools"><button type="button" id="previous-world" class="action" aria-label="Vorige bekende wereld">Vorige wereld</button><button type="button" id="next-world" class="action" aria-label="Volgende bekende wereld">Volgende wereld</button><button type="button" id="compare-toggle" class="action" aria-pressed="false" aria-controls="compare-panel">Vergelijk werelden</button></div></section>
 <section class="panel compare" id="compare-panel" aria-labelledby="compare-title" hidden><div class="eyebrow">World Studio · vergelijking</div><h2 id="compare-title">Twee werelden vergelijken</h2><p class="explainer">Vergelijk de bekende registergegevens. Niet-geverifieerde kenmerken worden niet ingevuld. Er worden geen gegevens opgeslagen of verzonden.</p><label for="compare-world">Tweede wereld</label><select id="compare-world" class="compare-select"></select><div class="compare-grid" id="compare-grid" aria-label="Vergelijkingsgegevens"></div></section>
 <section class="panel studio" aria-labelledby="studio-title"><div class="eyebrow">MUNDO · World Studio</div><h2 id="studio-title">Wereldhoofdstukken</h2><p class="explainer">Blader door de informatiestructuur van de geselecteerde wereld. Dit zijn leeshoofdstukken in conceptvorm, geen uitgegeven EDTR- of eigendomsbewijzen.</p><div class="studio-columns"><div><div class="studio-label">Hoofdstukken</div><div id="chapter-list" class="chapters" role="group" aria-label="Atlas-hoofdstukken"></div></div><article id="chapter-detail" class="chapter-detail" aria-labelledby="chapter-heading"><div class="studio-label" id="chapter-category">World Atlas</div><h3 id="chapter-heading">Wereldidentiteit</h3><p id="chapter-body"></p></article></div><div class="studio-label" style="margin-top:1.3rem">Schematische kaartlagen</div><div class="layer-row" id="layer-buttons" role="group" aria-label="Schematische kaartlagen"></div><div id="layer-board" class="layer-board" role="img" aria-label="Schematische atlasvisualisatie; geen geografische informatie"><div><strong id="layer-heading">Wereldregister</strong><p id="layer-description">Alleen bekende wereld-ID en naam. Geen geografische kaartgegevens.</p></div></div><p class="explainer">Alle kaartlagen zijn conceptueel en bevatten geen coördinaten, grenslijnen, topografie of live wereldgegevens.</p></section>
@@ -56,6 +60,41 @@ const entries=Object.freeze([
 ].map(item=>Object.freeze(item)));
 const $=id=>document.getElementById(id);
 let selected=entries[0];
+const visited=new Set([selected.id]);
+function renderDiscoveries(){
+ const grid=$("constellation");grid.replaceChildren();
+ for(let i=0;i<entries.length;i++){
+  const w=entries[i];const b=document.createElement("button");b.type="button";b.className="star";
+  if(visited.has(w.id))b.classList.add("visited");
+  b.setAttribute("aria-current",String(w.id===selected.id));
+  b.setAttribute("aria-label",w.name+", "+w.id+(visited.has(w.id)?", bezocht":""));
+  const glyph=document.createElement("span");glyph.className="glyph";glyph.setAttribute("aria-hidden","true");glyph.textContent=w.id===selected.id?"✦":"✧";
+  const label=document.createElement("strong");label.textContent=w.name;
+  const small=document.createElement("small");small.textContent=w.id;
+  b.append(glyph,label,small);
+  b.addEventListener("click",()=>choose(w));
+  b.addEventListener("keydown",event=>{
+   let target=-1;
+   if(event.key==="ArrowRight"||event.key==="ArrowDown")target=(i+1)%entries.length;
+   if(event.key==="ArrowLeft"||event.key==="ArrowUp")target=(i+entries.length-1)%entries.length;
+   if(event.key==="Home")target=0;
+   if(event.key==="End")target=entries.length-1;
+   if(target>=0){event.preventDefault();choose(entries[target]);$("constellation").children[target].focus()}
+  });
+  grid.append(b);
+ }
+ const trail=$("discovery-trail");trail.replaceChildren();
+ for(const w of entries.filter(item=>visited.has(item.id))){
+  const b=document.createElement("button");b.type="button";b.textContent=w.name;b.title="Ga naar "+w.id;
+  b.addEventListener("click",()=>choose(w));trail.append(b);
+ }
+ const count=visited.size;
+ $("discovery-count").textContent=count+" van "+entries.length+" werelden bekeken";
+ $("discovery-progress").setAttribute("aria-valuemax",String(entries.length));
+ $("discovery-progress").setAttribute("aria-valuenow",String(count));
+ $("discovery-bar").style.width=(100*count/entries.length)+"%";
+}
+
 function renderList(){
 const search=$("world-search").value.trim().toLocaleLowerCase("nl");
 const found=entries.filter(w=>(w.name+" "+w.id).toLocaleLowerCase("nl").includes(search));
@@ -69,7 +108,9 @@ b.append(small,strong);b.addEventListener("click",()=>choose(w));$("worlds").app
 $("empty").hidden=found.length>0;
 }
 function choose(w){
-selected=w;$("selected-title").textContent=w.name;$("selected-id").textContent=w.id;
+selected=w;
+visited.add(w.id);
+renderDiscoveries();$("selected-title").textContent=w.name;$("selected-id").textContent=w.id;
 $("visual-id").textContent=w.id;$("visual-name").textContent=w.name;$("globe").dataset.theme=w.theme;
 $("globe").setAttribute("aria-label","Conceptuele sfeerbol voor "+w.name+", geen geografische kaart");
 $("selected-description").textContent=w.id==="W-0001"?"EARTH is als wereldnaam geregistreerd in de projectcontext. De geografische kaart en regionale gegevens zijn nog niet verbonden.":"Deze wereldnaam is opgenomen in het bekende MUNDO-register. Geografie, wereldstatus en hoofdstukken zijn nog niet gekoppeld.";
@@ -155,7 +196,12 @@ $("compare-toggle").addEventListener("click",()=>{
   if(isOpening){renderComparison();compareSelect.focus()}
 });
 compareSelect.addEventListener("change",renderComparison);
+$("clear-discoveries").addEventListener("click",()=>{
+ visited.clear();visited.add(selected.id);renderDiscoveries();
+ $("announcer").textContent="Ontdekkingspad gewist. Alleen de huidige wereld blijft geselecteerd.";
+});
 $("world-search").addEventListener("input",renderList);
+renderDiscoveries();
 renderStudio();
 renderList();
 </script>
