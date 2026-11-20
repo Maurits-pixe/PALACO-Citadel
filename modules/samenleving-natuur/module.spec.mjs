@@ -1267,3 +1267,62 @@ test('audit verifier rejects unsigned legacy report and clears previous result o
  await page.locator('#verifyAuditFile').click();
  await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
 });
+
+async function detachedAuditSignature(page,report,{tamper=false}={}){
+ return page.evaluate(async ({report,tamper})=>{
+  const canonical=v=>Array.isArray(v)?'['+v.map(canonical).join(',')+']':v&&typeof v==='object'?'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canonical(v[k])).join(',')+'}':JSON.stringify(v);
+  const pair=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
+  const raw=await crypto.subtle.exportKey('jwk',pair.publicKey);
+  const publicKey={kty:'EC',crv:'P-256',x:raw.x,y:raw.y};
+  const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonical(publicKey)));
+  const fp=Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('');
+  const signature=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},pair.privateKey,new TextEncoder().encode(canonical(report)));
+  const detached={schema:'palaco-citadel-audit-signature-v1',algorithm:'ECDSA-P256-SHA256',
+    signerFingerprint:fp,reportDigest:report.integrity.digest,
+    signature:btoa(String.fromCharCode(...new Uint8Array(signature)))};
+  if(tamper)detached.signature=btoa('wrong signature bytes');
+  return {publicKey,detached};
+ },{report,tamper});
+}
+
+test('detached audit signature is cryptographically valid with untrusted signer',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ await page.locator('#auditVerifyFile').setInputFiles({name:'audit.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(report))});
+ await page.locator('#auditSignerKey').fill(JSON.stringify(fixture.publicKey));
+ await page.locator('#auditSignatureFile').setInputFiles({name:'signature.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.detached))});
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT-HANDTEKENING CRYPTOGRAFISCH GELDIG');
+ await expect(page.locator('#auditVerifyStatus')).toContainText('NIET VERTROUWD');
+ await expect(page.locator('#auditVerifyStatus')).toContainText('Geen PALACO-autorisatie');
+});
+
+test('tampered detached audit signature fails closed',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report,{tamper:true});
+ await page.locator('#auditVerifyFile').setInputFiles({name:'audit.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(report))});
+ await page.locator('#auditSignerKey').fill(JSON.stringify(fixture.publicKey));
+ await page.locator('#auditSignatureFile').setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.detached))});
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
+});
+
+test('audit signature bound to another digest is rejected',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ fixture.detached.reportDigest='0'.repeat(64);
+ await page.locator('#auditVerifyFile').setInputFiles({name:'audit.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(report))});
+ await page.locator('#auditSignerKey').fill(JSON.stringify(fixture.publicKey));
+ await page.locator('#auditSignatureFile').setInputFiles({name:'wrong-digest.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.detached))});
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
+});
+
+test('changing audit signer key revokes earlier verification result',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ await page.locator('#auditVerifyFile').setInputFiles({name:'audit.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(report))});
+ await page.locator('#auditSignerKey').fill(JSON.stringify(fixture.publicKey));
+ await page.locator('#auditSignatureFile').setInputFiles({name:'signature.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.detached))});
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT-HANDTEKENING CRYPTOGRAFISCH GELDIG');
+ await page.locator('#auditSignerKey').fill('{}');
+ await expect(page.locator('#auditVerifyStatus')).toContainText('opnieuw controleren vereist');
+ await expect(page.locator('#auditVerifyStatus')).not.toContainText('CRYPTOGRAFISCH GELDIG');
+});
