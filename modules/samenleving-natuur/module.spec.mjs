@@ -1186,6 +1186,8 @@ test('successful verification exports a local audit with explicit DENY and file 
  expect(report.fileSha256.rotation).toMatch(/^[a-f0-9]{64}$/);
  expect(report.fileSha256.registry).toMatch(/^[a-f0-9]{64}$/);
  expect(report.fileSha256.checker).toMatch(/^[a-f0-9]{64}$/);
+ expect(report.integrity.algorithm).toBe('SHA-256');
+ expect(report.integrity.digest).toMatch(/^[a-f0-9]{64}$/);
  expect(JSON.stringify(report)).not.toContain('"d":');
 });
 
@@ -1219,4 +1221,49 @@ test('audit is invalidated when signer input changes',async ({page})=>{
  await page.locator('#rotationOldKey').fill('{"kty":"EC"}');
  await expect(page.locator('#exportRotationAudit')).toBeDisabled();
  await expect(page.locator('#rotationStatus')).toContainText('opnieuw verifiëren vereist');
+});
+
+async function exportedAuditFixture(page){
+ await signedPreviewFixture(page);
+ const fixture=await rotationFixture(page);
+ await page.locator('#rotationOldKey').fill(JSON.stringify(fixture.oldKey));
+ await page.locator('#rotationNewKey').fill(JSON.stringify(fixture.newKey));
+ await page.locator('#rotationFile').setInputFiles({name:'rotation.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.rotation))});
+ await page.locator('#verifyRotation').click();
+ await expect(page.locator('#exportRotationAudit')).toBeEnabled();
+ const promised=page.waitForEvent('download');
+ await page.locator('#exportRotationAudit').click();
+ const download=await promised;
+ const {readFile}=await import('node:fs/promises');
+ return JSON.parse(await readFile(await download.path(),'utf8'));
+}
+
+test('local audit SHA-256 verifier accepts unmodified exported receipt without granting trust',async ({page})=>{
+ const report=await exportedAuditFixture(page);
+ await page.locator('#auditVerifyFile').setInputFiles({name:'audit.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(report))});
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('SHA-256 AUDITINTEGRITEIT GELDIG');
+ await expect(page.locator('#auditVerifyStatus')).toContainText('NIET ONDERTEKEND');
+ await expect(page.locator('#auditVerifyStatus')).toContainText('Geen PALACO-autorisatie');
+ expect(report.authorization).toBe('DENY');
+});
+
+test('audit verifier rejects modified decision after export',async ({page})=>{
+ const report=await exportedAuditFixture(page);
+ report.result='DENIED_SIGNATURE';
+ await page.locator('#auditVerifyFile').setInputFiles({name:'modified.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(report))});
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
+});
+
+test('audit verifier rejects unsigned legacy report and clears previous result on file change',async ({page})=>{
+ const report=await exportedAuditFixture(page);
+ await page.locator('#auditVerifyFile').setInputFiles({name:'valid.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(report))});
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('SHA-256 AUDITINTEGRITEIT GELDIG');
+ delete report.integrity;
+ await page.locator('#auditVerifyFile').setInputFiles({name:'legacy.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(report))});
+ await expect(page.locator('#auditVerifyStatus')).toContainText('opnieuw controleren vereist');
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
 });
