@@ -193,6 +193,14 @@ $('bundleSave').addEventListener('click',async ()=>{
    if(!lastExportFingerprint)$('bundleStatus').textContent='Projectexport uitgevoerd of geweigerd; controleer het gedownloade bestand voordat je het gebruikt.';
  }
 });
+function safeProjectFilename(name){
+ if(typeof name!=='string'||name.length===0||name.length>120||
+   name!==name.trim()||name==='.'||name==='..'||
+   /[\\/\x00-\x1f\x7f\u202a-\u202e\u2066-\u2069]/.test(name)||
+   !/\.json$/i.test(name))
+   throw Error('Ongeldige of misleidende JSON-bestandsnaam');
+ return name;
+}
 function parseReceiptFields(receipt){
  if(receipt.length>4096)throw Error('TXT-bewijs overschrijdt de maximale lengte');
  if(/[\u202a-\u202e\u2066-\u2069]/i.test(receipt))
@@ -219,13 +227,11 @@ function parseReceiptFields(receipt){
  if(nameLines.length!==1)throw Error('TXT-bewijs moet precies één Bestand-regel bevatten');
  const hash=hashLines[0].slice('SHA-256: '.length);
  if(!/^[0-9a-fA-F]{64}$/.test(hash))throw Error('Ongeldige SHA-256 in TXT');
- return {hash:hash.toLowerCase(),filename:nameLines[0].slice('Bestand: '.length)};
+ return {hash:hash.toLowerCase(),filename:safeProjectFilename(nameLines[0].slice('Bestand: '.length))};
 }
 function parseBoundReceipt(receipt,projectFilename){
- if(/[\u202a-\u202e\u2066-\u2069]/i.test(projectFilename))
-   throw Error('JSON-bestandsnaam bevat misleidende Unicode-richtingstekens');
  const fields=parseReceiptFields(receipt);
- const expected=projectFilename.replace(/[\x00-\x1f\x7f]/g,' ').slice(0,120);
+ const expected=safeProjectFilename(projectFilename);
  if(fields.filename!==expected)throw Error('Bestandsnaam in SHA-256-TXT komt niet overeen met gekozen JSON-project');
  return fields.hash;
 }
@@ -415,8 +421,9 @@ $('bundleVerify').addEventListener('change',async event=>{
    const api=window.PalacoAtelierBundle;
    if(!api)throw Error('Projectpakket-functie niet geladen');
    if(file.size>150000)throw Error('Bestand groter dan 150 KB');
+   const projectFilename=safeProjectFilename(file.name);
    const reference=$('expectedFingerprint').value.trim();
-   if(loadedReceiptFilename!==null&&file.name.replace(/[\x00-\x1f\x7f]/g,' ').slice(0,120)!==loadedReceiptFilename)
+   if(loadedReceiptFilename!==null&&projectFilename!==loadedReceiptFilename)
      throw Error('Bestandsnaam in ingeladen SHA-256-referentie komt niet overeen met gekozen JSON-project');
    if(reference!==''&&!/^[0-9a-fA-F]{64}$/.test(reference))throw Error('Referentie moet precies 64 hexadecimale SHA-256-tekens bevatten');
    const bytes=await file.arrayBuffer();
@@ -429,7 +436,7 @@ $('bundleVerify').addEventListener('change',async event=>{
    const fingerprint=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
    // A mismatched trusted reference cannot unlock a fresh matching-receipt export.
    const matchesReference=reference===''||fingerprint===reference.toLowerCase();
-   verifiedFingerprint=matchesReference?{hash:fingerprint,filename:file.name.replace(/[\x00-\x1f\x7f]/g,' ').slice(0,120)}:null;
+   verifiedFingerprint=matchesReference?{hash:fingerprint,filename:projectFilename}:null;
    $('exportFingerprint').disabled=!matchesReference;
    const ex=pack.exterior?pack.exterior.cells.filter(Boolean).length:0;
    const interior=pack.interior?pack.interior.floors.flat().filter(Boolean).length:0;
