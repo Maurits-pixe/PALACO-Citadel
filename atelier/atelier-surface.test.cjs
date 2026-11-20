@@ -87,6 +87,12 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/api\.parse\(decode\.decode\(jsonBytes\)\)/);
   assert.match(read('regiekamer.html'),/CONTROLE GESLAAGD/);
   assert.match(read('regiekamer.html'),/revision!==exportRevision/);
+  assert.match(read('regiekamer.html'),/let exportCheckRevision=0/);
+  assert.match(read('regiekamer.html'),/selection!==exportCheckRevision/);
+  assert.match(read('regiekamer.html'),/revision===exportRevision&&selection===exportCheckRevision/);
+  assert.match(read('regiekamer.html'),/revision===dossierRevision\)event\.target\.value/);
+  assert.match(read('regiekamer.html'),/revision===pairRevision\)event\.target\.value/);
+  assert.match(read('regiekamer.html'),/revision===reportVerifyRevision\)event\.target\.value/);
   assert.match(read('regiekamer.html'),/new TextEncoder\(\)\.encode\(serialized\)/);
   assert.match(read('regiekamer.html'),/lastExportFingerprint=\{hash\}/);
   assert.match(read('regiekamer.html'),/verifiedFingerprint=null/);
