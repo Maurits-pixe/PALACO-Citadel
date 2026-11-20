@@ -1085,3 +1085,49 @@ test("encrypted vault unlock refuses conflicting local record with the same ID",
  assert.equal(await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),original);
  await c.close();
 });
+
+test("vault save refuses incomplete historical predecessor chain after legacy import",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Voorbeeldbron");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Voorbeeldinhoud");
+ await p.locator("#entryForm button[type=submit]").tap();
+ const [download]=await Promise.all([p.waitForEvent("download"),p.locator("#export").tap()]);
+ const exported=JSON.parse((await readFile(await download.path())).toString("utf8"));
+ const orphan={...exported.entries[0],id:"orphan-child-v2",previousId:"missing-historical-parent",version:2,title:"Ontbrekende voorganger"};
+ p.once("dialog",d=>d.accept());
+ await p.locator("#clear").tap();
+ const legacy={schema:"PALACO-CITADEL-GEHEUGEN-1",authority:"NONE",status:"LOCAL_DRAFT_ONLY",issuedAt:null,exportedAt:new Date().toISOString(),entries:[orphan]};
+ await p.locator("#file").setInputFiles({name:"partial-lineage.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(legacy))});
+ await p.waitForFunction(()=>document.querySelector("#count").textContent==="1");
+ await p.locator("#archivePassphrase").fill("Historische lijn wachtzin 123!");
+ await p.locator("#vaultSave").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("historische lineage onvolledig"));
+ assert.equal(await p.locator("#count").innerText(),"1");
+ assert.equal(await p.evaluate(()=>localStorage.getItem("palaco.citadel.geheugenkamer.vault.v1")),null);
+ assert.match(await p.locator("#timeline").innerText(),/Ontbrekende voorganger/);
+ await c.close();
+});
+
+test("vault save preserves complete root-to-successor chain across reload and unlock",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Lineage oorsprong");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Origineel");
+ await p.locator("#entryForm button[type=submit]").tap();
+ await p.locator("#timeline button").filter({hasText:"Nieuwe versie"}).first().tap();
+ await p.locator("#title").fill("Lineage opvolger");
+ await p.locator("#entryForm button[type=submit]").tap();
+ assert.equal(await p.locator("#count").innerText(),"2");
+ await p.locator("#archivePassphrase").fill("Volledige lineage wachtzin 123!");
+ await p.locator("#vaultSave").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde kluis bewust opgeslagen"));
+ await p.reload();
+ assert.equal(await p.locator("#count").innerText(),"0");
+ await p.locator("#archivePassphrase").fill("Volledige lineage wachtzin 123!");
+ await p.locator("#vaultUnlock").tap();
+ await p.waitForFunction(()=>document.querySelector("#count").textContent==="2");
+ assert.match(await p.locator("#timeline").innerText(),/Lineage oorsprong/);
+ assert.match(await p.locator("#timeline").innerText(),/Lineage opvolger/);
+ await c.close();
+});
