@@ -51,6 +51,8 @@
 <label for="fingerprintReceipt" class="eyebrow" style="display:block;margin:12px 0 8px">Of laad een eerder bewaarde SHA-256-referentie (TXT)</label>
 <input type="file" id="fingerprintReceipt" accept=".txt,text/plain" style="max-width:100%;font-size:13px">
 <p class="small" id="referenceStatus" role="status" aria-live="polite">Referentie blijft uitsluitend in deze pagina; het bestand wordt niet geüpload.</p>
+<div class="actions"><button type="button" class="action" id="clearInspections">↺ Wis tijdelijke controlestatus</button></div>
+<p class="small">Wist uitsluitend tijdelijke controle-uitkomsten en ingeladen SHA-256-referenties. Creatieve ontwerpen en lokale herstelkopieën blijven bewaard.</p>
 <p class="small">Alleen een eerder veilig bewaarde, vertrouwde referentie kan dienen als vergelijkingsbasis. De waarde wordt niet opgeslagen of verzonden. Een wijziging aan de referentie vereist een nieuwe controle; bij een afwijking blijft de exportknop uitgeschakeld.</p>
 <p class="small" id="verifyStatus" role="status" aria-live="polite">Kies een lokaal DRAFT JSON-bestand om schema, inhoud en SHA-256-vingerafdruk te controleren. Dit verandert geen opgeslagen ontwerp.</p>
 <div class="actions"><button type="button" class="action" id="exportFingerprint" disabled>↓ Bewaar SHA-256-referentie (TXT)</button></div>
@@ -634,6 +636,31 @@ async function repairOffline(){
    button.textContent='↻ Herstel offlinepakket';
  }
 }
+$('clearInspections').addEventListener('click',()=>{
+ // Invalidate every pending file read/digest before clearing UI or evidence state.
+ ++exportRevision;
+ ++exportCheckRevision;
+ ++pairRevision;
+ ++reportVerifyRevision;
+ ++dossierRevision;
+ lastExportFingerprint=null;
+ lastPairReport=null;
+ verifiedFingerprint=null;
+ loadedReceiptFilename=null;
+ $('expectedFingerprint').value='';
+ for(const id of ['checkExportFile','pairVerify','reportVerify','bundleVerify','fingerprintReceipt'])
+   $(id).value='';
+ for(const id of ['exportBundleReceipt','pairReportSave','exportFingerprint'])
+   $(id).disabled=true;
+ $('checkExportFile').disabled=true;
+ $('exportCheckStatus').textContent='Controle gewist. Exporteer opnieuw om een nieuwe bestandscontrole te starten.';
+ $('bundleReceiptStatus').textContent='Tijdelijke SHA-256-referentie gewist. Exporteer het project opnieuw.';
+ $('pairStatus').textContent='Paarcontrole gewist. Selecteer opnieuw JSON en TXT.';
+ $('reportVerifyStatus').textContent='Drievoudige controle gewist. Selecteer opnieuw drie bestanden.';
+ $('verifyStatus').textContent='Dossiercontrole gewist. Selecteer opnieuw een JSON-projectbestand.';
+ $('referenceStatus').textContent='Tijdelijke TXT-referentie gewist. Kies opnieuw een vertrouwd controlebewijs.';
+ $('bundleStatus').textContent='Tijdelijke controle-uitkomsten gewist; opgeslagen creatieve ontwerpen niet gewijzigd.';
+});
 $('repairOffline').addEventListener('click',repairOffline);
 $('checkOffline').addEventListener('click',checkOfflineReady);
 window.addEventListener('online',checkOfflineReady);
