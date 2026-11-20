@@ -241,3 +241,23 @@ test('opening a dossier focuses its accessible heading',()=>{
  assert.equal(h.nodes.get('#dossierTitle').focused,true);
  assert.equal(h.nodes.get('#dossier').className,'panel');
 });
+
+test('closing a selected dossier restores focus to its inspect button',()=>{
+ const h=harness();enter(h,'Focus terug naar tijdlijn');
+ const button=h.nodes.get('#timeline').children[0].children.at(-1).children[1];
+ button.dispatch('click');
+ assert.equal(h.nodes.get('#dossierTitle').focused,true);
+ h.nodes.get('#dossierClose').dispatch('click');
+ assert.equal(button.focused,true);
+ assert.equal(h.nodes.get('#dossier').className,'panel hidden');
+});
+test('Escape in dossier closes the panel and restores the previous focus',()=>{
+ const h=harness();enter(h,'Sluiten met Escape');
+ const button=h.nodes.get('#timeline').children[0].children.at(-1).children[1];
+ button.dispatch('click');
+ let prevented=false;
+ h.nodes.get('#dossier').listeners.get('keydown')({key:'Escape',preventDefault(){prevented=true}});
+ assert.equal(prevented,true);
+ assert.equal(button.focused,true);
+ assert.equal(h.nodes.get('#dossier').className,'panel hidden');
+});
