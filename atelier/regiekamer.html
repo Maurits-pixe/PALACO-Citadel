@@ -111,10 +111,12 @@ function download(filename,body,type){const url=URL.createObjectURL(new Blob([bo
 const PROJECT_FILENAME='PALACO-Atelier-Compleet-Project-DRAFT.json';
 let lastExportFingerprint=null;
 let exportRevision=0;
+let exportCheckRevision=0;
 $('checkExportFile').addEventListener('change',async event=>{
  const file=event.target.files?.[0];
  if(!file)return;
  const revision=exportRevision;
+ const selection=++exportCheckRevision;
  const reference=lastExportFingerprint?.hash;
  const status=$('exportCheckStatus');
  status.textContent='Gedownload JSON-bestand opnieuw controleren…';
@@ -122,22 +124,22 @@ $('checkExportFile').addEventListener('change',async event=>{
    if(!reference)throw Error('Geen actuele exportreferentie beschikbaar');
    if(file.size>150000)throw Error('Bestand te groot (maximaal 150 KB)');
    const bytes=await file.arrayBuffer();
-   if(revision!==exportRevision)return;
+   if(revision!==exportRevision||selection!==exportCheckRevision)return;
    const api=window.PalacoAtelierBundle;
    if(!api)throw Error('Projectpakketcontrole niet beschikbaar');
    const content=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
    api.parse(content);
    if(!crypto?.subtle?.digest)throw Error('SHA-256 niet beschikbaar in deze browser');
    const digest=await crypto.subtle.digest('SHA-256',bytes);
-   if(revision!==exportRevision)return;
+   if(revision!==exportRevision||selection!==exportCheckRevision)return;
    const actual=Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('');
    status.textContent=actual===reference
       ?'CONTROLE GESLAAGD: het geselecteerde JSON-bestand komt byte voor byte overeen met de laatste export. SHA-256: '+actual
       :'WAARSCHUWING: geselecteerd JSON-bestand wijkt af van de laatste export. SHA-256: '+actual;
  }catch(err){
-   if(revision!==exportRevision)return;
+   if(revision!==exportRevision||selection!==exportCheckRevision)return;
    status.textContent='Exportcontrole geweigerd: '+err.message;
- }finally{event.target.value='';}
+ }finally{if(revision===exportRevision&&selection===exportCheckRevision)event.target.value='';}
 });
 
 $('exportBundleReceipt').addEventListener('click',()=>{
@@ -154,6 +156,7 @@ $('exportBundleReceipt').addEventListener('click',()=>{
 });
 $('bundleSave').addEventListener('click',async ()=>{
  const revision=++exportRevision;
+ ++exportCheckRevision;
  lastExportFingerprint=null;
  $('exportBundleReceipt').disabled=true;
  $('checkExportFile').disabled=true;
@@ -288,7 +291,7 @@ $('reportVerify').addEventListener('change',async event=>{
  }catch(err){
    if(revision!==reportVerifyRevision)return;
    status.textContent='Drievoudige controle geweigerd: '+err.message+'. Geen gegevens geïmporteerd.';
- }finally{event.target.value='';}
+ }finally{if(revision===reportVerifyRevision)event.target.value='';}
 });
 let pairRevision=0;
 let lastPairReport=null;
@@ -345,7 +348,7 @@ $('pairVerify').addEventListener('change',async event=>{
  }catch(err){
    if(revision!==pairRevision)return;
    status.textContent='Paarcontrole geweigerd: '+err.message+'. Geen gegevens geïmporteerd.';
- }finally{event.target.value='';}
+ }finally{if(revision===pairRevision)event.target.value='';}
 });
 let verifiedFingerprint=null;
 let loadedReceiptFilename=null;
@@ -396,7 +399,7 @@ $('fingerprintReceipt').addEventListener('change',async event=>{
    verifiedFingerprint=null;
    $('exportFingerprint').disabled=true;
    status.textContent='Referentie geweigerd: '+err.message;
- }finally{event.target.value='';}
+ }finally{if(revision===dossierRevision)event.target.value='';}
 });
 $('bundleVerify').addEventListener('change',async event=>{
  const file=event.target.files?.[0];
@@ -433,7 +436,7 @@ $('bundleVerify').addEventListener('change',async event=>{
  }catch(err){
    if(revision!==dossierRevision)return;
    status.textContent='Controle afgewezen: '+err.message+'. Er is niets geïmporteerd.';
- }finally{event.target.value='';}
+ }finally{if(revision===dossierRevision)event.target.value='';}
 });
 $('bundleImport').addEventListener('change',async event=>{
  const file=event.target.files?.[0];
