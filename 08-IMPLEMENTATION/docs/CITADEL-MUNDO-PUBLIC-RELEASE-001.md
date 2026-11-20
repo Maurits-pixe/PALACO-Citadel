@@ -21,3 +21,15 @@ Voor een externe statische host:
 
 ## Beperkingen
 De publieke pagina is een conceptdemonstratie zonder cartografische data; het woord 'publiek' verleent geen rechten of toegang tot PALACO-werelden. De pagina zelf is in GitHub voorbereid, maar er is **nog geen publieke live URL uitgegeven of geverifieerd**. Geen functionele tests en geen merge uitgevoerd. Citadel PR #58 blijft **DRAFT/HOLD**.
+
+## EXPLORER-004 — Constellatie en ontdekkingspad
+
+De publieke demonstratie op Render heeft een additioneel wereldnavigatiegedeelte:
+- Een **constellatie-index** voor de zeven bekende wereldnamen met selecteerbare, duidelijk gemarkeerde wereldknoppen.
+- Toetsenbordnavigatie via pijltjestoetsen, Home en End, met focusoverdracht naar de geselecteerde wereldknop.
+- Een uitsluitend in het huidige browsergeheugen opgeslagen **ontdekkingspad** met bezochte werelden, een voortgangsindicator en een knop om het pad te wissen.
+- Geen cookies, localStorage, accountgegevens of netwerkverzoeken vanuit deze functies.
+
+Dit is een interface voor **ontdekte registervermeldingen**, niet voor echte reisroutes, astronomische coördinaten of geregistreerde bezoeken. Bij herladen wordt het pad gewist. De zeven wereldnamen zijn bekende projectcontext; geografie en eigendom blijven niet geverifieerd.
+
+De originele privé-Citadel Sites-app is niet gewijzigd. De publieke Render-site is onafhankelijk en gebruikt alleen de directory `08-IMPLEMENTATION/examples/mundo-public`, met autoDeploy uit. De DRAFT PR #58 is niet gemerged. Functionele acceptatie blijft bij de eigenaar.
