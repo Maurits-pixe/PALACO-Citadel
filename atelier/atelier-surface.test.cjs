@@ -65,6 +65,10 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/DRIEVOUDIGE CONTROLE GESLAAGD/);
   assert.match(read('regiekamer.html'),/function parseBoundReceipt\(/);
   assert.match(read('regiekamer.html'),/function parseReceiptFields\(/);
+  assert.match(read('regiekamer.html'),/function safeProjectFilename\(name\)/);
+  assert.match(read('regiekamer.html'),/const projectFilename=safeProjectFilename\(file\.name\)/);
+  assert.match(read('regiekamer.html'),/filename:safeProjectFilename\(nameLines\[0\]/);
+  assert.match(read('regiekamer.html'),/const expected=safeProjectFilename\(projectFilename\)/);
   assert.match(read('regiekamer.html'),/misleidende Unicode-richtingstekens/);
   assert.match(read('regiekamer.html'),/dubbele toelichtingsregels/);
   assert.match(read('regiekamer.html'),/te veel of te lange regels/);
