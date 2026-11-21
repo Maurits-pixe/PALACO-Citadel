@@ -99,3 +99,15 @@ Er is een nieuw TypeScript-model: `08-IMPLEMENTATION/src/citadel/mundo-atlas-lay
 - De publieke Atlas bevat nu een apart **Datamodel 010**-overzicht. Dit is uitsluitend verklarende informatie: de site haalt **geen** geografische punten, bewijsdossiers of persoonlijke gegevens op.
 
 Deze ontwikkeling is gescheiden van het oorspronkelijke privé-Sites-project. De publieke Render-preview mag handmatig worden bijgewerkt; autoDeploy blijft uit. Geen functionele tests, merge, identiteitswijzigingen of toegangsvrijgaven uitgevoerd. GitHub PR #58 blijft DRAFT/HOLD.
+
+## MUNDO-RENDER-PROJECTION-011 — toegelaten weergavegegevens
+
+De module `08-IMPLEMENTATION/src/citadel/mundo-atlas-render-projection.ts` levert de functie `prepareAuthorizedAtlasView`. Deze roept het bestaande hostgebonden toelatingscontract aan en accepteert niet zelfstandig een willekeurige bron. Bij weigering of gewijzigde context retourneert de module `denied` of `stale`, **nooit** voorbeeldinhoud als fallback.
+
+Na toelating controleert de module het wereld-ID en laagtype opnieuw. Een geografische laag wordt omgezet in begrensde, genormaliseerde punten `x=(longitude+180)/360` en `y=(90-latitude)/180` voor een **equirectangulaire schematische presentatie**; bewijsreferenties worden als veilige, eenvoudige velden overgenomen. Alle resultaatobjecten en -arrays worden bevroren. Na de projectie volgen nogmaals een contextversiecheck en een actuele hostautorisatiecheck.
+
+Dit is een **dataprojectie, geen rechtstreeks aangestuurde DOM-/SVG-renderer**: de uiteindelijke vertrouwelijke gebruikersinterface moet een echte, door de host gecontroleerde mount- en revoke-cyclus toepassen; labels als tekst behandelen; privacy en bewijsverificatie door de host afdwingen; en het goedgekeurde bronobject onveranderlijk houden gedurende de verificatie. Het model verifieert zelf geen signatures of digests en verleent geen rechten.
+
+Op de afzonderlijke openbare Atlas is alleen een **lege schematische rendererzone** toegevoegd, met expliciet nul geografische punten en nul bewijsreferenties. De pagina importeert deze private module niet en heeft geen bron-API, identiteitskoppeling, privégegevens of uploadfunctionaliteit.
+
+Geen functionele tests uitgevoerd; de privé-Citadel blijft ongemoeid, PR #58 DRAFT/HOLD, geen merge. Alleen de reeds toegestane publieke Render-demonstratie kan handmatig worden bijgewerkt.
