@@ -66,6 +66,11 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/function parseBoundReceipt\(/);
   assert.match(read('regiekamer.html'),/function parseReceiptFields\(/);
   assert.match(read('regiekamer.html'),/function safeProjectFilename\(name\)/);
+  assert.match(read('regiekamer.html'),/function safeReceiptFilename\(name\)/);
+  assert.match(read('regiekamer.html'),/safeReceiptFilename\(txtFiles\[0\]\.name\)/);
+  assert.match(read('regiekamer.html'),/safeReceiptFilename\(txt\.name\)/);
+  assert.match(read('regiekamer.html'),/safeReceiptFilename\(file\.name\)/);
+  assert.match(read('regiekamer.html'),/receiptFile:receiptFilename/);
   assert.match(read('regiekamer.html'),/const projectFilename=safeProjectFilename\(file\.name\)/);
   assert.match(read('regiekamer.html'),/filename:safeProjectFilename\(nameLines\[0\]/);
   assert.match(read('regiekamer.html'),/const expected=safeProjectFilename\(projectFilename\)/);
