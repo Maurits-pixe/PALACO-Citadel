@@ -89,6 +89,15 @@ small{color:#c2d1c5}.hidden{display:none!important}
 <button id="pinAuditRegistry" type="button" disabled>Leg gecontroleerde registerversie lokaal vast</button>
 <button id="pinAuditIssuer" type="button" disabled>Bevestig deze registeruitgever lokaal</button>
 <p><small>Een eenmaal lokaal bevestigde registeruitgever blokkeert andere uitgevers en ongetekende legacy-registers in deze browser. De pin is wijzigbaar of wisbaar, en is geen PALACO-trust anchor.</small></p>
+<label for="issuerRotationFile">Uitgeversopvolging · dubbel ondertekende verklaring (JSON, maximaal 20 KB)</label>
+<input id="issuerRotationFile" type="file" accept=".json,application/json">
+<label for="issuerRotationOldKey">Bestaande publieke uitgeverssleutel (P-256 JWK)</label>
+<textarea id="issuerRotationOldKey" rows="3" style="width:100%;background:#0b1c15;color:var(--text);border:1px solid var(--line);padding:10px;border-radius:9px"></textarea>
+<label for="issuerRotationNewKey">Opvolgende publieke uitgeverssleutel (P-256 JWK)</label>
+<textarea id="issuerRotationNewKey" rows="3" style="width:100%;background:#0b1c15;color:var(--text);border:1px solid var(--line);padding:10px;border-radius:9px"></textarea>
+<button id="verifyIssuerRotation" type="button">Controleer dubbele uitgeversopvolging</button>
+<p id="issuerRotationStatus" role="status" aria-live="polite">Geen uitgeversopvolging gecontroleerd. Geen autorisatie.</p>
+<p><small>Voor opvolging is een eerder bevestigde lokale uitgever nodig. Deze controle werkt volledig alleen-lezen: de bevestigde sleutel wordt nooit automatisch vervangen.</small></p>
 <p><small>Anti-rollback-pin is uitsluitend lokale browseropslag, expliciet bevestigd door de gebruiker en wijzigbaar of wisbaar. Geen onafhankelijk PALACO-vertrouwen.</small></p>
 <p id="auditVerifyStatus" role="status" aria-live="polite">Geen auditrapport gecontroleerd. Authenticiteit: NIET VASTGESTELD.</p>
 <p><small>Het rapport bevat alleen controle-uitkomsten, tijdstip en SHA-256-vingerafdrukken van aangeleverde bestanden. Het is geen onafhankelijk bewijsstuk, auditlog of bevoegdheidsbesluit.</small></p>
@@ -107,14 +116,14 @@ const states=['persoonlijke observatie','nog te verifiëren','geverifieerd door 
 const minimalKeys=['sequence','category','conceptualArea','verification','recordedMonth'];
 const fullKeys=['id','title','category','conceptualArea','verification','description','observedAt'];
 function exactFields(record,allowed){return Object.keys(record).length===allowed.length&&Object.keys(record).every(key=>allowed.includes(key))}
-let ticket=0,currentPacket=null,signatureRevision=0,pinCandidate=null,rotationRevision=0,rotationAudit=null,auditCheckRevision=0,auditPinCandidate=null,auditIssuerCandidate=null;
+let ticket=0,currentPacket=null,signatureRevision=0,pinCandidate=null,rotationRevision=0,rotationAudit=null,auditCheckRevision=0,auditPinCandidate=null,auditIssuerCandidate=null,issuerRotationRevision=0;
 const PIN_PREFIX='palaco.citadel.revocation-pin.v1.';
 function readPin(raw){if(raw===null)return null;let v;try{v=JSON.parse(raw)}catch{v=raw}if(typeof v==='string'){if(!/^\d{4}-\d{2}-\d{2}T/.test(v)||!Number.isFinite(Date.parse(v)))throw Error('Ongeldige oudere pin');return {issuedAt:v,digest:null}}if(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).sort().join(',')!=='digest,issuedAt'||typeof v.issuedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(v.issuedAt)||!Number.isFinite(Date.parse(v.issuedAt))||typeof v.digest!=='string'||!/^[a-f0-9]{64}$/.test(v.digest))throw Error('Ongeldig lokaal pincontract');return v}
 function invalidatePin(){pinCandidate=null;$('pinRevocation').disabled=true}
 function canonicalJson(value){if(Array.isArray(value))return '['+value.map(canonicalJson).join(',')+']';if(value&&typeof value==='object')return '{'+Object.keys(value).sort().map(key=>JSON.stringify(key)+':'+canonicalJson(value[key])).join(',')+'}';return JSON.stringify(value)}
 async function verifyIntegrity(data){if(data.integrity===undefined)return false;const info=data.integrity;if(!info||typeof info!=='object'||Array.isArray(info)||Object.keys(info).length!==3||info.algorithm!=='SHA-256'||info.canonicalization!=='palaco-sorted-json-v1'||typeof info.digest!=='string'||! /^[0-9a-f]{64}$/.test(info.digest))throw Error('Onbekende integriteitsmethode');const packet={...data};delete packet.integrity;const bytes=new TextEncoder().encode(canonicalJson(packet));const hash=await crypto.subtle.digest('SHA-256',bytes);const observed=Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('');if(observed!==info.digest)throw Error('Hash komt niet overeen');return true}
 
-function clear(message){auditPinCandidate=null;auditIssuerCandidate=null;$('pinAuditRegistry').disabled=true;$('pinAuditIssuer').disabled=true;auditCheckRevision++;$('auditRegistryIssuerKey').value='';$('auditKeyRegistry').value='';$('requireAuditSignature').checked=false;$('auditSignatureFile').value='';$('auditSignerKey').value='';$('auditVerifyFile').value='';$('auditVerifyStatus').textContent='Geen auditrapport gecontroleerd. Authenticiteit: NIET VASTGESTELD.';rotationAudit=null;$('exportRotationAudit').disabled=true;rotationRevision++;$('requireChecker').checked=false;$('checkerFile').value='';$('checkerKey').value='';$('registryIssuerKey').value='';$('rotationRegistry').value='';$('rotationFile').value='';$('rotationOldKey').value='';$('rotationNewKey').value='';$('rotationStatus').textContent='Geen sleutelrotatie gecontroleerd. Vertrouwensstatus: NIET VASTGESTELD.';invalidatePin();signatureRevision++;currentPacket=null;$('revocations').value='';$('revocationIssuerKey').value='';$('signatureFile').value='';$('publicKey').value='';$('signatureStatus').textContent='Geen handtekening geverifieerd. Vertrouwensstatus: NIET VASTGESTELD.';$('preview').classList.add('hidden');$('records').replaceChildren();$('actualRecipient').textContent='';$('privacy').textContent='';$('total').textContent='';$('status').textContent=message}
+function clear(message){issuerRotationRevision++;$('issuerRotationFile').value='';$('issuerRotationOldKey').value='';$('issuerRotationNewKey').value='';$('issuerRotationStatus').textContent='Geen uitgeversopvolging gecontroleerd. Geen autorisatie.';auditPinCandidate=null;auditIssuerCandidate=null;$('pinAuditRegistry').disabled=true;$('pinAuditIssuer').disabled=true;auditCheckRevision++;$('auditRegistryIssuerKey').value='';$('auditKeyRegistry').value='';$('requireAuditSignature').checked=false;$('auditSignatureFile').value='';$('auditSignerKey').value='';$('auditVerifyFile').value='';$('auditVerifyStatus').textContent='Geen auditrapport gecontroleerd. Authenticiteit: NIET VASTGESTELD.';rotationAudit=null;$('exportRotationAudit').disabled=true;rotationRevision++;$('requireChecker').checked=false;$('checkerFile').value='';$('checkerKey').value='';$('registryIssuerKey').value='';$('rotationRegistry').value='';$('rotationFile').value='';$('rotationOldKey').value='';$('rotationNewKey').value='';$('rotationStatus').textContent='Geen sleutelrotatie gecontroleerd. Vertrouwensstatus: NIET VASTGESTELD.';invalidatePin();signatureRevision++;currentPacket=null;$('revocations').value='';$('revocationIssuerKey').value='';$('signatureFile').value='';$('publicKey').value='';$('signatureStatus').textContent='Geen handtekening geverifieerd. Vertrouwensstatus: NIET VASTGESTELD.';$('preview').classList.add('hidden');$('records').replaceChildren();$('actualRecipient').textContent='';$('privacy').textContent='';$('total').textContent='';$('status').textContent=message}
 function validate(data,recipient){
  if(!data||data.schema!=='palaco-citadel-handoff-v1'||data.source!=='citadel/samenleving-natuur'||!['wereldatlas','geheugenkamer'].includes(recipient))throw Error('Ongeldig contract');
  if(!Array.isArray(data.records)||data.records.length>500||!['minimal-user-controlled','full-user-controlled'].includes(data.privacy))throw Error('Ongeldige inhoud');
@@ -473,6 +482,39 @@ $('pinAuditRegistry').addEventListener('click',()=>{
  }catch{$('auditVerifyStatus').textContent='AUDITREGISTER-PIN MISLUKT. Geen rollback-garantie en geen PALACO-autorisatie.'}
  auditPinCandidate=null;$('pinAuditRegistry').disabled=true;
 });
+$('verifyIssuerRotation').addEventListener('click',async()=>{
+ const file=$('issuerRotationFile').files?.[0],revision=++issuerRotationRevision,id=ticket;
+ $('issuerRotationStatus').textContent='Dubbele sleutelopvolging wordt gecontroleerd; geen rechten toegekend.';
+ if(!file||file.size>20000){$('issuerRotationStatus').textContent='UITGEVERSOPVOLGING AFGEWEZEN. Geen PALACO-autorisatie.';return}
+ try{
+  const pinned=auditIssuerPin(localStorage.getItem(AUDIT_ISSUER_PIN_KEY));
+  if(!pinned)throw Error('Geen bestaande lokaal bevestigde uitgever');
+  const oldKey=publicRotationKey($('issuerRotationOldKey').value);
+  const newKey=publicRotationKey($('issuerRotationNewKey').value);
+  const oldFp=hex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonicalJson(oldKey))));
+  const newFp=hex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonicalJson(newKey))));
+  if(oldFp!==pinned||newFp===oldFp)throw Error('Opvolging niet gekoppeld aan bestaande lokale uitgever');
+  const declaration=JSON.parse(await file.text());
+  if(id!==ticket||revision!==issuerRotationRevision)return;
+  if(!declaration||typeof declaration!=='object'||Array.isArray(declaration)||Object.keys(declaration).sort().join(',')!=='epoch,expiresAt,issuedAt,newFingerprint,newSignature,oldFingerprint,oldSignature,schema'||declaration.schema!=='palaco-citadel-audit-issuer-rotation-v1'||declaration.oldFingerprint!==oldFp||declaration.newFingerprint!==newFp||!Number.isSafeInteger(declaration.epoch)||declaration.epoch<1)throw Error('Ongeldige uitgeversverklaring');
+  const iso=/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+  const utc=value=>{if(typeof value!=='string'||!iso.test(value))throw Error('Ongeldige UTC');const t=Date.parse(value);if(!Number.isFinite(t)||new Date(t).toISOString()!==value)throw Error('Ongeldige UTC');return t};
+  const issued=utc(declaration.issuedAt),expires=utc(declaration.expiresAt),now=Date.now();
+  if(issued>now+300000||expires<=now||expires<=issued||expires-issued>31*86400000)throw Error('Verlopen opvolgingsverklaring');
+  const unsigned={...declaration};delete unsigned.oldSignature;delete unsigned.newSignature;
+  const payload=new TextEncoder().encode(canonicalJson(unsigned));
+  const older=await crypto.subtle.importKey('jwk',oldKey,{name:'ECDSA',namedCurve:'P-256'},false,['verify']);
+  const newer=await crypto.subtle.importKey('jwk',newKey,{name:'ECDSA',namedCurve:'P-256'},false,['verify']);
+  const oldValid=await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},older,b64ToBytes(declaration.oldSignature),payload);
+  const newValid=await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},newer,b64ToBytes(declaration.newSignature),payload);
+  if(id!==ticket||revision!==issuerRotationRevision)return;
+  if(!oldValid||!newValid||Date.now()>=expires)throw Error('Ongeldige dubbele handtekening');
+  $('issuerRotationStatus').textContent='DUBBELE UITGEVERSOPVOLGING CRYPTOGRAFISCH GELDIG (epoch '+declaration.epoch+'); nieuwe sleutel NIET GEACTIVEERD of VERTROUWD. Geen PALACO-autorisatie.';
+ }catch{if(id===ticket&&revision===issuerRotationRevision)$('issuerRotationStatus').textContent='UITGEVERSOPVOLGING AFGEWEZEN. Geen PALACO-autorisatie.'}
+});
+for(const inputId of ['issuerRotationFile','issuerRotationOldKey','issuerRotationNewKey']){
+ $(inputId).addEventListener(inputId==='issuerRotationFile'?'change':'input',()=>{issuerRotationRevision++;$('issuerRotationStatus').textContent='Uitgeversopvolging-input gewijzigd; opnieuw controleren vereist.'});
+}
 $('pinAuditIssuer').addEventListener('click',()=>{
  const c=auditIssuerCandidate;
  if(!c||c.id!==ticket||c.revision!==auditCheckRevision||c.reportFile!==$('auditVerifyFile').files?.[0]||c.registryFile!==$('auditKeyRegistry').files?.[0]){
