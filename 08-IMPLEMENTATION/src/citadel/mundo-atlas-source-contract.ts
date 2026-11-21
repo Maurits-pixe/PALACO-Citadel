@@ -5,6 +5,8 @@
  * public demo: no source, identity or authorization service is connected there.
  * A declared signature, source URL or "verified" flag is NOT cryptographic proof.
  */
+import { matchesAtlasLayerEnvelope } from "./mundo-atlas-layer-model";
+
 export type AtlasWorldId =
   | "W-0001" | "W-0002" | "W-0003" | "W-0004"
   | "W-0005" | "W-0006" | "W-0007";
@@ -75,7 +77,8 @@ export async function admitAtlasSource(
   host: AtlasSourceApproval,
 ): Promise<AtlasGateResult> {
   if (!hasAtlasSourceShape(raw) ||
-      raw.worldId !== expectedWorldId || raw.kind !== expectedKind) {
+      raw.worldId !== expectedWorldId || raw.kind !== expectedKind ||
+      !matchesAtlasLayerEnvelope(expectedKind, expectedWorldId, raw.payload)) {
     return { kind: "denied" };
   }
   if (host === null || typeof host !== "object" ||
