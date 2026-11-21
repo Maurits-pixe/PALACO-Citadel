@@ -856,3 +856,48 @@ test('Atelier: SHA-256-TXT vereist vaste regelvolgorde en maximaal één PALACO-
  await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(original);
 });
+
+test('Atelier: lege TXT-regels worden geweigerd, enkel afsluitend regeleinde blijft geldig',async ({page})=>{
+ const {createHash}=await import('node:crypto');
+ const fs=await import('node:fs/promises');
+ await page.goto('/atelier/regiekamer.html');
+ const original=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const bytes=Buffer.from(await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage))));
+ const hash=createHash('sha256').update(bytes).digest('hex');
+ const json={name:'creatief.json',mimeType:'application/json',buffer:bytes};
+ const base='SHA-256: '+hash+'\nBestand: creatief.json\n';
+ const txt={name:'bewijs.txt',mimeType:'text/plain',buffer:Buffer.from(base)};
+ await page.locator('#pairVerify').setInputFiles([json,txt]);
+ await expect(page.locator('#pairReportSave')).toBeEnabled();
+ const dl=page.waitForEvent('download');
+ await page.locator('#pairReportSave').click();
+ const report={name:'inspectie.json',mimeType:'application/json',buffer:await fs.readFile(await (await dl).path())};
+ const invalid=[
+   '\n'+base,
+   'SHA-256: '+hash+'\n\nBestand: creatief.json\n',
+   base+'\n',
+   'PALACO ATELIER DRAFT SHA-256 REFERENTIE\n\n'+base,
+   base+'Controle: bestandsbytes, geen digitale handtekening of officiële goedkeuring.\n\nBewaar deze referentie afzonderlijk van het projectbestand.\n'
+ ];
+ for(const contents of invalid){
+   const changed={...txt,buffer:Buffer.from(contents)};
+   await page.locator('#fingerprintReceipt').setInputFiles(changed);
+   await expect(page.locator('#referenceStatus')).toContainText('lege of extra regels');
+   await expect(page.locator('#expectedFingerprint')).toHaveValue('');
+   await page.locator('#pairVerify').setInputFiles([json,changed]);
+   await expect(page.locator('#pairStatus')).toContainText('lege of extra regels');
+   await expect(page.locator('#pairReportSave')).toBeDisabled();
+   await page.locator('#reportVerify').setInputFiles([json,report,changed]);
+   await expect(page.locator('#reportVerifyStatus')).toContainText('lege of extra regels');
+ }
+ for(const [i,contents] of [base,base.replaceAll('\n','\r\n'),base.trimEnd()].entries()){
+   const valid={name:'geldig-'+i+'.txt',mimeType:'text/plain',buffer:Buffer.from(contents)};
+   await page.locator('#fingerprintReceipt').setInputFiles(valid);
+   await expect(page.locator('#referenceStatus')).toContainText('SHA-256-referentie geladen');
+   await page.locator('#pairVerify').setInputFiles([json,valid]);
+   await expect(page.locator('#pairReportSave')).toBeEnabled();
+ }
+ await page.locator('#reportVerify').setInputFiles([json,report,txt]);
+ await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(original);
+});
