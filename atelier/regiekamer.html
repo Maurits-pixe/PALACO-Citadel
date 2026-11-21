@@ -254,6 +254,8 @@ $('reportVerify').addEventListener('change',async event=>{
    const jsonFiles=files.filter(file=>file.name.toLowerCase().endsWith('.json'));
    const txtFiles=files.filter(file=>file.name.toLowerCase().endsWith('.txt'));
    if(jsonFiles.length!==2||txtFiles.length!==1)throw Error('Twee JSON-bestanden en één TXT vereist');
+   // Validate both JSON labels before reading bytes: one is the creative project, one an inspection report.
+   jsonFiles.forEach(file=>safeProjectFilename(file.name));
    const receiptFilename=safeReceiptFilename(txtFiles[0].name);
    if(jsonFiles.some(file=>file.size>150000)||txtFiles[0].size>4096)throw Error('Bestand te groot');
    const [aBytes,bBytes,txtBytes]=await Promise.all([
@@ -291,7 +293,6 @@ $('reportVerify').addEventListener('change',async event=>{
      throw Error('Inspectierapport heeft een ongeldige SHA-256');
    if(!Number.isInteger(report.exteriorUsed)||!Number.isInteger(report.interiorUsed)||!Number.isInteger(report.noteLength)||report.exteriorUsed<0||report.exteriorUsed>96||report.interiorUsed<0||report.interiorUsed>240||report.noteLength<0||report.noteLength>6000)
      throw Error('Inspectierapport mist geldige ontwerptellingen');
-   const safeName=value=>value.replace(/[\x00-\x1f\x7f]/g,' ').slice(0,120);
    if(report.jsonFile!==safeProjectFilename(projectEntry.file.name)||report.receiptFile!==receiptFilename)
      throw Error('Bestandsnamen komen niet overeen met het inspectierapport');
    const ex=project.exterior?project.exterior.cells.filter(Boolean).length:0;
