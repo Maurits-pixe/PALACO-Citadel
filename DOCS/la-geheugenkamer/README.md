@@ -56,6 +56,12 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Veilig sluiten bij wissen en vergrendelen · v3.8
+- Wanneer een gebruiker een open dossier heeft en bewust **alle lokale herinneringen wist** of de **tab vergrendelt**, sluit de dossierinspectie en verplaatst de toetsenbordfocus zich naar de tijdlijn, een zichtbaar en focusbaar element.
+- Een eerder verleende, eenmalige exporttoestemming wordt ingetrokken. De referentie naar de oude inspectieknop wordt ongeldig gemaakt; de oude selectie kan niet worden gebruikt voor een daaropvolgende export.
+- Twee aanvullende Node-regressies en twee mobiele Chromium-browsertests toetsen dit voor beide handelingen. De cryptografische kluis blijft bij tabvergrendeling aanwezig; het leegmaken van de actuele tab is geen verwijdering van die kluis.
+- Geen fysieke apparaten zijn tijdens deze wijziging getest. Fysieke acceptatie, onafhankelijke securityreview en WCAG-review blijven HOLD.
+
 ## Focusherstel na sorteren en filteren · v3.7
 - Na het opnieuw tekenen van de tijdlijn, bijvoorbeeld door sorteren, koppelt de dossierinspectie zijn terugkeerfocus opnieuw aan **Inspecteer dossier** van hetzelfde geselecteerde record, zolang dat nog zichtbaar is.
 - Verdwijnt het geselecteerde record uit de gefilterde lijst, dan gaat de focus bij het sluiten veilig naar de focusbare tijdlijn. Het dossier mag tot de gebruiker het sluit zelf zichtbaar blijven, zodat lopende inspectie niet onverwacht wordt afgebroken.
