@@ -53,15 +53,37 @@ export function connectAtlasProtectedContainer(
     isStillAuthorized: (world, kind) => contract.isStillAuthorized(world, kind),
     readContextVersion: () => contract.readContextVersion(),
     mount: (view: AtlasView) => {
-      // This is called only after admission and a synchronous host grant.
-      // Ensure the host has not detached/replaced its protected root.
+      // A protected container is provided exclusively by the real host.
+      // Snapshot context BEFORE reading it: a user-owned accessor may
+      // synchronously change the session, route or permissions.
+      const before = contract.readContextVersion();
+      if (typeof before !== "string" || before.length === 0) {
+        throw new Error("MUNDO_ATLAS_MOUNT_CONTEXT_UNAVAILABLE");
+      }
       const container = contract.currentProtectedContainer();
       if (!container || !container.isConnected ||
           typeof container.append !== "function" ||
-          !container.ownerDocument) {
+          !container.ownerDocument ||
+          contract.readContextVersion() !== before) {
         throw new Error("MUNDO_ATLAS_PROTECTED_CONTAINER_UNAVAILABLE");
       }
-      return mountAtlasDomView(container, view);
+
+      // The DOM adapter builds detached and only appends a completed tree.
+      // Keep its exact cleanup handle; do not remove all container children.
+      const created = mountAtlasDomView(container, view);
+      try {
+        // Reentrant route changes and host container swaps must never leave
+        // the previous world visible. Do not publish a stale mount handle.
+        if (!container.isConnected ||
+            contract.currentProtectedContainer() !== container ||
+            contract.readContextVersion() !== before) {
+          throw new Error("MUNDO_ATLAS_MOUNT_CONTEXT_CHANGED");
+        }
+        return created;
+      } catch (error) {
+        try { created.dispose(); } catch { /* never restore stale data */ }
+        throw error;
+      }
     },
   };
 
