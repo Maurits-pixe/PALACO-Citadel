@@ -767,3 +767,37 @@ test('Atelier: annuleren exporthercontrole behoudt export maar markeert vergelij
  await expect(page.locator('#exportCheckStatus')).toContainText('Bestandskeuze geannuleerd');
  await expect(page.locator('#exportBundleReceipt')).toBeEnabled();
 });
+
+test('Atelier: onveilige TXT-bestandsnamen worden geweigerd bij losse, paar- en drievoudige controle',async ({page})=>{
+ const {createHash}=await import('node:crypto');
+ const fs=await import('node:fs/promises');
+ await page.goto('/atelier/regiekamer.html');
+ const before=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const bytes=Buffer.from(await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage))));
+ const hash=createHash('sha256').update(bytes).digest('hex');
+ const jsonFile={name:'veilig.json',mimeType:'application/json',buffer:bytes};
+ const txtBytes=Buffer.from('SHA-256: '+hash+'\nBestand: veilig.json\n');
+ const goodTxt={name:'bewijs.txt',mimeType:'text/plain',buffer:txtBytes};
+ await page.locator('#pairVerify').setInputFiles([jsonFile,goodTxt]);
+ await expect(page.locator('#pairReportSave')).toBeEnabled();
+ const dl=page.waitForEvent('download');
+ await page.locator('#pairReportSave').click();
+ const reportBytes=await fs.readFile(await (await dl).path());
+ const reportFile={name:'rapport.json',mimeType:'application/json',buffer:reportBytes};
+ for(const badName of ['bedrieglijk\u202e.txt','een map\\bewijs.txt','ander.csv','a'.repeat(121)+'.txt']){
+   const badTxt={...goodTxt,name:badName};
+   await page.locator('#fingerprintReceipt').setInputFiles(badTxt);
+   await expect(page.locator('#referenceStatus')).toContainText('Ongeldige of misleidende TXT-bestandsnaam');
+   await expect(page.locator('#expectedFingerprint')).toHaveValue('');
+   await page.locator('#pairVerify').setInputFiles([jsonFile,badTxt]);
+   await expect(page.locator('#pairStatus')).toContainText('Ongeldige of misleidende TXT-bestandsnaam');
+   await expect(page.locator('#pairReportSave')).toBeDisabled();
+   await page.locator('#reportVerify').setInputFiles([jsonFile,reportFile,badTxt]);
+   await expect(page.locator('#reportVerifyStatus')).toContainText('Ongeldige of misleidende TXT-bestandsnaam');
+ }
+ await page.locator('#pairVerify').setInputFiles([jsonFile,goodTxt]);
+ await expect(page.locator('#pairReportSave')).toBeEnabled();
+ await page.locator('#reportVerify').setInputFiles([jsonFile,reportFile,goodTxt]);
+ await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+});
