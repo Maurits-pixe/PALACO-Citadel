@@ -116,7 +116,7 @@ let exportRevision=0;
 let exportCheckRevision=0;
 $('checkExportFile').addEventListener('change',async event=>{
  const file=event.target.files?.[0];
- if(!file)return;
+ if(!file){event.target.dispatchEvent(new Event('cancel'));return;}
  const revision=exportRevision;
  const selection=++exportCheckRevision;
  const reference=lastExportFingerprint?.hash;
@@ -382,7 +382,7 @@ $('exportFingerprint').addEventListener('click',()=>{
 });
 $('fingerprintReceipt').addEventListener('change',async event=>{
  const file=event.target.files?.[0];
- if(!file)return;
+ if(!file){event.target.dispatchEvent(new Event('cancel'));return;}
  const status=$('referenceStatus');
  const revision=++dossierRevision;
  verifiedFingerprint=null;
@@ -411,7 +411,7 @@ $('fingerprintReceipt').addEventListener('change',async event=>{
 });
 $('bundleVerify').addEventListener('change',async event=>{
  const file=event.target.files?.[0];
- if(!file)return;
+ if(!file){event.target.dispatchEvent(new Event('cancel'));return;}
  const status=$('verifyStatus');
  const revision=++dossierRevision;
  status.textContent='Projectbestand controleren…';
@@ -643,6 +643,36 @@ async function repairOffline(){
    button.textContent='↻ Herstel offlinepakket';
  }
 }
+// Cancelled file-picker dialogs must not leave stale successful inspection badges or downloads.
+$('checkExportFile').addEventListener('cancel',()=>{
+ ++exportCheckRevision;
+ $('exportCheckStatus').textContent='Bestandskeuze geannuleerd. Er is geen nieuwe exportcontrole uitgevoerd.';
+});
+$('pairVerify').addEventListener('cancel',()=>{
+ ++pairRevision;
+ lastPairReport=null;
+ $('pairReportSave').disabled=true;
+ $('pairStatus').textContent='Bestandskeuze geannuleerd. De vorige paarcontrole is ongeldig; selecteer opnieuw JSON en TXT.';
+});
+$('reportVerify').addEventListener('cancel',()=>{
+ ++reportVerifyRevision;
+ $('reportVerifyStatus').textContent='Bestandskeuze geannuleerd. Er is geen actuele drievoudige controle; selecteer opnieuw drie bestanden.';
+});
+$('bundleVerify').addEventListener('cancel',()=>{
+ ++dossierRevision;
+ verifiedFingerprint=null;
+ $('exportFingerprint').disabled=true;
+ $('verifyStatus').textContent='Bestandskeuze geannuleerd. De vorige JSON-controle is ongeldig; kies opnieuw een projectbestand.';
+});
+$('fingerprintReceipt').addEventListener('cancel',()=>{
+ ++dossierRevision;
+ loadedReceiptFilename=null;
+ verifiedFingerprint=null;
+ $('expectedFingerprint').value='';
+ $('exportFingerprint').disabled=true;
+ $('referenceStatus').textContent='Bestandskeuze geannuleerd. De eerdere TXT-referentie is ongeldig; kies opnieuw een controlebewijs.';
+ $('verifyStatus').textContent='TXT-referentie geannuleerd. Vergelijk het JSON-project pas na nieuwe selectie.';
+});
 $('clearInspections').addEventListener('click',()=>{
  // Invalidate every pending file read/digest before clearing UI or evidence state.
  ++exportRevision;
