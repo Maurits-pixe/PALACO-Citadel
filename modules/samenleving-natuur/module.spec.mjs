@@ -1485,3 +1485,53 @@ test('changing signed registry issuer key invalidates the previous audit result'
  await expect(page.locator('#auditVerifyStatus')).toContainText('opnieuw controleren vereist');
  await expect(page.locator('#auditVerifyStatus')).not.toContainText('CRYPTOGRAFISCH GELDIG');
 });
+
+test('valid signed audit registry can be locally pinned after explicit consent',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ const registry=await signedAuditRegistryFixture(page,report,fixture.detached);
+ await uploadSignedAuditRegistry(page,report,fixture,registry);
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#pinAuditRegistry')).toBeEnabled();
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#pinAuditRegistry').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDITREGISTER-PIN LOKAAL VASTGELEGD');
+ const key='palaco.citadel.audit-registry-pin.v1.'+registry.signed.issuerFingerprint;
+ const pin=await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),key);
+ expect(pin.issuedAt).toBe(registry.signed.issuedAt);
+ expect(pin.digest).toMatch(/^[a-f0-9]{64}$/);
+ await expect(page.locator('#pinAuditRegistry')).toBeDisabled();
+});
+
+test('audit registry rollback pin rejects an older signed snapshot from same issuer',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ const registry=await signedAuditRegistryFixture(page,report,fixture.detached);
+ await uploadSignedAuditRegistry(page,report,fixture,registry);
+ const key='palaco.citadel.audit-registry-pin.v1.'+registry.signed.issuerFingerprint;
+ const future=new Date(Date.parse(registry.signed.issuedAt)+1000).toISOString();
+ await page.evaluate(([key,future])=>localStorage.setItem(key,JSON.stringify({issuedAt:future,digest:'a'.repeat(64)})),[key,future]);
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
+ await expect(page.locator('#pinAuditRegistry')).toBeDisabled();
+});
+
+test('audit registry rollback pin rejects conflicting content at equal issue timestamp',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ const registry=await signedAuditRegistryFixture(page,report,fixture.detached);
+ await uploadSignedAuditRegistry(page,report,fixture,registry);
+ const key='palaco.citadel.audit-registry-pin.v1.'+registry.signed.issuerFingerprint;
+ await page.evaluate(([key,when])=>localStorage.setItem(key,JSON.stringify({issuedAt:when,digest:'0'.repeat(64)})),[key,registry.signed.issuedAt]);
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
+ await expect(page.locator('#pinAuditRegistry')).toBeDisabled();
+});
+
+test('changing registry snapshot clears any uncommitted local anti-rollback candidate',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ const registry=await signedAuditRegistryFixture(page,report,fixture.detached);
+ await uploadSignedAuditRegistry(page,report,fixture,registry);
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#pinAuditRegistry')).toBeEnabled();
+ await page.locator('#auditRegistryIssuerKey').fill('{}');
+ await expect(page.locator('#pinAuditRegistry')).toBeDisabled();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('opnieuw controleren vereist');
+});
