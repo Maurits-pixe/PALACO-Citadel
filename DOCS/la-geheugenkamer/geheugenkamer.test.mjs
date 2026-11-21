@@ -311,3 +311,35 @@ test('successful legacy JSON import revokes stale handoff consent and focuses ti
  h.nodes.get('#contractExport').dispatch('click');
  assert.equal(h.sandbox.latestBlob,undefined);
 });
+
+test('one-time handoff consent is consumed before file download reentrancy',()=>{
+ const h=harness();enter(h,'Eenmalige handoff');
+ h.nodes.get('#timeline').children[0].children.at(-1).children[1].dispatch('click');
+ h.nodes.get('#handoffConsent').checked=true;
+ let downloads=0;
+ const prior=h.sandbox.URL.createObjectURL;
+ h.sandbox.URL.createObjectURL=(blob)=>{
+   downloads++;
+   if(downloads===1){
+     assert.equal(h.nodes.get('#handoffConsent').checked,false);
+     h.nodes.get('#contractExport').dispatch('click');
+   }
+   return prior(blob);
+ };
+ h.nodes.get('#contractExport').dispatch('click');
+ assert.equal(downloads,1);
+ assert.equal(h.nodes.get('#handoffConsent').checked,false);
+});
+test('hidden dossier cannot export even with stale selected record and consent',()=>{
+ const h=harness();enter(h,'Geheim dossier');
+ h.nodes.get('#timeline').children[0].children.at(-1).children[1].dispatch('click');
+ h.nodes.get('#dossier').className='panel hidden';
+ h.nodes.get('#handoffConsent').checked=true;
+ h.nodes.get('#contractExport').dispatch('click');
+ assert.equal(h.sandbox.latestBlob,undefined);
+ assert.equal(h.nodes.get('#handoffConsent').checked,true);
+ assert.match(h.nodes.get('#message').textContent,/dossierinspectie is gesloten/);
+ h.nodes.get('#dossierExport').dispatch('click');
+ assert.equal(h.sandbox.latestBlob,undefined);
+ assert.match(h.nodes.get('#message').textContent,/Geen open dossier/);
+});
