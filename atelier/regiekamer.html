@@ -233,6 +233,17 @@ function parseReceiptFields(receipt){
  if(hashLines.length!==1)throw Error('TXT moet precies één SHA-256-regel bevatten');
  const nameLines=lines.filter(line=>line.startsWith('Bestand: '));
  if(nameLines.length!==1)throw Error('TXT-bewijs moet precies één Bestand-regel bevatten');
+ // One optional header, then SHA-256, then Bestand, then optional notes in fixed order.
+ const presentHeaders=allowedNotes.slice(0,2).filter(note=>lines.includes(note));
+ const orderedLines=[
+   ...presentHeaders,
+   hashLines[0],
+   nameLines[0],
+   ...allowedNotes.slice(2).filter(note=>lines.includes(note))
+ ];
+ if(presentHeaders.length>1||orderedLines.length!==lines.length||
+   orderedLines.some((line,index)=>line!==lines[index]))
+   throw Error('TXT-bewijs heeft ongeldige regelvolgorde');
  const hash=hashLines[0].slice('SHA-256: '.length);
  if(!/^[0-9a-fA-F]{64}$/.test(hash))throw Error('Ongeldige SHA-256 in TXT');
  return {hash:hash.toLowerCase(),filename:safeProjectFilename(nameLines[0].slice('Bestand: '.length))};
