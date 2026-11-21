@@ -341,5 +341,5 @@ test('hidden dossier cannot export even with stale selected record and consent',
  assert.match(h.nodes.get('#message').textContent,/dossierinspectie is gesloten/);
  h.nodes.get('#dossierExport').dispatch('click');
  assert.equal(h.sandbox.latestBlob,undefined);
- assert.match(h.nodes.get('#message').textContent,/Geen open dossier/);
+ assert.match(h.nodes.get('#message').textContent,/dossierinspectie is gesloten/);
 });
