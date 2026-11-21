@@ -201,6 +201,14 @@ function safeProjectFilename(name){
    throw Error('Ongeldige of misleidende JSON-bestandsnaam');
  return name;
 }
+function safeReceiptFilename(name){
+ if(typeof name!=='string'||name.length===0||name.length>120||
+   name!==name.trim()||name==='.'||name==='..'||
+   /[\\/\x00-\x1f\x7f\u202a-\u202e\u2066-\u2069]/.test(name)||
+   !/\.txt$/i.test(name))
+   throw Error('Ongeldige of misleidende TXT-bestandsnaam');
+ return name;
+}
 function parseReceiptFields(receipt){
  if(receipt.length>4096)throw Error('TXT-bewijs overschrijdt de maximale lengte');
  if(/[\u202a-\u202e\u2066-\u2069]/i.test(receipt))
@@ -246,6 +254,7 @@ $('reportVerify').addEventListener('change',async event=>{
    const jsonFiles=files.filter(file=>file.name.toLowerCase().endsWith('.json'));
    const txtFiles=files.filter(file=>file.name.toLowerCase().endsWith('.txt'));
    if(jsonFiles.length!==2||txtFiles.length!==1)throw Error('Twee JSON-bestanden en één TXT vereist');
+   const receiptFilename=safeReceiptFilename(txtFiles[0].name);
    if(jsonFiles.some(file=>file.size>150000)||txtFiles[0].size>4096)throw Error('Bestand te groot');
    const [aBytes,bBytes,txtBytes]=await Promise.all([
      jsonFiles[0].arrayBuffer(),jsonFiles[1].arrayBuffer(),txtFiles[0].arrayBuffer()
@@ -283,7 +292,7 @@ $('reportVerify').addEventListener('change',async event=>{
    if(!Number.isInteger(report.exteriorUsed)||!Number.isInteger(report.interiorUsed)||!Number.isInteger(report.noteLength)||report.exteriorUsed<0||report.exteriorUsed>96||report.interiorUsed<0||report.interiorUsed>240||report.noteLength<0||report.noteLength>6000)
      throw Error('Inspectierapport mist geldige ontwerptellingen');
    const safeName=value=>value.replace(/[\x00-\x1f\x7f]/g,' ').slice(0,120);
-   if(report.jsonFile!==safeName(projectEntry.file.name)||report.receiptFile!==safeName(txtFiles[0].name))
+   if(report.jsonFile!==safeProjectFilename(projectEntry.file.name)||report.receiptFile!==receiptFilename)
      throw Error('Bestandsnamen komen niet overeen met het inspectierapport');
    const ex=project.exterior?project.exterior.cells.filter(Boolean).length:0;
    const inn=project.interior?project.interior.floors.flat().filter(Boolean).length:0;
@@ -321,6 +330,7 @@ $('pairVerify').addEventListener('change',async event=>{
    const txtFiles=files.filter(file=>/\.txt$/i.test(file.name));
    if(jsonFiles.length!==1||txtFiles.length!==1)throw Error('Eén .json en één .txt-bestand vereist');
    const json=jsonFiles[0],txt=txtFiles[0];
+   const receiptFilename=safeReceiptFilename(txt.name);
    if(json.size>150000||txt.size>4096)throw Error('Bestand te groot (JSON 150 KB, TXT 4 KB)');
    const [jsonBytes,txtBytes]=await Promise.all([json.arrayBuffer(),txt.arrayBuffer()]);
    if(revision!==pairRevision)return;
@@ -341,7 +351,7 @@ $('pairVerify').addEventListener('change',async event=>{
        state:'DRAFT',authority:'NONE',purpose:'LOCAL_INTEGRITY_COMPARISON_ONLY',
        result:'MATCH',checkedAt:new Date().toISOString(),
        jsonFile:json.name.replace(/[\x00-\x1f\x7f]/g,' ').slice(0,120),
-       receiptFile:txt.name.replace(/[\x00-\x1f\x7f]/g,' ').slice(0,120),
+       receiptFile:receiptFilename,
        sha256:actual,exteriorUsed:archive.exterior?archive.exterior.cells.filter(Boolean).length:0,
        interiorUsed:archive.interior?archive.interior.floors.flat().filter(Boolean).length:0,
        noteLength:archive.note.length,
@@ -389,6 +399,7 @@ $('fingerprintReceipt').addEventListener('change',async event=>{
  $('exportFingerprint').disabled=true;
  status.textContent='Referentiebestand controleren…';
  try{
+   safeReceiptFilename(file.name);
    if(file.size>4096)throw Error('Referentiebestand te groot (maximaal 4 KB)');
    const content=new TextDecoder('utf-8',{fatal:true}).decode(await file.arrayBuffer());
    if(revision!==dossierRevision)return;
