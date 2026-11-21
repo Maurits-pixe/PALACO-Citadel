@@ -56,6 +56,12 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Apparaatopslag gewijzigd vanuit meerdere tabs · v4.2
+- De **SHA-256-archiefexport** en **AES-256-GCM-archiefexport** leggen bij aanvang ook de inhoud van beide eigen `localStorage`-sleutels vast: de onversleutelde conceptopslag en de versleutelde apparaatkluis.
+- Vlak voordat een download start worden beide opslagwaarden opnieuw gelezen en vergeleken. Bij afwijking wordt de export geweigerd, ook als de `storage`-gebeurtenis in de exporterende tab nog niet is verwerkt.
+- Twee mobiele Chromium-regressies toetsen een externe opslagwijziging zonder gebeurtenis en een daadwerkelijke tweede tab die de kluissleutel tijdens vertraagde versleuteling wijzigt.
+- Dit is een detectie op twee momenten, **geen atomair cross-tab transactieslot**. Verdere wijzigingen die ná de laatste vergelijking optreden vallen buiten de garantie. Onafhankelijke review en fysieke Android-/iPhone-acceptatie blijven HOLD.
+
 ## Eenmalige overdracht en gesloten dossierinspectie · v4.1
 - De afzonderlijke **Bewijskamer/ERA-handoff** verbruikt de expliciete, eenmalige toestemming direct **vóór** het aanmaken van de download, zodat herhaald klikken of een re-entrante export tijdens een bestandsactie geen tweede geautoriseerde download oplevert.
 - Een verborgen dossierinspectie mag geen handoff- of dossierbestand exporteren, ook niet als een verouderd record-ID of toestemmingsvakje nog intern aanwezig is. Voor een nieuwe overdracht moet de gebruiker het dossier opnieuw bewust openen en toestemming geven.
