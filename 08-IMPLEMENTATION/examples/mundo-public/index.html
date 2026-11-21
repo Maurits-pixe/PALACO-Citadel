@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071c1b">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<meta name="description" content="MUNDO World Atlas: interactieve publieke conceptatlas met zeven werelden, hoofdstukken en schematische kaartlagen. Geen accounttoegang of live wereldgegevens.">
+<title>MUNDO World Atlas · Publieke demonstratie</title>
+<style>
+:root{color-scheme:dark;--bg:#061816;--panel:#0c2523;--panel2:#11332e;--line:#426957;--gold:#e5c984;--text:#f0f1e9;--muted:#a9c5bc;--focus:#f9dd8d}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% 4%,#1b4b40 0,transparent 55%),var(--bg);color:var(--text);font:16px/1.5 system-ui,Segoe UI,sans-serif}
+button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.skip{position:absolute;left:-999px}.skip:focus{left:1rem;top:1rem;z-index:9;background:#fff;color:#000;padding:.6rem}
+.shell{max-width:1250px;margin:auto;padding:clamp(1rem,3vw,2.5rem)}header{display:flex;align-items:center;justify-content:space-between;gap:1rem;border-bottom:1px solid var(--line);padding-bottom:1rem}.brand{font-size:.7rem;letter-spacing:.22em;color:var(--gold);font-weight:700}.eyebrow{color:var(--gold);text-transform:uppercase;letter-spacing:.19em;font-size:.72rem}.shield{border:1px solid var(--line);border-radius:2rem;padding:.35rem .8rem;color:var(--muted);font-size:.78rem}h1{font-family:Georgia,serif;font-size:clamp(2.1rem,6vw,4.5rem);font-weight:400;line-height:1.07;letter-spacing:-.025em;margin:.5rem 0}h2{font-family:Georgia,serif;font-weight:400;font-size:1.7rem;margin:.3rem 0 1rem}.lede{color:var(--muted);max-width:58ch}.hero{padding:2.4rem 0 1.2rem}.layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.9fr);gap:1.1rem}.panel{background:linear-gradient(155deg,#12342e,#071e1c 78%);border:1px solid var(--line);border-radius:20px;overflow:hidden}.universe{min-height:480px;position:relative;display:grid;place-items:center;isolation:isolate;background:radial-gradient(circle at 50% 45%,#163e39,transparent 55%),radial-gradient(#58857433 1px,transparent 1px);background-size:auto,31px 31px}.orbit{position:absolute;width:min(74%,420px);aspect-ratio:1;border:1px solid #e5c98454;border-radius:50%;transform:rotate(-22deg) scaleY(.6);pointer-events:none}.orbit.second{transform:rotate(39deg) scaleY(.85);width:min(90%,510px);border-color:#8cb7a54a}.globe{width:min(56vw,260px);aspect-ratio:1;border-radius:50%;position:relative;box-shadow:inset -33px -25px 35px #041815,0 0 85px #417c6866;border:1px solid #a4c89d;background:radial-gradient(circle at 30% 27%,#c6dbac 0,#5f9b78 18%,#1a665f 35%,#093e51 61%,#041b29 84%);overflow:hidden;transition:background .25s}.globe::before{content:"";position:absolute;inset:10% -20%;border-radius:50%;border:1px solid #f0e9ba44;transform:rotate(-30deg)}.globe::after{content:"";position:absolute;inset:26% -10%;border-radius:50%;border:1px solid #f0e9ba44;transform:rotate(40deg)}.globe[data-theme="unknown"]{background:radial-gradient(circle at 30% 27%,#a8baab 0,#506c68 26%,#173c45 64%,#0a1c28 86%)}
+.marker{position:absolute;top:1rem;left:1rem;background:#031c1ac9;padding:.35rem .7rem;border:1px solid var(--line);border-radius:2rem;font-size:.8rem}.globe-label{position:absolute;bottom:1rem;left:0;right:0;text-align:center;font-size:.83rem;letter-spacing:.14em;color:var(--gold)}.controls{padding:1.15rem}.search{width:100%;padding:.8rem 1rem;border-radius:12px;border:1px solid #638478;background:#071c1a;color:white}.worlds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem;margin-top:1rem;max-height:330px;overflow:auto}.world{background:#0c2925;border:1px solid #46695b;color:var(--text);text-align:left;border-radius:12px;padding:.8rem;min-width:0}.world[aria-pressed="true"]{background:#1b463a;border-color:var(--gold);box-shadow:inset 3px 0 var(--gold)}.world small{display:block;color:var(--muted);font-size:.72rem}.world strong{display:block;font-weight:600}.detail{margin-top:1rem;padding:1.3rem}.kv{display:grid;grid-template-columns:1fr auto;gap:.5rem;border-top:1px solid var(--line);padding:.8rem 0}.kv span{color:var(--muted)}.note{border-left:3px solid var(--gold);padding:.7rem 1rem;background:#15362e;color:var(--muted);font-size:.88rem}.section{margin-top:1.3rem}.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem}.tile{border:1px solid var(--line);border-radius:14px;padding:1rem;background:var(--panel)}.tile h3{font-size:.95rem;margin:0 0 .3rem}.tile p{font-size:.85rem;color:var(--muted);margin:0}footer{color:var(--muted);font-size:.77rem;padding-top:1.5rem}.empty{color:var(--muted);padding:.8rem}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+
+/* Atlas detail and side-by-side inspection: local UI state only. */
+.atlas-tools{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem}.action{border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text);padding:.72rem 1rem}.action[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}.compare{padding:1.3rem;margin-top:1.1rem}.compare[hidden]{display:none}.compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.compare-card{background:#0c2925;border:1px solid var(--line);border-radius:14px;padding:1.1rem}.compare-card h3{font-family:Georgia,serif;font-size:1.5rem;font-weight:400;margin:.2rem 0}.compare-card dl{margin:0}.compare-card dt{color:var(--muted);font-size:.76rem;margin-top:.7rem}.compare-card dd{margin:0;font-size:.93rem}.compare-select{width:100%;background:#071c1a;border:1px solid #638478;border-radius:10px;color:var(--text);padding:.7rem}.metric-strip{display:flex;gap:.7rem;flex-wrap:wrap;margin:1rem 0}.metric{background:#102d28;border:1px solid var(--line);border-radius:12px;padding:.6rem .9rem;color:var(--muted);font-size:.83rem}.metric strong{color:var(--gold);font-size:1.05rem}.explainer{color:var(--muted);font-size:.9rem}.world:focus-visible{position:relative;z-index:2}@media(max-width:620px){.compare-grid{grid-template-columns:1fr}.atlas-tools{display:grid;grid-template-columns:1fr 1fr}}
+
+/* World Studio III: chapters and non-geographic schematic layers. */
+.studio{margin-top:1.1rem;padding:1.3rem}.studio-columns{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:1rem}.studio-label{color:var(--gold);text-transform:uppercase;font-size:.72rem;letter-spacing:.14em}.chapters{display:grid;gap:.55rem;margin-top:.8rem}.chapter{padding:.85rem 1rem;text-align:left;color:var(--text);border-radius:12px;border:1px solid var(--line);background:#0a2824}.chapter[aria-pressed="true"]{border-color:var(--gold);background:#1b4034}.chapter small{display:block;color:var(--muted);font-size:.75rem}.chapter-detail{min-height:220px;border-radius:14px;background:#0b2522;padding:1.1rem;border:1px solid var(--line)}.chapter-detail h3{font-family:Georgia,serif;font-size:1.45rem;font-weight:400;margin:.25rem 0 .65rem}.chapter-detail p{color:var(--muted);margin:.5rem 0}.layer-row{display:flex;flex-wrap:wrap;gap:.55rem;margin:.9rem 0}.layer-button{background:#0b2825;border:1px solid #638478;border-radius:2rem;color:var(--text);padding:.45rem .85rem}.layer-button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}.layer-board{border:1px solid #557568;border-radius:14px;min-height:130px;padding:1.25rem;background:repeating-linear-gradient(0deg,transparent 0 31px,#b3d1b911 32px),repeating-linear-gradient(90deg,transparent 0 31px,#b3d1b911 32px),#0a2422;display:flex;align-items:center;justify-content:center;text-align:center}.layer-board strong{color:var(--gold)}.layer-board p{color:var(--muted);font-size:.88rem;max-width:44ch;margin:.45rem auto}.panel[hidden]{display:none}@media(max-width:690px){.studio-columns{grid-template-columns:1fr}}
+
+/* Explorer 004: constellation index and session-only discoveries. */
+.discovery{padding:1.35rem;margin-top:1.1rem}.discovery-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(245px,.8fr);gap:1rem}.constellation{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:.45rem;margin:1.1rem 0}.star{min-width:0;border:1px solid var(--line);background:#12352e;color:var(--text);border-radius:12px;padding:.85rem .3rem;text-align:center}.star .glyph{display:block;font-size:1.45rem;color:var(--gold)}.star small{display:block;color:var(--muted);font-size:.65rem}.star[aria-current="true"]{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold);background:#265244}.star.visited:not([aria-current="true"]){border-color:#88ab96}.trail{display:flex;flex-wrap:wrap;gap:.55rem;margin:.8rem 0}.trail button{border:1px solid var(--line);background:#102e29;color:var(--text);border-radius:20px;padding:.4rem .75rem}.trail-empty{color:var(--muted);font-size:.9rem}.progress{height:.45rem;border-radius:1rem;background:#28433b;overflow:hidden}.progress>div{height:100%;width:0;background:var(--gold);transition:width .2s}.progress-label{font-size:.8rem;color:var(--muted);margin-top:.4rem}.shortcut{font-size:.8rem;color:var(--muted)}@media(max-width:860px){.discovery-grid{grid-template-columns:1fr}.constellation{grid-template-columns:repeat(4,minmax(0,1fr))}}@media(max-width:420px){.constellation{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(prefers-reduced-motion:reduce){.progress>div{transition:none}}
+@media(max-width:820px){.layout{grid-template-columns:1fr}.universe{min-height:320px}.worlds{max-height:none}.tiles{grid-template-columns:1fr}header{align-items:flex-start}.shield{white-space:nowrap}}
+@media(prefers-reduced-motion:reduce){.globe{transition:none}}
+
+/* ATLAS-COCKPIT-005: purely illustrative view controls, no geodata. */
+.cockpit-nav{display:flex;flex-wrap:wrap;gap:.55rem;margin:0 0 1.2rem}.cockpit-nav a{display:inline-flex;text-decoration:none;color:var(--text);border:1px solid var(--line);background:#0b2925;padding:.55rem .85rem;border-radius:999px;font-size:.85rem}.cockpit-nav a:hover,.cockpit-nav a:focus-visible{border-color:var(--gold);color:var(--gold)}
+.globe-stage{display:grid;grid-template-rows:1fr auto;min-width:0}.globe-controls{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.65rem;padding:1rem;background:#081f1d;border-top:1px solid var(--line)}.globe-actions{display:flex;gap:.5rem;align-items:center}.globe-actions button{border:1px solid var(--line);background:#164136;color:var(--text);border-radius:10px;min-width:2.65rem;min-height:2.5rem;padding:.3rem .65rem}.globe-actions button:disabled{cursor:not-allowed;opacity:.4}.globe-hint{font-size:.78rem;color:var(--muted)}.globe-status{font-size:.78rem;color:var(--gold);font-variant-numeric:tabular-nums}.globe{--atlas-angle:0deg;--atlas-scale:1;transform:rotate(var(--atlas-angle)) scale(var(--atlas-scale));transition:transform .25s ease,background .25s}.globe[data-theme="unknown"]::before,.globe[data-theme="unknown"]::after{border-color:#d6ece733}.globe-controls button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}.globe-visual-caption{position:absolute;right:1rem;top:1rem;max-width:160px;text-align:right;font-size:.7rem;color:var(--muted)}
+@media(prefers-reduced-motion:reduce){.globe{transition:none}}
+
+/* ATLAS-OBSERVATORY-006: decorative CSS depth and lighting, never cartography. */
+.universe{perspective:950px;overflow:hidden}
+.globe{--atlas-tilt:0deg;--atlas-light:32%;transform:rotate(var(--atlas-angle)) rotateX(var(--atlas-tilt)) scale(var(--atlas-scale));transform-style:preserve-3d}
+.globe::before{inset:9% -28%;border:2px solid #f0e9ba35;box-shadow:0 0 18px #f6df9422}
+.globe::after{inset:22% -12%;border:1px solid #ecf1ce44;box-shadow:0 0 24px #051c2750}
+.globe-shading{position:absolute;inset:0;border-radius:50%;pointer-events:none;z-index:1;background:radial-gradient(circle at var(--atlas-light) 24%,#fff8d122 0,transparent 27%),linear-gradient(100deg,transparent 18%,#00151533 55%,#000e14b3 100%);box-shadow:inset -24px -19px 33px #041513ad}
+.globe[data-theme="unknown"]{background:radial-gradient(circle at 28% 26%,#a4c0b4 0,#43766b 24%,#174a51 53%,#061d32 87%)}
+.globe[data-world="W-0002"]{background:radial-gradient(circle at 28% 26%,#e7c7a7 0,#a97871 31%,#514b65 67%,#181e34 90%)}
+.globe[data-world="W-0003"]{background:radial-gradient(circle at 30% 27%,#e1d7a9 0,#8ca998 28%,#3c7c79 61%,#102c44 90%)}
+.globe[data-world="W-0004"]{background:radial-gradient(circle at 30% 27%,#c8e2ce 0,#52a89a 29%,#247286 57%,#0a2b4b 90%)}
+.globe[data-world="W-0005"]{background:radial-gradient(circle at 30% 27%,#f6e2ab 0,#b6ab70 27%,#427d65 58%,#0c3033 90%)}
+.globe[data-world="W-0006"]{background:radial-gradient(circle at 30% 27%,#d1b9e2 0,#807da9 28%,#426081 61%,#121b36 90%)}
+.globe[data-world="W-0007"]{background:radial-gradient(circle at 30% 27%,#edd8b8 0,#b08690 28%,#795d89 60%,#231a42 90%)}
+.globe-advanced{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;width:100%;padding-top:.35rem;border-top:1px solid #4269576e}
+.globe-advanced label{font-size:.82rem;color:var(--muted);display:flex;gap:.45rem;align-items:center}
+.globe-advanced input{accent-color:var(--gold);width:min(130px,27vw)}
+.globe-advanced output{color:var(--gold);font-size:.8rem;font-variant-numeric:tabular-nums;min-width:3.2rem}
+.globe-actions{flex-wrap:wrap}
+@media(prefers-reduced-motion:reduce){.globe{transition:none}}
+
+/* ATLAS-LIBRARY-007: navigable chapter index, no invented source data. */
+.library{padding:1.3rem;margin-top:1.1rem}.library-filters{display:flex;align-items:end;gap:.8rem;flex-wrap:wrap;margin:1rem 0}.library-filters label{display:grid;gap:.3rem;font-size:.84rem;color:var(--muted)}.library-filters select,.library-filters input{padding:.65rem .75rem;border:1px solid #638478;border-radius:10px;background:#071c1a;color:var(--text);min-width:160px}.library-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem}.library-entry{padding:1rem;background:#102d29;border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;gap:.45rem}.library-entry h3{font:400 1.15rem Georgia,serif;margin:0}.library-entry p{font-size:.84rem;color:var(--muted);margin:0}.library-entry .library-id{font-size:.75rem;color:var(--gold)}.library-entry button{margin-top:auto;border-radius:10px;padding:.65rem .8rem;border:1px solid var(--gold);background:#1c4237;color:var(--text);text-align:left}.library-count{color:var(--muted);font-size:.82rem}.library-legend{color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);padding-top:.8rem;margin-top:1rem}@media(max-width:850px){.library-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.library-grid{grid-template-columns:1fr}.library-filters label,.library-filters select,.library-filters input{width:100%;min-width:0}}
+
+/* ATLAS-SOURCE-MATRIX-008: evidence readiness, never fabricated attestations. */
+.source-matrix{padding:1.3rem;margin-top:1.1rem}.source-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px;margin:1rem 0}.source-table{width:100%;border-collapse:collapse;min-width:660px;text-align:left}.source-table th,.source-table td{padding:.85rem .8rem;border-bottom:1px solid #44695a68;font-size:.86rem}.source-table thead th{background:#102e2a;color:var(--gold);font-weight:600}.source-table tbody tr:last-child td,.source-table tbody tr:last-child th{border-bottom:0}.source-table tbody th{font-weight:600}.source-table tbody tr[data-active="true"]{background:#1b4236}.source-open{color:var(--text);background:transparent;border:1px solid var(--line);padding:.35rem .6rem;border-radius:8px;white-space:nowrap}.source-open:hover{border-color:var(--gold)}.evidence-tag{display:inline-block;padding:.2rem .5rem;border-radius:6px;border:1px solid #567568;color:var(--muted);font-size:.73rem;white-space:nowrap}.evidence-tag.known{border-color:#9d9057;color:#ebd895}.source-detail{padding:1rem;background:#0b2925;border:1px solid var(--line);border-radius:12px}.source-detail h3{font-family:Georgia,serif;font-weight:400;margin:.3rem 0;font-size:1.3rem}.source-checks{margin:.5rem 0 0;padding-left:1.15rem;color:var(--muted);font-size:.86rem}.source-checks li{margin:.3rem 0}.source-meta{color:var(--muted);font-size:.82rem}.source-matrix .explainer{max-width:90ch}
+
+/* SOURCE-ADMISSION-009: informational status only, public site has no private source bridge. */
+.admission{margin-top:1.1rem;padding:1.25rem}.admission-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.65rem;margin-top:1rem}.admission-card{border:1px solid var(--line);border-radius:12px;padding:1rem;background:#0d2926}.admission-card strong{display:block;color:var(--gold);font-weight:600;margin-bottom:.35rem}.admission-card p{margin:0;font-size:.84rem;color:var(--muted)}.admission-summary{border-left:3px solid var(--gold);padding:.7rem .9rem;margin-top:1rem;background:#17372f;font-size:.88rem;color:var(--text)}@media(max-width:740px){.admission-grid{grid-template-columns:1fr}}
+
+/* ATLAS-LAYER-MODEL-010: public read-only description, not a private data feed. */
+.layer-contract{padding:1.3rem;margin-top:1.1rem}.layer-contract-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.9rem;margin-top:1rem}.layer-contract-card{background:#0e2d29;border:1px solid var(--line);border-radius:13px;padding:1.05rem}.layer-contract-card h3{font:400 1.25rem Georgia,serif;margin:0 0 .6rem}.layer-contract-card dl{margin:0}.layer-contract-card dt{font-size:.75rem;color:var(--muted);margin-top:.7rem}.layer-contract-card dd{margin:.08rem 0;font-size:.87rem}.layer-contract-card .evidence-tag{margin-bottom:.5rem}.layer-contract-note{margin-top:.9rem;border-left:3px solid var(--gold);padding:.65rem 1rem;background:#15352f;color:var(--muted);font-size:.85rem}@media(max-width:660px){.layer-contract-grid{grid-template-columns:1fr}}
+
+/* MUNDO-RENDER-PROJECTION-011: public zero-data visualization, NOT a real map. */
+.preview-render{padding:1.3rem;margin-top:1.1rem}.preview-viewport{position:relative;min-height:220px;margin-top:1rem;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:repeating-linear-gradient(0deg,transparent 0 43px,#719b8a20 44px),repeating-linear-gradient(90deg,transparent 0 43px,#719b8a20 44px),radial-gradient(ellipse at center,#164039,#081e1c)}.preview-viewport::before,.preview-viewport::after{content:"";position:absolute;inset:18% 7%;border:1px dashed #d7c4844d;border-radius:50%;pointer-events:none}.preview-viewport::after{inset:9% 31%}.preview-empty{position:relative;z-index:1;display:flex;min-height:220px;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1rem}.preview-empty strong{font:400 1.45rem Georgia,serif;color:var(--gold)}.preview-empty span{font-size:.85rem;color:var(--muted);max-width:45ch}.preview-meta{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:.7rem}.preview-meta span{font-size:.78rem;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:.3rem .65rem}
+
+/* MUNDO-LIFECYCLE-012: an explanation only; no protected view or token in public. */
+.lifecycle{padding:1.3rem;margin-top:1.1rem}.lifecycle-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem;margin:1rem 0}.lifecycle-step{background:#0d2b26;border:1px solid var(--line);border-radius:12px;padding:1rem}.lifecycle-step strong{display:block;color:var(--gold);font-size:.89rem;margin-bottom:.4rem}.lifecycle-step p{color:var(--muted);font-size:.82rem;margin:0}.lifecycle-note{font-size:.84rem;color:var(--muted);border-left:3px solid var(--gold);background:#15352f;padding:.7rem .9rem}@media(max-width:900px){.lifecycle-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:510px){.lifecycle-steps{grid-template-columns:1fr}}
+
+/* MUNDO-DOM-ADAPTER-013: public design explainer only; no private DOM mounted. */
+.dom-adapter{margin-top:1.1rem;padding:1.3rem}.dom-adapter-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem;margin-top:1rem}.dom-adapter-item{background:#0b2926;border:1px solid var(--line);border-radius:12px;padding:1rem}.dom-adapter-item strong{display:block;color:var(--gold);margin-bottom:.4rem}.dom-adapter-item p{color:var(--muted);font-size:.84rem;margin:0}.dom-adapter-note{margin-top:1rem;color:var(--muted);font-size:.85rem;border-left:3px solid var(--gold);padding:.65rem 1rem;background:#17382f}@media(max-width:740px){.dom-adapter-grid{grid-template-columns:1fr}}
+
+/* MUNDO-HOST-CONTRACT-014: read-only description, public site has no host connector. */
+.host-connection{padding:1.3rem;margin-top:1.1rem}.host-connection-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem;margin-top:1rem}.host-connection-card{background:#0a2b26;border:1px solid var(--line);border-radius:13px;padding:1.05rem}.host-connection-card strong{display:block;font-size:.91rem;color:var(--gold);margin-bottom:.5rem}.host-connection-card p{margin:0;color:var(--muted);font-size:.84rem}.host-connection-note{margin-top:1rem;padding:.75rem .95rem;background:#153b32;border-left:3px solid var(--gold);color:var(--muted);font-size:.84rem}@media(max-width:760px){.host-connection-grid{grid-template-columns:1fr}}
+
+/* PROTECTED-CONTAINER-015: public architectural status, NOT a private mount. */
+.container-boundary{padding:1.3rem;margin-top:1.1rem}.container-boundary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem;margin-top:1rem}.container-boundary-item{background:#0c2b27;border:1px solid var(--line);border-radius:12px;padding:1rem}.container-boundary-item strong{display:block;color:var(--gold);font-size:.9rem;margin-bottom:.45rem}.container-boundary-item p{color:var(--muted);font-size:.84rem;margin:0}.container-boundary-note{border-left:3px solid var(--gold);background:#14352d;padding:.7rem 1rem;color:var(--muted);font-size:.85rem;margin-top:1rem}@media(max-width:750px){.container-boundary-grid{grid-template-columns:1fr}}
+
+/* HOST-INTEGRATION-016: informational card only. No private host interaction. */
+.host-guard{padding:1.3rem;margin-top:1.1rem}.host-guard-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem;margin:1rem 0}.host-guard-step{padding:1rem;border:1px solid var(--line);background:#0d302a;border-radius:12px}.host-guard-step strong{display:block;color:var(--gold);margin-bottom:.4rem}.host-guard-step p{color:var(--muted);font-size:.84rem;margin:0}.host-guard-note{padding:.75rem 1rem;border-left:3px solid var(--gold);background:#15352d;color:var(--muted);font-size:.85rem}@media(max-width:750px){.host-guard-steps{grid-template-columns:1fr}}
+</style>
+<meta name="robots" content="index,follow">
+</head>
+<body>
+<a class="skip" href="#atlas">Ga naar wereldatlas</a>
+<div class="shell">
+<header><div><div class="brand">PALACO INDUSTRIE</div><div class="eyebrow">MUNDO · onafhankelijke conceptdemonstratie</div></div><div class="shield">Publieke demonstratie · geen accounttoegang</div></header>
+<main id="atlas">
+<section class="hero"><div class="eyebrow">MUNDO · World Studio</div><h1>World Atlas</h1><p class="lede">Ontdek het concept van MUNDO World Atlas. Deze openbare demonstratie bevat uitsluitend zeven voorbeeldvermeldingen uit het bekende projectregister; er worden geen privégegevens, echte wereldkaarten of live bronnen weergegeven.</p></section>
+<nav class="cockpit-nav" aria-label="Atlas-cockpit"><a href="#atlas-register">Wereldregister</a><a href="#discovery-heading">Ontdekkingspad</a><a href="#selected-title">Wereldprofiel</a><a href="#studio-title">World Studio</a><a href="#atlas-library">Atlasbibliotheek</a><a href="#source-matrix">Bronmatrix</a><a href="#source-admission">Broncontract</a><a href="#layer-contract">Datamodel</a><a href="#atlas-renderer">Renderer</a><a href="#atlas-lifecycle">Levenscyclus</a><a href="#atlas-dom-adapter">Presentatielaag</a><a href="#atlas-host-contract">Hostcontract</a><a href="#protected-container">Container</a><a href="#host-integration">Integratie 016</a></nav>
+<div class="layout">
+<section class="panel globe-stage" aria-label="Bedienbare conceptuele wereldbol"><div class="universe"><div class="orbit"></div><div class="orbit second"></div><div class="marker" id="visual-id">W-0001</div><div class="globe" id="globe" role="img" aria-label="Gestileerde illustratie van geselecteerde wereld" data-theme="earth" data-world="W-0001"><div class="globe-shading" aria-hidden="true"></div></div><div class="globe-label" id="visual-name">EARTH</div><div class="globe-visual-caption">Artistieke weergave<br>geen geografische kaart</div></div>
+<div class="globe-controls" aria-label="Bediening conceptwereldbol"><div><div class="globe-hint">Draai en zoom de illustratie</div><div id="globe-view-status" class="globe-status" role="status" aria-live="off">Hoek 0° · Zoom 100%</div></div><div class="globe-actions"><button id="globe-rotate-left" type="button" aria-label="Draai illustratie 30 graden linksom">↶</button><button id="globe-rotate-right" type="button" aria-label="Draai illustratie 30 graden rechtsom">↷</button><button id="globe-zoom-out" type="button" aria-label="Zoom illustratie uit">−</button><button id="globe-zoom-in" type="button" aria-label="Zoom illustratie in">+</button><button id="globe-reset" type="button">Herstel</button></div><div class="globe-advanced"><label for="globe-tilt">Kanteling <input id="globe-tilt" type="range" min="-30" max="30" step="5" value="0"></label><output id="globe-tilt-output" for="globe-tilt">0°</output><label for="globe-light">Lichtinval <input id="globe-light" type="range" min="15" max="75" step="5" value="30"></label><output id="globe-light-output" for="globe-light">30%</output></div></div></section>
+<section class="panel controls" id="atlas-register" aria-labelledby="world-list-title"><div class="eyebrow">Atlasregister</div><h2 id="world-list-title">Kies een wereld</h2><label for="world-search">Zoek op naam of wereld-ID</label><input id="world-search" class="search" type="search" autocomplete="off" placeholder="Bijvoorbeeld W-0003 of EVA"><div id="worlds" class="worlds" role="group" aria-label="Beschikbare conceptwerelden"></div><p class="empty" id="empty" hidden>Geen wereld gevonden.</p></section>
+</div>
+<div class="metric-strip" aria-label="Atlasdekking"><div class="metric"><strong>7</strong> bekende wereldnamen in deze preview</div><div class="metric"><strong>0</strong> live dataverbindingen</div><div class="metric">Publieke demonstratie · zonder opslag</div></div>
+<section class="panel discovery" aria-labelledby="discovery-heading"><div class="eyebrow">Atlas · sterrenregister</div><h2 id="discovery-heading">Ontdekkingspad</h2><p class="explainer">Navigeer tussen de zeven bekende werelden. Je ontdekkingstocht blijft alleen in het geheugen van dit geopende tabblad en verdwijnt na herladen.</p><div class="discovery-grid"><div><div class="studio-label">Constellatie-index</div><div class="constellation" id="constellation" role="group" aria-label="Zeven wereldvermeldingen"></div><p class="shortcut">Toetsenbord: gebruik de pijltjestoetsen op een wereldknop, Home voor de eerste en End voor de laatste.</p></div><div><div class="studio-label">Bezochte werelden</div><div id="discovery-trail" class="trail" aria-label="Selectiegeschiedenis"></div><div class="progress" role="progressbar" aria-label="Werelden bezocht" aria-valuemin="0" aria-valuemax="7" aria-valuenow="1" id="discovery-progress"><div id="discovery-bar"></div></div><p id="discovery-count" class="progress-label">1 van 7 werelden bekeken</p><button type="button" class="action" id="clear-discoveries">Wis ontdekkingspad</button></div></div></section>
+<section class="panel detail" aria-labelledby="selected-title"><div class="eyebrow">Geselecteerde wereld</div><h2 id="selected-title">EARTH</h2><div class="kv"><span>Wereld-ID</span><strong id="selected-id">W-0001</strong></div><div class="kv"><span>Atlasstatus</span><strong id="selected-status">Conceptuele preview</strong></div><div class="kv"><span>Dataverbinding</span><strong>Nog niet gekoppeld</strong></div><p id="selected-description" class="lede">Canoniek geregistreerde wereldnaam; geografische en bestuurlijke gegevens zijn in deze preview niet aangesloten.</p><p class="note">Dit is een openbare conceptpresentatie zonder login of toegang tot Citadel. Zij doet geen uitspraken over bestaande wereldinhoud of eigendom. Live gegevens vereisen de gecontroleerde MUNDO/Citadel-bron.</p><div class="atlas-tools"><button type="button" id="previous-world" class="action" aria-label="Vorige bekende wereld">Vorige wereld</button><button type="button" id="next-world" class="action" aria-label="Volgende bekende wereld">Volgende wereld</button><button type="button" id="compare-toggle" class="action" aria-pressed="false" aria-controls="compare-panel">Vergelijk werelden</button></div></section>
+<section class="panel compare" id="compare-panel" aria-labelledby="compare-title" hidden><div class="eyebrow">World Studio · vergelijking</div><h2 id="compare-title">Twee werelden vergelijken</h2><p class="explainer">Vergelijk de bekende registergegevens. Niet-geverifieerde kenmerken worden niet ingevuld. Er worden geen gegevens opgeslagen of verzonden.</p><label for="compare-world">Tweede wereld</label><select id="compare-world" class="compare-select"></select><div class="compare-grid" id="compare-grid" aria-label="Vergelijkingsgegevens"></div></section>
+<section class="panel studio" aria-labelledby="studio-title"><div class="eyebrow">MUNDO · World Studio</div><h2 id="studio-title">Wereldhoofdstukken</h2><p class="explainer">Blader door de informatiestructuur van de geselecteerde wereld. Dit zijn leeshoofdstukken in conceptvorm, geen uitgegeven EDTR- of eigendomsbewijzen.</p><div class="studio-columns"><div><div class="studio-label">Hoofdstukken</div><div id="chapter-list" class="chapters" role="group" aria-label="Atlas-hoofdstukken"></div></div><article id="chapter-detail" class="chapter-detail" aria-labelledby="chapter-heading"><div class="studio-label" id="chapter-category">World Atlas</div><h3 id="chapter-heading">Wereldidentiteit</h3><p id="chapter-body"></p></article></div><div class="studio-label" style="margin-top:1.3rem">Schematische kaartlagen</div><div class="layer-row" id="layer-buttons" role="group" aria-label="Schematische kaartlagen"></div><div id="layer-board" class="layer-board" role="img" aria-label="Schematische atlasvisualisatie; geen geografische informatie"><div><strong id="layer-heading">Wereldregister</strong><p id="layer-description">Alleen bekende wereld-ID en naam. Geen geografische kaartgegevens.</p></div></div><p class="explainer">Alle kaartlagen zijn conceptueel en bevatten geen coördinaten, grenslijnen, topografie of live wereldgegevens.</p></section>
+<section class="panel library" id="atlas-library" aria-labelledby="library-title"><div class="eyebrow">MUNDO · Bibliotheek</div><h2 id="library-title">Atlasbibliotheek</h2><p class="explainer">Verken de hoofdstukstructuur van de zeven bekende wereldvermeldingen. Een hoofdstuk is een navigatie-item, geen gepubliceerd bewijsstuk of gevalideerde kaart.</p><div class="library-filters"><label for="library-search">Zoek in de bibliotheek<input id="library-search" type="search" autocomplete="off" placeholder="Wereld, ID of hoofdstuk"></label><label for="library-world">Wereld<select id="library-world"><option value="all">Alle werelden</option></select></label><label for="library-chapter">Hoofdstuk<select id="library-chapter"><option value="all">Alle hoofdstukken</option></select></label></div><p class="library-count" id="library-count" role="status" aria-live="polite"></p><div class="library-grid" id="library-grid"></div><p class="library-legend">Bronstatus: namen en ID's zijn bekende projectcontext. Inhoudelijke kaarten, lineage-dossiers en EDTR-bewijzen zijn niet verbonden. Een bibliotheekkaart opent slechts de lokale concepttekst.</p></section>
+<section class="panel source-matrix" id="source-matrix" aria-labelledby="source-title"><div class="eyebrow">MUNDO · Vertrouwensgrenzen</div><h2 id="source-title">Bron- en bewijsregister</h2><p class="explainer">De bronmatrix maakt zichtbaar welke gegevens deze demonstratie daadwerkelijk heeft. Een bekende naam of ID is geen onafhankelijke identiteits-, eigendoms- of bewijsverificatie. Selecteer een wereld voor de openstaande aansluitvoorwaarden.</p><div class="source-scroll"><table class="source-table"><thead><tr><th scope="col">Wereld</th><th scope="col">Naam en ID</th><th scope="col">Geografische bron</th><th scope="col">Herkomst / EDTR</th><th scope="col">Live koppeling</th><th scope="col">Inspectie</th></tr></thead><tbody id="source-rows"></tbody></table></div><article class="source-detail" aria-labelledby="source-detail-title"><div class="studio-label">Verificatieprofiel</div><h3 id="source-detail-title">EARTH · W-0001</h3><p id="source-detail-summary" class="source-meta"></p><ul class="source-checks"><li>Een onafhankelijke MUNDO-bron en versie moeten nog worden gekoppeld.</li><li>Citadel/PALACO ONE moet per gebruiker de feitelijke toegang bepalen vóór privégegevens worden getoond.</li><li>Cartografie, eigendom en EDTR-bewijzen vereisen afzonderlijk controleerbare herkomst.</li></ul><p class="note">In deze publieke demonstratie worden geen echte bewijscertificaten uitgegeven en geen rechten vastgesteld.</p></article></section>
+<section class="panel admission" id="source-admission" aria-labelledby="admission-title"><div class="eyebrow">MUNDO · Broncontract 009</div><h2 id="admission-title">Toelatingsgrenzen voor nieuwe atlaslagen</h2><p class="explainer">Deze publieke Atlas bevat geen aangesloten private gegevensbron. Een toekomstig MUNDO-dossier kan pas zichtbaar worden in een beschermde host na alle onafhankelijke controles hieronder.</p><div class="admission-grid"><article class="admission-card"><strong>01 · Bronintegriteit</strong><p>Een vertrouwde host controleert de herkomst, revisie en werkelijke SHA-256-inhoud. Een aangeleverd bewijslabel alleen is onvoldoende.</p></article><article class="admission-card"><strong>02 · Actuele autorisatie</strong><p>De beschermde Citadel verifieert de huidige wereld, sessie, route en toegangsrechten. De openbare demonstratie verleent nooit toegang.</p></article><article class="admission-card"><strong>03 · Contextbewaking</strong><p>Bij een veranderde sessie of route wordt een lopende gegevensaanvraag ongeldig. Geen oude toestemming wordt hergebruikt.</p></article></div><div class="admission-summary" id="admission-summary" role="status">Publieke demonstratie: externe MUNDO-bronnen niet verbonden. Privékaartlagen en bewijsdossiers worden niet getoond.</div></section>
+<section class="panel layer-contract" id="layer-contract" aria-labelledby="layer-contract-title"><div class="eyebrow">MUNDO · Datamodel 010</div><h2 id="layer-contract-title">Toekomstige kaart- en bewijsstructuur</h2><p class="explainer">De Atlas is voorbereid op twee gescheiden, begrensde gegevenstypen. Ze worden pas in de beschermde Citadel geaccepteerd na vormcontrole, echte bronverificatie en een actuele toegangsbeslissing.</p><div class="layer-contract-grid"><article class="layer-contract-card"><span class="evidence-tag">Niet gekoppeld</span><h3>Geografische laag</h3><dl><dt>Projectie</dt><dd>WGS84 (EPSG:4326), uitsluitend als toekomstig contract</dd><dt>Toegestane gegevens</dt><dd>Wereld-ID, punt-ID, label, breedte- en lengtegraad</dd><dt>Grenzen</dt><dd>Maximaal 512 punten per laag; geldige numerieke coördinaten</dd><dt>Werkelijke punten beschikbaar</dt><dd>0 in deze publieke demonstratie</dd></dl></article><article class="layer-contract-card"><span class="evidence-tag">Niet gekoppeld</span><h3>Bewijsreferenties</h3><dl><dt>Toegestane gegevens</dt><dd>Wereld-ID, referentie-ID, onpersoonlijke citatiecode en SHA-256-digest</dd><dt>Grenzen</dt><dd>Maximaal 128 referenties per laag</dd><dt>Verificatie</dt><dd>Vereist een onafhankelijke vertrouwde host</dd><dt>Geverifieerde bewijsstukken beschikbaar</dt><dd>0 in deze publieke demonstratie</dd></dl></article></div><p class="layer-contract-note">Dit is een contractoverzicht, geen kaartviewer met echte coördinaten en geen uitgegeven bewijsregister. Er worden geen persoonsgegevens, tokens of bronbestanden geladen.</p></section>
+<section class="panel preview-render" id="atlas-renderer" aria-labelledby="atlas-renderer-title"><div class="eyebrow">MUNDO · Renderer 011</div><h2 id="atlas-renderer-title">Voorbereide kaartlaagrenderer</h2><p class="explainer">De toekomstige beschermde renderer kan uitsluitend na bronverificatie en actuele autorisatie genormaliseerde kaartpunten of bewijsreferenties voorbereiden. Deze publieke preview bevat geen zulke gegevens.</p><div class="preview-viewport" role="img" aria-label="Schematisch leeg kaartraster zonder echte locaties of punten"><div class="preview-empty"><strong>Geen geverifieerde kaartlaag</strong><span>Dit raster is uitsluitend een demonstratie van de toekomstige presentatiezone. Het toont geen coördinaten of MUNDO-wereldgeografie.</span></div></div><div class="preview-meta"><span>Geografische punten: 0</span><span>Bewijsreferenties: 0</span><span>Bron: niet gekoppeld</span><span>Autorisatie: niet aangesloten</span></div><p class="layer-contract-note">De private TypeScript-projectie levert alleen begrensde, onveranderlijke weergavegegevens op. Zij autoriseert geen gebruikers en publiceert geen privé-inhoud.</p></section>
+<section class="panel lifecycle" id="atlas-lifecycle" aria-labelledby="atlas-lifecycle-title"><div class="eyebrow">MUNDO · Levenscyclus 012</div><h2 id="atlas-lifecycle-title">Beschermde Atlasweergave</h2><p class="explainer">Voor de toekomstige privé-Citadel is een kaartweergave geen permanente toestemming. Een echte host moet elke aanvraag opnieuw verifiëren en de weergave onmiddellijk kunnen intrekken.</p><div class="lifecycle-steps"><article class="lifecycle-step"><strong>01 · Aanvraag vastleggen</strong><p>Een unieke aanvraag wordt aan de huidige sessie- en routecontext gekoppeld.</p></article><article class="lifecycle-step"><strong>02 · Bron toelaten</strong><p>De beschermde host verifieert bron, wereld-ID, rechten en actuele context.</p></article><article class="lifecycle-step"><strong>03 · Veilig presenteren</strong><p>Alleen een toegelaten, onveranderlijke weergave mag worden gemonteerd.</p></article><article class="lifecycle-step"><strong>04 · Direct intrekken</strong><p>Bij een wijziging van sessie, route of rechten sluit de host de oude kaartweergave.</p></article></div><p class="lifecycle-note">De openbare demonstratie is niet verbonden met privékaartlagen of PALACO ONE. Dit paneel beschrijft alleen een voorbereide beveiligde implementatie; het voert geen toegangscorrecties uit.</p></section>
+<section class="panel dom-adapter" id="atlas-dom-adapter" aria-labelledby="dom-adapter-title"><div class="eyebrow">MUNDO · Presentatielaag 013</div><h2 id="dom-adapter-title">Beschermde kaartpresentatie</h2><p class="explainer">De toekomstige privé-Citadel krijgt een aparte weergaveadapter die na verificatie gegevens omzet naar toegankelijke tekst en een eenvoudige puntenprojectie. De publieke Atlas importeert deze adapter niet.</p><div class="dom-adapter-grid"><article class="dom-adapter-item"><strong>01 · Veilige tekst</strong><p>Kaartlabels en bewijsreferenties worden uitsluitend als tekst weergegeven, niet als uitvoerbare HTML.</p></article><article class="dom-adapter-item"><strong>02 · Begrensde punten</strong><p>De beschermde adapter accepteert uitsluitend eindige, genormaliseerde posities binnen het zichtbare kaartraster.</p></article><article class="dom-adapter-item"><strong>03 · Gerichte opruiming</strong><p>Elke weergave krijgt een eigen opruimhandle, zodat het sluiten van een oude kaart geen nieuwe kaart verwijdert.</p></article></div><p class="dom-adapter-note">Dit paneel is documentatie, geen live kaart. Bronverificatie, sessietoegang, cryptografische controles en echte geografische lagen zijn hier niet aangesloten.</p></section>
+<section class="panel host-connection" id="atlas-host-contract" aria-labelledby="atlas-host-contract-title"><div class="eyebrow">MUNDO · Hostcontract 014</div><h2 id="atlas-host-contract-title">Citadel-host en Atlasverbinding</h2><p class="explainer">De beveiligde Atlas kan later uitsluitend worden gekoppeld aan echte sessie-, router- en toegangsfuncties van de privé-Citadel. De huidige publieke demo bevat geen verbinding met PALACO ONE en geen privédata.</p><div class="host-connection-grid"><article class="host-connection-card"><strong>01 · Gecontroleerde registratie</strong><p>De host moet een betrouwbare gebeurtenisbron voor komende sessie-, route- en rechtenwijzigingen leveren.</p></article><article class="host-connection-card"><strong>02 · Contextintrekking</strong><p>Een wijziging maakt lopende aanvragen ongeldig en trekt eerder getoonde beschermde gegevens in.</p></article><article class="host-connection-card"><strong>03 · Definitief afsluiten</strong><p>Een afgesloten Atlasverbinding verwijdert haar luisteraar en kan niet stilzwijgend opnieuw worden geactiveerd.</p></article></div><p class="host-connection-note">Integratiecontract voorbereid in de ontwikkelbroncode; de daadwerkelijke privéhost en zijn betrouwbaarheid zijn nog niet gekoppeld of functioneel geverifieerd. Dit paneel verleent geen rechten.</p></section>
+<section class="panel container-boundary" id="protected-container" aria-labelledby="protected-container-title"><div class="eyebrow">MUNDO · Containercontract 015</div><h2 id="protected-container-title">Gescheiden Citadel-presentatie</h2><p class="explainer">De nieuwe koppellaag verenigt broncontrole, actuele sessietoegang, hostgebeurtenissen en een afgeschermde kaartcontainer. De openbare Atlas zelf blijft volledig buiten die privécontainer.</p><div class="container-boundary-grid"><article class="container-boundary-item"><strong>01 · Echte hostcontainer</strong><p>De beschermde Citadel moet haar eigen actuele, verbonden paginacontainer leveren; nooit een geraden selector of openbare pagina.</p></article><article class="container-boundary-item"><strong>02 · Bron en toegang</strong><p>Vóór elk beeld blijven bronverificatie, wereldrechten en sessiecontext verplicht.</p></article><article class="container-boundary-item"><strong>03 · Scope en intrekking</strong><p>Een verwijderde route of beëindigde sessie trekt de oude weergave in zonder een nieuwe te verwijderen.</p></article></div><p class="container-boundary-note">Dit is een ontwikkelcontract en geen bestaande PALACO ONE-koppeling. Live privéwerelddata, gebruikersaccounts, rechtenuitgiftes en verborgen Citadel-routes zijn niet aanwezig op deze publieke site.</p></section>
+<section class="panel host-guard" id="host-integration" aria-labelledby="host-integration-title"><div class="eyebrow">MUNDO · Hostintegratie 016</div><h2 id="host-integration-title">Bewaking tijdens kaartmontage</h2><p class="explainer">Het ontwikkelcontract controleert of de beschermde kaartcontainer en de sessiecontext gelijk blijven tijdens montage. Verandert de container tussentijds, dan wordt de nieuw opgebouwde kaart direct verwijderd.</p><div class="host-guard-steps"><article class="host-guard-step"><strong>01 · Context vastleggen</strong><p>De beschermde host levert een actuele versie van de sessie- en routecontext.</p></article><article class="host-guard-step"><strong>02 · Container vergelijken</strong><p>Na de montage wordt gecontroleerd of dezelfde beschermde container nog bestaat en verbonden is.</p></article><article class="host-guard-step"><strong>03 · Ongeldig? Intrekken</strong><p>Bij een contextwijziging ruimt de adapter uitsluitend zijn eigen kaartweergave op.</p></article></div><p class="host-guard-note">Alleen voorbereide ontwikkelcode. De publieke Atlas bevat geen daadwerkelijke beschermde sessie, geen PALACO ONE-koppeling en geen geverifieerde privékaartgegevens.</p></section>
+<section class="section" aria-labelledby="modules-title"><div class="eyebrow">Verdere integratie</div><h2 id="modules-title">Atlasarchitectuur</h2><div class="tiles"><article class="tile"><h3>Wereldregister</h3><p>Vaste, door de host goedgekeurde identifiers; geen automatisch aangemaakte werelden.</p></article><article class="tile"><h3>World Studio</h3><p>Ruimte voor latere beeldlagen, hoofdstukken en makerstoestemming.</p></article><article class="tile"><h3>Citadel-toegang</h3><p>Authenticatie en autorisatie blijven bij de echte beschermde host.</p></article></div></section>
+</main>
+<footer>MUNDO WORLD ATLAS · publieke conceptdemonstratie · geen persoonsgegevens, tracking, toegang of live data · geen officiële wereldregistratie</footer>
+</div>
+<div id="announcer" class="sr" aria-live="polite"></div>
+<script>
+"use strict";
+const entries=Object.freeze([
+{id:"W-0001",name:"EARTH",theme:"earth"},
+{id:"W-0002",name:"PLUTO",theme:"unknown"},
+{id:"W-0003",name:"EVA",theme:"unknown"},
+{id:"W-0004",name:"RIO",theme:"unknown"},
+{id:"W-0005",name:"PALACO",theme:"unknown"},
+{id:"W-0006",name:"6IO",theme:"unknown"},
+{id:"W-0007",name:"E9O",theme:"unknown"}
+].map(item=>Object.freeze(item)));
+const $=id=>document.getElementById(id);
+let selected=entries[0];
+// Rotating the CSS illustration does not change the world, its coordinates or its data.
+let globeAngle=0;
+let globeZoom=100;
+let globeTilt=0;
+let globeLight=30;
+function renderGlobeView(){
+  const globe=$("globe");
+  globe.style.setProperty("--atlas-angle",globeAngle+"deg");
+  globe.style.setProperty("--atlas-scale",String(globeZoom/100));
+  globe.style.setProperty("--atlas-tilt",globeTilt+"deg");
+  globe.style.setProperty("--atlas-light",globeLight+"%");
+  $("globe-view-status").textContent="Hoek "+globeAngle+"° · Zoom "+globeZoom+"% · Kanteling "+globeTilt+"°";
+  $("globe-tilt-output").textContent=globeTilt+"°";
+  $("globe-light-output").textContent=globeLight+"%";
+  $("globe-zoom-in").disabled=globeZoom>=130;
+  $("globe-zoom-out").disabled=globeZoom<=70;
+}
+function changeGlobeAngle(delta){
+  globeAngle=((globeAngle+delta)%360+360)%360;
+  renderGlobeView();
+}
+function changeGlobeZoom(delta){
+  globeZoom=Math.min(130,Math.max(70,globeZoom+delta));
+  renderGlobeView();
+}
+$("globe-rotate-left").addEventListener("click",()=>changeGlobeAngle(-30));
+$("globe-rotate-right").addEventListener("click",()=>changeGlobeAngle(30));
+$("globe-zoom-out").addEventListener("click",()=>changeGlobeZoom(-10));
+$("globe-zoom-in").addEventListener("click",()=>changeGlobeZoom(10));
+$("globe-reset").addEventListener("click",()=>{
+  globeAngle=0;globeZoom=100;globeTilt=0;globeLight=30;
+  $("globe-tilt").value="0";$("globe-light").value="30";
+  renderGlobeView();
+});
+$("globe-tilt").addEventListener("input",()=>{
+  globeTilt=Number($("globe-tilt").value);renderGlobeView();
+});
+$("globe-light").addEventListener("input",()=>{
+  globeLight=Number($("globe-light").value);renderGlobeView();
+});
+renderGlobeView();
+const visited=new Set([selected.id]);
+function renderDiscoveries(){
+ const grid=$("constellation");grid.replaceChildren();
+ for(let i=0;i<entries.length;i++){
+  const w=entries[i];const b=document.createElement("button");b.type="button";b.className="star";
+  if(visited.has(w.id))b.classList.add("visited");
+  b.setAttribute("aria-current",String(w.id===selected.id));
+  b.setAttribute("aria-label",w.name+", "+w.id+(visited.has(w.id)?", bezocht":""));
+  const glyph=document.createElement("span");glyph.className="glyph";glyph.setAttribute("aria-hidden","true");glyph.textContent=w.id===selected.id?"✦":"✧";
+  const label=document.createElement("strong");label.textContent=w.name;
+  const small=document.createElement("small");small.textContent=w.id;
+  b.append(glyph,label,small);
+  b.addEventListener("click",()=>choose(w));
+  b.addEventListener("keydown",event=>{
+   let target=-1;
+   if(event.key==="ArrowRight"||event.key==="ArrowDown")target=(i+1)%entries.length;
+   if(event.key==="ArrowLeft"||event.key==="ArrowUp")target=(i+entries.length-1)%entries.length;
+   if(event.key==="Home")target=0;
+   if(event.key==="End")target=entries.length-1;
+   if(target>=0){event.preventDefault();choose(entries[target]);$("constellation").children[target].focus()}
+  });
+  grid.append(b);
+ }
+ const trail=$("discovery-trail");trail.replaceChildren();
+ for(const w of entries.filter(item=>visited.has(item.id))){
+  const b=document.createElement("button");b.type="button";b.textContent=w.name;b.title="Ga naar "+w.id;
+  b.addEventListener("click",()=>choose(w));trail.append(b);
+ }
+ const count=visited.size;
+ $("discovery-count").textContent=count+" van "+entries.length+" werelden bekeken";
+ $("discovery-progress").setAttribute("aria-valuemax",String(entries.length));
+ $("discovery-progress").setAttribute("aria-valuenow",String(count));
+ $("discovery-bar").style.width=(100*count/entries.length)+"%";
+}
+
+function renderList(){
+const search=$("world-search").value.trim().toLocaleLowerCase("nl");
+const found=entries.filter(w=>(w.name+" "+w.id).toLocaleLowerCase("nl").includes(search));
+$("worlds").replaceChildren();
+for(const w of found){
+const b=document.createElement("button");b.type="button";b.className="world";b.setAttribute("aria-pressed",String(w.id===selected.id));
+const small=document.createElement("small");small.textContent=w.id;
+const strong=document.createElement("strong");strong.textContent=w.name;
+b.append(small,strong);b.addEventListener("click",()=>choose(w));$("worlds").append(b);
+}
+$("empty").hidden=found.length>0;
+}
+function choose(w){
+selected=w;
+visited.add(w.id);
+renderDiscoveries();$("selected-title").textContent=w.name;$("selected-id").textContent=w.id;
+$("visual-id").textContent=w.id;$("visual-name").textContent=w.name;$("globe").dataset.theme=w.theme;$("globe").dataset.world=w.id;
+$("globe").setAttribute("aria-label","Conceptuele sfeerbol voor "+w.name+", geen geografische kaart");
+$("selected-description").textContent=w.id==="W-0001"?"EARTH is als wereldnaam geregistreerd in de projectcontext. De geografische kaart en regionale gegevens zijn nog niet verbonden.":"Deze wereldnaam is opgenomen in het bekende MUNDO-register. Geografie, wereldstatus en hoofdstukken zijn nog niet gekoppeld.";
+$("announcer").textContent="Wereld geselecteerd: "+w.name+", "+w.id;
+if(!$("compare-panel").hidden)renderComparison();
+renderStudio();
+renderSourceMatrix();
+renderList();
+}
+// Static chapter definitions; intentionally no invented world facts.
+const chapters=Object.freeze([
+  Object.freeze({id:"identity",label:"Wereldidentiteit",caption:"Register en herkenning"}),
+  Object.freeze({id:"geography",label:"Geografie",caption:"Kaart en landschappen"}),
+  Object.freeze({id:"lineage",label:"Herkomst & bewijs",caption:"Bronnen en verificatie"})
+]);
+const layers=Object.freeze([
+  Object.freeze({id:"registry",label:"Register",description:"Alleen bekende wereld-ID en naam. Geen geografische kaartgegevens."}),
+  Object.freeze({id:"geography",label:"Geografie",description:"Niet verbonden: geen coördinaten, grenzen, topografie of plaatsnamen uit een geverifieerde MUNDO-bron."}),
+  Object.freeze({id:"evidence",label:"Bewijslijn",description:"Niet verbonden: geen uitgegeven EDTR, bewijsstukken of ondertekende herkomstgegevens."})
+]);
+let activeChapter=chapters[0].id;
+let activeLayer=layers[0].id;
+function renderStudio(){
+ const list=$("chapter-list");list.replaceChildren();
+ for(const ch of chapters){
+   const button=document.createElement("button");button.type="button";button.className="chapter";
+   button.setAttribute("aria-pressed",String(ch.id===activeChapter));
+   const title=document.createElement("span");title.textContent=ch.label;
+   const small=document.createElement("small");small.textContent=ch.caption;
+   button.append(title,small);
+   button.addEventListener("click",()=>{activeChapter=ch.id;renderStudio();$("announcer").textContent="Hoofdstuk: "+ch.label+" voor "+selected.name});
+   list.append(button);
+ }
+ const chapter=chapters.find(ch=>ch.id===activeChapter)||chapters[0];
+ $("chapter-heading").textContent=chapter.label+" · "+selected.name;
+ $("chapter-category").textContent=selected.id+" · Conceptueel hoofdstuk";
+ const descriptions={
+   identity:"De naam "+selected.name+" en identificatie "+selected.id+" zijn bekend in deze projectpreview. Bevoegdheden, makersgegevens en eigendomsclaims zijn niet aangesloten.",
+   geography:"Er is geen gecontroleerde kaart van "+selected.name+" verbonden. Regio's, landschappen, grenzen en plaatsen worden daarom niet weergegeven.",
+   lineage:"Voor "+selected.name+" zijn in deze preview geen geverifieerde brondossiers, EDTR-uitgiften, handtekeningen of bewijslijnen verbonden."
+ };
+ $("chapter-body").textContent=descriptions[chapter.id];
+ const buttons=$("layer-buttons");buttons.replaceChildren();
+ for(const layer of layers){
+   const button=document.createElement("button");button.className="layer-button";button.type="button";
+   button.setAttribute("aria-pressed",String(layer.id===activeLayer));button.textContent=layer.label;
+   button.addEventListener("click",()=>{activeLayer=layer.id;renderStudio();$("announcer").textContent="Schematische laag: "+layer.label});
+   buttons.append(button);
+ }
+ const layer=layers.find(l=>l.id===activeLayer)||layers[0];
+ $("layer-heading").textContent=layer.label+" · "+selected.name;
+ $("layer-description").textContent=layer.description;
+ $("layer-board").setAttribute("aria-label","Conceptuele laag "+layer.label+" voor "+selected.name+"; geen echte geografische kaart");
+}
+// Static, non-authoritative chapter index; uses only the local register and chapter types.
+const libraryWorld=$("library-world");
+const libraryChapter=$("library-chapter");
+for(const world of entries){const option=document.createElement("option");option.value=world.id;option.textContent=world.id+" · "+world.name;libraryWorld.append(option)}
+for(const chapter of chapters){const option=document.createElement("option");option.value=chapter.id;option.textContent=chapter.label;libraryChapter.append(option)}
+function renderLibrary(){
+ const search=$("library-search").value.trim().toLocaleLowerCase("nl");
+ const worldFilter=libraryWorld.value,chapterFilter=libraryChapter.value;
+ const grid=$("library-grid");grid.replaceChildren();
+ let count=0;
+ for(const world of entries){
+  if(worldFilter!=="all"&&world.id!==worldFilter)continue;
+  for(const chapter of chapters){
+   if(chapterFilter!=="all"&&chapter.id!==chapterFilter)continue;
+   if(!(world.name+" "+world.id+" "+chapter.label+" "+chapter.caption).toLocaleLowerCase("nl").includes(search))continue;
+   const card=document.createElement("article");card.className="library-entry";
+   const id=document.createElement("div");id.className="library-id";id.textContent=world.id+" · CONCEPT";
+   const heading=document.createElement("h3");heading.textContent=world.name+" · "+chapter.label;
+   const description=document.createElement("p");description.textContent=chapter.id==="identity"?"Bekende wereldnaam en ID; overige gegevens niet geverifieerd.":chapter.id==="geography"?"Geen geografische gegevens of kaartlaag verbonden.":"Geen geverifieerde bewijslijn of EDTR-dossier verbonden.";
+   const open=document.createElement("button");open.type="button";open.textContent="Open concepthoofdstuk";
+   open.setAttribute("aria-label","Open "+chapter.label+" voor "+world.name);
+   open.addEventListener("click",()=>{
+      activeChapter=chapter.id;choose(world);
+      $("studio-title").scrollIntoView({block:"start",behavior:"auto"});
+      $("chapter-heading").setAttribute("tabindex","-1");
+      $("chapter-heading").focus({preventScroll:true});
+   });
+   card.append(id,heading,description,open);grid.append(card);count++;
+  }
+ }
+ $("library-count").textContent=count+" van "+entries.length*chapters.length+" concepthoofdstukken zichtbaar";
+ if(count===0){const empty=document.createElement("p");empty.className="empty";empty.textContent="Geen overeenkomstige hoofdstukken gevonden.";grid.append(empty)}
+}
+for(const id of ["library-search","library-world","library-chapter"]){
+ $(id).addEventListener(id==="library-search"?"input":"change",renderLibrary);
+}
+renderLibrary();
+// Public trust matrix: status descriptions are fixed, never derived from visual effects.
+function renderSourceMatrix(){
+ const rows=$("source-rows");rows.replaceChildren();
+ for(const world of entries){
+  const tr=document.createElement("tr");tr.dataset.active=String(world.id===selected.id);
+  const name=document.createElement("th");name.scope="row";name.textContent=world.name+" · "+world.id;tr.append(name);
+  for(const [label,known] of [["Bekend uit projectcontext",true],["Niet gekoppeld",false],["Niet geverifieerd",false],["Geen live bron",false]]){
+   const td=document.createElement("td");const tag=document.createElement("span");
+   tag.className="evidence-tag"+(known?" known":"");tag.textContent=label;td.append(tag);tr.append(td);
+  }
+  const action=document.createElement("td"),button=document.createElement("button");button.type="button";button.className="source-open";
+  button.textContent="Bekijk";button.setAttribute("aria-label","Bekijk bronstatus voor "+world.name);
+  button.addEventListener("click",()=>{
+   choose(world);
+   $("source-detail-title").scrollIntoView({block:"nearest",behavior:"auto"});
+   $("source-detail-title").setAttribute("tabindex","-1");
+   $("source-detail-title").focus({preventScroll:true});
+  });
+  action.append(button);tr.append(action);rows.append(tr);
+ }
+ $("source-detail-title").textContent=selected.name+" · "+selected.id;
+ $("source-detail-summary").textContent="Alleen de naam en identifier staan in de lokale voorbeeldlijst. Geen gevalideerde kaartbron, herkomstdossier, eigendomsinformatie of live dataverbinding.";
+}
+// Comparison uses ephemeral in-memory selection; no storage, hashes or APIs.
+const compareSelect=$("compare-world");
+for(const w of entries){const opt=document.createElement("option");opt.value=w.id;opt.textContent=w.id+" · "+w.name;compareSelect.append(opt)}
+compareSelect.value=entries[1].id;
+function renderComparison(){
+  const second=entries.find(w=>w.id===compareSelect.value)||entries[1];
+  const grid=$("compare-grid");grid.replaceChildren();
+  for(const w of [selected,second]){
+    const article=document.createElement("article");article.className="compare-card";
+    const heading=document.createElement("h3");heading.textContent=w.name;
+    const dl=document.createElement("dl");
+    for(const [label,value] of [["Wereld-ID",w.id],["Registervermelding","Bekende naam in projectcontext"],["Geografische kaart","Niet gekoppeld"],["Bestuur en eigendom","Niet geverifieerd"],["Live MUNDO-bron","Niet verbonden"]]){
+      const dt=document.createElement("dt");dt.textContent=label;
+      const dd=document.createElement("dd");dd.textContent=value;
+      dl.append(dt,dd);
+    }
+    article.append(heading,dl);grid.append(article);
+  }
+}
+function stepWorld(offset){
+  const i=entries.findIndex(w=>w.id===selected.id);
+  choose(entries[(i+offset+entries.length)%entries.length]);
+}
+$("previous-world").addEventListener("click",()=>stepWorld(-1));
+$("next-world").addEventListener("click",()=>stepWorld(1));
+$("compare-toggle").addEventListener("click",()=>{
+  const isOpening=$("compare-panel").hidden;
+  $("compare-panel").hidden=!isOpening;
+  $("compare-toggle").setAttribute("aria-pressed",String(isOpening));
+  if(isOpening){renderComparison();compareSelect.focus()}
+});
+compareSelect.addEventListener("change",renderComparison);
+$("clear-discoveries").addEventListener("click",()=>{
+ visited.clear();visited.add(selected.id);renderDiscoveries();
+ $("announcer").textContent="Ontdekkingspad gewist. Alleen de huidige wereld blijft geselecteerd.";
+});
+$("world-search").addEventListener("input",renderList);
+renderDiscoveries();
+renderStudio();
+renderSourceMatrix();
+renderList();
+</script>
+</body></html>
