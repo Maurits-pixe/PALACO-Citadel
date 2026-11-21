@@ -810,3 +810,43 @@ test('Atelier: onveilige TXT-bestandsnamen worden geweigerd bij losse, paar- en 
  await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
 });
+
+test('Atelier: SHA-256-TXT vereist vaste regelvolgorde en maximaal één PALACO-header',async ({page})=>{
+ const {createHash}=await import('node:crypto');
+ const fs=await import('node:fs/promises');
+ await page.goto('/atelier/regiekamer.html');
+ const original=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const bytes=Buffer.from(await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage))));
+ const hash=createHash('sha256').update(bytes).digest('hex');
+ const project={name:'creatief.json',mimeType:'application/json',buffer:bytes};
+ const base='SHA-256: '+hash+'\nBestand: creatief.json\n';
+ const txt={name:'referentie.txt',mimeType:'text/plain',buffer:Buffer.from(base)};
+ await page.locator('#pairVerify').setInputFiles([project,txt]);
+ await expect(page.locator('#pairReportSave')).toBeEnabled();
+ const reportPromise=page.waitForEvent('download');
+ await page.locator('#pairReportSave').click();
+ const report={name:'inspectie.json',mimeType:'application/json',buffer:await fs.readFile(await (await reportPromise).path())};
+ const invalid=[
+   'Bestand: creatief.json\nSHA-256: '+hash+'\n',
+   'PALACO ATELIER DRAFT SHA-256 REFERENTIE\n'+base+'PALACO ATELIER · DRAFT SHA-256 REFERENTIE\n',
+   base+'PALACO ATELIER DRAFT SHA-256 REFERENTIE\n',
+   'Controle: bestandsbytes, geen digitale handtekening of officiële goedkeuring.\n'+base,
+   base+'Bewaar deze referentie afzonderlijk van het projectbestand.\nControle: bestandsbytes, geen digitale handtekening of officiële goedkeuring.\n'
+ ];
+ for(const contents of invalid){
+   const altered={...txt,buffer:Buffer.from(contents)};
+   await page.locator('#fingerprintReceipt').setInputFiles(altered);
+   await expect(page.locator('#referenceStatus')).toContainText('ongeldige regelvolgorde');
+   await expect(page.locator('#expectedFingerprint')).toHaveValue('');
+   await page.locator('#pairVerify').setInputFiles([project,altered]);
+   await expect(page.locator('#pairStatus')).toContainText('ongeldige regelvolgorde');
+   await expect(page.locator('#pairReportSave')).toBeDisabled();
+   await page.locator('#reportVerify').setInputFiles([report,project,altered]);
+   await expect(page.locator('#reportVerifyStatus')).toContainText('ongeldige regelvolgorde');
+ }
+ await page.locator('#pairVerify').setInputFiles([project,txt]);
+ await expect(page.locator('#pairReportSave')).toBeEnabled();
+ await page.locator('#reportVerify').setInputFiles([report,project,txt]);
+ await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(original);
+});
