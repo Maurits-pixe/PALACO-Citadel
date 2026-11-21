@@ -145,3 +145,13 @@ De module bindt de callback-methodes aan hun oorspronkelijke object om class-geb
 **Trustvoorwaarden:** eventregistratie moet atomair zijn; als een externe `subscribeBeforeChange` halverwege gooit, moet de host zelf een eventueel geregistreerde luisteraar weghalen. De host moet gegarandeerd **vóór** wijzigingen gebeurtenissen versturen en een unieke, niet-hergebruikte contextversie leveren. De verbinding zelf bewijst niet dat een callback de echte sessie of rechten juist vertegenwoordigt. Test- en productieacceptatie blijven HOLD.
 
 Op de aparte publieke Render-preview is uitsluitend een **beschrijvend Hostcontract 014-paneel** toegevoegd. Geen daadwerkelijke PALACO ONE-, router- of Citadel-koppeling, persoonsgegevens of privéwerelddata. De originele L.A. Sites-app is niet gewijzigd, GitHub PR #58 blijft DRAFT/HOLD; geen tests of merge.
+
+## MUNDO-ATLAS-PROTECTED-CONTAINER-015 — hostgebonden DOM-koppeling
+
+Nieuw: `08-IMPLEMENTATION/src/citadel/mundo-atlas-protected-container.ts` met `connectAtlasProtectedContainer(contract)`. Het contract bestaat uit door de **echte** Citadel-host aan te leveren functies: `subscribeBeforeChange`, `authorizeAndVerify`, `isStillAuthorized`, `readContextVersion` en `currentProtectedContainer`.
+
+De adapter bindt deze hostfuncties aan het bestaande `connectAtlasHostContract` (014), dat `createAtlasMountLifecycle` (012) gebruikt. Pas na toegelaten bronprojectie en actuele machtigingscontroles kan de DOM-adapter (013) een beschermde kaartweergave creëren. `currentProtectedContainer` wordt op het montagemoment opgevraagd; null, een losgekoppeld element of een ontbrekende documentcontext leidt tot weigering van de montage. Er is **geen** fallback naar `document.body`, een CSS-selector, een nieuw aangemaakte documentwortel of de publieke Atlas.
+
+**Noodzakelijke hostgaranties:** de host moet daadwerkelijk bewijzen dat de teruggegeven container tot de geautoriseerde privéroute behoort; alle wijzigingen **vóór** de overgang melden; de contextversie strikt vernieuwen; en bronintegriteit en toegang onafhankelijk vaststellen. De adapter kan op basis van alleen een HTML-element niet controleren dat de route echt privé is. De browser- en gebruikersacceptatie is nog niet uitgevoerd.
+
+De aparte openbare Render-pagina bevat alleen een **verklarend Containercontract 015-paneel**, zonder import van de privémodule, accounts, brongegevens of eventkoppelingen. Oorspronkelijke L.A. Citadel Sites-app ongewijzigd; GitHub PR #58 DRAFT/HOLD; geen functionele tests, merge of private uitrol.
