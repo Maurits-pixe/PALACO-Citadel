@@ -56,6 +56,12 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Focusherstel na sorteren en filteren · v3.7
+- Na het opnieuw tekenen van de tijdlijn, bijvoorbeeld door sorteren, koppelt de dossierinspectie zijn terugkeerfocus opnieuw aan **Inspecteer dossier** van hetzelfde geselecteerde record, zolang dat nog zichtbaar is.
+- Verdwijnt het geselecteerde record uit de gefilterde lijst, dan gaat de focus bij het sluiten veilig naar de focusbare tijdlijn. Het dossier mag tot de gebruiker het sluit zelf zichtbaar blijven, zodat lopende inspectie niet onverwacht wordt afgebroken.
+- Twee Chromium-regressies controleren beide scenario's met een echte DOM. De bestaande Escape- en sluitknopondersteuning blijven behouden.
+- Het fysieke acceptatieprotocol is aangescherpt voor de focusovergangen en de volgorde van vergrendelen en opnieuw ontgrendelen vóór export. Er is geen fysieke test als PASS geclaimd.
+
 ## Focusherstel bij dossier sluiten · v3.6
 - De dossierinspectie ondersteunt naast de knop **Sluit dossier** nu ook de `Escape`-toets zolang de toetsenbordfocus zich in het dossier bevindt.
 - Bij sluiten keert de focus terug naar de knop **Inspecteer dossier** waarmee de selectie is geopend. Als de tijdlijn ondertussen opnieuw is gerenderd en de oorspronkelijke knop niet meer in het document bestaat, gaat de focus veilig naar de tijdlijn zelf (programmeerbaar focuspunt).
