@@ -135,3 +135,13 @@ De privéhostadapter `08-IMPLEMENTATION/src/citadel/mundo-atlas-dom-adapter.ts` 
 **Nog te koppelen:** de daadwerkelijke beschermde Citadel-container, PALACO ONE-sessie, router, vóór-wijziging-event en bronverificatie. Dit bestand biedt geen automatische toegang tot het oorspronkelijke ChatGPT Sites-project. Er is nog geen functionele acceptatie uitgevoerd.
 
 De publieke Render-preview is uitsluitend uitgebreid met een verklarend onderdeel *Beschermde kaartpresentatie*; de private adapter wordt niet geïmporteerd. DRAFT/HOLD, geen merge of privépublicatie.
+
+## MUNDO-ATLAS-HOST-CONTRACT-014 — echte hostevents als expliciete grens
+
+De privéhostmodule `08-IMPLEMENTATION/src/citadel/mundo-atlas-host-contract.ts` biedt `connectAtlasHostContract(contract)` met zes vereiste hostfuncties: `subscribeBeforeChange`, `authorizeAndVerify`, `isStillAuthorized`, `readContextVersion`, `mount`, en een door `subscribeBeforeChange` teruggegeven `unsubscribe`-functie. Dit zijn expliciet aan te leveren functies van de **werkelijke beschermde Citadel-host**. Er zijn geen PALACO ONE- of router-API's geraden of geïmplementeerd.
+
+De module bindt de callback-methodes aan hun oorspronkelijke object om class-gebaseerde hostimplementaties te ondersteunen, en registreert één synchrone BEFORE-change-luisteraar. Bij logout, sessiewissel, rechtenwijziging, routevervanging of sluiten van de Atlas wordt de bestaande `createAtlasMountLifecycle` ingetrokken. Onbekende eventnamen leiden eveneens tot intrekking. Een event tijdens registratie wordt beschouwd als onbetrouwbare context; de installatie faalt en ruimt op. Een ongeldig unsubscribe-resultaat faalt eveneens. Als intrekking faalt, mag de verbinding niet opnieuw activeren. `dispose()` is definitief en ruimt luisteraar en view op.
+
+**Trustvoorwaarden:** eventregistratie moet atomair zijn; als een externe `subscribeBeforeChange` halverwege gooit, moet de host zelf een eventueel geregistreerde luisteraar weghalen. De host moet gegarandeerd **vóór** wijzigingen gebeurtenissen versturen en een unieke, niet-hergebruikte contextversie leveren. De verbinding zelf bewijst niet dat een callback de echte sessie of rechten juist vertegenwoordigt. Test- en productieacceptatie blijven HOLD.
+
+Op de aparte publieke Render-preview is uitsluitend een **beschrijvend Hostcontract 014-paneel** toegevoegd. Geen daadwerkelijke PALACO ONE-, router- of Citadel-koppeling, persoonsgegevens of privéwerelddata. De originele L.A. Sites-app is niet gewijzigd, GitHub PR #58 blijft DRAFT/HOLD; geen tests of merge.
