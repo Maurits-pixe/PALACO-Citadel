@@ -1323,3 +1323,45 @@ test("encrypted archive export aborts if tab locks during encryption",async()=>{
  assert.equal(await p.locator("#count").innerText(),"0");
  await c.close();
 });
+
+test("rapid repeated handoff export consumes consent before second click",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true,acceptDownloads:true}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Eén toestemming");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Eenmaal exporteren");
+ await p.locator("#entryForm button[type=submit]").tap();
+ await p.locator("#timeline button").filter({hasText:"Inspecteer dossier"}).tap();
+ await p.locator("#handoffConsent").check();
+ await p.evaluate(()=>{
+   window.__downloadCount=0;
+   const real=HTMLAnchorElement.prototype.click;
+   HTMLAnchorElement.prototype.click=function(...args){window.__downloadCount++;return real.apply(this,args)};
+   const exportButton=document.querySelector("#contractExport");
+   exportButton.click();exportButton.click();
+ });
+ assert.equal(await p.evaluate(()=>window.__downloadCount),1);
+ assert.equal(await p.locator("#handoffConsent").isChecked(),false);
+ assert.match(await p.locator("#message").innerText(),/exporttoestemming ontbreekt/);
+ await c.close();
+});
+
+test("hidden dossier export is refused despite stale consent and selected record",async()=>{
+ const c=await browser.newContext({viewport:{width:390,height:844},acceptDownloads:true}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Verborgen inspectie");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Dossier");
+ await p.locator("#entryForm button[type=submit]").click();
+ await p.locator("#timeline button").filter({hasText:"Inspecteer dossier"}).click();
+ await p.locator("#handoffConsent").check();
+ await p.evaluate(()=>{
+   window.__downloadCount=0;
+   const real=HTMLAnchorElement.prototype.click;
+   HTMLAnchorElement.prototype.click=function(...args){window.__downloadCount++;return real.apply(this,args)};
+   document.querySelector("#dossier").className="panel hidden";
+   document.querySelector("#contractExport").click();
+   document.querySelector("#dossierExport").click();
+ });
+ assert.equal(await p.evaluate(()=>window.__downloadCount),0);
+ assert.match(await p.locator("#message").innerText(),/Geen open dossier/);
+ await c.close();
+});
