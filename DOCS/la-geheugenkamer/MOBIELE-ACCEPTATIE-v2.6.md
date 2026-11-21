@@ -1,6 +1,6 @@
 # CITADEL · Geheugenkamer — fysiek mobiel acceptatieprotocol v2.6
 
-Status: **PREPARED v3.7 / NOT EXECUTED / HOLD**. Dit is een begeleid protocol, **geen** bewijs dat iOS/Android-acceptatie is uitgevoerd.
+Status: **PREPARED v3.8 / NOT EXECUTED / HOLD**. Dit is een begeleid protocol, **geen** bewijs dat iOS/Android-acceptatie is uitgevoerd.
 
 ## Voorwaarden
 - Test op een fysiek Android-toestel met Chrome en, afzonderlijk, op een fysieke iPhone met Safari. Noteer per test apparaatmodel, OS, browserversie, datum/tijd met tijdzone en de daadwerkelijk geopende URL.
@@ -18,6 +18,7 @@ Status: **PREPARED v3.7 / NOT EXECUTED / HOLD**. Dit is een begeleid protocol, *
 6. Exporteer één **versleuteld JSON-bestand** en controleer via de platform-bestandskiezer dat het bestand vindbaar en opnieuw importeerbaar is in een schoon testprofiel. Geen automatische plaintext-opslag; geen automatische autorisatie.
 7. Probeer een bewust beschadigde kopie van het testarchief te importeren. De import moet worden geweigerd terwijl een reeds bestaand synthetisch dossier intact blijft.
 8. Controleer toegankelijkheid: 320–390 px schermbreedte, schermrotatie, 200% zoom waar beschikbaar, virtueel toetsenbord, zichtbare focus, leesbare meldingen en bedienbare knoppen. Open een dossier met het toetsenbord en sluit met Escape: de focus moet teruggaan naar de bijbehorende inspectieknop. Sorteer met het dossier open en sluit: focus moet naar dezelfde opnieuw getekende inspectieknop gaan. Filter het geselecteerde dossier uit de tijdlijn en sluit: focus moet naar de tijdlijn teruggaan. Noteer afzonderlijk of mobiele Safari met extern toetsenbord dit ondersteunt.
+   Open daarna een synthetisch dossier, vink eenmalige exporttoestemming aan en kies **Vergrendel deze tab**: de inspectie moet sluiten, de toestemming moet vervallen en toetsenbordfocus moet naar de tijdlijn verhuizen. Herhaal dit met **Wis alle herinneringen** in een nieuw testprofiel (let op: wis geen echte gegevens).
 9. Probeer verwijdering van de testkluis met een **onjuiste wachtzin**: verwacht weigering en behoud van de versleutelde kluis. Voer daarna de **oorspronkelijke wachtzin opnieuw in**, bevestig de definitieve verwijdering en controleer dat de status **niet aanwezig** aangeeft. Verwijder testbestanden uit gedeelde downloadlocaties.
 
 ## Bewijsvelden per stap
