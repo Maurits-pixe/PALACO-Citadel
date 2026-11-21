@@ -56,6 +56,13 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Gelijktijdige export en geheugenwijziging · v4.0
+- **SHA-256-archiefexport** en **AES-256-GCM-archiefexport** controleren vlak vóór het maken van de download opnieuw het actuele geheugen en het beveiligingsoperatienummer.
+- Als de tab wordt vergrendeld, gegevens worden gewist of een import/herstel het geheugen tijdens berekening of versleuteling wijzigt, wordt de export **afgebroken zonder bestand aan te bieden**.
+- Twee mobiele Chromium-regressietests pauzeren cryptografische bewerkingen bewust en onderbreken ze met respectievelijk wissen en tabvergrendeling. Zij controleren dat geen download wordt gestart.
+- Deze bescherming geldt voor gelijktijdige wijzigingen **binnen de actieve tab** en de reeds afgevangen opslagwijzigingen. De controles zijn geen algemene bescherming tegen schadelijke scripts op dezelfde origin.
+- PR blijft DRAFT/HOLD; geen externe synchronisatie, geen officiële uitgifte en geen fysieke mobiele acceptatie geclaimd.
+
 ## Herstel en import: toestemming opnieuw verkrijgen · v3.9
 - Na een **geslaagde lokale archiefherstelactie** of **geslaagde JSON-import** worden de oude dossierselectie en eenmalige Bewijskamer-exporttoestemming expliciet ingetrokken.
 - Een geopende dossierinspectie sluit en de focus gaat naar de tijdlijn, zodat een oud, voor de gegevenswijziging geselecteerd dossier niet onbedoeld als exportdoel blijft bestaan.
