@@ -49,6 +49,9 @@ button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus
 .globe-advanced output{color:var(--gold);font-size:.8rem;font-variant-numeric:tabular-nums;min-width:3.2rem}
 .globe-actions{flex-wrap:wrap}
 @media(prefers-reduced-motion:reduce){.globe{transition:none}}
+
+/* ATLAS-LIBRARY-007: navigable chapter index, no invented source data. */
+.library{padding:1.3rem;margin-top:1.1rem}.library-filters{display:flex;align-items:end;gap:.8rem;flex-wrap:wrap;margin:1rem 0}.library-filters label{display:grid;gap:.3rem;font-size:.84rem;color:var(--muted)}.library-filters select,.library-filters input{padding:.65rem .75rem;border:1px solid #638478;border-radius:10px;background:#071c1a;color:var(--text);min-width:160px}.library-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem}.library-entry{padding:1rem;background:#102d29;border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;gap:.45rem}.library-entry h3{font:400 1.15rem Georgia,serif;margin:0}.library-entry p{font-size:.84rem;color:var(--muted);margin:0}.library-entry .library-id{font-size:.75rem;color:var(--gold)}.library-entry button{margin-top:auto;border-radius:10px;padding:.65rem .8rem;border:1px solid var(--gold);background:#1c4237;color:var(--text);text-align:left}.library-count{color:var(--muted);font-size:.82rem}.library-legend{color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);padding-top:.8rem;margin-top:1rem}@media(max-width:850px){.library-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.library-grid{grid-template-columns:1fr}.library-filters label,.library-filters select,.library-filters input{width:100%;min-width:0}}
 </style>
 <meta name="robots" content="index,follow">
 </head>
@@ -58,7 +61,7 @@ button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus
 <header><div><div class="brand">PALACO INDUSTRIE</div><div class="eyebrow">MUNDO · onafhankelijke conceptdemonstratie</div></div><div class="shield">Publieke demonstratie · geen accounttoegang</div></header>
 <main id="atlas">
 <section class="hero"><div class="eyebrow">MUNDO · World Studio</div><h1>World Atlas</h1><p class="lede">Ontdek het concept van MUNDO World Atlas. Deze openbare demonstratie bevat uitsluitend zeven voorbeeldvermeldingen uit het bekende projectregister; er worden geen privégegevens, echte wereldkaarten of live bronnen weergegeven.</p></section>
-<nav class="cockpit-nav" aria-label="Atlas-cockpit"><a href="#atlas-register">Wereldregister</a><a href="#discovery-heading">Ontdekkingspad</a><a href="#selected-title">Wereldprofiel</a><a href="#studio-title">World Studio</a></nav>
+<nav class="cockpit-nav" aria-label="Atlas-cockpit"><a href="#atlas-register">Wereldregister</a><a href="#discovery-heading">Ontdekkingspad</a><a href="#selected-title">Wereldprofiel</a><a href="#studio-title">World Studio</a><a href="#atlas-library">Atlasbibliotheek</a></nav>
 <div class="layout">
 <section class="panel globe-stage" aria-label="Bedienbare conceptuele wereldbol"><div class="universe"><div class="orbit"></div><div class="orbit second"></div><div class="marker" id="visual-id">W-0001</div><div class="globe" id="globe" role="img" aria-label="Gestileerde illustratie van geselecteerde wereld" data-theme="earth" data-world="W-0001"><div class="globe-shading" aria-hidden="true"></div></div><div class="globe-label" id="visual-name">EARTH</div><div class="globe-visual-caption">Artistieke weergave<br>geen geografische kaart</div></div>
 <div class="globe-controls" aria-label="Bediening conceptwereldbol"><div><div class="globe-hint">Draai en zoom de illustratie</div><div id="globe-view-status" class="globe-status" role="status" aria-live="off">Hoek 0° · Zoom 100%</div></div><div class="globe-actions"><button id="globe-rotate-left" type="button" aria-label="Draai illustratie 30 graden linksom">↶</button><button id="globe-rotate-right" type="button" aria-label="Draai illustratie 30 graden rechtsom">↷</button><button id="globe-zoom-out" type="button" aria-label="Zoom illustratie uit">−</button><button id="globe-zoom-in" type="button" aria-label="Zoom illustratie in">+</button><button id="globe-reset" type="button">Herstel</button></div><div class="globe-advanced"><label for="globe-tilt">Kanteling <input id="globe-tilt" type="range" min="-30" max="30" step="5" value="0"></label><output id="globe-tilt-output" for="globe-tilt">0°</output><label for="globe-light">Lichtinval <input id="globe-light" type="range" min="15" max="75" step="5" value="30"></label><output id="globe-light-output" for="globe-light">30%</output></div></div></section>
@@ -69,6 +72,7 @@ button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus
 <section class="panel detail" aria-labelledby="selected-title"><div class="eyebrow">Geselecteerde wereld</div><h2 id="selected-title">EARTH</h2><div class="kv"><span>Wereld-ID</span><strong id="selected-id">W-0001</strong></div><div class="kv"><span>Atlasstatus</span><strong id="selected-status">Conceptuele preview</strong></div><div class="kv"><span>Dataverbinding</span><strong>Nog niet gekoppeld</strong></div><p id="selected-description" class="lede">Canoniek geregistreerde wereldnaam; geografische en bestuurlijke gegevens zijn in deze preview niet aangesloten.</p><p class="note">Dit is een openbare conceptpresentatie zonder login of toegang tot Citadel. Zij doet geen uitspraken over bestaande wereldinhoud of eigendom. Live gegevens vereisen de gecontroleerde MUNDO/Citadel-bron.</p><div class="atlas-tools"><button type="button" id="previous-world" class="action" aria-label="Vorige bekende wereld">Vorige wereld</button><button type="button" id="next-world" class="action" aria-label="Volgende bekende wereld">Volgende wereld</button><button type="button" id="compare-toggle" class="action" aria-pressed="false" aria-controls="compare-panel">Vergelijk werelden</button></div></section>
 <section class="panel compare" id="compare-panel" aria-labelledby="compare-title" hidden><div class="eyebrow">World Studio · vergelijking</div><h2 id="compare-title">Twee werelden vergelijken</h2><p class="explainer">Vergelijk de bekende registergegevens. Niet-geverifieerde kenmerken worden niet ingevuld. Er worden geen gegevens opgeslagen of verzonden.</p><label for="compare-world">Tweede wereld</label><select id="compare-world" class="compare-select"></select><div class="compare-grid" id="compare-grid" aria-label="Vergelijkingsgegevens"></div></section>
 <section class="panel studio" aria-labelledby="studio-title"><div class="eyebrow">MUNDO · World Studio</div><h2 id="studio-title">Wereldhoofdstukken</h2><p class="explainer">Blader door de informatiestructuur van de geselecteerde wereld. Dit zijn leeshoofdstukken in conceptvorm, geen uitgegeven EDTR- of eigendomsbewijzen.</p><div class="studio-columns"><div><div class="studio-label">Hoofdstukken</div><div id="chapter-list" class="chapters" role="group" aria-label="Atlas-hoofdstukken"></div></div><article id="chapter-detail" class="chapter-detail" aria-labelledby="chapter-heading"><div class="studio-label" id="chapter-category">World Atlas</div><h3 id="chapter-heading">Wereldidentiteit</h3><p id="chapter-body"></p></article></div><div class="studio-label" style="margin-top:1.3rem">Schematische kaartlagen</div><div class="layer-row" id="layer-buttons" role="group" aria-label="Schematische kaartlagen"></div><div id="layer-board" class="layer-board" role="img" aria-label="Schematische atlasvisualisatie; geen geografische informatie"><div><strong id="layer-heading">Wereldregister</strong><p id="layer-description">Alleen bekende wereld-ID en naam. Geen geografische kaartgegevens.</p></div></div><p class="explainer">Alle kaartlagen zijn conceptueel en bevatten geen coördinaten, grenslijnen, topografie of live wereldgegevens.</p></section>
+<section class="panel library" id="atlas-library" aria-labelledby="library-title"><div class="eyebrow">MUNDO · Bibliotheek</div><h2 id="library-title">Atlasbibliotheek</h2><p class="explainer">Verken de hoofdstukstructuur van de zeven bekende wereldvermeldingen. Een hoofdstuk is een navigatie-item, geen gepubliceerd bewijsstuk of gevalideerde kaart.</p><div class="library-filters"><label for="library-search">Zoek in de bibliotheek<input id="library-search" type="search" autocomplete="off" placeholder="Wereld, ID of hoofdstuk"></label><label for="library-world">Wereld<select id="library-world"><option value="all">Alle werelden</option></select></label><label for="library-chapter">Hoofdstuk<select id="library-chapter"><option value="all">Alle hoofdstukken</option></select></label></div><p class="library-count" id="library-count" role="status" aria-live="polite"></p><div class="library-grid" id="library-grid"></div><p class="library-legend">Bronstatus: namen en ID's zijn bekende projectcontext. Inhoudelijke kaarten, lineage-dossiers en EDTR-bewijzen zijn niet verbonden. Een bibliotheekkaart opent slechts de lokale concepttekst.</p></section>
 <section class="section" aria-labelledby="modules-title"><div class="eyebrow">Verdere integratie</div><h2 id="modules-title">Atlasarchitectuur</h2><div class="tiles"><article class="tile"><h3>Wereldregister</h3><p>Vaste, door de host goedgekeurde identifiers; geen automatisch aangemaakte werelden.</p></article><article class="tile"><h3>World Studio</h3><p>Ruimte voor latere beeldlagen, hoofdstukken en makerstoestemming.</p></article><article class="tile"><h3>Citadel-toegang</h3><p>Authenticatie en autorisatie blijven bij de echte beschermde host.</p></article></div></section>
 </main>
 <footer>MUNDO WORLD ATLAS · publieke conceptdemonstratie · geen persoonsgegevens, tracking, toegang of live data · geen officiële wereldregistratie</footer>
@@ -232,6 +236,43 @@ function renderStudio(){
  $("layer-description").textContent=layer.description;
  $("layer-board").setAttribute("aria-label","Conceptuele laag "+layer.label+" voor "+selected.name+"; geen echte geografische kaart");
 }
+// Static, non-authoritative chapter index; uses only the local register and chapter types.
+const libraryWorld=$("library-world");
+const libraryChapter=$("library-chapter");
+for(const world of entries){const option=document.createElement("option");option.value=world.id;option.textContent=world.id+" · "+world.name;libraryWorld.append(option)}
+for(const chapter of chapters){const option=document.createElement("option");option.value=chapter.id;option.textContent=chapter.label;libraryChapter.append(option)}
+function renderLibrary(){
+ const search=$("library-search").value.trim().toLocaleLowerCase("nl");
+ const worldFilter=libraryWorld.value,chapterFilter=libraryChapter.value;
+ const grid=$("library-grid");grid.replaceChildren();
+ let count=0;
+ for(const world of entries){
+  if(worldFilter!=="all"&&world.id!==worldFilter)continue;
+  for(const chapter of chapters){
+   if(chapterFilter!=="all"&&chapter.id!==chapterFilter)continue;
+   if(!(world.name+" "+world.id+" "+chapter.label+" "+chapter.caption).toLocaleLowerCase("nl").includes(search))continue;
+   const card=document.createElement("article");card.className="library-entry";
+   const id=document.createElement("div");id.className="library-id";id.textContent=world.id+" · CONCEPT";
+   const heading=document.createElement("h3");heading.textContent=world.name+" · "+chapter.label;
+   const description=document.createElement("p");description.textContent=chapter.id==="identity"?"Bekende wereldnaam en ID; overige gegevens niet geverifieerd.":chapter.id==="geography"?"Geen geografische gegevens of kaartlaag verbonden.":"Geen geverifieerde bewijslijn of EDTR-dossier verbonden.";
+   const open=document.createElement("button");open.type="button";open.textContent="Open concepthoofdstuk";
+   open.setAttribute("aria-label","Open "+chapter.label+" voor "+world.name);
+   open.addEventListener("click",()=>{
+      activeChapter=chapter.id;choose(world);
+      $("studio-title").scrollIntoView({block:"start",behavior:"auto"});
+      $("chapter-heading").setAttribute("tabindex","-1");
+      $("chapter-heading").focus({preventScroll:true});
+   });
+   card.append(id,heading,description,open);grid.append(card);count++;
+  }
+ }
+ $("library-count").textContent=count+" van "+entries.length*chapters.length+" concepthoofdstukken zichtbaar";
+ if(count===0){const empty=document.createElement("p");empty.className="empty";empty.textContent="Geen overeenkomstige hoofdstukken gevonden.";grid.append(empty)}
+}
+for(const id of ["library-search","library-world","library-chapter"]){
+ $(id).addEventListener(id==="library-search"?"input":"change",renderLibrary);
+}
+renderLibrary();
 // Comparison uses ephemeral in-memory selection; no storage, hashes or APIs.
 const compareSelect=$("compare-world");
 for(const w of entries){const opt=document.createElement("option");opt.value=w.id;opt.textContent=w.id+" · "+w.name;compareSelect.append(opt)}
