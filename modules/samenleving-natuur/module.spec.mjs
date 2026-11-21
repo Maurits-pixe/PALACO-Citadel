@@ -1412,3 +1412,76 @@ test('local audit registry forbids silent hash-only fallback and invalidates ear
  await page.locator('#verifyAuditFile').click();
  await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
 });
+
+async function signedAuditRegistryFixture(page,report,detached,{expired=false,tampered=false}={}){
+ return page.evaluate(async ({report,detached,expired,tampered})=>{
+  const canonical=v=>Array.isArray(v)?'['+v.map(canonical).join(',')+']':v&&typeof v==='object'?'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canonical(v[k])).join(',')+'}':JSON.stringify(v);
+  const key=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
+  const jwk=await crypto.subtle.exportKey('jwk',key.publicKey),issuer={kty:'EC',crv:'P-256',x:jwk.x,y:jwk.y};
+  const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonical(issuer)));
+  const issuerFingerprint=Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,'0')).join('');
+  const now=Date.now();
+  const snapshot={schema:'palaco-citadel-audit-key-registry-v2',role:'audit-signer',status:'active',
+   fingerprint:detached.signerFingerprint,
+   notBefore:new Date(now-3600000).toISOString(),notAfter:new Date(now+3600000).toISOString(),
+   issuedAt:new Date(now-7200000).toISOString(),
+   expiresAt:new Date(now+(expired?-3600000:3600000)).toISOString(),issuerFingerprint};
+  const sig=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},key.privateKey,new TextEncoder().encode(canonical(snapshot)));
+  const signed={...snapshot,signature:btoa(String.fromCharCode(...new Uint8Array(sig)))};
+  if(tampered)signed.status='revoked';
+  return {issuer,signed};
+ },{report,detached,expired,tampered});
+}
+async function uploadSignedAuditRegistry(page,report,fixture,registry){
+ await page.locator('#auditVerifyFile').setInputFiles({name:'audit.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(report))});
+ await page.locator('#auditSignerKey').fill(JSON.stringify(fixture.publicKey));
+ await page.locator('#auditSignatureFile').setInputFiles({name:'sig.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.detached))});
+ await page.locator('#auditRegistryIssuerKey').fill(JSON.stringify(registry.issuer));
+ await page.locator('#auditKeyRegistry').setInputFiles({name:'registry-v2.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(registry.signed))});
+}
+
+test('signed audit registry v2 verifies a valid snapshot but never upgrades trust',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ const registry=await signedAuditRegistryFixture(page,report,fixture.detached);
+ await uploadSignedAuditRegistry(page,report,fixture,registry);
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT-HANDTEKENING CRYPTOGRAFISCH GELDIG');
+ await expect(page.locator('#auditVerifyStatus')).toContainText('NIET VERTROUWD');
+ await expect(page.locator('#auditVerifyStatus')).toContainText('Geen PALACO-autorisatie');
+});
+
+test('signed audit registry v2 rejects expired snapshots',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ const registry=await signedAuditRegistryFixture(page,report,fixture.detached,{expired:true});
+ await uploadSignedAuditRegistry(page,report,fixture,registry);
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
+});
+
+test('signed audit registry v2 rejects modified signature-bound status',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ const registry=await signedAuditRegistryFixture(page,report,fixture.detached,{tampered:true});
+ await uploadSignedAuditRegistry(page,report,fixture,registry);
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
+});
+
+test('signed audit registry v2 rejects an unrelated issuer JWK',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ const registry=await signedAuditRegistryFixture(page,report,fixture.detached);
+ await uploadSignedAuditRegistry(page,report,fixture,registry);
+ await page.locator('#auditRegistryIssuerKey').fill(JSON.stringify(fixture.publicKey));
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
+});
+
+test('changing signed registry issuer key invalidates the previous audit result',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ const registry=await signedAuditRegistryFixture(page,report,fixture.detached);
+ await uploadSignedAuditRegistry(page,report,fixture,registry);
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT-HANDTEKENING CRYPTOGRAFISCH GELDIG');
+ await page.locator('#auditRegistryIssuerKey').fill('{}');
+ await expect(page.locator('#auditVerifyStatus')).toContainText('opnieuw controleren vereist');
+ await expect(page.locator('#auditVerifyStatus')).not.toContainText('CRYPTOGRAFISCH GELDIG');
+});
