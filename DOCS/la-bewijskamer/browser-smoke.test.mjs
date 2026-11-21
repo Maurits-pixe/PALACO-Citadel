@@ -1268,3 +1268,58 @@ test("mobile legacy import invalidates earlier dossier consent and restores time
  await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("geen geldig dossier geselecteerd"));
  await c.close();
 });
+
+test("SHA-256 archive export aborts when memory is cleared during digest",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true,acceptDownloads:true}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Concept vóór SHA-export");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Synthetisch");
+ await p.locator("#entryForm button[type=submit]").tap();
+ await p.evaluate(()=>{
+   const real=SubtleCrypto.prototype.digest;
+   window.__digestHeld=false;window.__downloadCount=0;
+   const original=HTMLAnchorElement.prototype.click;
+   HTMLAnchorElement.prototype.click=function(...args){window.__downloadCount++;return original.apply(this,args)};
+   SubtleCrypto.prototype.digest=function(...args){
+     window.__digestHeld=true;
+     return new Promise((resolve,reject)=>{window.__releaseDigest=()=>real.apply(this,args).then(resolve,reject)});
+   };
+ });
+ await p.locator("#export").tap();
+ await p.waitForFunction(()=>window.__digestHeld);
+ p.once("dialog",d=>d.accept());
+ await p.locator("#clear").tap();
+ await p.evaluate(()=>window.__releaseDigest());
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("Export afgebroken"));
+ assert.equal(await p.evaluate(()=>window.__downloadCount),0);
+ assert.equal(await p.locator("#count").innerText(),"0");
+ await c.close();
+});
+
+test("encrypted archive export aborts if tab locks during encryption",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true,acceptDownloads:true}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Concept vóór encrypted export");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Synthetisch");
+ await p.locator("#entryForm button[type=submit]").tap();
+ await p.evaluate(()=>{
+   const real=SubtleCrypto.prototype.deriveKey;
+   window.__deriveHeld=false;window.__downloadCount=0;
+   const original=HTMLAnchorElement.prototype.click;
+   HTMLAnchorElement.prototype.click=function(...args){window.__downloadCount++;return original.apply(this,args)};
+   SubtleCrypto.prototype.deriveKey=function(...args){
+     window.__deriveHeld=true;
+     return new Promise((resolve,reject)=>{window.__releaseDerive=()=>real.apply(this,args).then(resolve,reject)});
+   };
+ });
+ await p.locator("#archivePassphrase").fill("Exportconcurrentie testzin 1234");
+ await p.locator("#encryptedExport").tap();
+ await p.waitForFunction(()=>window.__deriveHeld);
+ p.once("dialog",d=>d.accept());
+ await p.locator("#vaultLock").tap();
+ await p.evaluate(()=>window.__releaseDerive());
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde export afgebroken"));
+ assert.equal(await p.evaluate(()=>window.__downloadCount),0);
+ assert.equal(await p.locator("#count").innerText(),"0");
+ await c.close();
+});
