@@ -68,6 +68,8 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/const orderedLines=\[/);
   assert.match(read('regiekamer.html'),/presentHeaders\.length>1/);
   assert.match(read('regiekamer.html'),/ongeldige regelvolgorde/);
+  assert.match(read('regiekamer.html'),/if\(lines\[lines\.length-1\]===''\)lines\.pop\(\)/);
+  assert.match(read('regiekamer.html'),/TXT-bewijs bevat lege of extra regels/);
   assert.match(read('regiekamer.html'),/function safeProjectFilename\(name\)/);
   assert.match(read('regiekamer.html'),/jsonFiles\.forEach\(file=>safeProjectFilename\(file\.name\)\)/);
   assert.match(read('regiekamer.html'),/jsonFiles\[0\]\.name===jsonFiles\[1\]\.name/);
