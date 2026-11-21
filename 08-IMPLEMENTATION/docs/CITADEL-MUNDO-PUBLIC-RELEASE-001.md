@@ -41,3 +41,16 @@ De publieke Atlas bevat nu een compact, mobiel bruikbaar cockpitmenu met ankerli
 De wereldbol is een **artistieke CSS-illustratie**, geen aardeprojectie, geografisch informatie- of navigatiesysteem. Rotatie verandert uitsluitend de afbeeldingshoek; zoom verandert uitsluitend de afbeeldingsgrootte. Er worden geen nieuwe werelden, locaties, plaatsnamen, regio's, rechten, accounts of data gemaakt. Bediening blijft in tabbladgeheugen en wordt niet opgeslagen of verzonden.
 
 De wijziging is onderdeel van de publieke Render-preview op een afzonderlijke statische site, niet van de afgeschermde L.A. Citadel Sites-app. CI/functionele tests zijn niet uitgevoerd; de originele GitHub PR #58 blijft DRAFT/HOLD en is niet gemerged. De Render-deployment is een afzonderlijke, door de eigenaar toegestane demonstratiepublicatie met autoDeploy uit.
+
+## ATLAS-OBSERVATORY-006 — artistieke sfeerbolbediening
+
+De publieke MUNDO World Atlas heeft nu een verfijnde CSS-wereldbol met:
+- zeven onderscheidbare, **uitsluitend artistieke** kleurpaletten voor de reeds bekende wereld-ID's;
+- illustratieve licht- en diepteschaduw, zonder externe afbeeldingen of scripts;
+- handmatige kanteling (−30° tot 30°), lichtinval (15–75%) en de bestaande hoek-/zoomregeling;
+- zichtbare tekstwaarden, toetsenbordbedienbare schuifregelaars en een herstelknop die alle illustratie-instellingen terugzet;
+- behoud van `prefers-reduced-motion` en responsieve bediening.
+
+**Geen claim van werkelijke 3D-geometrie:** de bol is CSS-vormgeving. Lichtinval en kanteling berekenen geen fysisch accurate baan, topografie, klimaat, coördinaten of astronomische toestand. Er is geen live kaartbron, sessie, persoonsgegeven, tracking, lokale opslag of nieuw PALACO-account aan toegevoegd.
+
+Publicatie betreft uitsluitend de al toegestane openbare demonstratie op Render; de originele L.A. — Citadel Preview blijft privé. GitHub PR #58 blijft DRAFT/HOLD en wordt niet gemerged. Functionele acceptatie door de eigenaar staat nog open.
