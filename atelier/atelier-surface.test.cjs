@@ -106,6 +106,11 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/revision!==exportRevision/);
   assert.match(read('regiekamer.html'),/let exportCheckRevision=0/);
   assert.match(read('regiekamer.html'),/id="clearInspections"/);
+  assert.match(read('regiekamer.html'),/id="inspectionResult" class="inspection-result" data-result="idle"/);
+  assert.match(read('regiekamer.html'),/function showInspectionResult\(result,heading,detail\)/);
+  assert.match(read('regiekamer.html'),/showInspectionResult\(matched\?'match':'mismatch'/);
+  assert.match(read('regiekamer.html'),/showInspectionResult\('rejected'/);
+  assert.match(read('regiekamer.html'),/showInspectionResult\('idle'/);
   assert.match(read('regiekamer.html'),/\$\('checkExportFile'\)\.addEventListener\('cancel'/);
   assert.match(read('regiekamer.html'),/\$\('pairVerify'\)\.addEventListener\('cancel'/);
   assert.match(read('regiekamer.html'),/\$\('reportVerify'\)\.addEventListener\('cancel'/);
