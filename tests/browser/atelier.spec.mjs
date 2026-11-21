@@ -901,3 +901,46 @@ test('Atelier: lege TXT-regels worden geweigerd, enkel afsluitend regeleinde bli
  await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(original);
 });
+
+test('Atelier: drievoudig inspectiepaneel toont MATCH, MISMATCH, GEWEIGERD en reset read-only',async ({page})=>{
+ const {createHash}=await import('node:crypto');
+ const fs=await import('node:fs/promises');
+ await page.goto('/atelier/regiekamer.html');
+ const original=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const bytes=Buffer.from(await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage))));
+ const hash=createHash('sha256').update(bytes).digest('hex');
+ const project={name:'ontwerp.json',mimeType:'application/json',buffer:bytes};
+ const receipt={name:'checksum.txt',mimeType:'text/plain',buffer:Buffer.from('SHA-256: '+hash+'\nBestand: ontwerp.json\n')};
+ const panel=page.locator('#inspectionResult');
+ await expect(panel).toHaveAttribute('data-result','idle');
+ await expect(page.locator('#inspectionResultTitle')).toContainText('Nog geen actuele controle');
+ await page.locator('#pairVerify').setInputFiles([project,receipt]);
+ await expect(page.locator('#pairReportSave')).toBeEnabled();
+ const dl=page.waitForEvent('download');
+ await page.locator('#pairReportSave').click();
+ const reportBytes=await fs.readFile(await (await dl).path());
+ const report={name:'rapport.json',mimeType:'application/json',buffer:reportBytes};
+ await page.locator('#reportVerify').setInputFiles([project,receipt,report]);
+ await expect(panel).toHaveAttribute('data-result','match');
+ await expect(page.locator('#inspectionResultTitle')).toContainText('MATCH');
+ await expect(page.locator('#inspectionResultDetail')).toContainText('ontwerp.json');
+ await expect(page.locator('#inspectionResultDetail')).toContainText('checksum.txt');
+ await expect(page.locator('#inspectionResultDetail')).toContainText('rapport.json');
+ await expect(page.locator('#inspectionResultDetail')).toContainText('AUTHORITY NONE');
+ await page.locator('#reportVerify').setInputFiles([
+   project,receipt,{...report,buffer:Buffer.from(JSON.stringify({...JSON.parse(reportBytes.toString('utf8')),sha256:'0'.repeat(64)}))}
+ ]);
+ await expect(panel).toHaveAttribute('data-result','mismatch');
+ await expect(page.locator('#inspectionResultTitle')).toContainText('MISMATCH');
+ await page.locator('#reportVerify').setInputFiles([project,receipt,{...report,buffer:Buffer.from('not-json')}]);
+ await expect(panel).toHaveAttribute('data-result','rejected');
+ await expect(page.locator('#inspectionResultTitle')).toContainText('GEWEIGERD');
+ await page.locator('#reportVerify').dispatchEvent('cancel');
+ await expect(panel).toHaveAttribute('data-result','idle');
+ await page.locator('#reportVerify').setInputFiles([project,receipt,report]);
+ await expect(panel).toHaveAttribute('data-result','match');
+ await page.locator('#clearInspections').click();
+ await expect(panel).toHaveAttribute('data-result','idle');
+ await expect(page.locator('#inspectionResultDetail')).toContainText('gewist');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(original);
+});
