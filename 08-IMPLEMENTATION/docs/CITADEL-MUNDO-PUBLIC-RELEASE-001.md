@@ -111,3 +111,13 @@ Dit is een **dataprojectie, geen rechtstreeks aangestuurde DOM-/SVG-renderer**: 
 Op de afzonderlijke openbare Atlas is alleen een **lege schematische rendererzone** toegevoegd, met expliciet nul geografische punten en nul bewijsreferenties. De pagina importeert deze private module niet en heeft geen bron-API, identiteitskoppeling, privégegevens of uploadfunctionaliteit.
 
 Geen functionele tests uitgevoerd; de privé-Citadel blijft ongemoeid, PR #58 DRAFT/HOLD, geen merge. Alleen de reeds toegestane publieke Render-demonstratie kan handmatig worden bijgewerkt.
+
+## MUNDO-ATLAS-MOUNT-LIFECYCLE-012 — privé hostgestuurde intrekking
+
+Nieuw: `08-IMPLEMENTATION/src/citadel/mundo-atlas-mount-lifecycle.ts` met `createAtlasMountLifecycle(host)`. Deze module is uitsluitend voor een toekomstige beschermde Citadel-host bedoeld en is **niet** in de publieke Atlas geïmporteerd.
+
+Het contract vereist een actuele, onafhankelijke hostverificatie via de bestaande bronprojectie en een synchrone `mount(view)` die een opruimhandle teruggeeft. Een activatie reserveert haar token **vóór** het uitvoeren van host-callbacks en controleert aanvraagtoken, epoch, actuele contextversie en machtiging gedurende de overdracht, ook na montage. `beforeContextChange()` trekt het actieve beeld synchroon in en maakt lopende aanvragen verouderd; `dispose()` sluit de levenscyclus definitief. Oudere opruimhandles worden niet aangeboden om nieuwe views te manipuleren.
+
+**Hostvereisten:** de echte host moet route-, rechten- en sessiewijzigingen vooraf aankondigen, de contextversie bij elke wijziging onveranderlijk vernieuwen (niet hergebruiken), de oorspronkelijke bron gedurende broncontrole onveranderlijk houden, en de `mount`-opruimhandle correct en synchrone afscherming laten uitvoeren. Bij een foutieve hostimplementatie is dit TypeScript-contract geen bewijs van complete beveiliging. Er is nog geen echte PALACO ONE/router/DOM-koppeling of functionele verificatie.
+
+De publieke World Atlas bevat uitsluitend een verklarend paneel *Beschermde Atlasweergave*. Geen live private kaartpunten, autorisatie of gegevensopslag. De bestaande publieke Render-preview mag handmatig worden geüpdatet; de originele L.A. Citadel Sites-app, PR #58 DRAFT/HOLD en het mergeverbod blijven ongewijzigd. Geen functionele tests uitgevoerd.
