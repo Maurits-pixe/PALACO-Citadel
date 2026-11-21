@@ -33,3 +33,11 @@ De publieke demonstratie op Render heeft een additioneel wereldnavigatiegedeelte
 Dit is een interface voor **ontdekte registervermeldingen**, niet voor echte reisroutes, astronomische coördinaten of geregistreerde bezoeken. Bij herladen wordt het pad gewist. De zeven wereldnamen zijn bekende projectcontext; geografie en eigendom blijven niet geverifieerd.
 
 De originele privé-Citadel Sites-app is niet gewijzigd. De publieke Render-site is onafhankelijk en gebruikt alleen de directory `08-IMPLEMENTATION/examples/mundo-public`, met autoDeploy uit. De DRAFT PR #58 is niet gemerged. Functionele acceptatie blijft bij de eigenaar.
+
+## ATLAS-COCKPIT-005 — navigatie en conceptbolbediening
+
+De publieke Atlas bevat nu een compact, mobiel bruikbaar cockpitmenu met ankerlinks naar Wereldregister, Ontdekkingspad, Wereldprofiel en World Studio. De interactieve illustratie heeft aparte knoppen voor draaien (stappen van 30°), in- en uitzoomen (70–130% in stappen van 10%) en het herstellen van de neutrale positie. Tekstuele hoek- en zoomweergave, toetsenbordbediening, begrijpelijke knopnamen en `prefers-reduced-motion` zijn opgenomen.
+
+De wereldbol is een **artistieke CSS-illustratie**, geen aardeprojectie, geografisch informatie- of navigatiesysteem. Rotatie verandert uitsluitend de afbeeldingshoek; zoom verandert uitsluitend de afbeeldingsgrootte. Er worden geen nieuwe werelden, locaties, plaatsnamen, regio's, rechten, accounts of data gemaakt. Bediening blijft in tabbladgeheugen en wordt niet opgeslagen of verzonden.
+
+De wijziging is onderdeel van de publieke Render-preview op een afzonderlijke statische site, niet van de afgeschermde L.A. Citadel Sites-app. CI/functionele tests zijn niet uitgevoerd; de originele GitHub PR #58 blijft DRAFT/HOLD en is niet gemerged. De Render-deployment is een afzonderlijke, door de eigenaar toegestane demonstratiepublicatie met autoDeploy uit.
