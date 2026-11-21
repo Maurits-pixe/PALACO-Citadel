@@ -709,3 +709,61 @@ test('Atelier: losse TXT-referentie weigert onveilige bestandsnaam zonder SHA-25
  });
  await expect(page.locator('#referenceStatus')).toContainText('SHA-256-referentie geladen');
 });
+
+test('Atelier: annuleren na succesvolle paarcontrole maakt oud DRAFT-rapport ongeldig',async ({page})=>{
+ const {createHash}=await import('node:crypto');
+ await page.goto('/atelier/regiekamer.html');
+ const snapshot=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const data=Buffer.from(await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage))));
+ const hash=createHash('sha256').update(data).digest('hex');
+ await page.locator('#pairVerify').setInputFiles([
+   {name:'ontwerp.json',mimeType:'application/json',buffer:data},
+   {name:'hash.txt',mimeType:'text/plain',buffer:Buffer.from('SHA-256: '+hash+'\nBestand: ontwerp.json\n')}
+ ]);
+ await expect(page.locator('#pairReportSave')).toBeEnabled();
+ await page.locator('#pairVerify').dispatchEvent('cancel');
+ await expect(page.locator('#pairReportSave')).toBeDisabled();
+ await expect(page.locator('#pairStatus')).toContainText('Bestandskeuze geannuleerd');
+ await page.locator('#reportVerify').dispatchEvent('cancel');
+ await expect(page.locator('#reportVerifyStatus')).toContainText('geen actuele drievoudige controle');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(snapshot);
+});
+
+test('Atelier: annuleren SHA-256-TXT of JSON trekt oude referentie en bewijsdownload in',async ({page})=>{
+ const {createHash}=await import('node:crypto');
+ await page.goto('/atelier/regiekamer.html');
+ const data=Buffer.from(await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage))));
+ const hash=createHash('sha256').update(data).digest('hex');
+ const json={name:'ontwerp.json',mimeType:'application/json',buffer:data};
+ await page.locator('#bundleVerify').setInputFiles(json);
+ await expect(page.locator('#exportFingerprint')).toBeEnabled();
+ await page.locator('#bundleVerify').dispatchEvent('cancel');
+ await expect(page.locator('#exportFingerprint')).toBeDisabled();
+ await expect(page.locator('#verifyStatus')).toContainText('Bestandskeuze geannuleerd');
+ await page.locator('#fingerprintReceipt').setInputFiles({
+   name:'controlebewijs.txt',mimeType:'text/plain',buffer:Buffer.from('SHA-256: '+hash+'\nBestand: ontwerp.json\n')
+ });
+ await expect(page.locator('#expectedFingerprint')).toHaveValue(hash);
+ await page.locator('#fingerprintReceipt').dispatchEvent('cancel');
+ await expect(page.locator('#expectedFingerprint')).toHaveValue('');
+ await expect(page.locator('#exportFingerprint')).toBeDisabled();
+ await expect(page.locator('#referenceStatus')).toContainText('Bestandskeuze geannuleerd');
+ await page.locator('#bundleVerify').setInputFiles(json);
+ await expect(page.locator('#verifyStatus')).toContainText('Geen eerdere referentie ingevoerd');
+});
+
+test('Atelier: annuleren exporthercontrole behoudt export maar markeert vergelijkingsresultaat ongeldig',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const dl=page.waitForEvent('download');
+ await page.locator('#bundleSave').click();
+ const exportFile=await dl;
+ const bytes=await (await import('node:fs/promises')).readFile(await exportFile.path());
+ await expect(page.locator('#exportBundleReceipt')).toBeEnabled();
+ await page.locator('#checkExportFile').setInputFiles({
+   name:'hercontrole.json',mimeType:'application/json',buffer:bytes
+ });
+ await expect(page.locator('#exportCheckStatus')).toContainText('CONTROLE GESLAAGD');
+ await page.locator('#checkExportFile').dispatchEvent('cancel');
+ await expect(page.locator('#exportCheckStatus')).toContainText('Bestandskeuze geannuleerd');
+ await expect(page.locator('#exportBundleReceipt')).toBeEnabled();
+});
