@@ -213,7 +213,10 @@ function parseReceiptFields(receipt){
  if(receipt.length>4096)throw Error('TXT-bewijs overschrijdt de maximale lengte');
  if(/[\u202a-\u202e\u2066-\u2069]/i.test(receipt))
    throw Error('TXT-bewijs bevat misleidende Unicode-richtingstekens');
- const lines=receipt.split(/\r?\n/).filter(line=>line!=='');
+ const lines=receipt.split(/\r?\n/);
+ // A single final newline is allowed; embedded and repeated blank lines are not.
+ if(lines[lines.length-1]==='')lines.pop();
+ if(lines.some(line=>line===''))throw Error('TXT-bewijs bevat lege of extra regels');
  if(lines.length>8||lines.some(line=>line.length>256))
    throw Error('TXT-bewijs heeft te veel of te lange regels');
  if(lines.some(line=>/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(line)))
