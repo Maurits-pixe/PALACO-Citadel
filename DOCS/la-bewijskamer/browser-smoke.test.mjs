@@ -1213,3 +1213,37 @@ test("dossier close returns focus to timeline if filtering hides selected record
  assert.equal(await p.locator("#dossier").isVisible(),false);
  await c.close();
 });
+
+test("clearing an open mobile dossier revokes consent and focuses timeline",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Wissen tijdens dossierinzage");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Lokaal synthetisch");
+ await p.locator("#entryForm button[type=submit]").tap();
+ await p.locator("#timeline button").filter({hasText:"Inspecteer dossier"}).tap();
+ await p.locator("#handoffConsent").check();
+ p.once("dialog",d=>d.accept());
+ await p.locator("#clear").tap();
+ assert.equal(await p.evaluate(()=>document.activeElement?.id),"timeline");
+ assert.equal(await p.locator("#dossier").isVisible(),false);
+ assert.equal(await p.locator("#handoffConsent").isChecked(),false);
+ assert.equal(await p.locator("#count").innerText(),"0");
+ await c.close();
+});
+
+test("locking an open mobile dossier revokes selection and focuses timeline",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Vergrendelen tijdens dossierinzage");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Lokaal synthetisch");
+ await p.locator("#entryForm button[type=submit]").tap();
+ await p.locator("#timeline button").filter({hasText:"Inspecteer dossier"}).tap();
+ await p.locator("#handoffConsent").check();
+ p.once("dialog",d=>d.accept());
+ await p.locator("#vaultLock").tap();
+ assert.equal(await p.evaluate(()=>document.activeElement?.id),"timeline");
+ assert.equal(await p.locator("#dossier").isVisible(),false);
+ assert.equal(await p.locator("#handoffConsent").isChecked(),false);
+ assert.equal(await p.locator("#count").innerText(),"0");
+ await c.close();
+});
