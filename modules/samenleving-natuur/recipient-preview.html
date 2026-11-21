@@ -87,6 +87,8 @@ small{color:#c2d1c5}.hidden{display:none!important}
 <p><small>Alleen-lezen registercontrole. Een aangeboden register vereist ook een digitale audit-handtekening. Het register is handmatig aangeleverd en NIET onafhankelijk vertrouwd.</small></p>
 <button id="verifyAuditFile" type="button">Controleer auditintegriteit en optionele handtekening</button>
 <button id="pinAuditRegistry" type="button" disabled>Leg gecontroleerde registerversie lokaal vast</button>
+<button id="pinAuditIssuer" type="button" disabled>Bevestig deze registeruitgever lokaal</button>
+<p><small>Een eenmaal lokaal bevestigde registeruitgever blokkeert andere uitgevers en ongetekende legacy-registers in deze browser. De pin is wijzigbaar of wisbaar, en is geen PALACO-trust anchor.</small></p>
 <p><small>Anti-rollback-pin is uitsluitend lokale browseropslag, expliciet bevestigd door de gebruiker en wijzigbaar of wisbaar. Geen onafhankelijk PALACO-vertrouwen.</small></p>
 <p id="auditVerifyStatus" role="status" aria-live="polite">Geen auditrapport gecontroleerd. Authenticiteit: NIET VASTGESTELD.</p>
 <p><small>Het rapport bevat alleen controle-uitkomsten, tijdstip en SHA-256-vingerafdrukken van aangeleverde bestanden. Het is geen onafhankelijk bewijsstuk, auditlog of bevoegdheidsbesluit.</small></p>
@@ -105,14 +107,14 @@ const states=['persoonlijke observatie','nog te verifiëren','geverifieerd door 
 const minimalKeys=['sequence','category','conceptualArea','verification','recordedMonth'];
 const fullKeys=['id','title','category','conceptualArea','verification','description','observedAt'];
 function exactFields(record,allowed){return Object.keys(record).length===allowed.length&&Object.keys(record).every(key=>allowed.includes(key))}
-let ticket=0,currentPacket=null,signatureRevision=0,pinCandidate=null,rotationRevision=0,rotationAudit=null,auditCheckRevision=0,auditPinCandidate=null;
+let ticket=0,currentPacket=null,signatureRevision=0,pinCandidate=null,rotationRevision=0,rotationAudit=null,auditCheckRevision=0,auditPinCandidate=null,auditIssuerCandidate=null;
 const PIN_PREFIX='palaco.citadel.revocation-pin.v1.';
 function readPin(raw){if(raw===null)return null;let v;try{v=JSON.parse(raw)}catch{v=raw}if(typeof v==='string'){if(!/^\d{4}-\d{2}-\d{2}T/.test(v)||!Number.isFinite(Date.parse(v)))throw Error('Ongeldige oudere pin');return {issuedAt:v,digest:null}}if(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).sort().join(',')!=='digest,issuedAt'||typeof v.issuedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(v.issuedAt)||!Number.isFinite(Date.parse(v.issuedAt))||typeof v.digest!=='string'||!/^[a-f0-9]{64}$/.test(v.digest))throw Error('Ongeldig lokaal pincontract');return v}
 function invalidatePin(){pinCandidate=null;$('pinRevocation').disabled=true}
 function canonicalJson(value){if(Array.isArray(value))return '['+value.map(canonicalJson).join(',')+']';if(value&&typeof value==='object')return '{'+Object.keys(value).sort().map(key=>JSON.stringify(key)+':'+canonicalJson(value[key])).join(',')+'}';return JSON.stringify(value)}
 async function verifyIntegrity(data){if(data.integrity===undefined)return false;const info=data.integrity;if(!info||typeof info!=='object'||Array.isArray(info)||Object.keys(info).length!==3||info.algorithm!=='SHA-256'||info.canonicalization!=='palaco-sorted-json-v1'||typeof info.digest!=='string'||! /^[0-9a-f]{64}$/.test(info.digest))throw Error('Onbekende integriteitsmethode');const packet={...data};delete packet.integrity;const bytes=new TextEncoder().encode(canonicalJson(packet));const hash=await crypto.subtle.digest('SHA-256',bytes);const observed=Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('');if(observed!==info.digest)throw Error('Hash komt niet overeen');return true}
 
-function clear(message){auditPinCandidate=null;$('pinAuditRegistry').disabled=true;auditCheckRevision++;$('auditRegistryIssuerKey').value='';$('auditKeyRegistry').value='';$('requireAuditSignature').checked=false;$('auditSignatureFile').value='';$('auditSignerKey').value='';$('auditVerifyFile').value='';$('auditVerifyStatus').textContent='Geen auditrapport gecontroleerd. Authenticiteit: NIET VASTGESTELD.';rotationAudit=null;$('exportRotationAudit').disabled=true;rotationRevision++;$('requireChecker').checked=false;$('checkerFile').value='';$('checkerKey').value='';$('registryIssuerKey').value='';$('rotationRegistry').value='';$('rotationFile').value='';$('rotationOldKey').value='';$('rotationNewKey').value='';$('rotationStatus').textContent='Geen sleutelrotatie gecontroleerd. Vertrouwensstatus: NIET VASTGESTELD.';invalidatePin();signatureRevision++;currentPacket=null;$('revocations').value='';$('revocationIssuerKey').value='';$('signatureFile').value='';$('publicKey').value='';$('signatureStatus').textContent='Geen handtekening geverifieerd. Vertrouwensstatus: NIET VASTGESTELD.';$('preview').classList.add('hidden');$('records').replaceChildren();$('actualRecipient').textContent='';$('privacy').textContent='';$('total').textContent='';$('status').textContent=message}
+function clear(message){auditPinCandidate=null;auditIssuerCandidate=null;$('pinAuditRegistry').disabled=true;$('pinAuditIssuer').disabled=true;auditCheckRevision++;$('auditRegistryIssuerKey').value='';$('auditKeyRegistry').value='';$('requireAuditSignature').checked=false;$('auditSignatureFile').value='';$('auditSignerKey').value='';$('auditVerifyFile').value='';$('auditVerifyStatus').textContent='Geen auditrapport gecontroleerd. Authenticiteit: NIET VASTGESTELD.';rotationAudit=null;$('exportRotationAudit').disabled=true;rotationRevision++;$('requireChecker').checked=false;$('checkerFile').value='';$('checkerKey').value='';$('registryIssuerKey').value='';$('rotationRegistry').value='';$('rotationFile').value='';$('rotationOldKey').value='';$('rotationNewKey').value='';$('rotationStatus').textContent='Geen sleutelrotatie gecontroleerd. Vertrouwensstatus: NIET VASTGESTELD.';invalidatePin();signatureRevision++;currentPacket=null;$('revocations').value='';$('revocationIssuerKey').value='';$('signatureFile').value='';$('publicKey').value='';$('signatureStatus').textContent='Geen handtekening geverifieerd. Vertrouwensstatus: NIET VASTGESTELD.';$('preview').classList.add('hidden');$('records').replaceChildren();$('actualRecipient').textContent='';$('privacy').textContent='';$('total').textContent='';$('status').textContent=message}
 function validate(data,recipient){
  if(!data||data.schema!=='palaco-citadel-handoff-v1'||data.source!=='citadel/samenleving-natuur'||!['wereldatlas','geheugenkamer'].includes(recipient))throw Error('Ongeldig contract');
  if(!Array.isArray(data.records)||data.records.length>500||!['minimal-user-controlled','full-user-controlled'].includes(data.privacy))throw Error('Ongeldige inhoud');
@@ -267,6 +269,13 @@ function rotationOutcome(code,message,context){
  $('exportRotationAudit').disabled=false;
 }
 const AUDIT_REGISTRY_PIN_PREFIX='palaco.citadel.audit-registry-pin.v1.';
+const AUDIT_ISSUER_PIN_KEY='palaco.citadel.audit-issuer-pin.v1';
+function auditIssuerPin(raw){
+ if(raw===null)return null;
+ const v=JSON.parse(raw);
+ if(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).sort().join(',')!=='fingerprint,schema'||v.schema!=='palaco-citadel-local-issuer-pin-v1'||typeof v.fingerprint!=='string'||!/^[a-f0-9]{64}$/.test(v.fingerprint))throw Error('Lokaal uitgeverspincontract ongeldig');
+ return v.fingerprint;
+}
 function auditRegistryPin(raw){
  if(raw===null)return null;
  const v=JSON.parse(raw);
@@ -365,7 +374,7 @@ $('exportRotationAudit').addEventListener('click',async()=>{
  finally{if(id===ticket&&revision===rotationRevision&&snapshot===rotationAudit)$('exportRotationAudit').disabled=false}
 });
 $('verifyAuditFile').addEventListener('click',async()=>{
- auditPinCandidate=null;$('pinAuditRegistry').disabled=true;
+ auditPinCandidate=null;auditIssuerCandidate=null;$('pinAuditRegistry').disabled=true;$('pinAuditIssuer').disabled=true;
  const file=$('auditVerifyFile').files?.[0],signatureFile=$('auditSignatureFile').files?.[0],registryFile=$('auditKeyRegistry').files?.[0],requireSignature=$('requireAuditSignature').checked,id=ticket,revision=++auditCheckRevision;
  $('auditVerifyStatus').textContent='Auditintegriteit wordt lokaal gecontroleerd.';
  if(!file||file.size>100000){$('auditVerifyStatus').textContent='Auditbestand ontbreekt of is te groot. Authenticiteit: NIET VASTGESTELD.';return}
@@ -402,7 +411,10 @@ $('verifyAuditFile').addEventListener('click',async()=>{
     const registry=JSON.parse(await registryFile.text());
     if(id!==ticket||revision!==auditCheckRevision)return;
     if(!registry||typeof registry!=='object'||Array.isArray(registry)||registry.role!=='audit-signer'||registry.status!=='active'||registry.fingerprint!==signerFp)throw Error('Auditsleutel ontbreekt of ingetrokken');
+    let pinnedIssuer;
+    try{pinnedIssuer=auditIssuerPin(localStorage.getItem(AUDIT_ISSUER_PIN_KEY))}catch{throw Error('Lokaal uitgeversanker onleesbaar')}
     if(registry.schema==='palaco-citadel-audit-key-registry-v1'){
+     if(pinnedIssuer)throw Error('Ondertekend register verplicht wegens lokale uitgeverspin');
      if(Object.keys(registry).sort().join(',')!=='fingerprint,notAfter,notBefore,role,schema,status')throw Error('Ongeldig legacy-auditregister');
     }else if(registry.schema==='palaco-citadel-audit-key-registry-v2'){
      if(Object.keys(registry).sort().join(',')!=='expiresAt,fingerprint,issuedAt,issuerFingerprint,notAfter,notBefore,role,schema,signature,status')throw Error('Ongeldig ondertekend auditregister');
@@ -413,6 +425,7 @@ $('verifyAuditFile').addEventListener('click',async()=>{
      const issuer=publicRotationKey($('auditRegistryIssuerKey').value);
      const issuerFp=hex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonicalJson(issuer))));
      if(typeof registry.issuerFingerprint!=='string'||issuerFp!==registry.issuerFingerprint)throw Error('Uitgevervingerafdruk wijkt af');
+     if(pinnedIssuer&&pinnedIssuer!==issuerFp)throw Error('ANDERE REGISTERUITGEVER GEBLOKKEERD');
      const issuerKey=await crypto.subtle.importKey('jwk',issuer,{name:'ECDSA',namedCurve:'P-256'},false,['verify']);
      const unsignedRegistry={...registry};delete unsignedRegistry.signature;
      const validRegistry=await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},issuerKey,b64ToBytes(registry.signature),new TextEncoder().encode(canonicalJson(unsignedRegistry)));
@@ -433,7 +446,11 @@ $('verifyAuditFile').addEventListener('click',async()=>{
     const begin=parseUtc(registry.notBefore),end=parseUtc(registry.notAfter),now=Date.now(),at=Date.parse(report.checkedAt);
     if(end<=begin||now<begin||now>=end||at<begin||at>=end)throw Error('Auditsleutel buiten geldigheid');
     if(id!==ticket||revision!==auditCheckRevision)return;
-    if(auditPinCandidate){$('pinAuditRegistry').disabled=false}
+    if(auditPinCandidate){
+     $('pinAuditRegistry').disabled=false;
+     auditIssuerCandidate={issuerFp:auditPinCandidate.issuerFp,id,revision,reportFile:file,registryFile};
+     if(!pinnedIssuer)$('pinAuditIssuer').disabled=false;
+    }
    }
    $('auditVerifyStatus').textContent='AUDIT-HANDTEKENING CRYPTOGRAFISCH GELDIG; SHA-256 klopt, maar publieke auditsleutel NIET VERTROUWD. Geen PALACO-autorisatie.';
   }else{
@@ -456,8 +473,24 @@ $('pinAuditRegistry').addEventListener('click',()=>{
  }catch{$('auditVerifyStatus').textContent='AUDITREGISTER-PIN MISLUKT. Geen rollback-garantie en geen PALACO-autorisatie.'}
  auditPinCandidate=null;$('pinAuditRegistry').disabled=true;
 });
+$('pinAuditIssuer').addEventListener('click',()=>{
+ const c=auditIssuerCandidate;
+ if(!c||c.id!==ticket||c.revision!==auditCheckRevision||c.reportFile!==$('auditVerifyFile').files?.[0]||c.registryFile!==$('auditKeyRegistry').files?.[0]){
+  auditIssuerCandidate=null;$('pinAuditIssuer').disabled=true;return;
+ }
+ if(!confirm('De SHA-256-vingerafdruk van DEZE handmatig gekozen registeruitgever op DIT apparaat vastleggen? Dit is geen onafhankelijk PALACO-vertrouwensanker.'))return;
+ try{
+  const current=auditIssuerPin(localStorage.getItem(AUDIT_ISSUER_PIN_KEY));
+  if(current&&current!==c.issuerFp)throw Error('Andere uitgever reeds bevestigd');
+  const value=JSON.stringify({schema:'palaco-citadel-local-issuer-pin-v1',fingerprint:c.issuerFp});
+  localStorage.setItem(AUDIT_ISSUER_PIN_KEY,value);
+  if(localStorage.getItem(AUDIT_ISSUER_PIN_KEY)!==value)throw Error('Opslag niet bevestigd');
+  $('auditVerifyStatus').textContent='REGISTERUITGEVER LOKAAL BEVESTIGD; NIET ONAFHANKELIJK VERTROUWD. Geen PALACO-autorisatie.';
+ }catch{$('auditVerifyStatus').textContent='UITGEVERSPIN MISLUKT; geen PALACO-autorisatie.'}
+ auditIssuerCandidate=null;$('pinAuditIssuer').disabled=true;
+});
 for(const inputId of ['auditVerifyFile','auditSignatureFile','auditSignerKey','requireAuditSignature','auditKeyRegistry','auditRegistryIssuerKey']){
- $(inputId).addEventListener(['auditSignerKey','auditRegistryIssuerKey'].includes(inputId)?'input':'change',()=>{auditCheckRevision++;auditPinCandidate=null;$('pinAuditRegistry').disabled=true;$('auditVerifyStatus').textContent='Auditinvoer gewijzigd; opnieuw controleren vereist.'});
+ $(inputId).addEventListener(['auditSignerKey','auditRegistryIssuerKey'].includes(inputId)?'input':'change',()=>{auditCheckRevision++;auditPinCandidate=null;auditIssuerCandidate=null;$('pinAuditRegistry').disabled=true;$('pinAuditIssuer').disabled=true;$('auditVerifyStatus').textContent='Auditinvoer gewijzigd; opnieuw controleren vereist.'});
 }
 for(const inputId of ['rotationFile','rotationOldKey','rotationNewKey','rotationRegistry','registryIssuerKey','checkerFile','checkerKey','requireChecker']){
  $(inputId).addEventListener(['rotationFile','rotationRegistry','checkerFile','requireChecker'].includes(inputId)?'change':'input',()=>{rotationRevision++;rotationAudit=null;$('exportRotationAudit').disabled=true;$('rotationStatus').textContent='Rotatie-input gewijzigd; opnieuw verifiëren vereist.'});
