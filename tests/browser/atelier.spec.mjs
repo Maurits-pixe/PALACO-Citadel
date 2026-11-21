@@ -801,5 +801,12 @@ test('Atelier: onveilige TXT-bestandsnamen worden geweigerd bij losse, paar- en 
  await expect(page.locator('#pairReportSave')).toBeEnabled();
  await page.locator('#reportVerify').setInputFiles([jsonFile,reportFile,goodTxt]);
  await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
+ for(const badName of ['rapport\u202e.json','folder\\rapport.json',' rapport.json','a'.repeat(121)+'.json']){
+   await page.locator('#reportVerify').setInputFiles([jsonFile,{...reportFile,name:badName},goodTxt]);
+   await expect(page.locator('#reportVerifyStatus')).toContainText('Drievoudige controle geweigerd');
+   await expect(page.locator('#reportVerifyStatus')).toContainText('Ongeldige of misleidende JSON-bestandsnaam');
+ }
+ await page.locator('#reportVerify').setInputFiles([jsonFile,reportFile,goodTxt]);
+ await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
 });
