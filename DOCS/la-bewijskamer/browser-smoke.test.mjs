@@ -1362,6 +1362,6 @@ test("hidden dossier export is refused despite stale consent and selected record
    document.querySelector("#dossierExport").click();
  });
  assert.equal(await p.evaluate(()=>window.__downloadCount),0);
- assert.match(await p.locator("#message").innerText(),/Geen open dossier/);
+ assert.match(await p.locator("#message").innerText(),/dossierinspectie is gesloten/);
  await c.close();
 });
