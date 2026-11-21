@@ -121,3 +121,17 @@ Het contract vereist een actuele, onafhankelijke hostverificatie via de bestaand
 **Hostvereisten:** de echte host moet route-, rechten- en sessiewijzigingen vooraf aankondigen, de contextversie bij elke wijziging onveranderlijk vernieuwen (niet hergebruiken), de oorspronkelijke bron gedurende broncontrole onveranderlijk houden, en de `mount`-opruimhandle correct en synchrone afscherming laten uitvoeren. Bij een foutieve hostimplementatie is dit TypeScript-contract geen bewijs van complete beveiliging. Er is nog geen echte PALACO ONE/router/DOM-koppeling of functionele verificatie.
 
 De publieke World Atlas bevat uitsluitend een verklarend paneel *Beschermde Atlasweergave*. Geen live private kaartpunten, autorisatie of gegevensopslag. De bestaande publieke Render-preview mag handmatig worden geüpdatet; de originele L.A. Citadel Sites-app, PR #58 DRAFT/HOLD en het mergeverbod blijven ongewijzigd. Geen functionele tests uitgevoerd.
+
+## MUNDO-ATLAS-DOM-ADAPTER-013 — afgeschermde DOM-presentatie
+
+De privéhostadapter `08-IMPLEMENTATION/src/citadel/mundo-atlas-dom-adapter.ts` bevat `mountAtlasDomView(container, view)`. Deze adapter is **geen** eigen router, autorisatiemodule of publieke datalaag. Een vertrouwde host mag hem uitsluitend aanroepen via een succesvol toegelaten `AtlasViewHost.mount(view)` binnen de bestaande levenscyclus 012.
+
+- Alle kaartlabels, wereldnamen, revisies en referenties worden uitsluitend als tekst opgebouwd, met `textContent`. Er zijn geen `innerHTML`-, HTML-template-, netwerk- of externe afbeeldingsfuncties.
+- Voor geografische data tekent de adapter alleen een lege, schematische equirectangulaire container en eventuele host-toegelaten punten. Invoerposities moeten eindig zijn en tussen 0 en 1 liggen. Een tekstlijst biedt ook zonder visuele kaart toegang tot de puntnamen.
+- Voor bewijsdata maakt de adapter een eenvoudige lijst met alleen de reeds toegelaten, onpersoonlijke referentievelden.
+- De gehele DOM-structuur wordt los van de pagina voorbereid en pas na opbouw toegevoegd aan de opgegeven hostcontainer.
+- Elke weergave retourneert een idempotente, op haar eigen wortelelement gerichte `dispose()`. Dit voorkomt dat vertraagde opruiming van een oude weergave de nieuwste mount verwijdert.
+
+**Nog te koppelen:** de daadwerkelijke beschermde Citadel-container, PALACO ONE-sessie, router, vóór-wijziging-event en bronverificatie. Dit bestand biedt geen automatische toegang tot het oorspronkelijke ChatGPT Sites-project. Er is nog geen functionele acceptatie uitgevoerd.
+
+De publieke Render-preview is uitsluitend uitgebreid met een verklarend onderdeel *Beschermde kaartpresentatie*; de private adapter wordt niet geïmporteerd. DRAFT/HOLD, geen merge of privépublicatie.
