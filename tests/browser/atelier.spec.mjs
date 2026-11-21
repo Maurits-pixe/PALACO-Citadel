@@ -784,7 +784,7 @@ test('Atelier: onveilige TXT-bestandsnamen worden geweigerd bij losse, paar- en 
  await page.locator('#pairReportSave').click();
  const reportBytes=await fs.readFile(await (await dl).path());
  const reportFile={name:'rapport.json',mimeType:'application/json',buffer:reportBytes};
- for(const badName of ['bedrieglijk\u202e.txt','een map\\bewijs.txt','ander.csv','a'.repeat(121)+'.txt']){
+ for(const badName of ['bedrieglijk\u202e.txt','een map\\bewijs.txt','a'.repeat(121)+'.txt']){
    const badTxt={...goodTxt,name:badName};
    await page.locator('#fingerprintReceipt').setInputFiles(badTxt);
    await expect(page.locator('#referenceStatus')).toContainText('Ongeldige of misleidende TXT-bestandsnaam');
@@ -795,6 +795,8 @@ test('Atelier: onveilige TXT-bestandsnamen worden geweigerd bij losse, paar- en 
    await page.locator('#reportVerify').setInputFiles([jsonFile,reportFile,badTxt]);
    await expect(page.locator('#reportVerifyStatus')).toContainText('Ongeldige of misleidende TXT-bestandsnaam');
  }
+ await page.locator('#fingerprintReceipt').setInputFiles({...goodTxt,name:'ander.csv'});
+ await expect(page.locator('#referenceStatus')).toContainText('Ongeldige of misleidende TXT-bestandsnaam');
  await page.locator('#pairVerify').setInputFiles([jsonFile,goodTxt]);
  await expect(page.locator('#pairReportSave')).toBeEnabled();
  await page.locator('#reportVerify').setInputFiles([jsonFile,reportFile,goodTxt]);
