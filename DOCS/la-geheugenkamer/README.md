@@ -56,6 +56,12 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Herstel en import: toestemming opnieuw verkrijgen · v3.9
+- Na een **geslaagde lokale archiefherstelactie** of **geslaagde JSON-import** worden de oude dossierselectie en eenmalige Bewijskamer-exporttoestemming expliciet ingetrokken.
+- Een geopende dossierinspectie sluit en de focus gaat naar de tijdlijn, zodat een oud, voor de gegevenswijziging geselecteerd dossier niet onbedoeld als exportdoel blijft bestaan.
+- Twee Node UI-regressies en een Chromium-mobiletest controleren behoud van de geïmporteerde herinneringen, het vervallen van toestemming en het blokkeren van een export zonder nieuwe selectie.
+- Geweigerde of mislukte importen veranderen de selectie niet automatisch. Deze wijziging verleent geen verificatie- of EDTR-rechten. Onafhankelijke securityreview en fysieke Android/iOS-tests blijven vereist.
+
 ## Veilig sluiten bij wissen en vergrendelen · v3.8
 - Wanneer een gebruiker een open dossier heeft en bewust **alle lokale herinneringen wist** of de **tab vergrendelt**, sluit de dossierinspectie en verplaatst de toetsenbordfocus zich naar de tijdlijn, een zichtbaar en focusbaar element.
 - Een eerder verleende, eenmalige exporttoestemming wordt ingetrokken. De referentie naar de oude inspectieknop wordt ongeldig gemaakt; de oude selectie kan niet worden gebruikt voor een daaropvolgende export.
