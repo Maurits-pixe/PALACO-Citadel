@@ -1365,3 +1365,57 @@ test("hidden dossier export is refused despite stale consent and selected record
  assert.match(await p.locator("#message").innerText(),/dossierinspectie is gesloten/);
  await c.close();
 });
+
+test("SHA-256 export refuses changed storage even before a cross-tab storage event",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true,acceptDownloads:true}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Export met externe opslagwijziging");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Test");
+ await p.locator("#entryForm button[type=submit]").tap();
+ await p.evaluate(()=>{
+  const real=SubtleCrypto.prototype.digest;
+  window.__heldDigest=false;window.__downloadCount=0;
+  const click=HTMLAnchorElement.prototype.click;
+  HTMLAnchorElement.prototype.click=function(...args){window.__downloadCount++;return click.apply(this,args)};
+  SubtleCrypto.prototype.digest=function(...args){
+   window.__heldDigest=true;
+   return new Promise((resolve,reject)=>{window.__releaseDigest=()=>real.apply(this,args).then(resolve,reject)});
+  };
+ });
+ await p.locator("#export").tap();
+ await p.waitForFunction(()=>window.__heldDigest);
+ // Same-document storage writes do not dispatch a storage event: compare the bytes again.
+ await p.evaluate(()=>localStorage.setItem("palaco.citadel.geheugenkamer.v1","external-draft-marker"));
+ await p.evaluate(()=>window.__releaseDigest());
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("Export afgebroken"));
+ assert.equal(await p.evaluate(()=>window.__downloadCount),0);
+ await c.close();
+});
+
+test("encrypted export refuses a vault changed by a second browser tab",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true,acceptDownloads:true});
+ const a=await c.newPage(),b=await c.newPage();
+ await a.goto(base+"/DOCS/la-geheugenkamer/");
+ await b.goto(base+"/DOCS/la-geheugenkamer/");
+ await a.locator("#title").fill("Versleutelde taboverdracht");
+ await a.locator("#who").fill("W");await a.locator("#what").fill("Concept");
+ await a.locator("#entryForm button[type=submit]").tap();
+ await a.evaluate(()=>{
+  const real=SubtleCrypto.prototype.deriveKey;
+  window.__heldKey=false;window.__downloadCount=0;
+  const click=HTMLAnchorElement.prototype.click;
+  HTMLAnchorElement.prototype.click=function(...args){window.__downloadCount++;return click.apply(this,args)};
+  SubtleCrypto.prototype.deriveKey=function(...args){
+   window.__heldKey=true;
+   return new Promise((resolve,reject)=>{window.__releaseKey=()=>real.apply(this,args).then(resolve,reject)});
+  };
+ });
+ await a.locator("#archivePassphrase").fill("Cross-tab export wachtzin 12345");
+ await a.locator("#encryptedExport").tap();
+ await a.waitForFunction(()=>window.__heldKey);
+ await b.evaluate(()=>localStorage.setItem("palaco.citadel.geheugenkamer.vault.v1","concurrent-tab-marker"));
+ await a.evaluate(()=>window.__releaseKey());
+ await a.waitForFunction(()=>document.querySelector("#message").textContent.includes("Versleutelde export afgebroken"));
+ assert.equal(await a.evaluate(()=>window.__downloadCount),0);
+ await c.close();
+});
