@@ -1535,3 +1535,63 @@ test('changing registry snapshot clears any uncommitted local anti-rollback cand
  await expect(page.locator('#pinAuditRegistry')).toBeDisabled();
  await expect(page.locator('#auditVerifyStatus')).toContainText('opnieuw controleren vereist');
 });
+
+test('issuer fingerprint is pinned only with explicit local confirmation',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ const registry=await signedAuditRegistryFixture(page,report,fixture.detached);
+ await uploadSignedAuditRegistry(page,report,fixture,registry);
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#pinAuditIssuer')).toBeEnabled();
+ const before=await page.evaluate(()=>localStorage.getItem('palaco.citadel.audit-issuer-pin.v1'));
+ expect(before).toBeNull();
+ page.once('dialog',dialog=>dialog.dismiss());
+ await page.locator('#pinAuditIssuer').click();
+ expect(await page.evaluate(()=>localStorage.getItem('palaco.citadel.audit-issuer-pin.v1'))).toBeNull();
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#pinAuditIssuer').click();
+ const value=await page.evaluate(()=>JSON.parse(localStorage.getItem('palaco.citadel.audit-issuer-pin.v1')));
+ expect(value.fingerprint).toBe(registry.signed.issuerFingerprint);
+ expect(value.schema).toBe('palaco-citadel-local-issuer-pin-v1');
+ await expect(page.locator('#pinAuditIssuer')).toBeDisabled();
+});
+
+test('a locally pinned issuer rejects a second valid but different register issuer',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ const registry=await signedAuditRegistryFixture(page,report,fixture.detached);
+ const another=await signedAuditRegistryFixture(page,report,fixture.detached);
+ await uploadSignedAuditRegistry(page,report,fixture,another);
+ await page.evaluate(([fingerprint])=>localStorage.setItem('palaco.citadel.audit-issuer-pin.v1',JSON.stringify({schema:'palaco-citadel-local-issuer-pin-v1',fingerprint})),[registry.signed.issuerFingerprint]);
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
+ await expect(page.locator('#pinAuditIssuer')).toBeDisabled();
+});
+
+test('locally pinned issuer cannot be bypassed using unsigned legacy audit registry',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ const signed=await signedAuditRegistryFixture(page,report,fixture.detached);
+ await attachAuditRegistry(page,report,fixture);
+ await page.evaluate(([fingerprint])=>localStorage.setItem('palaco.citadel.audit-issuer-pin.v1',JSON.stringify({schema:'palaco-citadel-local-issuer-pin-v1',fingerprint})),[signed.signed.issuerFingerprint]);
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
+});
+
+test('invalid issuer pin is fail-closed rather than silently ignored',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ const registry=await signedAuditRegistryFixture(page,report,fixture.detached);
+ await uploadSignedAuditRegistry(page,report,fixture,registry);
+ await page.evaluate(()=>localStorage.setItem('palaco.citadel.audit-issuer-pin.v1','{"schema":"corrupt"}'));
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
+ await expect(page.locator('#pinAuditIssuer')).toBeDisabled();
+});
+
+test('issuer confirmation candidate is invalidated by key input change',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ const registry=await signedAuditRegistryFixture(page,report,fixture.detached);
+ await uploadSignedAuditRegistry(page,report,fixture,registry);
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#pinAuditIssuer')).toBeEnabled();
+ await page.locator('#auditRegistryIssuerKey').fill('{}');
+ await expect(page.locator('#pinAuditIssuer')).toBeDisabled();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('opnieuw controleren vereist');
+});
