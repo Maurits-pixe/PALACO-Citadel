@@ -74,3 +74,17 @@ Elke regel heeft een toegankelijke inspectieactie die het gekozen wereldprofiel 
 De bronmatrix gebruikt uitsluitend vaste gegevens, `textContent`, geen externe services, geen opgave van handtekeningen of uitgifte van verificatiebewijzen. Voor echte gegevens moeten bronauthenticiteit, revisies, toegangsbeleid en lineage afzonderlijk worden gecontroleerd door de originele, afgeschermde MUNDO/Citadel-host.
 
 De publieke Render-site mag handmatig bijgewerkt worden; autoDeploy blijft uit. De oorspronkelijke privé-Citadel, PALACO ONE-identiteitslaag en DRAFT/HOLD PR #58 blijven ongewijzigd. Functionele acceptatie door de eigenaar blijft open.
+
+## MUNDO-ATLAS-SOURCE-CONTRACT-009 — toekomstige beschermde bronkoppeling
+
+Er is een zuiver TypeScript-integratiecontract toegevoegd in `08-IMPLEMENTATION/src/citadel/mundo-atlas-source-contract.ts`. Het is **niet opgenomen als uitvoerbaar bronverbindingsscript in de publieke Atlas**.
+
+- `AtlasSourceEnvelope` benoemt schema, wereld-ID, laagtype, bron-ID, revisie, SHA-256-digest, anonieme contextversie en inhoud.
+- `hasAtlasSourceShape` controleert uitsluitend het formaat: dit bewijst **geen** herkomst, autorisatie of geldigheid van inhoud.
+- `admitAtlasSource` accepteert alleen een passend wereld-ID en laagtype na een expliciete, door de echte Citadel/MUNDO-host aangeleverde `authorizeAndVerify`-controle, een actuele synchrone machtigingscontrole en een stabiele contextversie vóór en na die controles.
+- Ongeldige of ontbrekende context, een geweigerde bron, uitzondering of ontbrekende callback leidt tot `denied`. Een intussen gewijzigde context leidt tot `stale`.
+- De host moet zelfstandig digest en canonieke inhoud vergelijken, provenance authenticeren, de payload tegen mutatie tijdens verificatie beschermen, een werkelijk actuele rechtenbeslissing nemen en een niet-hergebruikte contextrevisie leveren. Deze taken zijn nadrukkelijk **niet** door dit contract geïmplementeerd.
+
+De openbare MUNDO-pagina heeft nu een verklarend paneel **Toelatingsgrenzen voor nieuwe atlaslagen** met drie principes: bronintegriteit, actuele autorisatie en contextbewaking. Dit paneel biedt geen upload, private endpoint of omweg naar Citadel. Het is geen claim dat bronvalidatie nu daadwerkelijk actief is op de openbare Atlas.
+
+Geen functionele tests, merge, productieautorisaties of wijzigingen aan de originele privé-Sites-app. Het afzonderlijke publieke Render-demonstratiekanaal kan handmatig worden bijgewerkt terwijl GitHub PR #58 **DRAFT/HOLD** blijft.
