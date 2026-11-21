@@ -88,3 +88,14 @@ Er is een zuiver TypeScript-integratiecontract toegevoegd in `08-IMPLEMENTATION/
 De openbare MUNDO-pagina heeft nu een verklarend paneel **Toelatingsgrenzen voor nieuwe atlaslagen** met drie principes: bronintegriteit, actuele autorisatie en contextbewaking. Dit paneel biedt geen upload, private endpoint of omweg naar Citadel. Het is geen claim dat bronvalidatie nu daadwerkelijk actief is op de openbare Atlas.
 
 Geen functionele tests, merge, productieautorisaties of wijzigingen aan de originele privé-Sites-app. Het afzonderlijke publieke Render-demonstratiekanaal kan handmatig worden bijgewerkt terwijl GitHub PR #58 **DRAFT/HOLD** blijft.
+
+## MUNDO-ATLAS-LAYER-MODEL-010 — begrensde toekomstige gegevenstypen
+
+Er is een nieuw TypeScript-model: `08-IMPLEMENTATION/src/citadel/mundo-atlas-layer-model.ts`.
+- Het geografische laagcontract vraagt een bekende wereld-ID, schema `palaco.mundo.geography.v1`, projectie `EPSG:4326` en maximaal 512 unieke, benoemde kaartpunten met eindige coördinaten (latitude −90…90, longitude −180…180).
+- Het bewijsreferentiecontract vraagt schema `palaco.mundo.evidence.v1`, dezelfde bekende wereld-ID en maximaal 128 unieke, onpersoonlijke referenties met citatiecode en SHA-256-digest.
+- Beide shape-predicaten controleren alleen **structuur en grenzen**, niet juistheid van geografie, geldigheid van bewijzen, herkomst, rechten of cryptografische echtheid.
+- `admitAtlasSource` uit broncontract 009 weigert nu ook verkeerd gevormde of met de envelope strijdige geografische/bewijspayloads vóór aanroep van de vertrouwde host. De host moet de inhoud bij verificatie onveranderlijk behandelen en nadien zelfstandig autoriseren; het model levert geen datasnapshot of cryptografische hashberekening.
+- De publieke Atlas bevat nu een apart **Datamodel 010**-overzicht. Dit is uitsluitend verklarende informatie: de site haalt **geen** geografische punten, bewijsdossiers of persoonlijke gegevens op.
+
+Deze ontwikkeling is gescheiden van het oorspronkelijke privé-Sites-project. De publieke Render-preview mag handmatig worden bijgewerkt; autoDeploy blijft uit. Geen functionele tests, merge, identiteitswijzigingen of toegangsvrijgaven uitgevoerd. GitHub PR #58 blijft DRAFT/HOLD.
