@@ -1,0 +1,756 @@
+<!doctype html>
+<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#091e18"><title>PALACO Citadel · Atelier Regiekamer</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#f4f0e6;background:#071a15;--gold:#e5c380;--muted:#bbd0bf;--line:#526d5b;--panel:#153329}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -15%,#305849,#071a15 68%)}a{color:#ead29b}button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid #f0d39a;outline-offset:3px}.wrap{max-width:1500px;padding:26px clamp(12px,3vw,44px) 50px;margin:auto}.nav{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}.brand,.eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:800}.links{display:flex;gap:8px;flex-wrap:wrap}.links a{border:1px solid #6e8874;border-radius:25px;padding:10px 13px;text-decoration:none;background:#153227;color:#f4eedb;font-size:12px}h1{font:400 clamp(2.7rem,6vw,5.8rem) Georgia,serif;letter-spacing:-.05em;margin:28px 0 10px}.lead{line-height:1.6;color:#d0e0d1;max-width:930px}.status{display:inline-flex;color:#f5d491;padding:8px 13px;border:1px solid #9b8052;border-radius:90px;font-size:12px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin:24px 0}.card,.section{background:linear-gradient(160deg,#17382d,#10281f);border:1px solid #56725d;border-radius:18px;padding:20px;min-width:0}.card h2{font:400 25px Georgia,serif;margin:8px 0 9px}.card p{font-size:13px;line-height:1.6;color:#c6d4c7}.card strong{color:var(--gold)}.card a{display:inline-block;padding-top:10px}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px}.stat{padding:12px;background:#0b211b;border-radius:11px;border:1px solid #3f5d4d}.stat strong{display:block;font-size:27px;font-weight:500;color:#ebcf91}.stat span{font-size:12px;color:#becdc0}.bottom{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:15px}.section h2{font:400 27px Georgia,serif;margin:5px 0 13px}.section h3{font-size:12px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase}.small{font-size:12px;line-height:1.65;color:#bdcebf;overflow-wrap:anywhere}.inspection-result{border:1px solid #627c6b;background:#102920;border-radius:12px;padding:14px 16px;margin-top:10px;overflow-wrap:anywhere}.inspection-result strong{display:block;font-size:14px;color:#efdfad}.inspection-result[data-result="match"]{border-color:#86bda0;background:#163b2b}.inspection-result[data-result="match"] strong{color:#c5f1d6}.inspection-result[data-result="mismatch"],.inspection-result[data-result="rejected"]{border-color:#dfaa84;background:#3a2823}.inspection-result[data-result="mismatch"] strong,.inspection-result[data-result="rejected"] strong{color:#ffe2bb}.inspection-result p{margin:7px 0 0}input[type=file]{display:block;min-height:44px;max-width:100%}.action{min-height:44px}.diagnostics{display:grid;gap:10px}.diagnostic{display:flex;justify-content:space-between;gap:20px;padding:12px 0;border-bottom:1px solid #476452;font-size:13px}.diagnostic span:last-child{color:#edcd8d;text-align:right}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:19px}.action{padding:11px 14px;border:1px solid #769681;border-radius:10px;background:#1f4435;color:#f2e9d4}.action.primary{background:linear-gradient(110deg,#e9d396,#bc9455);color:#16271d;font-weight:800;border-color:#dfbf83}.action:disabled{opacity:.48;cursor:not-allowed}textarea{width:100%;min-height:160px;resize:vertical;background:#092018;color:#f5efe4;border:1px solid #61806b;border-radius:10px;padding:13px;line-height:1.6}.message{padding:12px 14px;background:#0b231a;border-left:3px solid var(--gold);border-radius:7px;color:#d5e3d5;font-size:12px;line-height:1.7}footer{margin-top:25px;font-size:12px;color:#b6c8b9}.gallery-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.gallery-tab{padding:10px 13px;border-radius:10px;background:#183b2d;color:#f2e9d4;border:1px solid #668473}.gallery-tab[aria-pressed=true]{background:linear-gradient(110deg,#e9d396,#bc9455);border-color:#e7cb91;color:#14251b;font-weight:800}.gallery-stage{padding:12px;border:1px solid #577461;border-radius:14px;background:radial-gradient(circle at center,#284d3c,#0a241a);overflow:auto}.gallery-stage svg{width:100%;height:auto;max-height:520px;display:block}.gallery-info{margin-top:10px;color:#bdcebf;font-size:12px}@media(max-width:1050px){.grid{grid-template-columns:1fr 1fr}.bottom{grid-template-columns:1fr}}@media(max-width:700px){.grid{grid-template-columns:1fr}.summary{grid-template-columns:1fr 1fr}.wrap{padding:15px 11px 35px}.card,.section{padding:15px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style></head><body><div class="wrap">
+<header class="nav"><div class="brand">✦ PALACO INDUSTRIE / CITADEL</div><nav class="links" aria-label="Atelier navigatie"><a href="../index.html">Citadel</a><a href="./studio.html">Grand Studio</a><a href="./panorama.html">Panorama</a><a href="./interieur.html">Interieuratelier</a><a href="./wizard.html">New Citadel</a></nav></header>
+<p class="eyebrow">Locus Amoenus · constitutionele ontwerpcontinuïteit</p><h1>De Regiekamer<span style="color:var(--gold)">.</span></h1>
+<p class="lead">Eén rustig overzicht van jouw ontwerpen in Het Atelier. Exterieur, ruimtelijk panorama en interieur blijven hun eigen bewerkbare modules. Hier lees je hun lokale voortgang, leg je ontwerpintenties vast en exporteer je een creatief projectdossier.</p>
+<span class="status">DRAFT · AUTHORITY NONE · LOKAAL</span>
+<section class="section" aria-labelledby="offline-title" style="margin-top:16px">
+  <div class="nav"><div><p class="eyebrow">OFFLINE / LOKALE BESCHIKBAARHEID</p><h2 id="offline-title">Verbindingskompas</h2></div><span id="offlineBadge" class="status">Controleren…</span></div>
+  <p class="small" id="offlineStatus" role="status" aria-live="polite">Controle van verbinding en lokaal gecachete Atelier-bestanden.</p>
+  <div class="actions"><button type="button" class="action" id="checkOffline">⟳ Controleer offlinepakket</button><button type="button" class="action primary" id="repairOffline">↻ Herstel offlinepakket</button></div>
+  <p class="small">De indicator vergelijkt de lokale cache met de zes benodigde Atelier-resources. Gebruik ‘Herstel offlinepakket’ met internet om ontbrekende bestanden opnieuw te laden. Offlinegebruik vereist dat het pakket eerder met internet is geïnstalleerd. Een groene cachecontrole is geen garantie voor blijvende opslag of werkende synchronisatie.</p>
+</section>
+<div class="grid">
+<section class="card"><p class="eyebrow">01 / Exterieur</p><h2>De levende Citadel</h2><p id="extStatus">Bron controleren…</p><div class="summary"><div class="stat"><strong id="outUsed">0</strong><span>Ingericht</span></div><div class="stat"><strong id="outNature">0</strong><span>Natuur</span></div></div><p><strong id="outName">Geen ontwerp</strong></p><a href="./studio.html">Open de Grand Studio</a></section>
+<section class="card"><p class="eyebrow">02 / Ruimtelijk</p><h2>Architecturaal panorama</h2><p>Het isometrische panorama gebruikt dezelfde 96 percelen als de Grand Studio. Er wordt geen tweede kopie van de maquette opgeslagen.</p><p id="panoramaStatus">Ontwerpstatus wordt bepaald…</p><a href="./panorama.html">Open Panorama</a></section>
+<section class="card"><p class="eyebrow">03 / Interieur</p><h2>De binnenwereld</h2><p id="intStatus">Bron controleren…</p><div class="summary"><div class="stat"><strong id="inUsed">0</strong><span>Ingericht</span></div><div class="stat"><strong id="inKinds">0</strong><span>Functies</span></div></div><p><strong id="inName">Geen ontwerp</strong></p><a href="./interieur.html">Open Interieuratelier</a></section>
+</div>
+<section class="section" aria-labelledby="gallery-heading" style="margin:0 0 16px">
+<div class="nav"><div><p class="eyebrow">04 / Ontwerpgalerij</p><h2 id="gallery-heading">Architecturale plattegronden</h2></div><span class="status">READ ONLY · DRAFT</span></div>
+<p class="small">Bekijk je lokale buitenwereld en drie interieurverdiepingen in één doorlopende galerij. Dit is een schematische creatieve voorvertoning; bewerken gebeurt in de oorspronkelijke studio's.</p>
+<div class="gallery-tabs" id="galleryTabs" role="group" aria-label="Kies een ontwerplaag">
+<button type="button" class="gallery-tab" data-view="exterior" aria-pressed="true">Exterieur</button>
+<button type="button" class="gallery-tab" data-view="0" aria-pressed="false">Begane grond</button>
+<button type="button" class="gallery-tab" data-view="1" aria-pressed="false">Eerste verdieping</button>
+<button type="button" class="gallery-tab" data-view="2" aria-pressed="false">Tweede verdieping</button>
+</div><div id="galleryFrame" class="gallery-stage" aria-live="polite" aria-label="Plattegrondvoorvertoning"></div>
+<p id="galleryInfo" class="gallery-info" role="status">Ontwerpweergave wordt voorbereid.</p>
+<div class="actions"><button class="action" id="saveGallery" type="button">↓ Exporteer galerijbeeld (SVG)</button><a class="action" id="editGallery" href="./studio.html">Open bijbehorende editor</a></div>
+</section>
+<section class="section" aria-labelledby="portable-heading" style="margin:0 0 16px">
+<div class="nav"><div><p class="eyebrow">05 / Projectarchief</p><h2 id="portable-heading">Bewaren & herstellen</h2></div><span class="status">PORTABLE · DRAFT</span></div>
+<p class="small">Bewaar de exterieurmaquette, het interieur op drie verdiepingen en de ontwerpnotitie samen in één overdraagbaar JSON-projectpakket. De bestaande afzonderlijke bestanden blijven beschikbaar. De export bevat bewust geen autorisatiegegevens of ontwerphistorie.</p>
+<div class="actions"><button class="action primary" type="button" id="bundleSave">↓ Bewaar compleet projectpakket</button><button class="action" type="button" id="exportBundleReceipt" disabled>↓ Bewaar SHA-256 van laatste projectexport</button></div><p class="small" id="bundleReceiptStatus" role="status" aria-live="polite">Nog geen gecontroleerde projectexport in deze sessie.</p>
+<label for="checkExportFile" class="eyebrow" style="display:block;margin:12px 0 8px">Controleer het gedownloade JSON tegen je laatste export</label>
+<input type="file" id="checkExportFile" aria-describedby="exportCheckStatus" accept=".json,application/json" disabled style="max-width:100%;font-size:13px">
+<p class="small" id="exportCheckStatus" role="status" aria-live="polite">Eerst een compleet DRAFT-project exporteren; daarna kun je het gedownloade bestand opnieuw selecteren.</p>
+<label for="pairVerify" class="eyebrow" style="display:block;margin:18px 0 9px">Controleer JSON en SHA-256-TXT samen</label>
+<input type="file" id="pairVerify" aria-describedby="pairStatus" accept=".json,.txt,application/json,text/plain" multiple style="max-width:100%;font-size:13px">
+<p class="small" id="pairStatus" role="status" aria-live="polite">Selecteer precies één DRAFT JSON-project en één SHA-256 TXT-bewijs. Beide bestanden blijven lokaal; er wordt niets geïmporteerd.</p>
+<div class="actions"><button type="button" id="pairReportSave" class="action" disabled>↓ Bewaar inspectierapport (JSON)</button></div>
+<label for="reportVerify" class="eyebrow" style="display:block;margin:18px 0 9px">Hercontroleer project, SHA-256-TXT en inspectierapport samen</label>
+<input type="file" id="reportVerify" aria-describedby="reportVerifyStatus" accept=".json,.txt,application/json,text/plain" multiple style="max-width:100%;font-size:13px">
+<p class="small" id="reportVerifyStatus" role="status" aria-live="polite">Selecteer één creatief project-JSON, één SHA-256-TXT en één inspectierapport-JSON. De controle verandert niets aan je ontwerp.</p>
+<div id="inspectionResult" class="inspection-result" data-result="idle" aria-labelledby="inspectionResultTitle" aria-describedby="inspectionResultDetail"><strong id="inspectionResultTitle">Nog geen actuele controle</strong><p class="small" id="inspectionResultDetail">Selecteer drie bestanden. Alleen lokale bestandsintegriteit wordt vergeleken; geen herkomstbewijs of autorisatie.</p></div>
+<label for="bundleVerify" class="eyebrow" style="display:block;margin:18px 0 9px">Controleer een projectbestand zonder import</label>
+<input type="file" id="bundleVerify" aria-describedby="verifyStatus" accept=".json,application/json" style="max-width:100%;font-size:13px">
+<label for="expectedFingerprint" class="eyebrow" style="display:block;margin:12px 0 8px">Eerder vastgelegde SHA-256-referentie (optioneel)</label>
+<input type="text" id="expectedFingerprint" maxlength="64" inputmode="text" spellcheck="false" autocomplete="off" placeholder="64 hexadecimale tekens, bijvoorbeeld uit je vorige controle" style="width:min(100%,600px);padding:12px;background:#102c23;color:#f4f0e6;border:1px solid #779078;border-radius:10px">
+<label for="fingerprintReceipt" class="eyebrow" style="display:block;margin:12px 0 8px">Of laad een eerder bewaarde SHA-256-referentie (TXT)</label>
+<input type="file" id="fingerprintReceipt" aria-describedby="referenceStatus" accept=".txt,text/plain" style="max-width:100%;font-size:13px">
+<p class="small" id="referenceStatus" role="status" aria-live="polite" tabindex="-1">Referentie blijft uitsluitend in deze pagina; het bestand wordt niet geüpload.</p>
+<div class="actions"><button type="button" class="action" id="clearInspections" aria-describedby="clearExplanation">↺ Wis tijdelijke controlestatus</button></div>
+<p class="small" id="clearExplanation">Wist uitsluitend tijdelijke controle-uitkomsten en ingeladen SHA-256-referenties. Creatieve ontwerpen en lokale herstelkopieën blijven bewaard.</p>
+<p class="small">Alleen een eerder veilig bewaarde, vertrouwde referentie kan dienen als vergelijkingsbasis. De waarde wordt niet opgeslagen of verzonden. Een wijziging aan de referentie vereist een nieuwe controle; bij een afwijking blijft de exportknop uitgeschakeld.</p>
+<p class="small" id="verifyStatus" role="status" aria-live="polite">Kies een lokaal DRAFT JSON-bestand om schema, inhoud en SHA-256-vingerafdruk te controleren. Dit verandert geen opgeslagen ontwerp.</p>
+<div class="actions"><button type="button" class="action" id="exportFingerprint" disabled>↓ Bewaar SHA-256-referentie (TXT)</button></div>
+<label for="bundleImport" class="eyebrow" style="display:block;margin:18px 0 9px">Herstel een eerder projectpakket</label>
+<input type="file" id="bundleImport" accept=".json,application/json" style="max-width:100%;font-size:13px">
+<p class="message">Herstel vervangt uitsluitend de drie lokale Atelier-opslagonderdelen na jouw bevestiging. Controleer vooraf het pakketoverzicht; exporteer je huidige werk eerst. Onbekende of niet-DRAFT-pakketten worden geweigerd. Een mislukte schrijfactie wordt zo mogelijk teruggedraaid.</p>
+<p id="bundleStatus" class="small" role="status" aria-live="polite">Er is nog geen projectpakket geselecteerd.</p>
+<div class="actions"><button type="button" class="action" id="undoImport" disabled>Herstel vorig lokaal ontwerp</button><button type="button" class="action" id="exportRecovery" disabled>↓ Exporteer herstelkopie (JSON)</button></div>
+<p class="small" id="recoveryStatus" role="status" aria-live="polite">Lokale herstelkopie controleren…</p>
+</section>
+<div class="bottom"><section class="section"><p class="eyebrow">04 / Ontwerpintentie</p><h2>Het creatieve dossier</h2><p class="small">Een eigen, lokale tekstnotitie die losstaat van de officiële Citadel-wizard. Dit is een ontwerpverklaring, geen bewijs, besluit, machtiging of registratie.</p>
+<label for="statement" class="eyebrow">Verhaal, uitgangspunten en materiaalvisie</label><textarea id="statement" maxlength="6000" placeholder="Beschrijf jouw visie op een luxueus en leefbaar Locus Amoenus: architectuur, natuur, ruimtes, kunst, ritme, toegankelijkheid…"></textarea>
+<div class="actions"><button class="action" id="saveNote">Bewaar notitie lokaal</button><button class="action primary" id="export">Exporteer DRAFT-dossier (JSON)</button><button class="action" id="exportTxt">Exporteer overzicht (TXT)</button><button class="action" id="refresh">Vernieuw overzicht</button></div>
+<p id="feedback" role="status" class="small">De projectgegevens worden uitsluitend uit deze browser gelezen.</p></section>
+<aside class="section"><p class="eyebrow">05 / Projectkompas</p><h2>Ontwerpchecks</h2><div class="diagnostics" id="diagnostics" role="list"></div>
+<h3>Bevoegdheid & veiligheid</h3><p class="message">Deze Regiekamer is alleen een lokaal, read-only overzicht van de maquettes, met een afzonderlijke ontwerpnotitie. Er worden geen officiële identiteiten, bewijsstukken, cryptografische handtekeningen, WORLD-creaties of autorisaties uitgevoerd.</p><p class="small">De export is een niet-geverifieerde creatieve DRAFT-kopie. Bewaar deze zelf. Browseropslag is geen veilige langdurige back-up.</p></aside></div>
+<footer>PALACO CITADEL · Atelier Regiekamer v2.8 · Nieuwe ontwerpen, bestaande fundamenten.</footer></div>
+<script src="./regiekamer-gallery.js"></script>
+<script src="./regiekamer-bundle.js"></script>
+<script>
+'use strict';
+const EX='palaco.citadel.atelier.grand-studio.v1';
+const IN='palaco.citadel.atelier.interior.v1';
+const NOTE='palaco.citadel.atelier.regiekamer.note.v1';
+const EXKINDS=['royal','home','park','water','culture','trade','care','path','observatory','atelier','garden','bridge'];
+const INKINDS=['salon','bedroom','kitchen','bath','library','gallery','atelier','terrace','hall','stairs','pool','wellness','dining','greenhouse'];
+const $=id=>document.getElementById(id);
+let exterior=null,interior=null;
+function safeRead(key){try{const v=localStorage.getItem(key);return v?JSON.parse(v):null;}catch{return null;}}
+function validEx(v){return !!(v&&v.schema==='palaco.citadel.atelier.studio/1'&&v.state==='DRAFT'&&v.authority==='NONE'&&typeof v.name==='string'&&v.name.length<=80&&Array.isArray(v.cells)&&v.cells.length===96&&v.cells.every(c=>c===null||EXKINDS.includes(c)));}
+function validIn(v){return !!(v&&v.schema==='palaco.citadel.atelier.interior/1'&&v.state==='DRAFT'&&v.authority==='NONE'&&typeof v.name==='string'&&v.name.length<=80&&Array.isArray(v.floors)&&v.floors.length===3&&v.floors.every(f=>Array.isArray(f)&&f.length===80&&f.every(c=>c===null||INKINDS.includes(c))));}
+function line(a,b){const el=document.createElement('div');el.className='diagnostic';el.setAttribute('role','listitem');const first=document.createElement('span');first.textContent=a;const last=document.createElement('span');last.textContent=b;el.append(first,last);return el;}
+function refresh(){
+const ex=safeRead(EX),ins=safeRead(IN);exterior=validEx(ex)?ex:null;interior=validIn(ins)?ins:null;
+const exCells=exterior?exterior.cells:[],inCells=interior?interior.floors.flat():[];
+$('outUsed').textContent=exCells.filter(Boolean).length;$('outNature').textContent=exCells.filter(k=>['park','garden','water'].includes(k)).length;
+$('inUsed').textContent=inCells.filter(Boolean).length;$('inKinds').textContent=new Set(inCells.filter(Boolean)).size;
+$('outName').textContent=exterior?exterior.name:'Geen geldig lokaal DRAFT-ontwerp';$('inName').textContent=interior?interior.name:'Geen geldig lokaal DRAFT-ontwerp';
+$('extStatus').textContent=exterior?'Lokaal ontwerp beschikbaar · 96 percelen':'Nog geen geldig lokaal ontwerp gevonden';
+$('intStatus').textContent=interior?'Lokaal interieur beschikbaar · drie verdiepingen':'Nog geen geldig lokaal interieur gevonden';
+$('panoramaStatus').textContent=exterior?'Panorama kan dit lokale exterieurontwerp gebruiken.':'Maak eerst een concept in de Grand Studio.';
+const checks=[
+['Exterieurmaquette',exterior?'Beschikbaar':'Nog niet opgeslagen'],
+['Interieurindeling',interior?'Beschikbaar':'Nog niet opgeslagen'],
+['Groene en blauwe ruimte',exterior&&exCells.some(c=>['water','park','garden'].includes(c))?'Opgenomen':'Nog te verkennen'],
+['Wonen en verblijven',exterior&&exCells.includes('home')?'Opgenomen':'Nog te verkennen'],
+['Circulatie en toegang',exterior&&exCells.some(c=>['path','bridge'].includes(c))?'Opgenomen':'Nog te verkennen'],
+['Interne verbinding',interior&&inCells.includes('stairs')?'Trapzone aanwezig':'Nog te verkennen'],
+['Autoriteit','DRAFT / NONE']
+];$('diagnostics').replaceChildren(...checks.map(c=>line(...c)));
+renderGallery();
+}
+function noteValue(){return $('statement').value.slice(0,6000);}
+function saveNote(){try{localStorage.setItem(NOTE,noteValue());$('feedback').textContent='Ontwerpnotitie lokaal bewaard.';}catch{$('feedback').textContent='Lokale notitie kon niet worden bewaard. Exporteer je dossier.';}}
+function getSummary(){const ec=exterior?exterior.cells:[],ic=interior?interior.floors.flat():[];return {exterior_parcels_used:ec.filter(Boolean).length,nature_and_water:ec.filter(k=>['park','garden','water'].includes(k)).length,interior_parcels_used:ic.filter(Boolean).length,interior_functions:new Set(ic.filter(Boolean)).size};}
+function packageDraft(){return {schema:'palaco.citadel.atelier.creative-dossier/1',state:'DRAFT',authority:'NONE',purpose:'CREATIVE_REFERENCE_ONLY',exterior:exterior?{schema:exterior.schema,state:'DRAFT',authority:'NONE',name:exterior.name,cells:exterior.cells.slice()}:null,interior:interior?{schema:interior.schema,state:'DRAFT',authority:'NONE',name:interior.name,material:interior.material,mood:interior.mood,floors:interior.floors.map(f=>f.slice())}:null,creative_statement:noteValue(),summary:getSummary(),limitations:['No official identity','No approval or building permit','No evidence or issuer signature','No WORLD activation']};}
+function download(filename,body,type){const url=URL.createObjectURL(new Blob([body],{type}));const link=document.createElement('a');link.href=url;link.download=filename;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1200);}
+const PROJECT_FILENAME='PALACO-Atelier-Compleet-Project-DRAFT.json';
+let lastExportFingerprint=null;
+let exportRevision=0;
+let exportCheckRevision=0;
+$('checkExportFile').addEventListener('change',async event=>{
+ const file=event.target.files?.[0];
+ if(!file){event.target.dispatchEvent(new Event('cancel'));return;}
+ const revision=exportRevision;
+ const selection=++exportCheckRevision;
+ const reference=lastExportFingerprint?.hash;
+ const status=$('exportCheckStatus');
+ status.textContent='Gedownload JSON-bestand opnieuw controleren…';
+ try{
+   if(!reference)throw Error('Geen actuele exportreferentie beschikbaar');
+   if(file.size>150000)throw Error('Bestand te groot (maximaal 150 KB)');
+   const bytes=await file.arrayBuffer();
+   if(revision!==exportRevision||selection!==exportCheckRevision)return;
+   const api=window.PalacoAtelierBundle;
+   if(!api)throw Error('Projectpakketcontrole niet beschikbaar');
+   const content=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
+   api.parse(content);
+   if(!crypto?.subtle?.digest)throw Error('SHA-256 niet beschikbaar in deze browser');
+   const digest=await crypto.subtle.digest('SHA-256',bytes);
+   if(revision!==exportRevision||selection!==exportCheckRevision)return;
+   const actual=Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('');
+   status.textContent=actual===reference
+      ?'CONTROLE GESLAAGD: het geselecteerde JSON-bestand komt byte voor byte overeen met de laatste export. SHA-256: '+actual
+      :'WAARSCHUWING: geselecteerd JSON-bestand wijkt af van de laatste export. SHA-256: '+actual;
+ }catch(err){
+   if(revision!==exportRevision||selection!==exportCheckRevision)return;
+   status.textContent='Exportcontrole geweigerd: '+err.message;
+ }finally{if(revision===exportRevision&&selection===exportCheckRevision)event.target.value='';}
+});
+
+$('exportBundleReceipt').addEventListener('click',()=>{
+ if(!lastExportFingerprint)return;
+ const receipt=[
+   'PALACO ATELIER · DRAFT SHA-256 REFERENTIE',
+   'SHA-256: '+lastExportFingerprint.hash,
+   'Bestand: '+PROJECT_FILENAME,
+   'Controle: bestandsbytes, geen digitale handtekening of officiële goedkeuring.',
+   'Bewaar deze referentie afzonderlijk van het projectbestand.',
+   ''
+ ].join(String.fromCharCode(10));
+ download('PALACO-Atelier-Projectexport-SHA256-DRAFT.txt',receipt,'text/plain;charset=utf-8');
+});
+$('bundleSave').addEventListener('click',async ()=>{
+ const revision=++exportRevision;
+ ++exportCheckRevision;
+ lastExportFingerprint=null;
+ $('exportBundleReceipt').disabled=true;
+ $('checkExportFile').disabled=true;
+ $('exportCheckStatus').textContent='Nieuwe export gestart: vorige bestandscontrole vervallen.';
+ $('bundleReceiptStatus').textContent='De nieuwe projectexport wordt gecontroleerd…';
+ const api=window.PalacoAtelierBundle;
+ if(!api){
+   $('bundleStatus').textContent='Projectpakket-functie niet geladen.';
+   $('bundleReceiptStatus').textContent='Geen geldig projectpakket beschikbaar.';
+   return;
+ }
+ try{
+   const pack=api.read(localStorage);
+   pack.note=noteValue();
+   const checked=api.parse(JSON.stringify(pack));
+   const serialized=JSON.stringify(checked,null,2);
+   download(PROJECT_FILENAME,serialized,'application/json');
+   $('bundleStatus').textContent='Creatief projectpakket geëxporteerd, zonder autorisatie of historiek.';
+   // Hash exactly the UTF-8 bytes of the downloaded JSON string, not a reserialized object.
+   if(!crypto?.subtle?.digest)throw Error('SHA-256 niet beschikbaar in deze browser');
+   const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(serialized));
+   if(revision!==exportRevision)return;
+   const hash=Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('');
+   lastExportFingerprint={hash};
+   $('exportBundleReceipt').disabled=false;
+   $('checkExportFile').disabled=false;
+   $('exportCheckStatus').textContent='Selecteer het zojuist gedownloade JSON-bestand voor een extra controle tegen de laatste export.';
+   $('bundleReceiptStatus').textContent='SHA-256 van de laatste projectexport: '+hash+'. Bewaar het TXT-bewijs afzonderlijk.';
+ }catch(err){
+   if(revision!==exportRevision)return;
+   $('bundleReceiptStatus').textContent='SHA-256-referentie niet beschikbaar: '+err.message;
+   if(!lastExportFingerprint)$('bundleStatus').textContent='Projectexport uitgevoerd of geweigerd; controleer het gedownloade bestand voordat je het gebruikt.';
+ }
+});
+function safeProjectFilename(name){
+ if(typeof name!=='string'||name.length===0||name.length>120||
+   name!==name.trim()||name==='.'||name==='..'||
+   /[\\/\x00-\x1f\x7f\u202a-\u202e\u2066-\u2069]/.test(name)||
+   !/\.json$/i.test(name))
+   throw Error('Ongeldige of misleidende JSON-bestandsnaam');
+ return name;
+}
+function safeReceiptFilename(name){
+ if(typeof name!=='string'||name.length===0||name.length>120||
+   name!==name.trim()||name==='.'||name==='..'||
+   /[\\/\x00-\x1f\x7f\u202a-\u202e\u2066-\u2069]/.test(name)||
+   !/\.txt$/i.test(name))
+   throw Error('Ongeldige of misleidende TXT-bestandsnaam');
+ return name;
+}
+function parseReceiptFields(receipt){
+ if(receipt.length>4096)throw Error('TXT-bewijs overschrijdt de maximale lengte');
+ if(/[\u202a-\u202e\u2066-\u2069]/i.test(receipt))
+   throw Error('TXT-bewijs bevat misleidende Unicode-richtingstekens');
+ const lines=receipt.split(/\r?\n/);
+ // A single final newline is allowed; embedded and repeated blank lines are not.
+ if(lines[lines.length-1]==='')lines.pop();
+ if(lines.some(line=>line===''))throw Error('TXT-bewijs bevat lege of extra regels');
+ if(lines.length>8||lines.some(line=>line.length>256))
+   throw Error('TXT-bewijs heeft te veel of te lange regels');
+ if(lines.some(line=>/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(line)))
+   throw Error('TXT-bewijs bevat ongeldige besturingstekens');
+ const allowedNotes=[
+   'PALACO ATELIER · DRAFT SHA-256 REFERENTIE',
+   'PALACO ATELIER DRAFT SHA-256 REFERENTIE',
+   'Controle: bestandsbytes, geen digitale handtekening of officiële goedkeuring.',
+   'Bewaar deze referentie afzonderlijk van het projectbestand.'
+ ];
+ if(lines.some(line=>!line.startsWith('SHA-256: ')&&!line.startsWith('Bestand: ')&&!allowedNotes.includes(line)))
+   throw Error('TXT-bewijs bevat een onbekende of misleidende regel');
+ const noteLines=lines.filter(line=>allowedNotes.includes(line));
+ if(new Set(noteLines).size!==noteLines.length)
+   throw Error('TXT-bewijs bevat dubbele toelichtingsregels');
+ const hashLines=lines.filter(line=>line.startsWith('SHA-256: '));
+ if(hashLines.length!==1)throw Error('TXT moet precies één SHA-256-regel bevatten');
+ const nameLines=lines.filter(line=>line.startsWith('Bestand: '));
+ if(nameLines.length!==1)throw Error('TXT-bewijs moet precies één Bestand-regel bevatten');
+ // One optional header, then SHA-256, then Bestand, then optional notes in fixed order.
+ const presentHeaders=allowedNotes.slice(0,2).filter(note=>lines.includes(note));
+ const orderedLines=[
+   ...presentHeaders,
+   hashLines[0],
+   nameLines[0],
+   ...allowedNotes.slice(2).filter(note=>lines.includes(note))
+ ];
+ if(presentHeaders.length>1||orderedLines.length!==lines.length||
+   orderedLines.some((line,index)=>line!==lines[index]))
+   throw Error('TXT-bewijs heeft ongeldige regelvolgorde');
+ const hash=hashLines[0].slice('SHA-256: '.length);
+ if(!/^[0-9a-fA-F]{64}$/.test(hash))throw Error('Ongeldige SHA-256 in TXT');
+ return {hash:hash.toLowerCase(),filename:safeProjectFilename(nameLines[0].slice('Bestand: '.length))};
+}
+function parseBoundReceipt(receipt,projectFilename){
+ const fields=parseReceiptFields(receipt);
+ const expected=safeProjectFilename(projectFilename);
+ if(fields.filename!==expected)throw Error('Bestandsnaam in SHA-256-TXT komt niet overeen met gekozen JSON-project');
+ return fields.hash;
+}
+function showInspectionResult(result,heading,detail){
+ const panel=$('inspectionResult');
+ panel.dataset.result=result;
+ $('inspectionResultTitle').textContent=heading;
+ $('inspectionResultDetail').textContent=detail;
+}
+let reportVerifyRevision=0;
+$('reportVerify').addEventListener('change',async event=>{
+ const files=Array.from(event.target.files||[]);
+ const revision=++reportVerifyRevision;
+ const status=$('reportVerifyStatus');
+ status.textContent='Project, referentie en inspectierapport hercontroleren…';
+ showInspectionResult('pending','Controle bezig','De geselecteerde bestanden worden lokaal gelezen en vergeleken. Geen autorisatie.');
+ try{
+   if(files.length!==3)throw Error('Selecteer precies drie bestanden (twee JSON, één TXT)');
+   const jsonFiles=files.filter(file=>file.name.toLowerCase().endsWith('.json'));
+   const txtFiles=files.filter(file=>file.name.toLowerCase().endsWith('.txt'));
+   if(jsonFiles.length!==2||txtFiles.length!==1)throw Error('Twee JSON-bestanden en één TXT vereist');
+   // Validate both JSON labels before reading bytes: one is the creative project, one an inspection report.
+   jsonFiles.forEach(file=>safeProjectFilename(file.name));
+   if(jsonFiles[0].name===jsonFiles[1].name)
+     throw Error('Project en inspectierapport moeten verschillende JSON-bestandsnamen hebben');
+   const receiptFilename=safeReceiptFilename(txtFiles[0].name);
+   if(jsonFiles.some(file=>file.size>150000)||txtFiles[0].size>4096)throw Error('Bestand te groot');
+   const [aBytes,bBytes,txtBytes]=await Promise.all([
+     jsonFiles[0].arrayBuffer(),jsonFiles[1].arrayBuffer(),txtFiles[0].arrayBuffer()
+   ]);
+   if(revision!==reportVerifyRevision)return;
+   const decoder=new TextDecoder('utf-8',{fatal:true});
+   const entries=[{file:jsonFiles[0],bytes:aBytes},{file:jsonFiles[1],bytes:bBytes}].map(item=>({
+     ...item,value:JSON.parse(decoder.decode(item.bytes))
+   }));
+   const isReport=item=>item.value?.schema==='palaco.citadel.atelier.inspection/1';
+   const reports=entries.filter(isReport);
+   if(reports.length!==1)throw Error('Precies één geldig aangeduid inspectierapport vereist');
+   const report=reports[0].value;
+   const projectEntry=entries.find(item=>!isReport(item));
+   const api=window.PalacoAtelierBundle;
+   if(!api)throw Error('Atelier-projectvalidatie niet beschikbaar');
+   const project=api.parse(decoder.decode(projectEntry.bytes));
+   const receipt=decoder.decode(txtBytes);
+   const expected=parseBoundReceipt(receipt,projectEntry.file.name);
+   // Reject unexpected properties: an inspection report is never a carrier for rights or commands.
+   const reportFields=['schema','state','authority','purpose','result','checkedAt','jsonFile','receiptFile','sha256','exteriorUsed','interiorUsed','noteLength','limitations'];
+   if(Object.keys(report).length!==reportFields.length||Object.keys(report).some(key=>!reportFields.includes(key)))
+     throw Error('Inspectierapport bevat onbekende of ontbrekende velden');
+   const requiredLimitations=['Not a digital signature','No official identity or authority','No proof of source authenticity','No server registration'];
+   if(!Array.isArray(report.limitations)||report.limitations.length!==requiredLimitations.length||
+     requiredLimitations.some(value=>!report.limitations.includes(value)))
+     throw Error('Inspectierapport mist verplichte beperkingen');
+   if(typeof report.checkedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(report.checkedAt)||
+     !Number.isFinite(Date.parse(report.checkedAt))||new Date(report.checkedAt).toISOString()!==report.checkedAt)
+     throw Error('Inspectierapport heeft een ongeldig lokaal controletijdstip');
+   if(report.state!=='DRAFT'||report.authority!=='NONE'||report.purpose!=='LOCAL_INTEGRITY_COMPARISON_ONLY'||report.result!=='MATCH')
+     throw Error('Inspectierapport heeft een ongeldig DRAFT/NONE-contract');
+   if(typeof report.sha256!=='string'||!/^[0-9a-f]{64}$/.test(report.sha256))
+     throw Error('Inspectierapport heeft een ongeldige SHA-256');
+   if(!Number.isInteger(report.exteriorUsed)||!Number.isInteger(report.interiorUsed)||!Number.isInteger(report.noteLength)||report.exteriorUsed<0||report.exteriorUsed>96||report.interiorUsed<0||report.interiorUsed>240||report.noteLength<0||report.noteLength>6000)
+     throw Error('Inspectierapport mist geldige ontwerptellingen');
+   if(report.jsonFile!==safeProjectFilename(projectEntry.file.name)||report.receiptFile!==receiptFilename)
+     throw Error('Bestandsnamen komen niet overeen met het inspectierapport');
+   const ex=project.exterior?project.exterior.cells.filter(Boolean).length:0;
+   const inn=project.interior?project.interior.floors.flat().filter(Boolean).length:0;
+   if(report.exteriorUsed!==ex||report.interiorUsed!==inn||report.noteLength!==project.note.length)
+     throw Error('Ontwerptellingen komen niet overeen met het inspectierapport');
+   if(!crypto?.subtle?.digest)throw Error('SHA-256 niet beschikbaar');
+   const digest=await crypto.subtle.digest('SHA-256',projectEntry.bytes);
+   if(revision!==reportVerifyRevision)return;
+   const actual=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
+   const matched=actual===expected&&actual===report.sha256;
+   status.textContent=matched
+      ?'DRIEVOUDIGE CONTROLE GESLAAGD: JSON, SHA-256-TXT en DRAFT-inspectierapport komen inhoudelijk overeen. SHA-256: '+actual+'. Dit bewijst geen herkomst of bevoegdheid.'
+      :'WAARSCHUWING: DE DRIE BESTANDEN KOMEN NIET OVEREEN. Geen gegevens geïmporteerd.';
+   showInspectionResult(matched?'match':'mismatch',
+     matched?'MATCH — drie bestanden komen overeen':'MISMATCH — bestanden komen niet overeen',
+     'Project: '+projectEntry.file.name+' · TXT: '+receiptFilename+' · Inspectierapport: '+reports[0].file.name+
+     '. SHA-256: '+actual+'. DRAFT · AUTHORITY NONE · geen bewijs van herkomst of bevoegdheid.');
+ }catch(err){
+   if(revision!==reportVerifyRevision)return;
+   status.textContent='Drievoudige controle geweigerd: '+err.message+'. Geen gegevens geïmporteerd.';
+   showInspectionResult('rejected','GEWEIGERD — controle niet voltooid',err.message+'. Geen import, geen autorisatie.');
+ }finally{if(revision===reportVerifyRevision)event.target.value='';}
+});
+let pairRevision=0;
+let lastPairReport=null;
+$('pairReportSave').addEventListener('click',()=>{
+ if(!lastPairReport)return;
+ download('PALACO-Atelier-Paarcontrole-DRAFT.json',JSON.stringify(lastPairReport,null,2),'application/json');
+});
+
+$('pairVerify').addEventListener('change',async event=>{
+ const files=Array.from(event.target.files||[]);
+ const revision=++pairRevision;
+ lastPairReport=null;
+ $('pairReportSave').disabled=true;
+ const status=$('pairStatus');
+ status.textContent='Beide bestanden veilig controleren…';
+ try{
+   if(files.length!==2)throw Error('Selecteer precies twee bestanden: één JSON en één TXT');
+   const jsonFiles=files.filter(file=>/\.json$/i.test(file.name));
+   const txtFiles=files.filter(file=>/\.txt$/i.test(file.name));
+   if(jsonFiles.length!==1||txtFiles.length!==1)throw Error('Eén .json en één .txt-bestand vereist');
+   const json=jsonFiles[0],txt=txtFiles[0];
+   const receiptFilename=safeReceiptFilename(txt.name);
+   if(json.size>150000||txt.size>4096)throw Error('Bestand te groot (JSON 150 KB, TXT 4 KB)');
+   const [jsonBytes,txtBytes]=await Promise.all([json.arrayBuffer(),txt.arrayBuffer()]);
+   if(revision!==pairRevision)return;
+   const decode=new TextDecoder('utf-8',{fatal:true});
+   const api=window.PalacoAtelierBundle;
+   if(!api)throw Error('Atelier-validatiemodule niet geladen');
+   const archive=api.parse(decode.decode(jsonBytes));
+   const receipt=decode.decode(txtBytes);
+   const expected=parseBoundReceipt(receipt,json.name);
+   if(!crypto?.subtle?.digest)throw Error('SHA-256 niet beschikbaar in deze browser');
+   const digest=await crypto.subtle.digest('SHA-256',jsonBytes);
+   if(revision!==pairRevision)return;
+   const actual=Array.from(new Uint8Array(digest),value=>value.toString(16).padStart(2,'0')).join('');
+   const count=(archive.exterior?archive.exterior.cells.filter(Boolean).length:0)+(archive.interior?archive.interior.floors.flat().filter(Boolean).length:0);
+   if(actual===expected){
+     lastPairReport={
+       schema:'palaco.citadel.atelier.inspection/1',
+       state:'DRAFT',authority:'NONE',purpose:'LOCAL_INTEGRITY_COMPARISON_ONLY',
+       result:'MATCH',checkedAt:new Date().toISOString(),
+       jsonFile:json.name.replace(/[\x00-\x1f\x7f]/g,' ').slice(0,120),
+       receiptFile:receiptFilename,
+       sha256:actual,exteriorUsed:archive.exterior?archive.exterior.cells.filter(Boolean).length:0,
+       interiorUsed:archive.interior?archive.interior.floors.flat().filter(Boolean).length:0,
+       noteLength:archive.note.length,
+       limitations:['Not a digital signature','No official identity or authority','No proof of source authenticity','No server registration']
+     };
+     $('pairReportSave').disabled=false;
+   }
+
+   status.textContent=actual===expected
+    ?'PAARCONTROLE GESLAAGD: geldig creatief DRAFT-project, autoriteit NONE, '+count+' ingerichte vakken. SHA-256: '+actual+'. De referentie bewijst geen herkomst.'
+    :'WAARSCHUWING: JSON EN TXT KOMEN NIET OVEREEN. Berekend: '+actual+' · verwacht: '+expected+'. Geen gegevens geïmporteerd.';
+ }catch(err){
+   if(revision!==pairRevision)return;
+   status.textContent='Paarcontrole geweigerd: '+err.message+'. Geen gegevens geïmporteerd.';
+ }finally{if(revision===pairRevision)event.target.value='';}
+});
+let verifiedFingerprint=null;
+let loadedReceiptFilename=null;
+let dossierRevision=0;
+$('expectedFingerprint').addEventListener('input',()=>{
+ dossierRevision++;
+ loadedReceiptFilename=null;
+ verifiedFingerprint=null;
+ $('exportFingerprint').disabled=true;
+ $('verifyStatus').textContent='SHA-256-referentie aangepast. Kies het JSON-projectbestand opnieuw voor een verse controle.';
+});
+
+$('exportFingerprint').addEventListener('click',()=>{
+ if(!verifiedFingerprint)return;
+ const {hash,filename}=verifiedFingerprint;
+ // A plain text receipt, without credentials, signature, or official authority.
+ const receipt='PALACO ATELIER · DRAFT SHA-256 REFERENTIE\\n'
+  +'SHA-256: '+hash+'\\n'
+  +'Bestand: '+filename+'\\n'
+  +'Controle: bestandsbytes, geen digitale handtekening of officiële goedkeuring.\\n'
+  +'Bewaar deze referentie afzonderlijk van het projectbestand.\\n';
+ download('PALACO-Atelier-SHA256-Referentie-DRAFT.txt',receipt.replaceAll('\\n',String.fromCharCode(10)),'text/plain;charset=utf-8');
+});
+$('fingerprintReceipt').addEventListener('change',async event=>{
+ const file=event.target.files?.[0];
+ if(!file){event.target.dispatchEvent(new Event('cancel'));return;}
+ const status=$('referenceStatus');
+ const revision=++dossierRevision;
+ verifiedFingerprint=null;
+ $('exportFingerprint').disabled=true;
+ status.textContent='Referentiebestand controleren…';
+ try{
+   safeReceiptFilename(file.name);
+   if(file.size>4096)throw Error('Referentiebestand te groot (maximaal 4 KB)');
+   const content=new TextDecoder('utf-8',{fatal:true}).decode(await file.arrayBuffer());
+   if(revision!==dossierRevision)return;
+   const reference=parseReceiptFields(content);
+   loadedReceiptFilename=reference.filename;
+   $('expectedFingerprint').value=reference.hash;
+   status.textContent='SHA-256-referentie geladen voor '+loadedReceiptFilename+'. Selecteer exact dit JSON-projectbestand voor een verse vergelijking. De referentie is niet geauthenticeerd.';
+   // A prior successful verification is not valid for a newly loaded reference.
+   verifiedFingerprint=null;
+   $('exportFingerprint').disabled=true;
+   $('verifyStatus').textContent='Nieuwe referentie geladen: kies opnieuw het projectbestand voor vergelijking.';
+ }catch(err){
+   if(revision!==dossierRevision)return;
+   $('expectedFingerprint').value='';
+   loadedReceiptFilename=null;
+   verifiedFingerprint=null;
+   $('exportFingerprint').disabled=true;
+   status.textContent='Referentie geweigerd: '+err.message;
+ }finally{if(revision===dossierRevision)event.target.value='';}
+});
+$('bundleVerify').addEventListener('change',async event=>{
+ const file=event.target.files?.[0];
+ if(!file){event.target.dispatchEvent(new Event('cancel'));return;}
+ const status=$('verifyStatus');
+ const revision=++dossierRevision;
+ status.textContent='Projectbestand controleren…';
+ verifiedFingerprint=null;
+ $('exportFingerprint').disabled=true;
+ try{
+   const api=window.PalacoAtelierBundle;
+   if(!api)throw Error('Projectpakket-functie niet geladen');
+   if(file.size>150000)throw Error('Bestand groter dan 150 KB');
+   const projectFilename=safeProjectFilename(file.name);
+   const reference=$('expectedFingerprint').value.trim();
+   if(loadedReceiptFilename!==null&&projectFilename!==loadedReceiptFilename)
+     throw Error('Bestandsnaam in ingeladen SHA-256-referentie komt niet overeen met gekozen JSON-project');
+   if(reference!==''&&!/^[0-9a-fA-F]{64}$/.test(reference))throw Error('Referentie moet precies 64 hexadecimale SHA-256-tekens bevatten');
+   const bytes=await file.arrayBuffer();
+   if(revision!==dossierRevision)return;
+   const contents=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
+   const pack=api.parse(contents);
+   if(!crypto?.subtle?.digest)throw Error('SHA-256 niet beschikbaar in deze browser');
+   const digest=await crypto.subtle.digest('SHA-256',bytes);
+   if(revision!==dossierRevision)return;
+   const fingerprint=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
+   // A mismatched trusted reference cannot unlock a fresh matching-receipt export.
+   const matchesReference=reference===''||fingerprint===reference.toLowerCase();
+   verifiedFingerprint=matchesReference?{hash:fingerprint,filename:projectFilename}:null;
+   $('exportFingerprint').disabled=!matchesReference;
+   const ex=pack.exterior?pack.exterior.cells.filter(Boolean).length:0;
+   const interior=pack.interior?pack.interior.floors.flat().filter(Boolean).length:0;
+   const comparison=reference===''?'Geen eerdere referentie ingevoerd.':fingerprint===reference.toLowerCase()?'REFERENTIE KOMT OVEREEN.':'WAARSCHUWING: SHA-256 KOMT NIET OVEREEN MET DE REFERENTIE.';
+   status.textContent='Geldig creatief DRAFT-project · autoriteit NONE · exterieur '+ex+'/96 · interieur '+interior+'/240 · notitie '+pack.note.length+' tekens · SHA-256: '+fingerprint+'. '+comparison+' Vergelijking is geen digitale handtekening of officiële goedkeuring.';
+ }catch(err){
+   if(revision!==dossierRevision)return;
+   status.textContent='Controle afgewezen: '+err.message+'. Er is niets geïmporteerd.';
+ }finally{if(revision===dossierRevision)event.target.value='';}
+});
+$('bundleImport').addEventListener('change',async event=>{
+ const file=event.target.files?.[0];
+ if(!file)return;
+ try{
+   const api=window.PalacoAtelierBundle;
+   if(!api)throw Error('Projectpakket-functie niet geladen');
+   if(file.size>150000)throw Error('Bestand groter dan 150 KB');
+   const pack=api.parse(await file.text());
+   const ex=pack.exterior?pack.exterior.name:'geen exterieur';
+   const ins=pack.interior?pack.interior.name:'geen interieur';
+   const current=api.snapshot(localStorage);
+   const currentNote=current[2]===null?'':current[2];
+   const pendingNote=noteValue()!==currentNote;
+   const inspection=api.preview(api.read(localStorage),pack);
+   const filledEx=pack.exterior?pack.exterior.cells.filter(Boolean).length:0;
+   const filledIn=pack.interior?pack.interior.floors.flat().filter(Boolean).length:0;
+   const description='DRAFT-pakket: '+ex+' ('+filledEx+'/96), '+ins+' ('+filledIn+'/240), notitie '+pack.note.length+' tekens. '
+    +'Veranderende vakken: '+inspection.changed+'. Leeg te maken vakken: '+inspection.removed+'.'
+    +(inspection.removesExterior?' Exterieur wordt verwijderd.':'')
+    +(inspection.removesInterior?' Interieur wordt verwijderd.':'')
+    +(inspection.noteChanged?' Ontwerpnotitie wordt vervangen.':'');
+   $('bundleStatus').textContent=description;
+   const warning=pendingNote?' LET OP: er staan nog niet-bewaarde notitiewijzigingen in deze pagina.':'';
+   if(!confirm(description+' Herstel vervangt je huidige lokale Atelier-ontwerpen. Exporteer eerst je huidige werk als JSON. Wil je doorgaan?'+warning))return;
+   api.restoreWithRecovery(localStorage,pack,current);
+   $('statement').value=pack.note;
+   refresh();
+   $('bundleStatus').textContent='Projectpakket lokaal hersteld. Open de editors opnieuw om de gegevens te bekijken.';
+   refreshRecoveryInfo();
+ }catch(err){$('bundleStatus').textContent='Herstel geweigerd: '+err.message;}
+ finally{event.target.value='';}
+});
+function refreshRecoveryInfo(){
+ const api=window.PalacoAtelierBundle;
+ const button=$('undoImport'),exportButton=$('exportRecovery');
+ button.disabled=true;exportButton.disabled=true;
+ if(!api){$('recoveryStatus').textContent='Herstelmodule niet geladen.';return;}
+ try{
+   const previous=api.getRecovery(localStorage);
+   if(!previous){$('recoveryStatus').textContent='Nog geen lokale herstelkopie. Maak eerst een DRAFT-export.';return;}
+   button.disabled=false;exportButton.disabled=false;
+   $('recoveryStatus').textContent='Herstelkopie uit '+new Date(previous.savedAt).toLocaleString('nl-NL')+' beschikbaar op dit apparaat. Alleen de laatste import kan direct worden teruggedraaid.';
+ }catch(err){$('recoveryStatus').textContent='Herstelkopie kon niet worden gelezen: '+err.message;}
+}
+$('exportRecovery').addEventListener('click',()=>{
+ const api=window.PalacoAtelierBundle;
+ if(!api){$('bundleStatus').textContent='Herstelmodule niet geladen.';return;}
+ try{
+   const recovered=api.getRecovery(localStorage);
+   if(!recovered){refreshRecoveryInfo();$('bundleStatus').textContent='Geen lokale herstelkopie om te exporteren.';return;}
+   // Export an ordinary validated portable DRAFT bundle, never internal storage metadata.
+   const safe=api.parse(JSON.stringify(recovered.draft));
+   download('PALACO-Atelier-Vorige-Versie-DRAFT.json',JSON.stringify(safe,null,2),'application/json');
+   $('bundleStatus').textContent='Vorige creatieve versie geëxporteerd als overdraagbaar DRAFT JSON. Bestaande ontwerpen blijven ongewijzigd.';
+ }catch(err){
+   $('bundleStatus').textContent='Herstelkopie-export geweigerd: '+err.message;
+   refreshRecoveryInfo();
+ }
+});
+$('undoImport').addEventListener('click',()=>{
+ const api=window.PalacoAtelierBundle;
+ if(!api)return;
+ try{
+   const before=api.snapshot(localStorage);
+   const record=api.getRecovery(localStorage);
+   if(!record){refreshRecoveryInfo();return;}
+   const pending=noteValue()!==(before[2]===null?'':before[2]);
+   const difference=api.preview(api.read(localStorage),record.draft);
+   const warning=pending?' Onopgeslagen tekst in deze pagina gaat verloren.':'';
+   if(!confirm('Vorige lokale Atelier-versie terugzetten? '+difference.changed+' vakken veranderen, '+difference.removed+' ingerichte vakken verdwijnen. De huidige opgeslagen versie wordt dan de nieuwe herstelkopie.'+warning))return;
+   api.undoLastImport(localStorage,before);
+   $('statement').value=record.draft.note;
+   refresh();
+   refreshRecoveryInfo();
+   $('bundleStatus').textContent='Vorige Atelier-versie teruggezet vanuit de lokale herstelkopie.';
+ }catch(err){$('bundleStatus').textContent='Terugzetten geweigerd: '+err.message;refreshRecoveryInfo();}
+});
+$('saveNote').addEventListener('click',saveNote);
+$('refresh').addEventListener('click',()=>{refresh();$('feedback').textContent='Het lokale projectoverzicht is opnieuw geladen.';});
+$('export').addEventListener('click',()=>{refresh();download('PALACO-Atelier-Creatief-Dossier-DRAFT.json',JSON.stringify(packageDraft(),null,2),'application/json');$('feedback').textContent='Creatief DRAFT-dossier geëxporteerd. Geen officiële uitgifte.';});
+$('exportTxt').addEventListener('click',()=>{refresh();const p=packageDraft();const lines=['PALACO CITADEL · CREATIEF PROJECTDOSSIER','DRAFT · AUTHORITY NONE · NIET GEAUTORISEERD','', 'Exterieur: '+(p.exterior?.name||'Niet beschikbaar'),'Interieur: '+(p.interior?.name||'Niet beschikbaar'),'Exterieurpercelen: '+p.summary.exterior_parcels_used+'/96','Natuur en water: '+p.summary.nature_and_water,'Interieurpercelen: '+p.summary.interior_parcels_used+'/240','Interieurfuncties: '+p.summary.interior_functions,'','ONTWERPVERKLARING',p.creative_statement||'(geen notitie)','', 'Geen officieel bewijs, autorisatie, vergunning of wereldactivatie.'];download('PALACO-Atelier-Overzicht-DRAFT.txt',lines.join(String.fromCharCode(10)),'text/plain;charset=utf-8');$('feedback').textContent='Tekstoverzicht geëxporteerd.';});
+
+let selectedView='exterior';
+function renderGallery(){
+  const api=window.PalacoAtelierGallery;
+  if(!api){$('galleryInfo').textContent='Galerijrenderer niet geladen.';return;}
+  try{
+    const model=api.getModel(selectedView,exterior,interior);
+    const svgText=api.renderSvg(model);
+    const doc=new DOMParser().parseFromString(svgText,'image/svg+xml');
+    if(doc.querySelector('parsererror'))throw new Error('SVG kon niet worden verwerkt');
+    const graphic=document.importNode(doc.documentElement,true);
+    $('galleryFrame').replaceChildren(graphic);
+    const amount=model.cells.filter(Boolean).length;
+    $('galleryInfo').textContent=model.available?model.title+' · '+amount+' / '+model.cells.length+' percelen ingericht':'Geen geldig lokaal ontwerp voor '+model.title.toLowerCase()+'.';
+    $('editGallery').href=selectedView==='exterior'?'./studio.html':'./interieur.html';
+    document.querySelectorAll('[data-view]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.view===selectedView)));
+  }catch(err){$('galleryInfo').textContent='Galerijweergave niet beschikbaar: '+err.message;$('galleryFrame').replaceChildren();}
+}
+document.querySelectorAll('[data-view]').forEach(button=>button.addEventListener('click',()=>{
+  selectedView=button.dataset.view;renderGallery();
+}));
+$('saveGallery').addEventListener('click',()=>{
+  const api=window.PalacoAtelierGallery;
+  if(!api){$('feedback').textContent='Kan SVG niet exporteren zonder galerijrenderer.';return;}
+  try{
+    const model=api.getModel(selectedView,exterior,interior);
+    if(!model.available){$('feedback').textContent='Maak eerst een geldig lokaal ontwerp om te exporteren.';return;}
+    const svg=api.renderSvg(model);
+    const name=selectedView==='exterior'?'exterieur':'interieur-verdieping-'+(Number(selectedView)+1);
+    download('PALACO-Atelier-'+name+'-DRAFT.svg',svg,'image/svg+xml;charset=utf-8');
+    $('feedback').textContent='DRAFT-galerijbeeld geëxporteerd.';
+  }catch{$('feedback').textContent='Export van galerijbeeld niet gelukt.';}
+});
+const OFFLINE_ASSETS=[
+  '/atelier/studio.html','/atelier/panorama.html','/atelier/interieur.html',
+  '/atelier/regiekamer.html','/atelier/regiekamer-gallery.js','/atelier/regiekamer-bundle.js'
+];
+let offlineSequence=0;
+async function checkOfflineReady(){
+ const sequence=++offlineSequence;
+ const badge=$('offlineBadge'),description=$('offlineStatus');
+ badge.textContent='Controleren…';
+ const connected=navigator.onLine;
+ let count=0,installed=false;
+ try{
+   if('serviceWorker' in navigator && 'caches' in window){
+     // Register only on this origin and leave activation to the existing root shell.
+     if(connected && (location.protocol==='https:' || location.hostname==='localhost' || location.hostname==='127.0.0.1')){
+       await navigator.serviceWorker.register('/sw.js');
+       await navigator.serviceWorker.ready;
+     }
+     installed=Boolean(await navigator.serviceWorker.getRegistration('/'));
+     const names=await caches.keys();
+     if(names.includes('palaco-rio-shell-v6')){
+       const cache=await caches.open('palaco-rio-shell-v6');
+       const hits=await Promise.all(OFFLINE_ASSETS.map(path=>cache.match(path)));
+       count=hits.filter(Boolean).length;
+     }
+   }
+ }catch(error){
+   if(sequence!==offlineSequence)return;
+   badge.textContent=connected?'Controle beperkt':'Offline-controle beperkt';
+   description.textContent='Cache of serviceworker is niet toegankelijk. Exporteer je werk als DRAFT JSON.';
+   return;
+ }
+ if(sequence!==offlineSequence)return;
+ if(count===OFFLINE_ASSETS.length && installed){
+   badge.textContent=connected?'Offline gereed':'Offline actief';
+   description.textContent=connected?'Zes van zes Atelier-bestanden zijn lokaal gecachet. Je kunt de verbinding verbreken en blijven ontwerpen.':'Geen netwerk; de zes gecontroleerde Atelier-bestanden zijn lokaal beschikbaar.';
+ }else{
+   badge.textContent=connected?'Nog niet offline gereed':'Offline beperkt';
+   description.textContent='Atelier-cache: '+count+' van '+OFFLINE_ASSETS.length+' bestanden. '+(connected?'Controleer opnieuw nadat de serviceworker het pakket heeft opgeslagen.':'Verbind opnieuw met internet om ontbrekende bestanden te installeren.');
+ }
+}
+let repairingOffline=false;
+async function repairOffline(){
+ if(repairingOffline)return;
+ const button=$('repairOffline'),description=$('offlineStatus');
+ if(!navigator.onLine){
+   description.textContent='Offlinepakket kan alleen met internet worden hersteld. Het huidige ontwerp blijft lokaal bewaard.';
+   return;
+ }
+ if(!('serviceWorker' in navigator)||!('caches' in window)){
+   description.textContent='Deze browser biedt geen volledige offlinepakketondersteuning. Bewaar een DRAFT-export.';
+   return;
+ }
+ repairingOffline=true;
+ button.disabled=true;
+ button.textContent='Herstellen…';
+ try{
+   await navigator.serviceWorker.register('/sw.js');
+   await navigator.serviceWorker.ready;
+   // Avoid replacing files already cached; download only missing local resources.
+   const cache=await caches.open('palaco-rio-shell-v6');
+   let repaired=0;
+   for(const resource of OFFLINE_ASSETS){
+     if(await cache.match(resource))continue;
+     const response=await fetch(resource,{cache:'reload'});
+     if(!response.ok)throw Error('HTTP '+response.status+' voor '+resource);
+     await cache.put(resource,response);
+     repaired++;
+   }
+   await checkOfflineReady();
+   const matches=await Promise.all(OFFLINE_ASSETS.map(resource=>cache.match(resource)));
+   if(!matches.every(Boolean))throw Error('Cache onvolledig na herstel');
+   description.textContent='Offlinepakket gecontroleerd: '+repaired+' ontbrekende bestanden hersteld. Alle zes creatieve resources beschikbaar.';
+ }catch(err){
+   await checkOfflineReady();
+   description.textContent='Herstel niet volledig uitgevoerd ('+err.message+'). Controleer de internetverbinding en probeer opnieuw.';
+ }finally{
+   repairingOffline=false;
+   button.disabled=false;
+   button.textContent='↻ Herstel offlinepakket';
+ }
+}
+// Cancelled file-picker dialogs must not leave stale successful inspection badges or downloads.
+$('checkExportFile').addEventListener('cancel',()=>{
+ ++exportCheckRevision;
+ $('exportCheckStatus').textContent='Bestandskeuze geannuleerd. Er is geen nieuwe exportcontrole uitgevoerd.';
+});
+$('pairVerify').addEventListener('cancel',()=>{
+ ++pairRevision;
+ lastPairReport=null;
+ $('pairReportSave').disabled=true;
+ $('pairStatus').textContent='Bestandskeuze geannuleerd. De vorige paarcontrole is ongeldig; selecteer opnieuw JSON en TXT.';
+});
+$('reportVerify').addEventListener('cancel',()=>{
+ ++reportVerifyRevision;
+ $('reportVerifyStatus').textContent='Bestandskeuze geannuleerd. Er is geen actuele drievoudige controle; selecteer opnieuw drie bestanden.';
+ showInspectionResult('idle','Geen actuele controle','De bestandskeuze is geannuleerd. Selecteer opnieuw drie bestanden.');
+});
+$('bundleVerify').addEventListener('cancel',()=>{
+ ++dossierRevision;
+ verifiedFingerprint=null;
+ $('exportFingerprint').disabled=true;
+ $('verifyStatus').textContent='Bestandskeuze geannuleerd. De vorige JSON-controle is ongeldig; kies opnieuw een projectbestand.';
+});
+$('fingerprintReceipt').addEventListener('cancel',()=>{
+ ++dossierRevision;
+ loadedReceiptFilename=null;
+ verifiedFingerprint=null;
+ $('expectedFingerprint').value='';
+ $('exportFingerprint').disabled=true;
+ $('referenceStatus').textContent='Bestandskeuze geannuleerd. De eerdere TXT-referentie is ongeldig; kies opnieuw een controlebewijs.';
+ $('verifyStatus').textContent='TXT-referentie geannuleerd. Vergelijk het JSON-project pas na nieuwe selectie.';
+});
+$('clearInspections').addEventListener('click',()=>{
+ // Invalidate every pending file read/digest before clearing UI or evidence state.
+ ++exportRevision;
+ ++exportCheckRevision;
+ ++pairRevision;
+ ++reportVerifyRevision;
+ ++dossierRevision;
+ lastExportFingerprint=null;
+ lastPairReport=null;
+ verifiedFingerprint=null;
+ loadedReceiptFilename=null;
+ $('expectedFingerprint').value='';
+ for(const id of ['checkExportFile','pairVerify','reportVerify','bundleVerify','fingerprintReceipt'])
+   $(id).value='';
+ for(const id of ['exportBundleReceipt','pairReportSave','exportFingerprint'])
+   $(id).disabled=true;
+ $('checkExportFile').disabled=true;
+ $('exportCheckStatus').textContent='Controle gewist. Exporteer opnieuw om een nieuwe bestandscontrole te starten.';
+ $('bundleReceiptStatus').textContent='Tijdelijke SHA-256-referentie gewist. Exporteer het project opnieuw.';
+ $('pairStatus').textContent='Paarcontrole gewist. Selecteer opnieuw JSON en TXT.';
+ $('reportVerifyStatus').textContent='Drievoudige controle gewist. Selecteer opnieuw drie bestanden.';
+ showInspectionResult('idle','Geen actuele controle','De tijdelijke dossiercontrole is gewist. Selecteer opnieuw drie bestanden.');
+ $('verifyStatus').textContent='Dossiercontrole gewist. Selecteer opnieuw een JSON-projectbestand.';
+ $('referenceStatus').textContent='Tijdelijke TXT-referentie gewist. Kies opnieuw een vertrouwd controlebewijs.';
+ $('bundleStatus').textContent='Tijdelijke controle-uitkomsten gewist; opgeslagen creatieve ontwerpen niet gewijzigd.';
+ $('referenceStatus').focus({preventScroll:true});
+});
+$('repairOffline').addEventListener('click',repairOffline);
+$('checkOffline').addEventListener('click',checkOfflineReady);
+window.addEventListener('online',checkOfflineReady);
+window.addEventListener('offline',checkOfflineReady);
+if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('controllerchange',checkOfflineReady);
+window.addEventListener('storage',e=>{if([EX,IN].includes(e.key))refresh();if(e.key===NOTE&&typeof e.newValue==='string')$('statement').value=e.newValue.slice(0,6000);});
+try{const v=localStorage.getItem(NOTE);if(v)$('statement').value=v.slice(0,6000);}catch{$('feedback').textContent='Lokale opslag is niet toegankelijk; export blijft beschikbaar.';}
+refresh();
+refreshRecoveryInfo();
+checkOfflineReady();
+</script></body></html>

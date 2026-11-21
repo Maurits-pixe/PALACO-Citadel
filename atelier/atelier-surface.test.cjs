@@ -1,0 +1,153 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const vm=require('node:vm');
+const atelier=__dirname;
+const read=name=>fs.readFileSync(path.join(atelier,name),'utf8');
+const routes=['wizard.html','studio.html','panorama.html','interieur.html','regiekamer.html'];
+test('all five historic and new Atelier pages remain present with valid document envelopes',()=>{
+  for(const route of routes){
+    const html=read(route);
+    assert.match(html,/<!doctype html>/i,route);
+    assert.match(html,/<html lang="nl">/i,route);
+    assert.match(html,/<\/html>\s*$/i,route);
+    assert.match(html,/<meta name="viewport"/i,route);
+  }
+});
+test('every route has a reversible navigation path back to Regiekamer',()=>{
+  for(const route of routes.slice(0,4))
+    assert.match(read(route),/href="\.\/regiekamer\.html"/,route);
+  const hub=read('regiekamer.html');
+  for(const route of routes.slice(0,4))
+    assert.ok(hub.includes('href="./'+route+'"'),route);
+});
+test('all inline Atelier scripts parse without executing browser side effects',()=>{
+  for(const route of routes){
+    const source=read(route);
+    for(const [,script] of source.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)){
+      if(!script.trim())continue;
+      assert.doesNotThrow(()=>new vm.Script(script,{filename:route}),route);
+    }
+  }
+});
+test('gallery and bundle dependencies resolve as local static scripts',()=>{
+  const html=read('regiekamer.html');
+  assert.match(html,/src="\.\/regiekamer-gallery\.js"/);
+  assert.match(html,/src="\.\/regiekamer-bundle\.js"/);
+  assert.ok(fs.existsSync(path.join(atelier,'regiekamer-gallery.js')));
+  assert.ok(fs.existsSync(path.join(atelier,'regiekamer-bundle.js')));
+});
+test('shared browser modules keep read-only and DRAFT contracts',()=>{
+  const bundle=read('regiekamer-bundle.js');
+  const gallery=read('regiekamer-gallery.js');
+  assert.match(bundle,/authority==='NONE'/);
+  assert.match(bundle,/state==='DRAFT'/);
+  assert.match(gallery,/authority==='NONE'/);
+  assert.match(gallery,/state==='DRAFT'/);
+  assert.match(read('regiekamer.html'),/api\.restoreWithRecovery\(localStorage,pack,current\)/);
+  assert.match(read('regiekamer.html'),/api\.undoLastImport\(localStorage,before\)/);
+  assert.match(read('regiekamer.html'),/id="exportRecovery" disabled/);
+  assert.match(read('regiekamer.html'),/api\.getRecovery\(localStorage\)/);
+  assert.match(read('regiekamer.html'),/id="bundleVerify"/);
+  assert.match(read('regiekamer.html'),/crypto\.subtle\.digest\('SHA-256',bytes\)/);
+  assert.match(read('regiekamer.html'),/id="expectedFingerprint"/);
+  assert.match(read('regiekamer.html'),/fingerprint===reference\.toLowerCase\(\)/);
+  assert.match(read('regiekamer.html'),/WAARSCHUWING: SHA-256 KOMT NIET OVEREEN/);
+  assert.match(read('regiekamer.html'),/id="exportFingerprint" disabled/);
+  assert.match(read('regiekamer.html'),/id="exportBundleReceipt" disabled/);
+  assert.match(read('regiekamer.html'),/id="checkExportFile"[^>]*disabled/);
+  assert.match(read('regiekamer.html'),/id="pairVerify"/);
+  assert.match(read('regiekamer.html'),/PAARCONTROLE GESLAAGD/);
+  assert.match(read('regiekamer.html'),/id="pairReportSave"[^>]*disabled/);
+  assert.match(read('regiekamer.html'),/id="reportVerify"/);
+  assert.match(read('regiekamer.html'),/DRIEVOUDIGE CONTROLE GESLAAGD/);
+  assert.match(read('regiekamer.html'),/function parseBoundReceipt\(/);
+  assert.match(read('regiekamer.html'),/function parseReceiptFields\(/);
+  assert.match(read('regiekamer.html'),/const orderedLines=\[/);
+  assert.match(read('regiekamer.html'),/presentHeaders\.length>1/);
+  assert.match(read('regiekamer.html'),/ongeldige regelvolgorde/);
+  assert.match(read('regiekamer.html'),/if\(lines\[lines\.length-1\]===''\)lines\.pop\(\)/);
+  assert.match(read('regiekamer.html'),/TXT-bewijs bevat lege of extra regels/);
+  assert.match(read('regiekamer.html'),/function safeProjectFilename\(name\)/);
+  assert.match(read('regiekamer.html'),/jsonFiles\.forEach\(file=>safeProjectFilename\(file\.name\)\)/);
+  assert.match(read('regiekamer.html'),/jsonFiles\[0\]\.name===jsonFiles\[1\]\.name/);
+  assert.match(read('regiekamer.html'),/verschillende JSON-bestandsnamen hebben/);
+  assert.match(read('regiekamer.html'),/function safeReceiptFilename\(name\)/);
+  assert.match(read('regiekamer.html'),/safeReceiptFilename\(txtFiles\[0\]\.name\)/);
+  assert.match(read('regiekamer.html'),/safeReceiptFilename\(txt\.name\)/);
+  assert.match(read('regiekamer.html'),/safeReceiptFilename\(file\.name\)/);
+  assert.match(read('regiekamer.html'),/receiptFile:receiptFilename/);
+  assert.match(read('regiekamer.html'),/const projectFilename=safeProjectFilename\(file\.name\)/);
+  assert.match(read('regiekamer.html'),/filename:safeProjectFilename\(nameLines\[0\]/);
+  assert.match(read('regiekamer.html'),/const expected=safeProjectFilename\(projectFilename\)/);
+  assert.match(read('regiekamer.html'),/misleidende Unicode-richtingstekens/);
+  assert.match(read('regiekamer.html'),/dubbele toelichtingsregels/);
+  assert.match(read('regiekamer.html'),/te veel of te lange regels/);
+  assert.match(read('regiekamer.html'),/const reference=parseReceiptFields\(content\)/);
+  assert.match(read('regiekamer.html'),/let loadedReceiptFilename=null/);
+  assert.match(read('regiekamer.html'),/Bestandsnaam in ingeladen SHA-256-referentie komt niet overeen/);
+  assert.match(read('regiekamer.html'),/allowedNotes\.includes\(line\)/);
+  assert.match(read('regiekamer.html'),/onbekende of misleidende regel/);
+  assert.match(read('regiekamer.html'),/ongeldige besturingstekens/);
+  assert.match(read('regiekamer.html'),/parseBoundReceipt\(receipt,projectEntry\.file\.name\)/);
+  assert.match(read('regiekamer.html'),/parseBoundReceipt\(receipt,json\.name\)/);
+  assert.match(read('regiekamer.html'),/if\(revision!==reportVerifyRevision\)return/);
+  assert.match(read('regiekamer.html'),/report\.authority!=='NONE'/);
+  assert.match(read('regiekamer.html'),/reportFields\.includes\(key\)/);
+  assert.match(read('regiekamer.html'),/requiredLimitations/);
+  assert.match(read('regiekamer.html'),/new Date\(report\.checkedAt\)\.toISOString\(\)/);
+  assert.match(read('regiekamer.html'),/LOCAL_INTEGRITY_COMPARISON_ONLY/);
+  assert.match(read('regiekamer.html'),/lastPairReport=null/);
+  assert.match(read('regiekamer.html'),/JSON EN TXT KOMEN NIET OVEREEN/);
+  assert.match(read('regiekamer.html'),/api\.parse\(decode\.decode\(jsonBytes\)\)/);
+  assert.match(read('regiekamer.html'),/CONTROLE GESLAAGD/);
+  assert.match(read('regiekamer.html'),/revision!==exportRevision/);
+  assert.match(read('regiekamer.html'),/let exportCheckRevision=0/);
+  assert.match(read('regiekamer.html'),/id="clearInspections"/);
+  assert.match(read('regiekamer.html'),/id="inspectionResult" class="inspection-result" data-result="idle"/);
+  assert.match(read('regiekamer.html'),/function showInspectionResult\(result,heading,detail\)/);
+  assert.match(read('regiekamer.html'),/showInspectionResult\(matched\?'match':'mismatch'/);
+  assert.match(read('regiekamer.html'),/showInspectionResult\('rejected'/);
+  assert.match(read('regiekamer.html'),/showInspectionResult\('idle'/);
+  assert.match(read('regiekamer.html'),/\$\('checkExportFile'\)\.addEventListener\('cancel'/);
+  assert.match(read('regiekamer.html'),/\$\('pairVerify'\)\.addEventListener\('cancel'/);
+  assert.match(read('regiekamer.html'),/\$\('reportVerify'\)\.addEventListener\('cancel'/);
+  assert.match(read('regiekamer.html'),/\$\('bundleVerify'\)\.addEventListener\('cancel'/);
+  assert.match(read('regiekamer.html'),/\$\('fingerprintReceipt'\)\.addEventListener\('cancel'/);
+  assert.match(read('regiekamer.html'),/id="clearInspections" aria-describedby="clearExplanation"/);
+  assert.match(read('regiekamer.html'),/id="referenceStatus" role="status" aria-live="polite" tabindex="-1"/);
+  assert.match(read('regiekamer.html'),/referenceStatus'\)\.focus\(\{preventScroll:true\}\)/);
+  assert.match(read('regiekamer.html'),/id="pairVerify" aria-describedby="pairStatus"/);
+  assert.match(read('regiekamer.html'),/min-height:44px/);
+  assert.match(read('regiekamer.html'),/\$\('clearInspections'\)\.addEventListener\('click'/);
+  assert.match(read('regiekamer.html'),/\+\+reportVerifyRevision/);
+  assert.match(read('regiekamer.html'),/\+\+dossierRevision/);
+  assert.match(read('regiekamer.html'),/lastPairReport=null/);
+  assert.match(read('regiekamer.html'),/selection!==exportCheckRevision/);
+  assert.match(read('regiekamer.html'),/revision===exportRevision&&selection===exportCheckRevision/);
+  assert.match(read('regiekamer.html'),/revision===dossierRevision\)event\.target\.value/);
+  assert.match(read('regiekamer.html'),/revision===pairRevision\)event\.target\.value/);
+  assert.match(read('regiekamer.html'),/revision===reportVerifyRevision\)event\.target\.value/);
+  assert.match(read('regiekamer.html'),/new TextEncoder\(\)\.encode\(serialized\)/);
+  assert.match(read('regiekamer.html'),/lastExportFingerprint=\{hash\}/);
+  assert.match(read('regiekamer.html'),/verifiedFingerprint=null/);
+  assert.match(read('regiekamer.html'),/PALACO-Atelier-SHA256-Referentie-DRAFT\.txt/);
+  assert.match(read('regiekamer.html'),/id="fingerprintReceipt"/);
+  assert.match(read('regiekamer.html'),/Referentie geweigerd/);
+  assert.match(read('regiekamer.html'),/addEventListener\('input'/);
+  assert.match(read('regiekamer.html'),/const matchesReference=reference===/);
+  assert.match(read('regiekamer.html'),/let dossierRevision=0/);
+  assert.match(read('regiekamer.html'),/if\(revision!==dossierRevision\)return/);
+  assert.match(read('regiekamer.html'),/verifiedFingerprint=matchesReference\?/);
+  assert.match(read('regiekamer.html'),/safeProjectFilename\(file\.name\)/);
+});
+test('original New Citadel identity wizard is still linked and cannot authorize',()=>{
+  const wizard=read('wizard.html');
+  assert.match(wizard,/New Citadel/);
+  assert.match(wizard,/RIO/);
+  assert.match(wizard,/DRAFT/);
+  assert.match(wizard,/href="\.\/studio\.html"/);
+  assert.match(wizard,/href="\.\/regiekamer\.html"/);
+});

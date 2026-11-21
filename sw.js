@@ -1,8 +1,10 @@
-const CACHE_NAME = 'palaco-rio-shell-v5';
+const CACHE_NAME = 'palaco-rio-shell-v6';
 const SHELL_ASSETS = [
   '/', '/index.html', '/styles.css', '/app.js', '/manifest.webmanifest',
   '/assets/icon-192.svg', '/assets/icon-512.svg',
   '/atelier/wizard.html', '/atelier/wizard.css', '/atelier/wizard.js',
+  '/atelier/studio.html', '/atelier/panorama.html', '/atelier/interieur.html',
+  '/atelier/regiekamer.html', '/atelier/regiekamer-gallery.js', '/atelier/regiekamer-bundle.js',
   '/DOCS/levensader-readonly/', '/DOCS/levensader-readonly/index.html'
 ];
 
