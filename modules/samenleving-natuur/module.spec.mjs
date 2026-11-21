@@ -1671,3 +1671,82 @@ test('issuer succession expires and input edits invalidate previous results',asy
  await page.locator('#issuerRotationNewKey').fill('{}');
  await expect(page.locator('#issuerRotationStatus')).toContainText('opnieuw controleren vereist');
 });
+
+async function issuerRevocationFixture(page,{badIssuer=false,badReviewer=false,expired=false,future=false}={}){
+ return page.evaluate(async ({badIssuer,badReviewer,expired,future})=>{
+  const canonical=v=>Array.isArray(v)?'['+v.map(canonical).join(',')+']':v&&typeof v==='object'?'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canonical(v[k])).join(',')+'}':JSON.stringify(v);
+  const pairs=await Promise.all([0,1].map(()=>crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify'])));
+  const pubs=await Promise.all(pairs.map(async p=>{const j=await crypto.subtle.exportKey('jwk',p.publicKey);return {kty:'EC',crv:'P-256',x:j.x,y:j.y}}));
+  const fingerprint=async j=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonical(j)))),b=>b.toString(16).padStart(2,'0')).join('');
+  const now=Date.now(),data={schema:'palaco-citadel-audit-issuer-revocation-v1',epoch:4,reason:'security-revocation',
+    issuedAt:new Date(now-7200000).toISOString(),effectiveAt:new Date(now+(future?3600000:-3600000)).toISOString(),
+    expiresAt:new Date(now+(expired?-1000:3600000)).toISOString(),
+    issuerFingerprint:await fingerprint(pubs[0]),reviewerFingerprint:await fingerprint(pubs[1])};
+  const payload=new TextEncoder().encode(canonical(data));
+  const sigs=await Promise.all(pairs.map(p=>crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},p.privateKey,payload)));
+  const b64=x=>btoa(String.fromCharCode(...new Uint8Array(x)));
+  const revocation={...data,issuerSignature:badIssuer?btoa('bad issuer signature'):b64(sigs[0]),reviewerSignature:badReviewer?btoa('bad reviewer signature'):b64(sigs[1])};
+  return {issuer:pubs[0],reviewer:pubs[1],revocation};
+ },{badIssuer,badReviewer,expired,future});
+}
+async function uploadIssuerRevocation(page,f,{pin=true}={}){
+ if(pin)await page.evaluate(fp=>localStorage.setItem('palaco.citadel.audit-issuer-pin.v1',JSON.stringify({schema:'palaco-citadel-local-issuer-pin-v1',fingerprint:fp})),f.revocation.issuerFingerprint);
+ await page.locator('#issuerRevokeKey').fill(JSON.stringify(f.issuer));
+ await page.locator('#issuerRevokeReviewer').fill(JSON.stringify(f.reviewer));
+ await page.locator('#issuerRevokeFile').setInputFiles({name:'issuer-revoke.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(f.revocation))});
+}
+test('dual signed audit issuer revocation verifies without altering pinned issuer',async ({page})=>{
+ await signedPreviewFixture(page);
+ const f=await issuerRevocationFixture(page);
+ await uploadIssuerRevocation(page,f);
+ await page.locator('#verifyIssuerRevoke').click();
+ await expect(page.locator('#issuerRevokeStatus')).toContainText('UITGEVERSINTREKKING DUBBEL CRYPTOGRAFISCH GELDIG');
+ await expect(page.locator('#issuerRevokeStatus')).toContainText('GEEN AUTOMATISCHE INTREKKING');
+ const pin=await page.evaluate(()=>JSON.parse(localStorage.getItem('palaco.citadel.audit-issuer-pin.v1')));
+ expect(pin.fingerprint).toBe(f.revocation.issuerFingerprint);
+});
+
+test('issuer revocation rejects incorrect pinned issuer or absent pin',async ({page})=>{
+ await signedPreviewFixture(page);
+ const f=await issuerRevocationFixture(page);
+ await uploadIssuerRevocation(page,f,{pin:false});
+ await page.locator('#verifyIssuerRevoke').click();
+ await expect(page.locator('#issuerRevokeStatus')).toContainText('UITGEVERSINTREKKING AFGEWEZEN');
+ await page.evaluate(()=>localStorage.setItem('palaco.citadel.audit-issuer-pin.v1',JSON.stringify({schema:'palaco-citadel-local-issuer-pin-v1',fingerprint:'0'.repeat(64)})));
+ await page.locator('#verifyIssuerRevoke').click();
+ await expect(page.locator('#issuerRevokeStatus')).toContainText('UITGEVERSINTREKKING AFGEWEZEN');
+});
+
+test('issuer revocation rejects forged issuer signature',async ({page})=>{
+ await signedPreviewFixture(page);
+ const f=await issuerRevocationFixture(page,{badIssuer:true});
+ await uploadIssuerRevocation(page,f);
+ await page.locator('#verifyIssuerRevoke').click();
+ await expect(page.locator('#issuerRevokeStatus')).toContainText('UITGEVERSINTREKKING AFGEWEZEN');
+});
+
+test('issuer revocation rejects forged independent reviewer signature',async ({page})=>{
+ await signedPreviewFixture(page);
+ const f=await issuerRevocationFixture(page,{badReviewer:true});
+ await uploadIssuerRevocation(page,f);
+ await page.locator('#verifyIssuerRevoke').click();
+ await expect(page.locator('#issuerRevokeStatus')).toContainText('UITGEVERSINTREKKING AFGEWEZEN');
+});
+
+test('issuer revocation rejects expired or future-effective attestations and invalidates stale results',async ({page})=>{
+ await signedPreviewFixture(page);
+ const expired=await issuerRevocationFixture(page,{expired:true});
+ await uploadIssuerRevocation(page,expired);
+ await page.locator('#verifyIssuerRevoke').click();
+ await expect(page.locator('#issuerRevokeStatus')).toContainText('UITGEVERSINTREKKING AFGEWEZEN');
+ const future=await issuerRevocationFixture(page,{future:true});
+ await uploadIssuerRevocation(page,future);
+ await page.locator('#verifyIssuerRevoke').click();
+ await expect(page.locator('#issuerRevokeStatus')).toContainText('UITGEVERSINTREKKING AFGEWEZEN');
+ const valid=await issuerRevocationFixture(page);
+ await uploadIssuerRevocation(page,valid);
+ await page.locator('#verifyIssuerRevoke').click();
+ await expect(page.locator('#issuerRevokeStatus')).toContainText('UITGEVERSINTREKKING DUBBEL CRYPTOGRAFISCH GELDIG');
+ await page.locator('#issuerRevokeReviewer').fill('{}');
+ await expect(page.locator('#issuerRevokeStatus')).toContainText('opnieuw controleren vereist');
+});
