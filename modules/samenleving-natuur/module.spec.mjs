@@ -1595,3 +1595,79 @@ test('issuer confirmation candidate is invalidated by key input change',async ({
  await expect(page.locator('#pinAuditIssuer')).toBeDisabled();
  await expect(page.locator('#auditVerifyStatus')).toContainText('opnieuw controleren vereist');
 });
+
+async function issuerSuccessionFixture(page,{tamperOld=false,tamperNew=false,expired=false}={}){
+ return page.evaluate(async ({tamperOld,tamperNew,expired})=>{
+  const canonical=v=>Array.isArray(v)?'['+v.map(canonical).join(',')+']':v&&typeof v==='object'?'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canonical(v[k])).join(',')+'}':JSON.stringify(v);
+  const pairs=await Promise.all([0,1].map(()=>crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify'])));
+  const pubs=await Promise.all(pairs.map(async p=>{const j=await crypto.subtle.exportKey('jwk',p.publicKey);return {kty:'EC',crv:'P-256',x:j.x,y:j.y}}));
+  const fingerprint=async j=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonical(j)))),b=>b.toString(16).padStart(2,'0')).join('');
+  const now=Date.now(),data={schema:'palaco-citadel-audit-issuer-rotation-v1',epoch:2,
+   issuedAt:new Date(now-3600000).toISOString(),expiresAt:new Date(now+(expired?-1000:3600000)).toISOString(),
+   oldFingerprint:await fingerprint(pubs[0]),newFingerprint:await fingerprint(pubs[1])};
+  const payload=new TextEncoder().encode(canonical(data));
+  const sigs=await Promise.all(pairs.map(p=>crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},p.privateKey,payload)));
+  const b64=s=>btoa(String.fromCharCode(...new Uint8Array(s)));
+  const declaration={...data,oldSignature:b64(sigs[0]),newSignature:b64(sigs[1])};
+  if(tamperOld)declaration.oldSignature=btoa('incorrect old signer signature');
+  if(tamperNew)declaration.newSignature=btoa('incorrect new signer signature');
+  return {oldKey:pubs[0],newKey:pubs[1],declaration};
+ },{tamperOld,tamperNew,expired});
+}
+async function uploadIssuerSuccession(page,f){
+ await page.evaluate(fp=>localStorage.setItem('palaco.citadel.audit-issuer-pin.v1',JSON.stringify({schema:'palaco-citadel-local-issuer-pin-v1',fingerprint:fp})),f.declaration.oldFingerprint);
+ await page.locator('#issuerRotationOldKey').fill(JSON.stringify(f.oldKey));
+ await page.locator('#issuerRotationNewKey').fill(JSON.stringify(f.newKey));
+ await page.locator('#issuerRotationFile').setInputFiles({name:'issuer-succession.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(f.declaration))});
+}
+
+test('dual issuer succession signature validates without activating new issuer',async ({page})=>{
+ await signedPreviewFixture(page);
+ const f=await issuerSuccessionFixture(page);
+ await uploadIssuerSuccession(page,f);
+ await page.locator('#verifyIssuerRotation').click();
+ await expect(page.locator('#issuerRotationStatus')).toContainText('DUBBELE UITGEVERSOPVOLGING CRYPTOGRAFISCH GELDIG');
+ await expect(page.locator('#issuerRotationStatus')).toContainText('NIET GEACTIVEERD');
+ const pinned=await page.evaluate(()=>JSON.parse(localStorage.getItem('palaco.citadel.audit-issuer-pin.v1')));
+ expect(pinned.fingerprint).toBe(f.declaration.oldFingerprint);
+});
+
+test('issuer succession refuses invalid signature by existing issuer',async ({page})=>{
+ await signedPreviewFixture(page);
+ const f=await issuerSuccessionFixture(page,{tamperOld:true});
+ await uploadIssuerSuccession(page,f);
+ await page.locator('#verifyIssuerRotation').click();
+ await expect(page.locator('#issuerRotationStatus')).toContainText('UITGEVERSOPVOLGING AFGEWEZEN');
+});
+
+test('issuer succession refuses invalid signature by incoming issuer',async ({page})=>{
+ await signedPreviewFixture(page);
+ const f=await issuerSuccessionFixture(page,{tamperNew:true});
+ await uploadIssuerSuccession(page,f);
+ await page.locator('#verifyIssuerRotation').click();
+ await expect(page.locator('#issuerRotationStatus')).toContainText('UITGEVERSOPVOLGING AFGEWEZEN');
+});
+
+test('issuer succession requires pinned current issuer rather than unpinned claims',async ({page})=>{
+ await signedPreviewFixture(page);
+ const f=await issuerSuccessionFixture(page);
+ await page.locator('#issuerRotationOldKey').fill(JSON.stringify(f.oldKey));
+ await page.locator('#issuerRotationNewKey').fill(JSON.stringify(f.newKey));
+ await page.locator('#issuerRotationFile').setInputFiles({name:'issuer-succession.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(f.declaration))});
+ await page.locator('#verifyIssuerRotation').click();
+ await expect(page.locator('#issuerRotationStatus')).toContainText('UITGEVERSOPVOLGING AFGEWEZEN');
+});
+
+test('issuer succession expires and input edits invalidate previous results',async ({page})=>{
+ await signedPreviewFixture(page);
+ const f=await issuerSuccessionFixture(page,{expired:true});
+ await uploadIssuerSuccession(page,f);
+ await page.locator('#verifyIssuerRotation').click();
+ await expect(page.locator('#issuerRotationStatus')).toContainText('UITGEVERSOPVOLGING AFGEWEZEN');
+ const valid=await issuerSuccessionFixture(page);
+ await uploadIssuerSuccession(page,valid);
+ await page.locator('#verifyIssuerRotation').click();
+ await expect(page.locator('#issuerRotationStatus')).toContainText('DUBBELE UITGEVERSOPVOLGING CRYPTOGRAFISCH GELDIG');
+ await page.locator('#issuerRotationNewKey').fill('{}');
+ await expect(page.locator('#issuerRotationStatus')).toContainText('opnieuw controleren vereist');
+});
