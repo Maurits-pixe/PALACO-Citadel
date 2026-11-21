@@ -54,3 +54,13 @@ De publieke MUNDO World Atlas heeft nu een verfijnde CSS-wereldbol met:
 **Geen claim van werkelijke 3D-geometrie:** de bol is CSS-vormgeving. Lichtinval en kanteling berekenen geen fysisch accurate baan, topografie, klimaat, coördinaten of astronomische toestand. Er is geen live kaartbron, sessie, persoonsgegeven, tracking, lokale opslag of nieuw PALACO-account aan toegevoegd.
 
 Publicatie betreft uitsluitend de al toegestane openbare demonstratie op Render; de originele L.A. — Citadel Preview blijft privé. GitHub PR #58 blijft DRAFT/HOLD en wordt niet gemerged. Functionele acceptatie door de eigenaar staat nog open.
+
+## ATLAS-LIBRARY-007 — doorzoekbare atlasbibliotheek
+
+De publieke MUNDO-Atlas heeft een expliciet bibliotheekoverzicht met **21 conceptuele hoofdstukvermeldingen**: de zeven bekende werelden × de drie bestaande categorieën Wereldidentiteit, Geografie en Herkomst & bewijs.
+
+De bibliotheek bevat een zoekveld, wereldfilter, hoofdstukfilter, zichtbare resultaatteller en knoppen die de geselecteerde wereld en het hoofdstuk openen in het reeds bestaande World Studio-paneel. De knoppen verplaatsen ook de toetsenbordfocus naar de hoofdstuktitel. De atlasnavigatie bevat een directe ankerlink naar de bibliotheek. Alle data komt uit de bestaande statische lijst en wordt als tekst aan de DOM toegevoegd; er worden geen extra werelden, documenten, rechten, geografie of eigendomsclaims geïntroduceerd.
+
+**Bronstatus en privacy:** alleen wereldnamen/ID's zijn bekende projectcontext; geografische gegevens, lineage-dossiers, EDTR-uitgiftes en eigendom zijn niet gekoppeld of geverifieerd. Zoektermen en filters blijven uitsluitend in browsergeheugen en worden niet opgeslagen of verzonden. Dit is geen live bibliotheekbackend.
+
+De afzonderlijke publieke Render-preview mag handmatig worden bijgewerkt op het al toegestane adres; autoDeploy blijft uit. De echte privé-Citadel Sites-frontend, autorisaties en de DRAFT/HOLD-status van PR #58 blijven ongewijzigd. Geen functionele tests uitgevoerd.
