@@ -282,3 +282,32 @@ test('locking a selected dossier hides inspector, revokes consent and moves focu
  assert.equal(h.nodes.get('#handoffConsent').checked,false);
  assert.equal(h.nodes.get('#count').textContent,0);
 });
+
+test('successful local archive restore revokes stale handoff consent and focuses timeline',()=>{
+ const seed={id:'prior-local-record',createdAt:'2026-11-17T12:00:00.000Z',previousId:'',version:1,trust:'SELF_REPORTED_NOT_VERIFIED',title:'Herstelrecord',who:'W',what:'Herstel',where:'',why:'',how:'',source:'',category:'Persoonlijk'};
+ const h=harness([seed]);enter(h,'Bestaand dossier');
+ h.nodes.get('#timeline').children[0].children.at(-1).children[1].dispatch('click');
+ h.nodes.get('#handoffConsent').checked=true;
+ h.nodes.get('#restore').dispatch('click');
+ assert.equal(h.nodes.get('#count').textContent,2);
+ assert.equal(h.nodes.get('#handoffConsent').checked,false);
+ assert.equal(h.nodes.get('#dossier').className,'panel hidden');
+ assert.equal(h.nodes.get('#timeline').focused,true);
+ h.nodes.get('#contractExport').dispatch('click');
+ assert.equal(h.sandbox.latestBlob,undefined);
+});
+test('successful legacy JSON import revokes stale handoff consent and focuses timeline',async()=>{
+ const h=harness();enter(h,'Bestaand concept');
+ h.nodes.get('#timeline').children[0].children.at(-1).children[1].dispatch('click');
+ h.nodes.get('#handoffConsent').checked=true;
+ const incoming={id:'incoming-record',createdAt:'2026-11-17T12:00:00.000Z',previousId:'',version:1,trust:'SELF_REPORTED_NOT_VERIFIED',title:'Nieuwe import',who:'W',what:'Imported',where:'',why:'',how:'',source:'',category:'Persoonlijk'};
+ const raw=JSON.stringify({schema:'PALACO-CITADEL-GEHEUGEN-1',authority:'NONE',status:'LOCAL_DRAFT_ONLY',issuedAt:null,exportedAt:new Date().toISOString(),entries:[incoming]});
+ const file=h.nodes.get('#file');file.files=[{size:raw.length,text:async()=>raw}];
+ await file.dispatch('change');
+ assert.equal(h.nodes.get('#count').textContent,2);
+ assert.equal(h.nodes.get('#handoffConsent').checked,false);
+ assert.equal(h.nodes.get('#dossier').className,'panel hidden');
+ assert.equal(h.nodes.get('#timeline').focused,true);
+ h.nodes.get('#contractExport').dispatch('click');
+ assert.equal(h.sandbox.latestBlob,undefined);
+});
