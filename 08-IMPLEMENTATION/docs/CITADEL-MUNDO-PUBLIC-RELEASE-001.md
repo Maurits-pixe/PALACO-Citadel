@@ -64,3 +64,13 @@ De bibliotheek bevat een zoekveld, wereldfilter, hoofdstukfilter, zichtbare resu
 **Bronstatus en privacy:** alleen wereldnamen/ID's zijn bekende projectcontext; geografische gegevens, lineage-dossiers, EDTR-uitgiftes en eigendom zijn niet gekoppeld of geverifieerd. Zoektermen en filters blijven uitsluitend in browsergeheugen en worden niet opgeslagen of verzonden. Dit is geen live bibliotheekbackend.
 
 De afzonderlijke publieke Render-preview mag handmatig worden bijgewerkt op het al toegestane adres; autoDeploy blijft uit. De echte privé-Citadel Sites-frontend, autorisaties en de DRAFT/HOLD-status van PR #58 blijven ongewijzigd. Geen functionele tests uitgevoerd.
+
+## ATLAS-SOURCE-MATRIX-008 — controleerbare bronstatus per wereld
+
+De openbare Atlas bevat een **bron- en bewijsregister** met zeven wereldregels en vijf expliciet onderscheiden velden: bekende naam/ID uit de lokale projectcontext, geografische bron, herkomst/EDTR, live koppeling en inspectie.
+
+Elke regel heeft een toegankelijke inspectieactie die het gekozen wereldprofiel opent en de ontbrekende voorwaarden toelicht. Alle wereldvermeldingen zijn momenteel gelijk geclassificeerd: naam en ID zijn lokaal bekende projectcontext; geografische gegevens en live MUNDO-bronnen zijn **niet gekoppeld**, herkomst/EDTR is **niet geverifieerd**. Dit is geen uitspraak dat echte externe bronnen niet bestaan: uitsluitend dat ze niet bij deze publieke demonstratie zijn aangesloten.
+
+De bronmatrix gebruikt uitsluitend vaste gegevens, `textContent`, geen externe services, geen opgave van handtekeningen of uitgifte van verificatiebewijzen. Voor echte gegevens moeten bronauthenticiteit, revisies, toegangsbeleid en lineage afzonderlijk worden gecontroleerd door de originele, afgeschermde MUNDO/Citadel-host.
+
+De publieke Render-site mag handmatig bijgewerkt worden; autoDeploy blijft uit. De oorspronkelijke privé-Citadel, PALACO ONE-identiteitslaag en DRAFT/HOLD PR #58 blijven ongewijzigd. Functionele acceptatie door de eigenaar blijft open.
