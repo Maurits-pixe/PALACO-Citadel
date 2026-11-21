@@ -1359,3 +1359,56 @@ test('switching to required signature policy invalidates earlier hash-only resul
  await page.locator('#verifyAuditFile').click();
  await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
 });
+
+async function attachAuditRegistry(page,report,fixture,{status='active',fingerprint=fixture.detached.signerFingerprint,expired=false}={}){
+ const checked=Date.parse(report.checkedAt);
+ const registry={schema:'palaco-citadel-audit-key-registry-v1',role:'audit-signer',status,fingerprint,
+  notBefore:new Date(checked-3600000).toISOString(),notAfter:new Date(expired?checked-1000:checked+3600000).toISOString()};
+ await page.locator('#auditVerifyFile').setInputFiles({name:'audit.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(report))});
+ await page.locator('#auditSignerKey').fill(JSON.stringify(fixture.publicKey));
+ await page.locator('#auditSignatureFile').setInputFiles({name:'signature.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.detached))});
+ await page.locator('#auditKeyRegistry').setInputFiles({name:'registry.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(registry))});
+}
+
+test('local audit registry accepts active matching signer while never trusting it',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ await attachAuditRegistry(page,report,fixture);
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT-HANDTEKENING CRYPTOGRAFISCH GELDIG');
+ await expect(page.locator('#auditVerifyStatus')).toContainText('NIET VERTROUWD');
+ await expect(page.locator('#auditVerifyStatus')).toContainText('Geen PALACO-autorisatie');
+});
+
+test('local audit registry rejects revoked audit signer',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ await attachAuditRegistry(page,report,fixture,{status:'revoked'});
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
+});
+
+test('local audit registry rejects expired signer even if signature is valid',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ await attachAuditRegistry(page,report,fixture,{expired:true});
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
+});
+
+test('local audit registry requires matching signer fingerprint',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ await attachAuditRegistry(page,report,fixture,{fingerprint:'0'.repeat(64)});
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
+});
+
+test('local audit registry forbids silent hash-only fallback and invalidates earlier result',async ({page})=>{
+ const report=await exportedAuditFixture(page);
+ await page.locator('#auditVerifyFile').setInputFiles({name:'audit.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(report))});
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('SHA-256 AUDITINTEGRITEIT GELDIG');
+ const registry={schema:'palaco-citadel-audit-key-registry-v1',role:'audit-signer',status:'active',fingerprint:'0'.repeat(64),
+   notBefore:new Date(Date.now()-3600000).toISOString(),notAfter:new Date(Date.now()+3600000).toISOString()};
+ await page.locator('#auditKeyRegistry').setInputFiles({name:'registry.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(registry))});
+ await expect(page.locator('#auditVerifyStatus')).toContainText('opnieuw controleren vereist');
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
+});
