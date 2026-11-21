@@ -155,3 +155,11 @@ De adapter bindt deze hostfuncties aan het bestaande `connectAtlasHostContract` 
 **Noodzakelijke hostgaranties:** de host moet daadwerkelijk bewijzen dat de teruggegeven container tot de geautoriseerde privéroute behoort; alle wijzigingen **vóór** de overgang melden; de contextversie strikt vernieuwen; en bronintegriteit en toegang onafhankelijk vaststellen. De adapter kan op basis van alleen een HTML-element niet controleren dat de route echt privé is. De browser- en gebruikersacceptatie is nog niet uitgevoerd.
 
 De aparte openbare Render-pagina bevat alleen een **verklarend Containercontract 015-paneel**, zonder import van de privémodule, accounts, brongegevens of eventkoppelingen. Oorspronkelijke L.A. Citadel Sites-app ongewijzigd; GitHub PR #58 DRAFT/HOLD; geen functionele tests, merge of private uitrol.
+
+## MUNDO-HOST-INTEGRATION-016 — context- en containerbewaking
+
+De bestaande `mundo-atlas-protected-container.ts` is aangescherpt: hij leest de context vóór de hostcontainer wordt opgevraagd, eist een verbonden, geldige hostcontainer en bevestigt na DOM-montage opnieuw **dezelfde containeridentiteit**, verbonden toestand en dezelfde contextversie. Bij falen wordt de net gemonteerde kaart direct opgeruimd; een oude opruiming wist geen nieuwere kaart. De overige controles in de hostgebonden levenscyclus blijven van kracht.
+
+Nieuw integratiedocument: `08-IMPLEMENTATION/docs/CITADEL-MUNDO-HOST-INTEGRATION-016.md` met concrete eisen voor hostevents, bronverificatie, autorisatie, contextversies en de privémount. Het document bevat uitsluitend niet-uitgevoerde scenario's voor latere eigenaaracceptatie.
+
+De publieke Render Atlas toont een **uitsluitend verklarend** Hostintegratie 016-paneel. Er wordt geen private TypeScript-module op die pagina geladen en geen echte Citadel-sessie of kaart ontsloten. Oorspronkelijke ChatGPT Sites Citadel niet gewijzigd; PR #58 blijft DRAFT/HOLD; geen functionele tests, merge of private uitrol.
