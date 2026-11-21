@@ -261,3 +261,24 @@ test('Escape in dossier closes the panel and restores the previous focus',()=>{
  assert.equal(button.focused,true);
  assert.equal(h.nodes.get('#dossier').className,'panel hidden');
 });
+
+test('clearing a selected dossier hides inspector, revokes consent, and returns focus to timeline',()=>{
+ const h=harness();enter(h,'Clear focus');
+ h.nodes.get('#timeline').children[0].children.at(-1).children[1].dispatch('click');
+ h.nodes.get('#handoffConsent').checked=true;
+ h.nodes.get('#clear').dispatch('click');
+ assert.equal(h.nodes.get('#dossier').className,'panel hidden');
+ assert.equal(h.nodes.get('#timeline').focused,true);
+ assert.equal(h.nodes.get('#handoffConsent').checked,false);
+ assert.equal(h.nodes.get('#count').textContent,0);
+});
+test('locking a selected dossier hides inspector, revokes consent and moves focus',()=>{
+ const h=harness();enter(h,'Lock focus');
+ h.nodes.get('#timeline').children[0].children.at(-1).children[1].dispatch('click');
+ h.nodes.get('#handoffConsent').checked=true;
+ h.nodes.get('#vaultLock').dispatch('click');
+ assert.equal(h.nodes.get('#dossier').className,'panel hidden');
+ assert.equal(h.nodes.get('#timeline').focused,true);
+ assert.equal(h.nodes.get('#handoffConsent').checked,false);
+ assert.equal(h.nodes.get('#count').textContent,0);
+});
