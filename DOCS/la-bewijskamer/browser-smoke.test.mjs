@@ -1263,7 +1263,8 @@ test("mobile legacy import invalidates earlier dossier consent and restores time
  assert.equal(await p.locator("#dossier").isVisible(),false);
  assert.equal(await p.locator("#handoffConsent").isChecked(),false);
  assert.equal(await p.evaluate(()=>document.activeElement.id),"timeline");
- await p.locator("#contractExport").tap();
+ assert.equal(await p.locator("#contractExport").isVisible(),false,"Export action must be hidden after import");
+ await p.evaluate(()=>document.querySelector("#contractExport").click());
  await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("geen geldig dossier geselecteerd"));
  await c.close();
 });
