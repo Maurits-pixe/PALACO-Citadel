@@ -1247,3 +1247,23 @@ test("locking an open mobile dossier revokes selection and focuses timeline",asy
  assert.equal(await p.locator("#count").innerText(),"0");
  await c.close();
 });
+
+test("mobile legacy import invalidates earlier dossier consent and restores timeline focus",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true}),p=await c.newPage();
+ await p.goto(base+"/DOCS/la-geheugenkamer/");
+ await p.locator("#title").fill("Voor import geselecteerd");
+ await p.locator("#who").fill("W");await p.locator("#what").fill("Bestaande herinnering");
+ await p.locator("#entryForm button[type=submit]").tap();
+ await p.locator("#timeline button").filter({hasText:"Inspecteer dossier"}).tap();
+ await p.locator("#handoffConsent").check();
+ const record={id:"browser-import-v39",createdAt:"2026-11-17T12:00:00.000Z",previousId:"",version:1,trust:"SELF_REPORTED_NOT_VERIFIED",title:"Nieuw geïmporteerd dossier",who:"W",what:"Synthetische gegevens",where:"",why:"",how:"",source:"",category:"Persoonlijk"};
+ const body={schema:"PALACO-CITADEL-GEHEUGEN-1",authority:"NONE",status:"LOCAL_DRAFT_ONLY",issuedAt:null,exportedAt:"2026-11-17T12:00:00.000Z",entries:[record]};
+ await p.locator("#file").setInputFiles({name:"legacy-v39.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(body))});
+ await p.waitForFunction(()=>document.querySelector("#count").textContent==="2");
+ assert.equal(await p.locator("#dossier").isVisible(),false);
+ assert.equal(await p.locator("#handoffConsent").isChecked(),false);
+ assert.equal(await p.evaluate(()=>document.activeElement.id),"timeline");
+ await p.locator("#contractExport").tap();
+ await p.waitForFunction(()=>document.querySelector("#message").textContent.includes("geen geldig dossier geselecteerd"));
+ await c.close();
+});
