@@ -1351,3 +1351,31 @@ test('Atelier: trage import wordt genegeerd na nieuw bestand, annulering en cont
  expect(dialogs).toBe(1);
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
 });
+
+test('Atelier: ander tabblad trekt lopende bestandsimport in vóór herstel',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const valid=Buffer.from(await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage))));
+ await page.evaluate(()=>{
+   const native=File.prototype.arrayBuffer;
+   window.pendingCrossTab=[];
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='traag-ander-tabblad.json')
+       return new Promise((resolve,reject)=>window.pendingCrossTab.push(()=>native.call(this).then(resolve,reject)));
+     return native.call(this);
+   };
+ });
+ let dialogs=0;
+ page.on('dialog',async dialog=>{dialogs++;await dialog.dismiss();});
+ const other=await page.context().newPage();
+ await other.goto('/atelier/regiekamer.html');
+ await page.locator('#bundleImport').setInputFiles({name:'traag-ander-tabblad.json',mimeType:'application/json',buffer:valid});
+ await expect.poll(()=>page.evaluate(()=>window.pendingCrossTab.length)).toBe(1);
+ await other.locator('#statement').fill('Werk uit ander tabblad, aangepast');
+ await other.locator('#saveNote').click();
+ await expect(page.locator('#bundleStatus')).toContainText('Projectimport onderbroken');
+ await page.evaluate(()=>window.pendingCrossTab.shift()());
+ await expect(page.locator('#bundleStatus')).toContainText('Projectimport onderbroken');
+ expect(dialogs).toBe(0);
+ await expect(page.locator('#statement')).toHaveValue('Werk uit ander tabblad, aangepast');
+ await other.close();
+});
