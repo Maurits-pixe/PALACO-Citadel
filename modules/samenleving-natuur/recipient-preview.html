@@ -154,7 +154,7 @@ const minimalKeys=['sequence','category','conceptualArea','verification','record
 const fullKeys=['id','title','category','conceptualArea','verification','description','observedAt'];
 function exactFields(record,allowed){return Object.keys(record).length===allowed.length&&Object.keys(record).every(key=>allowed.includes(key))}
 let ticket=0,currentPacket=null,signatureRevision=0,pinCandidate=null,rotationRevision=0,rotationAudit=null,auditCheckRevision=0,auditPinCandidate=null,auditIssuerCandidate=null,issuerRotationRevision=0,issuerRevokeRevision=0,issuerRevokeCandidate=null,issuerReceiptRevision=0,issuerReceiptSignerCandidate=null,receiptSignerReviewRevision=0;
-let reviewerVerifiedSignerFingerprint=null;
+let reviewerVerifiedSignerFingerprint=null,reviewerVerifiedDeadline=null,reviewerVerifiedCheckedAt=null;
 const PIN_PREFIX='palaco.citadel.revocation-pin.v1.';
 function readPin(raw){if(raw===null)return null;let v;try{v=JSON.parse(raw)}catch{v=raw}if(typeof v==='string'){if(!/^\d{4}-\d{2}-\d{2}T/.test(v)||!Number.isFinite(Date.parse(v)))throw Error('Ongeldige oudere pin');return {issuedAt:v,digest:null}}if(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).sort().join(',')!=='digest,issuedAt'||typeof v.issuedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(v.issuedAt)||!Number.isFinite(Date.parse(v.issuedAt))||typeof v.digest!=='string'||!/^[a-f0-9]{64}$/.test(v.digest))throw Error('Ongeldig lokaal pincontract');return v}
 function invalidatePin(){pinCandidate=null;$('pinRevocation').disabled=true}
@@ -669,6 +669,7 @@ $('verifyReceiptSignerReview').addEventListener('click',async()=>{
   const utc=v=>{if(typeof v!=='string'||!iso.test(v))throw Error('Ongeldig UTC');const t=Date.parse(v);if(!Number.isFinite(t)||new Date(t).toISOString()!==v)throw Error('Ongeldig UTC');return t};
   const issued=utc(declaration.issuedAt),expires=utc(declaration.expiresAt),now=Date.now();
   if(issued>now+300000||expires<=now||expires<=issued||expires-issued>31*86400000)throw Error('Beoordelingsverklaring verlopen');
+  let reviewDeadline=expires;
   const unsigned={...declaration};delete unsigned.signerSignature;delete unsigned.reviewerSignature;
   const payload=new TextEncoder().encode(canonicalJson(unsigned));
   const signerKey=await crypto.subtle.importKey('jwk',signer,{name:'ECDSA',namedCurve:'P-256'},false,['verify']);
@@ -693,12 +694,15 @@ $('verifyReceiptSignerReview').addEventListener('click',async()=>{
    const registryValid=await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},publicIssuer,b64ToBytes(registry.signature),new TextEncoder().encode(canonicalJson(unsignedRegistry)));
    if(id!==ticket||revision!==receiptSignerReviewRevision)return;
    if(!registryValid||Date.now()>=validUntil||Date.now()>=ends)throw Error('Getekend reviewersregister ongeldig');
+   reviewDeadline=Math.min(reviewDeadline,validUntil,ends);
   }
   // rc42: local trust inputs can change while WebCrypto or file reads are pending.
   // Never publish an earlier crypto result against a replaced/removed signer pin.
   if(id!==ticket||revision!==receiptSignerReviewRevision)return;
   if(receiptSignerPin(localStorage.getItem(RECEIPT_SIGNER_PIN_KEY))!==signerFp)throw Error('Ondertekenaarspinning gewijzigd tijdens beoordeling');
   reviewerVerifiedSignerFingerprint=signerFp;
+  reviewerVerifiedDeadline=reviewDeadline;
+  reviewerVerifiedCheckedAt=Date.now();
   $('receiptSignerReviewStatus').textContent='BEWIJSSLEUTELBEOORDELING DUBBEL CRYPTOGRAFISCH GELDIG (epoch '+declaration.epoch+'); '+(registryFile?'REVIEWERSREGISTER CRYPTOGRAFISCH GELDIG MAAR NIET ONAFHANKELIJK VERTROUWD; ':'')+'REVIEWER NIET ONAFHANKELIJK VERTROUWD. GEEN ROLTOEWIJZING. Geen PALACO-autorisatie.';
  }catch{if(id===ticket&&revision===receiptSignerReviewRevision)$('receiptSignerReviewStatus').textContent='BEWIJSSLEUTELBEOORDELING AFGEWEZEN. Geen PALACO-autorisatie.'}
 });
@@ -716,9 +720,13 @@ function recheckVisibleReviewerResult(){
   // Explicitly invalidate a prior success if another tab changed or cleared the pin
   // without a delivered storage event; this does not establish independent trust.
   if(receiptSignerPin(localStorage.getItem(RECEIPT_SIGNER_PIN_KEY))!==reviewerVerifiedSignerFingerprint)throw Error('Pin gewijzigd');
+  const now=Date.now();
+  if(!Number.isFinite(now)||reviewerVerifiedDeadline===null||reviewerVerifiedCheckedAt===null||now>=reviewerVerifiedDeadline||now<reviewerVerifiedCheckedAt)throw Error('Geldigheid verlopen of lokale klok teruggezet');
  }catch{
   receiptSignerReviewRevision++;
   reviewerVerifiedSignerFingerprint=null;
+  reviewerVerifiedDeadline=null;
+  reviewerVerifiedCheckedAt=null;
   status.textContent='Lokale sleutelregistratie niet geldig; opnieuw controleren vereist. Geen PALACO-autorisatie.';
  }
 }
