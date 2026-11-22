@@ -2262,3 +2262,52 @@ test('rc42 signed reviewer registry refuses a different reviewer role',async ({p
  await page.locator('#verifyReceiptSignerReview').click();
  await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
 });
+
+
+test('rc42 reviewer registry refuses an unknown signed field',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ const registry=await reviewerRegistryFixture(page,review.declaration);
+ registry.signed.extraAuthority='ALLOW';
+ await uploadReviewerRegistry(page,registry);
+ await page.locator('#requireReviewerRegistry').check();
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
+
+test('rc42 reviewer registry refuses malformed detached signature encoding',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ const registry=await reviewerRegistryFixture(page,review.declaration);
+ registry.signed.signature='not valid base64 ***';
+ await uploadReviewerRegistry(page,registry);
+ await page.locator('#requireReviewerRegistry').check();
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
+
+test('rc42 reviewer registry refuses corrupt JSON without preserving prior validity',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await uploadReviewerRegistry(page,await reviewerRegistryFixture(page,review.declaration));
+ await page.locator('#requireReviewerRegistry').check();
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('REVIEWERSREGISTER CRYPTOGRAFISCH GELDIG');
+ await page.locator('#receiptReviewerRegistry').setInputFiles({name:'corrupt.json',mimeType:'application/json',buffer:Buffer.from('{"schema":')});
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
+
+test('rc42 reviewer registry refuses oversized JSON',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await page.locator('#receiptReviewerRegistry').setInputFiles({name:'oversize.json',mimeType:'application/json',buffer:Buffer.alloc(20001,32)});
+ await page.locator('#requireReviewerRegistry').check();
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
