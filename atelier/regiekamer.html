@@ -295,6 +295,7 @@ function showInspectionHashes(actual,reference,reported){
 function parseUniqueTopLevelJson(source){
  // Scan structure before JSON.parse to bound nesting and reject duplicate object keys.
  const stack=[];
+ let propertyCount=0;
  let inString=false;
  let stringStart=-1;
  let escaped=false;
@@ -313,6 +314,7 @@ function parseUniqueTopLevelJson(source){
            const key=JSON.parse(source.slice(stringStart,i+1));
            if(frame.keys.has(key))throw Error('Dossier-JSON bevat dubbele velden: '+key);
            frame.keys.add(key);
+           if(++propertyCount>4096)throw Error('Dossier-JSON overschrijdt maximum van 4096 objectvelden');
          }
        }
      }
