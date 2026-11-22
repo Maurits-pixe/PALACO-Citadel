@@ -714,3 +714,16 @@ Vier Node-regressies dekken dubbele bronnen, verschillende bronnen, self-review 
 Voor de diagnostische categorie `G07/independent_review` zijn niet alleen verschillende auteur- en revieweridentificaties vereist, maar voortaan ook een positief numeriek PR-nummer, een positief numeriek GitHub-review-ID, een GitHub-reviewlink met hetzelfde PR- en reviewnummer, en `reviewed_commit_sha` die exact overeenkomt met de beoordeelde kandidaatcommit. Verschillende schrijfwijzen van dezelfde reviewer/auteur worden bij de vergelijking hoofdletterongevoelig behandeld. Ontbrekend, verouderd of intern inconsistent reviewbewijs wordt als `reviewer_independence_unverified` geblokkeerd.
 
 Drie aangepaste/nieuwe Node-regressies toetsen ontbrekende herkomst, intern consistent ingevulde reviewgegevens en een verkeerde commit, review-ID of dezelfde auteur/reviewer. De bestaande CI neemt ze mee. **Deze URL- en identiteitscontroles verifiëren de review niet rechtstreeks tegen GitHub**: zonder onafhankelijke API-controle van daadwerkelijke reviewstatus, identiteit en commit is het slechts herleidbare zelfgerapporteerde invoer. Bovendien blijft de DRAFT-evaluator altijd **HOLD / DENY**. Er is geen merge, EDTR of publieke uitrol.
+
+## Regiekamer v6.54 — read-only GitHub-reviewaudit (2026-11-22)
+
+De nieuwe offline module [github-review-audit.cjs](github-review-audit.cjs) leest een reeds afzonderlijk opgehaalde GitHub-reviewlijst en beoordeelt per review de toestand `APPROVED`, revieweridentiteit ten opzichte van de auteur, de exacte beoordeelde commit-SHA en een consistente GitHub PR-/reviewlink. Een `COMMENTED`, `CHANGES_REQUESTED`, zelfreview, onjuiste reviewidentiteit of historische commit wordt niet als toepasselijke onafhankelijke goedkeuring meegeteld. Het resultaat blijft in **alle** gevallen `decision: HOLD`, `publication: DENY` en `release_approved: false`.
+
+Gebruik uitsluitend als diagnostiek met een vooraf onafhankelijk opgehaalde JSON-reviewlijst:
+```sh
+node atelier/github-review-audit.cjs reviews.json <VOLLEDIGE_40_HEX_SHA> 60 <PR_AUTEUR_LOGIN>
+```
+
+**Waarneming via de verbonden GitHub-reviewlijst:** PR #60 had op het observatiemoment **0 ingediende reviews**. Daarom bestaat er geen verifieerbare onafhankelijke review om als vrijgavebewijs op te nemen. De vijf nieuwe tests [github-review-audit.test.cjs](github-review-audit.test.cjs) behandelen lege reviewlijsten, exact passende review, eerdere commit, self-review, niet-goedgekeurde toestand, ongeldige URL en ongeldige invoer. Ze zijn toegevoegd aan de bestaande Atelier DRAFT-validationworkflow.
+
+**Vertrouwensgrens:** de audit doet geen netwerkverzoek en een willekeurig lokaal JSON-bestand bewijst **niet** zijn eigen GitHub-herkomst. Alleen een afzonderlijke, actuele API-verificatie kan de reviewfeitelijkheid bevestigen. Geen bevoegdheidsverhoging, merge, EDTR of publieke uitrol. **GO-13 DRAFT / HOLD / DENY**.
