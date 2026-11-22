@@ -1158,3 +1158,40 @@ test('Atelier: dubbele geneste JSON-sleutels worden ook bij losse, paar-, export
  await expect(page.locator('#verifyStatus')).toContainText('Geldig creatief DRAFT-project');
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
 });
+
+test('Atelier: maximum 64 JSON-niveaus vóór parsing, ook bij controles en herstel',async ({page})=>{
+ const {createHash}=await import('node:crypto');
+ await page.goto('/atelier/regiekamer.html');
+ const original=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const valid=await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage)));
+ const nested=level=>'['.repeat(level)+'0'+']'.repeat(level);
+ const deep=valid.slice(0,-1)+',"probe":'+nested(65)+'}';
+ const bytes=Buffer.from(deep);
+ const json={name:'diep.json',mimeType:'application/json',buffer:bytes};
+ const hash=createHash('sha256').update(bytes).digest('hex');
+ const txt={name:'controle.txt',mimeType:'text/plain',buffer:Buffer.from('SHA-256: '+hash+'\nBestand: diep.json\n')};
+ await page.locator('#bundleVerify').setInputFiles(json);
+ await expect(page.locator('#verifyStatus')).toContainText('maximale nestingdiepte van 64');
+ await page.locator('#pairVerify').setInputFiles([json,txt]);
+ await expect(page.locator('#pairStatus')).toContainText('maximale nestingdiepte van 64');
+ await expect(page.locator('#pairReportSave')).toBeDisabled();
+ await page.locator('#bundleImport').setInputFiles(json);
+ await expect(page.locator('#bundleStatus')).toContainText('maximale nestingdiepte van 64');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(original);
+ const dl=page.waitForEvent('download');
+ await page.locator('#bundleSave').click();
+ await dl;
+ await page.locator('#checkExportFile').setInputFiles(json);
+ await expect(page.locator('#exportCheckStatus')).toContainText('maximale nestingdiepte van 64');
+ await page.locator('#reportVerify').setInputFiles([
+   json,txt,{name:'rapport.json',mimeType:'application/json',buffer:Buffer.from('{}')}
+ ]);
+ await expect(page.locator('#reportVerifyStatus')).toContainText('maximale nestingdiepte van 64');
+ // Braces in a JSON string are not structural depth; exactly 64 brackets must not trigger the depth guard.
+ const borderline=valid.slice(0,-1)+',"probe":'+nested(63)+'}';
+ await page.locator('#bundleVerify').setInputFiles({...json,buffer:Buffer.from(borderline)});
+ await expect(page.locator('#verifyStatus')).not.toContainText('maximale nestingdiepte van 64');
+ await page.locator('#bundleVerify').setInputFiles({name:'gewoon.json',mimeType:'application/json',buffer:Buffer.from(valid)});
+ await expect(page.locator('#verifyStatus')).toContainText('Geldig creatief DRAFT-project');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(original);
+});
