@@ -1750,3 +1750,77 @@ test('issuer revocation rejects expired or future-effective attestations and inv
  await page.locator('#issuerRevokeReviewer').fill('{}');
  await expect(page.locator('#issuerRevokeStatus')).toContainText('opnieuw controleren vereist');
 });
+
+test('verified issuer revocation requires explicit user confirmation before local block',async ({page})=>{
+ await signedPreviewFixture(page);
+ const f=await issuerRevocationFixture(page);
+ await uploadIssuerRevocation(page,f);
+ await page.locator('#verifyIssuerRevoke').click();
+ await expect(page.locator('#confirmIssuerRevoke')).toBeEnabled();
+ const key='palaco.citadel.audit-issuer-revoked.v1.'+f.revocation.issuerFingerprint;
+ expect(await page.evaluate(key=>localStorage.getItem(key),key)).toBeNull();
+ page.once('dialog',dialog=>dialog.dismiss());
+ await page.locator('#confirmIssuerRevoke').click();
+ expect(await page.evaluate(key=>localStorage.getItem(key),key)).toBeNull();
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#confirmIssuerRevoke').click();
+ await expect(page.locator('#issuerRevokeStatus')).toContainText('UITGEVER LOKAAL GEBLOKKEERD');
+ const stored=await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),key);
+ expect(stored.schema).toBe('palaco-citadel-local-issuer-revoked-v1');
+ expect(stored.epoch).toBe(f.revocation.epoch);
+ expect(stored.digest).toMatch(/^[a-f0-9]{64}$/);
+});
+
+test('locally revoked issuer blocks otherwise valid signed audit register',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ const registry=await signedAuditRegistryFixture(page,report,fixture.detached);
+ await uploadSignedAuditRegistry(page,report,fixture,registry);
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT-HANDTEKENING CRYPTOGRAFISCH GELDIG');
+ const key='palaco.citadel.audit-issuer-revoked.v1.'+registry.signed.issuerFingerprint;
+ const record={schema:'palaco-citadel-local-issuer-revoked-v1',epoch:4,effectiveAt:new Date(Date.now()-1000).toISOString(),digest:'a'.repeat(64)};
+ await page.evaluate(([key,record])=>localStorage.setItem(key,JSON.stringify(record)),[key,record]);
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
+ await expect(page.locator('#pinAuditIssuer')).toBeDisabled();
+});
+
+test('corrupted local issuer revocation record fails closed',async ({page})=>{
+ const report=await exportedAuditFixture(page),fixture=await detachedAuditSignature(page,report);
+ const registry=await signedAuditRegistryFixture(page,report,fixture.detached);
+ await uploadSignedAuditRegistry(page,report,fixture,registry);
+ await page.evaluate(fp=>localStorage.setItem('palaco.citadel.audit-issuer-revoked.v1.'+fp,'{"epoch":0}'),registry.signed.issuerFingerprint);
+ await page.locator('#verifyAuditFile').click();
+ await expect(page.locator('#auditVerifyStatus')).toContainText('AUDIT AFGEWEZEN');
+});
+
+test('invalid revocation or changed reviewer does not enable local blocking',async ({page})=>{
+ await signedPreviewFixture(page);
+ const f=await issuerRevocationFixture(page,{badReviewer:true});
+ await uploadIssuerRevocation(page,f);
+ await page.locator('#verifyIssuerRevoke').click();
+ await expect(page.locator('#issuerRevokeStatus')).toContainText('UITGEVERSINTREKKING AFGEWEZEN');
+ await expect(page.locator('#confirmIssuerRevoke')).toBeDisabled();
+ const valid=await issuerRevocationFixture(page);
+ await uploadIssuerRevocation(page,valid);
+ await page.locator('#verifyIssuerRevoke').click();
+ await expect(page.locator('#confirmIssuerRevoke')).toBeEnabled();
+ await page.locator('#issuerRevokeReviewer').fill('{}');
+ await expect(page.locator('#confirmIssuerRevoke')).toBeDisabled();
+ await expect(page.locator('#issuerRevokeStatus')).toContainText('opnieuw controleren vereist');
+});
+
+test('existing stronger local revocation cannot be overwritten by older epoch',async ({page})=>{
+ await signedPreviewFixture(page);
+ const f=await issuerRevocationFixture(page);
+ await uploadIssuerRevocation(page,f);
+ const key='palaco.citadel.audit-issuer-revoked.v1.'+f.revocation.issuerFingerprint;
+ const original={schema:'palaco-citadel-local-issuer-revoked-v1',epoch:f.revocation.epoch+1,effectiveAt:new Date(Date.now()-1000).toISOString(),digest:'f'.repeat(64)};
+ await page.evaluate(([key,value])=>localStorage.setItem(key,JSON.stringify(value)),[key,original]);
+ await page.locator('#verifyIssuerRevoke').click();
+ await expect(page.locator('#confirmIssuerRevoke')).toBeEnabled();
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#confirmIssuerRevoke').click();
+ await expect(page.locator('#issuerRevokeStatus')).toContainText('LOKALE INTREKKINGSBLOKKADE MISLUKT');
+ expect(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),key)).toEqual(original);
+});
