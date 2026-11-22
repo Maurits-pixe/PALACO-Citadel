@@ -50,7 +50,7 @@ def initialize_outbox(db: sqlite3.Connection) -> None:
     db.executescript(SCHEMA)
 
 
-def _encode(proposal: Any) -> tuple[str, str, int, str]:
+def _encode(proposal: Any) -> tuple[str, int, str, str]:
     if not isinstance(proposal, dict) or set(proposal) != {"payload", "signature"}:
         raise ValueError("invalid proposal")
     payload = proposal["payload"]
@@ -73,8 +73,11 @@ def _encode(proposal: Any) -> tuple[str, str, int, str]:
                      ensure_ascii=False, allow_nan=False)
     if len(raw.encode("utf-8")) > 4096:
         raise ValueError("oversized request")
-    if not isinstance(proposal["signature"], str) or len(proposal["signature"]) != 86:
+    signature = proposal["signature"]
+    if not isinstance(signature, str) or len(signature) != 86:
         raise ValueError("invalid signature shape")
+    if any(c not in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_" for c in signature):
+        raise ValueError("invalid signature alphabet")
     digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()
     return issuer, sequence, raw, digest
 
