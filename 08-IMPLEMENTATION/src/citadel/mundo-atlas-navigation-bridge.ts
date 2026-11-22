@@ -82,9 +82,16 @@ export function createAtlasNavigationBridge(
             // disposal after invalidation; do not dispose it twice here.
             return fresh;
           }
-          try {
-            if (host.readProtectedRouteWorldId() !== worldId) return null;
-          } catch { return null; }
+          let routeStillCurrent = false;
+          try { routeStillCurrent = host.readProtectedRouteWorldId() === worldId; }
+          catch { /* fail closed */ }
+          if (!routeStillCurrent) {
+            // A late source was resolved for a route that is no longer
+            // current. Dispose it here because null will be returned to the
+            // world transition, which cannot otherwise see that connection.
+            try { fresh?.connection.dispose(); } catch { /* no reuse */ }
+            return null;
+          }
           return fresh;
         });
         return closed || generation !== request ? "stale" : outcome;
