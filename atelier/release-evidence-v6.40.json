@@ -1,0 +1,163 @@
+{
+  "schema": "palaco.citadel.atelier.release-evidence/1",
+  "version": "6.40",
+  "state": "DRAFT",
+  "authority": "NONE",
+  "decision": "HOLD",
+  "release_approved": false,
+  "observed_commit_sha": "1a588e407627d8a67fa9d6794646d31576bc595f",
+  "observation_is_not_current_head_after_this_file_is_committed": true,
+  "checks": [
+    {
+      "provider": "github_actions",
+      "name": "CI",
+      "run_id": 44994431690,
+      "status": "completed",
+      "conclusion": "success",
+      "job": "build",
+      "head_sha": "1a588e407627d8a67fa9d6794646d31576bc595f"
+    },
+    {
+      "provider": "github_actions",
+      "name": "Citadel local preview conformance",
+      "run_id": 44994431723,
+      "status": "completed",
+      "conclusion": "success",
+      "job": "preview",
+      "head_sha": "1a588e407627d8a67fa9d6794646d31576bc595f"
+    },
+    {
+      "provider": "github_actions",
+      "name": "Atelier DRAFT validation",
+      "run_id": 44994431673,
+      "status": "completed",
+      "conclusion": "success",
+      "job": "Atelier isolated regression and contract checks",
+      "head_sha": "1a588e407627d8a67fa9d6794646d31576bc595f"
+    },
+    {
+      "provider": "vercel",
+      "name": "palaco-citadel-qrat",
+      "status": "failure",
+      "head_sha": "1a588e407627d8a67fa9d6794646d31576bc595f"
+    },
+    {
+      "provider": "vercel",
+      "name": "palaco-citadel",
+      "status": "success",
+      "head_sha": "1a588e407627d8a67fa9d6794646d31576bc595f"
+    },
+    {
+      "provider": "vercel",
+      "name": "palaco-citadel-qosn",
+      "status": "success",
+      "head_sha": "1a588e407627d8a67fa9d6794646d31576bc595f"
+    },
+    {
+      "provider": "vercel",
+      "name": "palaco-citadel-c6xt",
+      "status": "success",
+      "head_sha": "1a588e407627d8a67fa9d6794646d31576bc595f"
+    }
+  ],
+  "gates": [
+    {
+      "id": "G01",
+      "criterion": "DRAFT schema and NONE authority",
+      "evidence_sources": [
+        "atelier/regiekamer-bundle.test.cjs"
+      ],
+      "status": "not_verified_for_release",
+      "release_pass": false,
+      "observed_ci_note": "Automated Atelier workflow succeeded on observed commit; acceptance per gate and current HEAD not independently evidenced"
+    },
+    {
+      "id": "G02",
+      "criterion": "preservation of EX/IN/NOTE under failures",
+      "evidence_sources": [
+        "atelier/regiekamer-bundle.test.cjs",
+        "tests/browser/atelier.spec.mjs"
+      ],
+      "status": "not_verified_for_release",
+      "release_pass": false,
+      "observed_ci_note": "Automated Atelier workflow succeeded on observed commit; acceptance per gate and current HEAD not independently evidenced"
+    },
+    {
+      "id": "G03",
+      "criterion": "two-tab conflicting writes",
+      "evidence_sources": [
+        "tests/browser/atelier.spec.mjs"
+      ],
+      "status": "not_verified_for_release",
+      "release_pass": false,
+      "observed_ci_note": "Automated Atelier workflow succeeded on observed commit; acceptance per gate and current HEAD not independently evidenced"
+    },
+    {
+      "id": "G04",
+      "criterion": "rollback read-back and recovery integrity",
+      "evidence_sources": [
+        "atelier/regiekamer-bundle.test.cjs"
+      ],
+      "status": "not_verified_for_release",
+      "release_pass": false,
+      "observed_ci_note": "Automated Atelier workflow succeeded on observed commit; acceptance per gate and current HEAD not independently evidenced"
+    },
+    {
+      "id": "G05",
+      "criterion": "keyboard, screen reader and physical mobile accessibility",
+      "evidence_sources": [
+        "tests/browser/atelier.spec.mjs",
+        "manual review required"
+      ],
+      "status": "not_verified_for_release",
+      "release_pass": false,
+      "observed_ci_note": "Automated Atelier validation succeeded on observed commit; manual screenreader and physical mobile review not evidenced"
+    },
+    {
+      "id": "G06",
+      "criterion": "offline export/import, reload and hash integrity",
+      "evidence_sources": [
+        "tests/browser/atelier.spec.mjs",
+        "offline acceptance required"
+      ],
+      "status": "not_verified_for_release",
+      "release_pass": false,
+      "observed_ci_note": "Automated Atelier workflow succeeded on observed commit; acceptance per gate and current HEAD not independently evidenced"
+    },
+    {
+      "id": "G07",
+      "criterion": "all CI, preview, regression and independent review on exact candidate SHA",
+      "evidence_sources": [
+        "GitHub Actions plus reviewer approval"
+      ],
+      "status": "blocked",
+      "release_pass": false,
+      "observed_ci_note": "Three GitHub Actions workflows succeeded on observed commit; one Vercel failure; independent review and release authorization absent"
+    },
+    {
+      "id": "G08",
+      "criterion": "explicit GO-13 approval",
+      "evidence_sources": [
+        "separate authorized decision"
+      ],
+      "status": "hold_deny",
+      "release_pass": false,
+      "observed_ci_note": "GO-13 remains HOLD / DENY"
+    }
+  ],
+  "release_requirements": [
+    "All required checks success on the exact candidate HEAD",
+    "Complete Playwright/Node regression evidence",
+    "Independent accessibility and mobile QA",
+    "Independent code review",
+    "Explicit GO-13 approval"
+  ],
+  "limitations": [
+    "historical observation; new commit invalidates current-head claim",
+    "workflow success does not establish individual test case evidence for every gate",
+    "one Vercel context failed at observation",
+    "human accessibility/reviewer evidence not confirmed",
+    "localStorage not transactional"
+  ],
+  "publication": "DENY"
+}
