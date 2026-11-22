@@ -61,7 +61,7 @@
 <input type="file" id="bundleImport" accept=".json,application/json" style="max-width:100%;font-size:13px">
 <p class="message">Herstel vervangt uitsluitend de drie lokale Atelier-opslagonderdelen na jouw bevestiging. Controleer vooraf het pakketoverzicht; exporteer je huidige werk eerst. Onbekende of niet-DRAFT-pakketten worden geweigerd. Een mislukte schrijfactie wordt zo mogelijk teruggedraaid.</p>
 <p id="bundleStatus" class="small" role="status" aria-live="polite">Er is nog geen projectpakket geselecteerd.</p>
-<section id="rollbackReport" class="message" role="status" aria-live="polite" aria-atomic="true" hidden><h3 id="rollbackHeading">Herstelcontrole</h3><p id="rollbackExplanation"></p><ul id="rollbackItems"></ul><p class="small">Dit overzicht bevat uitsluitend statuslabels, geen ontwerpgegevens. Bij conflicten: stop met bewerken en exporteer een veilige kopie vóór verder herstel.</p><div id="rollbackGuide" aria-labelledby="rollbackGuideTitle" hidden><h4 id="rollbackGuideTitle">Begeleide herstelcontrole</h4><ol id="rollbackSteps"></ol><p class="small">De stappen zijn adviezen. Deze functie schrijft niets naar de opslag en voert geen automatische reparatie uit.</p></div></section>
+<section id="rollbackReport" class="message" role="status" aria-live="polite" aria-atomic="true" tabindex="-1" hidden><h3 id="rollbackHeading">Herstelcontrole</h3><p id="rollbackExplanation"></p><ul id="rollbackItems"></ul><p class="small">Dit overzicht bevat uitsluitend statuslabels, geen ontwerpgegevens. Bij conflicten: stop met bewerken en exporteer een veilige kopie vóór verder herstel.</p><div id="rollbackGuide" aria-labelledby="rollbackGuideTitle" hidden><h4 id="rollbackGuideTitle">Begeleide herstelcontrole</h4><ol id="rollbackSteps"></ol><p class="small">De stappen zijn adviezen. Deze functie schrijft niets naar de opslag en voert geen automatische reparatie uit.</p></div></section>
 <div class="actions"><button type="button" class="action" id="undoImport" disabled>Herstel vorig lokaal ontwerp</button><button type="button" class="action" id="exportRecovery" disabled>↓ Exporteer herstelkopie (JSON)</button></div>
 <p class="small" id="recoveryStatus" role="status" aria-live="polite">Lokale herstelkopie controleren…</p>
 </section>
@@ -628,6 +628,8 @@ function showRollbackReport(error){
  }
  $('rollbackGuide').hidden=false;
  panel.hidden=false;
+ // Focus only for an actual failed recovery. Do not alter tab order.
+ panel.focus({preventScroll:true});
  return true;
 }
 let importRevision=0;
