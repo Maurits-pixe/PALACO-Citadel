@@ -169,3 +169,9 @@ De publieke Render Atlas toont een **uitsluitend verklarend** Hostintegratie 016
 De private `mundo-atlas-protected-container.ts` vereist nu de extra door de host geleverde functie `isProtectedContainerAuthorized(container)`. Deze controle gebeurt vóór en na een gemonteerde kaartweergave, naast de bestaande contextversie-, DOM-verbondenheids- en containeridentiteitscontroles. De noodzakelijke vertrouwensbeslissing komt uitsluitend van de echte beschermde Citadel-host; een bestaande HTML-node geldt niet als autorisatiebewijs. Ontbreekt de functie, dan wordt het connectorcontract afgewezen. Faalt de controle na montage, dan verwijdert de adapter zijn eigen nieuwe DOM-mount.
 
 De publieke Atlas heeft een apart, louter verklarend paneel **Vertrouwensgrens 017**. Geen feitelijke PALACO ONE-inlogkoppeling, privéroutes of persoonlijke records zijn geopend. Handleiding `CITADEL-MUNDO-HOST-INTEGRATION-016.md` bijgewerkt. Geen functionele tests, private Sites-wijziging of merge; PR #58 blijft DRAFT/HOLD.
+
+## MUNDO-EVENT-RECOVERY-018 — onbekende hostevents als terminale fout
+
+De privé `mundo-atlas-host-contract.ts` sluit de verbinding definitief bij een niet-herkend context-event, in plaats van het event naar een herbruikbare sessiewissel te vertalen. Een bekende hostmelding trekt het actuele beeld in via de bestaande lifecycle. Na een onbekend event wordt een nieuwe activatie geweigerd totdat de echte host een nieuwe, gecontroleerde verbinding heeft aangemaakt.
+
+De publieke MUNDO Atlas bevat een verklarend paneel **Herstelgrenzen 018**; deze openbare pagina registreert geen sessie-events of login, en laadt geen privékaartpunten. De hostintegratiehandleiding bevat een lijst met nog niet uitgevoerde eigenaaracceptatiescenario's. De oorspronkelijke privé-Citadel blijft ongewijzigd, PR #58 blijft DRAFT/HOLD. Geen functionele tests of merge.
