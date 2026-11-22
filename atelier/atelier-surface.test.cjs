@@ -444,3 +444,18 @@ test('Atelier inaccessible storage area is handled before import invalidation',(
  const importGate=listener.indexOf('if((e.key===null||[EX,IN,NOTE].includes(e.key))');
  assert.ok(guard>=0&&warning>guard&&importGate>warning);
 });
+
+test('Atelier delayed file import ignores replayed events when snapshot matches',()=>{
+ const html=read('regiekamer.html');
+ const start=html.lastIndexOf("window.addEventListener('storage',e=>{");
+ const end=html.indexOf("\n});",start);
+ assert.ok(start>=0&&end>start);
+ const handler=html.slice(start,end);
+ const snapshot=handler.indexOf('window.PalacoAtelierBundle.snapshot(localStorage)');
+ const comparison=handler.indexOf('current.some((value,i)=>value!==importStartSnapshot[i])');
+ const cancellation=handler.indexOf('++importRevision;',comparison);
+ assert.ok(snapshot>=0&&comparison>snapshot&&cancellation>comparison);
+ assert.match(handler,/if\(changed\)\{/);
+ assert.match(html,/importStartSnapshot=api\.snapshot\(localStorage\)/);
+ assert.match(html,/importStartSnapshot=null/);
+});
