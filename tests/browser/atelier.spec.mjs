@@ -1423,6 +1423,6 @@ test('Atelier v6.9: import weigert onveilige bestandsnamen vóór herstel',async
  expect(dialogs).toBe(0);
  await page.locator('#bundleImport').setInputFiles({name:'Geldig-ontwerp.json',mimeType:'application/json',buffer:valid});
  await expect(page.locator('#bundleStatus')).toContainText('DRAFT-pakket');
- expect(dialogs).toBe(1);
+ await expect.poll(()=>dialogs).toBe(1);
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
 });
