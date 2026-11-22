@@ -77,3 +77,40 @@ test('missing pinned key, hostile inputs and fake authority fail closed',()=>{
   assert.equal(r.anchoredLedgerMatched,false);
  }
 });
+
+
+test('null outer anchor input returns DENY without raising a TypeError',()=>{
+ const r=inspectSignedAuditHeadAnchor(null);
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.executionAllowed,false);
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('hostile outer anchor getter never executes',()=>{
+ const input=setup();
+ let reads=0;
+ Object.defineProperty(input,'signatureBase64Url',{
+   configurable:true,enumerable:true,
+   get(){reads++;throw Error('unexpected outer getter');}
+ });
+ const r=inspectSignedAuditHeadAnchor(input);
+ assert.equal(reads,0);
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('outer audit anchor Proxy enumeration failure remains fail closed',()=>{
+ const input=new Proxy(setup(),{ownKeys(){throw Error('hostile key list');}});
+ const r=inspectSignedAuditHeadAnchor(input);
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.reason,'MALFORMED_OR_UNTRUSTED_ANCHOR');
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
