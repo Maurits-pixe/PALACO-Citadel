@@ -26,8 +26,8 @@ class VisitCardCryptographicTests(unittest.TestCase):
         self.issuer = Ed25519PrivateKey.generate()
         self.revoke = Ed25519PrivateKey.generate()
         self.trust = TrustedRegistry(
-            issuer_keys={"issuer-1": self.issuer.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)},
-            revocation_keys={"rev-1": self.revoke.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)}
+            issuer_keys={"palaco.example": self.issuer.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)},
+            revocation_keys={"palaco.example": self.revoke.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)}
         )
         self.card = {
             "version": 1, "credential_id": "example-card-01", "issuer": "palaco.example",
@@ -47,8 +47,8 @@ class VisitCardCryptographicTests(unittest.TestCase):
 
     def verify(self, card=None, snapshot=None, trust=None, **kwargs):
         return verify_visitcard(
-            card if card is not None else self.signed(self.card, self.issuer, DOMAIN_CARD, "issuer-1"),
-            snapshot if snapshot is not None else self.signed(self.snapshot, self.revoke, DOMAIN_REVOCATION, "rev-1"),
+            card if card is not None else self.signed(self.card, self.issuer, DOMAIN_CARD, "palaco.example"),
+            snapshot if snapshot is not None else self.signed(self.snapshot, self.revoke, DOMAIN_REVOCATION, "palaco.example"),
             self.trust if trust is None else trust,
             expected_subject=kwargs.get("subject", "person-01"),
             expected_audience=kwargs.get("audience", "rio-visitcard-preview"),
@@ -63,12 +63,12 @@ class VisitCardCryptographicTests(unittest.TestCase):
         self.assertEqual(self.verify(), DisplayStatus.REVOKED)
 
     def test_tampered_card_does_not_verify(self):
-        card = self.signed(self.card, self.issuer, DOMAIN_CARD, "issuer-1")
+        card = self.signed(self.card, self.issuer, DOMAIN_CARD, "palaco.example")
         card["payload"] = dict(card["payload"], subject="impostor")
         self.assertEqual(self.verify(card=card), DisplayStatus.UNKNOWN)
 
     def test_tampered_snapshot_does_not_verify(self):
-        snap = self.signed(self.snapshot, self.revoke, DOMAIN_REVOCATION, "rev-1")
+        snap = self.signed(self.snapshot, self.revoke, DOMAIN_REVOCATION, "palaco.example")
         snap["payload"] = dict(snap["payload"], revoked_ids=["example-card-01"])
         self.assertEqual(self.verify(snapshot=snap), DisplayStatus.UNKNOWN)
 
@@ -78,6 +78,11 @@ class VisitCardCryptographicTests(unittest.TestCase):
 
     def test_no_trust_anchor(self):
         self.assertEqual(self.verify(trust=TrustedRegistry({}, {})), DisplayStatus.UNKNOWN)
+
+    def test_trusted_key_cannot_impersonate_another_issuer(self):
+        self.card["issuer"] = "different.example"
+        self.snapshot["issuer"] = "different.example"
+        self.assertEqual(self.verify(), DisplayStatus.UNKNOWN)
 
     def test_missing_revocation_snapshot(self):
         self.assertEqual(self.verify(snapshot={}), DisplayStatus.UNKNOWN)
@@ -96,7 +101,7 @@ class VisitCardCryptographicTests(unittest.TestCase):
         self.assertEqual(self.verify(), DisplayStatus.UNKNOWN)
 
     def test_separated_signature_domains(self):
-        wrong = self.signed(self.card, self.issuer, DOMAIN_REVOCATION, "issuer-1")
+        wrong = self.signed(self.card, self.issuer, DOMAIN_REVOCATION, "palaco.example")
         self.assertEqual(self.verify(card=wrong), DisplayStatus.UNKNOWN)
 
 
