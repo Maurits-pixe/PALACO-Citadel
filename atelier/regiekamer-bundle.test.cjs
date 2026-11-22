@@ -170,3 +170,34 @@ test('recovery timestamp must be a real canonical UTC instant',()=>{
  storage.setItem(bundle.RECOVERY,JSON.stringify({...base,savedAt:'2026-11-22T12:00:00.000Z'}));
  assert.equal(bundle.getRecovery(storage).savedAt,'2026-11-22T12:00:00.000Z');
 });
+
+
+test('undo refuses a recovery point replaced between selection and verification',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'current'});
+ const first={schema:'palaco.citadel.atelier.recovery/1',state:'DRAFT',authority:'NONE',savedAt:'2026-11-22T12:00:00.000Z',draft:bundle.create(null,null,'old')};
+ const second={...first,savedAt:'2026-11-22T12:00:01.000Z',draft:bundle.create(null,null,'newer')};
+ storage.setItem(bundle.RECOVERY,JSON.stringify(first));
+ const get=storage.getItem;let reads=0;
+ storage.getItem=key=>{
+  if(key===bundle.RECOVERY&&++reads===2)storage.setItem(bundle.RECOVERY,JSON.stringify(second));
+  return get(key);
+ };
+ assert.throws(()=>bundle.undoLastImport(storage,bundle.snapshot(storage)),/Herstelkopie gewijzigd/);
+ assert.equal(storage.getItem(bundle.NOTE),'current');
+ assert.equal(JSON.parse(storage.getItem(bundle.RECOVERY)).draft.note,'newer');
+});
+
+test('undo refuses recovery changes during preparation without touching designs',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'current'});
+ const original={schema:'palaco.citadel.atelier.recovery/1',state:'DRAFT',authority:'NONE',savedAt:'2026-11-22T12:00:00.000Z',draft:bundle.create(null,null,'old')};
+ const incoming={...original,savedAt:'2026-11-22T12:00:02.000Z',draft:bundle.create(null,null,'newer')};
+ storage.setItem(bundle.RECOVERY,JSON.stringify(original));
+ const get=storage.getItem;let reads=0;
+ storage.getItem=key=>{
+  if(key===bundle.RECOVERY&&++reads===4)storage.setItem(bundle.RECOVERY,JSON.stringify(incoming));
+  return get(key);
+ };
+ assert.throws(()=>bundle.undoLastImport(storage,bundle.snapshot(storage)),/Herstelkopie gewijzigd/);
+ assert.equal(storage.getItem(bundle.NOTE),'current');
+ assert.equal(JSON.parse(storage.getItem(bundle.RECOVERY)).draft.note,'newer');
+});
