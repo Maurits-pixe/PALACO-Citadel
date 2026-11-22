@@ -5,8 +5,11 @@ not a deployed migration. It defines a private schema for current pins and
 append-only pin history. It enables FORCE RLS, revokes PUBLIC access,
 and defines UPDATE/DELETE/TRUNCATE rejection triggers for the history table.
 It also rejects INSERT, UPDATE, DELETE and TRUNCATE on the current pin-state
-record, leaving the entire draft data surface frozen until a separately
-reviewed activation explicitly replaces that barrier.
+record. Direct INSERT into the audit history is likewise denied while HOLD is
+active: append-only semantics alone do not authenticate who may append.
+The entire draft data surface stays frozen until a separately reviewed
+activation explicitly replaces these barriers. The SQL functions use paired
+PL/pgSQL dollarquote delimiters, checked by static regression tests.
 
 The only example CAS function **unconditionally raises an exception**.
 No transaction actually updates a pin. No roles are granted and no code
