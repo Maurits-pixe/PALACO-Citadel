@@ -53,7 +53,13 @@ function evaluate(registry,candidateSha){
    const reviewedIndependently=eligible.some(x=>
      typeof x.reviewer_id==='string'&&x.reviewer_id.trim()!==''&&
      typeof x.author_id==='string'&&x.author_id.trim()!==''&&
-     x.reviewer_id.trim()!==x.author_id.trim());
+     x.reviewer_id.trim().toLowerCase()!==x.author_id.trim().toLowerCase()&&
+     Number.isSafeInteger(x.pull_request_number)&&x.pull_request_number>0&&
+     Number.isSafeInteger(x.github_review_id)&&x.github_review_id>0&&
+     x.reviewed_commit_sha===candidateSha&&
+     typeof x.review_url==='string'&&
+     /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/pull\/\d+#pullrequestreview-\d+$/.test(x.review_url)&&
+     x.review_url.endsWith('/pull/'+x.pull_request_number+'#pullrequestreview-'+x.github_review_id));
    if(manualReview&&!reviewedIndependently)reviewGaps.push(kind);
    // A verified failure or duplicate never gets hidden by passing evidence.
    if(sameSha&&hasPass&&!hasFail&&!duplicate&&(!manualReview||reviewedIndependently))accepted.push(kind);
