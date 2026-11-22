@@ -31,6 +31,8 @@ jobs:
           cache: npm
       - name: Local receipt trust gate negative regression tests
         run: node --test modules/samenleving-natuur/receipt-review-gate.test.mjs
+      - name: Cryptographic receipt verification negative regression tests
+        run: node --test modules/samenleving-natuur/receipt-crypto-verifier.test.mjs
       - name: Install dependencies
         run: npm ci --ignore-scripts
       - name: Install Chromium
