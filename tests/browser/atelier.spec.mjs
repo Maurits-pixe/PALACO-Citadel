@@ -2151,3 +2151,57 @@ test('Atelier v6.45: geblokkeerde opslagbron annuleert geen lopende import',asyn
  await page.evaluate(()=>window.pendingBlockedStorageImport.shift()());
  await expect(page.locator('#bundleStatus')).not.toContainText('Projectimport onderbroken');
 });
+
+test('Atelier v6.47: oude opslagmelding zonder werkelijke wijziging annuleert import niet',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const draft=await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage)));
+ await page.evaluate(()=>{
+   const original=File.prototype.arrayBuffer;
+   window.pendingRevisionImport=[];
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='vertraagd-revisie.json')
+       return new Promise((resolve,reject)=>window.pendingRevisionImport.push(()=>original.call(this).then(resolve,reject)));
+     return original.call(this);
+   };
+ });
+ await page.locator('#bundleImport').setInputFiles({name:'vertraagd-revisie.json',mimeType:'application/json',buffer:Buffer.from(draft)});
+ await expect.poll(()=>page.evaluate(()=>window.pendingRevisionImport.length)).toBe(1);
+ await page.evaluate(()=>{
+   const api=window.PalacoAtelierBundle;
+   window.dispatchEvent(new StorageEvent('storage',{
+     key:api.NOTE,newValue:'Een oude eventwaarde die niet in opslag staat',
+     storageArea:localStorage,url:location.href
+   }));
+ });
+ await expect(page.locator('#bundleImport')).not.toHaveValue('');
+ await expect(page.locator('#bundleStatus')).not.toContainText('Projectimport onderbroken');
+ page.once('dialog',dialog=>dialog.dismiss());
+ await page.evaluate(()=>window.pendingRevisionImport.shift()());
+ await expect(page.locator('#bundleStatus')).toContainText('DRAFT-pakket');
+ await expect(page.locator('#bundleStatus')).not.toContainText('Projectimport onderbroken');
+});
+
+test('Atelier v6.47: echte tussentijdse notitiewijziging annuleert vertraagde import',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const other=await page.context().newPage();
+ await other.goto('/atelier/regiekamer.html');
+ const draft=await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage)));
+ await page.evaluate(()=>{
+   const original=File.prototype.arrayBuffer;
+   window.pendingChangedImport=[];
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='vertraagd-echte-wijziging.json')
+       return new Promise((resolve,reject)=>window.pendingChangedImport.push(()=>original.call(this).then(resolve,reject)));
+     return original.call(this);
+   };
+ });
+ await page.locator('#bundleImport').setInputFiles({name:'vertraagd-echte-wijziging.json',mimeType:'application/json',buffer:Buffer.from(draft)});
+ await expect.poll(()=>page.evaluate(()=>window.pendingChangedImport.length)).toBe(1);
+ await other.locator('#statement').fill('Nieuwe versie vanuit ander tabblad');
+ await other.locator('#saveNote').click();
+ await expect(page.locator('#bundleStatus')).toContainText('Projectimport onderbroken');
+ await expect(page.locator('#bundleImport')).toHaveValue('');
+ await page.evaluate(()=>window.pendingChangedImport.shift()());
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Nieuwe versie vanuit ander tabblad');
+ await other.close();
+});
