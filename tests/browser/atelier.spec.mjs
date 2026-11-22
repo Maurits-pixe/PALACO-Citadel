@@ -1810,3 +1810,38 @@ test('Atelier v6.25: browserherladen bewaart laatste DRAFT herstelkopie en ontwe
  await expect(page.locator('#bundleStatus')).toContainText('Vorige Atelier-versie teruggezet');
  await expect(page.locator('#statement')).toHaveValue('Originele opgeslagen notitie');
 });
+
+
+test('Atelier v6.26: schone ontwerpnotitie wordt geleegd door opslagwisactie in tweede tab',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const other=await page.context().newPage();
+ await other.goto('/atelier/regiekamer.html');
+ await other.locator('#statement').fill('Opgeslagen creatieve notitie');
+ await other.locator('#saveNote').click();
+ await expect(page.locator('#statement')).toHaveValue('Opgeslagen creatieve notitie');
+ await other.evaluate(()=>localStorage.clear());
+ await expect(page.locator('#statement')).toHaveValue('');
+ await expect(page.locator('#feedback')).toContainText('bijgewerkt vanuit een ander tabblad');
+ await page.locator('#statement').fill('Nieuwe notitie na wissen');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('lokaal bewaard');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Nieuwe notitie na wissen');
+ await other.close();
+});
+
+test('Atelier v6.26: opslagwisactie in tweede tab behoudt onopgeslagen ontwerptekst',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const other=await page.context().newPage();
+ await other.goto('/atelier/regiekamer.html');
+ await other.locator('#statement').fill('Bewaarde uitgangstekst');
+ await other.locator('#saveNote').click();
+ await expect(page.locator('#statement')).toHaveValue('Bewaarde uitgangstekst');
+ await page.locator('#statement').fill('Mijn onopgeslagen schets');
+ await other.evaluate(()=>localStorage.clear());
+ await expect(page.locator('#feedback')).toContainText('onopgeslagen tekst blijft staan');
+ await expect(page.locator('#statement')).toHaveValue('Mijn onopgeslagen schets');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('Opslaan geweigerd');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBeNull();
+ await other.close();
+});
