@@ -24,7 +24,11 @@ export function checkPinnedRegistrySnapshot({
   try {
     if (!isRecord(pinnedSnapshot)) return deny('INVALID_PIN');
     const pinKeys = ['schema','issuerFingerprint','revision','registrySha256'];
-    if (Object.keys(pinnedSnapshot).length !== pinKeys.length)
+    // Reflect.ownKeys does not invoke property-descriptor traps just to list
+    // names; Object.keys would read each descriptor a second time on Proxies.
+    const actualKeys = Reflect.ownKeys(pinnedSnapshot);
+    if (actualKeys.length !== pinKeys.length ||
+        actualKeys.some(key => typeof key !== 'string' || !pinKeys.includes(key)))
       return deny('INVALID_PIN');
     // Snapshot only own data descriptors. Accessor properties and Proxy traps
     // are untrusted, and a second property read may return changed values.
