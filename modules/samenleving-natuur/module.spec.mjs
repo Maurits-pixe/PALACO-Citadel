@@ -2536,3 +2536,51 @@ test('rc42 focus leaves a successful review intact when the signer pin is unchan
  await expect(page.locator('#receiptSignerReviewStatus')).toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
  await expect(page.locator('#receiptSignerReviewStatus')).toContainText('GEEN ROLTOEWIJZING');
 });
+
+
+test('rc42 expired review declaration invalidates previously valid display on focus',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
+ await page.evaluate(()=>{
+  const original=Date.now;
+  Date.now=()=>original()+2*3600000;
+  window.dispatchEvent(new Event('focus'));
+ });
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
+ await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
+});
+
+test('rc42 expired signed registry invalidates prior review on visibility restoration',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await uploadReviewerRegistry(page,await reviewerRegistryFixture(page,review.declaration,{expiresOffset:1800000,notAfterOffset:1800000}));
+ await page.locator('#requireReviewerRegistry').check();
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('REVIEWERSREGISTER CRYPTOGRAFISCH GELDIG');
+ await page.evaluate(()=>{
+  const original=Date.now;
+  Date.now=()=>original()+45*60000;
+  document.dispatchEvent(new Event('visibilitychange'));
+ });
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
+ await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('REVIEWERSREGISTER CRYPTOGRAFISCH GELDIG');
+});
+
+test('rc42 apparent clock rollback invalidates visible reviewer result on focus',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
+ await page.evaluate(()=>{
+  const original=Date.now;
+  Date.now=()=>original()-60000;
+  window.dispatchEvent(new Event('focus'));
+ });
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
+ await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
+});
