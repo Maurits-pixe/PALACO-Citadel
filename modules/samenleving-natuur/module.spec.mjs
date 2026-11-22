@@ -2471,3 +2471,37 @@ test('rc42 replaced local signer pin during pending review fails closed',async (
  await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
  await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
 });
+
+
+test('rc42 cross-tab signer pin storage event invalidates prior review display',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
+ await page.evaluate(()=>{
+  const key='palaco.citadel.receipt-signer-pin.v1';
+  const before=localStorage.getItem(key);
+  const after=JSON.stringify({schema:'palaco-citadel-local-receipt-signer-pin-v1',fingerprint:'0'.repeat(64)});
+  localStorage.setItem(key,after);
+  window.dispatchEvent(new StorageEvent('storage',{key,oldValue:before,newValue:after,storageArea:localStorage}));
+ });
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
+ await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
+});
+
+test('rc42 tab focus rechecks signer pin even if storage event was missed',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
+ await page.evaluate(()=>{
+  localStorage.setItem('palaco.citadel.receipt-signer-pin.v1',JSON.stringify({
+   schema:'palaco-citadel-local-receipt-signer-pin-v1',fingerprint:'0'.repeat(64)
+  }));
+  window.dispatchEvent(new Event('focus'));
+ });
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
+ await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
+});
