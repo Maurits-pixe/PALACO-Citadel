@@ -41,6 +41,20 @@ class VisitCardSourceTests(unittest.TestCase):
         self.assertIn('target="_blank" rel="noopener noreferrer"', self.html)
         self.assertIn('rel="icon" type="image/svg+xml"', self.html)
 
+    def test_trust_status_is_explicitly_unverified(self):
+        self.assertIn('id="rio-trust-title"', self.html)
+        self.assertIn('Niet geverifieerd · geen autorisatie', self.html)
+        self.assertIn('geen cryptografisch bewijs', self.html)
+        self.assertIn('Alleen lokaal · geen echte bezorging', self.html)
+
+    def test_trust_panel_locales_and_rendering(self):
+        for lang in LOCALES:
+            with self.subTest(lang=lang):
+                self.assertIn(" " + lang + ":[", self.html)
+        self.assertIn("renderRioTrust();", self.html)
+        for key in ("title", "publicValue", "trialValue", "identityValue", "explain"):
+            self.assertIn('data-rio-trust="' + key + '"', self.html)
+
     def test_offline_trial_boundary_remains_explicit(self):
         self.assertIn("Alles in deze proef blijft op dit apparaat.", self.html)
         self.assertIn("Berichten naar andere apparaten zijn nog niet beschikbaar.", self.html)
