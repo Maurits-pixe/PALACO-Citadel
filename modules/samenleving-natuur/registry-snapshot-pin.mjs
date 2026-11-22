@@ -17,11 +17,31 @@ const deny = reason => ({
  * Revision advancement REQUIRES external approval: this module never pins
  * or promotes a newer snapshot automatically.
  */
-export function checkPinnedRegistrySnapshot({
-  registryBytes, signatureBase64Url, issuerPublicJwk,
-  pinnedSnapshot, evaluationTime, reviewerFingerprint
-} = {}) {
+export function checkPinnedRegistrySnapshot(input = {}) {
   try {
+    // Validate the outer call contract before reading any of its properties.
+    // Destructuring in function arguments would execute hostile getters outside
+    // this try block, allowing an untrusted object to throw into the caller.
+    if (!isRecord(input)) return deny('UNTRUSTED_PIN_INPUT');
+    const inputKeys = [
+      'registryBytes','signatureBase64Url','issuerPublicJwk',
+      'pinnedSnapshot','evaluationTime','reviewerFingerprint'
+    ];
+    const submitted = Reflect.ownKeys(input);
+    if (submitted.length !== inputKeys.length ||
+        submitted.some(key => typeof key !== 'string' || !inputKeys.includes(key)))
+      return deny('UNTRUSTED_PIN_INPUT');
+    const inputSnapshot = Object.create(null);
+    for (const key of inputKeys) {
+      const descriptor = Object.getOwnPropertyDescriptor(input,key);
+      if (!descriptor || !Object.hasOwn(descriptor,'value'))
+        return deny('UNTRUSTED_PIN_INPUT');
+      inputSnapshot[key] = descriptor.value;
+    }
+    const {
+      registryBytes, signatureBase64Url, issuerPublicJwk,
+      pinnedSnapshot, evaluationTime, reviewerFingerprint
+    } = inputSnapshot;
     if (!isRecord(pinnedSnapshot)) return deny('INVALID_PIN');
     const pinKeys = ['schema','issuerFingerprint','revision','registrySha256'];
     // Reflect.ownKeys does not invoke property-descriptor traps just to list
