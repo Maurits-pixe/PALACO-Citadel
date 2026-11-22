@@ -161,8 +161,11 @@ function restoreWithRecovery(storage,bundle,expectedSnapshot,expectedRecovery){
    throw err;
  }
 }
-function undoLastImport(storage,expectedSnapshot){
+function undoLastImport(storage,expectedSnapshot,previewedRecovery){
  const expectedRecovery=storage.getItem(RECOVERY);
+ // A confirmation must apply only to the recovery point actually previewed.
+ if(previewedRecovery!==undefined&&expectedRecovery!==previewedRecovery)
+   throw Error('Herstelkopie gewijzigd sinds het herstelvoorstel. Controleer het herstelpunt opnieuw.');
  const recovery=getRecovery(storage);
  if(!recovery)throw Error('Er is geen lokale herstelkopie beschikbaar');
  return restoreWithRecovery(storage,recovery.draft,expectedSnapshot,expectedRecovery);
