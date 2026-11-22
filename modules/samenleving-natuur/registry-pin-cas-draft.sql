@@ -51,6 +51,7 @@ FOR EACH ROW EXECUTE FUNCTION citadel_pin_draft.reject_history_mutation();
 
 -- TRUNCATE does not fire row-level DELETE triggers; explicitly block it.
 -- Both audit history and current pin state remain non-writable in HOLD.
+DROP TRIGGER IF EXISTS pin_history_no_truncate ON citadel_pin_draft.pin_history;
 CREATE TRIGGER pin_history_no_truncate
 BEFORE TRUNCATE ON citadel_pin_draft.pin_history
 FOR EACH STATEMENT EXECUTE FUNCTION citadel_pin_draft.reject_history_mutation();
@@ -62,9 +63,11 @@ BEGIN
   RAISE EXCEPTION 'PALACO_CITADEL_PIN_STATE_FROZEN' USING ERRCODE = '42501';
 END;
 $;
+DROP TRIGGER IF EXISTS pin_state_no_write ON citadel_pin_draft.pin_state;
 CREATE TRIGGER pin_state_no_write
 BEFORE INSERT OR UPDATE OR DELETE ON citadel_pin_draft.pin_state
 FOR EACH ROW EXECUTE FUNCTION citadel_pin_draft.reject_state_mutation();
+DROP TRIGGER IF EXISTS pin_state_no_truncate ON citadel_pin_draft.pin_state;
 CREATE TRIGGER pin_state_no_truncate
 BEFORE TRUNCATE ON citadel_pin_draft.pin_state
 FOR EACH STATEMENT EXECUTE FUNCTION citadel_pin_draft.reject_state_mutation();
