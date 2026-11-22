@@ -33,18 +33,33 @@ function evaluate(registry,candidateSha){
   throw Error('Onbekende of ongeldige bewijsregel; register geweigerd');
  }
  const decisions=GATES.map(id=>{
-  const accepted=[];const missing=[];const conflicts=[];
+  const accepted=[];const missing=[];const conflicts=[];const duplicates=[];const reviewGaps=[];
   for(const kind of REQUIRED[id]){
    const eligible=records.filter(x=>x&&x.gate===id&&x.kind===kind&&x.commit_sha===candidateSha&&
      x.reviewed===true&&typeof x.source==='string'&&x.source.trim()!=='');
+   // Repeated references to one source do not constitute independent evidence.
+   const seen=new Set();
+   const duplicate=eligible.some(x=>{
+     const identity=JSON.stringify([x.source.trim(),x.result]);
+     if(seen.has(identity))return true;
+     seen.add(identity);return false;
+   });
+   if(duplicate)duplicates.push(kind);
    const hasPass=eligible.some(x=>x.result==='pass');
    const hasFail=eligible.some(x=>x.result==='fail');
    if(hasFail&&hasPass)conflicts.push(kind);
-   // A verified failure never gets hidden by another passing item.
-   if(sameSha&&hasPass&&!hasFail)accepted.push(kind);
+   // Self-reported reviewer identifiers cannot establish independent review.
+   const manualReview=kind==='independent_review';
+   const reviewedIndependently=eligible.some(x=>
+     typeof x.reviewer_id==='string'&&x.reviewer_id.trim()!==''&&
+     typeof x.author_id==='string'&&x.author_id.trim()!==''&&
+     x.reviewer_id.trim()!==x.author_id.trim());
+   if(manualReview&&!reviewedIndependently)reviewGaps.push(kind);
+   // A verified failure or duplicate never gets hidden by passing evidence.
+   if(sameSha&&hasPass&&!hasFail&&!duplicate&&(!manualReview||reviewedIndependently))accepted.push(kind);
    else missing.push(kind);
   }
-  return {id,pass:false,accepted,missing,conflicts}; // HOLD even if all categories appear accepted.
+  return {id,pass:false,accepted,missing,conflicts,duplicates,reviewGaps}; // HOLD even if all categories appear accepted.
  });
  const blockers=[];
  if(!sameSha)blockers.push('stale_or_mismatched_commit');
@@ -52,6 +67,8 @@ function evaluate(registry,candidateSha){
  if(registry.authority!=='NONE'||registry.state!=='DRAFT')blockers.push('invalid_draft_boundary');
  for(const gate of decisions){
   if(gate.conflicts.length)blockers.push(gate.id+':conflicting_evidence:'+gate.conflicts.join(','));
+  if(gate.duplicates.length)blockers.push(gate.id+':duplicate_evidence:'+gate.duplicates.join(','));
+  if(gate.reviewGaps.length)blockers.push(gate.id+':reviewer_independence_unverified:'+gate.reviewGaps.join(','));
   if(gate.missing.length)blockers.push(gate.id+':'+gate.missing.join(','));
  }
  return {
