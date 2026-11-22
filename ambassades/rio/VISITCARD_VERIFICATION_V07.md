@@ -178,3 +178,31 @@ signing mechanism only after security review.
 CI has been configured to reject skipped regression tests, but results
 must be checked before a PASS claim. GO-13 remains HOLD, with no merge,
 no PALACO ONE access and no public RIO website update.
+
+## v1.3 — Loopback client and signed acknowledgement (DRAFT / HOLD)
+
+`visitcard_witness_client.py` sends a **single** bounded signed producer
+proposal to the loopback-only witness development endpoint. It does not
+follow redirects or accept hostnames, external IPs or public URLs. After
+a 200 response it cryptographically verifies the independently trusted
+witness signature and requires that the receipt match the exact submitted
+issuer, sequence and entry hash.
+
+The result is strictly one of:
+- `ACKNOWLEDGED`: valid signed receipt of the exact proposed head;
+- `REJECTED`: known input/response conflict or invalid signature;
+- `PENDING`: timeout, connection failure or ambiguous server response.
+
+A PENDING result is **not** failure of witness persistence: the server may
+have committed before the response was lost. Do not automatically issue a
+different proposal, advance local trust, grant access or mark proof as
+verified. Store the original signed request in protected operational storage
+and reconcile against the independent witness's latest signed high-water
+receipt before retrying the **same immutable request**. This client itself
+does not implement persistent request outbox, reconciliation, TLS/mTLS,
+secure external hosting or issuer authorization.
+
+The development-only client uses plain HTTP on 127.0.0.1; it is not an
+approved network transport for multiple machines. Security review,
+actual test execution, bounded operational retries, independent outbox
+storage and privacy review remain required. **GO-13 HOLD**.
