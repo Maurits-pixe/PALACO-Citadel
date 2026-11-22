@@ -17,6 +17,7 @@ from typing import Mapping
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from visitcard_witness_registry import publish
+from visitcard_witness_head import sign_current_head
 
 MAX_REQUEST_BYTES = 4096
 MAX_RESPONSE_BYTES = 4096
@@ -47,6 +48,34 @@ def make_handler(db_path: str, producer_keys: Mapping[str, bytes],
             self.close_connection = True
 
         def do_POST(self):
+            if self.path == "/v1/witness/head":
+                header = self.headers.get("Content-Length")
+                content_type = self.headers.get("Content-Type", "").split(";",1)[0].strip().lower()
+                if content_type != "application/json" or not header or not header.isdecimal():
+                    self.respond(400, {"error": "invalid_request"})
+                    return
+                size = int(header)
+                if not 0 < size <= 512:
+                    self.respond(413, {"error": "invalid_size"})
+                    return
+                try:
+                    body = self.rfile.read(size)
+                    if len(body) != size:
+                        self.respond(400, {"error": "invalid_request"})
+                        return
+                    query = json.loads(body)
+                    if not isinstance(query, dict) or set(query) != {"issuer","challenge"}:
+                        self.respond(400, {"error": "invalid_request"})
+                        return
+                    with sqlite3.connect(db_path, isolation_level=None, timeout=1) as db:
+                        evidence = sign_current_head(
+                            db, query["issuer"], query["challenge"],
+                            witness_private_key, witness_id
+                        )
+                    self.respond(200, evidence) if evidence is not None else self.respond(409, {"error": "unavailable"})
+                except (OSError, sqlite3.Error, UnicodeDecodeError, json.JSONDecodeError, ValueError, TypeError):
+                    self.respond(400, {"error": "invalid_request"})
+                return
             if self.path != "/v1/witness/receipts":
                 self.respond(404, {"error": "not_found"})
                 return
