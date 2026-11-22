@@ -956,7 +956,12 @@ window.addEventListener('storage',e=>{
    // A cross-tab save or full storage clear must never replace unsaved text.
    // Queued or replayed events may describe a version no longer present.
    // Diagnose a conflict only when the actual stored revision differs.
-   const latest=localStorage.getItem(NOTE);
+   let latest;
+   try{latest=localStorage.getItem(NOTE);}
+   catch{
+     $('feedback').textContent='Ontwerpnotitie kon niet worden gesynchroniseerd: browseropslag is niet toegankelijk. Je huidige tekst blijft staan; exporteer je dossier.';
+     return;
+   }
    const locallyEdited=noteValue()!==(noteBaseline===null?'':noteBaseline.slice(0,6000));
    if(locallyEdited){
      if(latest!==noteBaseline)
