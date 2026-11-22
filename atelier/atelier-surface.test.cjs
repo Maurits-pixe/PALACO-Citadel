@@ -314,3 +314,16 @@ test('Atelier note save verifies persisted content before advancing baseline',()
  assert.ok(write>=0&&verify>write&&baseline>verify,'save acknowledgement must follow read-back verification');
  assert.match(handler,/Opslaan niet bevestigd/);
 });
+
+
+test('rollback report can receive programmatic keyboard focus without changing tab order',()=>{
+ const html=read('regiekamer.html');
+ assert.match(html,/id="rollbackReport"[^>]*tabindex="-1" hidden/);
+ const start=html.indexOf('function showRollbackReport(error)');
+ const end=html.indexOf('let importRevision=',start);
+ assert.ok(start>=0&&end>start);
+ const handler=html.slice(start,end);
+ assert.match(handler,/panel\.hidden=false;\s*panel\.focus\(\{preventScroll:true\}\)/);
+ assert.match(handler,/panel\.hidden=true/);
+ assert.doesNotMatch(handler,/localStorage\.(setItem|removeItem)/);
+});
