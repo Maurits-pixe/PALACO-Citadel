@@ -605,8 +605,8 @@ $('verifyIssuerRevocationReceipt').addEventListener('click',async()=>{
 // rc42: Reject duplicate JSON object keys before canonicalization or signature verification.
 // JSON.parse alone silently retains the last occurrence. Quoted names are decoded first,
 // so "role" and "\u0072ole" are correctly recognized as the same key.
-function strictReviewerRegistryJSON(source){
- if(typeof source!=='string'||source.length>20000)throw Error('Reviewersregister te groot');
+function strictSignedReviewJSON(source){
+ if(typeof source!=='string'||source.length>20000)throw Error('Getekend beoordelingsbestand te groot');
  let pos=0;
  const skip=()=>{while(pos<source.length&&/[\u0020\t\r\n]/.test(source[pos]))pos++};
  const quoted=()=>{
@@ -661,7 +661,7 @@ $('verifyReceiptSignerReview').addEventListener('click',async()=>{
   const fingerprint=async jwk=>hex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonicalJson(jwk))));
   const signerFp=await fingerprint(signer),reviewerFp=await fingerprint(reviewer);
   if(signerFp!==pinned||reviewerFp===signerFp)throw Error('Onjuiste rolverdeling');
-  const declaration=JSON.parse(await file.text());
+  const declaration=strictSignedReviewJSON(await file.text());
   if(id!==ticket||revision!==receiptSignerReviewRevision)return;
   if(!declaration||typeof declaration!=='object'||Array.isArray(declaration)||Object.keys(declaration).sort().join(',')!=='decision,epoch,expiresAt,issuedAt,reviewerFingerprint,reviewerSignature,schema,signerFingerprint,signerSignature'||declaration.schema!=='palaco-citadel-receipt-signer-review-v1'||declaration.decision!=='reviewed-no-authority'||declaration.signerFingerprint!==signerFp||declaration.reviewerFingerprint!==reviewerFp||!Number.isSafeInteger(declaration.epoch)||declaration.epoch<1)throw Error('Ongeldig beoordelingscontract');
   const iso=/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
@@ -679,7 +679,7 @@ $('verifyReceiptSignerReview').addEventListener('click',async()=>{
   if(requireRegistry&&!registryFile)throw Error('Getekend reviewersregister verplicht');
   if(registryFile){
    if(registryFile.size>20000)throw Error('Reviewersregister te groot');
-   const registry=strictReviewerRegistryJSON(await registryFile.text());
+   const registry=strictSignedReviewJSON(await registryFile.text());
    if(id!==ticket||revision!==receiptSignerReviewRevision)return;
    if(!registry||typeof registry!=='object'||Array.isArray(registry)||Object.keys(registry).sort().join(',')!=='expiresAt,issuedAt,issuerFingerprint,notAfter,notBefore,reviewerFingerprint,role,schema,signature,status'||registry.schema!=='palaco-citadel-reviewer-registry-v1'||registry.role!=='receipt-reviewer'||registry.status!=='active'||registry.reviewerFingerprint!==reviewerFp)throw Error('Reviewer ontbreekt of is ingetrokken');
    const started=utc(registry.notBefore),ends=utc(registry.notAfter),created=utc(registry.issuedAt),validUntil=utc(registry.expiresAt),now=Date.now();
