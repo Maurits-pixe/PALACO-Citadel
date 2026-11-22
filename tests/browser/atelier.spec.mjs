@@ -1926,6 +1926,9 @@ test('Atelier v6.34: beschadigde herstelkopie uit tweede tab blokkeert undo',asy
   localStorage.setItem(api.NOTE,'Oorspronkelijke ontwerpnotitie');
   api.restoreWithRecovery(localStorage,api.create(null,null,'Huidig creatief ontwerp'));
  });
+ // The recovery record was created in this same tab without a storage event.
+ // Reload to initialize the actual recovery controls from persisted storage.
+ await page.reload();
  const other=await page.context().newPage();
  await other.goto('/atelier/regiekamer.html');
  await expect(page.locator('#undoImport')).toBeEnabled();
