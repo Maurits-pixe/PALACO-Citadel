@@ -59,6 +59,38 @@ BEGIN
     RAISE EXCEPTION 'FAIL: PUBLIC can execute a HOLD guard function';
   END IF;
 
+  -- An invoker-only guard also needs an explicit, restricted search_path.
+  -- Reject drift in its function definition, not just runtime outcomes.
+  IF (SELECT count(*) FROM pg_proc p
+      JOIN pg_namespace n ON n.oid=p.pronamespace
+      WHERE n.nspname='citadel_pin_draft'
+        AND p.proname IN ('cas_pin_update_disabled',
+          'reject_state_mutation','reject_history_mutation')
+        AND p.proconfig @> ARRAY['search_path=pg_catalog, citadel_pin_draft']::text[]
+      ) <> 3 THEN
+    RAISE EXCEPTION 'FAIL: HOLD guard function search_path drift';
+  END IF;
+
+  -- No public schema visibility or direct table privileges are appropriate
+  -- while the registry-pin writer is intentionally disabled.
+  IF EXISTS (
+    SELECT 1 FROM pg_namespace n
+      CROSS JOIN LATERAL aclexplode(coalesce(n.nspacl,acldefault('n',n.nspowner))) acl
+    WHERE n.nspname='citadel_pin_draft' AND acl.grantee=0
+      AND acl.privilege_type IN ('USAGE','CREATE')
+  ) THEN
+    RAISE EXCEPTION 'FAIL: PUBLIC can access the HOLD schema';
+  END IF;
+  IF EXISTS (
+    SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+      CROSS JOIN LATERAL aclexplode(coalesce(c.relacl,acldefault('r',c.relowner))) acl
+    WHERE n.nspname='citadel_pin_draft'
+      AND c.relname IN ('pin_state','pin_history')
+      AND acl.grantee=0
+  ) THEN
+    RAISE EXCEPTION 'FAIL: PUBLIC has privileges on HOLD tables';
+  END IF;
+
   failed := false;
   BEGIN
     PERFORM citadel_pin_draft.cas_pin_update_disabled();
