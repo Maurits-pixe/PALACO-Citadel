@@ -84,3 +84,11 @@ The private `mundo-atlas-explicit-recovery.ts` now invalidates the current host 
 The existing supervisor revocation generation ensures delayed results cannot replace the current generation after a session or route change. A host teardown exception permanently quarantines the supervisor. These are engineering conditions, not proof of end-to-end session security; the host must still deliver synchronous pre-transition events, trusted context versions, authentic source verification and DOM cleanup.
 
 **Unexecuted owner acceptance scenarios:** stale completion; mount-failed completion; denial without automatic retry; cleanup throwing; old delayed request completing after explicit reconnect; duplicate activation. Do not mark these PASS without real test evidence. Original private Citadel unchanged; PR #58 DRAFT/HOLD.
+
+## Extension 021 — generation-scoped single-flight activation
+
+The private `mundo-atlas-explicit-recovery.ts` now reserves an `inFlight` request token synchronously before invoking `ConnectedAtlasHost.activate()`. A concurrent call receives `denied` and never triggers its own host callback or interrupts the existing request. The token contains the current supervisor generation and exact host object identity.
+
+`invalidate()` advances the generation and releases the token. The `finally` cleanup for an old promise only releases a token that still belongs to that same request. Consequently, a late completion cannot clear a lock for a new host connection established after explicit invalidation. A late result from a different generation reports `stale`; failing or stale mounts on the current generation still revoke their connection as in extension 020. Reconnection and normal requests do not automatically repeat sources or previous grant decisions.
+
+**Acceptance scenarios not run:** two simultaneous activations; invalidation while verification is pending; reconnect before an old promise settles; old finalizer after new activation; host throwing during activation; failed disposal quarantine; ordinary denial without a host restart. Private host authenticity, session transitions and source verification still require owner acceptance. No tests, merge or Citadel Sites modifications.
