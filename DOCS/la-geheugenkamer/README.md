@@ -56,6 +56,13 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Dossierselectie opnieuw controleren bij export · v4.4
+- Bij het bewust openen van een dossier wordt de toestand van de eigen conceptopslag en versleutelde apparaatkluis vastgelegd. Kan die toestand niet veilig worden gelezen, dan wordt de selectie geweigerd.
+- Vóór een **Bewijskamer/ERA-handoff** of **geselecteerde dossierexport** worden beide opslagwaarden opnieuw vergeleken. Ook wanneer een cross-tab `storage`-gebeurtenis nog niet is verwerkt, weigert de module een verouderde export.
+- Bij verschil wordt de geselecteerde dossierinspectie gesloten, eenmalige toestemming ingetrokken en de focus naar de tijdlijn verplaatst. Voor verdere overdracht moet een dossier opnieuw worden geselecteerd.
+- Twee Node-regressies en twee Chromium-browsertests controleren de beide exportpaden bij gewijzigde conceptopslag of kluis.
+- Dit is een controle tussen dossierselectie en export, **geen atomair transactieslot** tegen wijzigingen ná de laatste controle. Onafhankelijke review en fysieke Android/iPhone-acceptatie blijven open.
+
 ## Actieve dossierselectie na cross-tab wijziging · v4.3
 - Bij een browser-`storage`-gebeurtenis op één van de twee eigen archief-/kluissleutels of bij `localStorage.clear()` wordt een open dossierinspectie gesloten, de geselecteerde dossierreferentie ongeldig gemaakt en de eenmalige Bewijskamer-exporttoestemming ingetrokken.
 - De focus gaat naar de tijdlijn als een dossier openstond. Lokaal geheugen blijft leesbaar als ongeverifieerd concept; er worden geen gegevens stilzwijgend verwijderd of samengevoegd. De bestaande kluisoperatie wordt ook ongeldig gemaakt.
