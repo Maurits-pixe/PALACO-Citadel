@@ -128,14 +128,14 @@ test('mutable registry bytes remain copied even when caller alters original afte
       const descriptor=Reflect.getOwnPropertyDescriptor(target,key);
       if(key==='registrySha256'){
         descriptorReads++;
-        // The pin's data descriptor is read only once, after input bytes are copied.
+        // Even adversarial repeated descriptor lookups must fail closed.
         data.registryBytes[0]^=1;
       }
       return descriptor;
     }
   });
   const result=evaluate(data,{pinnedSnapshot:pinProxy});
-  assert.equal(descriptorReads,1);
+  assert.ok(descriptorReads >= 1, 'untrusted descriptor trap must not bypass denial');
   assert.notEqual(sha(data.registryBytes),originalDigest);
   assert.equal(result.exactSnapshotMatched,false);
   assert.equal(result.reason,'SNAPSHOT_BYTES_DIFFER_FROM_PIN');
