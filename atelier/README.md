@@ -451,3 +451,11 @@ Playwright test twee tabbladen, het afwijzen van een conflicterende opslag, beho
 `regiekamer.html` toont na een herstel- of importfout met `error.rollback` en een herkende foutcode een afzonderlijk statuspaneel met `role="status"`, `aria-live="polite"` en `aria-atomic="true"`. Het paneel geeft per bron (exterieur, interieur, ontwerpnotitie) uitsluitend vaste Nederlandse statusomschrijvingen voor `untouched`, `original`, `restored`, `conflict` en `failed`. De weergave gebruikt DOM `textContent` en geen `innerHTML` of creatieve inhoud. Bij een nieuwe import of undo wordt de vorige diagnostiek verborgen; onbekende fouten blijven via de bestaande generieke melding zichtbaar. Twee statische UI-contracttests zijn toegevoegd.
 
 Dit is een lokale DRAFT-UI zonder transactiegarantie, officiële audit, externe identiteit of autonome herstelbevoegdheid. Schermlezer-, mobiele en end-to-end-browsertests moeten nog onafhankelijk worden bevestigd. **DRAFT/HOLD/DENY**; niet mergen of publiceren.
+
+## Regiekamer v6.17 — bewust laden van opgeslagen ontwerpnotitie (2026-11-22)
+
+De Regiekamer heeft een afzonderlijke knop **Laad opgeslagen notitie** voor herstel na een conflict tussen tabbladen. Als de opgeslagen tekst afwijkt van de huidige editor, vraagt het systeem eerst expliciete bevestiging omdat onopgeslagen tekst anders verdwijnt. Bij annuleren blijft de editor intact. Na bevestiging wordt de actuele opslag opnieuw gelezen, in de editor getoond en pas daarna als nieuwe uitgangsversie geaccepteerd; dit is een alleen-lezen handeling, geen opslagmutatie. De v6.16-conflictcontrole bij de knop **Bewaar notitie lokaal** blijft actief.
+
+Playwright test annuleren, expliciet overnemen en daarna veilig opslaan vanuit twee browservensters. De eerdere v6.15-browserregressie is aangepast: handmatig gelijkgemaakte tekst is nog geen toestemming om een afgewezen conflict te negeren; na herladen wordt de opgeslagen versie pas aangenomen. Een statische contracttest eist de bevestiging en verbiedt schrijfacties in de nieuwe laadfunctie.
+
+**Beperking:** niet-atomaire localStorage en browsergebonden opslag bieden geen sterkere synchronisatie- of back-upgaranties. PR #60 blijft DRAFT/HOLD/DENY; geen merge, EDTR of publicatie.
