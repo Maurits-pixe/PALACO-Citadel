@@ -71,6 +71,35 @@ def _valid_hash(value: Any) -> bool:
     return isinstance(value,str) and len(value)==64 and all(c in "0123456789abcdef" for c in value)
 
 
+
+def audit_highwater(db: sqlite3.Connection, issuer: str, nonce: str,
+                    pinned_custody_keys: Mapping[str,bytes]) -> bool:
+    """Check every retained custody signature and contiguous high-water history."""
+    try:
+        rows=db.execute(
+            """SELECT event_count,events_sha256,receipt_json FROM rio_anchor_highwater_history
+               WHERE issuer=? AND nonce=? ORDER BY event_count""",(issuer,nonce)
+        ).fetchall()
+        head=db.execute(
+            "SELECT event_count,events_sha256,receipt_json FROM rio_anchor_highwater WHERE issuer=? AND nonce=?",
+            (issuer,nonce)
+        ).fetchone()
+        if not rows or head is None or len(rows)>2:
+            return False
+        for index,(count,digest,packed) in enumerate(rows,1):
+            if count!=index or not _valid_hash(digest):
+                return False
+            receipt=json.loads(packed)
+            if not verify_custody_receipt(
+                receipt,pinned_custody_keys,expected_issuer=issuer,
+                expected_nonce=nonce,expected_count=count,expected_hash=digest
+            ):
+                return False
+        return head==rows[-1]
+    except (sqlite3.Error,ValueError,TypeError,KeyError,AttributeError):
+        return False
+
+
 def store_confirmed_receipt(
     db: sqlite3.Connection, receipt: Any, pinned_custody_keys: Mapping[str,bytes]
 ) -> bool:
@@ -113,6 +142,9 @@ def store_confirmed_receipt(
             if count!=1:
                 db.rollback()
                 return False
+        elif not audit_highwater(db,issuer,nonce,pinned_custody_keys):
+            db.rollback()
+            return False
         elif count==head[0]:
             # Idempotence demands the IDENTICAL signed custody receipt.
             identical=digest==head[1] and packed==head[2]
@@ -162,7 +194,7 @@ def compare_restored_custody(
             "SELECT event_count,events_sha256,receipt_json FROM rio_anchor_custody WHERE issuer=? AND nonce=?",
             (issuer,nonce)
         ).fetchone()
-        if high is None:
+        if high is None or not audit_highwater(highwater_db,issuer,nonce,pinned_custody_keys):
             return RestoreState.UNKNOWN
         count,digest,packed=high
         if type(count) is not int or count not in (1,2) or not _valid_hash(digest):
