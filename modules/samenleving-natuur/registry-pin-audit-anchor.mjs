@@ -10,6 +10,23 @@ const own = (v, keys) => v !== null && typeof v === 'object' &&
   Reflect.ownKeys(v).length === keys.length &&
   keys.every(k => Object.hasOwn(v, k) &&
     Object.hasOwn(Object.getOwnPropertyDescriptor(v,k) ?? {}, 'value'));
+// A single exact own-field capture avoids double descriptor reads when
+// supplied outer inputs are Proxy-backed. Accessors are never evaluated.
+const captureExactRecord = (value, keys) => {
+  if (value === null || typeof value !== 'object' || Array.isArray(value) ||
+      Object.getPrototypeOf(value) !== Object.prototype) return null;
+  const actual = Reflect.ownKeys(value);
+  if (actual.length !== keys.length ||
+      actual.some(key => typeof key !== 'string' || !keys.includes(key)))
+    return null;
+  const snapshot = {};
+  for (const key of keys) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    if (!descriptor || !Object.hasOwn(descriptor, 'value')) return null;
+    snapshot[key] = descriptor.value;
+  }
+  return snapshot;
+};
 const pinKeys = ['schema','issuerFingerprint','revision','registrySha256'];
 // Capture a PIN's own data descriptors once, never evaluating accessors or
 // rereading attacker-controlled Proxy fields after validation.
@@ -55,14 +72,8 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
       'expectedAnchorKeyFingerprint','genesisPin','entries',
       'currentPin','minimumAnchorSequence'
     ];
-    if (!own(input,inputKeys)) return reject('INVALID_ANCHOR_INPUT');
-    const snapshot = Object.create(null);
-    for (const key of inputKeys) {
-      const descriptor = Object.getOwnPropertyDescriptor(input,key);
-      if (!descriptor || !Object.hasOwn(descriptor,'value'))
-        return reject('INVALID_ANCHOR_INPUT');
-      snapshot[key] = descriptor.value;
-    }
+    const snapshot = captureExactRecord(input,inputKeys);
+    if (!snapshot) return reject('INVALID_ANCHOR_INPUT');
     const {
       anchorBytes, signatureBase64Url, anchorPublicJwk,
       expectedAnchorKeyFingerprint, genesisPin, entries, currentPin,
