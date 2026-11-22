@@ -505,3 +505,9 @@ De twee v6.23-browserproeven bleken niet correct gesynchroniseerd. Het oorspronk
 Ook worden de knoppen voor **Herstel vorig lokaal ontwerp** en **Exporteer herstelkopie** nu automatisch opnieuw beoordeeld wanneer een ander tabblad de herstelkopie toevoegt of verwijdert. Een tweede browserproef verifieert beide richtingen. Een statisch contract bewaakt de refresh-koppeling. De eerdere v6.23-claims van geslaagde tests worden niet overgenomen: die uitvoering faalde in vier desktop-/mobiele varianten; de nieuwe v6.24-uitvoering moet nog slagen.
 
 Het betreft browserlokale DRAFT-functionaliteit zonder atomaire transacties, back-end-synchronisatie, autorisatie of EDTR. **DRAFT/HOLD/DENY**; geen merge of productiepublicatie.
+
+## Regiekamer v6.25 — herhaalde conflicten en herstel na browserherladen (2026-11-22)
+
+Twee Playwright-browserscenario's toetsen het bestaande opslag- en herstelgedrag. In een echte gedeelde browsercontext schrijft het tweede tabblad achtereenvolgens drie geldige ontwerpnotities, terwijl het eerste tabblad een afwijkende onopgeslagen versie vasthoudt. De oorspronkelijke editorinhoud moet blijven staan, de laatste opgeslagen revisie moet behouden blijven en opslaan vanuit de verouderde editor moet worden geweigerd. Een tweede scenario bewaart na een import een lokale DRAFT-herstelkopie, herlaadt de Regiekamer, controleert dat de drie ontwerpbronnen én de ruwe herstelkopie gelijk zijn gebleven en voert vervolgens een expliciet bevestigde undo uit.
+
+Dit zijn toegevoegde testgevallen, geen geverifieerde PASS-uitkomsten. Browseropslag is apparaat-/browsergebonden en kent geen transactionele conflictisolatie. De tests maken geen automatische herstelbeslissing en veranderen geen productiegegevens. **DRAFT / HOLD / DENY**, zonder merge of live-publicatie.
