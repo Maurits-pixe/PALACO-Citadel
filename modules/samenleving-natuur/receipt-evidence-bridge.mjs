@@ -22,7 +22,7 @@ export function assessSignedReceipt({ payloadBytes, envelope, publicJwk, claims 
       'ledgerBound', 'checkpointBound', 'reviewerRegistrySignatureValid',
       'reviewerActive', 'reviewerIndependent', 'issuerIndependentlyTrusted',
       'revocationFresh', 'policyMatched', 'makerId', 'reviewerId',
-      'makerKeyFingerprint', 'checkpointDigest'
+      'makerKeyFingerprint', 'reviewerKeyFingerprint', 'checkpointDigest'
     ]) {
       const descriptor = Object.getOwnPropertyDescriptor(claims, key);
       if (!descriptor || !Object.hasOwn(descriptor, 'value')) throw new TypeError('Missing data');
