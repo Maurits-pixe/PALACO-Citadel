@@ -69,6 +69,8 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/if\(stack\.length>64\)/);
   assert.match(read('regiekamer.html'),/let propertyCount=0/);
   assert.match(read('regiekamer.html'),/\+\+propertyCount>4096/);
+  assert.match(read('regiekamer.html'),/key\.length>256/);
+  assert.match(read('regiekamer.html'),/veldnaam langer dan 256 tekens/);
   assert.match(read('regiekamer.html'),/maximum van 4096 objectvelden/);
   assert.match(read('regiekamer.html'),/Dossier-JSON overschrijdt maximale nestingdiepte van 64/);
   assert.match(read('regiekamer.html'),/parseUniqueTopLevelJson\(content\)/);
