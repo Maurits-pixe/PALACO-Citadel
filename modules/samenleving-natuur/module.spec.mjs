@@ -1954,3 +1954,60 @@ test('revocation receipt signature input changes invalidate previous verificatio
  await expect(page.locator('#issuerReceiptStatus')).toContainText('opnieuw controleren vereist');
  await expect(page.locator('#issuerReceiptStatus')).not.toContainText('CRYPTOGRAFISCH GELDIG');
 });
+
+test('receipt signer pin is recorded only after explicit confirmation',async ({page})=>{
+ const receipt=await localRevocationReceiptFixture(page),fixture=await signedLocalReceiptFixture(page,receipt);
+ await uploadSignedLocalReceipt(page,receipt,fixture);
+ await page.locator('#verifyIssuerRevocationReceipt').click();
+ await expect(page.locator('#pinIssuerReceiptSigner')).toBeEnabled();
+ const key='palaco.citadel.receipt-signer-pin.v1';
+ expect(await page.evaluate(key=>localStorage.getItem(key),key)).toBeNull();
+ page.once('dialog',dialog=>dialog.dismiss());
+ await page.locator('#pinIssuerReceiptSigner').click();
+ expect(await page.evaluate(key=>localStorage.getItem(key),key)).toBeNull();
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#pinIssuerReceiptSigner').click();
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('BEWIJS-ONDERTEKENAAR LOKAAL BEVESTIGD');
+ const saved=await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),key);
+ expect(saved.schema).toBe('palaco-citadel-local-receipt-signer-pin-v1');
+ expect(saved.fingerprint).toBe(fixture.detached.signerFingerprint);
+ await expect(page.locator('#pinIssuerReceiptSigner')).toBeDisabled();
+});
+
+test('receipt signer pin rejects second independently valid but different signer',async ({page})=>{
+ const receipt=await localRevocationReceiptFixture(page);
+ const old=await signedLocalReceiptFixture(page,receipt),another=await signedLocalReceiptFixture(page,receipt);
+ await uploadSignedLocalReceipt(page,receipt,another);
+ await page.evaluate(fp=>localStorage.setItem('palaco.citadel.receipt-signer-pin.v1',JSON.stringify({schema:'palaco-citadel-local-receipt-signer-pin-v1',fingerprint:fp})),old.detached.signerFingerprint);
+ await page.locator('#verifyIssuerRevocationReceipt').click();
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('BEWIJS AFGEWEZEN');
+ await expect(page.locator('#pinIssuerReceiptSigner')).toBeDisabled();
+});
+
+test('receipt signer pin forbids unsigned SHA-256 downgrade even when strict checkbox is off',async ({page})=>{
+ const receipt=await localRevocationReceiptFixture(page),fixture=await signedLocalReceiptFixture(page,receipt);
+ await page.evaluate(fp=>localStorage.setItem('palaco.citadel.receipt-signer-pin.v1',JSON.stringify({schema:'palaco-citadel-local-receipt-signer-pin-v1',fingerprint:fp})),fixture.detached.signerFingerprint);
+ await page.locator('#issuerRevocationReceipt').setInputFiles({name:'unsigned.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(receipt))});
+ await expect(page.locator('#requireIssuerReceiptSignature')).not.toBeChecked();
+ await page.locator('#verifyIssuerRevocationReceipt').click();
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('BEWIJS AFGEWEZEN');
+});
+
+test('corrupt receipt signer pin fails closed',async ({page})=>{
+ const receipt=await localRevocationReceiptFixture(page),fixture=await signedLocalReceiptFixture(page,receipt);
+ await uploadSignedLocalReceipt(page,receipt,fixture);
+ await page.evaluate(()=>localStorage.setItem('palaco.citadel.receipt-signer-pin.v1','{"schema":"invalid"}'));
+ await page.locator('#verifyIssuerRevocationReceipt').click();
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('BEWIJS AFGEWEZEN');
+ await expect(page.locator('#pinIssuerReceiptSigner')).toBeDisabled();
+});
+
+test('receipt signer pin candidate disappears after changing signing key input',async ({page})=>{
+ const receipt=await localRevocationReceiptFixture(page),fixture=await signedLocalReceiptFixture(page,receipt);
+ await uploadSignedLocalReceipt(page,receipt,fixture);
+ await page.locator('#verifyIssuerRevocationReceipt').click();
+ await expect(page.locator('#pinIssuerReceiptSigner')).toBeEnabled();
+ await page.locator('#issuerReceiptSignerKey').fill('{}');
+ await expect(page.locator('#pinIssuerReceiptSigner')).toBeDisabled();
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('opnieuw controleren vereist');
+});
