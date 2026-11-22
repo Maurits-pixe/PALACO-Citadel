@@ -2395,3 +2395,24 @@ test('rc42 pending reviewer registry read cannot override stricter policy change
  await expect(page.locator('#receiptSignerReviewStatus')).toContainText('NIET ONAFHANKELIJK VERTROUWD');
  await expect(page.locator('#receiptSignerReviewStatus')).toContainText('GEEN ROLTOEWIJZING');
 });
+
+
+test('rc42 signed reviewer declaration rejects repeated decision key before verifying signatures',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ const raw=JSON.stringify(review.declaration).replace('"decision":"reviewed-no-authority"','"decision":"reviewed-no-authority","decision":"reviewed-no-authority"');
+ await page.locator('#receiptSignerReviewFile').setInputFiles({name:'duplicate-review.json',mimeType:'application/json',buffer:Buffer.from(raw)});
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
+
+test('rc42 signed reviewer declaration rejects escaped duplicate decision key',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ const raw=JSON.stringify(review.declaration).replace('"decision":"reviewed-no-authority"','"decision":"reviewed-no-authority","\\u0064ecision":"reviewed-no-authority"');
+ await page.locator('#receiptSignerReviewFile').setInputFiles({name:'escaped-duplicate-review.json',mimeType:'application/json',buffer:Buffer.from(raw)});
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
