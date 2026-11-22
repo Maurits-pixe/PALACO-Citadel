@@ -99,3 +99,42 @@ test('missing reviewer fingerprint never silently passes key binding',()=>{
   assert.equal(r.authorization,'DENY');
   assert.ok(r.failedChecks.length>0);
 });
+
+
+test('hostile proxy descriptor access fails closed without crashing receipt bridge',()=>{
+ const adversarial=new Proxy(claims(),{
+  getOwnPropertyDescriptor(target,key){
+   if(key==='reviewerKeyFingerprint')throw Error('malicious descriptor trap');
+   return Reflect.getOwnPropertyDescriptor(target,key);
+  }
+ });
+ const result=run({claims:adversarial});
+ assert.equal(result.cryptographicallyValid,true);
+ assert.equal(result.reviewerSigningKeyMatchesClaim,false);
+ assert.equal(result.localChecksReportedPass,false);
+ assert.ok(result.failedChecks.includes('reviewerSigningKeyMismatch'));
+ assert.equal(result.authorization,'DENY');
+ assert.equal(result.releaseAllowed,false);
+});
+
+test('reviewer fingerprint accessor cannot substitute authenticated key binding',()=>{
+ const adversarial=claims();
+ Object.defineProperty(adversarial,'reviewerKeyFingerprint',{
+  enumerable:true,configurable:true,get(){return fingerprint;}
+ });
+ const result=run({claims:adversarial});
+ assert.equal(result.cryptographicallyValid,true);
+ assert.equal(result.reviewerSigningKeyMatchesClaim,false);
+ assert.equal(result.localChecksReportedPass,false);
+ assert.ok(result.failedChecks.includes('reviewerSigningKeyMismatch'));
+ assert.equal(result.authorization,'DENY');
+});
+
+test('reviewer fingerprint claim remains informative and never grants authority',()=>{
+ const result=run();
+ assert.equal(result.reviewerSigningKeyMatchesClaim,true);
+ assert.equal(result.trust,'NOT_ESTABLISHED');
+ assert.equal(result.authorization,'DENY');
+ assert.equal(result.executionAllowed,false);
+ assert.equal(result.releaseAllowed,false);
+});
