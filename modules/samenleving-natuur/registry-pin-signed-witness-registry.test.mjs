@@ -71,3 +71,51 @@ test('missing and hostile records deny without exceptions',()=>{
   assert.equal(r.authorization,'DENY');assert.equal(r.stateChanged,false);
  }
 });
+
+test('outer accessor properties are rejected without invoking getters',()=>{
+ const input=base();
+ let calls=0;
+ Object.defineProperty(input,'expectedRegistrySha256',{enumerable:true,
+  configurable:true,get(){calls++;throw Error('getter must not execute');}});
+ const r=inspectSignedWitnessRegistry(input);
+ assert.equal(calls,0);
+ assert.equal(r.reason,'INVALID_SIGNED_REGISTRY_INPUT');
+ assert.equal(r.authorization,'DENY');
+});
+test('issuer JWK accessor is rejected without invocation',()=>{
+ const input=base();
+ let calls=0;
+ const issuerPublicJwk={...input.issuerPublicJwk};
+ Object.defineProperty(issuerPublicJwk,'x',{enumerable:true,configurable:true,
+   get(){calls++;throw Error('JWK getter must not execute');}});
+ const r=inspectSignedWitnessRegistry({...input,issuerPublicJwk});
+ assert.equal(calls,0);
+ assert.equal(r.reason,'INVALID_SIGNED_REGISTRY_INPUT');
+});
+test('issuer JWK Proxy descriptor is captured once before signature verification',()=>{
+ const input=base();
+ let reads=0;
+ const issuerPublicJwk=new Proxy({...input.issuerPublicJwk},{
+  getOwnPropertyDescriptor(target,key){
+    const descriptor=Reflect.getOwnPropertyDescriptor(target,key);
+    if(key==='x'){
+      reads++;
+      return {...descriptor,value:reads===1?input.issuerPublicJwk.x:'A'.repeat(43)};
+    }
+    return descriptor;
+  }
+ });
+ const r=inspectSignedWitnessRegistry({...input,issuerPublicJwk});
+ assert.equal(reads,1);
+ assert.equal(r.signedRegistryMatched,true,JSON.stringify(r));
+ assert.equal(r.authorization,'DENY');
+});
+test('unexpected symbol metadata on outer contract and issuer JWK is denied',()=>{
+ const outer={...base(),[Symbol('extra')]:true};
+ const key={...base().issuerPublicJwk,[Symbol('extra')]:true};
+ for(const input of [outer,{...base(),issuerPublicJwk:key}]){
+   const r=inspectSignedWitnessRegistry(input);
+   assert.equal(r.signedRegistryMatched,false);
+   assert.equal(r.authorization,'DENY');
+ }
+});
