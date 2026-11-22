@@ -183,3 +183,48 @@ test('audit anchor JWK rejects unexpected symbol fields',()=>{
  assert.equal(r.anchoredLedgerMatched,false);
  assert.equal(r.authorization,'DENY');
 });
+
+
+test('audit anchor genesis PIN accessors cannot run during verification',()=>{
+ const input=setup();
+ const hostile={...input.genesisPin};
+ let reads=0;
+ Object.defineProperty(hostile,'revision',{enumerable:true,configurable:true,
+   get(){reads++;throw Error('pin getter');}
+ });
+ const r=inspectSignedAuditHeadAnchor({...input,genesisPin:hostile});
+ assert.equal(reads,0);
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('audit anchor current PIN Proxy descriptor is captured once',()=>{
+ const input=setup();
+ let reads=0;
+ const pin=new Proxy({...input.currentPin},{
+   getOwnPropertyDescriptor(target,key){
+     const d=Reflect.getOwnPropertyDescriptor(target,key);
+     if(key==='registrySha256'){
+       reads++;
+       return {...d,value:reads===1?input.currentPin.registrySha256:'f'.repeat(64)};
+     }
+     return d;
+   }
+ });
+ const r=inspectSignedAuditHeadAnchor({...input,currentPin:pin});
+ assert.equal(reads,1);
+ assert.equal(r.anchoredLedgerMatched,true,JSON.stringify(r));
+ assert.equal(r.trust,'NOT_ESTABLISHED');
+ assert.equal(r.authorization,'DENY');
+});
+
+test('audit anchor PIN with unexpected symbol field fails closed',()=>{
+ const input=setup();
+ const genesisPin={...input.genesisPin,[Symbol('extra')]:'untrusted'};
+ const r=inspectSignedAuditHeadAnchor({...input,genesisPin});
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+});
