@@ -272,6 +272,41 @@ function showInspectionHashes(actual,reference,reported){
  $('inspectionHashReport').textContent=reported;
  $('inspectionHashes').hidden=false;
 }
+function parseUniqueTopLevelJson(source){
+ // JSON.parse by itself silently keeps the final duplicate object property.
+ const value=JSON.parse(source);
+ if(!value||typeof value!=='object'||Array.isArray(value))
+   throw Error('Dossierbestand moet een JSON-object zijn');
+ const seen=new Set();
+ let depth=0;
+ let inString=false;
+ let stringStart=-1;
+ let escaped=false;
+ for(let i=0;i<source.length;i++){
+   const c=source[i];
+   if(inString){
+     if(escaped){escaped=false;continue;}
+     if(c==='\\'){escaped=true;continue;}
+     if(c==='"'){
+       inString=false;
+       if(depth===1){
+         let j=i+1;
+         while(j<source.length&&/\s/.test(source[j]))j++;
+         if(source[j]===':'){
+           const key=JSON.parse(source.slice(stringStart,i+1));
+           if(seen.has(key))throw Error('Dossier-JSON bevat dubbele velden: '+key);
+           seen.add(key);
+         }
+       }
+     }
+     continue;
+   }
+   if(c==='"'){inString=true;stringStart=i;continue;}
+   if(c==='{'||c==='[')depth++;
+   else if(c==='}'||c===']')depth--;
+ }
+ return value;
+}
 let reportVerifyRevision=0;
 $('reportVerify').addEventListener('change',async event=>{
  const files=Array.from(event.target.files||[]);
@@ -296,7 +331,7 @@ $('reportVerify').addEventListener('change',async event=>{
    if(revision!==reportVerifyRevision)return;
    const decoder=new TextDecoder('utf-8',{fatal:true});
    const entries=[{file:jsonFiles[0],bytes:aBytes},{file:jsonFiles[1],bytes:bBytes}].map(item=>({
-     ...item,value:JSON.parse(decoder.decode(item.bytes))
+     ...item,value:parseUniqueTopLevelJson(decoder.decode(item.bytes))
    }));
    const isReport=item=>item.value?.schema==='palaco.citadel.atelier.inspection/1';
    const reports=entries.filter(isReport);
