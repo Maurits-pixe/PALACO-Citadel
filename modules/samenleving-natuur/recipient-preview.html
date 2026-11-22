@@ -539,7 +539,7 @@ $('verifyIssuerRevocationReceipt').addEventListener('click',async()=>{
   const receipt=JSON.parse(await file.text());
   if(id!==ticket||revision!==issuerReceiptRevision)return;
   if(!receipt||typeof receipt!=='object'||Array.isArray(receipt)||Object.keys(receipt).sort().join(',')!=='authorization,integrity,issuance,issuerFingerprint,revocation,schema,trust'||receipt.schema!=='palaco-citadel-local-revocation-receipt-v1'||receipt.authorization!=='DENY'||receipt.issuance!=='HOLD'||receipt.trust!=='untrusted-local-browser'||typeof receipt.issuerFingerprint!=='string'||!/^[a-f0-9]{64}$/.test(receipt.issuerFingerprint))throw Error('Ongeldig ontvangstcontract');
-  issuerRevocationPin(JSON.stringify(receipt.revocation));
+  if(!receipt.revocation||typeof receipt.revocation!=='object'||Array.isArray(receipt.revocation)||!issuerRevocationPin(JSON.stringify(receipt.revocation)))throw Error('Intrekkingsrecord ontbreekt');
   const integrity=receipt.integrity;
   if(!integrity||typeof integrity!=='object'||Array.isArray(integrity)||Object.keys(integrity).sort().join(',')!=='algorithm,canonicalization,digest'||integrity.algorithm!=='SHA-256'||integrity.canonicalization!=='palaco-sorted-json-v1'||typeof integrity.digest!=='string'||!/^[a-f0-9]{64}$/.test(integrity.digest))throw Error('Inhoudshash ontbreekt');
   const payload={...receipt};delete payload.integrity;
