@@ -944,3 +944,49 @@ test('Atelier: drievoudig inspectiepaneel toont MATCH, MISMATCH, GEWEIGERD en re
  await expect(page.locator('#inspectionResultDetail')).toContainText('gewist');
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(original);
 });
+
+test('Atelier: drie SHA-256-waarden zichtbaar bij match en mismatch maar gewist na annuleren',async ({page})=>{
+ const {createHash}=await import('node:crypto');
+ const fs=await import('node:fs/promises');
+ await page.goto('/atelier/regiekamer.html');
+ const before=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const bytes=Buffer.from(await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage))));
+ const hash=createHash('sha256').update(bytes).digest('hex');
+ const project={name:'design.json',mimeType:'application/json',buffer:bytes};
+ const receipt={name:'receipt.txt',mimeType:'text/plain',buffer:Buffer.from('SHA-256: '+hash+'\nBestand: design.json\n')};
+ await page.locator('#pairVerify').setInputFiles([project,receipt]);
+ await expect(page.locator('#pairReportSave')).toBeEnabled();
+ const dl=page.waitForEvent('download');
+ await page.locator('#pairReportSave').click();
+ const reportBytes=await fs.readFile(await (await dl).path());
+ const report={name:'inspection.json',mimeType:'application/json',buffer:reportBytes};
+ const comparison=page.locator('#inspectionHashes');
+ await expect(comparison).toBeHidden();
+ await page.locator('#reportVerify').setInputFiles([project,receipt,report]);
+ await expect(page.locator('#inspectionResult')).toHaveAttribute('data-result','match');
+ await expect(comparison).toBeVisible();
+ await expect(page.locator('#inspectionHashActual')).toHaveText(hash);
+ await expect(page.locator('#inspectionHashReceipt')).toHaveText(hash);
+ await expect(page.locator('#inspectionHashReport')).toHaveText(hash);
+ const wrongHash='0'.repeat(64);
+ await page.locator('#reportVerify').setInputFiles([
+   project,receipt,{...report,buffer:Buffer.from(JSON.stringify({...JSON.parse(reportBytes.toString('utf8')),sha256:wrongHash}))}
+ ]);
+ await expect(page.locator('#inspectionResult')).toHaveAttribute('data-result','mismatch');
+ await expect(page.locator('#inspectionHashActual')).toHaveText(hash);
+ await expect(page.locator('#inspectionHashReceipt')).toHaveText(hash);
+ await expect(page.locator('#inspectionHashReport')).toHaveText(wrongHash);
+ await page.locator('#reportVerify').setInputFiles([project,receipt,{...report,buffer:Buffer.from('broken')}]);
+ await expect(page.locator('#inspectionResult')).toHaveAttribute('data-result','rejected');
+ await expect(comparison).toBeHidden();
+ await expect(page.locator('#inspectionHashActual')).toHaveText('');
+ await page.locator('#reportVerify').setInputFiles([project,receipt,report]);
+ await expect(comparison).toBeVisible();
+ await page.locator('#reportVerify').dispatchEvent('cancel');
+ await expect(comparison).toBeHidden();
+ await page.locator('#reportVerify').setInputFiles([project,receipt,report]);
+ await expect(comparison).toBeVisible();
+ await page.locator('#clearInspections').click();
+ await expect(comparison).toBeHidden();
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+});
