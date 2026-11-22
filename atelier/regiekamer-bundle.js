@@ -214,6 +214,10 @@ function undoLastImport(storage,expectedSnapshot,previewedRecovery){
    throw Error('Herstelkopie gewijzigd sinds het herstelvoorstel. Controleer het herstelpunt opnieuw.');
  const recovery=getRecovery(storage);
  if(!recovery)throw Error('Er is geen lokale herstelkopie beschikbaar');
+ // The parsed recovery must still be the exact record selected before validation.
+ // Never restore a draft from one version while trusting a newer recovery record.
+ if(storage.getItem(RECOVERY)!==expectedRecovery)
+   throw Error('Herstelkopie gewijzigd tijdens verificatie. Controleer het herstelpunt opnieuw.');
  return restoreWithRecovery(storage,recovery.draft,expectedSnapshot,expectedRecovery);
 }
 return Object.freeze({EX,IN,NOTE,RECOVERY,validExterior,validInterior,create,parse,read,preview,snapshot,restore,getRecovery,restoreWithRecovery,undoLastImport});
