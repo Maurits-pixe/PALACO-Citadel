@@ -15,12 +15,23 @@ const REQUIRED={
  G08:['authorized_go13']
 };
 function evaluate(registry,candidateSha){
- if(!registry||typeof registry!=='object'||!SHA.test(candidateSha||'')){
+ if(!registry||typeof registry!=='object'||Array.isArray(registry)||!SHA.test(candidateSha||'')||
+   registry.schema!=='palaco.citadel.atelier.release-evidence/1'){
   throw Error('Ongeldige bewijsregistratie of kandidaat-SHA (40 hex)');
+ }
+ if(registry.evidence_items!==undefined&&(!Array.isArray(registry.evidence_items)||registry.evidence_items.length>1000)){
+  throw Error('Ongeldige bewijsregels; controleer het lokale register');
  }
  const observed=typeof registry.observed_commit_sha==='string'?registry.observed_commit_sha:'';
  const sameSha=observed===candidateSha&&SHA.test(observed);
  const records=Array.isArray(registry.evidence_items)?registry.evidence_items:[];
+ const invalidRecords=records.filter(item=>!item||typeof item!=='object'||Array.isArray(item)||
+   !GATES.includes(item.gate)||!REQUIRED[item.gate].includes(item.kind)||
+   !['pass','fail'].includes(item.result)||!SHA.test(item.commit_sha||'')||
+   typeof item.reviewed!=='boolean'||typeof item.source!=='string'||item.source.length>2048);
+ if(invalidRecords.length){
+  throw Error('Onbekende of ongeldige bewijsregel; register geweigerd');
+ }
  const decisions=GATES.map(id=>{
   const accepted=[];const missing=[];
   for(const kind of REQUIRED[id]){
