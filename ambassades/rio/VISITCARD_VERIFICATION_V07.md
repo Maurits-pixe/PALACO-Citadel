@@ -373,3 +373,36 @@ proof of possession alone is not authority to enroll.
 No merge, no production transport and no public RIO site changes.
 **GO-13 HOLD.** CI and dynamic Python tests must be executed and reviewed
 before any security acceptance claim.
+
+## v2.0 — Evidence-only admission ledger and nonce replay protection (DRAFT / HOLD)
+
+`visitcard_witness_admission.py` stores validated dual-signed v1.9
+witness enrollment evidence under a unique `(issuer, nonce)` key, and
+rejects all replayed nonces, even for an identical signed request.
+A partial unique index also prevents simultaneous pending/reviewed
+applications for the same `(issuer, witness_id)`.
+
+Admission starts as `PENDING`. A separately signed reviewer decision
+(`REVIEWED` or `REJECTED`) uses the distinct
+`PALACO-RIO-WITNESS-REVIEW-V1` domain and binds to the exact enrollment
+envelope SHA-256, issuer, nonce and reviewer ID. The intake authority ID
+cannot be the same as the reviewer ID. A second review of a final entry
+is rejected. Each transaction also appends an audit event; normal SQL
+UPDATE and DELETE of audit events are blocked by triggers.
+
+**CRITICAL:** `REVIEWED` is an administrative evidence classification,
+NOT approval, not an active trust anchor and not issuance. No key is
+ever inserted into `WitnessTrust`, and no genesis sequence is created.
+Reviewers are supplied by externally pinned key configuration, but this
+draft does not prove independent organizations or prevent the same
+underlying key from being registered under multiple IDs. Production
+requires independently administered review authority, immutable
+external audit anchoring, signed admission decisions with explicit
+authorization governance, reconciliation after database restore,
+key lifecycle processes and operator authentication. These local
+SQLite triggers cannot resist a privileged administrator.
+
+Fifteen new test cases cover nonce replay, evidence validation, review
+signatures, duplicate applications and audit consistency. Actual CI
+execution is required before claiming any test PASS. **GO-13 HOLD**,
+no merge, no production enrollment and no public RIO deployment.
