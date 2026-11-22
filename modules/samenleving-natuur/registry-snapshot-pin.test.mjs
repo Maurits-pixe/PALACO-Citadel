@@ -61,7 +61,7 @@ test('old and new revisions cannot silently advance or roll back', () => {
 test('signature forgery fails even with correctly calculated pin digest', () => {
   const data=signed();
   const forged={...data,signatureBase64Url:'AQID'};
-  assert.equal(evaluate(forged).reason,'REGISTRY_REGISTRY_SIGNATURE_INVALID');
+  assert.equal(evaluate(forged).reason,'REGISTRY_INVALID_SIGNATURE_ENCODING');
 });
 test('revoked reviewer fails even when exact registry is pinned', () => {
   const data=signed({...document(),reviewers:[{...document().reviewers[0],status:'revoked'}]});
