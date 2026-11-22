@@ -141,7 +141,8 @@ def audit_archive(
             seal=json.loads(seal_json)
             if _packed(checkpoint)!=checkpoint_json or _packed(seal)!=seal_json:
                 return False
-            if verify_checkpoint(checkpoint,witness_keys,issuer=issuer,nonce=nonce) is None:
+            signed=verify_checkpoint(checkpoint,witness_keys,issuer=issuer,nonce=nonce)
+            if signed is None or signed[0]!=count:
                 return False
             if verify_seal(seal,archive_keys,issuer=issuer,nonce=nonce)!=(
                 count,_digest(checkpoint_json),previous
