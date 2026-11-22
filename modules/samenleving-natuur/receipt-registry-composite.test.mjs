@@ -21,7 +21,7 @@ const signWith=(prefix, bytes, key)=>sign('sha256',Buffer.concat([Buffer.from(pr
 const envelope=()=>({schema:CRYPTO_SCHEMA,payloadSha256:hash(payloadBytes),
   signatureBase64Url:signWith('PALACO-CITADEL-RECEIPT-V1\n',payloadBytes,reviewer.privateKey)});
 const registry=()=>({schema:REGISTRY_SCHEMA,revision:4,
-  issuedAt:'2026-01-01T00:00:00.000Z',expiresAt:'2027-01-01T00:00:00.000Z',
+  issuedAt:'2026-11-20T00:00:00.000Z',expiresAt:'2027-01-01T00:00:00.000Z',
   reviewers:[{fingerprint:reviewer.fingerprint,role:'receipt-reviewer',status:'active',
     notBefore:'2026-01-01T00:00:00.000Z',notAfter:'2027-01-01T00:00:00.000Z'}]});
 const claims=()=>({
@@ -86,6 +86,12 @@ test('malformed claims and missing registry fail closed',()=>{
     assert.equal(r.cryptographicBindingsConsistent,false);
   }
   assert.equal(assessReceiptWithRegistry(fixture({registryBytes:null})).registrySignatureVerified,false);
+});
+test('stale signed registry is rejected even if both signatures are valid',()=>{
+  const reg=registry();reg.issuedAt='2026-11-01T00:00:00.000Z';
+  const result=assessReceiptWithRegistry(fixture({},reg));
+  assert.deepEqual(result.failedChecks,['REGISTRY_REGISTRY_SNAPSHOT_TOO_OLD']);
+  assert.equal(result.authorization,'DENY');
 });
 test('untrusted claimed trust cannot override explicit non-authorization',()=>{
   const r=assessReceiptWithRegistry(fixture({claims:{...claims(),trust:'TRUSTED',releaseAllowed:true}}));
