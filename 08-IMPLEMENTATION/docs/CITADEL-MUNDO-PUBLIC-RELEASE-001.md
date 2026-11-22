@@ -211,3 +211,9 @@ De publieke Atlas bevat alleen het verklarende paneel **Navigatiebrug 023**. Dez
 De private navigatiebrug `mundo-atlas-navigation-bridge.ts` vraagt voortaan `readProtectedContextVersion()` op bij de echte host en valideert de context direct na bevestiging van de nieuwe route. Na asynchrone bronverwerving controleert zij opnieuw zowel het wereld-ID als de oorspronkelijke contextversie. Een verandering van sessie of rechten tijdens een aanvraag leidt tot afwijzing en opruiming van de nieuwe bronverbinding, zelfs als de geselecteerde wereldnaam gelijk gebleven is. De host moet contextversies op iedere relevante overgang uniek vernieuwen.
 
 De openbare Atlas heeft uitsluitend het verklarende paneel **Routecontext 024** gekregen. Er is geen echte privérouter, PALACO ONE-sessie of geautoriseerde werelddata aangesloten. De originele Citadel Sites-app blijft ongewijzigd, PR #58 DRAFT/HOLD; geen functionele tests of merge.
+
+## MUNDO-SESSION-HANDOFF-025 — expliciete sessieoverdracht
+
+De nieuwe private module `08-IMPLEMENTATION/src/citadel/mundo-atlas-session-handoff.ts` maakt een gecontroleerde overdracht mogelijk tussen een nog te integreren PALACO ONE-identiteitsbron, de beschermde Citadel-host en de bestaande MUNDO-navigatiebrug. De adapter trekt oude kaartcontext eerst in, vraagt daarna onafhankelijk door de echte host bevestigde sessietoegang, laat alleen bij goedkeuring een nieuwe wereldnavigatie toe en vergelijkt na afloop opnieuw dezelfde niet-hergebruikte sessieversie. Dit bevat geen echte login of tokenverwerking.
+
+In de publieke Atlas is de uitsluitend verklarende sectie **Sessieoverdracht 025** toegevoegd. Er worden geen privémodules geïmporteerd, geen echte PALACO ONE-gegevens gebruikt en geen wereldkaarten aan nieuwe accounts vrijgegeven. Originele privé-Citadel niet gewijzigd, PR #58 DRAFT/HOLD; geen functionele tests of merge.
