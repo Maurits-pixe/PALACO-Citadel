@@ -602,6 +602,54 @@ $('verifyIssuerRevocationReceipt').addEventListener('click',async()=>{
   }
  }catch{if(id===ticket&&revision===issuerReceiptRevision)$('issuerReceiptStatus').textContent='BEWIJS AFGEWEZEN: inhoud of integriteit ongeldig. Geen PALACO-autorisatie.'}
 });
+// rc42: Reject duplicate JSON object keys before canonicalization or signature verification.
+// JSON.parse alone silently retains the last occurrence. Quoted names are decoded first,
+// so "role" and "\u0072ole" are correctly recognized as the same key.
+function strictReviewerRegistryJSON(source){
+ if(typeof source!=='string'||source.length>20000)throw Error('Reviewersregister te groot');
+ let pos=0;
+ const skip=()=>{while(pos<source.length&&/[\u0020\t\r\n]/.test(source[pos]))pos++};
+ const quoted=()=>{
+  const start=pos;
+  if(source[pos]!=='"')throw Error('JSON-sleutel of string verwacht');
+  pos++;
+  while(pos<source.length){
+   const ch=source[pos++];
+   if(ch==='"')return JSON.parse(source.slice(start,pos));
+   if(ch==='\\'){if(pos>=source.length)throw Error('Onvolledige escape');pos++}
+  }
+  throw Error('Onvolledige JSON-string');
+ };
+ const value=depth=>{
+  if(depth>64)throw Error('JSON te diep');
+  skip();
+  if(source[pos]==='{'){
+   pos++;skip();const keys=new Set();
+   if(source[pos]==='}'){pos++;return}
+   for(;;){
+    skip();const key=quoted();
+    if(keys.has(key))throw Error('Dubbele JSON-sleutel');keys.add(key);
+    skip();if(source[pos++]!==':')throw Error('JSON dubbelepunt ontbreekt');
+    value(depth+1);skip();
+    const sep=source[pos++];
+    if(sep==='}')return;
+    if(sep!==',')throw Error('JSON-objectscheiding ongeldig');
+   }
+  }
+  if(source[pos]==='['){
+   pos++;skip();if(source[pos]===']'){pos++;return}
+   for(;;){value(depth+1);skip();const sep=source[pos++];if(sep===']')return;if(sep!==',')throw Error('JSON-arrayscheiding ongeldig')}
+  }
+  if(source[pos]==='"'){quoted();return}
+  const rest=source.slice(pos);
+  const match=/^(?:true|false|null|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?)/.exec(rest);
+  if(!match)throw Error('Ongeldige JSON-waarde');
+  pos+=match[0].length;
+ };
+ value(0);skip();if(pos!==source.length)throw Error('Extra JSON-data');
+ return JSON.parse(source);
+}
+
 $('verifyReceiptSignerReview').addEventListener('click',async()=>{
  const file=$('receiptSignerReviewFile').files?.[0],registryFile=$('receiptReviewerRegistry').files?.[0],requireRegistry=$('requireReviewerRegistry').checked,id=ticket,revision=++receiptSignerReviewRevision;
  $('receiptSignerReviewStatus').textContent='Beoordelingsverklaring wordt cryptografisch gecontroleerd.';
@@ -631,7 +679,7 @@ $('verifyReceiptSignerReview').addEventListener('click',async()=>{
   if(requireRegistry&&!registryFile)throw Error('Getekend reviewersregister verplicht');
   if(registryFile){
    if(registryFile.size>20000)throw Error('Reviewersregister te groot');
-   const registry=JSON.parse(await registryFile.text());
+   const registry=strictReviewerRegistryJSON(await registryFile.text());
    if(id!==ticket||revision!==receiptSignerReviewRevision)return;
    if(!registry||typeof registry!=='object'||Array.isArray(registry)||Object.keys(registry).sort().join(',')!=='expiresAt,issuedAt,issuerFingerprint,notAfter,notBefore,reviewerFingerprint,role,schema,signature,status'||registry.schema!=='palaco-citadel-reviewer-registry-v1'||registry.role!=='receipt-reviewer'||registry.status!=='active'||registry.reviewerFingerprint!==reviewerFp)throw Error('Reviewer ontbreekt of is ingetrokken');
    const started=utc(registry.notBefore),ends=utc(registry.notAfter),created=utc(registry.issuedAt),validUntil=utc(registry.expiresAt),now=Date.now();
