@@ -635,12 +635,14 @@ function showRollbackReport(error){
 let importRevision=0;
 let importReadPending=false;
 let importStartSnapshot=null;
+let importStartNote=null;
 // Local unsaved edits must not be overwritten by a file read started earlier.
 $('statement').addEventListener('input',()=>{
  if(!importReadPending)return;
  ++importRevision;
  importReadPending=false;
  importStartSnapshot=null;
+ importStartNote=null;
  $('bundleImport').value='';
  $('bundleStatus').textContent='Projectimport onderbroken: de ontwerpnotitie is tijdens het lezen aangepast. De nieuwe tekst blijft behouden; kies het projectbestand opnieuw.';
 });
@@ -654,6 +656,7 @@ $('bundleImport').addEventListener('change',async event=>{
    if(!api)throw Error('Projectpakket-functie niet geladen');
    // Capture the source revision before reading external bytes.
    importStartSnapshot=api.snapshot(localStorage);
+   importStartNote=noteValue();
    // Match the verified DRAFT import filename policy before reading external bytes.
    safeProjectFilename(file.name);
    if(file.size>150000)throw Error('Bestand groter dan 150 KB');
@@ -664,8 +667,13 @@ $('bundleImport').addEventListener('change',async event=>{
    const afterRead=api.snapshot(localStorage);
    if(!importStartSnapshot||afterRead.some((value,i)=>value!==importStartSnapshot[i]))
      throw Error('Lokaal project gewijzigd tijdens het lezen. Kies het bestand opnieuw.');
+   // Programmatic changes to a textarea do not emit an input event.
+   // Never preview an import against a newer, unrecorded creative draft.
+   if(importStartNote===null||noteValue()!==importStartNote)
+     throw Error('Onopgeslagen ontwerpnotitie gewijzigd tijdens het lezen. Import afgebroken; je tekst blijft staan.');
    importReadPending=false;
    importStartSnapshot=null;
+   importStartNote=null;
    let importText;
    try{importText=new TextDecoder('utf-8',{fatal:true}).decode(importBytes);}
    catch{throw Error('Projectbestand bevat ongeldige UTF-8-bytes');}
@@ -702,12 +710,13 @@ $('bundleImport').addEventListener('change',async event=>{
    $('bundleStatus').textContent='Projectpakket lokaal hersteld. Open de editors opnieuw om de gegevens te bekijken.';
    refreshRecoveryInfo();
  }catch(err){if(revision===importRevision){$('bundleStatus').textContent='Herstel geweigerd: '+(showRollbackReport(err)?'Controleer de herstelstatus hieronder.':err.message);}}
- finally{if(revision===importRevision){importReadPending=false;importStartSnapshot=null;event.target.value='';}}
+ finally{if(revision===importRevision){importReadPending=false;importStartSnapshot=null;importStartNote=null;event.target.value='';}}
 });
 $('bundleImport').addEventListener('cancel',()=>{
  ++importRevision;
  importReadPending=false;
  importStartSnapshot=null;
+ importStartNote=null;
  $('bundleImport').value='';
  $('bundleStatus').textContent='Projectimport geannuleerd. Er is niets hersteld.';
 });
@@ -983,6 +992,7 @@ window.addEventListener('storage',e=>{
    $('bundleImport').value='';
    $('bundleStatus').textContent='Projectimport onderbroken: lokale ontwerpgegevens zijn in een ander tabblad gewijzigd. Kies het projectbestand opnieuw.';
    importStartSnapshot=null;
+   importStartNote=null;
    }
  }
  if(e.key===null||[EX,IN].includes(e.key))refresh();
