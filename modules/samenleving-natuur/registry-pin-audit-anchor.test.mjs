@@ -1,0 +1,79 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createHash,generateKeyPairSync,sign} from 'node:crypto';
+import {inspectSignedAuditHeadAnchor,AUDIT_ANCHOR_SCHEMA} from './registry-pin-audit-anchor.mjs';
+import {computeRegistryPinEntryHash} from './registry-pin-ledger.mjs';
+import {PIN_SCHEMA} from './registry-snapshot-pin.mjs';
+
+const pair=generateKeyPairSync('ec',{namedCurve:'prime256v1'});
+const publicJwk=pair.publicKey.export({format:'jwk'});
+const anchorPublicJwk={kty:'EC',crv:'P-256',x:publicJwk.x,y:publicJwk.y};
+const sha=b=>createHash('sha256').update(b).digest('hex');
+const expectedAnchorKeyFingerprint=sha(pair.publicKey.export({format:'der',type:'spki'}));
+const genesisPin={schema:PIN_SCHEMA,issuerFingerprint:'a'.repeat(64),
+  revision:1,registrySha256:'b'.repeat(64)};
+const currentPin={...genesisPin,revision:2,registrySha256:'c'.repeat(64)};
+const entry={sequence:1,previousHash:'0'.repeat(64),fromPin:genesisPin,toPin:currentPin};
+const entries=[entry];
+const headHash=computeRegistryPinEntryHash(entry);
+const document=(overrides={})=>({schema:AUDIT_ANCHOR_SCHEMA,sequence:1,headHash,
+  genesisPin,currentPin,...overrides});
+function setup(doc=document(),overrides={}) {
+ const anchorBytes=Buffer.from(JSON.stringify(doc));
+ const signatureBase64Url=sign('sha256',Buffer.concat([
+   Buffer.from('PALACO-CITADEL-AUDIT-HEAD-ANCHOR-V1\n'),anchorBytes
+ ]),pair.privateKey).toString('base64url');
+ return {anchorBytes,signatureBase64Url,anchorPublicJwk,
+   expectedAnchorKeyFingerprint,genesisPin,currentPin,entries,
+   minimumAnchorSequence:1,...overrides};
+}
+test('valid signed external-head candidate matches exact ledger but never authorizes',()=>{
+ const r=inspectSignedAuditHeadAnchor(setup());
+ assert.equal(r.anchorSignatureValid,true,JSON.stringify(r));
+ assert.equal(r.anchoredLedgerMatched,true);
+ assert.equal(r.anchoredSequence,1);
+ assert.equal(r.anchoredHeadHash,headHash);
+ assert.equal(r.trust,'NOT_ESTABLISHED');
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.stateChanged,false);
+ assert.equal(r.executionAllowed,false);
+ assert.equal(r.releaseAllowed,false);
+});
+test('stale signed checkpoint below local sequence floor rejected',()=>{
+ const r=inspectSignedAuditHeadAnchor(setup(document(),{minimumAnchorSequence:2}));
+ assert.equal(r.reason,'ANCHOR_ROLLBACK_OR_MISMATCH');
+});
+test('signed substituted current pin is rejected despite valid signature',()=>{
+ const changed={...currentPin,registrySha256:'d'.repeat(64)};
+ assert.equal(inspectSignedAuditHeadAnchor(setup(document({currentPin:changed}))).reason,
+ 'ANCHOR_ROLLBACK_OR_MISMATCH');
+});
+test('signed inaccurate head rejected by actual ledger history',()=>{
+ const r=inspectSignedAuditHeadAnchor(setup(document({headHash:'f'.repeat(64)})));
+ assert.equal(r.reason,'LEDGER_HEAD_ANCHOR_MISMATCH');
+});
+test('reordered or omitted ledger entries cannot match signed head',()=>{
+ assert.equal(inspectSignedAuditHeadAnchor(setup(document(),{entries:[]})).anchoredLedgerMatched,false);
+ assert.equal(inspectSignedAuditHeadAnchor(setup(document(),{entries:[{...entry,sequence:2}]})).anchoredLedgerMatched,false);
+});
+test('anchor signing key substitution fails fingerprint pin',()=>{
+ const other=generateKeyPairSync('ec',{namedCurve:'prime256v1'}).publicKey.export({format:'jwk'});
+ const r=inspectSignedAuditHeadAnchor(setup(document(),{
+   anchorPublicJwk:{kty:'EC',crv:'P-256',x:other.x,y:other.y}
+ }));
+ assert.equal(r.reason,'UNPINNED_ANCHOR_KEY');
+});
+test('signature or exact anchor bytes tampering rejected',()=>{
+ const input=setup();
+ const tampered=Buffer.from(input.anchorBytes);tampered[8]^=1;
+ assert.equal(inspectSignedAuditHeadAnchor({...input,anchorBytes:tampered}).anchorSignatureValid,false);
+ assert.equal(inspectSignedAuditHeadAnchor({...input,signatureBase64Url:'AQID'}).anchorSignatureValid,false);
+});
+test('missing pinned key, hostile inputs and fake authority fail closed',()=>{
+ for(const v of [undefined,null,{},[],{...setup(),expectedAnchorKeyFingerprint:'f'.repeat(64)}]){
+  const r=inspectSignedAuditHeadAnchor(v);
+  assert.equal(r.authorization,'DENY');
+  assert.equal(r.releaseAllowed,false);
+  assert.equal(r.anchoredLedgerMatched,false);
+ }
+});
