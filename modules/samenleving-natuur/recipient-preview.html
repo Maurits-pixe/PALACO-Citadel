@@ -709,17 +709,22 @@ window.addEventListener('storage',event=>{
  receiptSignerReviewRevision++;
  $('receiptSignerReviewStatus').textContent='Lokale sleutelregistratie elders gewijzigd; opnieuw controleren vereist. Geen PALACO-autorisatie.';
 });
-window.addEventListener('focus',()=>{
+function recheckVisibleReviewerResult(){
  const status=$('receiptSignerReviewStatus');
  if(!status.textContent.includes('DUBBEL CRYPTOGRAFISCH GELDIG'))return;
  try{
-  // A focus recheck is conservative: no successful result is retained without
-  // a currently parseable pin; identity matching is checked on next verification.
+  // Explicitly invalidate a prior success if another tab changed or cleared the pin
+  // without a delivered storage event; this does not establish independent trust.
   if(receiptSignerPin(localStorage.getItem(RECEIPT_SIGNER_PIN_KEY))!==reviewerVerifiedSignerFingerprint)throw Error('Pin gewijzigd');
  }catch{
   receiptSignerReviewRevision++;
+  reviewerVerifiedSignerFingerprint=null;
   status.textContent='Lokale sleutelregistratie niet geldig; opnieuw controleren vereist. Geen PALACO-autorisatie.';
  }
+}
+window.addEventListener('focus',recheckVisibleReviewerResult);
+document.addEventListener('visibilitychange',()=>{
+ if(!document.hidden)recheckVisibleReviewerResult();
 });
 for(const inputId of ['receiptSignerReviewFile','receiptSignerReviewKey','receiptSignerReviewerKey','receiptReviewerRegistry','receiptReviewerRegistryIssuer','requireReviewerRegistry']){
  $(inputId).addEventListener(['receiptSignerReviewFile','receiptReviewerRegistry','requireReviewerRegistry'].includes(inputId)?'change':'input',()=>{receiptSignerReviewRevision++;$('receiptSignerReviewStatus').textContent='Beoordelingsinvoer gewijzigd; opnieuw controleren vereist.'});
