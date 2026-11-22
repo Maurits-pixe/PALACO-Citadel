@@ -205,3 +205,9 @@ De publieke demonstratie bevat enkel de verklarende sectie **Wereldwissel 022**.
 Nieuw privaat hostcontract `08-IMPLEMENTATION/src/citadel/mundo-atlas-navigation-bridge.ts`. De routebrug laat de reeds gebouwde WorldTransition 022 eerst de oude kaartcontext intrekken. Daarna moet de beschermde Citadel-host synchroon de gewenste route bevestigen en teruglezen. Pas daarna vraagt de host een nieuwe verbinding en bron aan. Na terugkeer van de bron wordt de route opnieuw gecontroleerd; bij een mismatch wordt een reeds aangemaakte nieuwe verbinding opgeruimd. Overlappende navigatieverzoeken worden geweigerd.
 
 De publieke Atlas bevat alleen het verklarende paneel **Navigatiebrug 023**. Deze code gebruikt geen verzonnen router- of PALACO ONE-API en is niet gekoppeld aan de oorspronkelijke private Citadel Sites-app. Echte bronverificatie, sessiemeldingen en beveiligde hostautorisatie blijven vereist. Geen functionele tests, geen merge; GitHub PR #58 DRAFT/HOLD.
+
+## MUNDO-ROUTE-CONTEXT-024 — route én sessieversie behouden
+
+De private navigatiebrug `mundo-atlas-navigation-bridge.ts` vraagt voortaan `readProtectedContextVersion()` op bij de echte host en valideert de context direct na bevestiging van de nieuwe route. Na asynchrone bronverwerving controleert zij opnieuw zowel het wereld-ID als de oorspronkelijke contextversie. Een verandering van sessie of rechten tijdens een aanvraag leidt tot afwijzing en opruiming van de nieuwe bronverbinding, zelfs als de geselecteerde wereldnaam gelijk gebleven is. De host moet contextversies op iedere relevante overgang uniek vernieuwen.
+
+De openbare Atlas heeft uitsluitend het verklarende paneel **Routecontext 024** gekregen. Er is geen echte privérouter, PALACO ONE-sessie of geautoriseerde werelddata aangesloten. De originele Citadel Sites-app blijft ongewijzigd, PR #58 DRAFT/HOLD; geen functionele tests of merge.
