@@ -459,3 +459,19 @@ test('Atelier delayed file import ignores replayed events when snapshot matches'
  assert.match(html,/importStartSnapshot=api\.snapshot\(localStorage\)/);
  assert.match(html,/importStartSnapshot=null/);
 });
+
+test('Atelier verifies import start snapshot on completion of file read',()=>{
+ const html=read('regiekamer.html');
+ const begin=html.indexOf("$('bundleImport').addEventListener('change'");
+ const end=html.indexOf("$('bundleImport').addEventListener('cancel'",begin);
+ assert.ok(begin>=0&&end>begin);
+ const handler=html.slice(begin,end);
+ const original=handler.indexOf('importStartSnapshot=api.snapshot(localStorage)');
+ const asyncRead=handler.indexOf('const importBytes=await file.arrayBuffer()');
+ const reread=handler.indexOf('const afterRead=api.snapshot(localStorage)');
+ const mismatch=handler.indexOf('afterRead.some((value,i)=>value!==importStartSnapshot[i])');
+ const finish=handler.indexOf('importReadPending=false');
+ assert.ok(original>=0&&asyncRead>original&&reread>asyncRead&&mismatch>reread&&finish>mismatch);
+ assert.match(handler,/Lokaal project gewijzigd tijdens het lezen/);
+ assert.match(html,/importStartSnapshot=null/);
+});
