@@ -465,3 +465,11 @@ Playwright test annuleren, expliciet overnemen en daarna veilig opslaan vanuit t
 Bij een herkende rollbackfout toont het bestaande toegankelijke statuspaneel ook een alleen-lezen checklist. Wanneer `ATELIER_RESTORE_REVIEW_REQUIRED` is gemeld, adviseert het de gebruiker te stoppen met bewerken, waar mogelijk een DRAFT-export te maken, de afzonderlijke exterieur- en interieurontwerpen te vergelijken, de opgeslagen ontwerpnotitie bewust te controleren en pas daarna opnieuw te importeren. Bij een volledig gecontroleerde rollback is de lijst korter. De adviezen zijn vaste tekst; ze lezen geen creatieve inhoud, voeren geen opslagmutatie of automatische reparatie uit en verdwijnen bij het resetten van het statuspaneel. De al bestaande v6.17-knop voor bewust herladen van de notitie blijft behouden.
 
 Een aanvullende statische UI-contracttest verifieert de toegangspunten, vaste teksten, veilige DOM-opbouw en het ontbreken van opslagmutaties in de nieuwe checklistcode. Dit is geen onafhankelijke browseracceptatie. **DRAFT/HOLD/DENY**; geen merge, EDTR of publieke uitrol. `localStorage` blijft niet-transactioneel.
+
+## Regiekamer v6.19 — opgeslagen notitie teruglezen na schrijfactie (2026-11-22)
+
+De knop **Bewaar notitie lokaal** meldt pas succes nadat de beoogde notitietekst is geschreven én direct uit `localStorage` is teruggelezen. Een stil genegeerde opslagbewerking of een afwijkende teruggelezen waarde levert een expliciete waarschuwing op; de onopgeslagen tekst blijft in de editor en de bekende uitgangsversie wordt niet voortijdig bijgewerkt. Daardoor wordt bij een latere nieuwe poging een werkelijk waarneembaar opslagconflict nog steeds geweigerd. De bestaande v6.16-check vóór het schrijven blijft actief.
+
+Twee Playwright-regressies simuleren een stil genegeerde `setItem`-aanroep en een schrijfactie die een andere waarde achterlaat; na herstel van normale browseropslag kan respectievelijk veilig opgeslagen worden of wordt het conflict geblokkeerd. Een statische contracttest borgt de volgorde schrijven → teruglezen → uitgangswaarde vastleggen.
+
+**Beperking:** een directe terugleescontrole is geen duurzame opslaggarantie of atomaire transactie. Een ander tabblad kan later alsnog wijzigen. PR #60 blijft **DRAFT/HOLD/DENY**; geen merge, EDTR, autorisatie of live-publicatie.
