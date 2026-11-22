@@ -2161,3 +2161,63 @@ test('changing reviewer registry issuer invalidates cryptographic outcome',async
  await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
  await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('CRYPTOGRAFISCH GELDIG');
 });
+
+
+test('rc42 reviewer registry issuer substitution remains cryptographically valid but untrusted',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ const first=await reviewerRegistryFixture(page,review.declaration);
+ await uploadReviewerRegistry(page,first);
+ await page.locator('#requireReviewerRegistry').check();
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('REVIEWERSREGISTER CRYPTOGRAFISCH GELDIG');
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('NIET ONAFHANKELIJK VERTROUWD');
+ const substituted=await reviewerRegistryFixture(page,review.declaration);
+ expect(substituted.signed.issuerFingerprint).not.toBe(first.signed.issuerFingerprint);
+ await uploadReviewerRegistry(page,substituted);
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('REVIEWERSREGISTER CRYPTOGRAFISCH GELDIG');
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('NIET ONAFHANKELIJK VERTROUWD');
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('GEEN ROLTOEWIJZING');
+});
+
+test('rc42 reviewer registry strict policy invalidates result and rejects missing registry',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
+ await page.locator('#requireReviewerRegistry').check();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
+ await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('CRYPTOGRAFISCH GELDIG');
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
+
+test('rc42 registry issuer may not reuse reviewer key even if uploaded registry is signed',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ const registry=await reviewerRegistryFixture(page,review.declaration);
+ await uploadReviewerRegistry(page,registry);
+ await page.locator('#receiptReviewerRegistryIssuer').fill(JSON.stringify(review.reviewer));
+ await page.locator('#requireReviewerRegistry').check();
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
+
+test('rc42 registry removal after valid verification invalidates previous outcome',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await uploadReviewerRegistry(page,await reviewerRegistryFixture(page,review.declaration));
+ await page.locator('#requireReviewerRegistry').check();
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('REVIEWERSREGISTER CRYPTOGRAFISCH GELDIG');
+ await page.locator('#receiptReviewerRegistry').setInputFiles([]);
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
