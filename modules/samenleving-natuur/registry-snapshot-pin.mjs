@@ -33,13 +33,17 @@ export function checkPinnedRegistrySnapshot({
         pinnedSnapshot.revision < 1) return deny('INVALID_PIN');
     if (!(registryBytes instanceof Uint8Array) || registryBytes.byteLength === 0 ||
         registryBytes.byteLength > 65536) return deny('INVALID_REGISTRY_BYTES');
+    // Copy mutable caller-owned bytes exactly once. The hash and subsequent
+    // signature verification must inspect the same immutable local snapshot.
+    // No input byte buffer may be promoted into authority by this comparison.
+    const snapshotBytes = Buffer.from(registryBytes);
     // Even a valid signature for a different snapshot must not silently replace
     // the precise bytes accepted by a previous human-controlled checkpoint.
-    const registrySha256 = createHash('sha256').update(registryBytes).digest('hex');
+    const registrySha256 = createHash('sha256').update(snapshotBytes).digest('hex');
     if (registrySha256 !== pinnedSnapshot.registrySha256)
       return deny('SNAPSHOT_BYTES_DIFFER_FROM_PIN');
     const checked = checkSignedReviewerRegistry({
-      registryBytes, signatureBase64Url, issuerPublicJwk,
+      registryBytes: snapshotBytes, signatureBase64Url, issuerPublicJwk,
       expectedIssuerFingerprint: pinnedSnapshot.issuerFingerprint,
       minimumRevision: pinnedSnapshot.revision,
       evaluationTime, reviewerFingerprint
