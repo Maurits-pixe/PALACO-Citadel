@@ -475,3 +475,17 @@ test('Atelier verifies import start snapshot on completion of file read',()=>{
  assert.match(handler,/Lokaal project gewijzigd tijdens het lezen/);
  assert.match(html,/importStartSnapshot=null/);
 });
+
+test('Atelier import confirmation preserves edits made during the confirmation',()=>{
+ const html=read('regiekamer.html');
+ const begin=html.indexOf("$('bundleImport').addEventListener('change'");
+ const end=html.indexOf("$('bundleImport').addEventListener('cancel'",begin);
+ assert.ok(begin>=0&&end>begin);
+ const handler=html.slice(begin,end);
+ const before=handler.indexOf('const noteBeforeConfirm=noteValue()');
+ const confirmation=handler.indexOf('if(!confirm(',before);
+ const check=handler.indexOf('if(noteValue()!==noteBeforeConfirm)',confirmation);
+ const restore=handler.indexOf('api.restoreWithRecovery(',check);
+ assert.ok(before>=0&&confirmation>before&&check>confirmation&&restore>check);
+ assert.match(handler,/Ontwerpnotitie gewijzigd tijdens bevestiging/);
+});
