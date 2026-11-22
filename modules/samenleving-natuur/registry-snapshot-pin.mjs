@@ -55,8 +55,25 @@ export function checkPinnedRegistrySnapshot({
     const registrySha256 = createHash('sha256').update(snapshotBytes).digest('hex');
     if (registrySha256 !== pin.registrySha256)
       return deny('SNAPSHOT_BYTES_DIFFER_FROM_PIN');
+    // Issuer JWK is supplied by the caller and can be a mutable Proxy.
+    // Strictly snapshot own data descriptors once so key inspection, fingerprint
+    // derivation and signature verification all see the identical public key.
+    if (!isRecord(issuerPublicJwk)) return deny('INVALID_ISSUER_KEY');
+    const jwkKeys = ['kty','crv','x','y'];
+    const actualJwkKeys = Reflect.ownKeys(issuerPublicJwk);
+    if (actualJwkKeys.length !== jwkKeys.length ||
+        actualJwkKeys.some(key => typeof key !== 'string' || !jwkKeys.includes(key)))
+      return deny('INVALID_ISSUER_KEY');
+    const keySnapshot = {};
+    for (const key of jwkKeys) {
+      const descriptor = Object.getOwnPropertyDescriptor(issuerPublicJwk, key);
+      if (!descriptor || !Object.hasOwn(descriptor,'value') ||
+          typeof descriptor.value !== 'string')
+        return deny('INVALID_ISSUER_KEY');
+      keySnapshot[key] = descriptor.value;
+    }
     const checked = checkSignedReviewerRegistry({
-      registryBytes: snapshotBytes, signatureBase64Url, issuerPublicJwk,
+      registryBytes: snapshotBytes, signatureBase64Url, issuerPublicJwk: keySnapshot,
       expectedIssuerFingerprint: pin.issuerFingerprint,
       minimumRevision: pin.revision,
       evaluationTime, reviewerFingerprint
