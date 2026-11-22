@@ -2338,3 +2338,56 @@ test('rc42 signed reviewer registry rejects unicode-escaped duplicate key spelli
  await page.locator('#verifyReceiptSignerReview').click();
  await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
 });
+
+
+test('rc42 pending reviewer registry read cannot restore success after issuer key changes',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await uploadReviewerRegistry(page,await reviewerRegistryFixture(page,review.declaration));
+ await page.locator('#requireReviewerRegistry').check();
+ await page.evaluate(()=>{
+  const original=File.prototype.text;
+  File.prototype.text=function(){
+   if(this.name!=='reviewer-registry.json')return original.call(this);
+   const pending=original.call(this);
+   return new Promise((resolve,reject)=>{
+    window.__rc42ReleaseRegistryRead=()=>pending.then(resolve,reject);
+   });
+  };
+ });
+ await page.locator('#verifyReceiptSignerReview').click();
+ await page.waitForFunction(()=>typeof window.__rc42ReleaseRegistryRead==='function');
+ await page.locator('#receiptReviewerRegistryIssuer').fill('{}');
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
+ await page.evaluate(()=>window.__rc42ReleaseRegistryRead());
+ await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('REVIEWERSREGISTER CRYPTOGRAFISCH GELDIG');
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
+});
+
+test('rc42 pending reviewer registry read cannot override stricter policy change',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await uploadReviewerRegistry(page,await reviewerRegistryFixture(page,review.declaration));
+ await page.evaluate(()=>{
+  const original=File.prototype.text;
+  File.prototype.text=function(){
+   if(this.name!=='reviewer-registry.json')return original.call(this);
+   const pending=original.call(this);
+   return new Promise((resolve,reject)=>{
+    window.__rc42ReleaseRegistryRead=()=>pending.then(resolve,reject);
+   });
+  };
+ });
+ await page.locator('#verifyReceiptSignerReview').click();
+ await page.waitForFunction(()=>typeof window.__rc42ReleaseRegistryRead==='function');
+ await page.locator('#requireReviewerRegistry').check();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
+ await page.evaluate(()=>window.__rc42ReleaseRegistryRead());
+ await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('REVIEWERSREGISTER CRYPTOGRAFISCH GELDIG');
+ await page.locator('#verifyReceiptSignerReview').click();
+ // The second attempt uses the now-required registry. A valid signature still confers no authority.
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('NIET ONAFHANKELIJK VERTROUWD');
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('GEEN ROLTOEWIJZING');
+});
