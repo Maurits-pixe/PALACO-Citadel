@@ -2254,3 +2254,42 @@ test('Atelier v6.49: ongewijzigde bron mag na vertraagde bestandslezing worden b
  expect(prompts).toBe(1);
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
 });
+
+test('Atelier v6.51: gewijzigde onopgeslagen notitie tijdens bevestiging blokkeert import',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const draft=await page.evaluate(()=>JSON.stringify(
+   window.PalacoAtelierBundle.create(null,null,'Notitie uit importbestand')
+ ));
+ await page.locator('#statement').fill('Mijn eerste onopgeslagen schets');
+ await page.evaluate(()=>{
+   window.confirm=()=>{
+     // Simulate a synchronous extension/integration changing draft text
+     // while confirmation is being processed.
+     document.getElementById('statement').value='Mijn nieuwere onopgeslagen schets';
+     return true;
+   };
+ });
+ await page.locator('#bundleImport').setInputFiles({
+   name:'gewijzigd-bij-bevestiging.json',mimeType:'application/json',buffer:Buffer.from(draft)
+ });
+ await expect(page.locator('#bundleStatus')).toContainText('Ontwerpnotitie gewijzigd tijdens bevestiging');
+ await expect(page.locator('#statement')).toHaveValue('Mijn nieuwere onopgeslagen schets');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBeNull();
+});
+
+test('Atelier v6.51: ongewijzigde notitie tijdens bevestiging kan normaal worden geïmporteerd',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const draft=await page.evaluate(()=>JSON.stringify(
+   window.PalacoAtelierBundle.create(null,null,'Nieuwe geïmporteerde ontwerpnotitie')
+ ));
+ await page.locator('#statement').fill('Mijn oude onopgeslagen schets');
+ await page.evaluate(()=>{window.confirm=()=>true;});
+ await page.locator('#bundleImport').setInputFiles({
+   name:'ongewijzigd-bij-bevestiging.json',mimeType:'application/json',buffer:Buffer.from(draft)
+ });
+ await expect(page.locator('#bundleStatus')).toContainText('Projectpakket lokaal hersteld');
+ await expect(page.locator('#statement')).toHaveValue('Nieuwe geïmporteerde ontwerpnotitie');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Nieuwe geïmporteerde ontwerpnotitie');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).not.toBeNull();
+});
