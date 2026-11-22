@@ -28,6 +28,37 @@ BEGIN
     RAISE EXCEPTION 'FAIL: expected enabled HOLD triggers are missing';
   END IF;
 
+  -- HOLD is not just a runtime exception: no RLS policy may implicitly
+  -- grant read/write access, and the guard routines must remain invoker-only.
+  IF EXISTS (
+    SELECT 1 FROM pg_policy p JOIN pg_class c ON c.oid=p.polrelid
+      JOIN pg_namespace n ON n.oid=c.relnamespace
+    WHERE n.nspname='citadel_pin_draft'
+      AND c.relname IN ('pin_state','pin_history')
+  ) THEN
+    RAISE EXCEPTION 'FAIL: unexpected RLS policy in inert HOLD schema';
+  END IF;
+
+  IF (SELECT count(*) FROM pg_proc p
+      JOIN pg_namespace n ON n.oid=p.pronamespace
+      WHERE n.nspname='citadel_pin_draft'
+        AND p.proname IN ('cas_pin_update_disabled',
+          'reject_state_mutation','reject_history_mutation')
+        AND p.prokind='f' AND NOT p.prosecdef) <> 3 THEN
+    RAISE EXCEPTION 'FAIL: security definer or missing HOLD guard function';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+      CROSS JOIN LATERAL aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) acl
+    WHERE n.nspname='citadel_pin_draft'
+      AND p.proname IN ('cas_pin_update_disabled',
+        'reject_state_mutation','reject_history_mutation')
+      AND acl.grantee=0 AND acl.privilege_type='EXECUTE'
+  ) THEN
+    RAISE EXCEPTION 'FAIL: PUBLIC can execute a HOLD guard function';
+  END IF;
+
   failed := false;
   BEGIN
     PERFORM citadel_pin_draft.cas_pin_update_disabled();
