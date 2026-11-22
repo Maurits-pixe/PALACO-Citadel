@@ -539,3 +539,11 @@ De actuele GitHub-validatie van v6.28 faalde op twee oudere statische verwachtin
 Als een ontwerpimport mislukt nadat de tijdelijke herstelkopie is geschreven, probeert `restoreWithRecovery()` de vooraf aanwezige herstelkopie te herstellen of de tijdelijke kopie te verwijderen. Na deze opruiming leest de functie de herstelopslag nu terug. Alleen wanneer de werkelijke waarde exact overeenkomt met de vooraf vastgelegde ruwe waarde, wordt de oorspronkelijke importfout opnieuw gemeld. Bij een stil genegeerde opruiming, een concurrerende wijziging of een lees-/schrijffout wordt expliciet gemeld dat de herstelkopie **niet aantoonbaar** is teruggezet; de functie claimt dan geen geslaagde rollback.
 
 Drie Node-regressies zijn toegevoegd voor een stil genegeerde delete, een correct herstelde eerdere herstelkopie en een andere waarde tijdens cleanup. Deze code verandert geen bevoegdheden en verleent geen transactionele garantie: `localStorage` heeft geen atomaire compare-and-swap. De tests zijn opgeslagen maar nog niet als PASS bevestigd. **DRAFT/HOLD/DENY**; geen merge, EDTR of publieke uitrol.
+
+## Regiekamer v6.31 — verouderde opslaggebeurtenissen neutraliseren (2026-11-22)
+
+Browser-storage-events kunnen vertraagd worden verwerkt wanneer een tabblad op de achtergrond stond. Daarom leest de Regiekamer bij een ontvangen wijziging van de ontwerpnotitie of een volledige opslagwisactie de **werkelijk actuele notitie** opnieuw uit localStorage. De event.newValue-payload wordt niet meer als actuele versie aangenomen. Heeft de huidige editor onopgeslagen tekst, dan blijft deze zichtbaar en houdt de bestaande conflictcontrole opslaan tegen als de onderliggende opslag is gewijzigd. Bij een schone editor wordt de actuele opgeslagen versie getoond en als nieuwe uitgangswaarde vastgelegd.
+
+Twee Playwright-tests simuleren een vertraagd opslag-event met een verouderde payload en controleren respectievelijk een schone editor (actuele inhoud en veilig verder opslaan) en onopgeslagen werk (behoud plus conflictweigering). Twee eerdere statische contracttests zijn aangepast en een nieuwe statische toets bewaakt de live-lezing.
+
+**Grenzen:** de live-lezing is geen atomair compare-and-swap of duurzame synchronisatie; localStorage blijft browsergebonden. **DRAFT/HOLD/DENY**, geen merge, EDTR of live-publicatie.
