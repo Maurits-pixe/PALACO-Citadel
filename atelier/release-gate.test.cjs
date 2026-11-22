@@ -81,3 +81,35 @@ test('valid evidence remains only diagnostic, never GO',()=>{
  assert.equal(r.release_approved,false);
  assert.equal(r.decision,'HOLD');
 });
+
+test('contradictory reviewed PASS and FAIL for same gate and commit blocks category',()=>{
+ const x=base();x.evidence_items=[
+  {gate:'G01',kind:'automated_contracts',result:'pass',reviewed:true,source:'CI one',commit_sha:A},
+  {gate:'G01',kind:'automated_contracts',result:'fail',reviewed:true,source:'CI two',commit_sha:A}
+ ];
+ const r=evaluate(x,A),gate=r.gates.find(g=>g.id==='G01');
+ assert.deepEqual(gate.accepted,[]);
+ assert.deepEqual(gate.missing,['automated_contracts']);
+ assert.deepEqual(gate.conflicts,['automated_contracts']);
+ assert.ok(r.blockers.includes('G01:conflicting_evidence:automated_contracts'));
+ assert.equal(r.decision,'HOLD');
+});
+test('verified FAIL alone cannot be masked as passing evidence',()=>{
+ const x=base();x.evidence_items=[
+  {gate:'G04',kind:'automated_rollback',result:'fail',reviewed:true,source:'Regression run',commit_sha:A}
+ ];
+ const gate=evaluate(x,A).gates.find(g=>g.id==='G04');
+ assert.deepEqual(gate.accepted,[]);
+ assert.deepEqual(gate.missing,['automated_rollback']);
+ assert.deepEqual(gate.conflicts,[]);
+});
+test('failure from a different commit does not contaminate current candidate',()=>{
+ const x=base();x.evidence_items=[
+  {gate:'G01',kind:'automated_contracts',result:'pass',reviewed:true,source:'current CI',commit_sha:A},
+  {gate:'G01',kind:'automated_contracts',result:'fail',reviewed:true,source:'historical CI',commit_sha:B}
+ ];
+ const gate=evaluate(x,A).gates.find(g=>g.id==='G01');
+ assert.deepEqual(gate.accepted,['automated_contracts']);
+ assert.deepEqual(gate.conflicts,[]);
+ assert.equal(gate.pass,false);
+});
