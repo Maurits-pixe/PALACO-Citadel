@@ -167,3 +167,32 @@ test('pin descriptor Proxy that throws fails closed without raising exceptions',
   assert.equal(result.authorization,'DENY');
   assert.equal(result.releaseAllowed,false);
 });
+
+
+test('pin with unexpected symbol field fails closed before descriptor reads', () => {
+  const data=signed();
+  const candidate=pinned(data.registryBytes);
+  candidate[Symbol('invisible')]='unexpected';
+  const result=evaluate(data,{pinnedSnapshot:candidate});
+  assert.equal(result.exactSnapshotMatched,false);
+  assert.equal(result.reason,'INVALID_PIN');
+  assert.equal(result.authorization,'DENY');
+});
+
+test('hostile ownKeys Proxy trap fails closed without inspecting pin values', () => {
+  const data=signed();
+  let descriptors=0;
+  const hostile=new Proxy(pinned(data.registryBytes),{
+    ownKeys(){throw Error('blocked ownKeys');},
+    getOwnPropertyDescriptor(target,key){
+      descriptors++;
+      return Reflect.getOwnPropertyDescriptor(target,key);
+    }
+  });
+  const result=evaluate(data,{pinnedSnapshot:hostile});
+  assert.equal(descriptors,0);
+  assert.equal(result.exactSnapshotMatched,false);
+  assert.equal(result.reason,'UNTRUSTED_PIN_INPUT');
+  assert.equal(result.authorization,'DENY');
+  assert.equal(result.releaseAllowed,false);
+});
