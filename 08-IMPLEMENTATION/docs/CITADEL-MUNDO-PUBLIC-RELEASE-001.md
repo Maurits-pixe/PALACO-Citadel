@@ -187,3 +187,9 @@ De publieke World Atlas bevat uitsluitend een informatief paneel **Herstelprotoc
 De private supervisor `mundo-atlas-explicit-recovery.ts` trekt voortaan de huidige hostverbinding in als een kaartaanvraag de status `stale` of `mount-failed` teruggeeft, mits die hostverbinding en generatie nog actueel zijn. Een daaropvolgende kaartaanvraag vereist opnieuw expliciete hostregistratie en een nieuwe bronaanvraag, zonder automatische replay van gegevens of machtiging. De status `denied` blijft een afwijzing en start nooit automatisch een herstelprocedure.
 
 De publieke Atlas is uitsluitend uitgebreid met een verklarende sectie **Herstelprotocol 020**; de privésupervisor is niet geïmporteerd in de openbare Render-site. Voor de eigenaar zijn niet-uitgevoerde acceptatiescenario's in de hostintegratiehandleiding opgenomen. Originele privé-Citadel ongewijzigd, PR #58 DRAFT/HOLD, geen functionele tests of merge.
+
+## MUNDO-SINGLE-FLIGHT-021 — één aanvraag per hostverbinding
+
+De private `mundo-atlas-explicit-recovery.ts` reserveert nu vóór de asynchrone hostactivatie een token met de actuele generatie en exact dezelfde hostverbinding. Gelijktijdige nieuwe aanvragen worden afgewezen zonder het huidige verzoek te onderbreken. Na een expliciete contextintrekking wordt het oude token ongeldig. Een laat aflopende oude aanvraag kan daarna de vergrendeling van een recentere hostverbinding niet wissen. Er wordt niets automatisch opnieuw afgespeeld of geautoriseerd.
+
+De publieke Atlas heeft uitsluitend een verklarende sectie **Aanvraagvergrendeling 021**; er worden geen beschermde modules, privémachtigingen of gebruikersgegevens ingeladen. De hostintegratiehandleiding bevat niet-uitgevoerde scenario's voor eigenaaracceptatie. De originele Citadel Sites-app is niet gewijzigd, PR #58 blijft DRAFT/HOLD en er zijn geen functionele tests of merge uitgevoerd.
