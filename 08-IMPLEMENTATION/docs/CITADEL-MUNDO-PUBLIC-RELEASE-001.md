@@ -181,3 +181,9 @@ De publieke MUNDO Atlas bevat een verklarend paneel **Herstelgrenzen 018**; deze
 Nieuwe private TypeScript-module `08-IMPLEMENTATION/src/citadel/mundo-atlas-explicit-recovery.ts`. De module bewaakt een oplopende generatie per herstelsituatie, maakt lopende oude aanvragen ongeldig, accepteert hoogstens één herregistratie tegelijk en vereist een volledig nieuwe, expliciet door de werkelijke Citadel-host aangemaakte verbinding. Oud bronmateriaal en vroegere autorisatie worden niet automatisch opnieuw gebruikt of opgeslagen. Een mislukte hostopruiming brengt de supervisor definitief in quarantaine.
 
 De publieke World Atlas bevat uitsluitend een informatief paneel **Herstelprotocol 019**. Er is geen aangesloten private host, identiteitsprovider, backend of live bewijsmateriaal. Het is voorbereid ontwikkelwerk: geen functionele tests of productieacceptatie. De oorspronkelijke Citadel Sites-frontend blijft ongewijzigd; GitHub PR #58 blijft DRAFT/HOLD en er is niet gemerged.
+
+## MUNDO-RECOVERY-020 — intrekking bij verouderde of mislukte kaartmontage
+
+De private supervisor `mundo-atlas-explicit-recovery.ts` trekt voortaan de huidige hostverbinding in als een kaartaanvraag de status `stale` of `mount-failed` teruggeeft, mits die hostverbinding en generatie nog actueel zijn. Een daaropvolgende kaartaanvraag vereist opnieuw expliciete hostregistratie en een nieuwe bronaanvraag, zonder automatische replay van gegevens of machtiging. De status `denied` blijft een afwijzing en start nooit automatisch een herstelprocedure.
+
+De publieke Atlas is uitsluitend uitgebreid met een verklarende sectie **Herstelprotocol 020**; de privésupervisor is niet geïmporteerd in de openbare Render-site. Voor de eigenaar zijn niet-uitgevoerde acceptatiescenario's in de hostintegratiehandleiding opgenomen. Originele privé-Citadel ongewijzigd, PR #58 DRAFT/HOLD, geen functionele tests of merge.
