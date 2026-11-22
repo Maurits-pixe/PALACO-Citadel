@@ -227,3 +227,16 @@ test('Atelier note synchronization must preserve unsaved edits from local tab',(
  assert.match(handler,/onopgeslagen tekst blijft staan/);
  assert.match(handler,/typeof e\.newValue==='string'\?e\.newValue\.slice\(0,6000\):''/);
 });
+
+
+test('Atelier note save must reject a stale stored baseline before writing',()=>{
+ const html=read('regiekamer.html');
+ const begin=html.indexOf('function saveNote(){');
+ const end=html.indexOf('function getSummary()',begin);
+ assert.ok(begin>=0&&end>begin);
+ const handler=html.slice(begin,end);
+ assert.match(handler,/current!==noteBaseline/);
+ assert.ok(handler.indexOf('current!==noteBaseline')<handler.indexOf('localStorage.setItem(NOTE,value)'));
+ assert.match(handler,/Opslaan geweigerd/);
+ assert.match(html,/noteBaseline=e.newValue/);
+});
