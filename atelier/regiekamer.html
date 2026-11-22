@@ -61,7 +61,7 @@
 <input type="file" id="bundleImport" accept=".json,application/json" style="max-width:100%;font-size:13px">
 <p class="message">Herstel vervangt uitsluitend de drie lokale Atelier-opslagonderdelen na jouw bevestiging. Controleer vooraf het pakketoverzicht; exporteer je huidige werk eerst. Onbekende of niet-DRAFT-pakketten worden geweigerd. Een mislukte schrijfactie wordt zo mogelijk teruggedraaid.</p>
 <p id="bundleStatus" class="small" role="status" aria-live="polite">Er is nog geen projectpakket geselecteerd.</p>
-<section id="rollbackReport" class="message" role="status" aria-live="polite" aria-atomic="true" hidden><h3 id="rollbackHeading">Herstelcontrole</h3><p id="rollbackExplanation"></p><ul id="rollbackItems"></ul><p class="small">Dit overzicht bevat uitsluitend statuslabels, geen ontwerpgegevens. Bij conflicten: stop met bewerken en exporteer een veilige kopie vóór verder herstel.</p></section>
+<section id="rollbackReport" class="message" role="status" aria-live="polite" aria-atomic="true" hidden><h3 id="rollbackHeading">Herstelcontrole</h3><p id="rollbackExplanation"></p><ul id="rollbackItems"></ul><p class="small">Dit overzicht bevat uitsluitend statuslabels, geen ontwerpgegevens. Bij conflicten: stop met bewerken en exporteer een veilige kopie vóór verder herstel.</p><div id="rollbackGuide" aria-labelledby="rollbackGuideTitle" hidden><h4 id="rollbackGuideTitle">Begeleide herstelcontrole</h4><ol id="rollbackSteps"></ol><p class="small">De stappen zijn adviezen. Deze functie schrijft niets naar de opslag en voert geen automatische reparatie uit.</p></div></section>
 <div class="actions"><button type="button" class="action" id="undoImport" disabled>Herstel vorig lokaal ontwerp</button><button type="button" class="action" id="exportRecovery" disabled>↓ Exporteer herstelkopie (JSON)</button></div>
 <p class="small" id="recoveryStatus" role="status" aria-live="polite">Lokale herstelkopie controleren…</p>
 </section>
@@ -588,6 +588,8 @@ function showRollbackReport(error){
  if(!record||!['ATELIER_RESTORE_ROLLED_BACK','ATELIER_RESTORE_REVIEW_REQUIRED'].includes(code)){
    panel.hidden=true;
    $('rollbackItems').replaceChildren();
+   $('rollbackSteps').replaceChildren();
+   $('rollbackGuide').hidden=true;
    return false;
  }
  $('rollbackHeading').textContent=code==='ATELIER_RESTORE_ROLLED_BACK'?'Terugdraaien gecontroleerd':'Handmatige herstelcontrole noodzakelijk';
@@ -602,6 +604,23 @@ function showRollbackReport(error){
    item.textContent=label+': '+status;
    list.appendChild(item);
  }
+ const needsReview=code==='ATELIER_RESTORE_REVIEW_REQUIRED';
+ const steps=$('rollbackSteps');
+ steps.replaceChildren();
+ const advice=[
+  'Stop met bewerken totdat de drie lokale onderdelen zijn gecontroleerd.',
+  'Exporteer de huidige creatieve gegevens als DRAFT JSON, indien de lokale export nog beschikbaar is.',
+  'Vergelijk de exterieur- en interieurweergave met je eigen eerder bewaarde bestanden.',
+  'Controleer de ontwerpnotitie; gebruik Laad opgeslagen notitie alleen na bewuste bevestiging.',
+  'Importeer of herstel pas opnieuw nadat je de verschillen hebt beoordeeld.'
+ ];
+ if(!needsReview)advice.splice(1,3);
+ for(const sentence of advice){
+  const item=document.createElement('li');
+  item.textContent=sentence;
+  steps.appendChild(item);
+ }
+ $('rollbackGuide').hidden=false;
  panel.hidden=false;
  return true;
 }
