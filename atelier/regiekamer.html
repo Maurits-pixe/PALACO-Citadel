@@ -293,10 +293,7 @@ function showInspectionHashes(actual,reference,reported){
  $('inspectionHashes').hidden=false;
 }
 function parseUniqueTopLevelJson(source){
- // JSON.parse alone silently retains the last repeated property, even inside nested objects.
- const value=JSON.parse(source);
- if(!value||typeof value!=='object'||Array.isArray(value))
-   throw Error('Dossierbestand moet een JSON-object zijn');
+ // Scan structure before JSON.parse to bound nesting and reject duplicate object keys.
  const stack=[];
  let inString=false;
  let stringStart=-1;
@@ -325,7 +322,11 @@ function parseUniqueTopLevelJson(source){
    if(c==='{')stack.push({keys:new Set()});
    else if(c==='[')stack.push({keys:null});
    else if(c==='}'||c===']')stack.pop();
+   if(stack.length>64)throw Error('Dossier-JSON overschrijdt maximale nestingdiepte van 64');
  }
+ const value=JSON.parse(source);
+ if(!value||typeof value!=='object'||Array.isArray(value))
+   throw Error('Dossierbestand moet een JSON-object zijn');
  return value;
 }
 let reportVerifyRevision=0;
