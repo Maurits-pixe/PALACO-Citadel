@@ -564,16 +564,19 @@ $('bundleVerify').addEventListener('change',async event=>{
  }finally{if(revision===dossierRevision)event.target.value='';}
 });
 let importRevision=0;
+let importReadPending=false;
 $('bundleImport').addEventListener('change',async event=>{
  const revision=++importRevision;
  const file=event.target.files?.[0];
  if(!file)return;
+ importReadPending=true;
  try{
    const api=window.PalacoAtelierBundle;
    if(!api)throw Error('Projectpakket-functie niet geladen');
    if(file.size>150000)throw Error('Bestand groter dan 150 KB');
    const importBytes=await file.arrayBuffer();
    if(revision!==importRevision)return;
+   importReadPending=false;
    let importText;
    try{importText=new TextDecoder('utf-8',{fatal:true}).decode(importBytes);}
    catch{throw Error('Projectbestand bevat ongeldige UTF-8-bytes');}
@@ -602,10 +605,11 @@ $('bundleImport').addEventListener('change',async event=>{
    $('bundleStatus').textContent='Projectpakket lokaal hersteld. Open de editors opnieuw om de gegevens te bekijken.';
    refreshRecoveryInfo();
  }catch(err){if(revision===importRevision)$('bundleStatus').textContent='Herstel geweigerd: '+err.message;}
- finally{if(revision===importRevision)event.target.value='';}
+ finally{if(revision===importRevision){importReadPending=false;event.target.value='';}}
 });
 $('bundleImport').addEventListener('cancel',()=>{
  ++importRevision;
+ importReadPending=false;
  $('bundleImport').value='';
  $('bundleStatus').textContent='Projectimport geannuleerd. Er is niets hersteld.';
 });
@@ -812,6 +816,7 @@ $('clearInspections').addEventListener('click',()=>{
  ++reportVerifyRevision;
  ++dossierRevision;
  ++importRevision;
+ importReadPending=false;
  lastExportFingerprint=null;
  lastPairReport=null;
  verifiedFingerprint=null;
@@ -837,7 +842,16 @@ $('checkOffline').addEventListener('click',checkOfflineReady);
 window.addEventListener('online',checkOfflineReady);
 window.addEventListener('offline',checkOfflineReady);
 if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('controllerchange',checkOfflineReady);
-window.addEventListener('storage',e=>{if([EX,IN].includes(e.key))refresh();if(e.key===NOTE&&typeof e.newValue==='string')$('statement').value=e.newValue.slice(0,6000);});
+window.addEventListener('storage',e=>{
+ if((e.key===null||[EX,IN,NOTE].includes(e.key))&&importReadPending){
+   ++importRevision;
+   importReadPending=false;
+   $('bundleImport').value='';
+   $('bundleStatus').textContent='Projectimport onderbroken: lokale ontwerpgegevens zijn in een ander tabblad gewijzigd. Kies het projectbestand opnieuw.';
+ }
+ if(e.key===null||[EX,IN].includes(e.key))refresh();
+ if(e.key===NOTE&&typeof e.newValue==='string')$('statement').value=e.newValue.slice(0,6000);
+});
 try{const v=localStorage.getItem(NOTE);if(v)$('statement').value=v.slice(0,6000);}catch{$('feedback').textContent='Lokale opslag is niet toegankelijk; export blijft beschikbaar.';}
 refresh();
 refreshRecoveryInfo();
