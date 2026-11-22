@@ -312,6 +312,7 @@ function parseUniqueTopLevelJson(source){
          while(j<source.length&&/\s/.test(source[j]))j++;
          if(source[j]===':'){
            const key=JSON.parse(source.slice(stringStart,i+1));
+           if(key.length>256)throw Error('Dossier-JSON bevat een veldnaam langer dan 256 tekens');
            if(frame.keys.has(key))throw Error('Dossier-JSON bevat dubbele velden: '+key);
            frame.keys.add(key);
            if(++propertyCount>4096)throw Error('Dossier-JSON overschrijdt maximum van 4096 objectvelden');
