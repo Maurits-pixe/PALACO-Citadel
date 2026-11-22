@@ -244,7 +244,8 @@ test('Atelier note save must reject a stale stored baseline before writing',()=>
 
 test('Regiekamer displays privacy-safe rollback diagnosis in accessible live region',()=>{
  const html=read('regiekamer.html');
- assert.match(html,/id="rollbackReport"[^>]*role="status" aria-live="polite" aria-atomic="true" hidden/);
+ assert.match(html,/id="rollbackReport"[^>]*role="status" aria-live="polite" aria-atomic="true"[^>]*hidden/);
+ assert.match(html,/id="rollbackReport"[^>]*tabindex="-1"/);
  assert.match(html,/id="rollbackHeading"/);
  assert.match(html,/id="rollbackItems"/);
  assert.match(html,/function showRollbackReport\(error\)/);
