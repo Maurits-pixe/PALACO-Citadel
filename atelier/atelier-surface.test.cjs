@@ -121,7 +121,9 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/LOCAL_INTEGRITY_COMPARISON_ONLY/);
   assert.match(read('regiekamer.html'),/lastPairReport=null/);
   assert.match(read('regiekamer.html'),/JSON EN TXT KOMEN NIET OVEREEN/);
-  assert.match(read('regiekamer.html'),/api\.parse\(decode\.decode\(jsonBytes\)\)/);
+  assert.match(read('regiekamer.html'),/const projectText=decode\.decode\(jsonBytes\)/);
+  assert.match(read('regiekamer.html'),/parseUniqueTopLevelJson\(projectText\)/);
+  assert.match(read('regiekamer.html'),/api\.parse\(projectText\)/);
   assert.match(read('regiekamer.html'),/CONTROLE GESLAAGD/);
   assert.match(read('regiekamer.html'),/revision!==exportRevision/);
   assert.match(read('regiekamer.html'),/let exportCheckRevision=0/);
