@@ -393,3 +393,7 @@ Een nieuwe Playwright-regressie test meerdere onveilige bestandsnamen, daarna ee
 ## Regiekamer v6.10 — strikte herstelkopie-tijdstempels (2026-11-22)
 
 Het lokale herstelrecord vereist nu een volledig, daadwerkelijk bestaande UTC-tijdstempel in canonieke `YYYY-MM-DDTHH:mm:ss.sssZ`-vorm. Onmogelijke kalenderdatums, onvolledige datums, tijdzone-offsets en achtervoegsels worden vóór het terugzetten geweigerd. Dit verandert geen geldige, door `toISOString()` gemaakte herstelkopieën en maakt geen claim op een vertrouwde klok of cryptografisch bewijs. Een gerichte Node-regressietest dekt geldige en ongeldige voorbeelden. **DRAFT / HOLD / DENY**; CI, onafhankelijke review en mobiele browseracceptatie blijven vereist.
+
+## Regiekamer v6.11 — herstelpunt-conflictcontrole (2026-11-22)
+
+Bij `undoLastImport` wordt het rauwe herstelrecord vastgelegd en vóór de volgende schrijffase opnieuw gecontroleerd. Als een ander tabblad het herstelrecord tijdens selectie of voorbereiding wijzigt, wordt het terugzetten afgebroken zonder een verouderd herstelpunt te gebruiken. Twee Node-regressies simuleren vervanging op beide momenten. Het bestaande importpad zonder undo gebruikt dezelfde interface zonder extra verplicht argument. **Beperking:** `localStorage` biedt geen atomair compare-and-swap: een wijziging na de laatste controle blijft mogelijk. Een backend-transactie en onafhankelijke review zijn nodig voor sterkere garanties. Status DRAFT/HOLD/DENY; geen merge of live-publicatie.
