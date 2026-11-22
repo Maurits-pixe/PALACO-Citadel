@@ -597,6 +597,7 @@ $('bundleImport').addEventListener('change',async event=>{
    const ex=pack.exterior?pack.exterior.name:'geen exterieur';
    const ins=pack.interior?pack.interior.name:'geen interieur';
    const current=api.snapshot(localStorage);
+   const expectedRecovery=localStorage.getItem(api.RECOVERY);
    const currentNote=current[2]===null?'':current[2];
    const pendingNote=noteValue()!==currentNote;
    const inspection=api.preview(api.read(localStorage),pack);
@@ -611,7 +612,7 @@ $('bundleImport').addEventListener('change',async event=>{
    $('bundleStatus').textContent=description;
    const warning=pendingNote?' LET OP: er staan nog niet-bewaarde notitiewijzigingen in deze pagina.':'';
    if(!confirm(description+' Herstel vervangt je huidige lokale Atelier-ontwerpen. Exporteer eerst je huidige werk als JSON. Wil je doorgaan?'+warning))return;
-   api.restoreWithRecovery(localStorage,pack,current);
+   api.restoreWithRecovery(localStorage,pack,current,expectedRecovery);
    $('statement').value=pack.note;
    refresh();
    $('bundleStatus').textContent='Projectpakket lokaal hersteld. Open de editors opnieuw om de gegevens te bekijken.';
