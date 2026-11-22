@@ -688,7 +688,7 @@ test('Atelier: alle JSON-verificatieroutes weigeren misleidende bestandsnamen',a
  const original=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
  const data=Buffer.from(await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage))));
  const hash=createHash('sha256').update(data).digest('hex');
- const badNames=['misleidend\u202e.json','map\\ontwerp.json','map/ontwerp.json','controle.txt','a'.repeat(121)+'.json'];
+ const badNames=['misleidend\u202e.json','stil\u200b.json','begin\ufeff.json','mark\u061c.json','map\\ontwerp.json','map/ontwerp.json','controle.txt','a'.repeat(121)+'.json'];
  for(const name of badNames){
    const file={name,mimeType:'application/json',buffer:data};
    await page.locator('#bundleVerify').setInputFiles(file);
@@ -711,7 +711,7 @@ test('Atelier: losse TXT-referentie weigert onveilige bestandsnaam zonder SHA-25
  await page.goto('/atelier/regiekamer.html');
  const data=Buffer.from(await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage))));
  const hash=createHash('sha256').update(data).digest('hex');
- const names=['../overig.json','overig\\ontwerp.json','naam\u202e.json','eindigt-op.txt','a'.repeat(121)+'.json'];
+ const names=['../overig.json','overig\\ontwerp.json','naam\u202e.json','onzichtbaar\u2060.json','zacht\u00ad.json','eindigt-op.txt','a'.repeat(121)+'.json'];
  for(const name of names){
    await page.locator('#fingerprintReceipt').setInputFiles({
      name:'bad-receipt.txt',mimeType:'text/plain',buffer:Buffer.from('SHA-256: '+hash+'\nBestand: '+name+'\n')
@@ -800,7 +800,7 @@ test('Atelier: onveilige TXT-bestandsnamen worden geweigerd bij losse, paar- en 
  await page.locator('#pairReportSave').click();
  const reportBytes=await fs.readFile(await (await dl).path());
  const reportFile={name:'rapport.json',mimeType:'application/json',buffer:reportBytes};
- for(const badName of ['bedrieglijk\u202e.txt','een map\\bewijs.txt','a'.repeat(121)+'.txt']){
+ for(const badName of ['bedrieglijk\u202e.txt','verborgen\u200d.txt','richting\u200f.txt','een map\\bewijs.txt','a'.repeat(121)+'.txt']){
    const badTxt={...goodTxt,name:badName};
    await page.locator('#fingerprintReceipt').setInputFiles(badTxt);
    await expect(page.locator('#referenceStatus')).toContainText('Ongeldige of misleidende TXT-bestandsnaam');
@@ -817,7 +817,7 @@ test('Atelier: onveilige TXT-bestandsnamen worden geweigerd bij losse, paar- en 
  await expect(page.locator('#pairReportSave')).toBeEnabled();
  await page.locator('#reportVerify').setInputFiles([jsonFile,reportFile,goodTxt]);
  await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
- for(const badName of ['rapport\u202e.json','folder\\rapport.json',' rapport.json','a'.repeat(121)+'.json']){
+ for(const badName of ['rapport\u202e.json','rapport\u200b.json','rapport\u034f.json','folder\\rapport.json',' rapport.json','a'.repeat(121)+'.json']){
    await page.locator('#reportVerify').setInputFiles([jsonFile,{...reportFile,name:badName},goodTxt]);
    await expect(page.locator('#reportVerifyStatus')).toContainText('Drievoudige controle geweigerd');
    await expect(page.locator('#reportVerifyStatus')).toContainText('Ongeldige of misleidende JSON-bestandsnaam');
