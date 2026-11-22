@@ -563,7 +563,9 @@ $('bundleVerify').addEventListener('change',async event=>{
    status.textContent='Controle afgewezen: '+err.message+'. Er is niets geïmporteerd.';
  }finally{if(revision===dossierRevision)event.target.value='';}
 });
+let importRevision=0;
 $('bundleImport').addEventListener('change',async event=>{
+ const revision=++importRevision;
  const file=event.target.files?.[0];
  if(!file)return;
  try{
@@ -571,6 +573,7 @@ $('bundleImport').addEventListener('change',async event=>{
    if(!api)throw Error('Projectpakket-functie niet geladen');
    if(file.size>150000)throw Error('Bestand groter dan 150 KB');
    const importBytes=await file.arrayBuffer();
+   if(revision!==importRevision)return;
    let importText;
    try{importText=new TextDecoder('utf-8',{fatal:true}).decode(importBytes);}
    catch{throw Error('Projectbestand bevat ongeldige UTF-8-bytes');}
@@ -589,6 +592,7 @@ $('bundleImport').addEventListener('change',async event=>{
     +(inspection.removesExterior?' Exterieur wordt verwijderd.':'')
     +(inspection.removesInterior?' Interieur wordt verwijderd.':'')
     +(inspection.noteChanged?' Ontwerpnotitie wordt vervangen.':'');
+   if(revision!==importRevision)return;
    $('bundleStatus').textContent=description;
    const warning=pendingNote?' LET OP: er staan nog niet-bewaarde notitiewijzigingen in deze pagina.':'';
    if(!confirm(description+' Herstel vervangt je huidige lokale Atelier-ontwerpen. Exporteer eerst je huidige werk als JSON. Wil je doorgaan?'+warning))return;
@@ -597,8 +601,13 @@ $('bundleImport').addEventListener('change',async event=>{
    refresh();
    $('bundleStatus').textContent='Projectpakket lokaal hersteld. Open de editors opnieuw om de gegevens te bekijken.';
    refreshRecoveryInfo();
- }catch(err){$('bundleStatus').textContent='Herstel geweigerd: '+err.message;}
- finally{event.target.value='';}
+ }catch(err){if(revision===importRevision)$('bundleStatus').textContent='Herstel geweigerd: '+err.message;}
+ finally{if(revision===importRevision)event.target.value='';}
+});
+$('bundleImport').addEventListener('cancel',()=>{
+ ++importRevision;
+ $('bundleImport').value='';
+ $('bundleStatus').textContent='Projectimport geannuleerd. Er is niets hersteld.';
 });
 function refreshRecoveryInfo(){
  const api=window.PalacoAtelierBundle;
@@ -802,12 +811,13 @@ $('clearInspections').addEventListener('click',()=>{
  ++pairRevision;
  ++reportVerifyRevision;
  ++dossierRevision;
+ ++importRevision;
  lastExportFingerprint=null;
  lastPairReport=null;
  verifiedFingerprint=null;
  loadedReceiptFilename=null;
  $('expectedFingerprint').value='';
- for(const id of ['checkExportFile','pairVerify','reportVerify','bundleVerify','fingerprintReceipt'])
+ for(const id of ['checkExportFile','pairVerify','reportVerify','bundleVerify','fingerprintReceipt','bundleImport'])
    $(id).value='';
  for(const id of ['exportBundleReceipt','pairReportSave','exportFingerprint'])
    $(id).disabled=true;
