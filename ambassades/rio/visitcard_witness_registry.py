@@ -18,7 +18,7 @@ import sqlite3
 from typing import Any, Mapping
 
 from visitcard_audit_journal import ZERO_HASH
-from visitcard_witness_receipt import DOMAIN as RECEIPT_DOMAIN, _canonical, verify_witness_receipt, WitnessTrust
+from visitcard_witness_receipt import DOMAIN as RECEIPT_DOMAIN, _canonical
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
@@ -124,9 +124,18 @@ def publish(
             "SELECT sequence,entry_hash,receipt_json FROM witness_heads WHERE issuer=?", (issuer,)
         ).fetchone()
         if head is None:
+            orphan = connection.execute(
+                "SELECT 1 FROM witness_entries WHERE issuer=? LIMIT 1", (issuer,)
+            ).fetchone()
+            if orphan is not None:
+                connection.rollback()
+                return None
             if sequence != 1 or prev != ZERO_HASH:
                 connection.rollback()
                 return None
+        elif not audit_witness(connection, issuer):
+            connection.rollback()
+            return None
         elif sequence == head[0] and entry_hash == head[1]:
             receipt = json.loads(head[2])
             connection.commit()
