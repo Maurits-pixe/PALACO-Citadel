@@ -2101,3 +2101,53 @@ test('Atelier v6.43: event zonder lokale opslagbron mag geen lopende import annu
  await page.evaluate(()=>window.pendingUnrelatedStorageImport.shift()());
  await expect(page.locator('#bundleStatus')).not.toContainText('Projectimport onderbroken');
 });
+
+test('Atelier v6.45: ontoegankelijke localStorage-eigenschap behoudt creatieve notitie',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Mijn onopgeslagen atelierontwerp');
+ await page.evaluate(()=>{
+   const event=new StorageEvent('storage',{key:'onbekend',storageArea:localStorage,url:location.href});
+   const descriptor=Object.getOwnPropertyDescriptor(window,'localStorage');
+   Object.defineProperty(window,'localStorage',{configurable:true,get(){throw new DOMException('Blocked','SecurityError');}});
+   try{window.dispatchEvent(event);}
+   finally{
+     if(descriptor)Object.defineProperty(window,'localStorage',descriptor);
+     else delete window.localStorage;
+   }
+ });
+ await expect(page.locator('#statement')).toHaveValue('Mijn onopgeslagen atelierontwerp');
+ await expect(page.locator('#feedback')).toContainText('Opslagmelding niet verwerkt');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('lokaal bewaard');
+});
+
+test('Atelier v6.45: geblokkeerde opslagbron annuleert geen lopende import',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const draft=await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage)));
+ await page.evaluate(()=>{
+   const original=File.prototype.arrayBuffer;
+   window.pendingBlockedStorageImport=[];
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='blocked-storage.json')
+       return new Promise((resolve,reject)=>window.pendingBlockedStorageImport.push(()=>original.call(this).then(resolve,reject)));
+     return original.call(this);
+   };
+ });
+ await page.locator('#bundleImport').setInputFiles({name:'blocked-storage.json',mimeType:'application/json',buffer:Buffer.from(draft)});
+ await expect.poll(()=>page.evaluate(()=>window.pendingBlockedStorageImport.length)).toBe(1);
+ await page.evaluate(()=>{
+   const event=new StorageEvent('storage',{key:null,storageArea:localStorage,url:location.href});
+   const descriptor=Object.getOwnPropertyDescriptor(window,'localStorage');
+   Object.defineProperty(window,'localStorage',{configurable:true,get(){throw new DOMException('Blocked','SecurityError');}});
+   try{window.dispatchEvent(event);}
+   finally{
+     if(descriptor)Object.defineProperty(window,'localStorage',descriptor);
+     else delete window.localStorage;
+   }
+ });
+ await expect(page.locator('#bundleImport')).not.toHaveValue('');
+ await expect(page.locator('#bundleStatus')).not.toContainText('Projectimport onderbroken');
+ page.once('dialog',dialog=>dialog.dismiss());
+ await page.evaluate(()=>window.pendingBlockedStorageImport.shift()());
+ await expect(page.locator('#bundleStatus')).not.toContainText('Projectimport onderbroken');
+});
