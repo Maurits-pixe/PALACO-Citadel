@@ -92,3 +92,13 @@ The private `mundo-atlas-explicit-recovery.ts` now reserves an `inFlight` reques
 `invalidate()` advances the generation and releases the token. The `finally` cleanup for an old promise only releases a token that still belongs to that same request. Consequently, a late completion cannot clear a lock for a new host connection established after explicit invalidation. A late result from a different generation reports `stale`; failing or stale mounts on the current generation still revoke their connection as in extension 020. Reconnection and normal requests do not automatically repeat sources or previous grant decisions.
 
 **Acceptance scenarios not run:** two simultaneous activations; invalidation while verification is pending; reconnect before an old promise settles; old finalizer after new activation; host throwing during activation; failed disposal quarantine; ordinary denial without a host restart. Private host authenticity, session transitions and source verification still require owner acceptance. No tests, merge or Citadel Sites modifications.
+
+## Extension 022 — revocation-first protected world transitions
+
+New private-only module: `08-IMPLEMENTATION/src/citadel/mundo-atlas-world-transition.ts` provides `createAtlasWorldTransition()` and `switchWorld(worldId,kind,createFresh)`.
+
+Before invoking host-controlled asynchronous source creation, it reserves a single-flight switch and synchronously invalidates the previous Atlas supervisor connection. The protected host must supply a **fresh** `ConnectedAtlasHost` and immutable source envelope via `createFresh`. The current recovery supervisor then performs its own connection registration, world/layer source checks, authentication delegation and protected mount lifecycle. The coordinator neither caches nor reconstructs the old world, old permission, or old source. A denied or failed new world activation invalidates the new connection; no rollback to the prior map occurs.
+
+A generation counter ensures that an explicit `beforeContextChange()` or `dispose()` makes an in-progress world transition stale; no old callback may publish an older world as the current one. The coordinator rejects overlapping switch calls and invalid world/layer identifiers. It does not implement, discover or replace the Citadel router; real host event ordering, source immutability and authorization remain required.
+
+**Unexecuted acceptance cases:** switch while old source verification is pending; switch to a denied world; route change while new host registration is pending; duplicate switch; missing source envelope; host callback throws; old view cleanup throws. No private-site deployment, no merge and no functional test evidence; PR #58 remains DRAFT/HOLD.
