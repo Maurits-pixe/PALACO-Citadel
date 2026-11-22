@@ -658,13 +658,14 @@ $('undoImport').addEventListener('click',()=>{
  if(!api)return;
  try{
    const before=api.snapshot(localStorage);
+   const previewedRecovery=localStorage.getItem(api.RECOVERY);
    const record=api.getRecovery(localStorage);
    if(!record){refreshRecoveryInfo();return;}
    const pending=noteValue()!==(before[2]===null?'':before[2]);
    const difference=api.preview(api.read(localStorage),record.draft);
    const warning=pending?' Onopgeslagen tekst in deze pagina gaat verloren.':'';
    if(!confirm('Vorige lokale Atelier-versie terugzetten? '+difference.changed+' vakken veranderen, '+difference.removed+' ingerichte vakken verdwijnen. De huidige opgeslagen versie wordt dan de nieuwe herstelkopie.'+warning))return;
-   api.undoLastImport(localStorage,before);
+   api.undoLastImport(localStorage,before,previewedRecovery);
    $('statement').value=record.draft.note;
    refresh();
    refreshRecoveryInfo();
