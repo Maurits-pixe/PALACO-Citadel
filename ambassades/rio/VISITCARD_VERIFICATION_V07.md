@@ -157,3 +157,24 @@ the issuer and witness would defeat this prototype's independence.
 Operational recovery classification from v1.0 remains informational only.
 Neither a witness signature nor a MATCHED classification grants authorization.
 GO-13 HOLD, no public site integration, no merge or issuance.
+
+## v1.2 — Loopback-only HTTP development adapter (DRAFT / HOLD)
+
+`visitcard_witness_http.py` adds an opt-in HTTP adapter that binds only
+`127.0.0.1` and is never automatically started. The administrator must
+separately initialize the witness database, pin producer public keys and
+provision the witness signing key. Its sole POST endpoint is
+`/v1/witness/receipts`, accepting only a bounded JSON document with a
+valid issuer-signed proposal. All other actions remain unavailable; no
+CORS wildcard, account operations or issuance are exposed.
+
+**This is NOT production-grade network security.** Plain HTTP on loopback
+has no mutual TLS, external transport authentication, rate limiting,
+cross-process key isolation, durable backup attestation or trusted remote
+witness. Never bind to a public interface or use port forwarding.
+Run behind independently managed mTLS/ACLs and an HSM or equivalent
+signing mechanism only after security review.
+
+CI has been configured to reject skipped regression tests, but results
+must be checked before a PASS claim. GO-13 remains HOLD, with no merge,
+no PALACO ONE access and no public RIO website update.
