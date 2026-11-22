@@ -292,3 +292,54 @@ test('outer registry input rejects unexpected symbol properties', () => {
   assert.equal(result.reason,'UNTRUSTED_PIN_INPUT');
   assert.equal(result.authorization,'DENY');
 });
+
+
+test('outer registry request Proxy descriptor is sampled once per field', () => {
+  const data=signed();
+  const validRequest={
+    ...data,pinnedSnapshot:pinned(data.registryBytes),issuerPublicJwk,
+    evaluationTime:'2026-11-22T00:00:00.000Z',reviewerFingerprint
+  };
+  let reads=0;
+  const request=new Proxy(validRequest,{
+    getOwnPropertyDescriptor(target,key){
+      const descriptor=Reflect.getOwnPropertyDescriptor(target,key);
+      if(key==='signatureBase64Url'){
+        reads++;
+        return {...descriptor,value:reads===1?data.signatureBase64Url:'AQID'};
+      }
+      return descriptor;
+    }
+  });
+  const result=checkPinnedRegistrySnapshot(request);
+  assert.equal(reads,1);
+  assert.equal(result.exactSnapshotMatched,true,JSON.stringify(result));
+  assert.equal(result.trust,'NOT_ESTABLISHED');
+  assert.equal(result.authorization,'DENY');
+  assert.equal(result.releaseAllowed,false);
+});
+
+test('first-read tampered outer signature stays denied despite later valid value', () => {
+  const data=signed();
+  const validRequest={
+    ...data,pinnedSnapshot:pinned(data.registryBytes),issuerPublicJwk,
+    evaluationTime:'2026-11-22T00:00:00.000Z',reviewerFingerprint
+  };
+  let reads=0;
+  const request=new Proxy(validRequest,{
+    getOwnPropertyDescriptor(target,key){
+      const descriptor=Reflect.getOwnPropertyDescriptor(target,key);
+      if(key==='signatureBase64Url'){
+        reads++;
+        return {...descriptor,value:reads===1?'AQID':data.signatureBase64Url};
+      }
+      return descriptor;
+    }
+  });
+  const result=checkPinnedRegistrySnapshot(request);
+  assert.equal(reads,1);
+  assert.equal(result.exactSnapshotMatched,false);
+  assert.equal(result.reason,'REGISTRY_INVALID_SIGNATURE_ENCODING');
+  assert.equal(result.authorization,'DENY');
+  assert.equal(result.releaseAllowed,false);
+});
