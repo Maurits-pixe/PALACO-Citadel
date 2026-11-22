@@ -28,6 +28,39 @@ BEGIN
     RAISE EXCEPTION 'FAIL: expected enabled HOLD triggers are missing';
   END IF;
 
+  -- A correctly named trigger can still silently lose protection if its
+  -- event mask changes. Assert the exact BEFORE/ROW/STATEMENT event masks.
+  -- PostgreSQL tgtype bits: ROW=1, BEFORE=2, INSERT=4, DELETE=8,
+  -- UPDATE=16, TRUNCATE=32.
+  IF EXISTS (
+    SELECT 1 FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid
+      JOIN pg_namespace n ON n.oid=c.relnamespace
+    WHERE n.nspname='citadel_pin_draft' AND NOT t.tgisinternal
+      AND (
+        (c.relname='pin_history' AND t.tgname='pin_history_no_insert'
+          AND t.tgtype <> 7)
+        OR (c.relname='pin_history' AND t.tgname='pin_history_no_mutation'
+          AND t.tgtype <> 27)
+        OR (c.relname='pin_history' AND t.tgname='pin_history_no_truncate'
+          AND t.tgtype <> 34)
+        OR (c.relname='pin_state' AND t.tgname='pin_state_no_write'
+          AND t.tgtype <> 31)
+        OR (c.relname='pin_state' AND t.tgname='pin_state_no_truncate'
+          AND t.tgtype <> 34)
+      )
+  ) THEN
+    RAISE EXCEPTION 'FAIL: HOLD trigger event mask drift';
+  END IF;
+  IF (SELECT count(*) FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid
+      JOIN pg_namespace n ON n.oid=c.relnamespace
+    WHERE n.nspname='citadel_pin_draft' AND NOT t.tgisinternal
+      AND t.tgname IN ('pin_history_no_insert','pin_history_no_mutation',
+        'pin_history_no_truncate','pin_state_no_write','pin_state_no_truncate')
+      AND t.tgtype IN (7,27,31,34)
+  ) <> 5 THEN
+    RAISE EXCEPTION 'FAIL: HOLD trigger event contracts incomplete';
+  END IF;
+
   -- HOLD is not just a runtime exception: no RLS policy may implicitly
   -- grant read/write access, and the guard routines must remain invoker-only.
   IF EXISTS (
