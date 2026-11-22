@@ -197,11 +197,16 @@ $('bundleSave').addEventListener('click',async ()=>{
 function isWindowsReservedFilename(name){
  return /^(?:con|prn|aux|nul|com[1-9¹²³]|lpt[1-9¹²³])(?:\.|$)/i.test(name);
 }
+function hasAmbiguousExtensionSeparator(name){
+ // Disallow a dangling space or extra dot directly before a recognized suffix.
+ return /[ .]\.(?:json|txt)$/i.test(name);
+}
 function safeProjectFilename(name){
  if(typeof name!=='string'||name.length===0||name.length>120||
    name!==name.trim()||name==='.'||name==='..'||
    /[\\/<>:"|?*\x00-\x1f\x7f\u00ad\u034f\u061c\u180e\u200b-\u200f\u202a-\u202e\u2060\u2066-\u206f\ufeff]/.test(name)||
    isWindowsReservedFilename(name)||
+   hasAmbiguousExtensionSeparator(name)||
    !/\.json$/i.test(name))
    throw Error('Ongeldige of misleidende JSON-bestandsnaam');
  return name;
@@ -211,6 +216,7 @@ function safeReceiptFilename(name){
    name!==name.trim()||name==='.'||name==='..'||
    /[\\/<>:"|?*\x00-\x1f\x7f\u00ad\u034f\u061c\u180e\u200b-\u200f\u202a-\u202e\u2060\u2066-\u206f\ufeff]/.test(name)||
    isWindowsReservedFilename(name)||
+   hasAmbiguousExtensionSeparator(name)||
    !/\.txt$/i.test(name))
    throw Error('Ongeldige of misleidende TXT-bestandsnaam');
  return name;
