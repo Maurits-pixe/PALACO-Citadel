@@ -1462,3 +1462,59 @@ test("cross-tab vault update revokes consent but unrelated storage keys do not",
  assert.equal(await a.locator("#count").innerText(),"1");
  await c.close();
 });
+
+test("handoff refuses cross-tab draft mutation even when storage event delivery is suppressed",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true,acceptDownloads:true});
+ const a=await c.newPage(),b=await c.newPage();
+ await a.addInitScript(()=>window.addEventListener("storage",e=>{
+  if(e.key==="palaco.citadel.geheugenkamer.v1")e.stopImmediatePropagation();
+ },true));
+ await a.goto(base+"/DOCS/la-geheugenkamer/");
+ await b.goto(base+"/DOCS/la-geheugenkamer/");
+ await a.locator("#title").fill("Cross-tab stille wijziging");
+ await a.locator("#who").fill("W");await a.locator("#what").fill("Synthetisch");
+ await a.locator("#entryForm button[type=submit]").tap();
+ await a.locator("#timeline button").filter({hasText:"Inspecteer dossier"}).tap();
+ await a.locator("#handoffConsent").check();
+ await a.evaluate(()=>{
+  window.__downloadCount=0;
+  const click=HTMLAnchorElement.prototype.click;
+  HTMLAnchorElement.prototype.click=function(...args){window.__downloadCount++;return click.apply(this,args)};
+ });
+ await b.evaluate(()=>localStorage.setItem("palaco.citadel.geheugenkamer.v1","tweede-tab-stale-draft"));
+ assert.equal(await a.locator("#dossier").isVisible(),true,"Suppressed event must leave inspector open until export guard");
+ await a.locator("#contractExport").tap();
+ assert.match(await a.locator("#message").innerText(),/apparaatopslag gewijzigd sinds dossierselectie/);
+ assert.equal(await a.evaluate(()=>window.__downloadCount),0);
+ assert.equal(await a.locator("#dossier").isVisible(),false);
+ assert.equal(await a.locator("#handoffConsent").isChecked(),false);
+ assert.equal(await a.evaluate(()=>document.activeElement.id),"timeline");
+ await c.close();
+});
+
+test("dossier export refuses changed vault without delivered storage event",async()=>{
+ const c=await browser.newContext({viewport:{width:390,height:844},acceptDownloads:true});
+ const a=await c.newPage(),b=await c.newPage();
+ await a.addInitScript(()=>window.addEventListener("storage",e=>{
+  if(e.key==="palaco.citadel.geheugenkamer.vault.v1")e.stopImmediatePropagation();
+ },true));
+ await a.goto(base+"/DOCS/la-geheugenkamer/");
+ await b.goto(base+"/DOCS/la-geheugenkamer/");
+ await a.locator("#title").fill("Dossier en stille kluiswijziging");
+ await a.locator("#who").fill("W");await a.locator("#what").fill("Synthetisch");
+ await a.locator("#entryForm button[type=submit]").click();
+ await a.locator("#timeline button").filter({hasText:"Inspecteer dossier"}).click();
+ await a.evaluate(()=>{
+  window.__downloadCount=0;
+  const click=HTMLAnchorElement.prototype.click;
+  HTMLAnchorElement.prototype.click=function(...args){window.__downloadCount++;return click.apply(this,args)};
+ });
+ await b.evaluate(()=>localStorage.setItem("palaco.citadel.geheugenkamer.vault.v1","tweede-tab-stale-vault"));
+ assert.equal(await a.locator("#dossier").isVisible(),true);
+ await a.locator("#dossierExport").click();
+ assert.match(await a.locator("#message").innerText(),/apparaatopslag gewijzigd sinds dossierselectie/);
+ assert.equal(await a.evaluate(()=>window.__downloadCount),0);
+ assert.equal(await a.locator("#dossier").isVisible(),false);
+ assert.equal(await a.evaluate(()=>document.activeElement.id),"timeline");
+ await c.close();
+});
