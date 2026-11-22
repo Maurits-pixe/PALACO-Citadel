@@ -249,3 +249,11 @@ Nieuwe private ontwikkelmodule `08-IMPLEMENTATION/src/citadel/mundo-atlas-decisi
 **Geen bewijs van authenticiteit:** deze in-memory structuur is niet digitaal ondertekend, niet duurzaam opgeslagen, niet versleuteld en niet beschermd tegen volledige herschrijving. Actor- en bewijsreferenties zijn onbetrouwbare claims totdat de echte host ze onafhankelijk verifieert. De openbare Atlas krijgt uitsluitend het verklarende paneel **Besluitregister 030**, zonder werkelijke persoonsgegevens, beslissingen, privésessies of uitvoeringsrechten.
 
 De acceptatiepoort 029 blijft onvoorwaardelijk HOLD; originele Citadel Sites-app ongewijzigd, PR #58 DRAFT/HOLD, geen merge, geen functionele tests en geen productievrijgave.
+
+## MUNDO-CRYPTO-CHAIN-031 — cryptografische verificatie met onafhankelijke verankering
+
+De nieuwe private ontwikkelmodule `08-IMPLEMENTATION/src/citadel/mundo-atlas-crypto-chain.ts` bereidt de cryptografische beoordeling van besluitregister 030 voor. De ketencontrole vereist een canonieke besluitinhoud, opeenvolgende domeingescheiden SHA-256-hashes, Ed25519-handtekeningen per besluit met een onafhankelijk vertrouwde ondertekenaarsrol en een extern vastgelegde, anti-rollback beschermde eindhash. De module accepteert geen extra niet-ondertekende inhoud en geeft een expliciete verificatiefout als de keten afwijkingen bevat.
+
+Er is nog geen echte cryptografische provider, sleutellijst, onafhankelijke vertrouwensbron of geverifieerde besluitketen aangesloten. Een door een willekeurige caller verstrekte verifier is geen bewijs van echtheid. De code geeft bij ontbrekende vertrouwensvoorzieningen geen positieve verificatie en bij elke uitkomst **autorisatie DENY / HOLD**. De publieke Atlas toont uitsluitend het verklarende paneel **Cryptografische keten 031**.
+
+De oorspronkelijke privé-Citadel is niet gewijzigd, PR #58 DRAFT/HOLD, geen merge, geen functionele tests en geen productieautorisatie.
