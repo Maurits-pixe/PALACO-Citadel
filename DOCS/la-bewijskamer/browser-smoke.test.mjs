@@ -1431,7 +1431,7 @@ test("cross-tab draft storage update closes selected dossier and revokes handoff
  await a.locator("#timeline button").filter({hasText:"Inspecteer dossier"}).tap();
  await a.locator("#handoffConsent").check();
  await b.evaluate(()=>localStorage.setItem("palaco.citadel.geheugenkamer.v1","wijziging-andere-tab"));
- await a.waitForFunction(()=>document.querySelector("#message").textContent.includes("Apparaatopslag elders gewijzigd"));
+ await a.waitForFunction(()=>document.querySelector("#message").textContent.includes("andere tab gewijzigd"));
  assert.equal(await a.locator("#dossier").isVisible(),false);
  assert.equal(await a.locator("#handoffConsent").isChecked(),false);
  assert.equal(await a.evaluate(()=>document.activeElement.id),"timeline");
