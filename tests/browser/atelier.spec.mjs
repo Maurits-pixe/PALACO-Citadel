@@ -2293,3 +2293,59 @@ test('Atelier v6.51: ongewijzigde notitie tijdens bevestiging kan normaal worden
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Nieuwe geïmporteerde ontwerpnotitie');
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).not.toBeNull();
 });
+
+test('Atelier v6.55: programmatische wijziging van onopgeslagen editor tijdens bestandslezing blokkeert import',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const draft=await page.evaluate(()=>JSON.stringify(
+   window.PalacoAtelierBundle.create(null,null,'Notitie uit projectbestand')
+ ));
+ await page.locator('#statement').fill('Mijn oorspronkelijke onopgeslagen tekening');
+ await page.evaluate(()=>{
+   const original=File.prototype.arrayBuffer;
+   window.pendingSilentNoteImport=[];
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='stille-notitiewijziging.json')
+       return new Promise((resolve,reject)=>window.pendingSilentNoteImport.push(()=>original.call(this).then(resolve,reject)));
+     return original.call(this);
+   };
+ });
+ await page.locator('#bundleImport').setInputFiles({
+   name:'stille-notitiewijziging.json',mimeType:'application/json',buffer:Buffer.from(draft)
+ });
+ await expect.poll(()=>page.evaluate(()=>window.pendingSilentNoteImport.length)).toBe(1);
+ await page.evaluate(()=>{
+   // Setting textarea.value through JavaScript does not dispatch input.
+   document.getElementById('statement').value='Mijn nieuwere onopgeslagen tekening';
+ });
+ await page.evaluate(()=>window.pendingSilentNoteImport.shift()());
+ await expect(page.locator('#bundleStatus')).toContainText('Onopgeslagen ontwerpnotitie gewijzigd tijdens het lezen');
+ await expect(page.locator('#statement')).toHaveValue('Mijn nieuwere onopgeslagen tekening');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBeNull();
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
+});
+
+test('Atelier v6.55: ongewijzigde onopgeslagen notitie laat importvoorstel toe',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const draft=await page.evaluate(()=>JSON.stringify(
+   window.PalacoAtelierBundle.create(null,null,'Nieuwe notitie uit projectbestand')
+ ));
+ await page.locator('#statement').fill('Mijn lokale onopgeslagen notitie');
+ await page.evaluate(()=>{
+   const original=File.prototype.arrayBuffer;
+   window.pendingUnchangedNoteImport=[];
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='ongewijzigde-notitie.json')
+       return new Promise((resolve,reject)=>window.pendingUnchangedNoteImport.push(()=>original.call(this).then(resolve,reject)));
+     return original.call(this);
+   };
+ });
+ page.once('dialog',dialog=>dialog.dismiss());
+ await page.locator('#bundleImport').setInputFiles({
+   name:'ongewijzigde-notitie.json',mimeType:'application/json',buffer:Buffer.from(draft)
+ });
+ await expect.poll(()=>page.evaluate(()=>window.pendingUnchangedNoteImport.length)).toBe(1);
+ await page.evaluate(()=>window.pendingUnchangedNoteImport.shift()());
+ await expect(page.locator('#bundleStatus')).toContainText('DRAFT-pakket');
+ await expect(page.locator('#statement')).toHaveValue('Mijn lokale onopgeslagen notitie');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
+});
