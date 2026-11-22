@@ -570,7 +570,8 @@ $('bundleImport').addEventListener('change',async event=>{
    const api=window.PalacoAtelierBundle;
    if(!api)throw Error('Projectpakket-functie niet geladen');
    if(file.size>150000)throw Error('Bestand groter dan 150 KB');
-   const importText=await file.text();
+   const importBytes=await file.arrayBuffer();
+   const importText=new TextDecoder('utf-8',{fatal:true}).decode(importBytes);
    parseUniqueTopLevelJson(importText);
    const pack=api.parse(importText);
    const ex=pack.exterior?pack.exterior.name:'geen exterieur';
