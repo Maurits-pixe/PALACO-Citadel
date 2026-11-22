@@ -138,3 +138,48 @@ test('non-base64url and undersized anchor signatures remain denied',()=>{
    assert.equal(result.executionAllowed,false);
  }
 });
+
+
+test('audit anchor public JWK getter is not executed',()=>{
+ const input=setup();
+ const malicious={...input.anchorPublicJwk};
+ let getterCalls=0;
+ Object.defineProperty(malicious,'x',{enumerable:true,configurable:true,
+   get(){getterCalls++;throw Error('hostile coordinate getter');}
+ });
+ const r=inspectSignedAuditHeadAnchor({...input,anchorPublicJwk:malicious});
+ assert.equal(getterCalls,0);
+ assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('audit anchor JWK Proxy descriptor is read once for fingerprint and verification',()=>{
+ const input=setup();
+ let reads=0;
+ const mutable=new Proxy({...input.anchorPublicJwk},{
+   getOwnPropertyDescriptor(target,key){
+     const d=Reflect.getOwnPropertyDescriptor(target,key);
+     if(key==='x'){
+       reads++;
+       return {...d,value:reads===1?input.anchorPublicJwk.x:'AAAAAAAA'};
+     }
+     return d;
+   }
+ });
+ const r=inspectSignedAuditHeadAnchor({...input,anchorPublicJwk:mutable});
+ assert.equal(reads,1);
+ assert.equal(r.anchoredLedgerMatched,true,JSON.stringify(r));
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('audit anchor JWK rejects unexpected symbol fields',()=>{
+ const input=setup();
+ const key={...input.anchorPublicJwk,[Symbol('unexpected')]:'value'};
+ const r=inspectSignedAuditHeadAnchor({...input,anchorPublicJwk:key});
+ assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+});
