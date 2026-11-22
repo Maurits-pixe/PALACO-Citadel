@@ -28,12 +28,13 @@ const reject = reason => ({
  * fingerprint MUST be obtained from a protected independent channel.
  * Caller-supplied trust evidence cannot establish actual independence.
  */
-export function inspectSignedAuditHeadAnchor({
-  anchorBytes, signatureBase64Url, anchorPublicJwk,
-  expectedAnchorKeyFingerprint, genesisPin, entries, currentPin,
-  minimumAnchorSequence
-} = {}) {
+export function inspectSignedAuditHeadAnchor(input = {}) {
   try {
+    const {
+      anchorBytes, signatureBase64Url, anchorPublicJwk,
+      expectedAnchorKeyFingerprint, genesisPin, entries, currentPin,
+      minimumAnchorSequence
+    } = input;
     if (!(anchorBytes instanceof Uint8Array) || !anchorBytes.length ||
       anchorBytes.length > 8192 || !Array.isArray(entries) ||
       !pinOK(genesisPin) || !pinOK(currentPin) ||
