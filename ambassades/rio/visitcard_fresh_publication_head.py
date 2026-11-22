@@ -102,6 +102,7 @@ def audit_fresh_head(
         ).fetchone()
         if not rows or head!=rows[-1] or len(rows)>2:
             return False
+        previous="0"*64
         for i,(count,digest,packed) in enumerate(rows,1):
             if count!=i or not _hex(digest):
                 return False
@@ -113,6 +114,9 @@ def audit_fresh_head(
                 event_count=count,seal_sha256=digest
             ):
                 return False
+            if receipt["payload"]["previous_seal_sha256"]!=previous:
+                return False
+            previous=digest
         return True
     except (sqlite3.Error,ValueError,TypeError,KeyError,AttributeError):
         return False
@@ -161,7 +165,7 @@ def retain_published_head(
             if p["previous_seal_sha256"]!=head[1]:
                 db.rollback()
                 return False
-        elif count!=1:
+        elif count!=1 or p["previous_seal_sha256"]!="0"*64:
             db.rollback()
             return False
         db.execute(
