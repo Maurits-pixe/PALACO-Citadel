@@ -118,6 +118,12 @@ function saveNote(){
    }
    const value=noteValue();
    localStorage.setItem(NOTE,value);
+   // Local storage may silently reject a write (or be changed by another tab).
+   // Only acknowledge a save after verifying the exact stored text.
+   if(localStorage.getItem(NOTE)!==value){
+     $('feedback').textContent='Opslaan niet bevestigd: de opgeslagen notitie wijkt af van jouw tekst. Je bewerking blijft zichtbaar; exporteer of vergelijk de versies.';
+     return;
+   }
    noteBaseline=value;
    $('feedback').textContent='Ontwerpnotitie lokaal bewaard.';
  }catch{$('feedback').textContent='Lokale notitie kon niet worden bewaard. Exporteer je dossier.';}
