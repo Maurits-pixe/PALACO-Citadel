@@ -81,6 +81,9 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/verschillende JSON-bestandsnamen hebben/);
   assert.match(read('regiekamer.html'),/function safeReceiptFilename\(name\)/);
   assert.match(read('regiekamer.html'),/function isWindowsReservedFilename\(name\)/);
+  assert.match(read('regiekamer.html'),/function hasAmbiguousExtensionSeparator\(name\)/);
+  assert.match(read('regiekamer.html'),/hasAmbiguousExtensionSeparator\(name\)/);
+  assert.match(read('regiekamer.html'),/return \/\[ \.\]\\\.\(\?:json\|txt\)\$\/i\.test\(name\)/);
   assert.match(read('regiekamer.html'),/isWindowsReservedFilename\(name\)/);
   assert.match(read('regiekamer.html'),/com\[1-9¹²³\]/);
   assert.match(read('regiekamer.html'),/lpt\[1-9¹²³\]/);
