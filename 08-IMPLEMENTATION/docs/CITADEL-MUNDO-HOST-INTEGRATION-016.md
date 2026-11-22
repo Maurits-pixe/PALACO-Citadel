@@ -55,3 +55,11 @@ The adapter invokes this callback both **before** rendering and **after** DOM mo
 **Compatibility:** this is an intentional stricter host interface. Any future integration of `connectAtlasProtectedContainer` must supply the additional callback; absent callbacks cause construction to fail. This is not a working authentication or ownership verifier without the actual Citadel host.
 
 **Acceptance:** untested / HOLD. No modifications to the private Citadel Sites application; no merge or real user session handling. The public Atlas only documents the safeguard.
+
+## Extension 018 — unknown-event terminal recovery boundary
+
+The private `mundo-atlas-host-contract.ts` no longer normalizes unexpected context event values to a recoverable session-change notification. Any unknown event terminates the connection: the lifecycle is revoked, its event subscription is released (if installed) and `activate()` is thereafter permanently stale. The real host must explicitly construct a new integration after independently checking the new protected context.
+
+Known events still revoke the current view while allowing a separate subsequent host-authorized activation. An event observed during subscription makes registration fail and tears down the provisional bridge. Error paths still rely on the host honoring synchronous and atomic subscription/disposal requirements; software cannot guarantee that malicious or defective host callbacks have actually removed their own DOM/listeners.
+
+**Owner acceptance scenarios not executed:** unknown event after active mount; unknown event during registration; known event during in-flight source verification; event callback reentrancy; release callback throwing; stale requests after terminal closure. No production authentication claims, functional acceptance or private Sites changes.
