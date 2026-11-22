@@ -96,3 +96,34 @@ race/recovery testing, GO-13 remains HOLD.
 
 Ten new tests have been added for chain continuity and witness mismatches;
 these tests need actual CI execution before any PASS claim.
+
+## v1.0 — Independent signed witness receipt and recovery classification (DRAFT / HOLD)
+
+`visitcard_witness_receipt.py` defines a domain-separated Ed25519 witness
+receipt with version, issuer, monotone sequence, journal head hash, UTC observation
+time, witness key ID and detached signature. Trust anchors must be pinned out of
+band; the credential, QR, URL, or receipt cannot select new trust anchors.
+
+Use `verify_and_reconcile(connection, envelope, trust, expected_issuer=..., now=...)`
+as the verification-first interface; do not call `reconcile_witness` with a
+caller-fabricated `VerifiedReceipt`. The result is **not** an authentication
+or access-control decision. Possible recovery classifications are:
+- `UNKNOWN`: missing, malformed, stale, untrusted or invalid receipt/local chain.
+- `MATCHED`: local journal head matches a correctly signed witness receipt.
+- `LOCAL_AHEAD_PENDING_WITNESS`: the local chain extends the witnessed prefix
+  but has not yet received an independently authenticated acknowledgment.
+- `LOCAL_BEHIND_ROLLBACK_SUSPECTED`: witness sequence exceeds local sequence.
+- `FORK_CONFLICT`: mismatched hash at an allegedly common checkpoint.
+
+This implementation **does not provide a remote witness service** and does not
+persist a trusted witness high-water mark. A replayed older but still time-valid
+signed receipt can be classified as pending publication unless the caller
+independently maintains the highest witnessed sequence; production must never
+interpret that state as safe. Durable external monotonicity and independent
+authenticated witness communication remain mandatory before release.
+
+A witness that verifies a signature but is controlled by the same database
+administrator does not provide independent rollback protection. Add an
+audited authority model, authenticated time/sequence publication, challenge
+and response, network outage and crash recovery tests, and trusted witness
+reconciliation before considering deployment. **GO-13 HOLD.**
