@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from enum import Enum
 import sqlite3
 
+from visitcard_recovery_claims import claim_recovery, release_recovery
 from visitcard_witness_client import DeliveryState, submit_local_witness
 from visitcard_witness_outbox import pending_request, acknowledge, outbox_status
 from visitcard_witness_receipt import WitnessTrust
@@ -41,25 +42,34 @@ def recover_once(
         return RecoveryResult.UNKNOWN
     if db.in_transaction:
         return RecoveryResult.UNKNOWN
-    current = outbox_status(db, issuer, sequence)
-    if current == "ACKNOWLEDGED":
-        return RecoveryResult.ACKNOWLEDGED
-    if current != "PENDING":
+    token = claim_recovery(db, issuer, sequence)
+    if token is None:
+        # Missing schema, conflict or crash-persisted claim: fail closed.
         return RecoveryResult.UNKNOWN
-    immutable = pending_request(db, issuer, sequence)
-    if immutable is None:
+    try:
+        current = outbox_status(db, issuer, sequence)
+        if current == "ACKNOWLEDGED":
+            return RecoveryResult.ACKNOWLEDGED
+        if current != "PENDING":
+            return RecoveryResult.UNKNOWN
+        immutable = pending_request(db, issuer, sequence)
+        if immutable is None:
+            return RecoveryResult.UNKNOWN
+        delivery = submit_local_witness(
+            immutable, trust, expected_issuer=issuer,
+            host=host, port=port, timeout_seconds=timeout_seconds,
+        )
+        if delivery.state == DeliveryState.PENDING:
+            return RecoveryResult.PENDING
+        if delivery.state == DeliveryState.REJECTED:
+            # Keep immutable outbox record pending for manual conflict review.
+            return RecoveryResult.REJECTED
+        if delivery.state != DeliveryState.ACKNOWLEDGED or delivery.receipt_envelope is None:
+            return RecoveryResult.UNKNOWN
+        if acknowledge(db, issuer, sequence, delivery.receipt_envelope, trust):
+            return RecoveryResult.ACKNOWLEDGED
         return RecoveryResult.UNKNOWN
-    delivery = submit_local_witness(
-        immutable, trust, expected_issuer=issuer,
-        host=host, port=port, timeout_seconds=timeout_seconds,
-    )
-    if delivery.state == DeliveryState.PENDING:
-        return RecoveryResult.PENDING
-    if delivery.state == DeliveryState.REJECTED:
-        # Keep immutable outbox record pending for manual conflict review.
-        return RecoveryResult.REJECTED
-    if delivery.state != DeliveryState.ACKNOWLEDGED or delivery.receipt_envelope is None:
-        return RecoveryResult.UNKNOWN
-    if acknowledge(db, issuer, sequence, delivery.receipt_envelope, trust):
-        return RecoveryResult.ACKNOWLEDGED
-    return RecoveryResult.UNKNOWN
+    finally:
+        # A process crash leaves its claim for manual witness reconciliation.
+        # Normal return or handled failure releases only this caller's claim.
+        release_recovery(db, issuer, sequence, token)
