@@ -2311,3 +2311,30 @@ test('rc42 reviewer registry refuses oversized JSON',async ({page})=>{
  await page.locator('#verifyReceiptSignerReview').click();
  await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
 });
+
+
+test('rc42 signed reviewer registry rejects duplicate JSON role keys even when values match',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ const registry=await reviewerRegistryFixture(page,review.declaration);
+ const raw=JSON.stringify(registry.signed).replace('"role":"receipt-reviewer"','"role":"receipt-reviewer","role":"receipt-reviewer"');
+ await page.locator('#receiptReviewerRegistryIssuer').fill(JSON.stringify(registry.issuer));
+ await page.locator('#receiptReviewerRegistry').setInputFiles({name:'duplicate-role.json',mimeType:'application/json',buffer:Buffer.from(raw)});
+ await page.locator('#requireReviewerRegistry').check();
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
+
+test('rc42 signed reviewer registry rejects unicode-escaped duplicate key spelling',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ const registry=await reviewerRegistryFixture(page,review.declaration);
+ const raw=JSON.stringify(registry.signed).replace('"role":"receipt-reviewer"','"role":"receipt-reviewer","\\u0072ole":"receipt-reviewer"');
+ await page.locator('#receiptReviewerRegistryIssuer').fill(JSON.stringify(registry.issuer));
+ await page.locator('#receiptReviewerRegistry').setInputFiles({name:'unicode-duplicate.json',mimeType:'application/json',buffer:Buffer.from(raw)});
+ await page.locator('#requireReviewerRegistry').check();
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
