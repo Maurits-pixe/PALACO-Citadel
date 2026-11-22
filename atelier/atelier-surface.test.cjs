@@ -424,7 +424,23 @@ test('Atelier storage listener ignores unrelated storage areas before any mutati
  assert.ok(begin>=0&&end>begin);
  const listener=html.slice(begin,end);
  const check=listener.indexOf('if(e.storageArea!==localStorage)return;');
+ const safety=listener.indexOf('catch{',check);
+ const warning=listener.indexOf('Opslagmelding niet verwerkt',safety);
+ assert.ok(safety>check&&warning>safety&&listener.indexOf('return;',warning)>warning);
  const importGate=listener.indexOf('if((e.key===null||[EX,IN,NOTE].includes(e.key))');
  const refresh=listener.indexOf('refreshRecoveryInfo()');
  assert.ok(check>=0&&importGate>check&&refresh>check);
+});
+
+
+test('Atelier inaccessible storage area is handled before import invalidation',()=>{
+ const html=read('regiekamer.html');
+ const begin=html.lastIndexOf("window.addEventListener('storage',e=>{");
+ const end=html.indexOf("\n});",begin);
+ assert.ok(begin>=0&&end>begin);
+ const listener=html.slice(begin,end);
+ const guard=listener.indexOf('try{if(e.storageArea!==localStorage)return;}');
+ const warning=listener.indexOf('Opslagmelding niet verwerkt');
+ const importGate=listener.indexOf('if((e.key===null||[EX,IN,NOTE].includes(e.key))');
+ assert.ok(guard>=0&&warning>guard&&importGate>warning);
 });
