@@ -154,6 +154,7 @@ const minimalKeys=['sequence','category','conceptualArea','verification','record
 const fullKeys=['id','title','category','conceptualArea','verification','description','observedAt'];
 function exactFields(record,allowed){return Object.keys(record).length===allowed.length&&Object.keys(record).every(key=>allowed.includes(key))}
 let ticket=0,currentPacket=null,signatureRevision=0,pinCandidate=null,rotationRevision=0,rotationAudit=null,auditCheckRevision=0,auditPinCandidate=null,auditIssuerCandidate=null,issuerRotationRevision=0,issuerRevokeRevision=0,issuerRevokeCandidate=null,issuerReceiptRevision=0,issuerReceiptSignerCandidate=null,receiptSignerReviewRevision=0;
+let reviewerVerifiedSignerFingerprint=null;
 const PIN_PREFIX='palaco.citadel.revocation-pin.v1.';
 function readPin(raw){if(raw===null)return null;let v;try{v=JSON.parse(raw)}catch{v=raw}if(typeof v==='string'){if(!/^\d{4}-\d{2}-\d{2}T/.test(v)||!Number.isFinite(Date.parse(v)))throw Error('Ongeldige oudere pin');return {issuedAt:v,digest:null}}if(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).sort().join(',')!=='digest,issuedAt'||typeof v.issuedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(v.issuedAt)||!Number.isFinite(Date.parse(v.issuedAt))||typeof v.digest!=='string'||!/^[a-f0-9]{64}$/.test(v.digest))throw Error('Ongeldig lokaal pincontract');return v}
 function invalidatePin(){pinCandidate=null;$('pinRevocation').disabled=true}
@@ -697,6 +698,7 @@ $('verifyReceiptSignerReview').addEventListener('click',async()=>{
   // Never publish an earlier crypto result against a replaced/removed signer pin.
   if(id!==ticket||revision!==receiptSignerReviewRevision)return;
   if(receiptSignerPin(localStorage.getItem(RECEIPT_SIGNER_PIN_KEY))!==signerFp)throw Error('Ondertekenaarspinning gewijzigd tijdens beoordeling');
+  reviewerVerifiedSignerFingerprint=signerFp;
   $('receiptSignerReviewStatus').textContent='BEWIJSSLEUTELBEOORDELING DUBBEL CRYPTOGRAFISCH GELDIG (epoch '+declaration.epoch+'); '+(registryFile?'REVIEWERSREGISTER CRYPTOGRAFISCH GELDIG MAAR NIET ONAFHANKELIJK VERTROUWD; ':'')+'REVIEWER NIET ONAFHANKELIJK VERTROUWD. GEEN ROLTOEWIJZING. Geen PALACO-autorisatie.';
  }catch{if(id===ticket&&revision===receiptSignerReviewRevision)$('receiptSignerReviewStatus').textContent='BEWIJSSLEUTELBEOORDELING AFGEWEZEN. Geen PALACO-autorisatie.'}
 });
@@ -713,7 +715,7 @@ window.addEventListener('focus',()=>{
  try{
   // A focus recheck is conservative: no successful result is retained without
   // a currently parseable pin; identity matching is checked on next verification.
-  if(!receiptSignerPin(localStorage.getItem(RECEIPT_SIGNER_PIN_KEY)))throw Error('Pin ontbreekt');
+  if(receiptSignerPin(localStorage.getItem(RECEIPT_SIGNER_PIN_KEY))!==reviewerVerifiedSignerFingerprint)throw Error('Pin gewijzigd');
  }catch{
   receiptSignerReviewRevision++;
   status.textContent='Lokale sleutelregistratie niet geldig; opnieuw controleren vereist. Geen PALACO-autorisatie.';
