@@ -14,7 +14,8 @@ from visitcard_anchor_custody import _receipt
 from visitcard_anchor_highwater import initialize_highwater,store_confirmed_receipt
 from visitcard_checkpoint_witness import (
     initialize_checkpoint_witness,attest_checkpoint,
-    verify_checkpoint,compare_checkpoint,CheckpointState
+    verify_checkpoint,compare_checkpoint,CheckpointState,
+    audit_checkpoint_history,compare_checkpoint_history
 )
 
 NOW=datetime(2026,11,22,12,tzinfo=timezone.utc)
@@ -138,6 +139,86 @@ class CheckpointWitnessTests(unittest.TestCase):
         self.attest()
         with self.assertRaises(sqlite3.DatabaseError):
             self.third.execute("DELETE FROM rio_checkpoint_witness_history")
+
+    def test_full_history_valid_after_two_steps(self):
+        self.assertIsNotNone(self.attest())
+        self.assertIsNotNone(self.attest(self.second))
+        self.assertTrue(audit_checkpoint_history(
+            self.third,ISSUER,NONCE,self.witness_keys))
+
+    def test_removed_history_entry_blocks_advancement(self):
+        self.assertIsNotNone(self.attest())
+        self.third.execute("DROP TRIGGER rio_checkpoint_history_no_delete")
+        self.third.execute("DELETE FROM rio_checkpoint_witness_history")
+        self.assertFalse(audit_checkpoint_history(
+            self.third,ISSUER,NONCE,self.witness_keys))
+        self.assertIsNone(self.attest(self.second))
+
+    def test_forged_history_checkpoint_is_detected(self):
+        self.assertIsNotNone(self.attest())
+        self.third.execute("DROP TRIGGER rio_checkpoint_history_no_update")
+        self.third.execute(
+            "UPDATE rio_checkpoint_witness_history SET events_sha256=?",
+            ("f"*64,)
+        )
+        self.assertFalse(audit_checkpoint_history(
+            self.third,ISSUER,NONCE,self.witness_keys))
+        self.assertIsNone(self.attest(self.second))
+
+    def test_history_requires_independently_pinned_key(self):
+        self.assertIsNotNone(self.attest())
+        self.assertFalse(audit_checkpoint_history(
+            self.third,ISSUER,NONCE,{}))
+
+    def test_matching_external_checkpoint_history(self):
+        external=self.attest()
+        self.assertEqual(compare_checkpoint_history(
+            self.third,external,self.witness_keys,issuer=ISSUER,nonce=NONCE
+        ),CheckpointState.MATCHED)
+
+    def test_external_head_detects_older_restored_witness(self):
+        self.assertIsNotNone(self.attest())
+        external=self.attest(self.second)
+        old=sqlite3.connect(":memory:",isolation_level=None)
+        self.addCleanup(old.close)
+        initialize_checkpoint_witness(old)
+        earlier=self.third.execute(
+            "SELECT checkpoint_json FROM rio_checkpoint_witness_history WHERE event_count=1"
+        ).fetchone()[0]
+        previous=json.loads(earlier)
+        payload=previous["payload"]
+        old.execute(
+            "INSERT INTO rio_checkpoint_witness_history VALUES (?,?,?,?,?,?)",
+            (ISSUER,NONCE,1,payload["events_sha256"],payload["custody_receipt_sha256"],earlier)
+        )
+        old.execute(
+            "INSERT INTO rio_checkpoint_witness VALUES (?,?,?,?,?,?)",
+            (ISSUER,NONCE,1,payload["events_sha256"],payload["custody_receipt_sha256"],earlier)
+        )
+        self.assertEqual(compare_checkpoint_history(
+            old,external,self.witness_keys,issuer=ISSUER,nonce=NONCE
+        ),CheckpointState.BEHIND)
+
+    def test_external_head_detects_same_count_fork(self):
+        external=self.attest()
+        other=sqlite3.connect(":memory:",isolation_level=None)
+        self.addCleanup(other.close)
+        initialize_checkpoint_witness(other)
+        another_custody=self.receipt(1,"f"*64)
+        forged_local=attest_checkpoint(
+            other,another_custody,self.custody_keys,self.witness_key,"third-a",now=NOW
+        )
+        self.assertIsNotNone(forged_local)
+        self.assertEqual(compare_checkpoint_history(
+            other,external,self.witness_keys,issuer=ISSUER,nonce=NONCE
+        ),CheckpointState.FORK)
+
+    def test_tampered_external_checkpoint_is_unknown(self):
+        external=self.attest()
+        external["payload"]["events_sha256"]="f"*64
+        self.assertEqual(compare_checkpoint_history(
+            self.third,external,self.witness_keys,issuer=ISSUER,nonce=NONCE
+        ),CheckpointState.UNKNOWN)
 
     def test_no_trust_issuance_or_authority(self):
         self.assertNotIn("AUTHORIZED",CheckpointState.__members__)
