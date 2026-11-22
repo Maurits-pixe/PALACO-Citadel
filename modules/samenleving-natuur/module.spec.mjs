@@ -1890,3 +1890,67 @@ test('receipt export refuses absent local revocation without creating a download
  await page.locator('#exportIssuerRevocation').click();
  await expect(page.locator('#issuerReceiptStatus')).toContainText('EXPORT AFGEWEZEN');
 });
+
+async function signedLocalReceiptFixture(page,receipt,{tampered=false,wrongDigest=false}={}){
+ return page.evaluate(async ({receipt,tampered,wrongDigest})=>{
+  const canonical=v=>Array.isArray(v)?'['+v.map(canonical).join(',')+']':v&&typeof v==='object'?'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canonical(v[k])).join(',')+'}':JSON.stringify(v);
+  const pair=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
+  const publicJwk=await crypto.subtle.exportKey('jwk',pair.publicKey),publicKey={kty:'EC',crv:'P-256',x:publicJwk.x,y:publicJwk.y};
+  const fp=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonical(publicKey)))),b=>b.toString(16).padStart(2,'0')).join('');
+  const sig=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},pair.privateKey,new TextEncoder().encode(canonical(receipt)));
+  const detached={schema:'palaco-citadel-revocation-receipt-signature-v1',algorithm:'ECDSA-P256-SHA256',
+   receiptDigest:wrongDigest?'0'.repeat(64):receipt.integrity.digest,signerFingerprint:fp,
+   signature:btoa(String.fromCharCode(...new Uint8Array(sig)))};
+  if(tampered)detached.signature=btoa('invalid signature bytes');
+  return {publicKey,detached};
+ },{receipt,tampered,wrongDigest});
+}
+async function uploadSignedLocalReceipt(page,receipt,fixture){
+ await page.locator('#issuerRevocationReceipt').setInputFiles({name:'receipt.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(receipt))});
+ await page.locator('#issuerReceiptSignerKey').fill(JSON.stringify(fixture.publicKey));
+ await page.locator('#issuerReceiptSignatureFile').setInputFiles({name:'detached.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.detached))});
+}
+
+test('locally signed revocation receipt verifies but never imports revocation',async ({page})=>{
+ const receipt=await localRevocationReceiptFixture(page),fixture=await signedLocalReceiptFixture(page,receipt);
+ const key='palaco.citadel.audit-issuer-revoked.v1.'+receipt.issuerFingerprint;
+ await page.evaluate(key=>localStorage.removeItem(key),key);
+ await uploadSignedLocalReceipt(page,receipt,fixture);
+ await page.locator('#requireIssuerReceiptSignature').check();
+ await page.locator('#verifyIssuerRevocationReceipt').click();
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('BEWIJSHANDTEKENING CRYPTOGRAFISCH GELDIG');
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('NIET ONAFHANKELIJK VERTROUWD');
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('GEEN INTREKKING GEÏMPORTEERD');
+ expect(await page.evaluate(key=>localStorage.getItem(key),key)).toBeNull();
+});
+
+test('mandatory revocation receipt signature refuses valid hash-only evidence',async ({page})=>{
+ const receipt=await localRevocationReceiptFixture(page);
+ await page.locator('#issuerRevocationReceipt').setInputFiles({name:'receipt.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(receipt))});
+ await page.locator('#requireIssuerReceiptSignature').check();
+ await page.locator('#verifyIssuerRevocationReceipt').click();
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('BEWIJS AFGEWEZEN');
+ await expect(page.locator('#issuerReceiptStatus')).not.toContainText('SHA-256 BEWIJSINTEGRITEIT GELDIG');
+});
+
+test('revocation receipt verifier rejects changed signature and wrong digest',async ({page})=>{
+ const receipt=await localRevocationReceiptFixture(page);
+ const wrong=await signedLocalReceiptFixture(page,receipt,{tampered:true});
+ await uploadSignedLocalReceipt(page,receipt,wrong);
+ await page.locator('#verifyIssuerRevocationReceipt').click();
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('BEWIJS AFGEWEZEN');
+ const digest=await signedLocalReceiptFixture(page,receipt,{wrongDigest:true});
+ await uploadSignedLocalReceipt(page,receipt,digest);
+ await page.locator('#verifyIssuerRevocationReceipt').click();
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('BEWIJS AFGEWEZEN');
+});
+
+test('revocation receipt signature input changes invalidate previous verification',async ({page})=>{
+ const receipt=await localRevocationReceiptFixture(page),fixture=await signedLocalReceiptFixture(page,receipt);
+ await uploadSignedLocalReceipt(page,receipt,fixture);
+ await page.locator('#verifyIssuerRevocationReceipt').click();
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('BEWIJSHANDTEKENING CRYPTOGRAFISCH GELDIG');
+ await page.locator('#issuerReceiptSignerKey').fill('{}');
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('opnieuw controleren vereist');
+ await expect(page.locator('#issuerReceiptStatus')).not.toContainText('CRYPTOGRAFISCH GELDIG');
+});
