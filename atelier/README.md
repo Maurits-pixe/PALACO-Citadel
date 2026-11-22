@@ -421,3 +421,9 @@ De lokale import noteert welk ontwerpveld een schrijfpoging heeft ondergaan. Bij
 Bij de knop **Herstel vorig lokaal ontwerp** legt de Regiekamer nu vóór de verschilpreview de ruwe herstelkopie vast. Na expliciete bevestiging wordt deze exacte waarde meegegeven aan `undoLastImport`. Als het herstelpunt tijdens de dialoog verandert, wordt de handeling afgewezen voordat er creatieve gegevens worden teruggezet. Dit voorkomt dat het systeem ongemerkt een ander herstelpunt gebruikt dan de gebruiker heeft bekeken. Het bestaande conflictmechanisme in `restoreWithRecovery` blijft daarnaast actief.
 
 De statische contracttest borgt de nieuwe parameter, terwijl een browserregressie het herstelpunt tijdens de bevestiging vervangt en controleert dat de creatieve opslag ongewijzigd blijft. Beperking: lokale browseropslag biedt geen atomaire transacties; dit levert geen volledige concurrentiegarantie. PR #60 blijft DRAFT/HOLD/DENY; geen merge, EDTR of live-publicatie.
+
+## Regiekamer v6.14 — verificatie na herstel (2026-11-22)
+
+De `restore`-functie leest na de schrijfpogingen de drie Atelier-opslagsleutels opnieuw en vergelijkt de ruwe opslagwaarden met de exacte bedoelde waarden, inclusief expliciet ontbrekende ontwerpen. Een stil genegeerde schrijfactie of tussentijdse wijziging wordt niet als geslaagde import gerapporteerd. Bij afwijkingen gaat de bestaande conflictbewuste best-effort rollback in werking: een door een ander tabblad gewijzigde waarde wordt niet bewust overschreven. Drie nieuwe Node-regressies controleren stil schrijfverlies, afwijking tijdens teruglezen en succesvolle opslag.
+
+**Grenzen:** browser-localStorage kent geen atomaire transacties of compare-and-swap; ook na deze terugleescontrole kan een andere tab de waarde wijzigen. Deze wijziging biedt geen duurzame synchronisatie, veiligheidsattestatie of autorisatie. **DRAFT/HOLD/DENY**. CI, onafhankelijke code-review en desktop-/mobiele browseracceptatie blijven vereist.
