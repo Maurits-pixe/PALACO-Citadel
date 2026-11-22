@@ -12,6 +12,7 @@ from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 from visitcard_admission_anchor import DOMAIN as ANCHOR_DOMAIN
 from visitcard_witness_enrollment import _canonical
 from visitcard_anchor_custody import initialize_custody, archive_anchor, verify_custody_receipt
+from visitcard_admission_continuity import snapshot_digest, verify_continuity_proof
 
 NOW = datetime(2026,11,22,12,tzinfo=timezone.utc)
 
@@ -49,6 +50,17 @@ class AnchorCustodyTests(unittest.TestCase):
                        expected_issuer=self.issuer,expected_nonce=self.nonce,
                        expected_count=count,expected_hash=digest)
 
+    def transition_evidence(self):
+        """Real pair of hashes from a single shared audit-event prefix."""
+        row=[self.issuer,self.nonce,"witness-new","a"*64,"intake-01","b"*64,
+             "REVIEWED","reviewer-01","review-signature"]
+        first=[1,self.issuer,self.nonce,"SUBMITTED","b"*64,None,None]
+        second=[2,self.issuer,self.nonce,"REVIEWED","b"*64,"reviewer-01","review-signature"]
+        proof={"version":1,"admission":row,"events":[first,second]}
+        prior=list(row)
+        prior[6:9]=["PENDING",None,None]
+        return snapshot_digest(prior,[first]),snapshot_digest(row,[first,second]),proof
+
     def test_signed_initial_receipt(self):
         receipt = self.archive()
         self.assertIsNotNone(receipt)
@@ -60,11 +72,15 @@ class AnchorCustodyTests(unittest.TestCase):
         self.assertEqual(self.db.execute("SELECT COUNT(*) FROM rio_anchor_custody_history").fetchone()[0],1)
 
     def test_review_extension_advances_monotonically(self):
-        first=self.archive()
-        second=self.archive(self.anchor(2,"b"*64))
+        previous_hash, final_hash, proof=self.transition_evidence()
+        first=self.archive(self.anchor(1,previous_hash))
+        second=archive_anchor(
+            self.db,self.anchor(2,final_hash),self.producer_keys,
+            self.custody,"custody-01",expected_issuer=self.issuer,
+            expected_nonce=self.nonce,now=NOW,continuity_proof=proof)
         self.assertIsNotNone(first)
         self.assertIsNotNone(second)
-        self.assertTrue(self.good_receipt(second,2,"b"*64))
+        self.assertTrue(self.good_receipt(second,2,final_hash))
         self.assertEqual(self.db.execute("SELECT COUNT(*) FROM rio_anchor_custody_history").fetchone()[0],2)
 
     def test_different_hash_same_count_rejected(self):
@@ -72,9 +88,13 @@ class AnchorCustodyTests(unittest.TestCase):
         self.assertIsNone(self.archive(self.anchor(1,"f"*64)))
 
     def test_regression_after_advance_rejected(self):
-        self.archive()
-        self.archive(self.anchor(2,"b"*64))
-        self.assertIsNone(self.archive(self.anchor()))
+        previous_hash, final_hash, proof=self.transition_evidence()
+        self.assertIsNotNone(self.archive(self.anchor(1,previous_hash)))
+        self.assertIsNotNone(archive_anchor(
+            self.db,self.anchor(2,final_hash),self.producer_keys,self.custody,
+            "custody-01",expected_issuer=self.issuer,expected_nonce=self.nonce,
+            now=NOW,continuity_proof=proof))
+        self.assertIsNone(self.archive(self.anchor(1,previous_hash)))
 
     def test_skipped_initial_stage_rejected(self):
         self.assertIsNone(self.archive(self.anchor(2,"b"*64)))
@@ -126,6 +146,35 @@ class AnchorCustodyTests(unittest.TestCase):
                 saved=reopened.execute("SELECT receipt_json FROM rio_anchor_custody").fetchone()[0]
                 import json
                 self.assertEqual(json.loads(saved),receipt)
+
+    def test_transition_without_proof_rejected(self):
+        previous_hash, final_hash, proof=self.transition_evidence()
+        self.assertIsNotNone(self.archive(self.anchor(1,previous_hash)))
+        self.assertIsNone(self.archive(self.anchor(2,final_hash)))
+
+    def test_transition_with_tampered_prefix_rejected(self):
+        previous_hash, final_hash, proof=self.transition_evidence()
+        self.assertIsNotNone(self.archive(self.anchor(1,previous_hash)))
+        proof["events"][0][4]="f"*64
+        self.assertIsNone(archive_anchor(
+            self.db,self.anchor(2,final_hash),self.producer_keys,self.custody,
+            "custody-01",expected_issuer=self.issuer,expected_nonce=self.nonce,
+            now=NOW,continuity_proof=proof))
+
+    def test_transition_with_wrong_prior_hash_rejected(self):
+        previous_hash, final_hash, proof=self.transition_evidence()
+        self.assertIsNotNone(self.archive(self.anchor(1,"f"*64)))
+        self.assertIsNone(archive_anchor(
+            self.db,self.anchor(2,final_hash),self.producer_keys,self.custody,
+            "custody-01",expected_issuer=self.issuer,expected_nonce=self.nonce,
+            now=NOW,continuity_proof=proof))
+
+    def test_proof_rejects_rewritten_first_event(self):
+        previous_hash, final_hash, proof=self.transition_evidence()
+        proof["events"][0][3]="REVIEWED"
+        self.assertFalse(verify_continuity_proof(
+            proof,issuer=self.issuer,nonce=self.nonce,
+            previous_hash=previous_hash,final_hash=final_hash))
 
     def test_no_trusted_key_installation(self):
         self.archive()
