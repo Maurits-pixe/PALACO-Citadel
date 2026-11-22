@@ -2584,3 +2584,33 @@ test('rc42 apparent clock rollback invalidates visible reviewer result on focus'
  await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
  await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
 });
+
+
+test('rc42 reviewer proof expires while signed registry file read is pending',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await uploadReviewerRegistry(page,await reviewerRegistryFixture(page,review.declaration));
+ await page.locator('#requireReviewerRegistry').check();
+ await page.evaluate(()=>{
+  const originalText=File.prototype.text;
+  let intercepted=false;
+  File.prototype.text=function(){
+   if(this.name!=='reviewer-registry.json'||intercepted)return originalText.call(this);
+   intercepted=true;
+   const pending=originalText.call(this);
+   return new Promise((resolve,reject)=>{
+    window.__rc42FinishAfterExpiry=()=>pending.then(resolve,reject);
+   });
+  };
+ });
+ await page.locator('#verifyReceiptSignerReview').click();
+ await page.waitForFunction(()=>typeof window.__rc42FinishAfterExpiry==='function');
+ await page.evaluate(()=>{
+  const reference=Date.now;
+  Date.now=()=>reference()+2*60*60*1000;
+  window.__rc42FinishAfterExpiry();
+ });
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+ await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
+});
