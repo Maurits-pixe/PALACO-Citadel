@@ -328,3 +328,18 @@ test('rollback report can receive programmatic keyboard focus without changing t
  assert.match(handler,/panel\.hidden=true/);
  assert.doesNotMatch(handler,/localStorage\.(setItem|removeItem)/);
 });
+
+
+test('Atelier note reload must refuse a revision changed during confirmation',()=>{
+ const html=read('regiekamer.html');
+ const start=html.indexOf("$('loadSavedNote').addEventListener('click'");
+ const end=html.indexOf("$('saveNote').addEventListener('click'",start);
+ assert.ok(start>=0&&end>start);
+ const handler=html.slice(start,end);
+ const original=handler.indexOf('const stored=localStorage.getItem(NOTE)');
+ const latest=handler.indexOf('const latest=localStorage.getItem(NOTE)');
+ const compare=handler.indexOf('if(latest!==stored)');
+ const baseline=handler.indexOf('noteBaseline=latest');
+ assert.ok(original>=0&&latest>original&&compare>latest&&baseline>compare);
+ assert.match(handler,/Laden geweigerd/);
+});
