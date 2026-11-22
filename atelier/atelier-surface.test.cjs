@@ -354,3 +354,16 @@ test('Atelier recovery actions refresh on cross-tab recovery record changes',()=
  assert.match(html,/button\.disabled=true;exportButton\.disabled=true/);
  assert.match(html,/button\.disabled=false;exportButton\.disabled=false/);
 });
+
+
+test('Atelier full storage clear syncs clean notes and protects unsaved edits',()=>{
+ const html=read('regiekamer.html');
+ const start=html.lastIndexOf("window.addEventListener('storage',e=>{");
+ assert.ok(start>=0);
+ const handler=html.slice(start);
+ assert.match(handler,/if\(e\.key===NOTE\|\|e\.key===null\)/);
+ assert.match(handler,/const locallyEdited=noteValue\(\)!==/);
+ assert.match(handler,/const latest=e\.key===null\?null:e\.newValue/);
+ assert.match(handler,/noteBaseline=latest/);
+ assert.match(handler,/onopgeslagen tekst blijft staan/);
+});
