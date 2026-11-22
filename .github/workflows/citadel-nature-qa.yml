@@ -49,6 +49,8 @@ jobs:
         run: sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
       - name: Execute DRAFT HOLD denial tests on ephemeral PostgreSQL only
         run: psql -X -v ON_ERROR_STOP=1 -f modules/samenleving-natuur/registry-pin-cas-ephemeral.test.sql
+      - name: Populated tables UPDATE DELETE and transaction rollback QA
+        run: psql -X -v ON_ERROR_STOP=1 -f modules/samenleving-natuur/registry-pin-cas-populated.test.sql
   offline-browser-qa:
     runs-on: ubuntu-latest
     timeout-minutes: 15
