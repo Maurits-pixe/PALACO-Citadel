@@ -21,6 +21,12 @@ export interface AtlasProtectedContainerContract
    * The host must verify this container belongs to its protected route.
    */
   currentProtectedContainer(): HTMLElement | null;
+  /**
+   * Independent host assertion tied to CURRENT protected route and access.
+   * Must return false for document.body, public nodes, and stale containers.
+   * An HTML element existing or being connected is NOT sufficient.
+   */
+  isProtectedContainerAuthorized(container: HTMLElement): boolean;
 }
 
 const REQUIRED: readonly (keyof AtlasProtectedContainerContract)[] = [
@@ -29,6 +35,7 @@ const REQUIRED: readonly (keyof AtlasProtectedContainerContract)[] = [
   "isStillAuthorized",
   "readContextVersion",
   "currentProtectedContainer",
+  "isProtectedContainerAuthorized",
 ];
 
 /**
@@ -64,6 +71,7 @@ export function connectAtlasProtectedContainer(
       if (!container || !container.isConnected ||
           typeof container.append !== "function" ||
           !container.ownerDocument ||
+          !contract.isProtectedContainerAuthorized(container) ||
           contract.readContextVersion() !== before) {
         throw new Error("MUNDO_ATLAS_PROTECTED_CONTAINER_UNAVAILABLE");
       }
@@ -76,6 +84,7 @@ export function connectAtlasProtectedContainer(
         // the previous world visible. Do not publish a stale mount handle.
         if (!container.isConnected ||
             contract.currentProtectedContainer() !== container ||
+            !contract.isProtectedContainerAuthorized(container) ||
             contract.readContextVersion() !== before) {
           throw new Error("MUNDO_ATLAS_MOUNT_CONTEXT_CHANGED");
         }
