@@ -128,8 +128,8 @@ test('mutable registry bytes remain copied even when caller alters original afte
       const descriptor=Reflect.getOwnPropertyDescriptor(target,key);
       if(key==='registrySha256'){
         descriptorReads++;
-        // Even adversarial repeated descriptor lookups must fail closed.
-        data.registryBytes[0]^=1;
+        // Idempotent tampering remains detectable even if the Proxy is inspected repeatedly.
+        data.registryBytes[0]=0;
       }
       return descriptor;
     }
