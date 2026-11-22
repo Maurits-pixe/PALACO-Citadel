@@ -65,7 +65,10 @@ export function createAtlasRecoverySupervisor(): AtlasRecoverySupervisor {
         created = await createFresh();
         if (!created || typeof created.activate !== "function" ||
             typeof created.dispose !== "function" ||
-            typeof created.hasActiveView !== "function") return "denied";
+            typeof created.hasActiveView !== "function") {
+          if (created && typeof created.dispose === "function") release(created);
+          return "denied";
+        }
         if (closed || quarantined || epoch !== requestEpoch) {
           release(created);
           return "stale";
