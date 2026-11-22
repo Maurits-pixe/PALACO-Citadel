@@ -565,6 +565,14 @@ $('bundleVerify').addEventListener('change',async event=>{
 });
 let importRevision=0;
 let importReadPending=false;
+// Local unsaved edits must not be overwritten by a file read started earlier.
+$('statement').addEventListener('input',()=>{
+ if(!importReadPending)return;
+ ++importRevision;
+ importReadPending=false;
+ $('bundleImport').value='';
+ $('bundleStatus').textContent='Projectimport onderbroken: de ontwerpnotitie is tijdens het lezen aangepast. De nieuwe tekst blijft behouden; kies het projectbestand opnieuw.';
+});
 $('bundleImport').addEventListener('change',async event=>{
  const revision=++importRevision;
  const file=event.target.files?.[0];
