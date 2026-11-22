@@ -11,6 +11,7 @@ a development interlock only. SQLite is not tamper resistant.
 from __future__ import annotations
 
 import secrets
+import hashlib
 import sqlite3
 
 SCHEMA = """
@@ -36,6 +37,7 @@ def claim_recovery(db: sqlite3.Connection, issuer: str, sequence: int) -> str | 
     if type(sequence) is not int or not 0 < sequence <= 2**63-1:
         return None
     token = secrets.token_hex(32)
+    stored_hash = hashlib.sha256(token.encode('ascii')).hexdigest()
     try:
         db.execute("BEGIN IMMEDIATE")
         row = db.execute(
@@ -47,7 +49,7 @@ def claim_recovery(db: sqlite3.Connection, issuer: str, sequence: int) -> str | 
             return None
         db.execute(
             "INSERT INTO rio_recovery_claims (issuer,sequence,token_hash) VALUES (?,?,?)",
-            (issuer, sequence, token),
+            (issuer, sequence, stored_hash),
         )
         db.commit()
         return token
@@ -62,10 +64,11 @@ def release_recovery(db: sqlite3.Connection, issuer: str, sequence: int, token: 
     if db.in_transaction or not isinstance(token, str) or len(token) != 64:
         return False
     try:
+        digest = hashlib.sha256(token.encode('ascii')).hexdigest()
         db.execute("BEGIN IMMEDIATE")
         cursor = db.execute(
             "DELETE FROM rio_recovery_claims WHERE issuer=? AND sequence=? AND token_hash=?",
-            (issuer,sequence,token),
+            (issuer,sequence,digest),
         )
         db.commit()
         return cursor.rowcount == 1
