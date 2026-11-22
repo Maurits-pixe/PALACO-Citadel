@@ -292,12 +292,11 @@ function showInspectionHashes(actual,reference,reported){
  $('inspectionHashes').hidden=false;
 }
 function parseUniqueTopLevelJson(source){
- // JSON.parse by itself silently keeps the final duplicate object property.
+ // JSON.parse alone silently retains the last repeated property, even inside nested objects.
  const value=JSON.parse(source);
  if(!value||typeof value!=='object'||Array.isArray(value))
    throw Error('Dossierbestand moet een JSON-object zijn');
- const seen=new Set();
- let depth=0;
+ const stack=[];
  let inString=false;
  let stringStart=-1;
  let escaped=false;
@@ -308,21 +307,23 @@ function parseUniqueTopLevelJson(source){
      if(c==='\\'){escaped=true;continue;}
      if(c==='"'){
        inString=false;
-       if(depth===1){
+       const frame=stack[stack.length-1];
+       if(frame?.keys){
          let j=i+1;
          while(j<source.length&&/\s/.test(source[j]))j++;
          if(source[j]===':'){
            const key=JSON.parse(source.slice(stringStart,i+1));
-           if(seen.has(key))throw Error('Dossier-JSON bevat dubbele velden: '+key);
-           seen.add(key);
+           if(frame.keys.has(key))throw Error('Dossier-JSON bevat dubbele velden: '+key);
+           frame.keys.add(key);
          }
        }
      }
      continue;
    }
    if(c==='"'){inString=true;stringStart=i;continue;}
-   if(c==='{'||c==='[')depth++;
-   else if(c==='}'||c===']')depth--;
+   if(c==='{')stack.push({keys:new Set()});
+   else if(c==='[')stack.push({keys:null});
+   else if(c==='}'||c===']')stack.pop();
  }
  return value;
 }
