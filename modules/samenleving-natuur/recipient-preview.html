@@ -693,6 +693,10 @@ $('verifyReceiptSignerReview').addEventListener('click',async()=>{
    if(id!==ticket||revision!==receiptSignerReviewRevision)return;
    if(!registryValid||Date.now()>=validUntil||Date.now()>=ends)throw Error('Getekend reviewersregister ongeldig');
   }
+  // rc42: local trust inputs can change while WebCrypto or file reads are pending.
+  // Never publish an earlier crypto result against a replaced/removed signer pin.
+  if(id!==ticket||revision!==receiptSignerReviewRevision)return;
+  if(receiptSignerPin(localStorage.getItem(RECEIPT_SIGNER_PIN_KEY))!==signerFp)throw Error('Ondertekenaarspinning gewijzigd tijdens beoordeling');
   $('receiptSignerReviewStatus').textContent='BEWIJSSLEUTELBEOORDELING DUBBEL CRYPTOGRAFISCH GELDIG (epoch '+declaration.epoch+'); '+(registryFile?'REVIEWERSREGISTER CRYPTOGRAFISCH GELDIG MAAR NIET ONAFHANKELIJK VERTROUWD; ':'')+'REVIEWER NIET ONAFHANKELIJK VERTROUWD. GEEN ROLTOEWIJZING. Geen PALACO-autorisatie.';
  }catch{if(id===ticket&&revision===receiptSignerReviewRevision)$('receiptSignerReviewStatus').textContent='BEWIJSSLEUTELBEOORDELING AFGEWEZEN. Geen PALACO-autorisatie.'}
 });
