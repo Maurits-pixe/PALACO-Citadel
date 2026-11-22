@@ -93,3 +93,38 @@ test('expired snapshot is rejected despite correct signature and pin', () => {
   const data=signed({...document(),issuedAt:'2026-11-01T00:00:00.000Z'});
   assert.equal(evaluate(data).reason,'REGISTRY_REGISTRY_SNAPSHOT_TOO_OLD');
 });
+
+
+test('mutable caller bytes are snapshotted before digest and signature checks', () => {
+  const data=signed();
+  const originalDigest=sha(data.registryBytes);
+  const expectedPin=pinned(data.registryBytes);
+  let reads=0;
+  Object.defineProperty(expectedPin,'registrySha256',{
+    configurable:true,enumerable:true,
+    get(){
+      reads++;
+      if(reads===2) data.registryBytes[0]^=1;
+      return originalDigest;
+    }
+  });
+  const result=evaluate(data,{pinnedSnapshot:expectedPin});
+  assert.equal(reads,2);
+  assert.notEqual(sha(data.registryBytes),originalDigest,'input was changed during verification');
+  assert.equal(result.exactSnapshotMatched,true,JSON.stringify(result));
+  assert.equal(result.registrySha256,originalDigest);
+  assert.equal(result.trust,'NOT_ESTABLISHED');
+  assert.equal(result.authorization,'DENY');
+  assert.equal(result.executionAllowed,false);
+  assert.equal(result.releaseAllowed,false);
+});
+
+test('mutated bytes before pin check cannot match the prior signed snapshot', () => {
+  const data=signed();
+  const trustedDigest=pinned(data.registryBytes);
+  data.registryBytes[0]^=1;
+  const result=evaluate(data,{pinnedSnapshot:trustedDigest});
+  assert.equal(result.exactSnapshotMatched,false);
+  assert.equal(result.reason,'SNAPSHOT_BYTES_DIFFER_FROM_PIN');
+  assert.equal(result.authorization,'DENY');
+});
