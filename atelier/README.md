@@ -497,3 +497,11 @@ Playwright simuleert de tussentijdse wijziging tijdens de dialoog en controleert
 Playwright heeft twee aanvullende scenario's met twee pagina's binnen dezelfde browsercontext. Tijdens een bevestigingsdialoog voor bestandsimport schrijft het tweede tabblad een nieuwere ontwerpnotitie: het eerste tabblad moet de import weigeren, de onopgeslagen editorinhoud behouden, de nieuwe opgeslagen notitie ongemoeid laten en geen herstelrecord aanmaken. In de tweede test verandert het tweede tabblad de inhoud van de lokale herstelkopie tijdens het bevestigen van **Herstel vorig lokaal ontwerp**. De undo moet het gewijzigde herstelpunt weigeren, de drie huidige ontwerpbronnen behouden en de andere tab zijn herstelkopie laten bestaan.
 
 Deze tests gebruiken echte gedeelde browseropslag en twee Playwright-pagina's, maar zijn nog niet als geslaagd uitgevoerd bevestigd. Browserdialogen zijn gesynchroniseerde testinterleavings; hiermee zijn niet alle mogelijke races of fysieke mobiele apparaten afgedekt. **DRAFT / HOLD / DENY**, geen merge of publieke uitrol.
+
+## Regiekamer v6.24 — betrouwbare cross-tab-importtest en herstelknoppen (2026-11-22)
+
+De twee v6.23-browserproeven bleken niet correct gesynchroniseerd. Het oorspronkelijke importscenario probeerde een tweede tabblad te laten schrijven terwijl het blokkerende bevestigingsvenster openstond. De nieuwe Playwright-proef vertraagt in plaats daarvan expliciet het lezen van het projectbestand, laat in het tweede tabblad een echte opslagwijziging plaatsvinden en verifieert dat de lopende import wordt geannuleerd, zonder bevestiging of overschrijven van de onopgeslagen ontwerpnotitie.
+
+Ook worden de knoppen voor **Herstel vorig lokaal ontwerp** en **Exporteer herstelkopie** nu automatisch opnieuw beoordeeld wanneer een ander tabblad de herstelkopie toevoegt of verwijdert. Een tweede browserproef verifieert beide richtingen. Een statisch contract bewaakt de refresh-koppeling. De eerdere v6.23-claims van geslaagde tests worden niet overgenomen: die uitvoering faalde in vier desktop-/mobiele varianten; de nieuwe v6.24-uitvoering moet nog slagen.
+
+Het betreft browserlokale DRAFT-functionaliteit zonder atomaire transacties, back-end-synchronisatie, autorisatie of EDTR. **DRAFT/HOLD/DENY**; geen merge of productiepublicatie.
