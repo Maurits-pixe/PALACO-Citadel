@@ -51,6 +51,10 @@ jobs:
         run: psql -X -v ON_ERROR_STOP=1 -f modules/samenleving-natuur/registry-pin-cas-ephemeral.test.sql
       - name: Populated tables UPDATE DELETE and transaction rollback QA
         run: psql -X -v ON_ERROR_STOP=1 -f modules/samenleving-natuur/registry-pin-cas-populated.test.sql
+      - name: Two-session row locking and stale CAS integration test
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/registry-pin-cas-concurrency-ci.sh
   offline-browser-qa:
     runs-on: ubuntu-latest
     timeout-minutes: 15
