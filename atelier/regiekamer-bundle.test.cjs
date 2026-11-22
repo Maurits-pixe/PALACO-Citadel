@@ -404,3 +404,55 @@ test('recovery draft is made from the verified captured source values',()=>{
  assert.equal(previous.draft.authority,'NONE');
  assert.ok(exteriorReads>=2,'a second snapshot verifies freshness before import');
 });
+
+
+test('recovery write that commits before throwing is reversed without touching designs',()=>{
+ const priorRecovery='vorige-herstelwaarde';
+ const storage=fakeStorage({[bundle.NOTE]:'veilig ontwerp',[bundle.RECOVERY]:priorRecovery});
+ const set=storage.setItem;
+ let failed=false;
+ storage.setItem=(key,value)=>{
+  set(key,value);
+  if(key===bundle.RECOVERY&&!failed){failed=true;throw Error('write acknowledged then failure');}
+ };
+ assert.throws(
+  ()=>bundle.restoreWithRecovery(storage,bundle.create(null,null,'nieuw')),
+  /Geen ruimte voor veilige herstelkopie/
+ );
+ assert.equal(storage.getItem(bundle.RECOVERY),priorRecovery);
+ assert.equal(storage.getItem(bundle.NOTE),'veilig ontwerp');
+});
+
+test('recovery write error never overwrites a competing recovery value',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'veilig ontwerp'});
+ const set=storage.setItem;
+ storage.setItem=(key,value)=>{
+  if(key===bundle.RECOVERY){
+   set(key,'nieuwe herstelkopie vanuit andere tab');
+   throw Error('write rejected');
+  }
+  set(key,value);
+ };
+ assert.throws(
+  ()=>bundle.restoreWithRecovery(storage,bundle.create(null,null,'nieuw')),
+  /ondertussen gewijzigd/
+ );
+ assert.equal(storage.getItem(bundle.RECOVERY),'nieuwe herstelkopie vanuit andere tab');
+ assert.equal(storage.getItem(bundle.NOTE),'veilig ontwerp');
+});
+
+test('failed recovery cleanup does not claim successful rollback',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'oud ontwerp'});
+ const set=storage.setItem;
+ storage.setItem=(key,value)=>{
+  set(key,value);
+  if(key===bundle.RECOVERY)throw Error('write then throw');
+ };
+ storage.removeItem=key=>{if(key!==bundle.RECOVERY)storage.map.delete(key);};
+ assert.throws(
+  ()=>bundle.restoreWithRecovery(storage,bundle.create(null,null,'nieuw')),
+  /terugdraaien niet bevestigd/
+ );
+ assert.equal(storage.getItem(bundle.NOTE),'oud ontwerp');
+ assert.notEqual(storage.getItem(bundle.RECOVERY),null);
+});
