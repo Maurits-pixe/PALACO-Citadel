@@ -76,3 +76,11 @@ New private module: `08-IMPLEMENTATION/src/citadel/mundo-atlas-explicit-recovery
 This is a composition safeguard, not end-to-end proof of authentication, source integrity or correct implementation of the host event contract. It must only be used after independently establishing route/session authorization. Any new integration must provide new source input and a fresh, unique context version. Private host functions and release callbacks still require owner acceptance; no functional tests were run.
 
 Public Render only shows a static description of this recovery policy. The original Citadel Sites project, PR #58 DRAFT/HOLD, and production permissions remain unchanged.
+
+## Extension 020 — stale or mount-failed invalidates the current bridge
+
+The private `mundo-atlas-explicit-recovery.ts` now invalidates the current host connection if `activate()` finishes with `stale` or `mount-failed`, as long as that same connection and generation are still current. No later request can reuse that connection; the host must explicitly construct a new integration with a fresh authorization decision and new source envelope. A normal `denied` authorization result still denies access and does not automatically trigger a retry or a new connection.
+
+The existing supervisor revocation generation ensures delayed results cannot replace the current generation after a session or route change. A host teardown exception permanently quarantines the supervisor. These are engineering conditions, not proof of end-to-end session security; the host must still deliver synchronous pre-transition events, trusted context versions, authentic source verification and DOM cleanup.
+
+**Unexecuted owner acceptance scenarios:** stale completion; mount-failed completion; denial without automatic retry; cleanup throwing; old delayed request completing after explicit reconnect; duplicate activation. Do not mark these PASS without real test evidence. Original private Citadel unchanged; PR #58 DRAFT/HOLD.
