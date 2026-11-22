@@ -1538,3 +1538,45 @@ test('Atelier v6.17: expliciet laden lost notitieconflict op zonder stille overs
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Mijn bewuste volgende versie');
  await other.close();
 });
+
+
+test('Atelier v6.19: stille mislukte notitie-opslag mag geen succes melden',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Creatieve notitie die bewaard moet blijven');
+ await page.evaluate(()=>{
+   const native=Storage.prototype.setItem;
+   window.restoreNoteWrite=()=>{Storage.prototype.setItem=native;};
+   Storage.prototype.setItem=function(key,value){
+     if(key===window.PalacoAtelierBundle.NOTE)return;
+     return native.call(this,key,value);
+   };
+ });
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('Opslaan niet bevestigd');
+ await expect(page.locator('#statement')).toHaveValue('Creatieve notitie die bewaard moet blijven');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBeNull();
+ await page.evaluate(()=>window.restoreNoteWrite());
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('Ontwerpnotitie lokaal bewaard');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Creatieve notitie die bewaard moet blijven');
+});
+
+test('Atelier v6.19: afwijkende notitie na schrijfactie blijft een conflict',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Mijn nieuwe ontwerpnotitie');
+ await page.evaluate(()=>{
+   const native=Storage.prototype.setItem;
+   window.restoreNoteWrite=()=>{Storage.prototype.setItem=native;};
+   Storage.prototype.setItem=function(key,value){
+     if(key===window.PalacoAtelierBundle.NOTE)return native.call(this,key,'Concurrerende versie');
+     return native.call(this,key,value);
+   };
+ });
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('Opslaan niet bevestigd');
+ await page.evaluate(()=>window.restoreNoteWrite());
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('Opslaan geweigerd');
+ await expect(page.locator('#statement')).toHaveValue('Mijn nieuwe ontwerpnotitie');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Concurrerende versie');
+});
