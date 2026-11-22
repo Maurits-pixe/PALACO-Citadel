@@ -35,6 +35,8 @@ jobs:
         run: node --test atelier/builder.test.mjs atelier/wizard.test.mjs citadel-proof/proof.test.mjs
       - name: Test fail-closed release evidence evaluator
         run: node --test atelier/release-gate.test.cjs
+      - name: Test read-only GitHub review audit
+        run: node --test atelier/github-review-audit.test.cjs
       - name: Verify release remains HOLD without matching approved evidence
         shell: bash
         run: |
