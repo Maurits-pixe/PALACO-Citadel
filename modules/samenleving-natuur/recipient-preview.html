@@ -117,6 +117,8 @@ small{color:#c2d1c5}.hidden{display:none!important}
 <label for="issuerReceiptSignerKey">Publieke bewijs-ondertekenaar (P-256 JWK)</label>
 <textarea id="issuerReceiptSignerKey" rows="3" style="width:100%;background:#0b1c15;color:var(--text);border:1px solid var(--line);padding:10px;border-radius:9px"></textarea>
 <button id="verifyIssuerRevocationReceipt" type="button">Verifieer intrekkingsregistratie</button>
+<button id="pinIssuerReceiptSigner" type="button" disabled>Bevestig bewijs-ondertekenaar lokaal</button>
+<p><small>Een eerder bevestigde bewijs-ondertekenaar verplicht dezelfde handtekeningsleutel bij volgende importcontroles in deze browser. Deze lokale TOFU-pin is geen onafhankelijk PALACO-vertrouwensanker.</small></p>
 <p id="issuerReceiptStatus" role="status" aria-live="polite">Geen lokaal intrekkingsbewijs gecontroleerd. Geen autorisatie.</p>
 <p><small>Deze JSON is een lokaal zelfrapport met SHA-256-inhoudscontrole, geen onafhankelijk ondertekend bewijs. Import controleert uitsluitend en activeert nooit een intrekking.</small></p>
 <p><small>Anti-rollback-pin is uitsluitend lokale browseropslag, expliciet bevestigd door de gebruiker en wijzigbaar of wisbaar. Geen onafhankelijk PALACO-vertrouwen.</small></p>
@@ -137,14 +139,14 @@ const states=['persoonlijke observatie','nog te verifiëren','geverifieerd door 
 const minimalKeys=['sequence','category','conceptualArea','verification','recordedMonth'];
 const fullKeys=['id','title','category','conceptualArea','verification','description','observedAt'];
 function exactFields(record,allowed){return Object.keys(record).length===allowed.length&&Object.keys(record).every(key=>allowed.includes(key))}
-let ticket=0,currentPacket=null,signatureRevision=0,pinCandidate=null,rotationRevision=0,rotationAudit=null,auditCheckRevision=0,auditPinCandidate=null,auditIssuerCandidate=null,issuerRotationRevision=0,issuerRevokeRevision=0,issuerRevokeCandidate=null,issuerReceiptRevision=0;
+let ticket=0,currentPacket=null,signatureRevision=0,pinCandidate=null,rotationRevision=0,rotationAudit=null,auditCheckRevision=0,auditPinCandidate=null,auditIssuerCandidate=null,issuerRotationRevision=0,issuerRevokeRevision=0,issuerRevokeCandidate=null,issuerReceiptRevision=0,issuerReceiptSignerCandidate=null;
 const PIN_PREFIX='palaco.citadel.revocation-pin.v1.';
 function readPin(raw){if(raw===null)return null;let v;try{v=JSON.parse(raw)}catch{v=raw}if(typeof v==='string'){if(!/^\d{4}-\d{2}-\d{2}T/.test(v)||!Number.isFinite(Date.parse(v)))throw Error('Ongeldige oudere pin');return {issuedAt:v,digest:null}}if(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).sort().join(',')!=='digest,issuedAt'||typeof v.issuedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(v.issuedAt)||!Number.isFinite(Date.parse(v.issuedAt))||typeof v.digest!=='string'||!/^[a-f0-9]{64}$/.test(v.digest))throw Error('Ongeldig lokaal pincontract');return v}
 function invalidatePin(){pinCandidate=null;$('pinRevocation').disabled=true}
 function canonicalJson(value){if(Array.isArray(value))return '['+value.map(canonicalJson).join(',')+']';if(value&&typeof value==='object')return '{'+Object.keys(value).sort().map(key=>JSON.stringify(key)+':'+canonicalJson(value[key])).join(',')+'}';return JSON.stringify(value)}
 async function verifyIntegrity(data){if(data.integrity===undefined)return false;const info=data.integrity;if(!info||typeof info!=='object'||Array.isArray(info)||Object.keys(info).length!==3||info.algorithm!=='SHA-256'||info.canonicalization!=='palaco-sorted-json-v1'||typeof info.digest!=='string'||! /^[0-9a-f]{64}$/.test(info.digest))throw Error('Onbekende integriteitsmethode');const packet={...data};delete packet.integrity;const bytes=new TextEncoder().encode(canonicalJson(packet));const hash=await crypto.subtle.digest('SHA-256',bytes);const observed=Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('');if(observed!==info.digest)throw Error('Hash komt niet overeen');return true}
 
-function clear(message){issuerReceiptRevision++;$('issuerReceiptSignatureFile').value='';$('issuerReceiptSignerKey').value='';$('requireIssuerReceiptSignature').checked=false;$('issuerRevocationReceipt').value='';$('issuerReceiptStatus').textContent='Geen lokaal intrekkingsbewijs gecontroleerd. Geen autorisatie.';issuerRevokeCandidate=null;$('confirmIssuerRevoke').disabled=true;issuerRevokeRevision++;$('issuerRevokeFile').value='';$('issuerRevokeKey').value='';$('issuerRevokeReviewer').value='';$('issuerRevokeStatus').textContent='Geen uitgeversintrekking gecontroleerd. Geen autorisatie.';issuerRotationRevision++;$('issuerRotationFile').value='';$('issuerRotationOldKey').value='';$('issuerRotationNewKey').value='';$('issuerRotationStatus').textContent='Geen uitgeversopvolging gecontroleerd. Geen autorisatie.';auditPinCandidate=null;auditIssuerCandidate=null;$('pinAuditRegistry').disabled=true;$('pinAuditIssuer').disabled=true;auditCheckRevision++;$('auditRegistryIssuerKey').value='';$('auditKeyRegistry').value='';$('requireAuditSignature').checked=false;$('auditSignatureFile').value='';$('auditSignerKey').value='';$('auditVerifyFile').value='';$('auditVerifyStatus').textContent='Geen auditrapport gecontroleerd. Authenticiteit: NIET VASTGESTELD.';rotationAudit=null;$('exportRotationAudit').disabled=true;rotationRevision++;$('requireChecker').checked=false;$('checkerFile').value='';$('checkerKey').value='';$('registryIssuerKey').value='';$('rotationRegistry').value='';$('rotationFile').value='';$('rotationOldKey').value='';$('rotationNewKey').value='';$('rotationStatus').textContent='Geen sleutelrotatie gecontroleerd. Vertrouwensstatus: NIET VASTGESTELD.';invalidatePin();signatureRevision++;currentPacket=null;$('revocations').value='';$('revocationIssuerKey').value='';$('signatureFile').value='';$('publicKey').value='';$('signatureStatus').textContent='Geen handtekening geverifieerd. Vertrouwensstatus: NIET VASTGESTELD.';$('preview').classList.add('hidden');$('records').replaceChildren();$('actualRecipient').textContent='';$('privacy').textContent='';$('total').textContent='';$('status').textContent=message}
+function clear(message){issuerReceiptSignerCandidate=null;$('pinIssuerReceiptSigner').disabled=true;issuerReceiptRevision++;$('issuerReceiptSignatureFile').value='';$('issuerReceiptSignerKey').value='';$('requireIssuerReceiptSignature').checked=false;$('issuerRevocationReceipt').value='';$('issuerReceiptStatus').textContent='Geen lokaal intrekkingsbewijs gecontroleerd. Geen autorisatie.';issuerRevokeCandidate=null;$('confirmIssuerRevoke').disabled=true;issuerRevokeRevision++;$('issuerRevokeFile').value='';$('issuerRevokeKey').value='';$('issuerRevokeReviewer').value='';$('issuerRevokeStatus').textContent='Geen uitgeversintrekking gecontroleerd. Geen autorisatie.';issuerRotationRevision++;$('issuerRotationFile').value='';$('issuerRotationOldKey').value='';$('issuerRotationNewKey').value='';$('issuerRotationStatus').textContent='Geen uitgeversopvolging gecontroleerd. Geen autorisatie.';auditPinCandidate=null;auditIssuerCandidate=null;$('pinAuditRegistry').disabled=true;$('pinAuditIssuer').disabled=true;auditCheckRevision++;$('auditRegistryIssuerKey').value='';$('auditKeyRegistry').value='';$('requireAuditSignature').checked=false;$('auditSignatureFile').value='';$('auditSignerKey').value='';$('auditVerifyFile').value='';$('auditVerifyStatus').textContent='Geen auditrapport gecontroleerd. Authenticiteit: NIET VASTGESTELD.';rotationAudit=null;$('exportRotationAudit').disabled=true;rotationRevision++;$('requireChecker').checked=false;$('checkerFile').value='';$('checkerKey').value='';$('registryIssuerKey').value='';$('rotationRegistry').value='';$('rotationFile').value='';$('rotationOldKey').value='';$('rotationNewKey').value='';$('rotationStatus').textContent='Geen sleutelrotatie gecontroleerd. Vertrouwensstatus: NIET VASTGESTELD.';invalidatePin();signatureRevision++;currentPacket=null;$('revocations').value='';$('revocationIssuerKey').value='';$('signatureFile').value='';$('publicKey').value='';$('signatureStatus').textContent='Geen handtekening geverifieerd. Vertrouwensstatus: NIET VASTGESTELD.';$('preview').classList.add('hidden');$('records').replaceChildren();$('actualRecipient').textContent='';$('privacy').textContent='';$('total').textContent='';$('status').textContent=message}
 function validate(data,recipient){
  if(!data||data.schema!=='palaco-citadel-handoff-v1'||data.source!=='citadel/samenleving-natuur'||!['wereldatlas','geheugenkamer'].includes(recipient))throw Error('Ongeldig contract');
  if(!Array.isArray(data.records)||data.records.length>500||!['minimal-user-controlled','full-user-controlled'].includes(data.privacy))throw Error('Ongeldige inhoud');
@@ -300,6 +302,14 @@ function rotationOutcome(code,message,context){
 }
 const AUDIT_REGISTRY_PIN_PREFIX='palaco.citadel.audit-registry-pin.v1.';
 const AUDIT_ISSUER_PIN_KEY='palaco.citadel.audit-issuer-pin.v1';
+const RECEIPT_SIGNER_PIN_KEY='palaco.citadel.receipt-signer-pin.v1';
+function receiptSignerPin(raw){
+ if(raw===null)return null;
+ const v=JSON.parse(raw);
+ if(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).sort().join(',')!=='fingerprint,schema'||v.schema!=='palaco-citadel-local-receipt-signer-pin-v1'||typeof v.fingerprint!=='string'||!/^[a-f0-9]{64}$/.test(v.fingerprint))throw Error('Ongeldig bewijs-ondertekenaarcontract');
+ return v.fingerprint;
+}
+
 const AUDIT_ISSUER_REVOKE_PREFIX='palaco.citadel.audit-issuer-revoked.v1.';
 function issuerRevocationPin(raw){
  if(raw===null)return null;
@@ -537,6 +547,7 @@ $('exportIssuerRevocation').addEventListener('click',async()=>{
  }catch{if(id===ticket&&revision===issuerReceiptRevision)$('issuerReceiptStatus').textContent='EXPORT AFGEWEZEN: geen geldig lokaal intrekkingsrecord. Geen PALACO-autorisatie.'}
 });
 $('verifyIssuerRevocationReceipt').addEventListener('click',async()=>{
+ issuerReceiptSignerCandidate=null;$('pinIssuerReceiptSigner').disabled=true;
  const file=$('issuerRevocationReceipt').files?.[0],signatureFile=$('issuerReceiptSignatureFile').files?.[0],requireSignature=$('requireIssuerReceiptSignature').checked,id=ticket,revision=++issuerReceiptRevision;
  $('issuerReceiptStatus').textContent='Intrekkingsregistratie wordt lokaal gecontroleerd.';
  if(!file||file.size>20000){$('issuerReceiptStatus').textContent='BEWIJS AFGEWEZEN: bestand ontbreekt of is te groot.';return}
@@ -551,7 +562,9 @@ $('verifyIssuerRevocationReceipt').addEventListener('click',async()=>{
   const actual=hex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonicalJson(payload))));
   if(id!==ticket||revision!==issuerReceiptRevision)return;
   if(actual!==integrity.digest)throw Error('Intrekkingsbewijs gewijzigd');
-  if(requireSignature&&!signatureFile)throw Error('Digitale handtekening vereist');
+  let pinnedSigner;
+  try{pinnedSigner=receiptSignerPin(localStorage.getItem(RECEIPT_SIGNER_PIN_KEY))}catch{throw Error('Bestaande lokale bewijssleutelpin is corrupt')}
+  if((requireSignature||pinnedSigner)&&!signatureFile)throw Error('Digitale handtekening vereist door lokaal beleid');
   if(signatureFile){
    if(signatureFile.size>20000)throw Error('Handtekening te groot');
    const detached=JSON.parse(await signatureFile.text());
@@ -560,18 +573,39 @@ $('verifyIssuerRevocationReceipt').addEventListener('click',async()=>{
    const signer=publicRotationKey($('issuerReceiptSignerKey').value);
    const fp=hex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonicalJson(signer))));
    if(fp!==detached.signerFingerprint)throw Error('Bewijsondertekenaar wijkt af');
+   if(pinnedSigner&&pinnedSigner!==fp)throw Error('Andere lokale bewijsondertekenaar geblokkeerd');
    const key=await crypto.subtle.importKey('jwk',signer,{name:'ECDSA',namedCurve:'P-256'},false,['verify']);
    const valid=await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},key,b64ToBytes(detached.signature),new TextEncoder().encode(canonicalJson(receipt)));
    if(id!==ticket||revision!==issuerReceiptRevision)return;
    if(!valid)throw Error('Bewijshandtekening ongeldig');
+   if(!pinnedSigner){
+    issuerReceiptSignerCandidate={fingerprint:fp,id,revision,receiptFile:file,signatureFile};
+    $('pinIssuerReceiptSigner').disabled=false;
+   }
    $('issuerReceiptStatus').textContent='BEWIJSHANDTEKENING CRYPTOGRAFISCH GELDIG; publieke ondertekenaar NIET ONAFHANKELIJK VERTROUWD. GEEN INTREKKING GEÏMPORTEERD. Geen PALACO-autorisatie.';
   }else{
    $('issuerReceiptStatus').textContent='SHA-256 BEWIJSINTEGRITEIT GELDIG; inhoud alleen lokaal consistent, NIET ONAFHANKELIJK ONDERTEKEND. GEEN INTREKKING GEÏMPORTEERD. Geen PALACO-autorisatie.';
   }
  }catch{if(id===ticket&&revision===issuerReceiptRevision)$('issuerReceiptStatus').textContent='BEWIJS AFGEWEZEN: inhoud of integriteit ongeldig. Geen PALACO-autorisatie.'}
 });
+$('pinIssuerReceiptSigner').addEventListener('click',()=>{
+ const c=issuerReceiptSignerCandidate;
+ if(!c||c.id!==ticket||c.revision!==issuerReceiptRevision||c.receiptFile!==$('issuerRevocationReceipt').files?.[0]||c.signatureFile!==$('issuerReceiptSignatureFile').files?.[0]){
+  issuerReceiptSignerCandidate=null;$('pinIssuerReceiptSigner').disabled=true;return;
+ }
+ if(!confirm('Deze handmatig geselecteerde publieke bewijs-ondertekenaar op DIT apparaat vastleggen? Dit is geen onafhankelijk PALACO-vertrouwensanker.'))return;
+ try{
+  const existing=receiptSignerPin(localStorage.getItem(RECEIPT_SIGNER_PIN_KEY));
+  if(existing&&existing!==c.fingerprint)throw Error('Een andere bewijsondertekenaar is reeds vastgelegd');
+  const value=JSON.stringify({schema:'palaco-citadel-local-receipt-signer-pin-v1',fingerprint:c.fingerprint});
+  localStorage.setItem(RECEIPT_SIGNER_PIN_KEY,value);
+  if(localStorage.getItem(RECEIPT_SIGNER_PIN_KEY)!==value)throw Error('Opslag niet bevestigd');
+  $('issuerReceiptStatus').textContent='BEWIJS-ONDERTEKENAAR LOKAAL BEVESTIGD; NIET ONAFHANKELIJK VERTROUWD. GEEN INTREKKING GEÏMPORTEERD. Geen PALACO-autorisatie.';
+ }catch{$('issuerReceiptStatus').textContent='LOKALE BEWIJS-ONDERTEKENAARPIN MISLUKT. Geen PALACO-autorisatie.'}
+ issuerReceiptSignerCandidate=null;$('pinIssuerReceiptSigner').disabled=true;
+});
 for(const inputId of ['issuerRevocationReceipt','issuerReceiptSignatureFile','issuerReceiptSignerKey','requireIssuerReceiptSignature']){
- $(inputId).addEventListener(inputId==='issuerReceiptSignerKey'?'input':'change',()=>{issuerReceiptRevision++;$('issuerReceiptStatus').textContent='Bewijsinvoer gewijzigd; opnieuw controleren vereist.'});
+ $(inputId).addEventListener(inputId==='issuerReceiptSignerKey'?'input':'change',()=>{issuerReceiptRevision++;issuerReceiptSignerCandidate=null;$('pinIssuerReceiptSigner').disabled=true;$('issuerReceiptStatus').textContent='Bewijsinvoer gewijzigd; opnieuw controleren vereist.'});
 }
 $('verifyIssuerRevoke').addEventListener('click',async()=>{
  issuerRevokeCandidate=null;$('confirmIssuerRevoke').disabled=true;
