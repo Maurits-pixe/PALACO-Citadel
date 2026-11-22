@@ -60,15 +60,27 @@ BEGIN
   END;
   IF NOT failed THEN RAISE EXCEPTION 'FAIL: audit INSERT was not rejected'; END IF;
 
-  -- TRUNCATE triggers are statement-level and fire even on empty tables.
+  -- A bare state TRUNCATE is rejected first by the history foreign key.
   failed := false;
   BEGIN
     TRUNCATE citadel_pin_draft.pin_state;
+  EXCEPTION WHEN SQLSTATE '0A000' THEN
+    GET STACKED DIAGNOSTICS actual_state = MESSAGE_TEXT;
+    failed := actual_state LIKE 'cannot truncate a table referenced in a foreign key constraint%';
+  END;
+  IF NOT failed THEN RAISE EXCEPTION 'FAIL: FK did not reject bare state TRUNCATE'; END IF;
+
+  -- With CASCADE, PostgreSQL can reach our HOLD statement-level triggers.
+  -- Either state or history trigger may reject first depending on firing order.
+  failed := false;
+  BEGIN
+    TRUNCATE citadel_pin_draft.pin_state CASCADE;
   EXCEPTION WHEN SQLSTATE '42501' THEN
     GET STACKED DIAGNOSTICS actual_state = MESSAGE_TEXT;
-    failed := actual_state = 'PALACO_CITADEL_PIN_STATE_FROZEN';
+    failed := actual_state IN
+      ('PALACO_CITADEL_PIN_STATE_FROZEN','PALACO_CITADEL_AUDIT_IMMUTABLE');
   END;
-  IF NOT failed THEN RAISE EXCEPTION 'FAIL: pin state TRUNCATE was not rejected'; END IF;
+  IF NOT failed THEN RAISE EXCEPTION 'FAIL: cascading state TRUNCATE bypassed HOLD'; END IF;
 
   failed := false;
   BEGIN
