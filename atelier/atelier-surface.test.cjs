@@ -489,3 +489,18 @@ test('Atelier import confirmation preserves edits made during the confirmation',
  assert.ok(before>=0&&confirmation>before&&check>confirmation&&restore>check);
  assert.match(handler,/Ontwerpnotitie gewijzigd tijdens bevestiging/);
 });
+
+test('Atelier async import guards against silent textarea changes',()=>{
+ const html=read('regiekamer.html');
+ const begin=html.indexOf("$('bundleImport').addEventListener('change'");
+ const end=html.indexOf("$('bundleImport').addEventListener('cancel'",begin);
+ assert.ok(begin>=0&&end>begin);
+ const handler=html.slice(begin,end);
+ const original=handler.indexOf('importStartNote=noteValue()');
+ const asyncRead=handler.indexOf('const importBytes=await file.arrayBuffer()');
+ const noteCheck=handler.indexOf('if(importStartNote===null||noteValue()!==importStartNote)');
+ const preview=handler.indexOf('const inspection=api.preview(');
+ assert.ok(original>=0&&asyncRead>original&&noteCheck>asyncRead&&preview>noteCheck);
+ assert.match(handler,/Onopgeslagen ontwerpnotitie gewijzigd tijdens het lezen/);
+ assert.match(handler,/importStartNote=null/);
+});
