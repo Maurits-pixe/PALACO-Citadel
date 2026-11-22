@@ -22,15 +22,24 @@ export function checkPinnedRegistrySnapshot({
   pinnedSnapshot, evaluationTime, reviewerFingerprint
 } = {}) {
   try {
-    if (!isRecord(pinnedSnapshot) ||
-        Object.keys(pinnedSnapshot).length !== 4 ||
-        !['schema','issuerFingerprint','revision','registrySha256']
-          .every(key => Object.hasOwn(pinnedSnapshot, key)) ||
-        pinnedSnapshot.schema !== PIN_SCHEMA ||
-        !hex64(pinnedSnapshot.issuerFingerprint) ||
-        !hex64(pinnedSnapshot.registrySha256) ||
-        !Number.isSafeInteger(pinnedSnapshot.revision) ||
-        pinnedSnapshot.revision < 1) return deny('INVALID_PIN');
+    if (!isRecord(pinnedSnapshot)) return deny('INVALID_PIN');
+    const pinKeys = ['schema','issuerFingerprint','revision','registrySha256'];
+    if (Object.keys(pinnedSnapshot).length !== pinKeys.length)
+      return deny('INVALID_PIN');
+    // Snapshot only own data descriptors. Accessor properties and Proxy traps
+    // are untrusted, and a second property read may return changed values.
+    const pin = Object.create(null);
+    for (const key of pinKeys) {
+      const descriptor = Object.getOwnPropertyDescriptor(pinnedSnapshot, key);
+      if (!descriptor || !Object.hasOwn(descriptor,'value'))
+        return deny('INVALID_PIN');
+      pin[key] = descriptor.value;
+    }
+    if (pin.schema !== PIN_SCHEMA ||
+        !hex64(pin.issuerFingerprint) ||
+        !hex64(pin.registrySha256) ||
+        !Number.isSafeInteger(pin.revision) ||
+        pin.revision < 1) return deny('INVALID_PIN');
     if (!(registryBytes instanceof Uint8Array) || registryBytes.byteLength === 0 ||
         registryBytes.byteLength > 65536) return deny('INVALID_REGISTRY_BYTES');
     // Copy mutable caller-owned bytes exactly once. The hash and subsequent
@@ -40,17 +49,17 @@ export function checkPinnedRegistrySnapshot({
     // Even a valid signature for a different snapshot must not silently replace
     // the precise bytes accepted by a previous human-controlled checkpoint.
     const registrySha256 = createHash('sha256').update(snapshotBytes).digest('hex');
-    if (registrySha256 !== pinnedSnapshot.registrySha256)
+    if (registrySha256 !== pin.registrySha256)
       return deny('SNAPSHOT_BYTES_DIFFER_FROM_PIN');
     const checked = checkSignedReviewerRegistry({
       registryBytes: snapshotBytes, signatureBase64Url, issuerPublicJwk,
-      expectedIssuerFingerprint: pinnedSnapshot.issuerFingerprint,
-      minimumRevision: pinnedSnapshot.revision,
+      expectedIssuerFingerprint: pin.issuerFingerprint,
+      minimumRevision: pin.revision,
       evaluationTime, reviewerFingerprint
     });
     if (!checked.localRegistryCheckPassed)
       return deny('REGISTRY_' + checked.reason);
-    if (checked.registryRevision !== pinnedSnapshot.revision)
+    if (checked.registryRevision !== pin.revision)
       return deny('REVISION_NOT_EXACTLY_PINNED');
     return {
       schema: PIN_SCHEMA,
