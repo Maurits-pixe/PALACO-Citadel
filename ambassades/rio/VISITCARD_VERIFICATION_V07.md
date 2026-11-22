@@ -261,3 +261,25 @@ strong authorization. Do not use unattended retries or expose publicly.
 Ten additional integration-test cases cover restart, conflicts, deliberate
 manual recovery, pending connections and duplicate requests. Tests have
 not been verified as PASS until CI actually executes. **GO-13 HOLD**.
+
+## v1.6 — Persistent single-flight recovery gate (DRAFT / HOLD)
+
+`visitcard_recovery_claims.py` adds an operator-triggered, durable
+single-flight claim for each `(issuer, sequence)` pair. Only a PENDING
+Outbox request can be claimed. The claim's random token is hashed before
+database persistence; a second claimant is rejected rather than sending
+concurrently. The existing `recover_once` path must obtain the claim before
+network I/O and releases its own claim after normal completion.
+
+A crash can leave the claim persisted, deliberately blocking further
+retries. There is **no automatic timeout, stealing, or background unlock**.
+A future authenticated, audited recovery procedure must reconcile the
+witness's independently signed latest head *before* any stuck claim can
+be manually cleared. The current interface has no such administrative
+unlock operation. SQL custody is not administrative authentication.
+
+**Scope:** this phase implements concurrency exclusion and crash-safe
+blocking only. It does **not** implement a remote latest-head challenge
+endpoint, trusted high-water reconciliation, TLS/mTLS or release approval.
+Do not infer that signed receipts or the recovery lock provide identity
+or execution authority. GO-13 HOLD, no merge, no public-site update.
