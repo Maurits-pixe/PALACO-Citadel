@@ -228,3 +228,26 @@ test('audit anchor PIN with unexpected symbol field fails closed',()=>{
  assert.equal(r.anchoredLedgerMatched,false);
  assert.equal(r.authorization,'DENY');
 });
+
+
+test('first-read substituted audit PIN cannot be rescued by a later valid descriptor',()=>{
+ const input=setup();
+ let reads=0;
+ const altered=new Proxy({...input.currentPin},{
+   getOwnPropertyDescriptor(target,key){
+     const descriptor=Reflect.getOwnPropertyDescriptor(target,key);
+     if(key==='registrySha256'){
+       reads++;
+       return {...descriptor,value:reads===1?'f'.repeat(64):input.currentPin.registrySha256};
+     }
+     return descriptor;
+   }
+ });
+ const r=inspectSignedAuditHeadAnchor({...input,currentPin:altered});
+ assert.equal(reads,1);
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.reason,'ANCHOR_ROLLBACK_OR_MISMATCH');
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
