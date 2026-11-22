@@ -343,3 +343,26 @@ test('hidden dossier cannot export even with stale selected record and consent',
  assert.equal(h.sandbox.latestBlob,undefined);
  assert.match(h.nodes.get('#message').textContent,/dossierinspectie is gesloten/);
 });
+
+test('handoff rejects changed draft storage since dossier selection',()=>{
+ const h=harness();enter(h,'Verouderde selectie');
+ h.nodes.get('#timeline').children[0].children.at(-1).children[1].dispatch('click');
+ h.nodes.get('#handoffConsent').checked=true;
+ h.storage.set('palaco.citadel.geheugenkamer.v1','changed-from-other-tab');
+ h.nodes.get('#contractExport').dispatch('click');
+ assert.equal(h.sandbox.latestBlob,undefined);
+ assert.equal(h.nodes.get('#handoffConsent').checked,false);
+ assert.equal(h.nodes.get('#dossier').className,'panel hidden');
+ assert.equal(h.nodes.get('#timeline').focused,true);
+ assert.match(h.nodes.get('#message').textContent,/apparaatopslag gewijzigd sinds dossierselectie/);
+});
+test('dossier export rejects changed encrypted vault since selection',()=>{
+ const h=harness();enter(h,'Verouderde kluisstatus');
+ h.nodes.get('#timeline').children[0].children.at(-1).children[1].dispatch('click');
+ h.storage.set('palaco.citadel.geheugenkamer.vault.v1','changed-vault');
+ h.nodes.get('#dossierExport').dispatch('click');
+ assert.equal(h.sandbox.latestBlob,undefined);
+ assert.equal(h.nodes.get('#dossier').className,'panel hidden');
+ assert.equal(h.nodes.get('#timeline').focused,true);
+ assert.match(h.nodes.get('#message').textContent,/apparaatopslag gewijzigd sinds dossierselectie/);
+});
