@@ -1973,3 +1973,50 @@ test('Atelier v6.34: herstelfout door tweede tab behoudt ongeautoriseerd DRAFT-r
  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem(window.PalacoAtelierBundle.RECOVERY)).authority)).toBe('OWNER');
  await other.close();
 });
+
+test('Atelier v6.39: fout bij opslaglezing tijdens synchronisatie behoudt onopgeslagen tekst',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Mijn onopgeslagen kunstconcept');
+ await page.evaluate(()=>{
+   const api=window.PalacoAtelierBundle;
+   const original=Storage.prototype.getItem;
+   Storage.prototype.getItem=function(key){
+     if(key===api.NOTE)throw new DOMException('Storage denied','SecurityError');
+     return original.call(this,key);
+   };
+   try{
+     window.dispatchEvent(new StorageEvent('storage',{
+       key:api.NOTE,newValue:'Extern gewijzigde notitie',
+       storageArea:localStorage,url:location.href
+     }));
+   }finally{Storage.prototype.getItem=original;}
+ });
+ await expect(page.locator('#statement')).toHaveValue('Mijn onopgeslagen kunstconcept');
+ await expect(page.locator('#feedback')).toContainText('browseropslag is niet toegankelijk');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('lokaal bewaard');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Mijn onopgeslagen kunstconcept');
+});
+
+test('Atelier v6.39: opslagleesfout wist ook schone ontwerpnotitie niet',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Eerder bewaarde notitie');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('lokaal bewaard');
+ await page.evaluate(()=>{
+   const api=window.PalacoAtelierBundle;
+   const original=Storage.prototype.getItem;
+   Storage.prototype.getItem=function(key){
+     if(key===api.NOTE)throw new DOMException('Storage denied','SecurityError');
+     return original.call(this,key);
+   };
+   try{
+     window.dispatchEvent(new StorageEvent('storage',{
+       key:api.NOTE,newValue:null,storageArea:localStorage,url:location.href
+     }));
+   }finally{Storage.prototype.getItem=original;}
+ });
+ await expect(page.locator('#statement')).toHaveValue('Eerder bewaarde notitie');
+ await expect(page.locator('#feedback')).toContainText('browseropslag is niet toegankelijk');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Eerder bewaarde notitie');
+});
