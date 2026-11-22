@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#10243e">
 <meta name="description" content="PALACO RIO: een kleine eerste app met lokale contacten en een contactproef op je eigen apparaat.">
 <title>PALACO RIO — eerste proefversie</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%2310243e'/%3E%3Cpath d='M12 47V17h20c12 0 15 17 3 21l11 9H34L24 36h-2v11zM22 27h10' stroke='%23f2d64b' stroke-width='5' fill='none' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
 :root{--paper:#f4f5ef;--white:#fffef8;--ink:#172d32;--muted:#53676a;--line:#cbd3cd;--gold:#23484b;--pale:#f2d64b;--danger:#913f32;--radius:10px}
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea,select{font:inherit}button,a,input,textarea,select{-webkit-tap-highlight-color:transparent}button{cursor:pointer}button:disabled{cursor:default;opacity:.5}a{color:inherit}a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:4px}[hidden]{display:none!important}.wrap{max-width:1050px;width:90%;margin:auto}.skip{position:absolute;inset-block-start:-100px;inset-inline-start:20px;z-index:10;padding:12px;background:var(--ink);color:white}.skip:focus{inset-block-start:10px}
@@ -25,6 +26,7 @@ header{background:var(--white);border-bottom:2px solid var(--ink)}.mark{border:0
 @media(max-width:720px){.hero{padding:25px 22px 24px;margin-top:21px}.hero h1{font-size:29px}.hero-rio{font-size:94px}.mark{width:42px;height:42px}.brand strong{font-size:14px}.card{padding:19px}.contact-grid{gap:22px}.hero .actions{gap:9px}.hero .btn{font-size:12px;padding:10px 13px}}
 @media(max-width:390px){.tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}.tabs button{font-size:12px;padding:12px 6px}.brand strong{font-size:13px}.mark{width:36px;height:36px}.hero{padding:23px 19px}.hero-rio{font-size:88px}.hero h1{font-size:26px}.language select{max-width:110px;font-size:12px}}
 
+.rio-share-preview{border:1px solid var(--line);border-radius:var(--radius);background:var(--white);padding:clamp(20px,3vw,34px);margin:18px 0 28px}.rio-share-preview h2{margin:5px 0 9px}.rio-share-preview p{margin:0;max-width:680px}.rio-share-preview .actions{margin-top:16px}.rio-share-preview .hint{margin-top:12px}
 </style>
 </head>
 <body>
@@ -34,6 +36,13 @@ header{background:var(--white);border-bottom:2px solid var(--ink)}.mark{border:0
 <main class="wrap" id="main">
 <div class="hero"><div><div class="hero-rio" aria-hidden="true">RIO<span>.</span></div><span class="eyebrow" data-i18n="localTag">Op dit apparaat</span><h1 data-i18n="heroTitle">Het visitekaartje van PALACO.</h1><p data-i18n="heroCopy">Bewaar contacten en oefen de contactroute, stap voor stap.</p><div class="actions"><button class="btn" id="hero-trial" type="button" data-i18n="newTrial">Nieuwe contactproef</button><button class="btn outline" id="hero-install" type="button" data-i18n="install">Installeren</button></div></div><div class="stamp" aria-hidden="true"><b>RIO</b><span>PALACO · v0.1</span></div></div>
 <p class="boundary" data-i18n="boundary">Alles in deze proef blijft op dit apparaat. Berichten naar andere apparaten zijn nog niet beschikbaar.</p>
+<section class="rio-share-preview" aria-labelledby="rio-share-title">
+  <div><span class="eyebrow">PALACO · RIO VISITCARD</span><h2 id="rio-share-title">Neem RIO mee.</h2>
+  <p>Deel uitsluitend de openbare RIO-preview. Contacten, proefberichten en keuzes van dit apparaat worden niet meegestuurd.</p></div>
+  <div class="actions"><a class="btn outline" href="https://rio-preview.mauritsvang1.chatgpt.site/" target="_blank" rel="noopener noreferrer">Open RIO-preview</a>
+  <button class="btn" type="button" id="rio-share-public">Deel de openbare link</button></div>
+  <p id="rio-share-feedback" role="status" aria-live="polite" class="hint"></p>
+</section>
 <div class="actions" style="margin:0 0 21px"><a class="btn outline" id="nova-online-link" href="/rio/nova/?lang=nl">Open NOVA online · serverproef</a></div>
 <noscript><p class="noscript">PALACO RIO heeft JavaScript nodig voor deze lokale proef. Schakel JavaScript in en open de app opnieuw. / This local trial needs JavaScript. Enable it and reopen the app. / 这一本地试用需要 JavaScript。请启用后重新打开。</p></noscript>
 <div class="tabs" role="tablist" aria-label="RIO">
@@ -192,6 +201,20 @@ setInterval(()=>{if(active()){const left=remaining();if(left>0){const seconds=Ma
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&active())remaining();});
 let installPrompt=null,installState='';
 const isFile=location.protocol==='file:';
+const publicRioUrl='https://rio-preview.mauritsvang1.chatgpt.site/';
+$('rio-share-public').addEventListener('click',async()=>{
+ const feedback=$('rio-share-feedback');
+ const messages={
+ nl:['Deel de openbare RIO-preview','De openbare link is gekopieerd.','Kopiëren is niet gelukt. Open de RIO-preview en kopieer het adres.'],
+ en:['Share the public RIO preview','Public link copied.','Could not copy. Open the RIO preview and copy its address.']
+ };
+ const m=messages[language]||messages.en;
+ try{
+  if(navigator.share){await navigator.share({title:m[0],url:publicRioUrl});feedback.textContent='';return;}
+  if(navigator.clipboard&&globalThis.isSecureContext){await navigator.clipboard.writeText(publicRioUrl);feedback.textContent=m[1];return;}
+  throw new Error('Clipboard unavailable');
+ }catch(error){if(error&&error.name==='AbortError')return;feedback.textContent=m[2];}
+});
 function renderInstall(){
  $('download-app').hidden=isFile;
  $('ambassador-link').hidden=isFile;
