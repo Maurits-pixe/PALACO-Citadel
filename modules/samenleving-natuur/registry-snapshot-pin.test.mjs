@@ -243,3 +243,52 @@ test('issuer JWK with extra symbol property cannot bypass exact-key contract', (
   assert.equal(result.reason,'INVALID_ISSUER_KEY');
   assert.equal(result.authorization,'DENY');
 });
+
+
+test('outer registry input accessor is rejected without getter execution', () => {
+  const data=signed();
+  const request={
+    ...data,pinnedSnapshot:pinned(data.registryBytes),issuerPublicJwk,
+    evaluationTime:'2026-11-22T00:00:00.000Z',reviewerFingerprint
+  };
+  let reads=0;
+  Object.defineProperty(request,'signatureBase64Url',{
+    enumerable:true,configurable:true,
+    get(){reads++;throw Error('hostile caller accessor');}
+  });
+  const result=checkPinnedRegistrySnapshot(request);
+  assert.equal(reads,0);
+  assert.equal(result.exactSnapshotMatched,false);
+  assert.equal(result.reason,'UNTRUSTED_PIN_INPUT');
+  assert.equal(result.authorization,'DENY');
+  assert.equal(result.releaseAllowed,false);
+});
+
+test('outer registry input throwing Proxy trap fails closed without exception', () => {
+  const data=signed();
+  const request={
+    ...data,pinnedSnapshot:pinned(data.registryBytes),issuerPublicJwk,
+    evaluationTime:'2026-11-22T00:00:00.000Z',reviewerFingerprint
+  };
+  const hostile=new Proxy(request,{
+    ownKeys(){throw Error('hostile outer key enumeration');}
+  });
+  const result=checkPinnedRegistrySnapshot(hostile);
+  assert.equal(result.exactSnapshotMatched,false);
+  assert.equal(result.reason,'UNTRUSTED_PIN_INPUT');
+  assert.equal(result.authorization,'DENY');
+  assert.equal(result.executionAllowed,false);
+});
+
+test('outer registry input rejects unexpected symbol properties', () => {
+  const data=signed();
+  const request={
+    ...data,pinnedSnapshot:pinned(data.registryBytes),issuerPublicJwk,
+    evaluationTime:'2026-11-22T00:00:00.000Z',reviewerFingerprint,
+    [Symbol('untrusted')]:true
+  };
+  const result=checkPinnedRegistrySnapshot(request);
+  assert.equal(result.exactSnapshotMatched,false);
+  assert.equal(result.reason,'UNTRUSTED_PIN_INPUT');
+  assert.equal(result.authorization,'DENY');
+});
