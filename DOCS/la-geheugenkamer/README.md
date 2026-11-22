@@ -56,6 +56,13 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Controle bij terugkeer naar de tab · v4.5
+- Bij het opnieuw activeren van het browservenster (`focus`) of het zichtbaar worden van het document (`visibilitychange`) wordt een geopende dossierinspectie opnieuw gecontroleerd tegenover de bij selectie vastgelegde lokale opslagwaarden.
+- Zijn de conceptopslag of kluis ondertussen veranderd, dan wordt de dossierselectie ingetrokken, de eenmalige exporttoestemming verwijderd, het dossier gesloten en de toetsenbordfocus naar de tijdlijn verplaatst. Ook lopende cryptografische bewerkingen krijgen een ongeldig operatienummer.
+- Bij **ongewijzigde opslag** blijft een geopende dossierinspectie bestaan: gewoon wisselen tussen tabs verwijdert niet automatisch de toestemming.
+- Twee Chromium-regressies controleren de hercontrole bij terugkeer en dat een ongewijzigd dossier behouden blijft. De tests blokkeren doelbewust het `storage`-event zodat de focushercontrole onafhankelijk wordt getoetst.
+- De opslagvergelijking is geen atomair transactieslot en garandeert niet dat een tussentijdse wijziging die exact teruggedraaid is herkenbaar blijft. Fysieke Android-/iPhone-tests en onafhankelijke review staan op HOLD.
+
 ## Dossierselectie opnieuw controleren bij export · v4.4
 - Bij het bewust openen van een dossier wordt de toestand van de eigen conceptopslag en versleutelde apparaatkluis vastgelegd. Kan die toestand niet veilig worden gelezen, dan wordt de selectie geweigerd.
 - Vóór een **Bewijskamer/ERA-handoff** of **geselecteerde dossierexport** worden beide opslagwaarden opnieuw vergeleken. Ook wanneer een cross-tab `storage`-gebeurtenis nog niet is verwerkt, weigert de module een verouderde export.
