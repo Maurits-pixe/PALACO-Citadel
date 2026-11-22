@@ -28,6 +28,7 @@ header{background:var(--white);border-bottom:2px solid var(--ink)}.mark{border:0
 
 .rio-share-preview{border:1px solid var(--line);border-radius:var(--radius);background:var(--white);padding:clamp(20px,3vw,34px);margin:18px 0 28px}.rio-share-preview h2{margin:5px 0 9px}.rio-share-preview p{margin:0;max-width:680px}.rio-share-preview .actions{margin-top:16px}.rio-share-preview .hint{margin-top:12px}
 .rio-trust{border-top:1px solid var(--line);margin-top:20px;padding-top:20px}.rio-trust h3{font:600 18px/1.3 system-ui,sans-serif;margin:0 0 12px}.rio-trust dl{display:grid;gap:8px;margin:0}.rio-trust dl>div{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 16px;border-bottom:1px solid var(--line);padding:8px 0}.rio-trust dt{font-size:13px;font-weight:650}.rio-trust dd{font-size:13px;color:var(--muted);margin:0}.rio-trust .hint{margin-top:15px}
+.rio-share-preview #rio-share-manual{margin-top:12px}.rio-share-preview #rio-share-manual label{font-size:12px;font-weight:600;display:block;margin-bottom:5px}.rio-share-preview #rio-share-manual input{width:100%;font-size:14px;direction:ltr;text-align:left}.rio-share-preview #rio-share-manual input:focus-visible{outline:3px solid var(--gold)}
 </style>
 </head>
 <body>
@@ -43,6 +44,10 @@ header{background:var(--white);border-bottom:2px solid var(--ink)}.mark{border:0
   <div class="actions"><a class="btn outline" href="https://rio-preview.mauritsvang1.chatgpt.site/" target="_blank" rel="noopener noreferrer" data-rio-i18n="open">Open RIO-preview</a>
   <button class="btn" type="button" id="rio-share-public" data-rio-i18n="share">Deel de openbare link</button></div>
   <p id="rio-share-feedback" role="status" aria-live="polite" class="hint"></p>
+  <div id="rio-share-manual" hidden>
+    <label for="rio-share-manual-url" data-rio-manual-label>Openbare RIO-link</label>
+    <input id="rio-share-manual-url" type="text" readonly spellcheck="false" autocomplete="off" value="https://rio-preview.mauritsvang1.chatgpt.site/" aria-describedby="rio-share-feedback">
+  </div>
   <div class="rio-trust" aria-labelledby="rio-trust-title">
     <h3 id="rio-trust-title" data-rio-trust="title">Verificatiestatus</h3>
     <dl>
@@ -213,17 +218,17 @@ let installPrompt=null,installState='';
 const isFile=location.protocol==='file:';
 const publicRioUrl='https://rio-preview.mauritsvang1.chatgpt.site/';
 const rioShareTranslations={
- nl:{heading:'Neem RIO mee.',privacy:'Deel uitsluitend de openbare RIO-preview. Contacten, proefberichten en keuzes van dit apparaat worden niet meegestuurd.',open:'Open RIO-preview',share:'Deel de openbare link',title:'Deel de openbare RIO-preview',copied:'De openbare link is gekopieerd.',failed:'Kopiëren is niet gelukt. Open de RIO-preview en kopieer het adres.',shared:'Deelvenster geopend.'},
- en:{heading:'Take RIO with you.',privacy:'Only the public RIO preview is shared. This device’s contacts, trial messages and choices are never included.',open:'Open RIO preview',share:'Share public link',title:'Share the public RIO preview',copied:'Public link copied.',failed:'Copy failed. Open the RIO preview and copy its address.',shared:'Share dialog opened.'},
- de:{heading:'RIO mitnehmen.',privacy:'Nur die öffentliche RIO-Vorschau wird geteilt. Kontakte, Testnachrichten und Entscheidungen dieses Geräts werden nicht übertragen.',open:'RIO-Vorschau öffnen',share:'Öffentlichen Link teilen',title:'Öffentliche RIO-Vorschau teilen',copied:'Öffentlicher Link kopiert.',failed:'Kopieren fehlgeschlagen. Öffne die RIO-Vorschau und kopiere die Adresse.',shared:'Teilen geöffnet.'},
- fr:{heading:'Emportez RIO.',privacy:'Seul le lien public RIO est partagé. Les contacts, messages de test et choix de cet appareil ne sont jamais transmis.',open:'Ouvrir RIO',share:'Partager le lien public',title:'Partager la préversion publique RIO',copied:'Lien public copié.',failed:'Copie impossible. Ouvrez RIO et copiez son adresse.',shared:'Partage ouvert.'},
- es:{heading:'Lleva RIO contigo.',privacy:'Solo se comparte la vista pública de RIO. No se incluyen contactos, mensajes de prueba ni decisiones de este dispositivo.',open:'Abrir vista de RIO',share:'Compartir enlace público',title:'Compartir RIO público',copied:'Enlace público copiado.',failed:'No se pudo copiar. Abre RIO y copia su dirección.',shared:'Menú de compartir abierto.'},
- it:{heading:'Porta RIO con te.',privacy:'Si condivide solo l’anteprima pubblica di RIO. Contatti, messaggi di prova e scelte del dispositivo non vengono inclusi.',open:'Apri anteprima RIO',share:'Condividi link pubblico',title:'Condividi RIO pubblico',copied:'Link pubblico copiato.',failed:'Copia non riuscita. Apri RIO e copia l’indirizzo.',shared:'Condivisione aperta.'},
- pt:{heading:'Leve o RIO consigo.',privacy:'Apenas a pré-visualização pública do RIO é partilhada. Contactos, mensagens de teste e decisões deste dispositivo não são incluídos.',open:'Abrir RIO',share:'Partilhar ligação pública',title:'Partilhar RIO público',copied:'Ligação pública copiada.',failed:'Não foi possível copiar. Abra o RIO e copie o endereço.',shared:'Partilha aberta.'},
- ru:{heading:'Возьмите RIO с собой.',privacy:'Передаётся только ссылка на публичную версию RIO. Контакты, пробные сообщения и решения с устройства не передаются.',open:'Открыть RIO',share:'Поделиться ссылкой',title:'Поделиться публичной версией RIO',copied:'Ссылка скопирована.',failed:'Не удалось скопировать. Откройте RIO и скопируйте адрес.',shared:'Открыто меню отправки.'},
- zh:{heading:'随时访问 RIO。',privacy:'仅分享公开的 RIO 预览链接，不会包含本设备的联系人、测试消息或选择。',open:'打开 RIO 预览',share:'分享公开链接',title:'分享公开 RIO 预览',copied:'公开链接已复制。',failed:'复制失败。请打开 RIO 并复制地址。',shared:'已打开分享界面。'},
- ar:{heading:'خذ RIO معك.',privacy:'تُشارك معاينة RIO العامة فقط. لا تُرسل جهات الاتصال أو الرسائل التجريبية أو اختيارات هذا الجهاز.',open:'فتح معاينة RIO',share:'مشاركة الرابط العام',title:'مشاركة معاينة RIO العامة',copied:'تم نسخ الرابط العام.',failed:'تعذر النسخ. افتح معاينة RIO وانسخ العنوان.',shared:'تم فتح نافذة المشاركة.'},
- eo:{heading:'Kunportu RIO.',privacy:'Nur la publika RIO-antaŭrigardo estas kunhavata. Kontaktoj, provmesaĝoj kaj elektoj de ĉi tiu aparato ne estas sendataj.',open:'Malfermi RIO',share:'Kunhavigi publikan ligilon',title:'Kunhavigi publikan RIO',copied:'Publika ligilo kopiita.',failed:'Kopiado malsukcesis. Malfermu RIO kaj kopiu la adreson.',shared:'Kunhavigo malfermita.'}
+ nl:{heading:'Neem RIO mee.',privacy:'Deel uitsluitend de openbare RIO-preview. Contacten, proefberichten en keuzes van dit apparaat worden niet meegestuurd.',open:'Open RIO-preview',share:'Deel de openbare link',title:'Deel de openbare RIO-preview',copied:'De openbare link is gekopieerd.',failed:'Automatisch delen of kopiëren lukte niet. Selecteer en kopieer de openbare link hieronder.',shared:'Deelvenster geopend.'},
+ en:{heading:'Take RIO with you.',privacy:'Only the public RIO preview is shared. This device’s contacts, trial messages and choices are never included.',open:'Open RIO preview',share:'Share public link',title:'Share the public RIO preview',copied:'Public link copied.',failed:'Automatic sharing or copying failed. Select and copy the public link below.',shared:'Share dialog opened.'},
+ de:{heading:'RIO mitnehmen.',privacy:'Nur die öffentliche RIO-Vorschau wird geteilt. Kontakte, Testnachrichten und Entscheidungen dieses Geräts werden nicht übertragen.',open:'RIO-Vorschau öffnen',share:'Öffentlichen Link teilen',title:'Öffentliche RIO-Vorschau teilen',copied:'Öffentlicher Link kopiert.',failed:'Automatisches Teilen oder Kopieren fehlgeschlagen. Wähle den öffentlichen Link unten aus und kopiere ihn.',shared:'Teilen geöffnet.'},
+ fr:{heading:'Emportez RIO.',privacy:'Seul le lien public RIO est partagé. Les contacts, messages de test et choix de cet appareil ne sont jamais transmis.',open:'Ouvrir RIO',share:'Partager le lien public',title:'Partager la préversion publique RIO',copied:'Lien public copié.',failed:'Le partage ou la copie automatique a échoué. Sélectionnez et copiez le lien public ci-dessous.',shared:'Partage ouvert.'},
+ es:{heading:'Lleva RIO contigo.',privacy:'Solo se comparte la vista pública de RIO. No se incluyen contactos, mensajes de prueba ni decisiones de este dispositivo.',open:'Abrir vista de RIO',share:'Compartir enlace público',title:'Compartir RIO público',copied:'Enlace público copiado.',failed:'No fue posible compartir ni copiar automáticamente. Selecciona y copia el enlace público de abajo.',shared:'Menú de compartir abierto.'},
+ it:{heading:'Porta RIO con te.',privacy:'Si condivide solo l’anteprima pubblica di RIO. Contatti, messaggi di prova e scelte del dispositivo non vengono inclusi.',open:'Apri anteprima RIO',share:'Condividi link pubblico',title:'Condividi RIO pubblico',copied:'Link pubblico copiato.',failed:'Condivisione o copia automatica non riuscita. Seleziona e copia il link pubblico qui sotto.',shared:'Condivisione aperta.'},
+ pt:{heading:'Leve o RIO consigo.',privacy:'Apenas a pré-visualização pública do RIO é partilhada. Contactos, mensagens de teste e decisões deste dispositivo não são incluídos.',open:'Abrir RIO',share:'Partilhar ligação pública',title:'Partilhar RIO público',copied:'Ligação pública copiada.',failed:'Não foi possível partilhar ou copiar automaticamente. Selecione e copie a ligação pública abaixo.',shared:'Partilha aberta.'},
+ ru:{heading:'Возьмите RIO с собой.',privacy:'Передаётся только ссылка на публичную версию RIO. Контакты, пробные сообщения и решения с устройства не передаются.',open:'Открыть RIO',share:'Поделиться ссылкой',title:'Поделиться публичной версией RIO',copied:'Ссылка скопирована.',failed:'Не удалось автоматически отправить или скопировать. Выделите и скопируйте публичную ссылку ниже.',shared:'Открыто меню отправки.'},
+ zh:{heading:'随时访问 RIO。',privacy:'仅分享公开的 RIO 预览链接，不会包含本设备的联系人、测试消息或选择。',open:'打开 RIO 预览',share:'分享公开链接',title:'分享公开 RIO 预览',copied:'公开链接已复制。',failed:'自动分享或复制失败。请选中并复制下方公开链接。',shared:'已打开分享界面。'},
+ ar:{heading:'خذ RIO معك.',privacy:'تُشارك معاينة RIO العامة فقط. لا تُرسل جهات الاتصال أو الرسائل التجريبية أو اختيارات هذا الجهاز.',open:'فتح معاينة RIO',share:'مشاركة الرابط العام',title:'مشاركة معاينة RIO العامة',copied:'تم نسخ الرابط العام.',failed:'تعذرت المشاركة أو النسخ تلقائياً. حدد الرابط العام أدناه وانسخه.',shared:'تم فتح نافذة المشاركة.'},
+ eo:{heading:'Kunportu RIO.',privacy:'Nur la publika RIO-antaŭrigardo estas kunhavata. Kontaktoj, provmesaĝoj kaj elektoj de ĉi tiu aparato ne estas sendataj.',open:'Malfermi RIO',share:'Kunhavigi publikan ligilon',title:'Kunhavigi publikan RIO',copied:'Publika ligilo kopiita.',failed:'Aŭtomata kunhavigo aŭ kopiado malsukcesis. Elektu kaj kopiu la publikan ligilon sube.',shared:'Kunhavigo malfermita.'}
 };
 const rioTrustTranslations={
  nl:['Verificatiestatus','Openbare link','Publiek deelbaar · geen identiteitsbewijs','Contactproef','Alleen lokaal · geen echte bezorging','PALACO-identiteit','Niet geverifieerd · geen autorisatie',"Deze kaart is een wegwijzer, geen cryptografisch bewijs, account of toegangsbewijs. Een toekomstige QR-code mag pas 'geverifieerd' tonen na onafhankelijke bewijscontrole."],
@@ -244,10 +249,22 @@ function renderRioTrust(){
  document.querySelectorAll('[data-rio-trust]').forEach(node=>{const index=rioTrustKeys.indexOf(node.dataset.rioTrust);if(index!==-1)node.textContent=values[index];});
 }
 function rioShareStrings(){return rioShareTranslations[language]||rioShareTranslations.en;}
+const rioManualLabels={"nl":"Openbare RIO-link","en":"Public RIO link","de":"Öffentlicher RIO-Link","fr":"Lien RIO public","es":"Enlace público de RIO","it":"Link pubblico RIO","pt":"Ligação pública RIO","ru":"Публичная ссылка RIO","zh":"RIO 公开链接","ar":"رابط RIO العام","eo":"Publika RIO-ligilo"};
+function revealRioManualCopy(){
+ const manual=$('rio-share-manual');
+ const field=$('rio-share-manual-url');
+ field.value=publicRioUrl;
+ manual.hidden=false;
+ field.focus();
+ field.select();
+}
+$('rio-share-manual-url').addEventListener('focus',event=>event.currentTarget.select());
 function renderRioShare(){
  const strings=rioShareStrings();
  document.querySelectorAll('[data-rio-i18n]').forEach(element=>{element.textContent=strings[element.dataset.rioI18n];});
  $('rio-share-feedback').textContent='';
+ $('rio-share-manual').hidden=true;
+ document.querySelector('[data-rio-manual-label]').textContent=rioManualLabels[language]||rioManualLabels.en;
 }
 $('rio-share-public').addEventListener('click',async()=>{
  const feedback=$('rio-share-feedback');
@@ -256,7 +273,7 @@ $('rio-share-public').addEventListener('click',async()=>{
   if(typeof navigator.share==='function'){await navigator.share({title:m.title,url:publicRioUrl});feedback.textContent=m.shared;return;}
   if(navigator.clipboard&&globalThis.isSecureContext){await navigator.clipboard.writeText(publicRioUrl);feedback.textContent=m.copied;return;}
   throw new Error('Clipboard unavailable');
- }catch(error){if(error&&error.name==='AbortError')return;feedback.textContent=m.failed;}
+ }catch(error){if(error&&error.name==='AbortError')return;feedback.textContent=m.failed;revealRioManualCopy();}
 });
 function renderInstall(){
  $('download-app').hidden=isFile;
