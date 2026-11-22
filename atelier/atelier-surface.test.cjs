@@ -225,7 +225,8 @@ test('Atelier note synchronization must preserve unsaved edits from local tab',(
  assert.match(handler,/const locallyEdited=noteValue\(\)!==/);
  assert.match(handler,/if\(locallyEdited\)/);
  assert.match(handler,/onopgeslagen tekst blijft staan/);
- assert.match(handler,/typeof e\.newValue==='string'\?e\.newValue\.slice\(0,6000\):''/);
+ assert.match(handler,/const latest=e\.key===null\?null:e\.newValue/);
+ assert.match(handler,/typeof latest==='string'\?latest\.slice\(0,6000\):''/);
 });
 
 
@@ -238,7 +239,7 @@ test('Atelier note save must reject a stale stored baseline before writing',()=>
  assert.match(handler,/current!==noteBaseline/);
  assert.ok(handler.indexOf('current!==noteBaseline')<handler.indexOf('localStorage.setItem(NOTE,value)'));
  assert.match(handler,/Opslaan geweigerd/);
- assert.match(html,/noteBaseline=e.newValue/);
+ assert.match(html,/noteBaseline=latest/);
 });
 
 
