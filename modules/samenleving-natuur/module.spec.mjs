@@ -2011,3 +2011,77 @@ test('receipt signer pin candidate disappears after changing signing key input',
  await expect(page.locator('#pinIssuerReceiptSigner')).toBeDisabled();
  await expect(page.locator('#issuerReceiptStatus')).toContainText('opnieuw controleren vereist');
 });
+
+async function receiptSignerReviewFixture(page,{badSigner=false,badReviewer=false,expired=false}={}){
+ return page.evaluate(async ({badSigner,badReviewer,expired})=>{
+  const canonical=v=>Array.isArray(v)?'['+v.map(canonical).join(',')+']':v&&typeof v==='object'?'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canonical(v[k])).join(',')+'}':JSON.stringify(v);
+  const pairs=await Promise.all([0,1].map(()=>crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify'])));
+  const publicKeys=await Promise.all(pairs.map(async pair=>{const k=await crypto.subtle.exportKey('jwk',pair.publicKey);return {kty:'EC',crv:'P-256',x:k.x,y:k.y}}));
+  const fp=async k=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonical(k)))),b=>b.toString(16).padStart(2,'0')).join('');
+  const now=Date.now(),unsigned={schema:'palaco-citadel-receipt-signer-review-v1',decision:'reviewed-no-authority',epoch:1,
+   issuedAt:new Date(now-3600000).toISOString(),expiresAt:new Date(now+(expired?-1000:3600000)).toISOString(),
+   signerFingerprint:await fp(publicKeys[0]),reviewerFingerprint:await fp(publicKeys[1])};
+  const payload=new TextEncoder().encode(canonical(unsigned));
+  const signatures=await Promise.all(pairs.map(p=>crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},p.privateKey,payload)));
+  const b64=s=>btoa(String.fromCharCode(...new Uint8Array(s)));
+  const declaration={...unsigned,signerSignature:badSigner?btoa('invalid-signer-signature'):b64(signatures[0]),
+   reviewerSignature:badReviewer?btoa('invalid-reviewer-signature'):b64(signatures[1])};
+  return {signer:publicKeys[0],reviewer:publicKeys[1],declaration};
+ },{badSigner,badReviewer,expired});
+}
+async function uploadReceiptSignerReview(page,fixture,{pin=true}={}){
+ if(pin)await page.evaluate(fp=>localStorage.setItem('palaco.citadel.receipt-signer-pin.v1',JSON.stringify({schema:'palaco-citadel-local-receipt-signer-pin-v1',fingerprint:fp})),fixture.declaration.signerFingerprint);
+ await page.locator('#receiptSignerReviewKey').fill(JSON.stringify(fixture.signer));
+ await page.locator('#receiptSignerReviewerKey').fill(JSON.stringify(fixture.reviewer));
+ await page.locator('#receiptSignerReviewFile').setInputFiles({name:'review.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(fixture.declaration))});
+}
+test('two signed receipt signer review verifies without granting approval or changing local pin',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,fixture);
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING DUBBEL CRYPTOGRAFISCH GELDIG');
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('GEEN ROLTOEWIJZING');
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('NIET ONAFHANKELIJK VERTROUWD');
+ const pinned=await page.evaluate(()=>JSON.parse(localStorage.getItem('palaco.citadel.receipt-signer-pin.v1')));
+ expect(pinned.fingerprint).toBe(fixture.declaration.signerFingerprint);
+});
+
+test('receipt signer review rejects invalid signer signature',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await receiptSignerReviewFixture(page,{badSigner:true});
+ await uploadReceiptSignerReview(page,fixture);
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
+
+test('receipt signer review rejects invalid independent reviewer signature',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await receiptSignerReviewFixture(page,{badReviewer:true});
+ await uploadReceiptSignerReview(page,fixture);
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
+
+test('receipt signer review requires previously pinned signer and rejects expiry',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,fixture,{pin:false});
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+ const expired=await receiptSignerReviewFixture(page,{expired:true});
+ await uploadReceiptSignerReview(page,expired);
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
+
+test('changing reviewer key invalidates previous receipt signer review outcome',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,fixture);
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
+ await page.locator('#receiptSignerReviewerKey').fill('{}');
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
+ await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('CRYPTOGRAFISCH GELDIG');
+});
