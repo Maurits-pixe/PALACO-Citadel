@@ -30,11 +30,26 @@ const reject = reason => ({
  */
 export function inspectSignedAuditHeadAnchor(input = {}) {
   try {
+    // The outer contract is untrusted: reject null, getters and hostile
+    // Proxy traps before touching any caller-controlled field.
+    const inputKeys = [
+      'anchorBytes','signatureBase64Url','anchorPublicJwk',
+      'expectedAnchorKeyFingerprint','genesisPin','entries',
+      'currentPin','minimumAnchorSequence'
+    ];
+    if (!own(input,inputKeys)) return reject('INVALID_ANCHOR_INPUT');
+    const snapshot = Object.create(null);
+    for (const key of inputKeys) {
+      const descriptor = Object.getOwnPropertyDescriptor(input,key);
+      if (!descriptor || !Object.hasOwn(descriptor,'value'))
+        return reject('INVALID_ANCHOR_INPUT');
+      snapshot[key] = descriptor.value;
+    }
     const {
       anchorBytes, signatureBase64Url, anchorPublicJwk,
       expectedAnchorKeyFingerprint, genesisPin, entries, currentPin,
       minimumAnchorSequence
-    } = input;
+    } = snapshot;
     if (!(anchorBytes instanceof Uint8Array) || !anchorBytes.length ||
       anchorBytes.length > 8192 || !Array.isArray(entries) ||
       !pinOK(genesisPin) || !pinOK(currentPin) ||
