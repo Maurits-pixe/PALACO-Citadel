@@ -257,3 +257,9 @@ De nieuwe private ontwikkelmodule `08-IMPLEMENTATION/src/citadel/mundo-atlas-cry
 Er is nog geen echte cryptografische provider, sleutellijst, onafhankelijke vertrouwensbron of geverifieerde besluitketen aangesloten. Een door een willekeurige caller verstrekte verifier is geen bewijs van echtheid. De code geeft bij ontbrekende vertrouwensvoorzieningen geen positieve verificatie en bij elke uitkomst **autorisatie DENY / HOLD**. De publieke Atlas toont uitsluitend het verklarende paneel **Cryptografische keten 031**.
 
 De oorspronkelijke privé-Citadel is niet gewijzigd, PR #58 DRAFT/HOLD, geen merge, geen functionele tests en geen productieautorisatie.
+
+## MUNDO-SIGNER-TRUST-032 — register van ondertekenaars, sleutelrotatie en intrekking
+
+De nieuwe private ontwikkelmodule `08-IMPLEMENTATION/src/citadel/mundo-atlas-signer-trust.ts` bereidt een vertrouwensregister voor de besluitketen 031 voor. De module valideert unieke sleutelidentificaties, SHA-256-vingerafdrukken van Ed25519-publieke sleutels, rollen, UTC-geldigheidsperioden, intrekkingsstatus en opvolgende sleutels. Onbekende velden, dubbele sleutels, ongeldige vervanging en cycli leiden tot afwijzing. Het vertrouwde register moet door een afzonderlijke beveiligde host worden geverifieerd met een betrouwbare tijdbron, gepinde sleutels en een anti-rollback beschermde registerversie. Geen externe vertrouwensdienst of werkelijke sleutels zijn aangesloten.
+
+De openbare World Atlas heeft uitsluitend de verklarende sectie **Vertrouwensregister 032** gekregen. Deze code levert geen nieuwe bevoegdheid; elk beoordelingsresultaat houdt `decision: HOLD` en `activationPermitted: false` in stand. De bestaande cryptografische keten 031 en acceptatiepoort 029 blijven ongewijzigd en niet-geautoriseerd. Geen functionele tests, merge of private Citadel Sites-wijziging; GitHub PR #58 DRAFT/HOLD, GO-13 HOLD.
