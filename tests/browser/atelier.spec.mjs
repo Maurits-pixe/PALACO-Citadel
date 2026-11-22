@@ -1621,3 +1621,67 @@ test('Atelier v6.20: gecontroleerde rollback toont korte checklist op desktop',a
  await expect(page.locator('#rollbackReport')).toBeFocused();
  await expect(page.locator('#rollbackGuide')).toBeVisible();
 });
+
+
+test('Atelier v6.21: echte importfout toont gecontroleerde rollback en bewaart originele ontwerpen',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const payload=await page.evaluate(()=>{
+  const api=window.PalacoAtelierBundle;
+  const old=api.create(null,null,'Bewaard ontwerp');
+  api.restore(localStorage,old);
+  const exterior={schema:'palaco.citadel.atelier.studio/1',state:'DRAFT',authority:'NONE',name:'Controle',scale:'Dorp',style:'PALACO · Emerald & Gold',mood:'Gouden uur',cells:Array(96).fill(null)};
+  exterior.cells[0]='park';
+  return JSON.stringify(api.create(exterior,null,'Nieuw ontwerp'));
+ });
+ const before=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ await page.evaluate(()=>{
+  const native=Storage.prototype.setItem;
+  let failed=false;
+  window.restoreAtelierWrites=()=>{Storage.prototype.setItem=native;};
+  Storage.prototype.setItem=function(key,value){
+   if(key===window.PalacoAtelierBundle.NOTE&&!failed){failed=true;throw Error('simulated quota failure');}
+   return native.call(this,key,value);
+  };
+ });
+ page.on('dialog',dialog=>dialog.accept());
+ await page.locator('#bundleImport').setInputFiles({name:'veilig-ontwerp.json',mimeType:'application/json',buffer:Buffer.from(payload)});
+ await expect(page.locator('#rollbackReport')).toBeVisible();
+ await expect(page.locator('#rollbackHeading')).toHaveText('Terugdraaien gecontroleerd');
+ await expect(page.locator('#rollbackItems')).toContainText('Exterieur: Teruggezet');
+ await expect(page.locator('#rollbackSteps li')).toHaveCount(2);
+ await expect(page.locator('#rollbackReport')).toBeFocused();
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+ await page.evaluate(()=>window.restoreAtelierWrites());
+});
+
+test('Atelier v6.21: concurrerend ontwerp tijdens import blijft intact en vraagt beoordeling',async ({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.goto('/atelier/regiekamer.html');
+ const payload=await page.evaluate(()=>{
+  const api=window.PalacoAtelierBundle;
+  api.restore(localStorage,api.create(null,null,'Oorspronkelijke notitie'));
+  const exterior={schema:'palaco.citadel.atelier.studio/1',state:'DRAFT',authority:'NONE',name:'Nieuw plan',scale:'Dorp',style:'PALACO · Emerald & Gold',mood:'Gouden uur',cells:Array(96).fill(null)};
+  return JSON.stringify(api.create(exterior,null,'Nieuw ontwerp'));
+ });
+ await page.evaluate(()=>{
+  const native=Storage.prototype.setItem;
+  window.restoreAtelierWrites=()=>{Storage.prototype.setItem=native;};
+  Storage.prototype.setItem=function(key,value){
+   if(key===window.PalacoAtelierBundle.NOTE){
+    native.call(this,window.PalacoAtelierBundle.EX,'concurrerende-ontwerpwijziging');
+    throw Error('simulated concurrent write');
+   }
+   return native.call(this,key,value);
+  };
+ });
+ page.on('dialog',dialog=>dialog.accept());
+ await page.locator('#bundleImport').setInputFiles({name:'veilig-ontwerp.json',mimeType:'application/json',buffer:Buffer.from(payload)});
+ await expect(page.locator('#rollbackHeading')).toHaveText('Handmatige herstelcontrole noodzakelijk');
+ await expect(page.locator('#rollbackItems')).toContainText('Exterieur: Conflict');
+ await expect(page.locator('#rollbackSteps li')).toHaveCount(5);
+ await expect(page.locator('#rollbackReport')).toBeFocused();
+ await expect(page.locator('#rollbackItems')).not.toContainText('concurrerende-ontwerpwijziging');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.EX))).toBe('concurrerende-ontwerpwijziging');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Oorspronkelijke notitie');
+ await page.evaluate(()=>window.restoreAtelierWrites());
+});
