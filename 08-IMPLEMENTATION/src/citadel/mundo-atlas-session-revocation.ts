@@ -86,6 +86,12 @@ export function connectAtlasSessionRevocation(
     unsubscribe = release;
     registering = false;
     if (emittedDuringRegistration || closed) {
+      // A callback can close the bridge while subscribe is still returning.
+      // A listener acquired only AFTER that closure must still be released.
+      if (closed) {
+        unsubscribe = null;
+        try { release(); } catch { /* remain terminal */ }
+      }
       throw new Error("MUNDO_ATLAS_REVOCATION_REGISTRATION_CHANGED");
     }
   } catch (error) {
