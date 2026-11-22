@@ -1490,3 +1490,25 @@ test('Atelier v6.15: andere tab overschrijft geen onopgeslagen ontwerpnotitie',a
  await expect(page.locator('#feedback')).toContainText('bijgewerkt vanuit een ander tabblad');
  await other.close();
 });
+
+
+test('Atelier v6.16: opslaan weigert een conflicterende notitie uit ander tabblad',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const other=await page.context().newPage();
+ await other.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Mijn onopgeslagen versie');
+ await other.locator('#statement').fill('Nieuwere bewaarde versie');
+ await other.locator('#saveNote').click();
+ await expect(page.locator('#statement')).toHaveValue('Mijn onopgeslagen versie');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('Opslaan geweigerd');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Nieuwere bewaarde versie');
+ await expect(page.locator('#statement')).toHaveValue('Mijn onopgeslagen versie');
+ await page.reload();
+ await expect(page.locator('#statement')).toHaveValue('Nieuwere bewaarde versie');
+ await page.locator('#statement').fill('Veilig bijgewerkte versie');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('lokaal bewaard');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Veilig bijgewerkte versie');
+ await other.close();
+});
