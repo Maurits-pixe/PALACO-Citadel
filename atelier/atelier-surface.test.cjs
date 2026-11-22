@@ -77,6 +77,9 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/parseUniqueTopLevelJson\(projectText\)/);
   assert.match(read('regiekamer.html'),/parseUniqueTopLevelJson\(contents\)/);
   assert.match(read('regiekamer.html'),/parseUniqueTopLevelJson\(importText\)/);
+  assert.match(read('regiekamer.html'),/const importBytes=await file\.arrayBuffer\(\)/);
+  assert.match(read('regiekamer.html'),/importText=new TextDecoder\('utf-8',\{fatal:true\}\)\.decode\(importBytes\)/);
+  assert.match(read('regiekamer.html'),/Projectbestand bevat ongeldige UTF-8-bytes/);
   assert.match(read('regiekamer.html'),/frame\.keys\.has\(key\)/);
   assert.match(read('regiekamer.html'),/stack\.push\(\{keys:new Set\(\)\}\)/);
   assert.match(read('regiekamer.html'),/stack\.push\(\{keys:null\}\)/);
