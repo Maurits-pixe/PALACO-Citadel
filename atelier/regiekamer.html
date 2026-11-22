@@ -946,7 +946,13 @@ if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('contro
 window.addEventListener('storage',e=>{
  // Only local Atelier persistence can invalidate a design import or note.
  // Session storage and synthetic events without a matching storage area are unrelated.
- if(e.storageArea!==localStorage)return;
+ try{if(e.storageArea!==localStorage)return;}
+ catch{
+   // Security policy can deny access to localStorage itself. Leave creative
+   // text and in-progress imports untouched until storage is accessible.
+   $('feedback').textContent='Opslagmelding niet verwerkt: lokale browseropslag is ontoegankelijk. Je ontwerptekst blijft staan; exporteer indien mogelijk je dossier.';
+   return;
+ }
  if((e.key===null||[EX,IN,NOTE].includes(e.key))&&importReadPending){
    ++importRevision;
    importReadPending=false;
