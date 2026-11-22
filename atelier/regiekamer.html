@@ -748,8 +748,12 @@ $('loadSavedNote').addEventListener('click',()=>{
    const stored=localStorage.getItem(NOTE);
    const storedText=stored===null?'':stored.slice(0,6000);
    if(noteValue()!==storedText&&!confirm('De huidige onopgeslagen notitie vervangen door de lokaal opgeslagen versie? Exporteer eerst je eigen tekst als je deze wilt bewaren.'))return;
-   // Read again after confirmation; do not acknowledge a version not actually displayed.
+   // Confirming one version cannot authorize loading a different, newer revision.
    const latest=localStorage.getItem(NOTE);
+   if(latest!==stored){
+     $('feedback').textContent='Laden geweigerd: de opgeslagen notitie is tijdens de bevestiging gewijzigd. Je huidige tekst blijft staan; controleer de nieuwste versie opnieuw.';
+     return;
+   }
    $('statement').value=latest===null?'':latest.slice(0,6000);
    noteBaseline=latest;
    $('feedback').textContent='Opgeslagen ontwerpnotitie geladen. Je kunt nu veilig verder bewerken.';
