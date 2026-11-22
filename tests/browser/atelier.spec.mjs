@@ -1233,3 +1233,43 @@ test('Atelier: maximum 4096 JSON-objectvelden vóór parsing in alle dossierinvo
  await expect(page.locator('#verifyStatus')).toContainText('Geldig creatief DRAFT-project');
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
 });
+
+test('Atelier: JSON-objectvelden maximaal 256 tekens, ook Unicode-escaped en in geneste objecten',async ({page})=>{
+ const {createHash}=await import('node:crypto');
+ await page.goto('/atelier/regiekamer.html');
+ const baseline=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const valid=await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage)));
+ const extra=key=>valid.slice(0,-1)+',"probe":{"'+key+'":0}}';
+ const tooLong='x'.repeat(257);
+ const escaped='\\u0078'.repeat(257);
+ const rejected=[extra(tooLong),extra(escaped)];
+ for(const raw of rejected){
+   const bytes=Buffer.from(raw);
+   const json={name:'te-lange-sleutel.json',mimeType:'application/json',buffer:bytes};
+   const digest=createHash('sha256').update(bytes).digest('hex');
+   const txt={name:'bewijs.txt',mimeType:'text/plain',buffer:Buffer.from('SHA-256: '+digest+'\nBestand: te-lange-sleutel.json\n')};
+   await page.locator('#bundleVerify').setInputFiles(json);
+   await expect(page.locator('#verifyStatus')).toContainText('veldnaam langer dan 256 tekens');
+   await page.locator('#pairVerify').setInputFiles([json,txt]);
+   await expect(page.locator('#pairStatus')).toContainText('veldnaam langer dan 256 tekens');
+   await expect(page.locator('#pairReportSave')).toBeDisabled();
+   await page.locator('#bundleImport').setInputFiles(json);
+   await expect(page.locator('#bundleStatus')).toContainText('veldnaam langer dan 256 tekens');
+   await page.locator('#reportVerify').setInputFiles([json,txt,{name:'inspectie.json',mimeType:'application/json',buffer:Buffer.from('{}')}]);
+   await expect(page.locator('#reportVerifyStatus')).toContainText('veldnaam langer dan 256 tekens');
+ }
+ const download=page.waitForEvent('download');
+ await page.locator('#bundleSave').click();
+ await download;
+ await page.locator('#checkExportFile').setInputFiles({
+   name:'export.json',mimeType:'application/json',buffer:Buffer.from(extra(tooLong))
+ });
+ await expect(page.locator('#exportCheckStatus')).toContainText('veldnaam langer dan 256 tekens');
+ // A long ordinary string VALUE is not a field name; exactly 256 key characters pass the scanner.
+ const withinLimit=extra('x'.repeat(256));
+ await page.locator('#bundleVerify').setInputFiles({name:'grens.json',mimeType:'application/json',buffer:Buffer.from(withinLimit)});
+ await expect(page.locator('#verifyStatus')).not.toContainText('veldnaam langer dan 256 tekens');
+ await page.locator('#bundleVerify').setInputFiles({name:'geldig.json',mimeType:'application/json',buffer:Buffer.from(valid)});
+ await expect(page.locator('#verifyStatus')).toContainText('Geldig creatief DRAFT-project');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(baseline);
+});
