@@ -93,7 +93,10 @@ class ArchiveTests(unittest.TestCase):
         self.assertTrue(self.audit())
 
     def test_skipped_initial_checkpoint_is_rejected(self):
+        self.assertIsNotNone(self.first)
         second=self.checkpoint(2,"b"*64)
+        self.assertIsNotNone(second)
+        # The source witness has both stages, but archive has not seen stage 1.
         self.assertIsNone(self.store(second))
 
     def test_fork_on_same_sequence_rejected(self):
