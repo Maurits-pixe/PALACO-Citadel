@@ -583,6 +583,8 @@ $('bundleImport').addEventListener('change',async event=>{
  try{
    const api=window.PalacoAtelierBundle;
    if(!api)throw Error('Projectpakket-functie niet geladen');
+   // Match the verified DRAFT import filename policy before reading external bytes.
+   safeProjectFilename(file.name);
    if(file.size>150000)throw Error('Bestand groter dan 150 KB');
    const importBytes=await file.arrayBuffer();
    if(revision!==importRevision)return;
