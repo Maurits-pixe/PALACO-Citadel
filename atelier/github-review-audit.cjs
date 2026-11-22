@@ -13,7 +13,12 @@ function audit({reviews,candidateSha,prNumber,authorLogin}){
  }
  const approved=[];const rejected=[];
  const latestByReviewer=new Map();
- const seenReviewIds=new Set();
+ const reviewIdCounts=new Map();
+ for(const item of reviews){
+  const r=item&&typeof item==='object'&&!Array.isArray(item)?item:{};
+  const id=r.databaseId||r.id||r.github_review_id;
+  if(Number.isSafeInteger(id))reviewIdCounts.set(id,(reviewIdCounts.get(id)||0)+1);
+ }
  // Later reviews by the same author supersede earlier approval. If chronology
  // cannot be established reliably, refuse to rely on any of those reviews.
  for(const item of reviews){
@@ -45,10 +50,7 @@ function audit({reviews,candidateSha,prNumber,authorLogin}){
   const history=reviewer?latestByReviewer.get(reviewer):null;
   if(history?.ambiguous)reasons.push('ambiguous_review_history');
   else if(history&&history.item!==r)reasons.push('superseded_review');
-  if(Number.isSafeInteger(id)){
-   if(seenReviewIds.has(id))reasons.push('duplicate_review_id');
-   seenReviewIds.add(id);
-  }
+  if(Number.isSafeInteger(id)&&(reviewIdCounts.get(id)||0)>1)reasons.push('duplicate_review_id');
   if(reviewState!=='APPROVED')reasons.push('not_approved');
   if(!reviewer||reviewer===login(authorLogin))reasons.push('not_independent');
   if(sha!==candidateSha)reasons.push('wrong_commit');
