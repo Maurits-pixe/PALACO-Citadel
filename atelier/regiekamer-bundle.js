@@ -132,10 +132,19 @@ function restoreWithRecovery(storage,bundle,expectedSnapshot,expectedRecovery){
  if(expectedRecovery!==undefined&&storage.getItem(RECOVERY)!==expectedRecovery){
    throw Error('Herstelkopie gewijzigd tijdens voorbereiding. Controleer het herstelpunt opnieuw.');
  }
- try{storage.setItem(RECOVERY,JSON.stringify(record));}
+ const writtenRecovery=JSON.stringify(record);
+ try{storage.setItem(RECOVERY,writtenRecovery);}
  catch{throw Error('Geen ruimte voor veilige herstelkopie; import afgebroken zonder wijzigingen.');}
+ // Stop if another tab replaced our recovery point before the design write.
+ if(storage.getItem(RECOVERY)!==writtenRecovery){
+   throw Error('Herstelkopie gewijzigd na opslaan. Import afgebroken; controleer lokale gegevens.');
+ }
  try{return restore(storage,incoming,prior);}
  catch(err){
+   // Never overwrite a recovery point that another tab has replaced.
+   if(storage.getItem(RECOVERY)!==writtenRecovery){
+     throw Error('Import faalde en herstelkopie is ondertussen gewijzigd. Laat herstelkopie ongemoeid; controleer lokale gegevens.');
+   }
    try{previousRecovery===null?storage.removeItem(RECOVERY):storage.setItem(RECOVERY,previousRecovery);}
    catch{throw Error('Import faalde en herstelkopie kon niet worden teruggezet. Controleer je lokale projectgegevens.');}
    throw err;
