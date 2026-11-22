@@ -279,3 +279,24 @@ test('Atelier explicit note reload requires confirmation and updates baseline on
  assert.ok(handler.indexOf('noteBaseline=latest')>handler.indexOf('const latest=localStorage.getItem(NOTE)'));
  assert.doesNotMatch(handler,/localStorage\.setItem\(/);
 });
+
+
+test('guided recovery checklist is read-only, accessible and uses fixed Dutch advice',()=>{
+ const html=read('regiekamer.html');
+ assert.match(html,/id="rollbackGuide" aria-labelledby="rollbackGuideTitle" hidden/);
+ assert.match(html,/id="rollbackSteps"/);
+ assert.match(html,/const needsReview=code==='ATELIER_RESTORE_REVIEW_REQUIRED'/);
+ assert.match(html,/steps\.replaceChildren\(\)/);
+ assert.match(html,/item\.textContent=sentence/);
+ assert.match(html,/stop met bewerken/i);
+ assert.match(html,/Importeer of herstel pas opnieuw/);
+ assert.match(html,/Laad opgeslagen notitie/);
+ assert.match(html,/\$\('rollbackGuide'\)\.hidden=false/);
+ assert.match(html,/\$\('rollbackGuide'\)\.hidden=true/);
+ const start=html.indexOf(" const needsReview=code==='ATELIER_RESTORE_REVIEW_REQUIRED'");
+ const end=html.indexOf(' panel.hidden=false;',start);
+ assert.ok(start>0&&end>start);
+ const guide=html.slice(start,end);
+ assert.doesNotMatch(guide,/localStorage\.(setItem|removeItem)/);
+ assert.doesNotMatch(guide,/\.innerHTML\s*=/);
+});
