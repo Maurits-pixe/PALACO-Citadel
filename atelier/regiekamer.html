@@ -329,7 +329,9 @@ $('reportVerify').addEventListener('change',async event=>{
    if(jsonFiles.length!==2||txtFiles.length!==1)throw Error('Twee JSON-bestanden en één TXT vereist');
    // Validate both JSON labels before reading bytes: one is the creative project, one an inspection report.
    jsonFiles.forEach(file=>safeProjectFilename(file.name));
-   if(jsonFiles[0].name===jsonFiles[1].name)
+   // Treat case-only and canonically equivalent Unicode names as the same file identity.
+   const comparableName=file=>file.name.normalize('NFC').toLowerCase();
+   if(comparableName(jsonFiles[0])===comparableName(jsonFiles[1]))
      throw Error('Project en inspectierapport moeten verschillende JSON-bestandsnamen hebben');
    const receiptFilename=safeReceiptFilename(txtFiles[0].name);
    if(jsonFiles.some(file=>file.size>150000)||txtFiles[0].size>4096)throw Error('Bestand te groot');
