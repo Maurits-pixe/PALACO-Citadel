@@ -13,6 +13,7 @@ from visitcard_audit_journal import ZERO_HASH
 from visitcard_witness_registry import PROPOSAL_DOMAIN, _canonical, initialize_witness
 from visitcard_witness_http import make_handler
 from visitcard_witness_outbox import initialize_outbox, enqueue, outbox_status, pending_request
+from visitcard_recovery_claims import initialize_recovery_claims, claim_recovery, release_recovery, recovery_claim_exists
 from visitcard_witness_receipt import WitnessTrust
 from visitcard_witness_recovery import RecoveryResult, recover_once
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
@@ -28,6 +29,7 @@ class WitnessRecoveryTests(unittest.TestCase):
         self.outbox = sqlite3.connect(self.outbox_file, isolation_level=None)
         self.addCleanup(self.outbox.close)
         initialize_outbox(self.outbox)
+        initialize_recovery_claims(self.outbox)
         with sqlite3.connect(self.witness_file, isolation_level=None) as db:
             initialize_witness(db)
         self.producer = Ed25519PrivateKey.generate()
@@ -116,6 +118,37 @@ class WitnessRecoveryTests(unittest.TestCase):
         self.assertTrue(enqueue(self.outbox, self.claim()))
         self.assertEqual(self.recover(port=0), RecoveryResult.REJECTED)
         self.assertEqual(outbox_status(self.outbox, "issuer.example", 1), "PENDING")
+
+    def test_existing_claim_blocks_second_recovery(self):
+        self.assertTrue(enqueue(self.outbox, self.claim()))
+        token = claim_recovery(self.outbox, "issuer.example", 1)
+        self.assertIsNotNone(token)
+        self.assertEqual(self.recover(), RecoveryResult.UNKNOWN)
+        self.assertEqual(outbox_status(self.outbox, "issuer.example", 1), "PENDING")
+        self.assertTrue(release_recovery(self.outbox, "issuer.example", 1, token))
+        self.assertEqual(self.recover(), RecoveryResult.ACKNOWLEDGED)
+
+    def test_claim_survives_database_reopen(self):
+        self.assertTrue(enqueue(self.outbox, self.claim()))
+        token = claim_recovery(self.outbox, "issuer.example", 1)
+        self.assertIsNotNone(token)
+        with sqlite3.connect(self.outbox_file, isolation_level=None) as other:
+            self.assertTrue(recovery_claim_exists(other, "issuer.example", 1))
+            self.assertEqual(self.recover(db=other), RecoveryResult.UNKNOWN)
+        self.assertTrue(release_recovery(self.outbox, "issuer.example", 1, token))
+
+    def test_incorrect_claim_owner_cannot_release(self):
+        self.assertTrue(enqueue(self.outbox, self.claim()))
+        token = claim_recovery(self.outbox, "issuer.example", 1)
+        self.assertIsNotNone(token)
+        self.assertFalse(release_recovery(self.outbox, "issuer.example", 1, "0"*64))
+        self.assertTrue(recovery_claim_exists(self.outbox, "issuer.example", 1))
+        self.assertTrue(release_recovery(self.outbox, "issuer.example", 1, token))
+
+    def test_finished_request_releases_claim(self):
+        self.assertTrue(enqueue(self.outbox, self.claim()))
+        self.assertEqual(self.recover(), RecoveryResult.ACKNOWLEDGED)
+        self.assertFalse(recovery_claim_exists(self.outbox, "issuer.example", 1))
 
     def test_recovery_never_grants_authorization(self):
         self.assertNotIn("AUTHORIZED", RecoveryResult.__members__)
