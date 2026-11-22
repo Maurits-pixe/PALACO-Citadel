@@ -170,7 +170,21 @@ function restoreWithRecovery(storage,bundle,expectedSnapshot,expectedRecovery){
  }
  const writtenRecovery=JSON.stringify(record);
  try{storage.setItem(RECOVERY,writtenRecovery);}
- catch{throw Error('Geen ruimte voor veilige herstelkopie; import afgebroken zonder wijzigingen.');}
+ catch{
+   // Some adapters write the value and *then* throw. Only undo our own value.
+   let current;
+   try{current=storage.getItem(RECOVERY);}
+   catch{throw Error('Herstelkopie schrijven mislukt; opslagstatus onbekend. Controleer de lokale herstelkopie.');}
+   if(current===writtenRecovery){
+     try{
+       previousRecovery===null?storage.removeItem(RECOVERY):storage.setItem(RECOVERY,previousRecovery);
+       if(storage.getItem(RECOVERY)!==previousRecovery)throw Error('readback');
+     }catch{throw Error('Herstelkopie schrijven mislukt; terugdraaien niet bevestigd. Controleer de lokale herstelkopie.');}
+   }else if(current!==previousRecovery){
+     throw Error('Herstelkopie schrijven mislukt en is ondertussen gewijzigd. Laat herstelkopie ongemoeid.');
+   }
+   throw Error('Geen ruimte voor veilige herstelkopie; import afgebroken zonder ontwerpwijzigingen.');
+ }
  // Stop if another tab replaced our recovery point before the design write.
  if(storage.getItem(RECOVERY)!==writtenRecovery){
    throw Error('Herstelkopie gewijzigd na opslaan. Import afgebroken; controleer lokale gegevens.');
