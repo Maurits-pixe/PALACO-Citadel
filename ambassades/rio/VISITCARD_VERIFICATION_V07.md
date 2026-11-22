@@ -472,3 +472,40 @@ Fifteen new tests are committed for persistence, idempotence, forks,
 rollback, trust isolation and signature rejection. They require actual
 execution before declaring PASS. No release, no merge and no public
 site update. **GO-13 HOLD**.
+
+## v2.3 — Admission audit-prefix continuity gate (DRAFT / HOLD)
+
+`visitcard_admission_continuity.py` defines a full two-event continuity
+proof consisting of the final admission row and ordered `SUBMITTED` and
+`REVIEWED`/`REJECTED` events, with matching identifiers and metadata.
+The custody operator independently reconstructs the prior `PENDING`
+snapshot from the first event and derives its exact canonical SHA-256
+digest; it also derives the final digest from the two-event snapshot.
+Both computed hashes must match the **previously signed and stored**
+custody head and the new producer-signed audit anchor.
+
+In v2.3 the existing `archive_anchor` transaction now **rejects a
+1→2 transition without a matching continuity proof**. Same-version
+idempotent retries remain unchanged, while same-count forks, skipped
+initial stages and downgraded heads continue to fail closed. The proof
+is validated before inserting the new event history and signed receipt.
+
+The new helper `build_continuity_proof` exports the full event snapshot
+only after checking local source-table consistency. Do not publish this
+snapshot as a public endpoint: it includes audit metadata and candidate
+witness identifiers.
+
+**Security boundary:** this demonstrates *hash continuity of the two
+submitted snapshots*. It does not independently verify that an intake
+or review was legitimate, or that a remote custody server is honest.
+Existing custody data still lacks an independently published high-water
+checkpoint resistant to an administrator restoring the entire database.
+True external hosting, authenticated transport, durable off-site copies,
+separately protected highest-receipt state, replay resistance and cryptographic
+review of the entire admission contract remain required. Neither a
+continuity proof nor a custody receipt activates a key or grants access.
+
+The v2.2 test suite now contains 19 tests (four added negative cases,
+plus revisions to expected successful transitions). Test cases are committed
+but are not PASS until executed without skips. **GO-13 HOLD** — no merge,
+no live deployment, no modification of the public RIO site.
