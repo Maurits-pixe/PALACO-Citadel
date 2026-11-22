@@ -1482,8 +1482,10 @@ test('Atelier v6.15: andere tab overschrijft geen onopgeslagen ontwerpnotitie',a
  await expect(page.locator('#feedback')).toContainText('Je onopgeslagen tekst blijft staan');
  await expect(page.locator('#statement')).toHaveValue('Mijn onopgeslagen creatieve notitie');
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Wijziging uit tweede tabblad');
- // When the local editor matches persisted text, subsequent remote changes sync normally.
- await page.locator('#statement').fill('Wijziging uit tweede tabblad');
+ // A manual edit matching the stored text does not acknowledge an earlier conflict.
+ // Reload explicitly adopts the persisted revision and resets the save baseline.
+ await page.reload();
+ await expect(page.locator('#statement')).toHaveValue('Wijziging uit tweede tabblad');
  await other.locator('#statement').fill('Vervolgwijziging in tweede tabblad');
  await other.locator('#saveNote').click();
  await expect(page.locator('#statement')).toHaveValue('Vervolgwijziging in tweede tabblad');
