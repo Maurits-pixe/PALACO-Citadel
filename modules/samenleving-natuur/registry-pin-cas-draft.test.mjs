@@ -55,3 +55,9 @@ test('every PL/pgSQL function has a paired full dollar-quote delimiter',()=>{
   assert.doesNotMatch(source,/ AS \$(?!\$)/);
   assert.doesNotMatch(source,/^\$;$/m);
 });
+
+test('audit ledger is frozen against unaudited direct INSERT during HOLD',()=>{
+  assert.match(source,/BEFORE INSERT ON citadel_pin_draft\.pin_history/);
+  assert.match(source,/DROP TRIGGER IF EXISTS pin_history_no_insert ON citadel_pin_draft\.pin_history/);
+  assert.match(source,/FOR EACH ROW EXECUTE FUNCTION citadel_pin_draft\.reject_history_mutation\(\)/);
+});
