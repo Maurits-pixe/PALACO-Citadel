@@ -2020,3 +2020,39 @@ test('Atelier v6.39: opslagleesfout wist ook schone ontwerpnotitie niet',async (
  await expect(page.locator('#feedback')).toContainText('browseropslag is niet toegankelijk');
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Eerder bewaarde notitie');
 });
+
+test('Atelier v6.41: herhaalde storage-melding behoudt melding van geslaagde lokale opslag',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Mijn opgeslagen ateliernotitie');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('Ontwerpnotitie lokaal bewaard');
+ await page.evaluate(()=>{
+   const api=window.PalacoAtelierBundle;
+   window.dispatchEvent(new StorageEvent('storage',{
+     key:api.NOTE,oldValue:'Verouderde revisie',newValue:'Oude gebeurteniswaarde',
+     storageArea:localStorage,url:location.href
+   }));
+ });
+ await expect(page.locator('#statement')).toHaveValue('Mijn opgeslagen ateliernotitie');
+ await expect(page.locator('#feedback')).toHaveText('Ontwerpnotitie lokaal bewaard.');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Mijn opgeslagen ateliernotitie');
+});
+
+test('Atelier v6.41: gewijzigde opslag synchroniseert schone editor nog altijd',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Reeds bewaarde notitie');
+ await page.locator('#saveNote').click();
+ await page.evaluate(()=>{
+   const api=window.PalacoAtelierBundle;
+   localStorage.setItem(api.NOTE,'Nieuwe werkelijk opgeslagen versie');
+   window.dispatchEvent(new StorageEvent('storage',{
+     key:api.NOTE,oldValue:'Reeds bewaarde notitie',newValue:'Nieuwe werkelijk opgeslagen versie',
+     storageArea:localStorage,url:location.href
+   }));
+ });
+ await expect(page.locator('#statement')).toHaveValue('Nieuwe werkelijk opgeslagen versie');
+ await expect(page.locator('#feedback')).toContainText('bijgewerkt vanuit een ander tabblad');
+ await page.locator('#statement').fill('Volgende versie');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('lokaal bewaard');
+});
