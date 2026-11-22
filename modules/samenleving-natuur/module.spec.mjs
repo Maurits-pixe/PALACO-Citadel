@@ -2416,3 +2416,58 @@ test('rc42 signed reviewer declaration rejects escaped duplicate decision key',a
  await page.locator('#verifyReceiptSignerReview').click();
  await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
 });
+
+
+test('rc42 revoked local signer pin during pending signed registry read fails closed',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await uploadReviewerRegistry(page,await reviewerRegistryFixture(page,review.declaration));
+ await page.locator('#requireReviewerRegistry').check();
+ await page.evaluate(()=>{
+  const original=File.prototype.text;
+  let intercepted=false;
+  File.prototype.text=function(){
+   if(this.name!=='reviewer-registry.json'||intercepted)return original.call(this);
+   intercepted=true;
+   const content=original.call(this);
+   return new Promise((resolve,reject)=>{
+    window.__rc42ReleaseAfterPinRemoval=()=>content.then(resolve,reject);
+   });
+  };
+ });
+ await page.locator('#verifyReceiptSignerReview').click();
+ await page.waitForFunction(()=>typeof window.__rc42ReleaseAfterPinRemoval==='function');
+ await page.evaluate(()=>localStorage.removeItem('palaco.citadel.receipt-signer-pin.v1'));
+ await page.evaluate(()=>window.__rc42ReleaseAfterPinRemoval());
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+ await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
+});
+
+test('rc42 replaced local signer pin during pending review fails closed',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await uploadReviewerRegistry(page,await reviewerRegistryFixture(page,review.declaration));
+ await page.locator('#requireReviewerRegistry').check();
+ await page.evaluate(()=>{
+  const original=File.prototype.text;
+  let intercepted=false;
+  File.prototype.text=function(){
+   if(this.name!=='reviewer-registry.json'||intercepted)return original.call(this);
+   intercepted=true;
+   const content=original.call(this);
+   return new Promise((resolve,reject)=>{
+    window.__rc42ReleaseAfterPinReplacement=()=>content.then(resolve,reject);
+   });
+  };
+ });
+ await page.locator('#verifyReceiptSignerReview').click();
+ await page.waitForFunction(()=>typeof window.__rc42ReleaseAfterPinReplacement==='function');
+ await page.evaluate(()=>localStorage.setItem('palaco.citadel.receipt-signer-pin.v1',JSON.stringify({
+  schema:'palaco-citadel-local-receipt-signer-pin-v1',fingerprint:'0'.repeat(64)
+ })));
+ await page.evaluate(()=>window.__rc42ReleaseAfterPinReplacement());
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+ await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
+});
