@@ -12,7 +12,7 @@ from visitcard_checkpoint_ledger import initialize_schema, provision_trusted_che
 from visitcard_verification_gate import SnapshotCheckpoint
 from visitcard_witness_receipt import (
     DOMAIN, RecoveryState, WitnessTrust, _canonical,
-    reconcile_witness, verify_witness_receipt
+    reconcile_witness, verify_witness_receipt, verify_and_reconcile
 )
 
 try:
@@ -116,6 +116,18 @@ class WitnessReceiptTests(unittest.TestCase):
         fake_old = WitnessHead(ISSUER, 1, "f"*64)
         receipt = self.verified(self.signed(fake_old))
         self.assertEqual(reconcile_witness(self.db, receipt, expected_issuer=ISSUER), RecoveryState.FORK_CONFLICT)
+
+    def test_public_entrypoint_checks_signature_first(self):
+        valid = self.signed()
+        self.assertEqual(
+            verify_and_reconcile(self.db, valid, self.trust, expected_issuer=ISSUER, now=NOW),
+            RecoveryState.MATCHED
+        )
+        valid["payload"]["entry_hash"] = "f"*64
+        self.assertEqual(
+            verify_and_reconcile(self.db, valid, self.trust, expected_issuer=ISSUER, now=NOW),
+            RecoveryState.UNKNOWN
+        )
 
     def test_receipt_does_not_grant_authority(self):
         self.assertNotIn("AUTHORIZED", RecoveryState.__members__)
