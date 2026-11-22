@@ -614,3 +614,40 @@ wrong trust anchors and independently supplied future/forked checkpoints.
 No test should be called PASS without actual execution and skip review.
 No authorization, trust-key activation, merge or deployment.
 **GO-13 HOLD.**
+
+## v2.7 — Signed archive of third-witness checkpoints (DRAFT / HOLD)
+
+`visitcard_checkpoint_archive.py` adds a **separately provisionable**
+SQLite archive for third-witness checkpoints. Every archived checkpoint
+must pass verification under independently pinned witness public keys.
+An archive-signing key distinct from the witness key signs a
+`PALACO-RIO-ARCHIVE-SEAL-V1` envelope binding issuer, nonce, event count,
+checkpoint SHA-256 and the SHA-256 hash of the preceding archive seal.
+The initial seal uses an explicit zero predecessor; further seals must
+extend the prior stored tip monotonically. An identical retry returns
+the exact persisted seal without creating another entry.
+
+`audit_archive` traverses the full stored history, verifies the original
+witness signatures and archive signatures, checks predecessor links and
+ensures the archived tip agrees with the head table. The
+`compare_restored_witness` routine compares an archive verified this way
+against a locally restored witness head and classifies
+`MATCHED`, `RESTORED_BEHIND`, `LOCAL_AHEAD_UNCONFIRMED`, `FORK`, or
+`UNKNOWN`. Neither a seal nor matching archive history is an authority
+to issue identity material, register keys or grant access.
+
+**Security limits:** This is an embeddable component, NOT an actually
+deployed independently administered third-party service. Only separate
+database connections are enforced in code; physical storage isolation,
+different administrators, hardware key storage, authenticated network
+transport, durable backups and independent/public high-water publication
+remain unimplemented. Complete coordinated rollback of all databases
+and copies of the archive is not detectable without a separately retained
+trusted later checkpoint. The archive confirms consistency of signatures
+and checkpoint sequencing, not independent correctness of the initial
+admission or source-event prefix. Review and deployment authorization
+remain outstanding.
+
+Sixteen new archive regression tests have been added. They are not
+claimed PASS without actual execution and skip checks. No merge or
+public PALACO RIO change. **GO-13 HOLD**.
