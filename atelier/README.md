@@ -459,3 +459,9 @@ De Regiekamer heeft een afzonderlijke knop **Laad opgeslagen notitie** voor hers
 Playwright test annuleren, expliciet overnemen en daarna veilig opslaan vanuit twee browservensters. De eerdere v6.15-browserregressie is aangepast: handmatig gelijkgemaakte tekst is nog geen toestemming om een afgewezen conflict te negeren; na herladen wordt de opgeslagen versie pas aangenomen. Een statische contracttest eist de bevestiging en verbiedt schrijfacties in de nieuwe laadfunctie.
 
 **Beperking:** niet-atomaire localStorage en browsergebonden opslag bieden geen sterkere synchronisatie- of back-upgaranties. PR #60 blijft DRAFT/HOLD/DENY; geen merge, EDTR of publicatie.
+
+## Regiekamer v6.18 — begeleide herstelcontrole (2026-11-22)
+
+Bij een herkende rollbackfout toont het bestaande toegankelijke statuspaneel ook een alleen-lezen checklist. Wanneer `ATELIER_RESTORE_REVIEW_REQUIRED` is gemeld, adviseert het de gebruiker te stoppen met bewerken, waar mogelijk een DRAFT-export te maken, de afzonderlijke exterieur- en interieurontwerpen te vergelijken, de opgeslagen ontwerpnotitie bewust te controleren en pas daarna opnieuw te importeren. Bij een volledig gecontroleerde rollback is de lijst korter. De adviezen zijn vaste tekst; ze lezen geen creatieve inhoud, voeren geen opslagmutatie of automatische reparatie uit en verdwijnen bij het resetten van het statuspaneel. De al bestaande v6.17-knop voor bewust herladen van de notitie blijft behouden.
+
+Een aanvullende statische UI-contracttest verifieert de toegangspunten, vaste teksten, veilige DOM-opbouw en het ontbreken van opslagmutaties in de nieuwe checklistcode. Dit is geen onafhankelijke browseracceptatie. **DRAFT/HOLD/DENY**; geen merge, EDTR of publieke uitrol. `localStorage` blijft niet-transactioneel.
