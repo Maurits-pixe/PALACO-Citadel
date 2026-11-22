@@ -23,12 +23,20 @@ export interface AtlasSessionHandoffHost {
    * logout), and contains no identity, token or other sensitive information.
    */
   readProtectedSessionVersion(): string | null;
+  /** Fresh decision by the real host; true only for an unexpired authorized session. */
+  isProtectedSessionActive(): boolean;
 }
+
+export type AtlasSessionHandoffState =
+  | "idle" | "establishing" | "navigating" | "mounted"
+  | "denied" | "stale" | "quarantined" | "closed";
 export interface AtlasSessionHandoff {
   /** Revoke prior data before establishing a new protected session. */
   handoff(worldId: AtlasWorldId, kind: AtlasLayerKind): Promise<AtlasWorldSwitchResult>;
   /** Host must call synchronously BEFORE logout/session/permission change. */
   beforeSessionChange(): void;
+  /** Observational state only: never a source of permission. */
+  readState(): AtlasSessionHandoffState;
   dispose(): void;
 }
 
@@ -43,6 +51,7 @@ export function createAtlasSessionHandoff(
 ): AtlasSessionHandoff {
   if (!host || typeof host.establishProtectedSession !== "function" ||
       typeof host.readProtectedSessionVersion !== "function" ||
+      typeof host.isProtectedSessionActive !== "function" ||
       !navigation || typeof navigation.navigate !== "function" ||
       typeof navigation.beforeContextChange !== "function" ||
       typeof navigation.dispose !== "function") {
@@ -53,6 +62,11 @@ export function createAtlasSessionHandoff(
   let epoch = 0;
   let pending = false;
   let quarantined = false;
+  let state: AtlasSessionHandoffState = "idle";
+  const active = (): boolean => {
+    try { return host.isProtectedSessionActive() === true; }
+    catch { return false; }
+  };
   const version = (): string | null => {
     try {
       const value = host.readProtectedSessionVersion();
@@ -62,9 +76,11 @@ export function createAtlasSessionHandoff(
   };
   const revoke = (): void => {
     ++epoch;
+    state = "stale";
     try { navigation.beforeContextChange(); }
     catch {
       quarantined = true;
+      state = "quarantined";
       // An unconfirmed teardown must never allow further MUNDO activation.
       try { navigation.dispose(); } catch { /* fail closed */ }
     }
@@ -75,41 +91,58 @@ export function createAtlasSessionHandoff(
       if (closed || quarantined || pending) return "denied";
       pending = true;
       try {
-        // Old Atlas is revoked BEFORE the session-establishment callback.
-        revoke();
+        revoke(); // prior protected view must be gone BEFORE any host login.
         if (quarantined || closed) return "denied";
-        // Revoke changes epoch once: capture the new generation explicitly.
         const current = epoch;
+        state = "establishing";
         let approved = false;
         try { approved = await host.establishProtectedSession() === true; }
         catch { /* deny */ }
         if (closed || quarantined || epoch !== current) return "stale";
-        if (!approved) return "denied";
+        if (!approved || !active()) {
+          state = "denied";
+          return "denied";
+        }
         const session = version();
-        if (session === null) return "denied";
-
+        if (session === null) {
+          state = "denied";
+          return "denied";
+        }
+        state = "navigating";
         let result: AtlasWorldSwitchResult = "denied";
         try { result = await navigation.navigate(worldId, kind); }
         catch {
           revoke();
+          if (!quarantined) state = "denied";
           return "denied";
         }
         if (closed || quarantined || epoch !== current) return "stale";
-        // A same-world route might belong to a new session. Never leave a
-        // mounted old-context view alive if the trusted session changes.
-        if (version() !== session) {
+        // A session may expire or be revoked while source admission runs.
+        // A matching context-version alone is not an authorization grant.
+        if (!active() || version() !== session) {
           revoke();
           return "stale";
         }
-        return result;
+        if (result !== "mounted") {
+          // Ensure no partially mounted data survives a failed navigation.
+          revoke();
+          if (!quarantined) state = result === "stale" ? "stale" : "denied";
+          return result;
+        }
+        state = "mounted";
+        return "mounted";
       } finally {
         pending = false;
       }
     },
     beforeSessionChange(): void { if (!closed) revoke(); },
+    readState(): AtlasSessionHandoffState {
+      return closed ? "closed" : quarantined ? "quarantined" : state;
+    },
     dispose(): void {
       if (closed) return;
       closed = true;
+      state = "closed";
       ++epoch;
       try { navigation.dispose(); } catch { quarantined = true; }
     },
