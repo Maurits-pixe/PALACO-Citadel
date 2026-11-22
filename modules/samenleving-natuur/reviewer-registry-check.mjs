@@ -2,6 +2,9 @@ import { createHash, createPublicKey, verify } from 'node:crypto';
 
 export const REGISTRY_SCHEMA = 'palaco-citadel-reviewer-registry-check-v1';
 const DOMAIN = Buffer.from('PALACO-CITADEL-REVIEWER-REGISTRY-V1\n');
+// A freshly signed snapshot is required, but trusted clock and current revocation
+// still need independent server-side validation before any authorization.
+export const MAX_REGISTRY_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const hex64 = s => typeof s === 'string' && /^[0-9a-f]{64}$/.test(s);
 const time = s => typeof s === 'string' && /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(s) &&
   Number.isFinite(Date.parse(s)) && new Date(s).toISOString() === s;
@@ -53,6 +56,12 @@ export function checkSignedReviewerRegistry({
         !(registry.issuedAt <= evaluationTime && evaluationTime < registry.expiresAt) ||
         !Array.isArray(registry.reviewers) || registry.reviewers.length > 256)
       return denied('REGISTRY_POLICY_REJECTED');
+    const issuedAtMs = Date.parse(registry.issuedAt);
+    const evaluationMs = Date.parse(evaluationTime);
+    if (Date.parse(registry.expiresAt) <= issuedAtMs)
+      return denied('INVALID_REGISTRY_VALIDITY_WINDOW');
+    if (evaluationMs - issuedAtMs > MAX_REGISTRY_AGE_MS)
+      return denied('REGISTRY_SNAPSHOT_TOO_OLD');
     const seen = new Set();
     let selected;
     for (const entry of registry.reviewers) {
@@ -60,6 +69,7 @@ export function checkSignedReviewerRegistry({
           !hex64(entry.fingerprint) || entry.role !== 'receipt-reviewer' ||
           !['active','revoked'].includes(entry.status) ||
           !time(entry.notBefore) || !time(entry.notAfter) ||
+          entry.notBefore >= entry.notAfter ||
           seen.has(entry.fingerprint)) return denied('INVALID_REGISTRY_ENTRY');
       seen.add(entry.fingerprint);
       if (entry.fingerprint === reviewerFingerprint) selected = entry;
