@@ -951,6 +951,7 @@ window.addEventListener('storage',e=>{
    $('bundleStatus').textContent='Projectimport onderbroken: lokale ontwerpgegevens zijn in een ander tabblad gewijzigd. Kies het projectbestand opnieuw.';
  }
  if(e.key===null||[EX,IN].includes(e.key))refresh();
+ if(e.key===null||e.key===window.PalacoAtelierBundle?.RECOVERY)refreshRecoveryInfo();
  if(e.key===NOTE){
    // A cross-tab save must never replace a locally edited, unsaved note.
    const locallyEdited=noteValue()!==(noteBaseline===null?'':noteBaseline.slice(0,6000));
