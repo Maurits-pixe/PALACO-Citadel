@@ -1704,3 +1704,56 @@ test('Atelier v6.22: andere opslagversie tijdens bevestiging wordt niet geladen'
  await page.locator('#saveNote').click();
  await expect(page.locator('#feedback')).toContainText('Opslaan geweigerd');
 });
+
+
+test('Atelier v6.23: importbevestiging weigert echte wijziging vanuit tweede tabblad',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const other=await page.context().newPage();
+ await other.goto('/atelier/regiekamer.html');
+ const payload=await page.evaluate(()=>{
+  const api=window.PalacoAtelierBundle;
+  return JSON.stringify(api.create(null,null,'Te importeren versie'));
+ });
+ await page.locator('#statement').fill('Mijn onopgeslagen creatieve tekst');
+ // A real second tab writes during the confirmation opened by the first tab.
+ page.once('dialog',async dialog=>{
+  await other.evaluate(()=>{
+   const api=window.PalacoAtelierBundle;
+   localStorage.setItem(api.NOTE,'Nieuwere notitie vanuit tweede tab');
+  });
+  await dialog.accept();
+ });
+ await page.locator('#bundleImport').setInputFiles({name:'project.json',mimeType:'application/json',buffer:Buffer.from(payload)});
+ await expect(page.locator('#bundleStatus')).toContainText('gewijzigd sinds de controle');
+ await expect(page.locator('#statement')).toHaveValue('Mijn onopgeslagen creatieve tekst');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Nieuwere notitie vanuit tweede tab');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
+ await other.close();
+});
+
+test('Atelier v6.23: herstelpunt gewijzigd door tweede tab tijdens undo wordt geweigerd',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.evaluate(()=>{
+  const api=window.PalacoAtelierBundle;
+  localStorage.setItem(api.NOTE,'Vóór import');
+  api.restoreWithRecovery(localStorage,api.create(null,null,'Huidig ontwerp'));
+ });
+ const other=await page.context().newPage();
+ await other.goto('/atelier/regiekamer.html');
+ await expect(page.locator('#undoImport')).toBeEnabled();
+ const before=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ page.once('dialog',async dialog=>{
+  await other.evaluate(()=>{
+   const api=window.PalacoAtelierBundle;
+   const recovery=JSON.parse(localStorage.getItem(api.RECOVERY));
+   recovery.draft.note='Herstelpunt vanuit tweede tab';
+   localStorage.setItem(api.RECOVERY,JSON.stringify(recovery));
+  });
+  await dialog.accept();
+ });
+ await page.locator('#undoImport').click();
+ await expect(page.locator('#bundleStatus')).toContainText('Herstelkopie gewijzigd sinds het herstelvoorstel');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+ expect(await page.evaluate(()=>JSON.parse(localStorage.getItem(window.PalacoAtelierBundle.RECOVERY)).draft.note)).toBe('Herstelpunt vanuit tweede tab');
+ await other.close();
+});
