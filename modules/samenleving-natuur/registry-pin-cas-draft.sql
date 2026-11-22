@@ -44,6 +44,11 @@ BEGIN
   RAISE EXCEPTION 'PALACO_CITADEL_AUDIT_IMMUTABLE' USING ERRCODE = '42501';
 END;
 $$;
+-- No append path is active until a dedicated, reviewed atomic writer exists.
+DROP TRIGGER IF EXISTS pin_history_no_insert ON citadel_pin_draft.pin_history;
+CREATE TRIGGER pin_history_no_insert
+BEFORE INSERT ON citadel_pin_draft.pin_history
+FOR EACH ROW EXECUTE FUNCTION citadel_pin_draft.reject_history_mutation();
 DROP TRIGGER IF EXISTS pin_history_no_mutation ON citadel_pin_draft.pin_history;
 CREATE TRIGGER pin_history_no_mutation
 BEFORE UPDATE OR DELETE ON citadel_pin_draft.pin_history
