@@ -406,3 +406,33 @@ Fifteen new test cases cover nonce replay, evidence validation, review
 signatures, duplicate applications and audit consistency. Actual CI
 execution is required before claiming any test PASS. **GO-13 HOLD**,
 no merge, no production enrollment and no public RIO deployment.
+
+## v2.1 — Signed admission decision audit anchor (DRAFT / HOLD)
+
+`visitcard_admission_anchor.py` constructs a canonical SHA-256 snapshot
+of the admission record and all associated local append-only events,
+including database event order and reviewer signature metadata. An
+independently pinned Ed25519 anchor key signs this digest and binds
+issuer, nonce, event count, observation time and anchor key ID under a
+domain-separated signature. `verify_admission_anchor` rejects unknown
+keys, forgery, different issuer/nonce, future attestations and signatures
+older than five minutes. `matches_admission_anchor` detects local
+admission-history divergence relative to that verified snapshot.
+
+**Important:** Producing an anchor signature is NOT independent off-site
+anchoring. No remote anchor service, append-only external custody,
+cross-server high-water mark, secure delivery, acknowledgement, HSM or
+backup rollback defense is provided. The verifier must receive the
+anchor from a separate authenticated trust channel; do not manufacture
+"trusted" reference anchors from the same compromised database.
+
+A `REVIEWED` admission is still only evidence of completed review.
+Neither `REVIEWED`, the signed audit anchor nor a matching digest
+enables a witness key, adds a trust anchor, issues a first checkpoint or
+grants access. Actual activation requires a separately authenticated,
+audited and explicitly approved governance operation, not implemented.
+
+Thirteen new tests cover signature failures, stale anchors, wrong
+identifiers, missing records, and local history changes. No test PASS
+is claimed without execution and skip-count review. **GO-13 HOLD**;
+no merge, public-site update or production deployment.
