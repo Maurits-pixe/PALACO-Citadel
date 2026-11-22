@@ -6,7 +6,7 @@ The module checks a detached ECDSA P-256/SHA-256 signature on exact JSON
 registry bytes with domain prefix `PALACO-CITADEL-REVIEWER-REGISTRY-V1\n`.
 It computes the issuer SPKI SHA-256 fingerprint and compares it with a supplied
 pin, rejects old revisions, expired snapshots, duplicate reviewer keys, revoked
-entries, incorrect roles and invalid reviewer validity intervals.
+entries, incorrect roles and invalid reviewer validity intervals. By default,\na signed snapshot more than seven days old is denied. Future-issued\nsnapshots are denied as well. Seven days is a reference-policy limit, not\na guarantee of timely revocation.
 
 **Critical limitations:** the caller-provided issuer pin, revision floor and
 evaluation time are not authenticated by this module. A self-selected pin does
