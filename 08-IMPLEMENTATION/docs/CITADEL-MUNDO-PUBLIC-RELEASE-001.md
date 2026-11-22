@@ -193,3 +193,9 @@ De publieke Atlas is uitsluitend uitgebreid met een verklarende sectie **Herstel
 De private `mundo-atlas-explicit-recovery.ts` reserveert nu vóór de asynchrone hostactivatie een token met de actuele generatie en exact dezelfde hostverbinding. Gelijktijdige nieuwe aanvragen worden afgewezen zonder het huidige verzoek te onderbreken. Na een expliciete contextintrekking wordt het oude token ongeldig. Een laat aflopende oude aanvraag kan daarna de vergrendeling van een recentere hostverbinding niet wissen. Er wordt niets automatisch opnieuw afgespeeld of geautoriseerd.
 
 De publieke Atlas heeft uitsluitend een verklarende sectie **Aanvraagvergrendeling 021**; er worden geen beschermde modules, privémachtigingen of gebruikersgegevens ingeladen. De hostintegratiehandleiding bevat niet-uitgevoerde scenario's voor eigenaaracceptatie. De originele Citadel Sites-app is niet gewijzigd, PR #58 blijft DRAFT/HOLD en er zijn geen functionele tests of merge uitgevoerd.
+
+## MUNDO-WORLD-TRANSITION-022 — intrekking vóór een nieuwe wereld
+
+De nieuwe private module `08-IMPLEMENTATION/src/citadel/mundo-atlas-world-transition.ts` implementeert een expliciete wereldwissel: bestaande kaartrechten en lopende aanvragen worden eerst via de herstel-supervisor ongeldig gemaakt. Daarna mag uitsluitend de werkelijke, beschermde Citadel-host een volledig nieuwe verbinding met een nieuwe bron voor de gekozen wereld leveren. Onjuiste wereld-ID's, overlappende wissels en onbetrouwbare bronaanvragen worden geweigerd. Bij mislukking wordt de oude kaart niet automatisch teruggebracht. Het generatiebeheer zorgt dat een eerder gestart verzoek geen toegang overneemt na contextwijziging.
+
+De publieke demonstratie bevat enkel de verklarende sectie **Wereldwissel 022**. Geen Citadel-router, PALACO ONE-sessie, echte bronnen, privérechten of productionele kaartweergave gekoppeld. Nog geen functionele tests; originele privé-Citadel niet gewijzigd; PR #58 DRAFT/HOLD en geen merge.
