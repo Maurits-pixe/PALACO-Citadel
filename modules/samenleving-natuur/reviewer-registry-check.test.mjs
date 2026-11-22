@@ -9,7 +9,7 @@ const issuerPublicJwk={kty:'EC',crv:'P-256',x:k.x,y:k.y};
 const fingerprint=createHash('sha256').update(createPublicKey({key:issuerPublicJwk,format:'jwk'}).export({type:'spki',format:'der'})).digest('hex');
 const reviewerFingerprint='b'.repeat(64);
 const entry=()=>({fingerprint:reviewerFingerprint,role:'receipt-reviewer',status:'active',notBefore:'2026-01-01T00:00:00.000Z',notAfter:'2027-01-01T00:00:00.000Z'});
-const registry=()=>({schema:REGISTRY_SCHEMA,revision:4,issuedAt:'2026-01-01T00:00:00.000Z',expiresAt:'2027-01-01T00:00:00.000Z',reviewers:[entry()]});
+const registry=()=>({schema:REGISTRY_SCHEMA,revision:4,issuedAt:'2026-11-20T00:00:00.000Z',expiresAt:'2027-01-01T00:00:00.000Z',reviewers:[entry()]});
 const payload=doc=>Buffer.from(JSON.stringify(doc));
 const run=(doc=registry(),extra={})=>{
   const registryBytes=payload(doc);
@@ -54,4 +54,17 @@ test('untrusted or malformed inputs cannot grant authority',()=>{
     assert.equal(r.localRegistryCheckPassed,false);
     assert.equal(r.authorization,'DENY');
   }
+});
+
+test('valid but seven-day-old signed snapshots fail the freshness gate',()=>{
+  assert.equal(run({...registry(),issuedAt:'2026-11-14T23:59:59.999Z'}).reason,'REGISTRY_SNAPSHOT_TOO_OLD');
+  assert.equal(run({...registry(),issuedAt:'2026-11-15T00:00:00.000Z'}).localRegistryCheckPassed,true);
+});
+test('future-issued snapshots and invalid validity intervals fail closed',()=>{
+  assert.equal(run({...registry(),issuedAt:'2026-11-23T00:00:00.000Z'}).reason,'REGISTRY_POLICY_REJECTED');
+  assert.equal(run({...registry(),expiresAt:'2026-11-19T00:00:00.000Z'}).reason,'REGISTRY_POLICY_REJECTED');
+  const invalid=entry();
+  invalid.notBefore='2026-12-01T00:00:00.000Z';
+  invalid.notAfter='2026-11-30T00:00:00.000Z';
+  assert.equal(run({...registry(),reviewers:[invalid]}).reason,'INVALID_REGISTRY_ENTRY');
 });
