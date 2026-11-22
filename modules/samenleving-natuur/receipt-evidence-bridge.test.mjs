@@ -138,3 +138,31 @@ test('reviewer fingerprint claim remains informative and never grants authority'
  assert.equal(result.executionAllowed,false);
  assert.equal(result.releaseAllowed,false);
 });
+
+
+test('repeated valid signed receipts consistently remain local-only and non-authorizing',()=>{
+  for(let iteration=0;iteration<48;iteration++){
+    const result=run();
+    assert.equal(result.cryptographicallyValid,true,`round ${iteration}`);
+    assert.equal(result.reviewerSigningKeyMatchesClaim,true,`round ${iteration}`);
+    assert.equal(result.localChecksReportedPass,true,`round ${iteration}: ${JSON.stringify(result)}`);
+    assert.deepEqual(result.failedChecks,[],`round ${iteration}`);
+    assert.equal(result.trust,'NOT_ESTABLISHED');
+    assert.equal(result.authorization,'DENY');
+    assert.equal(result.executionAllowed,false);
+    assert.equal(result.releaseAllowed,false);
+  }
+});
+
+test('repeated altered receipt bytes cannot reuse signatures or claim authorization',()=>{
+  for(let iteration=0;iteration<48;iteration++){
+    const altered=Buffer.from(payloadBytes);
+    altered[iteration%altered.length]^=1;
+    const result=run({payloadBytes:altered});
+    assert.equal(result.cryptographicallyValid,false,`round ${iteration}`);
+    assert.equal(result.localChecksReportedPass,false,`round ${iteration}`);
+    assert.ok(result.failedChecks.includes('actualSignatureVerificationFailed'),`round ${iteration}`);
+    assert.equal(result.authorization,'DENY');
+    assert.equal(result.releaseAllowed,false);
+  }
+});
