@@ -145,3 +145,24 @@ def reconcile_witness(
         return RecoveryState.LOCAL_AHEAD_PENDING_WITNESS
     except (sqlite3.Error, ValueError, TypeError, AttributeError, KeyError):
         return RecoveryState.UNKNOWN
+
+
+def verify_and_reconcile(
+    connection: sqlite3.Connection,
+    envelope: Any,
+    trust: WitnessTrust,
+    *,
+    expected_issuer: str,
+    now: datetime | None = None
+) -> RecoveryState:
+    """Only public recovery entry point: verify independently before comparing.
+
+    The state is informational and confers no identity or execution authority.
+    In particular, LOCAL_AHEAD_PENDING_WITNESS is NOT a successful receipt.
+    """
+    verified = verify_witness_receipt(
+        envelope, trust, expected_issuer=expected_issuer, now=now
+    )
+    if verified is None:
+        return RecoveryState.UNKNOWN
+    return reconcile_witness(connection, verified, expected_issuer=expected_issuer)
