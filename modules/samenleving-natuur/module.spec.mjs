@@ -2505,3 +2505,34 @@ test('rc42 tab focus rechecks signer pin even if storage event was missed',async
  await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
  await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
 });
+
+
+test('rc42 visibility restoration invalidates a success after local pin replacement',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
+ await page.evaluate(()=>{
+  localStorage.setItem('palaco.citadel.receipt-signer-pin.v1',JSON.stringify({
+   schema:'palaco-citadel-local-receipt-signer-pin-v1',fingerprint:'0'.repeat(64)
+  }));
+  document.dispatchEvent(new Event('visibilitychange'));
+ });
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
+ await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
+});
+
+test('rc42 focus leaves a successful review intact when the signer pin is unchanged',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
+ await page.evaluate(()=>{
+  window.dispatchEvent(new Event('focus'));
+  document.dispatchEvent(new Event('visibilitychange'));
+ });
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('DUBBEL CRYPTOGRAFISCH GELDIG');
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('GEEN ROLTOEWIJZING');
+});
