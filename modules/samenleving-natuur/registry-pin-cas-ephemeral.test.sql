@@ -82,6 +82,18 @@ BEGIN
   END;
   IF NOT failed THEN RAISE EXCEPTION 'FAIL: cascading state TRUNCATE bypassed HOLD'; END IF;
 
+  -- Truncating both referencing tables together passes FK preflight, but
+  -- must still be denied by the read-only HOLD statement triggers.
+  failed := false;
+  BEGIN
+    TRUNCATE citadel_pin_draft.pin_state, citadel_pin_draft.pin_history;
+  EXCEPTION WHEN SQLSTATE '42501' THEN
+    GET STACKED DIAGNOSTICS actual_state = MESSAGE_TEXT;
+    failed := actual_state IN
+      ('PALACO_CITADEL_PIN_STATE_FROZEN','PALACO_CITADEL_AUDIT_IMMUTABLE');
+  END;
+  IF NOT failed THEN RAISE EXCEPTION 'FAIL: multi-table TRUNCATE bypassed HOLD'; END IF;
+
   failed := false;
   BEGIN
     TRUNCATE citadel_pin_draft.pin_history;
