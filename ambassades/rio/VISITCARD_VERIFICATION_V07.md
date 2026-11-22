@@ -69,3 +69,30 @@ no real issuer enrollment, and no GO-13 authorization.
 
 Ten additional tests are committed but are not considered passing until
 executed in CI with `cryptography` installed and skip counts inspected.
+
+## v0.9 — Append-only hash-chained journal (Draft / HOLD)
+
+`visitcard_audit_journal.py` maintains a per-issuer, monotone hash chain of
+checkpoint revisions. The ledger's initial administrative provisioning and
+subsequent successful checkpoint advances now append corresponding entries
+inside their respective SQLite transactions. UPDATE and DELETE triggers reject
+ordinary changes to journal rows. Chain inspection also compares the head
+against the current checkpoint row.
+
+**IMPORTANT SECURITY LIMIT:** SQL triggers and a hash chain are *not*
+tamperproof against a database administrator, a compromised machine, or full
+database rollback. `WitnessHead` is a comparison format only; this code has
+no external witness transport, authentication, persistence or atomic witness
+acknowledgment. The checkpoint transaction currently checks its **local**
+chain, not an independently authenticated witness. Do not claim global replay
+resistance or set VERIFIED in the public RIO app based on this prototype.
+
+To deploy later, first design an external independently authenticated witness
+with sequence, issuer, signed hash and durable confirmation. Verification must
+fail closed if the witnessed head cannot be reconciled with the database. A
+two-phase recovery protocol is needed for a database commit that succeeds
+before witness acknowledgment, or vice versa. Until independent review and
+race/recovery testing, GO-13 remains HOLD.
+
+Ten new tests have been added for chain continuity and witness mismatches;
+these tests need actual CI execution before any PASS claim.
