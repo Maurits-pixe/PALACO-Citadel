@@ -2205,3 +2205,52 @@ test('Atelier v6.47: echte tussentijdse notitiewijziging annuleert vertraagde im
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Nieuwe versie vanuit ander tabblad');
  await other.close();
 });
+
+test('Atelier v6.49: wijziging in hetzelfde tabblad tijdens bestandslezing wordt geweigerd',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const apiPack=await page.evaluate(()=>JSON.stringify(
+   window.PalacoAtelierBundle.create(null,null,'Nieuwe versie uit bestand')
+ ));
+ await page.evaluate(()=>{
+   const original=File.prototype.arrayBuffer;
+   window.pendingSameTabImport=[];
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='wijziging-tijdens-lezen.json')
+       return new Promise((resolve,reject)=>window.pendingSameTabImport.push(()=>original.call(this).then(resolve,reject)));
+     return original.call(this);
+   };
+ });
+ await page.locator('#bundleImport').setInputFiles({name:'wijziging-tijdens-lezen.json',mimeType:'application/json',buffer:Buffer.from(apiPack)});
+ await expect.poll(()=>page.evaluate(()=>window.pendingSameTabImport.length)).toBe(1);
+ // A programmatic same-tab write emits no native cross-tab storage event.
+ await page.evaluate(()=>localStorage.setItem(window.PalacoAtelierBundle.NOTE,'Zelfde tab gewijzigde notitie'));
+ await page.evaluate(()=>window.pendingSameTabImport.shift()());
+ await expect(page.locator('#bundleStatus')).toContainText('Lokaal project gewijzigd tijdens het lezen');
+ await expect(page.locator('#bundleImport')).toHaveValue('');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Zelfde tab gewijzigde notitie');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
+});
+
+test('Atelier v6.49: ongewijzigde bron mag na vertraagde bestandslezing worden bekeken',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const draft=await page.evaluate(()=>JSON.stringify(
+   window.PalacoAtelierBundle.create(null,null,'Te bekijken ontwerpnotitie')
+ ));
+ await page.evaluate(()=>{
+   const original=File.prototype.arrayBuffer;
+   window.pendingCleanImport=[];
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='ongewijzigd-na-lezen.json')
+       return new Promise((resolve,reject)=>window.pendingCleanImport.push(()=>original.call(this).then(resolve,reject)));
+     return original.call(this);
+   };
+ });
+ let prompts=0;
+ page.on('dialog',async dialog=>{prompts++;await dialog.dismiss();});
+ await page.locator('#bundleImport').setInputFiles({name:'ongewijzigd-na-lezen.json',mimeType:'application/json',buffer:Buffer.from(draft)});
+ await expect.poll(()=>page.evaluate(()=>window.pendingCleanImport.length)).toBe(1);
+ await page.evaluate(()=>window.pendingCleanImport.shift()());
+ await expect(page.locator('#bundleStatus')).toContainText('DRAFT-pakket');
+ expect(prompts).toBe(1);
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
+});
