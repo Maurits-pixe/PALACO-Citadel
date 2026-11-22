@@ -63,3 +63,16 @@ The private `mundo-atlas-host-contract.ts` no longer normalizes unexpected conte
 Known events still revoke the current view while allowing a separate subsequent host-authorized activation. An event observed during subscription makes registration fail and tears down the provisional bridge. Error paths still rely on the host honoring synchronous and atomic subscription/disposal requirements; software cannot guarantee that malicious or defective host callbacks have actually removed their own DOM/listeners.
 
 **Owner acceptance scenarios not executed:** unknown event after active mount; unknown event during registration; known event during in-flight source verification; event callback reentrancy; release callback throwing; stale requests after terminal closure. No production authentication claims, functional acceptance or private Sites changes.
+
+## Extension 019 — explicit recovery generation and no replay
+
+New private module: `08-IMPLEMENTATION/src/citadel/mundo-atlas-explicit-recovery.ts`. Its `createAtlasRecoverySupervisor()` tracks a monotonically increasing generation (epoch), a single connected host integration, and at most one in-flight recovery factory.
+
+- `invalidate()` immediately rejects older generations and disposes the old connection. The caller must invoke it BEFORE changing protected session, route, permissions or mount.
+- `reconnect(createFresh)` requires the real Citadel host to explicitly provide a **new** verified `ConnectedAtlasHost`; it never calls a backend, guesses identity, or reuses the previous approval or source envelope. A generation change during asynchronous construction disposes the late connection instead of activating it.
+- `activate(input,worldId,kind)` only passes a NEW host-supplied envelope through the current verified connection; failures do not trigger automatic replay or reconnection. Late results after invalidation are reported as stale.
+- If a host cleanup callback throws, the supervisor enters a permanently quarantined state and will not connect again. `dispose()` irreversibly closes the supervisor.
+
+This is a composition safeguard, not end-to-end proof of authentication, source integrity or correct implementation of the host event contract. It must only be used after independently establishing route/session authorization. Any new integration must provide new source input and a fresh, unique context version. Private host functions and release callbacks still require owner acceptance; no functional tests were run.
+
+Public Render only shows a static description of this recovery policy. The original Citadel Sites project, PR #58 DRAFT/HOLD, and production permissions remain unchanged.
