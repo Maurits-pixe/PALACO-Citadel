@@ -99,18 +99,27 @@ function restore(storage,bundle,expectedSnapshot){
  }catch(err){
    // Only roll back keys this operation attempted, never a newer competing edit.
    // localStorage is not transactional; this is a best-effort conflict guard.
-   let rollbackOk=true;
+   const result={exterior:'untouched',interior:'untouched',note:'untouched'};
+   const labels=['exterior','interior','note'];
    for(let i=attempted;i>=0;i--){
      const [key,wanted]=changes[i];
+     const label=labels[i];
      try{
        const observed=storage.getItem(key);
-       if(observed===prior[i])continue;
-       if(observed!==wanted){rollbackOk=false;continue;}
+       if(observed===prior[i]){result[label]='original';continue;}
+       if(observed!==wanted){result[label]='conflict';continue;}
        prior[i]===null?storage.removeItem(key):storage.setItem(key,prior[i]);
-     }catch{rollbackOk=false;}
+       result[label]=storage.getItem(key)===prior[i]?'restored':'failed';
+     }catch{result[label]='failed';}
    }
-   if(!rollbackOk)throw Error('Herstel onderbroken en terugdraaien mislukt of conflicteert met nieuwere gegevens. Stop met bewerken en controleer lokale gegevens.');
-   throw Error('Herstel mislukt; oorspronkelijke opslag teruggezet.');
+   const complete=Object.values(result).every(v=>v==='untouched'||v==='original'||v==='restored');
+   const failure=Error(complete
+     ?'Herstel mislukt; oorspronkelijke opslag teruggezet.'
+     :'Herstel onderbroken en terugdraaien mislukt of conflicteert met nieuwere gegevens. Stop met bewerken en controleer lokale gegevens.');
+   failure.code=complete?'ATELIER_RESTORE_ROLLED_BACK':'ATELIER_RESTORE_REVIEW_REQUIRED';
+   // Only safe status labels, never stored project content or personal notes.
+   failure.rollback=Object.freeze(result);
+   throw failure;
  }
  return {exterior:!!b.exterior,interior:!!b.interior,noteLength:b.note.length};
 }
