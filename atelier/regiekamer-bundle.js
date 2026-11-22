@@ -84,15 +84,26 @@ function restore(storage,bundle,expectedSnapshot){
    }
  }
  const changes=[[EX,b.exterior?JSON.stringify(b.exterior):null],[IN,b.interior?JSON.stringify(b.interior):null],[NOTE,b.note]];
+ let attempted=-1;
  try{
-   changes.forEach(([key,value])=>value===null?storage.removeItem(key):storage.setItem(key,value));
+   changes.forEach(([key,value],i)=>{
+     attempted=i;
+     value===null?storage.removeItem(key):storage.setItem(key,value);
+   });
  }catch(err){
-   // Rollback is best effort: localStorage has no multi-key atomic transactions.
+   // Only roll back keys this operation attempted, never a newer competing edit.
+   // localStorage is not transactional; this is a best-effort conflict guard.
    let rollbackOk=true;
-   for(let i=0;i<keys.length;i++){
-     try{prior[i]===null?storage.removeItem(keys[i]):storage.setItem(keys[i],prior[i]);}catch{rollbackOk=false;}
+   for(let i=attempted;i>=0;i--){
+     const [key,wanted]=changes[i];
+     try{
+       const observed=storage.getItem(key);
+       if(observed===prior[i])continue;
+       if(observed!==wanted){rollbackOk=false;continue;}
+       prior[i]===null?storage.removeItem(key):storage.setItem(key,prior[i]);
+     }catch{rollbackOk=false;}
    }
-   if(!rollbackOk)throw Error('Herstel onderbroken en terugdraaien mislukt. Stop met bewerken en controleer lokale gegevens.');
+   if(!rollbackOk)throw Error('Herstel onderbroken en terugdraaien mislukt of conflicteert met nieuwere gegevens. Stop met bewerken en controleer lokale gegevens.');
    throw Error('Herstel mislukt; oorspronkelijke opslag teruggezet.');
  }
  return {exterior:!!b.exterior,interior:!!b.interior,noteLength:b.note.length};
