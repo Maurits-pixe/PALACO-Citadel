@@ -18,6 +18,7 @@ from typing import Any, Mapping
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
+from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
 from visitcard_anchor_custody import verify_custody_receipt
 from visitcard_witness_enrollment import _canonical
@@ -124,6 +125,76 @@ def verify_checkpoint(
         return None
 
 
+
+def audit_checkpoint_history(
+    db: sqlite3.Connection, issuer: str, nonce: str,
+    pinned_witness_keys: Mapping[str,bytes],
+) -> bool:
+    """Verify contiguous signed history and exact equality to current head.
+
+    Requires an independently pinned witness public key; a local row cannot
+    select its own key. Database administrators can still roll back the
+    *entire* coherent history unless a separate highest head is retained.
+    """
+    try:
+        rows=db.execute(
+            """SELECT event_count,events_sha256,custody_receipt_sha256,checkpoint_json
+               FROM rio_checkpoint_witness_history WHERE issuer=? AND nonce=?
+               ORDER BY event_count""",(issuer,nonce)
+        ).fetchall()
+        head=db.execute(
+            """SELECT event_count,events_sha256,custody_receipt_sha256,checkpoint_json
+               FROM rio_checkpoint_witness WHERE issuer=? AND nonce=?""",(issuer,nonce)
+        ).fetchone()
+        if not rows or len(rows)>2 or head!=rows[-1]:
+            return False
+        for index,(count,digest,receipt_hash,packed) in enumerate(rows,1):
+            if count!=index or not _hash(digest) or not _hash(receipt_hash):
+                return False
+            checkpoint=json.loads(packed)
+            if verify_checkpoint(checkpoint,pinned_witness_keys,issuer=issuer,nonce=nonce) != (
+                count,digest,receipt_hash
+            ):
+                return False
+            if _packed(checkpoint)!=packed:
+                return False
+        return True
+    except (sqlite3.Error,ValueError,TypeError,KeyError,AttributeError):
+        return False
+
+
+def compare_checkpoint_history(
+    db: sqlite3.Connection, external_head: Any,
+    pinned_witness_keys: Mapping[str,bytes], *, issuer: str, nonce: str
+) -> CheckpointState:
+    """Reconcile complete local witness history against independently held head.
+
+    The external head MUST have been retrieved from separately protected
+    custody, not from this same database; otherwise whole-DB rollback is
+    undetectable. No automatic recovery or authorization.
+    """
+    signed=verify_checkpoint(external_head,pinned_witness_keys,issuer=issuer,nonce=nonce)
+    if signed is None or db.in_transaction:
+        return CheckpointState.UNKNOWN
+    if not audit_checkpoint_history(db,issuer,nonce,pinned_witness_keys):
+        return CheckpointState.UNKNOWN
+    try:
+        row=db.execute(
+            """SELECT event_count,events_sha256,custody_receipt_sha256
+               FROM rio_checkpoint_witness WHERE issuer=? AND nonce=?""",
+            (issuer,nonce)
+        ).fetchone()
+        if row is None:
+            return CheckpointState.UNKNOWN
+        if row[0]<signed[0]:
+            return CheckpointState.BEHIND
+        if row[0]>signed[0]:
+            return CheckpointState.AHEAD_UNCONFIRMED
+        return CheckpointState.MATCHED if row==signed else CheckpointState.FORK
+    except (sqlite3.Error,TypeError,ValueError):
+        return CheckpointState.UNKNOWN
+
+
 def attest_checkpoint(
     db: sqlite3.Connection, custody_receipt: Any, custody_keys: Mapping[str,bytes],
     witness_private_key: Ed25519PrivateKey, witness_id: str,
@@ -162,6 +233,10 @@ def attest_checkpoint(
             (issuer,nonce),
         ).fetchone()
         if head is not None:
+            own_key=witness_private_key.public_key().public_bytes(Encoding.Raw,PublicFormat.Raw)
+            if not audit_checkpoint_history(db,issuer,nonce,{witness_id:own_key}):
+                db.rollback()
+                return None
             if count==head[0]:
                 if (digest,receipt_hash)!=(head[1],head[2]):
                     db.rollback()
