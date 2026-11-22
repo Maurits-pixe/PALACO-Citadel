@@ -12,6 +12,25 @@ function audit({reviews,candidateSha,prNumber,authorLogin}){
    throw Error('Ongeldige GitHub-reviewinvoer');
  }
  const approved=[];const rejected=[];
+ const latestByReviewer=new Map();
+ const seenReviewIds=new Set();
+ // Later reviews by the same author supersede earlier approval. If chronology
+ // cannot be established reliably, refuse to rely on any of those reviews.
+ for(const item of reviews){
+  const r=item&&typeof item==='object'&&!Array.isArray(item)?item:{};
+  const reviewer=login(r.author?.login||r.user?.login||r.reviewer?.login||r.reviewer_id);
+  if(!reviewer)continue;
+  const submitted=r.submittedAt||r.submitted_at;
+  const timestamp=typeof submitted==='string'&&Number.isFinite(Date.parse(submitted))?
+    Date.parse(submitted):null;
+  const previous=latestByReviewer.get(reviewer);
+  if(!previous){latestByReviewer.set(reviewer,{item:r,timestamp,ambiguous:false,count:1});continue;}
+  previous.count++;
+  if(timestamp===null||previous.timestamp===null||timestamp===previous.timestamp){
+   previous.ambiguous=true;continue;
+  }
+  if(timestamp>previous.timestamp){previous.item=r;previous.timestamp=timestamp;}
+ }
  for(const item of reviews){
   const r=item&&typeof item==='object'&&!Array.isArray(item)?item:{};
   const reviewer=login(r.author?.login||r.user?.login||r.reviewer?.login||r.reviewer_id);
@@ -23,6 +42,13 @@ function audit({reviews,candidateSha,prNumber,authorLogin}){
     /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/pull\/\d+#pullrequestreview-\d+$/.test(url)&&
     url.endsWith('/pull/'+prNumber+'#pullrequestreview-'+id);
   const reasons=[];
+  const history=reviewer?latestByReviewer.get(reviewer):null;
+  if(history?.ambiguous)reasons.push('ambiguous_review_history');
+  else if(history&&history.item!==r)reasons.push('superseded_review');
+  if(Number.isSafeInteger(id)){
+   if(seenReviewIds.has(id))reasons.push('duplicate_review_id');
+   seenReviewIds.add(id);
+  }
   if(reviewState!=='APPROVED')reasons.push('not_approved');
   if(!reviewer||reviewer===login(authorLogin))reasons.push('not_independent');
   if(sha!==candidateSha)reasons.push('wrong_commit');
