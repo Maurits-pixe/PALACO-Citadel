@@ -651,3 +651,38 @@ remain outstanding.
 Sixteen new archive regression tests have been added. They are not
 claimed PASS without actual execution and skip checks. No merge or
 public PALACO RIO change. **GO-13 HOLD**.
+
+## v2.8 — Archive publication custody and independently pinned receipts (DRAFT / HOLD)
+
+`visitcard_archive_publication.py` provides a separately provisionable
+publication-custodian ledger and a domain-separated Ed25519 receipt contract.
+It validates each archive seal against **independently pinned archive keys**,
+commits a monotone per-(issuer,nonce) seal sequence to an append-only
+historical table, and signs a receipt binding the issuer, nonce, event
+count, exact archive seal SHA-256 and predecessor seal SHA-256. The new
+receipt is returned only after the storage transaction commits.
+
+Identical submissions return the **exact previously committed receipt**;
+missing genesis, forks, wrong predecessors, skipped or stale sequence,
+bad signatures and inconsistent history fail closed.
+`audit_publication` independently verifies each stored archive signature,
+publisher signature, predecessor link, canonical JSON record and head row.
+`verify_publication_receipt` accepts only pinned publication-custodian
+keys, never keys supplied inside the receipt.
+
+**IMPORTANT:** This is a local storage/verification protocol only. No
+remote publication endpoint, independent cloud archive, TLS/mTLS transport,
+third-party proof of receipt, public broadcast or off-site backup has
+been provisioned. A locally signed publication receipt is evidence of
+this module's transaction, NOT proof that a genuinely independent third
+party retained the bytes. Administrator access, compromised signing keys,
+or a coordinated rollback of the publisher and all retained checkpoints
+can defeat local rollback checks. Real independence requires an external
+administrative/security boundary plus a separately protected highest
+signed receipt. The seal and publication receipt do not grant authority,
+register witness keys, or issue identities.
+
+Sixteen new regression tests were committed for signed publication,
+duplicate handling, forks, broken history and forged signatures.
+A real Python test run with skip-count inspection and deployment/security
+review remains mandatory before any release claim. **GO-13 HOLD**.
