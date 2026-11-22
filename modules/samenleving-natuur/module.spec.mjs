@@ -2086,22 +2086,22 @@ test('changing reviewer key invalidates previous receipt signer review outcome',
  await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('CRYPTOGRAFISCH GELDIG');
 });
 
-async function reviewerRegistryFixture(page,review,{status='active',expired=false,tamper=false}={}){
- return page.evaluate(async ({review,status,expired,tamper})=>{
+async function reviewerRegistryFixture(page,review,{status='active',expired=false,tamper=false,role='receipt-reviewer',notBeforeOffset=-7200000,notAfterOffset=null,issuedOffset=-3600000,expiresOffset=null}={}){
+ return page.evaluate(async ({review,status,expired,tamper,role,notBeforeOffset,notAfterOffset,issuedOffset,expiresOffset})=>{
   const canonical=v=>Array.isArray(v)?'['+v.map(canonical).join(',')+']':v&&typeof v==='object'?'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canonical(v[k])).join(',')+'}':JSON.stringify(v);
   const pair=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
   const jwk=await crypto.subtle.exportKey('jwk',pair.publicKey),issuer={kty:'EC',crv:'P-256',x:jwk.x,y:jwk.y};
   const fp=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonical(issuer)))),b=>b.toString(16).padStart(2,'0')).join('');
   const now=Date.now();
-  const registry={schema:'palaco-citadel-reviewer-registry-v1',role:'receipt-reviewer',status,
+  const registry={schema:'palaco-citadel-reviewer-registry-v1',role,status,
    reviewerFingerprint:review.reviewerFingerprint,issuerFingerprint:fp,
-   notBefore:new Date(now-7200000).toISOString(),notAfter:new Date(now+(expired?-1000:3600000)).toISOString(),
-   issuedAt:new Date(now-3600000).toISOString(),expiresAt:new Date(now+(expired?-1000:3600000)).toISOString()};
+   notBefore:new Date(now+notBeforeOffset).toISOString(),notAfter:new Date(now+(notAfterOffset??(expired?-1000:3600000))).toISOString(),
+   issuedAt:new Date(now+issuedOffset).toISOString(),expiresAt:new Date(now+(expiresOffset??(expired?-1000:3600000))).toISOString()};
   const bytes=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},pair.privateKey,new TextEncoder().encode(canonical(registry)));
   const signed={...registry,signature:btoa(String.fromCharCode(...new Uint8Array(bytes)))};
   if(tamper)signed.reviewerFingerprint='0'.repeat(64);
   return {issuer,signed};
- },{review,status,expired,tamper});
+ },{review,status,expired,tamper,role,notBeforeOffset,notAfterOffset,issuedOffset,expiresOffset});
 }
 async function uploadReviewerRegistry(page,reg){
  await page.locator('#receiptReviewerRegistryIssuer').fill(JSON.stringify(reg.issuer));
@@ -2218,6 +2218,47 @@ test('rc42 registry removal after valid verification invalidates previous outcom
  await expect(page.locator('#receiptSignerReviewStatus')).toContainText('REVIEWERSREGISTER CRYPTOGRAFISCH GELDIG');
  await page.locator('#receiptReviewerRegistry').setInputFiles([]);
  await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
+
+
+test('rc42 signed reviewer registry refuses not-yet-active reviewer interval',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await uploadReviewerRegistry(page,await reviewerRegistryFixture(page,review.declaration,{notBeforeOffset:3600000}));
+ await page.locator('#requireReviewerRegistry').check();
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
+
+test('rc42 signed reviewer registry refuses inconsistent reviewer validity bounds',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await uploadReviewerRegistry(page,await reviewerRegistryFixture(page,review.declaration,{notBeforeOffset:3600000,notAfterOffset:1800000}));
+ await page.locator('#requireReviewerRegistry').check();
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
+
+test('rc42 signed reviewer registry refuses future-issued registry',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await uploadReviewerRegistry(page,await reviewerRegistryFixture(page,review.declaration,{issuedOffset:900000}));
+ await page.locator('#requireReviewerRegistry').check();
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
+
+test('rc42 signed reviewer registry refuses a different reviewer role',async ({page})=>{
+ await signedPreviewFixture(page);
+ const review=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,review);
+ await uploadReviewerRegistry(page,await reviewerRegistryFixture(page,review.declaration,{role:'audit-signer'}));
+ await page.locator('#requireReviewerRegistry').check();
  await page.locator('#verifyReceiptSignerReview').click();
  await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
 });
