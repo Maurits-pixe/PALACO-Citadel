@@ -90,6 +90,12 @@ function restore(storage,bundle,expectedSnapshot){
      attempted=i;
      value===null?storage.removeItem(key):storage.setItem(key,value);
    });
+   // Storage adapters can silently fail or data can change between writes.
+   // Read back each intended value before reporting a successful restore.
+   for(const [key,wanted] of changes){
+     if(storage.getItem(key)!==wanted)
+       throw Error('Opslagverificatie mislukt; opgeslagen project wijkt af van het herstelvoorstel.');
+   }
  }catch(err){
    // Only roll back keys this operation attempted, never a newer competing edit.
    // localStorage is not transactional; this is a best-effort conflict guard.
