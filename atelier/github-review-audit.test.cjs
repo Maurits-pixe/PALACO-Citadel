@@ -40,3 +40,45 @@ test('invalid API metadata fails closed',()=>{
  assert.throws(()=>audit({...options([]),candidateSha:'bad'}),/Ongeldige GitHub-reviewinvoer/);
  assert.throws(()=>audit({...options([]),prNumber:0}),/Ongeldige GitHub-reviewinvoer/);
 });
+
+test('later changes-requested review revokes previously approved review',()=>{
+ const result=audit(options([
+  review({submitted_at:'2026-11-21T08:00:00Z'}),
+  review({id:124,state:'CHANGES_REQUESTED',submitted_at:'2026-11-21T09:00:00Z',
+    html_url:'https://github.com/Maurits-pixe/PALACO-Citadel/pull/60#pullrequestreview-124'})
+ ]));
+ assert.equal(result.matching_approved_review_count,0);
+ assert.ok(result.rejected.some(r=>r.reasons.includes('superseded_review')));
+ assert.ok(result.rejected.some(r=>r.reasons.includes('not_approved')));
+ assert.equal(result.decision,'HOLD');
+});
+test('later approved review on old commit cannot rescue earlier exact-commit approval',()=>{
+ const result=audit(options([
+  review({submitted_at:'2026-11-21T08:00:00Z'}),
+  review({id:124,commit_id:B,submitted_at:'2026-11-21T10:00:00Z',
+    html_url:'https://github.com/Maurits-pixe/PALACO-Citadel/pull/60#pullrequestreview-124'})
+ ]));
+ assert.equal(result.matching_approved_review_count,0);
+ assert.ok(result.rejected.some(r=>r.reasons.includes('wrong_commit')));
+});
+test('unknown review chronology is ambiguous and fails closed',()=>{
+ const result=audit(options([review(),review({id:124,
+   html_url:'https://github.com/Maurits-pixe/PALACO-Citadel/pull/60#pullrequestreview-124'})]));
+ assert.equal(result.matching_approved_review_count,0);
+ assert.ok(result.rejected.every(r=>r.reasons.includes('ambiguous_review_history')));
+});
+test('duplicate GitHub review ID invalidates both copies',()=>{
+ const result=audit(options([review(),review()]));
+ assert.equal(result.matching_approved_review_count,0);
+ assert.ok(result.rejected.every(r=>r.reasons.includes('duplicate_review_id')));
+});
+test('later current-commit approval can be inspected but never grants release',()=>{
+ const result=audit(options([
+  review({state:'COMMENTED',submitted_at:'2026-11-21T08:00:00Z'}),
+  review({id:124,submitted_at:'2026-11-21T09:00:00Z',
+    html_url:'https://github.com/Maurits-pixe/PALACO-Citadel/pull/60#pullrequestreview-124'})
+ ]));
+ assert.equal(result.matching_approved_review_count,1);
+ assert.equal(result.release_approved,false);
+ assert.equal(result.decision,'HOLD');
+});
