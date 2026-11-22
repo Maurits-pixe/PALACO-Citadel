@@ -84,6 +84,24 @@ class FreshHeadTests(unittest.TestCase):
         self.assertTrue(self.retain())
         self.assertFalse(self.retain(self.receipt(1,"f"*64,"0"*64)))
 
+    def test_nonzero_genesis_predecessor_rejected(self):
+        self.assertFalse(self.retain(self.receipt(1,"a"*64,"f"*64)))
+
+    def test_audit_detects_signed_but_broken_history_link(self):
+        self.assertTrue(self.retain())
+        self.assertTrue(self.retain(self.second))
+        self.db.execute("DROP TRIGGER rio_fresh_history_immutable_update")
+        # A forged second receipt is signed by the test publisher but does
+        # not extend the first published seal.
+        import json
+        bogus=self.receipt(2,"b"*64,"f"*64)
+        self.db.execute(
+            "UPDATE rio_fresh_publication_history SET receipt_json=? WHERE event_count=2",
+            (json.dumps(bogus,sort_keys=True,separators=(",",":")),)
+        )
+        self.assertFalse(audit_fresh_head(self.db,ISSUER,NONCE,self.publishers))
+        self.assertIsNone(self.attest())
+
     def test_wrong_predecessor_rejected(self):
         self.assertTrue(self.retain())
         self.assertFalse(self.retain(self.receipt(2,"b"*64,"f"*64)))
