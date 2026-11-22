@@ -345,3 +345,31 @@ witness server independently checks sequence and predecessor.
 
 Twelve additional v1.8 loopback tests have been added and await
 actual execution. This is **not** public or deployed. **GO-13 HOLD**.
+
+## v1.9 — Legacy recovery retirement and enrollment evidence (DRAFT / HOLD)
+
+The previous `visitcard_witness_recovery.recover_once` compatibility
+entrypoint now delegates **exclusively** to
+`visitcard_witness_recovery_v18.recover_once_verified`.
+The insecure pre-v1.8 path that published without mandatory fresh signed-head
+preflight is removed. Existing integrations still need an audited migration;
+the compatibility facade does not enable genesis recovery, public access,
+or implicit trust. Old tests were updated to verify the mandatory delegation.
+
+`visitcard_witness_enrollment.py` implements an **evidence-only** admission
+envelope: issuer and witness ID, candidate Ed25519 public key, 256-bit nonce,
+UTC issue and expiry times, and domain-separated approvals from both an
+out-of-band pinned administrative authority and the candidate key owner.
+The acceptance window is no longer than 15 minutes. Tampering, missing
+signatures, unknown approval authorities or incorrect issuer fail closed.
+
+**There is no automatic key registration.** Evidence validation does not
+add a witness to trusted keys, issue sequence 1, grant privileges or update
+a live registry. A trusted enrollment authority must implement human-led
+review, durable nonce-replay prevention, dual control, key rotation and
+independent audit logging before issuing an enrollment decision. Candidate
+proof of possession alone is not authority to enroll.
+
+No merge, no production transport and no public RIO site changes.
+**GO-13 HOLD.** CI and dynamic Python tests must be executed and reviewed
+before any security acceptance claim.
