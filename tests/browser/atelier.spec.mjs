@@ -1086,3 +1086,45 @@ test('Atelier: brongewijze SHA-256-afwijkingen zijn afzonderlijk zichtbaar en ve
  await expect(page.locator('#inspectionHashes')).toBeHidden();
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(original);
 });
+
+test('Atelier: dubbele geneste JSON-sleutels en Unicode-aliassen worden in beide dossierbestanden geweigerd',async ({page})=>{
+ const {createHash}=await import('node:crypto');
+ const fs=await import('node:fs/promises');
+ await page.goto('/atelier/regiekamer.html');
+ const before=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const rawProject=await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage)));
+ const projectBytes=Buffer.from(rawProject);
+ const hash=createHash('sha256').update(projectBytes).digest('hex');
+ const project={name:'atelier.json',mimeType:'application/json',buffer:projectBytes};
+ const txt={name:'referentie.txt',mimeType:'text/plain',buffer:Buffer.from('SHA-256: '+hash+'\nBestand: atelier.json\n')};
+ await page.locator('#pairVerify').setInputFiles([project,txt]);
+ await expect(page.locator('#pairReportSave')).toBeEnabled();
+ const dl=page.waitForEvent('download');
+ await page.locator('#pairReportSave').click();
+ const report={name:'inspectie.json',mimeType:'application/json',buffer:await fs.readFile(await (await dl).path())};
+ await page.locator('#reportVerify').setInputFiles([project,txt,report]);
+ await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
+ const badNested=[
+   '{"nested":{"status":"DRAFT","status":"APPROVED"}}',
+   '{"nested":[{"authority":"NONE","authority":"OWNER"}]}',
+   '{"nested":{"authority":"NONE","\\u0061uthority":"OWNER"}}',
+   '{"nested":{"inner":{"sha256":"a","sha256":"b"}}}'
+ ];
+ for(const addition of badNested){
+   const reportText=JSON.stringify({...JSON.parse(report.buffer.toString('utf8')),probe:JSON.parse(addition)});
+   // JSON.stringify would remove duplicate keys, so append the unmodified raw nested object.
+   const withDuplicate=reportText.replace('"probe":'+JSON.stringify(JSON.parse(addition)),'"probe":'+addition);
+   await page.locator('#reportVerify').setInputFiles([project,txt,{...report,buffer:Buffer.from(withDuplicate)}]);
+   await expect(page.locator('#reportVerifyStatus')).toContainText('Dossier-JSON bevat dubbele velden');
+   await expect(page.locator('#inspectionResult')).toHaveAttribute('data-result','rejected');
+   await expect(page.locator('#inspectionHashes')).toBeHidden();
+ }
+ const nestedProject=rawProject.slice(0,-1)+',"untrusted":{"x":1,"x":2}}';
+ await page.locator('#reportVerify').setInputFiles([
+   {...project,buffer:Buffer.from(nestedProject)},txt,report
+ ]);
+ await expect(page.locator('#reportVerifyStatus')).toContainText('Dossier-JSON bevat dubbele velden');
+ await page.locator('#reportVerify').setInputFiles([project,txt,report]);
+ await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+});
