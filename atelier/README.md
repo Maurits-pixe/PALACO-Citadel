@@ -547,3 +547,9 @@ Browser-storage-events kunnen vertraagd worden verwerkt wanneer een tabblad op d
 Twee Playwright-tests simuleren een vertraagd opslag-event met een verouderde payload en controleren respectievelijk een schone editor (actuele inhoud en veilig verder opslaan) en onopgeslagen werk (behoud plus conflictweigering). Twee eerdere statische contracttests zijn aangepast en een nieuwe statische toets bewaakt de live-lezing.
 
 **Grenzen:** de live-lezing is geen atomair compare-and-swap of duurzame synchronisatie; localStorage blijft browsergebonden. **DRAFT/HOLD/DENY**, geen merge, EDTR of live-publicatie.
+
+## Regiekamer v6.32 — controle op herstelkopie na validatie (2026-11-22)
+
+`undoLastImport()` vergelijkt na het parsen en valideren van een herstelrecord de actuele ruwe opslagwaarde opnieuw met de exact geselecteerde herstelkopie. Als een ander tabblad de kopie vervangt tijdens die validatie, weigert de undo de operatie vóór het overschrijven van de drie Atelier-bronnen. De bestaande controles in `restoreWithRecovery()` blijven daarnaast actief. Twee Node-regressies behandelen wijziging van de herstelkopie tussen parsen en uitvoering, en corrupte of niet-geautoriseerde herstelrecords. In alle weigeringen blijven de creatieve ontwerpgegevens ongewijzigd.
+
+Dit is een extra best-effort verificatie; `localStorage` biedt geen transactionele opslag of atomaire compare-and-swap. De tests zijn vastgelegd maar zijn op de nieuwe HEAD nog niet als geslaagd bevestigd. **DRAFT/HOLD/DENY**, geen merge, EDTR of publieke uitrol.
