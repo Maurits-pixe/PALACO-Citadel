@@ -57,13 +57,34 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
       !HEX.test(expectedAnchorKeyFingerprint) ||
       !Number.isSafeInteger(minimumAnchorSequence) ||
       minimumAnchorSequence < 0 ||
-      !own(anchorPublicJwk,['kty','crv','x','y']) ||
-      anchorPublicJwk.kty !== 'EC' || anchorPublicJwk.crv !== 'P-256' ||
       typeof signatureBase64Url !== 'string' ||
       signatureBase64Url.length < 11 || signatureBase64Url.length > 107 ||
       !/^[A-Za-z0-9_-]+$/.test(signatureBase64Url))
       return reject('INVALID_ANCHOR_INPUT');
-    const key = createPublicKey({format:'jwk',key:anchorPublicJwk});
+    // Snapshot each public JWK coordinate exactly once: hostile getters and
+    // changing Proxy descriptors must not alter the key between fingerprint
+    // derivation and cryptographic verification.
+    const keyFields = ['kty','crv','x','y'];
+    if (anchorPublicJwk === null || typeof anchorPublicJwk !== 'object' ||
+        Array.isArray(anchorPublicJwk) ||
+        Object.getPrototypeOf(anchorPublicJwk) !== Object.prototype)
+      return reject('INVALID_ANCHOR_INPUT');
+    const actualKeyFields = Reflect.ownKeys(anchorPublicJwk);
+    if (actualKeyFields.length !== keyFields.length ||
+        actualKeyFields.some(k => typeof k !== 'string' || !keyFields.includes(k)))
+      return reject('INVALID_ANCHOR_INPUT');
+    const keySnapshot = {};
+    for (const field of keyFields) {
+      const d = Object.getOwnPropertyDescriptor(anchorPublicJwk, field);
+      if (!d || !Object.hasOwn(d,'value') || typeof d.value !== 'string')
+        return reject('INVALID_ANCHOR_INPUT');
+      keySnapshot[field] = d.value;
+    }
+    if (keySnapshot.kty !== 'EC' || keySnapshot.crv !== 'P-256' ||
+        !/^[A-Za-z0-9_-]{43}$/.test(keySnapshot.x) ||
+        !/^[A-Za-z0-9_-]{43}$/.test(keySnapshot.y))
+      return reject('INVALID_ANCHOR_INPUT');
+    const key = createPublicKey({format:'jwk',key:keySnapshot});
     if (key.asymmetricKeyType !== 'ec' ||
       key.asymmetricKeyDetails?.namedCurve !== 'prime256v1')
       return reject('INVALID_ANCHOR_KEY');
