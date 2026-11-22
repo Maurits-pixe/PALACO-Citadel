@@ -383,3 +383,9 @@ De vernieuwing vult v6.6 aan: herselectie, handmatige annulering en het wissen v
 Wanneer een gebruiker in dezelfde Regiekamer tijdens een vertraagde projectbestandslezing de ontwerpnotitie bewerkt, wordt de lopende import meteen ongeldig verklaard. De revisie wordt verhoogd en de bestandskeuze gewist. Een later binnenkomend bestandsresultaat mag geen herstelbevestiging openen, de nieuwe onopgeslagen tekst overschrijven of bestaande lokale ontwerpen aanpassen. De zichtbare status vraagt om het projectbestand opnieuw te kiezen.
 
 Een Playwright-browserregressie gebruikt een bewust vertraagde `File.arrayBuffer()`, wijzigt de notitie vóór voltooiing en controleert de ontbrekende bevestigingsdialoog, de intacte tekst en ongewijzigde opslag. De bescherming sluit aan op v6.6 (annulering) en v6.7 (andere tabbladen). PR #60 blijft DRAFT/HOLD; geen EDTR, autorisatie, merge of live-publicatie.
+
+## Atelier v6.9 — uniforme bestandsnaamcontrole bij projectherstel
+
+De herstel-/importfunctie controleert nu vóór het lezen van de bytes de projectbestandsnaam via dezelfde `safeProjectFilename`-validator die al bij de onafhankelijke DRAFT-projectverificatie wordt gebruikt. Daardoor worden onjuiste extensies, Windows-apparaatnamen, dubbele punten direct voor `.json`, verborgen opmaaktekens en andere misleidende of ongeldige namen afgewezen zonder herstelbevestiging of schrijfactie. Normale `.json`-projectnamen blijven bruikbaar.
+
+Een nieuwe Playwright-regressie test meerdere onveilige bestandsnamen, daarna een geldige bestandsnaam, en controleert dat afgewezen bestanden geen bevestiging openen en opgeslagen creatieve ontwerpen intact blijven. De bestaande bescherming tegen vertraagde imports (v6.6–v6.8) en de strikte UTF-8-/JSON-controles blijven behouden. PR #60 blijft DRAFT/HOLD, zonder merge, EDTR, autorisatie of live-publicatie.
