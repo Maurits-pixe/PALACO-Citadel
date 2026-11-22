@@ -3,7 +3,10 @@
 `registry-pin-cas-draft.sql` is an intentionally **inert DDL proposal**,
 not a deployed migration. It defines a private schema for current pins and
 append-only pin history. It enables FORCE RLS, revokes PUBLIC access,
-and defines an UPDATE/DELETE rejection trigger for the history table.
+and defines UPDATE/DELETE/TRUNCATE rejection triggers for the history table.
+It also rejects INSERT, UPDATE, DELETE and TRUNCATE on the current pin-state
+record, leaving the entire draft data surface frozen until a separately
+reviewed activation explicitly replaces that barrier.
 
 The only example CAS function **unconditionally raises an exception**.
 No transaction actually updates a pin. No roles are granted and no code
