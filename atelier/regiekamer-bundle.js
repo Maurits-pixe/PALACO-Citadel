@@ -195,8 +195,15 @@ function restoreWithRecovery(storage,bundle,expectedSnapshot,expectedRecovery){
    if(storage.getItem(RECOVERY)!==writtenRecovery){
      throw Error('Import faalde en herstelkopie is ondertussen gewijzigd. Laat herstelkopie ongemoeid; controleer lokale gegevens.');
    }
-   try{previousRecovery===null?storage.removeItem(RECOVERY):storage.setItem(RECOVERY,previousRecovery);}
-   catch{throw Error('Import faalde en herstelkopie kon niet worden teruggezet. Controleer je lokale projectgegevens.');}
+   try{
+     previousRecovery===null?storage.removeItem(RECOVERY):storage.setItem(RECOVERY,previousRecovery);
+     // A storage adapter can silently ignore cleanup or another tab can intervene.
+     if(storage.getItem(RECOVERY)!==previousRecovery){
+       throw Error('Recovery rollback verification failed');
+     }
+   }catch{
+     throw Error('Import faalde en herstelkopie kon niet aantoonbaar worden teruggezet. Controleer je lokale projectgegevens.');
+   }
    throw err;
  }
 }
