@@ -1307,3 +1307,47 @@ test('Atelier: lokale import weigert beschadigde UTF-8-bytes zonder herstel of s
  expect(dialogs).toBe(1);
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
 });
+
+test('Atelier: trage import wordt genegeerd na nieuw bestand, annulering en controle-reset',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const before=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const valid=Buffer.from(await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage))));
+ let dialogs=0;
+ page.on('dialog',async dialog=>{dialogs++;await dialog.dismiss();});
+ await page.evaluate(()=>{
+   const native=File.prototype.arrayBuffer;
+   window.atelierPendingImports=[];
+   File.prototype.arrayBuffer=function(){
+     if(this.name.startsWith('traag-')){
+       return new Promise((resolve,reject)=>{
+         window.atelierPendingImports.push(()=>native.call(this).then(resolve,reject));
+       });
+     }
+     return native.call(this);
+   };
+ });
+ const input=page.locator('#bundleImport');
+ await input.setInputFiles({name:'traag-eerst.json',mimeType:'application/json',buffer:valid});
+ await expect.poll(()=>page.evaluate(()=>window.atelierPendingImports.length)).toBe(1);
+ await input.setInputFiles({name:'nieuw.json',mimeType:'application/json',buffer:valid});
+ await expect(page.locator('#bundleStatus')).toContainText('DRAFT-pakket');
+ const currentStatus=await page.locator('#bundleStatus').textContent();
+ await page.evaluate(()=>window.atelierPendingImports.shift()());
+ await expect(page.locator('#bundleStatus')).toHaveText(currentStatus);
+ expect(dialogs).toBe(1);
+ await input.setInputFiles({name:'traag-annuleer.json',mimeType:'application/json',buffer:valid});
+ await expect.poll(()=>page.evaluate(()=>window.atelierPendingImports.length)).toBe(1);
+ await input.dispatchEvent('cancel');
+ await expect(page.locator('#bundleStatus')).toContainText('Projectimport geannuleerd');
+ await page.evaluate(()=>window.atelierPendingImports.shift()());
+ await expect(page.locator('#bundleStatus')).toContainText('Projectimport geannuleerd');
+ expect(dialogs).toBe(1);
+ await input.setInputFiles({name:'traag-reset.json',mimeType:'application/json',buffer:valid});
+ await expect.poll(()=>page.evaluate(()=>window.atelierPendingImports.length)).toBe(1);
+ await page.locator('#clearInspections').click();
+ await expect(page.locator('#bundleStatus')).toContainText('Tijdelijke controle-uitkomsten gewist');
+ await page.evaluate(()=>window.atelierPendingImports.shift()());
+ await expect(page.locator('#bundleStatus')).toContainText('Tijdelijke controle-uitkomsten gewist');
+ expect(dialogs).toBe(1);
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+});
