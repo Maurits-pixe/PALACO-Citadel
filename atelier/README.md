@@ -643,3 +643,16 @@ Dit bewijst de geobserveerde testuitvoering op **die eerdere commit**, niet de t
 De Regiekamer neemt alleen een browser-`storage`-event in behandeling wanneer de `storageArea` daadwerkelijk de lokale `localStorage` van deze pagina is. Een gelijknamige sleutel vanuit `sessionStorage` of een kunstmatig event zonder juiste opslagbron kan daardoor geen lopende import annuleren, geen herstelknoppen verversen en geen notitiefeedback beïnvloeden. Bestaande bescherming tegen conflicterende lokale opslagwijzigingen blijft ongewijzigd.
 
 Twee Playwright-regressies controleren een ongerelateerde sessieopslagmelding tijdens een geslaagde notitieopslag en tijdens een bewust vertraagde projectimport. Een statische contracttest controleert dat de broncontrole vóór de import- en herstelacties plaatsvindt. Dit voorkomt onterechte acties, maar biedt geen atomaire opslaggarantie. **DRAFT/HOLD/DENY**; geen merge, EDTR, autorisatie of productiepublicatie.
+
+## Regiekamer v6.44 — uitvoerbare fail-closed bewijscontrole (2026-11-22)
+
+De nieuwe offline module [release-gate.cjs](release-gate.cjs) beoordeelt een kandidaat-commit tegenover een opgegeven machineleesbaar bewijsregister. Voor G01–G08 geeft hij per gate de erkende en ontbrekende bewijscategorieën terug. Alleen bewijs dat de exacte kandidaat-SHA vermeldt, een expliciete positieve testuitkomst heeft, door een reviewer is beoordeeld en een niet-lege bronverwijzing bevat, komt überhaupt in aanmerking. Een historisch register met een andere `observed_commit_sha` kan nooit automatisch bewijs voor een nieuwe commit leveren.
+
+**Veilige voorbeeldopdracht voor uitsluitend diagnostiek:**
+```sh
+node atelier/release-gate.cjs <VOLLEDIGE_40_HEX_SHA> atelier/release-evidence-v6.40.json
+```
+
+Met `--enforce` eindigt het proces met een niet-nul exitcode zolang het besluit geen GO is. In deze DRAFT-implementatie blijft het resultaat **altijd HOLD / DENY**, ook als een onbetrouwbaar lokaal JSON-bestand ten onrechte alle vinkjes op PASS of de autoriteit op OWNER zet. Deze module **kent geen bevoegdheid toe, voert geen merge uit, en publiceert niets**. De acht bewijscategorieën moeten voor formele vrijgave nog onafhankelijk worden beoordeeld en gekoppeld aan het bevoegde GO-13-besluit.
+
+Vijf tests in [release-gate.test.cjs](release-gate.test.cjs) toetsen verouderde SHA, ontbrekende handmatige acceptatie, ongefundeerd of niet-beoordeeld bewijs, vervalste GO/OWNER-claims en ongeldige invoer. Voer uit met `node --test atelier/release-gate.test.cjs`. Tot succesvolle uitvoering en onafhankelijke review wordt **geen PASS** geclaimd. **DRAFT/HOLD/DENY**; geen merge, EDTR of publieke uitrol.
