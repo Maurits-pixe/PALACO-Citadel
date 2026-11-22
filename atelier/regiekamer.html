@@ -131,6 +131,7 @@ $('checkExportFile').addEventListener('change',async event=>{
    const api=window.PalacoAtelierBundle;
    if(!api)throw Error('Projectpakketcontrole niet beschikbaar');
    const content=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
+   parseUniqueTopLevelJson(content);
    api.parse(content);
    if(!crypto?.subtle?.digest)throw Error('SHA-256 niet beschikbaar in deze browser');
    const digest=await crypto.subtle.digest('SHA-256',bytes);
@@ -434,7 +435,9 @@ $('pairVerify').addEventListener('change',async event=>{
    const decode=new TextDecoder('utf-8',{fatal:true});
    const api=window.PalacoAtelierBundle;
    if(!api)throw Error('Atelier-validatiemodule niet geladen');
-   const archive=api.parse(decode.decode(jsonBytes));
+   const projectText=decode.decode(jsonBytes);
+   parseUniqueTopLevelJson(projectText);
+   const archive=api.parse(projectText);
    const receipt=decode.decode(txtBytes);
    const expected=parseBoundReceipt(receipt,json.name);
    if(!crypto?.subtle?.digest)throw Error('SHA-256 niet beschikbaar in deze browser');
@@ -537,6 +540,7 @@ $('bundleVerify').addEventListener('change',async event=>{
    const bytes=await file.arrayBuffer();
    if(revision!==dossierRevision)return;
    const contents=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
+   parseUniqueTopLevelJson(contents);
    const pack=api.parse(contents);
    if(!crypto?.subtle?.digest)throw Error('SHA-256 niet beschikbaar in deze browser');
    const digest=await crypto.subtle.digest('SHA-256',bytes);
@@ -562,7 +566,9 @@ $('bundleImport').addEventListener('change',async event=>{
    const api=window.PalacoAtelierBundle;
    if(!api)throw Error('Projectpakket-functie niet geladen');
    if(file.size>150000)throw Error('Bestand groter dan 150 KB');
-   const pack=api.parse(await file.text());
+   const importText=await file.text();
+   parseUniqueTopLevelJson(importText);
+   const pack=api.parse(importText);
    const ex=pack.exterior?pack.exterior.name:'geen exterieur';
    const ins=pack.interior?pack.interior.name:'geen interieur';
    const current=api.snapshot(localStorage);
