@@ -1762,3 +1762,51 @@ test('Atelier v6.24: herstelknoppen volgen wijziging van herstelkopie uit tweede
  await expect(page.locator('#recoveryStatus')).toContainText('Nog geen lokale herstelkopie');
  await other.close();
 });
+
+
+test('Atelier v6.25: herhaald notitieconflict tussen tabbladen behoudt onopgeslagen werk',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const other=await page.context().newPage();
+ await other.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Mijn lokaal onopgeslagen ontwerp');
+ for(const value of ['Tweede tab revisie A','Tweede tab revisie B','Tweede tab revisie C']){
+  await other.locator('#statement').fill(value);
+  await other.locator('#saveNote').click();
+  await expect(other.locator('#feedback')).toContainText('lokaal bewaard');
+  await expect(page.locator('#statement')).toHaveValue('Mijn lokaal onopgeslagen ontwerp');
+  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe(value);
+ }
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('Opslaan geweigerd');
+ await expect(page.locator('#statement')).toHaveValue('Mijn lokaal onopgeslagen ontwerp');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Tweede tab revisie C');
+ await other.close();
+});
+
+test('Atelier v6.25: browserherladen bewaart laatste DRAFT herstelkopie en ontwerpen',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.evaluate(()=>{
+  const api=window.PalacoAtelierBundle;
+  localStorage.setItem(api.NOTE,'Originele opgeslagen notitie');
+  api.restoreWithRecovery(localStorage,api.create(null,null,'Geïmporteerde ontwerpnotitie'));
+ });
+ const state=await page.evaluate(()=>{
+  const api=window.PalacoAtelierBundle;
+  return {before:api.snapshot(localStorage),rawRecovery:localStorage.getItem(api.RECOVERY)};
+ });
+ await page.reload();
+ await expect(page.locator('#undoImport')).toBeEnabled();
+ await expect(page.locator('#exportRecovery')).toBeEnabled();
+ await expect(page.locator('#statement')).toHaveValue('Geïmporteerde ontwerpnotitie');
+ const after=await page.evaluate(()=>{
+  const api=window.PalacoAtelierBundle;
+  return {before:api.snapshot(localStorage),rawRecovery:localStorage.getItem(api.RECOVERY),note:api.getRecovery(localStorage).draft.note};
+ });
+ expect(after.before).toEqual(state.before);
+ expect(after.rawRecovery).toBe(state.rawRecovery);
+ expect(after.note).toBe('Originele opgeslagen notitie');
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#undoImport').click();
+ await expect(page.locator('#bundleStatus')).toContainText('Vorige Atelier-versie teruggezet');
+ await expect(page.locator('#statement')).toHaveValue('Originele opgeslagen notitie');
+});
