@@ -56,6 +56,13 @@ De 18 tests dekken navigatiecontinuïteit, vluchtige opslag als standaard, opsla
 - Herstel van ongeldige gegevens wordt geweigerd. Uitschakelen van de opslagcheckbox wist de lokale opslag van deze module.
 - Twee nieuwe echte Chromium-testscenario’s controleren dit op mobiele viewport. Uitvoering en uitslag zijn te verifiëren via GitHub Actions.
 
+## Actieve dossierselectie na cross-tab wijziging · v4.3
+- Bij een browser-`storage`-gebeurtenis op één van de twee eigen archief-/kluissleutels of bij `localStorage.clear()` wordt een open dossierinspectie gesloten, de geselecteerde dossierreferentie ongeldig gemaakt en de eenmalige Bewijskamer-exporttoestemming ingetrokken.
+- De focus gaat naar de tijdlijn als een dossier openstond. Lokaal geheugen blijft leesbaar als ongeverifieerd concept; er worden geen gegevens stilzwijgend verwijderd of samengevoegd. De bestaande kluisoperatie wordt ook ongeldig gemaakt.
+- Wijzigingen in een **niet-gerelateerde opslag­sleutel** hebben geen effect op de open dossierinspectie of toestemming.
+- Twee nieuwe Chromium-browsertests gebruiken daadwerkelijk twee tabs en controleren intrekking na wijziging van de concept- respectievelijk kluissleutel, en ongewijzigd gedrag bij een niet-gerelateerde sleutel.
+- Dit voorkomt export met een verouderde selectie na **verwerkte** cross-tab gebeurtenissen; een gebeurtenis is geen formeel transactieslot en garandeert geen afhandeling vóór alle concurrerende scripts. DRAFT/HOLD, geen fysieke apparaatacceptatie.
+
 ## Apparaatopslag gewijzigd vanuit meerdere tabs · v4.2
 - De **SHA-256-archiefexport** en **AES-256-GCM-archiefexport** leggen bij aanvang ook de inhoud van beide eigen `localStorage`-sleutels vast: de onversleutelde conceptopslag en de versleutelde apparaatkluis.
 - Vlak voordat een download start worden beide opslagwaarden opnieuw gelezen en vergeleken. Bij afwijking wordt de export geweigerd, ook als de `storage`-gebeurtenis in de exporterende tab nog niet is verwerkt.
