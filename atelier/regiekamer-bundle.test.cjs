@@ -517,3 +517,40 @@ test('failed import detects recovery modified during cleanup',()=>{
  assert.equal(storage.getItem(bundle.RECOVERY),'concurrent recovery point');
  assert.equal(storage.getItem(bundle.NOTE),'oude tekst');
 });
+
+
+test('undo refuses recovery swapped after parsing but before restoring',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'current draft'});
+ const first={schema:'palaco.citadel.atelier.recovery/1',state:'DRAFT',authority:'NONE',savedAt:'2026-11-22T12:00:00.000Z',draft:bundle.create(null,null,'previous draft')};
+ const next={...first,savedAt:'2026-11-22T12:00:01.000Z',draft:bundle.create(null,null,'new rival draft')};
+ const rawFirst=JSON.stringify(first),rawNext=JSON.stringify(next);
+ storage.setItem(bundle.RECOVERY,rawFirst);
+ const original=storage.getItem;
+ let reads=0;
+ storage.getItem=key=>{
+  if(key===bundle.RECOVERY&&++reads===3)storage.map.set(key,rawNext);
+  return original(key);
+ };
+ const before=bundle.snapshot(storage);
+ assert.throws(
+  ()=>bundle.undoLastImport(storage,before,rawFirst),
+  /Herstelkopie gewijzigd tijdens verificatie/
+ );
+ assert.equal(storage.getItem(bundle.NOTE),'current draft');
+ assert.equal(storage.getItem(bundle.RECOVERY),rawNext);
+});
+
+test('malformed recovery record is rejected without altering the local draft',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'untouched creative notes'});
+ const invalid=[
+  '{broken-json',
+  JSON.stringify({schema:'palaco.citadel.atelier.recovery/1',state:'DRAFT',authority:'OWNER',savedAt:'2026-11-22T12:00:00.000Z',draft:bundle.create(null,null,'old')}),
+  JSON.stringify({schema:'palaco.citadel.atelier.recovery/1',state:'DRAFT',authority:'NONE',savedAt:'2026-11-22T12:00:00.000Z',draft:{...bundle.create(null,null,'old'),authority:'OWNER'}})
+ ];
+ for(const raw of invalid){
+  storage.setItem(bundle.RECOVERY,raw);
+  assert.throws(()=>bundle.undoLastImport(storage,bundle.snapshot(storage),raw));
+  assert.equal(storage.getItem(bundle.NOTE),'untouched creative notes');
+  assert.equal(storage.getItem(bundle.RECOVERY),raw);
+ }
+});
