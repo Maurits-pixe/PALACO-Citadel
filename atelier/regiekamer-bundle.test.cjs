@@ -155,3 +155,18 @@ test('invalid or elevated authority recovery record cannot be used to roll back'
  assert.throws(()=>bundle.getRecovery(storage),/Onbekende/);
  assert.throws(()=>bundle.undoLastImport(storage),/Onbekende/);
 });
+
+
+test('recovery timestamp must be a real canonical UTC instant',()=>{
+ const storage=fakeStorage();
+ const draft=bundle.create(null,null,'safe');
+ const base={schema:'palaco.citadel.atelier.recovery/1',state:'DRAFT',authority:'NONE',draft};
+ for(const savedAt of ['2026-99-99T12:00:00.000Z','2026-02-30T12:00:00.000Z','2026-11-22Tnope','2026-11-22T12:00:00Z','2026-11-22T13:00:00.000+01:00','2026-11-22T12:00:00.000Zextra']){
+  storage.setItem(bundle.RECOVERY,JSON.stringify({...base,savedAt}));
+  assert.throws(()=>bundle.getRecovery(storage),/Ongeldig herstelmoment/,savedAt);
+  assert.throws(()=>bundle.undoLastImport(storage),/Ongeldig herstelmoment/,savedAt);
+  assert.equal(storage.getItem(bundle.NOTE),null);
+ }
+ storage.setItem(bundle.RECOVERY,JSON.stringify({...base,savedAt:'2026-11-22T12:00:00.000Z'}));
+ assert.equal(bundle.getRecovery(storage).savedAt,'2026-11-22T12:00:00.000Z');
+});
