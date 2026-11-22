@@ -310,3 +310,58 @@ test('successful restore verifies its three intended storage values',()=>{
  assert.equal(storage.getItem(bundle.NOTE),'verified note');
  assert.equal(storage.getItem('external'),'preserved');
 });
+
+
+test('rollback diagnostics report restored and untouched sections without design content',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'private design note'});
+ const set=storage.setItem;
+ storage.setItem=(key,value)=>{
+  if(key===bundle.IN)throw Error('quota');
+  set(key,value);
+ };
+ let failure;
+ try{bundle.restore(storage,bundle.create(exterior(),interior(),'replacement'));}
+ catch(err){failure=err;}
+ assert.equal(failure.code,'ATELIER_RESTORE_ROLLED_BACK');
+ assert.deepEqual(Object.fromEntries(Object.entries(failure.rollback)),{
+  exterior:'restored',interior:'original',note:'untouched'
+ });
+ assert.equal(JSON.stringify(failure.rollback).includes('private design note'),false);
+ assert.equal(storage.getItem(bundle.NOTE),'private design note');
+});
+
+test('rollback conflict reports review required and preserves another tab edit',()=>{
+ const storage=fakeStorage({[bundle.EX]:'original',[bundle.NOTE]:'sensitive note'});
+ const set=storage.setItem;
+ storage.setItem=(key,value)=>{
+  if(key===bundle.IN){set(bundle.EX,'rival design content');throw Error('interrupted');}
+  set(key,value);
+ };
+ let failure;
+ try{bundle.restore(storage,bundle.create(exterior(),interior(),'replacement'));}
+ catch(err){failure=err;}
+ assert.equal(failure.code,'ATELIER_RESTORE_REVIEW_REQUIRED');
+ assert.equal(failure.rollback.exterior,'conflict');
+ assert.equal(failure.rollback.interior,'original');
+ assert.equal(failure.rollback.note,'untouched');
+ assert.equal(storage.getItem(bundle.EX),'rival design content');
+ assert.equal(JSON.stringify(failure.rollback).includes('rival design content'),false);
+});
+
+test('silent rollback failure reports section as failed rather than restored',()=>{
+ const storage=fakeStorage();
+ const set=storage.setItem;
+ storage.setItem=(key,value)=>{
+  if(key===bundle.IN)throw Error('no space');
+  set(key,value);
+ };
+ const remove=storage.removeItem;
+ storage.removeItem=key=>{if(key===bundle.EX)return;remove(key);};
+ let failure;
+ try{bundle.restore(storage,bundle.create(exterior(),interior(),'draft'));}
+ catch(err){failure=err;}
+ assert.equal(failure.code,'ATELIER_RESTORE_REVIEW_REQUIRED');
+ assert.equal(failure.rollback.exterior,'failed');
+ assert.equal(failure.rollback.note,'untouched');
+ assert.notEqual(storage.getItem(bundle.EX),null);
+});
