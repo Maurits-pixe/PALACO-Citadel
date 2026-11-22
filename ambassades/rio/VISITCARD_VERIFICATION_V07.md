@@ -686,3 +686,41 @@ Sixteen new regression tests were committed for signed publication,
 duplicate handling, forks, broken history and forged signatures.
 A real Python test run with skip-count inspection and deployment/security
 review remains mandatory before any release claim. **GO-13 HOLD**.
+
+## v2.9 — Fail-closed publication reconciliation gate (DRAFT / HOLD)
+
+`visitcard_publication_recovery_gate.py` introduces read-only assessment
+of a **separately delivered, cryptographically signed** v2.8 publication
+receipt against the current locally audited v2.7 archive. It verifies
+the receipt with externally pinned publisher keys; validates every
+locally archived checkpoint and seal using independently pinned
+witness/archive keys; then compares the exact seal SHA-256,
+per-(issuer,nonce) count and signed predecessor hash.
+
+The outcome is one of:
+- `MATCHED_INFORMATIONAL`: signatures and current local archive match.
+- `LOCAL_BEHIND_BLOCKED`: independent receipt proves a higher count.
+- `LOCAL_AHEAD_UNCONFIRMED`: local archive is newer than the receipt.
+- `FORK_BLOCKED`: same count conflicts with the signed publication.
+- `UNKNOWN_BLOCKED`: missing, malformed, untrusted or internally
+  inconsistent evidence, or a running local transaction.
+
+**All classifications are non-authorizing.**
+`recovery_permitted` deliberately returns `False` for every value.
+Even `MATCHED_INFORMATIONAL` does NOT authorize replay, recovery,
+merging, issuing, new trust anchors or identity/access privileges.
+
+**Trust assumptions:** The caller MUST acquire the latest published
+receipt from a separately administered authenticated source, then keep
+the reference beyond possible local rollback. The library does not
+fetch or publish externally, guarantee receipt freshness, pin the
+latest global high-water, prove third-party custody, or block coordinated
+rollback of all storage. A valid old receipt can match an old database,
+so it is NOT a release gate. Cryptographic verification and local audit
+are necessary but insufficient for production recovery.
+
+Fifteen new tests cover valid informational match, forged signatures,
+wrong trust keys, rollback/fork classification, broken history, and
+the permanent non-authorization policy. Python test execution and
+skip-count review are still required. No merge, deployment, public
+RIO site update, or key activation. **GO-13 HOLD**.
