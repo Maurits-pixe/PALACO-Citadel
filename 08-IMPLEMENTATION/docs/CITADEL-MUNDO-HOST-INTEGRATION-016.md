@@ -150,3 +150,18 @@ Registration is fail closed. The host's subscription callback MUST be atomic if 
 **Security boundary:** this contract is only as strong as the real host's event ordering and DOM teardown. If a host omits or delays an expiry/logout event, this module cannot detect it autonomously. A genuine protected Citadel host and PALACO ONE identity verification are still not integrated. No public session-events or authenticated data are exposed.
 
 **Owner acceptance cases NOT EXECUTED:** logout after a mounted view; expiry during pending navigation; permissions withdrawal; identity change; atlas close; malformed/unknown event; event delivered while subscription registers; throwing unsubscribe; repeated dispose. No merge, private Sites modification or functional tests; PR #58 DRAFT/HOLD.
+
+## Extension 028 — single private composition root for host integration
+
+A new private module `08-IMPLEMENTATION/src/citadel/mundo-atlas-private-integration.ts` exports `connectAtlasPrivateIntegration(host)`. The host interface explicitly combines `AtlasNavigationHost`, `AtlasSessionHandoffHost` and `AtlasSessionRevocationHost`. The composition order is:
+
+1. Construct protected route navigation, without opening data.
+2. Bind the explicit session handoff to that navigation.
+3. Subscribe to synchronous host revocation events. Registration failure triggers teardown of the earlier stages.
+4. Expose `openWorld(worldId, kind)` for explicit host-authorized navigation, `beforeContextChange()` for synchronous manual invalidation, `readState()` for observation and terminal `dispose()`.
+
+The integration never discovers PALACO ONE endpoints or assumes session tokens, browser routes, user identities, backend secrets or private sources. Session and route verification must come from the real protected host; the composition object is not proof that those callbacks are trustworthy. Host callbacks must provide atomic event registration, synchronous pre-change events, idempotent release and independent current authorization checks. All untrusted session context changes are required to call `beforeContextChange` before mutation.
+
+**Integration failure boundaries:** if the revocation listener cannot be registered or an abnormal event closes it, no new world may be opened through the composition object. If `openWorld` unexpectedly throws, the bridge is disposed and returns denied. Caller-side `readState` values never confer access. The host must also provide DOM isolation and independent source verification as defined in the prior 009–027 contracts.
+
+**Owner acceptance scenarios NOT EXECUTED:** missing mandatory callback; subscription throws; synchronous event during subscription; logout while navigation pending; permission revoke after mount; source mismatch; context version reuse; source factory exception; double dispose. Original private Citadel Sites app unchanged; no merge or production activation; PR #58 DRAFT/HOLD.
