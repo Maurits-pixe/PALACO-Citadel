@@ -966,7 +966,9 @@ window.addEventListener('storage',e=>{
    if(locallyEdited){
      if(latest!==noteBaseline)
        $('feedback').textContent='Ontwerpnotitie gewijzigd in een ander tabblad. Je onopgeslagen tekst blijft staan; exporteer of vergelijk je wijzigingen voordat je opslaat.';
-   }else{
+   }else if(latest!==noteBaseline){
+     // Ignore stale or replayed events when storage already matches this editor.
+     // In particular, do not replace a valid local save confirmation.
      $('statement').value=typeof latest==='string'?latest.slice(0,6000):'';
      noteBaseline=latest;
      $('feedback').textContent='Ontwerpnotitie bijgewerkt vanuit een ander tabblad.';
