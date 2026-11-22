@@ -123,6 +123,18 @@ class WitnessRegistryTests(unittest.TestCase):
         with self.assertRaises(sqlite3.DatabaseError):
             self.db.execute("UPDATE witness_entries SET entry_hash=? WHERE sequence=1", ("f"*64,))
 
+    def test_corrupt_high_water_denies_next_publication(self):
+        self.first()
+        self.db.execute(
+            "UPDATE witness_heads SET entry_hash=? WHERE issuer=?", ("f"*64, ISSUER)
+        )
+        self.assertIsNone(self.submit(self.claim(2, "b"*64, "a"*64)))
+
+    def test_orphaned_entries_block_genesis_reinitialization(self):
+        self.first()
+        self.db.execute("DELETE FROM witness_heads WHERE issuer=?", (ISSUER,))
+        self.assertIsNone(self.submit(self.claim(1, "a"*64, ZERO_HASH)))
+
     def test_in_transaction_rejected(self):
         self.db.execute("BEGIN IMMEDIATE")
         try:
