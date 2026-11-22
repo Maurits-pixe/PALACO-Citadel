@@ -143,13 +143,37 @@ test('independent-review evidence without distinct reviewer and author is not ac
  x.evidence_items=[{...item}];
  assert.ok(evaluate(x,A).gates.find(g=>g.id==='G07').reviewGaps.includes('independent_review'));
 });
-test('distinct claimed reviewer and author are diagnostic only and cannot authorize release',()=>{
+test('distinct reviewer and author without GitHub review provenance are still blocked',()=>{
  const x=base();x.evidence_items=[
   {gate:'G07',kind:'independent_review',result:'pass',reviewed:true,source:'GitHub PR review 1',commit_sha:A,reviewer_id:'reviewer',author_id:'author'}
  ];
  const r=evaluate(x,A),gate=r.gates.find(g=>g.id==='G07');
+ assert.ok(gate.reviewGaps.includes('independent_review'));
+ assert.ok(gate.missing.includes('independent_review'));
+ assert.equal(r.decision,'HOLD');
+});
+test('review evidence with exact GitHub PR review link is diagnostic only',()=>{
+ const x=base();x.evidence_items=[
+  {gate:'G07',kind:'independent_review',result:'pass',reviewed:true,source:'GitHub PR review 123',commit_sha:A,
+   reviewer_id:'reviewer',author_id:'author',pull_request_number:60,github_review_id:123,
+   reviewed_commit_sha:A,review_url:'https://github.com/Maurits-pixe/PALACO-Citadel/pull/60#pullrequestreview-123'}
+ ];
+ const r=evaluate(x,A),gate=r.gates.find(g=>g.id==='G07');
  assert.ok(gate.accepted.includes('independent_review'));
  assert.equal(gate.pass,false);
- assert.equal(r.decision,'HOLD');
  assert.equal(r.release_approved,false);
+ assert.equal(r.decision,'HOLD');
+});
+test('review of older commit or mismatched review identifier never counts',()=>{
+ const record={gate:'G07',kind:'independent_review',result:'pass',reviewed:true,source:'GitHub PR review 123',commit_sha:A,
+   reviewer_id:'reviewer',author_id:'author',pull_request_number:60,github_review_id:123,
+   reviewed_commit_sha:B,review_url:'https://github.com/Maurits-pixe/PALACO-Citadel/pull/60#pullrequestreview-123'};
+ const x=base();x.evidence_items=[record];
+ assert.ok(evaluate(x,A).gates.find(g=>g.id==='G07').reviewGaps.includes('independent_review'));
+ record.reviewed_commit_sha=A;
+ record.github_review_id=999;
+ assert.ok(evaluate(x,A).gates.find(g=>g.id==='G07').reviewGaps.includes('independent_review'));
+ record.github_review_id=123;
+ record.reviewer_id=' AUTHOR ';
+ assert.ok(evaluate(x,A).gates.find(g=>g.id==='G07').reviewGaps.includes('independent_review'));
 });
