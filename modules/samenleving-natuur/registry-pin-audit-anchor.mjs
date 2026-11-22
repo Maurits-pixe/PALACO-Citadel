@@ -54,13 +54,13 @@ export function inspectSignedAuditHeadAnchor({
       key.export({format:'der',type:'spki'})).digest('hex');
     if (fingerprint !== expectedAnchorKeyFingerprint)
       return reject('UNPINNED_ANCHOR_KEY');
-    const signature = Buffer.from(signatureBase64Url,'base64url');
+    // Snapshot mutable caller-owned bytes exactly once so the signed bytes\n    // and decoded ledger claims cannot diverge during verification.\n    const snapshotBytes = Buffer.from(anchorBytes);\n    const signature = Buffer.from(signatureBase64Url,'base64url');
     if (signature.length < 8 || signature.length > 80 ||
       signature.toString('base64url') !== signatureBase64Url ||
-      !verify('sha256',Buffer.concat([PREFIX,Buffer.from(anchorBytes)]),key,signature))
+      !verify('sha256',Buffer.concat([PREFIX,snapshotBytes]),key,signature))
       return reject('ANCHOR_SIGNATURE_INVALID');
     // Decode an exact byte snapshot only after signature verification.
-    const text = new TextDecoder('utf-8',{fatal:true}).decode(anchorBytes);
+    const text = new TextDecoder('utf-8',{fatal:true}).decode(snapshotBytes);
     const doc = JSON.parse(text);
     if (!own(doc,['schema','sequence','headHash','genesisPin','currentPin']) ||
       doc.schema !== AUDIT_ANCHOR_SCHEMA ||
