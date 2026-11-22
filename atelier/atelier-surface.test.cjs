@@ -66,6 +66,10 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/function parseBoundReceipt\(/);
   assert.match(read('regiekamer.html'),/function parseReceiptFields\(/);
   assert.match(read('regiekamer.html'),/function parseUniqueTopLevelJson\(source\)/);
+  assert.match(read('regiekamer.html'),/parseUniqueTopLevelJson\(content\)/);
+  assert.match(read('regiekamer.html'),/parseUniqueTopLevelJson\(projectText\)/);
+  assert.match(read('regiekamer.html'),/parseUniqueTopLevelJson\(contents\)/);
+  assert.match(read('regiekamer.html'),/parseUniqueTopLevelJson\(importText\)/);
   assert.match(read('regiekamer.html'),/frame\.keys\.has\(key\)/);
   assert.match(read('regiekamer.html'),/stack\.push\(\{keys:new Set\(\)\}\)/);
   assert.match(read('regiekamer.html'),/stack\.push\(\{keys:null\}\)/);
