@@ -990,3 +990,41 @@ test('Atelier: drie SHA-256-waarden zichtbaar bij match en mismatch maar gewist 
  await expect(comparison).toBeHidden();
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
 });
+
+test('Atelier: dubbele top-level JSON-velden en Unicode-aliassen worden bij dossiercontrole geweigerd',async ({page})=>{
+ const {createHash}=await import('node:crypto');
+ const fs=await import('node:fs/promises');
+ await page.goto('/atelier/regiekamer.html');
+ const original=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const bytes=Buffer.from(await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage))));
+ const hash=createHash('sha256').update(bytes).digest('hex');
+ const project={name:'ontwerp.json',mimeType:'application/json',buffer:bytes};
+ const txt={name:'bewijs.txt',mimeType:'text/plain',buffer:Buffer.from('SHA-256: '+hash+'\nBestand: ontwerp.json\n')};
+ await page.locator('#pairVerify').setInputFiles([project,txt]);
+ await expect(page.locator('#pairReportSave')).toBeEnabled();
+ const dl=page.waitForEvent('download');
+ await page.locator('#pairReportSave').click();
+ const saved=await fs.readFile(await (await dl).path());
+ const raw=JSON.stringify(JSON.parse(saved.toString('utf8')));
+ const report={name:'inspectie.json',mimeType:'application/json',buffer:Buffer.from(raw)};
+ await page.locator('#reportVerify').setInputFiles([project,txt,report]);
+ await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
+ const invalid=[
+   '{"authority":"OWNER",'+raw.slice(1),
+   '{"result":"REJECTED",'+raw.slice(1),
+   '{"sha256":"'+('f'.repeat(64))+'",'+raw.slice(1),
+   '{"\\u0061uthority":"OWNER",'+raw.slice(1)
+ ];
+ for(const malformed of invalid){
+   await page.locator('#reportVerify').setInputFiles([
+     project,txt,{...report,buffer:Buffer.from(malformed)}
+   ]);
+   await expect(page.locator('#reportVerifyStatus')).toContainText('Dossier-JSON bevat dubbele velden');
+   await expect(page.locator('#inspectionResult')).toHaveAttribute('data-result','rejected');
+   await expect(page.locator('#inspectionHashes')).toBeHidden();
+ }
+ const escapedKey=raw.replace('"authority"','"\\u0061uthority"');
+ await page.locator('#reportVerify').setInputFiles([project,txt,{...report,buffer:Buffer.from(escapedKey)}]);
+ await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(original);
+});
