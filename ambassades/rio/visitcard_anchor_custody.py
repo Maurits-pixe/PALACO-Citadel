@@ -17,6 +17,7 @@ from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 
 from visitcard_admission_anchor import verify_admission_anchor, VerifiedAnchor, _signature
+from visitcard_admission_continuity import verify_continuity_proof
 from visitcard_witness_enrollment import _canonical
 
 RECEIPT_DOMAIN = b"PALACO-RIO-ANCHOR-CUSTODY-RECEIPT-V1\x00"
@@ -78,6 +79,7 @@ def archive_anchor(
     db: sqlite3.Connection, envelope: Any, producer_keys: Mapping[str, bytes],
     custody_key: Ed25519PrivateKey, custody_id: str, *,
     expected_issuer: str, expected_nonce: str, now: datetime | None = None,
+    continuity_proof: Any = None,
 ) -> dict[str, Any] | None:
     """Sign receipt only after durable independent-DB transaction commits."""
     if db.in_transaction:
@@ -112,9 +114,15 @@ def archive_anchor(
             if head[0] != 1 or verified.event_count != 2:
                 db.rollback()
                 return None
-            # REVIEWED state must extend the earlier SUBMITTED state. Both
-            # hashes are retained, but this receipt does not prove extension
-            # cryptographically without source event inclusion proofs.
+            # Do NOT accept a larger event count based only on a sequence.
+            # The proof must reconstruct the previous signed digest from the
+            # exact prefix of the final anchored event history.
+            if not verify_continuity_proof(
+                continuity_proof, issuer=verified.issuer, nonce=verified.nonce,
+                previous_hash=head[1], final_hash=verified.events_sha256
+            ):
+                db.rollback()
+                return None
         elif verified.event_count != 1:
             db.rollback()
             return None
