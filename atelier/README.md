@@ -403,3 +403,9 @@ Bij `undoLastImport` wordt het rauwe herstelrecord vastgelegd en vóór de volge
 Tijdens de importpreview wordt naast de drie creatieve opslagwaarden ook de ruwe herstelkopie vastgelegd. Na expliciete gebruikersbevestiging geeft de Regiekamer deze verwachte herstelkopie door aan `restoreWithRecovery`. De bestaande controles in de bundelmodule weigeren een import wanneer een ander tabblad of een gelijktijdige handeling de herstelkopie tussentijds veranderde, en controleren opnieuw vóór het schrijven van de nieuwe herstelkopie. Zo wordt een gewijzigd herstelpunt niet onopgemerkt overschreven. De browserregressie simuleert een wijziging tijdens de bevestiging en controleert de foutmelding, intacte creatieve opslag en behoud van de gewijzigde herstelkopie.
 
 Deze bescherming is een optimistic-concurrency-check, geen atomaire transactie: `localStorage` heeft geen compare-and-swap. PR #60 blijft DRAFT / HOLD / DENY; geen EDTR, merge of live-publicatie.
+
+## Regiekamer v6.12 — herstelkopie beschermen tijdens foutafhandeling (2026-11-22)
+
+Na het schrijven van een lokale DRAFT-herstelkopie controleert de import of die waarde nog aanwezig is voordat de ontwerpen worden aangepast. Als een ander tabblad de kopie direct heeft vervangen, stopt de import voordat de ontwerpbronnen worden geschreven. Bij een fout tijdens het herstel wordt een herstelkopie alleen teruggedraaid indien de bewaarde waarde nog exact overeenkomt met de door de import geschreven kopie. Een herstelkopie van een ander tabblad wordt niet overschreven. Twee regressies testen deze situaties.
+
+**Grenzen:** localStorage biedt geen atomair compare-and-swap of transactionele isolatie. Gelijktijdige updates tussen controles zijn mogelijk. Bij gedeeltelijke opslagfouten is handmatige controle nodig. Geen productie-, rechten- of bewijsclaim. **DRAFT / HOLD / DENY**; Node- en browser-CI en onafhankelijke review blijven vereist.
