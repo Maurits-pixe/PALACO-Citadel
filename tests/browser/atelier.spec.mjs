@@ -1917,3 +1917,56 @@ test('Atelier v6.33: werkelijk opslagconflict blijft zichtbaar ondanks oude even
  await expect(page.locator('#feedback')).toContainText('Opslaan geweigerd');
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Werkelijk andere opgeslagen versie');
 });
+
+
+test('Atelier v6.34: beschadigde herstelkopie uit tweede tab blokkeert undo',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.evaluate(()=>{
+  const api=window.PalacoAtelierBundle;
+  localStorage.setItem(api.NOTE,'Oorspronkelijke ontwerpnotitie');
+  api.restoreWithRecovery(localStorage,api.create(null,null,'Huidig creatief ontwerp'));
+ });
+ const other=await page.context().newPage();
+ await other.goto('/atelier/regiekamer.html');
+ await expect(page.locator('#undoImport')).toBeEnabled();
+ const before=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ await other.evaluate(()=>{
+  localStorage.setItem(window.PalacoAtelierBundle.RECOVERY,'{ongeldige JSON');
+ });
+ await expect(page.locator('#undoImport')).toBeDisabled();
+ await expect(page.locator('#recoveryStatus')).toContainText('Herstelkopie kon niet worden gelezen');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+ await page.evaluate(()=>{
+  const api=window.PalacoAtelierBundle;
+  let blocked=false;
+  try{api.undoLastImport(localStorage,api.snapshot(localStorage));}catch{blocked=true;}
+  if(!blocked)throw Error('Beschadigde herstelkopie onterecht geaccepteerd');
+ });
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBe('{ongeldige JSON');
+ await other.close();
+});
+
+test('Atelier v6.34: herstelfout door tweede tab behoudt ongeautoriseerd DRAFT-record',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.evaluate(()=>{
+  const api=window.PalacoAtelierBundle;
+  localStorage.setItem(api.NOTE,'Huidig ontwerp');
+ });
+ const other=await page.context().newPage();
+ await other.goto('/atelier/regiekamer.html');
+ const before=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ await other.evaluate(()=>{
+  const api=window.PalacoAtelierBundle;
+  const record={
+   schema:'palaco.citadel.atelier.recovery/1',
+   state:'DRAFT',authority:'OWNER',savedAt:'2026-11-22T12:00:00.000Z',
+   draft:api.create(null,null,'Oud ontwerp')
+  };
+  localStorage.setItem(api.RECOVERY,JSON.stringify(record));
+ });
+ await expect(page.locator('#undoImport')).toBeDisabled();
+ await expect(page.locator('#recoveryStatus')).toContainText('Onbekende herstelkopie');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+ expect(await page.evaluate(()=>JSON.parse(localStorage.getItem(window.PalacoAtelierBundle.RECOVERY)).authority)).toBe('OWNER');
+ await other.close();
+});
