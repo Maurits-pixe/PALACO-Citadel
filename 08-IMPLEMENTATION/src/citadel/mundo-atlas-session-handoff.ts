@@ -74,7 +74,6 @@ export function createAtlasSessionHandoff(
     async handoff(worldId, kind): Promise<AtlasWorldSwitchResult> {
       if (closed || quarantined || pending) return "denied";
       pending = true;
-      const request = ++epoch;
       try {
         // Old Atlas is revoked BEFORE the session-establishment callback.
         revoke();
@@ -105,7 +104,6 @@ export function createAtlasSessionHandoff(
         return result;
       } finally {
         pending = false;
-        void request;
       }
     },
     beforeSessionChange(): void { if (!closed) revoke(); },
