@@ -107,7 +107,20 @@ const checks=[
 renderGallery();
 }
 function noteValue(){return $('statement').value.slice(0,6000);}
-function saveNote(){try{localStorage.setItem(NOTE,noteValue());$('feedback').textContent='Ontwerpnotitie lokaal bewaard.';}catch{$('feedback').textContent='Lokale notitie kon niet worden bewaard. Exporteer je dossier.';}}
+let noteBaseline=null;
+function saveNote(){
+ try{
+   const current=localStorage.getItem(NOTE);
+   if(current!==noteBaseline){
+     $('feedback').textContent='Opslaan geweigerd: ontwerpnotitie is elders gewijzigd. Je eigen tekst blijft staan; exporteer je dossier en vergelijk de versies.';
+     return;
+   }
+   const value=noteValue();
+   localStorage.setItem(NOTE,value);
+   noteBaseline=value;
+   $('feedback').textContent='Ontwerpnotitie lokaal bewaard.';
+ }catch{$('feedback').textContent='Lokale notitie kon niet worden bewaard. Exporteer je dossier.';}
+}
 function getSummary(){const ec=exterior?exterior.cells:[],ic=interior?interior.floors.flat():[];return {exterior_parcels_used:ec.filter(Boolean).length,nature_and_water:ec.filter(k=>['park','garden','water'].includes(k)).length,interior_parcels_used:ic.filter(Boolean).length,interior_functions:new Set(ic.filter(Boolean)).size};}
 function packageDraft(){return {schema:'palaco.citadel.atelier.creative-dossier/1',state:'DRAFT',authority:'NONE',purpose:'CREATIVE_REFERENCE_ONLY',exterior:exterior?{schema:exterior.schema,state:'DRAFT',authority:'NONE',name:exterior.name,cells:exterior.cells.slice()}:null,interior:interior?{schema:interior.schema,state:'DRAFT',authority:'NONE',name:interior.name,material:interior.material,mood:interior.mood,floors:interior.floors.map(f=>f.slice())}:null,creative_statement:noteValue(),summary:getSummary(),limitations:['No official identity','No approval or building permit','No evidence or issuer signature','No WORLD activation']};}
 function download(filename,body,type){const url=URL.createObjectURL(new Blob([body],{type}));const link=document.createElement('a');link.href=url;link.download=filename;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1200);}
@@ -614,6 +627,7 @@ $('bundleImport').addEventListener('change',async event=>{
    if(!confirm(description+' Herstel vervangt je huidige lokale Atelier-ontwerpen. Exporteer eerst je huidige werk als JSON. Wil je doorgaan?'+warning))return;
    api.restoreWithRecovery(localStorage,pack,current,expectedRecovery);
    $('statement').value=pack.note;
+   noteBaseline=localStorage.getItem(NOTE);
    refresh();
    $('bundleStatus').textContent='Projectpakket lokaal hersteld. Open de editors opnieuw om de gegevens te bekijken.';
    refreshRecoveryInfo();
@@ -667,6 +681,7 @@ $('undoImport').addEventListener('click',()=>{
    if(!confirm('Vorige lokale Atelier-versie terugzetten? '+difference.changed+' vakken veranderen, '+difference.removed+' ingerichte vakken verdwijnen. De huidige opgeslagen versie wordt dan de nieuwe herstelkopie.'+warning))return;
    api.undoLastImport(localStorage,before,previewedRecovery);
    $('statement').value=record.draft.note;
+   noteBaseline=localStorage.getItem(NOTE);
    refresh();
    refreshRecoveryInfo();
    $('bundleStatus').textContent='Vorige Atelier-versie teruggezet vanuit de lokale herstelkopie.';
@@ -866,16 +881,17 @@ window.addEventListener('storage',e=>{
  if(e.key===null||[EX,IN].includes(e.key))refresh();
  if(e.key===NOTE){
    // A cross-tab save must never replace a locally edited, unsaved note.
-   const locallyEdited=noteValue()!==(e.oldValue===null?'':e.oldValue.slice(0,6000));
+   const locallyEdited=noteValue()!==(noteBaseline===null?'':noteBaseline.slice(0,6000));
    if(locallyEdited){
      $('feedback').textContent='Ontwerpnotitie gewijzigd in een ander tabblad. Je onopgeslagen tekst blijft staan; exporteer of vergelijk je wijzigingen voordat je opslaat.';
    }else{
      $('statement').value=typeof e.newValue==='string'?e.newValue.slice(0,6000):'';
+     noteBaseline=e.newValue;
      $('feedback').textContent='Ontwerpnotitie bijgewerkt vanuit een ander tabblad.';
    }
  }
 });
-try{const v=localStorage.getItem(NOTE);if(v)$('statement').value=v.slice(0,6000);}catch{$('feedback').textContent='Lokale opslag is niet toegankelijk; export blijft beschikbaar.';}
+try{const v=localStorage.getItem(NOTE);noteBaseline=v;if(v)$('statement').value=v.slice(0,6000);}catch{$('feedback').textContent='Lokale opslag is niet toegankelijk; export blijft beschikbaar.';}
 refresh();
 refreshRecoveryInfo();
 checkOfflineReady();
