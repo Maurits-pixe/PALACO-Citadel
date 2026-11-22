@@ -598,3 +598,18 @@ Dit is een **release-gate-checklist**, niet een verklaring dat een controle is g
 ## Regiekamer v6.37 — browsertest herstelstatus na initialisatie (2026-11-22)
 
 De v6.36 GitHub-validatie faalde in desktop- en mobiele Chromium op één scenario: de test maakte in het huidige tabblad rechtstreeks een herstelkopie aan via de JavaScript-API en verwachtte onmiddellijk dat de bij paginalading geïnitialiseerde herstelknop actief zou zijn. Binnen hetzelfde tabblad wordt voor zo'n rechtstreeks opslagcommando geen `storage`-event verzonden. De test herlaadt nu de Regiekamer voordat hij de herstelknoppen controleert en vervolgens een tweede tabblad de herstelkopie laat beschadigen. Hiermee wordt de echte herstelstart na paginalading getest en blijft de fail-closed afhandeling van beschadigde herstelkopieën intact. Productiecode is niet gewijzigd. De nieuwe v6.37 CI moet nog worden bevestigd. **DRAFT/HOLD/DENY** — geen merge, EDTR of publicatie.
+
+## Regiekamer v6.38 — controleerbaar vrijgavebewijs (2026-11-22)
+
+Het bestand [release-evidence-v6.38.json](release-evidence-v6.38.json) legt de acht bestaande vrijgavegates G01–G08 machineleesbaar vast, inclusief bewijsbronnen, releaseblokkades en de expliciete beslissing **HOLD / DENY**. Dit is een momentopname en **geen live CI-badge**: de geobserveerde commit-SHA is `d6f7fbd2a3631c438fe581acb22d5a779035ef7a`. Na een nieuwe commit gelden deze observaties niet automatisch voor de nieuwe HEAD.
+
+### Bevestigde observaties op de geobserveerde commit
+
+- GitHub Actions **CI**, run 44993986670: afgerond, **success** (job build).
+- GitHub Actions **Citadel local preview conformance**, run 44993986708: afgerond, **success** (job preview).
+- GitHub Actions **Atelier DRAFT validation**, run 44993986635: **in_progress** bij raadpleging (Atelier isolated regression and contract checks); **geen PASS**.
+- Vercel: twee pending contexten, één failure en één andere pending context; afzonderlijke deploychecks vormen **geen volledige testbevestiging**.
+
+### Interpretatie en vrijgavegrens
+
+De machineleesbare registratie maakt onderscheid tussen een **bewezen positief resultaat voor één specifieke check** en een **niet-vrijgegeven gate**. Er zijn nog geen complete Node-/Playwright-resultaten voor alle vereiste regressies, menselijke schermlezer- en telefoontests, onafhankelijke code-review en formele GO-13-vrijgave op een identieke nieuwe commit aangetoond. Alle gates blijven daarom fail-closed en er is **geen releasegoedkeuring**. De JSON bevat geen geheime gegevens, gebruikersontwerpen of bevoegdheidsclaims. Er is in v6.38 geen runtime- of productgedrag gewijzigd. **DRAFT/HOLD/DENY**; geen merge, EDTR of publieke uitrol.
