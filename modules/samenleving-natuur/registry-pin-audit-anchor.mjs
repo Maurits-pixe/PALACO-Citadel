@@ -19,7 +19,9 @@ const capturePin = p => {
   const keys = Reflect.ownKeys(p);
   if (keys.length !== pinKeys.length ||
       keys.some(k => typeof k !== 'string' || !pinKeys.includes(k))) return null;
-  const copy = Object.create(null);
+  // A plain snapshot remains compatible with the downstream ledger's strict
+  // plain-record validator; no untrusted object is forwarded.
+  const copy = {};
   for (const key of pinKeys) {
     const d = Object.getOwnPropertyDescriptor(p,key);
     if (!d || !Object.hasOwn(d,'value')) return null;
