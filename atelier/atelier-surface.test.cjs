@@ -386,10 +386,10 @@ test('Atelier note conflict notice requires a real stored revision mismatch',()=
  const start=html.lastIndexOf("window.addEventListener('storage',e=>{");
  assert.ok(start>=0);
  const handler=html.slice(start);
- const read=handler.indexOf('const latest=localStorage.getItem(NOTE)');
+ const readPosition=handler.indexOf('const latest=localStorage.getItem(NOTE)');
  const edited=handler.indexOf('const locallyEdited=noteValue()');
  const conflict=handler.indexOf('if(latest!==noteBaseline)');
  const warning=handler.indexOf('Ontwerpnotitie gewijzigd in een ander tabblad');
- assert.ok(read>=0&&edited>read&&conflict>edited&&warning>conflict);
+ assert.ok(readPosition>=0&&edited>readPosition&&conflict>edited&&warning>conflict);
  assert.match(handler,/noteBaseline=latest/);
 });
