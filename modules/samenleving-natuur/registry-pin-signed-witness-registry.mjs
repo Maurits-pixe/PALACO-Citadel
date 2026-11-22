@@ -8,10 +8,22 @@ const fail=reason=>({schema:SIGNED_WITNESS_REGISTRY_SCHEMA,
   signedRegistryMatched:false,reason,trust:'NOT_ESTABLISHED',
   authorization:'DENY',executionAllowed:false,
   releaseAllowed:false,stateChanged:false});
-const exact=(v,keys)=>v!==null&&typeof v==='object'&&!Array.isArray(v)&&
-  Object.getPrototypeOf(v)===Object.prototype&&
-  Reflect.ownKeys(v).length===keys.length&&
-  keys.every(k=>Object.hasOwn(Object.getOwnPropertyDescriptor(v,k)??{},'value'));
+// Copy own data descriptors exactly once. Never evaluate accessor properties
+// or re-read attacker-controlled Proxy fields after initial validation.
+const snapshot=(v,keys)=>{
+  if(v===null||typeof v!=='object'||Array.isArray(v)||
+    Object.getPrototypeOf(v)!==Object.prototype)return null;
+  const names=Reflect.ownKeys(v);
+  if(names.length!==keys.length||
+    names.some(k=>typeof k!=='string'||!keys.includes(k)))return null;
+  const copy=Object.create(null);
+  for(const name of keys){
+    const descriptor=Object.getOwnPropertyDescriptor(v,name);
+    if(!descriptor||!Object.hasOwn(descriptor,'value'))return null;
+    copy[name]=descriptor.value;
+  }
+  return copy;
+};
 const hash=b=>createHash('sha256').update(b).digest('hex');
 
 /** Read-only signature verification plus enrollment cross-check.
@@ -20,15 +32,22 @@ const hash=b=>createHash('sha256').update(b).digest('hex');
  */
 export function inspectSignedWitnessRegistry(input={}) {
  try {
+  const outer=snapshot(input,['registryBytes','registrySignatureBase64Url',
+    'issuerPublicJwk','expectedIssuerFingerprint','expectedRegistrySha256',
+    'minimumEpoch','anchorBytes','claimedAnchorSha256','witnesses']);
+  if(!outer)return fail('INVALID_SIGNED_REGISTRY_INPUT');
   const {registryBytes,registrySignatureBase64Url,issuerPublicJwk,
     expectedIssuerFingerprint,expectedRegistrySha256,minimumEpoch,
-    anchorBytes,claimedAnchorSha256,witnesses}=input;
+    anchorBytes,claimedAnchorSha256,witnesses}=outer;
+  const keySnapshot=snapshot(issuerPublicJwk,['kty','crv','x','y']);
   if(!(registryBytes instanceof Uint8Array)||registryBytes.length<1||
     registryBytes.length>65536||
     typeof registrySignatureBase64Url!=='string'||
     !/^[A-Za-z0-9_-]+$/.test(registrySignatureBase64Url)||
-    !exact(issuerPublicJwk,['kty','crv','x','y'])||
-    issuerPublicJwk.kty!=='EC'||issuerPublicJwk.crv!=='P-256'||
+    !keySnapshot||keySnapshot.kty!=='EC'||keySnapshot.crv!=='P-256'||
+    typeof keySnapshot.x!=='string'||typeof keySnapshot.y!=='string'||
+    !/^[A-Za-z0-9_-]{43}$/.test(keySnapshot.x)||
+    !/^[A-Za-z0-9_-]{43}$/.test(keySnapshot.y)||
     typeof expectedIssuerFingerprint!=='string'||!HEX.test(expectedIssuerFingerprint)||
     typeof expectedRegistrySha256!=='string'||!HEX.test(expectedRegistrySha256)||
     !Number.isSafeInteger(minimumEpoch)||minimumEpoch<1)
@@ -36,7 +55,7 @@ export function inspectSignedWitnessRegistry(input={}) {
   const bytes=Buffer.from(registryBytes);
   if(hash(bytes)!==expectedRegistrySha256)
     return fail('REGISTRY_BYTES_SUBSTITUTED');
-  const key=createPublicKey({format:'jwk',key:issuerPublicJwk});
+  const key=createPublicKey({format:'jwk',key:keySnapshot});
   if(key.asymmetricKeyType!=='ec'||
     key.asymmetricKeyDetails?.namedCurve!=='prime256v1'||
     hash(key.export({type:'spki',format:'der'}))!==expectedIssuerFingerprint)
