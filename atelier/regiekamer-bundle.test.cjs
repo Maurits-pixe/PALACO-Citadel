@@ -456,3 +456,64 @@ test('failed recovery cleanup does not claim successful rollback',()=>{
  assert.equal(storage.getItem(bundle.NOTE),'oud ontwerp');
  assert.notEqual(storage.getItem(bundle.RECOVERY),null);
 });
+
+
+test('failed import refuses silent recovery cleanup loss',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'oude tekst'});
+ const set=storage.setItem;
+ const remove=storage.removeItem;
+ let recoveryWritten=false;
+ storage.setItem=(key,value)=>{
+  if(key===bundle.RECOVERY)recoveryWritten=true;
+  if(key===bundle.NOTE&&recoveryWritten)throw Error('design write failure');
+  set(key,value);
+ };
+ storage.removeItem=key=>{
+  if(key===bundle.RECOVERY)return; // Cleanup falsely appears successful.
+  remove(key);
+ };
+ assert.throws(
+  ()=>bundle.restoreWithRecovery(storage,bundle.create(null,null,'nieuwe tekst')),
+  /herstelkopie kon niet aantoonbaar worden teruggezet/
+ );
+ assert.equal(storage.getItem(bundle.NOTE),'oude tekst');
+ assert.notEqual(storage.getItem(bundle.RECOVERY),null);
+});
+
+test('failed import preserves original recovery and reports verified cleanup',()=>{
+ const existing='bestaande herstelkopie';
+ const storage=fakeStorage({[bundle.NOTE]:'oude tekst',[bundle.RECOVERY]:existing});
+ const set=storage.setItem;
+ let once=true;
+ storage.setItem=(key,value)=>{
+  if(key===bundle.NOTE&&once){once=false;throw Error('design write failure');}
+  set(key,value);
+ };
+ assert.throws(
+  ()=>bundle.restoreWithRecovery(storage,bundle.create(null,null,'nieuwe tekst')),
+  /Herstel mislukt; oorspronkelijke opslag teruggezet/
+ );
+ assert.equal(storage.getItem(bundle.NOTE),'oude tekst');
+ assert.equal(storage.getItem(bundle.RECOVERY),existing);
+});
+
+test('failed import detects recovery modified during cleanup',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'oude tekst'});
+ const set=storage.setItem;
+ const remove=storage.removeItem;
+ let failNote=true;
+ storage.setItem=(key,value)=>{
+  if(key===bundle.NOTE&&failNote){failNote=false;throw Error('design write failure');}
+  set(key,value);
+ };
+ storage.removeItem=key=>{
+  if(key===bundle.RECOVERY){set(key,'concurrent recovery point');return;}
+  remove(key);
+ };
+ assert.throws(
+  ()=>bundle.restoreWithRecovery(storage,bundle.create(null,null,'nieuwe tekst')),
+  /herstelkopie kon niet aantoonbaar worden teruggezet/
+ );
+ assert.equal(storage.getItem(bundle.RECOVERY),'concurrent recovery point');
+ assert.equal(storage.getItem(bundle.NOTE),'oude tekst');
+});
