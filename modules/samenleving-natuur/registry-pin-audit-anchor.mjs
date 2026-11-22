@@ -11,9 +11,25 @@ const own = (v, keys) => v !== null && typeof v === 'object' &&
   keys.every(k => Object.hasOwn(v, k) &&
     Object.hasOwn(Object.getOwnPropertyDescriptor(v,k) ?? {}, 'value'));
 const pinKeys = ['schema','issuerFingerprint','revision','registrySha256'];
-const pinOK = p => own(p,pinKeys) && p.schema === PIN_SCHEMA &&
-  HEX.test(p.issuerFingerprint) && HEX.test(p.registrySha256) &&
-  Number.isSafeInteger(p.revision) && p.revision > 0;
+// Capture a PIN's own data descriptors once, never evaluating accessors or
+// rereading attacker-controlled Proxy fields after validation.
+const capturePin = p => {
+  if (p === null || typeof p !== 'object' || Array.isArray(p) ||
+      Object.getPrototypeOf(p) !== Object.prototype) return null;
+  const keys = Reflect.ownKeys(p);
+  if (keys.length !== pinKeys.length ||
+      keys.some(k => typeof k !== 'string' || !pinKeys.includes(k))) return null;
+  const copy = Object.create(null);
+  for (const key of pinKeys) {
+    const d = Object.getOwnPropertyDescriptor(p,key);
+    if (!d || !Object.hasOwn(d,'value')) return null;
+    copy[key] = d.value;
+  }
+  return copy.schema === PIN_SCHEMA && HEX.test(copy.issuerFingerprint) &&
+    HEX.test(copy.registrySha256) && Number.isSafeInteger(copy.revision) &&
+    copy.revision > 0 ? copy : null;
+};
+const pinOK = p => capturePin(p) !== null;
 const samePin = (a,b) => a.schema===b.schema && a.revision===b.revision &&
   a.issuerFingerprint===b.issuerFingerprint && a.registrySha256===b.registrySha256;
 const reject = reason => ({
@@ -61,6 +77,10 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
       signatureBase64Url.length < 11 || signatureBase64Url.length > 107 ||
       !/^[A-Za-z0-9_-]+$/.test(signatureBase64Url))
       return reject('INVALID_ANCHOR_INPUT');
+    const genesisSnapshot = capturePin(genesisPin);
+    const currentSnapshot = capturePin(currentPin);
+    if (!genesisSnapshot || !currentSnapshot)
+      return reject('INVALID_ANCHOR_INPUT');
     // Snapshot each public JWK coordinate exactly once: hostile getters and
     // changing Proxy descriptors must not alter the key between fingerprint
     // derivation and cryptographic verification.
@@ -106,13 +126,14 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
     if (!own(doc,['schema','sequence','headHash','genesisPin','currentPin']) ||
       doc.schema !== AUDIT_ANCHOR_SCHEMA ||
       !Number.isSafeInteger(doc.sequence) || doc.sequence < minimumAnchorSequence ||
-      !HEX.test(doc.headHash) || !pinOK(doc.genesisPin) ||
-      !pinOK(doc.currentPin) || !samePin(doc.genesisPin,genesisPin) ||
-      !samePin(doc.currentPin,currentPin) || doc.sequence !== entries.length)
+      !HEX.test(doc.headHash) ||
+      !pinOK(doc.genesisPin) || !pinOK(doc.currentPin) ||
+      !samePin(doc.genesisPin,genesisSnapshot) ||
+      !samePin(doc.currentPin,currentSnapshot) || doc.sequence !== entries.length)
       return reject('ANCHOR_ROLLBACK_OR_MISMATCH');
     const ledger=inspectRegistryPinLedger({
-      genesisPin,entries,expectedHeadHash:doc.headHash,
-      expectedCurrentPin:currentPin
+      genesisPin:genesisSnapshot,entries,expectedHeadHash:doc.headHash,
+      expectedCurrentPin:currentSnapshot
     });
     if (!ledger.chainConsistent) return reject('LEDGER_'+ledger.reason);
     return {
