@@ -1407,3 +1407,22 @@ test('Atelier v6.8: lokale notitiebewerking annuleert een vertraagde import zond
  expect(dialogs).toBe(0);
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
 });
+
+
+test('Atelier v6.9: import weigert onveilige bestandsnamen vóór herstel',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const before=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const valid=Buffer.from(await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage))));
+ let dialogs=0;
+ page.on('dialog',async dialog=>{dialogs++;await dialog.dismiss();});
+ for(const name of ['ontwerp.txt','ontwerp..json','CON.json','ontwerp\\u200B.json']){
+   await page.locator('#bundleImport').setInputFiles({name,mimeType:'application/json',buffer:valid});
+   await expect(page.locator('#bundleStatus')).toContainText('Ongeldige of misleidende JSON-bestandsnaam');
+   expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+ }
+ expect(dialogs).toBe(0);
+ await page.locator('#bundleImport').setInputFiles({name:'Geldig-ontwerp.json',mimeType:'application/json',buffer:valid});
+ await expect(page.locator('#bundleStatus')).toContainText('DRAFT-pakket');
+ expect(dialogs).toBe(1);
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+});
