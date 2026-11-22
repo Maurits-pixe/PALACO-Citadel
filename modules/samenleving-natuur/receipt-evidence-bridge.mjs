@@ -45,18 +45,27 @@ export function assessSignedReceipt({ payloadBytes, envelope, publicJwk, claims 
   }
   const failedChecks = [...assessment.failedChecks];
   if (!cryptoResult.cryptographicallyValid) failedChecks.push('actualSignatureVerificationFailed');
-  if (cryptoResult.cryptographicallyValid &&
-      (!claims || typeof claims !== 'object' ||
-       Object.getOwnPropertyDescriptor(claims, 'reviewerKeyFingerprint')?.value !==
-         cryptoResult.keyFingerprintSha256)) {
-    failedChecks.push('reviewerSigningKeyMismatch');
+  // Untrusted Proxy traps and accessors may throw or change between reads.
+  // Report matching only if descriptor inspection is safe and is a data property.
+  let reviewerSigningKeyMatchesClaim = false;
+  if (cryptoResult.cryptographicallyValid) {
+    try {
+      const descriptor = claims !== null && typeof claims === 'object' &&
+        !Array.isArray(claims) && Object.getPrototypeOf(claims) === Object.prototype &&
+        Object.getOwnPropertyDescriptor(claims, 'reviewerKeyFingerprint');
+      reviewerSigningKeyMatchesClaim = !!descriptor &&
+        Object.hasOwn(descriptor, 'value') &&
+        descriptor.value === cryptoResult.keyFingerprintSha256;
+    } catch {
+      reviewerSigningKeyMatchesClaim = false;
+    }
+    if (!reviewerSigningKeyMatchesClaim) failedChecks.push('reviewerSigningKeyMismatch');
   }
   return {
     schema: BRIDGE_SCHEMA,
     cryptographicallyValid: cryptoResult.cryptographicallyValid,
     payloadSha256: cryptoResult.cryptographicallyValid ? cryptoResult.payloadSha256 : null,
-    reviewerSigningKeyMatchesClaim: cryptoResult.cryptographicallyValid &&
-      !failedChecks.includes('reviewerSigningKeyMismatch'),
+    reviewerSigningKeyMatchesClaim,
     localChecksReportedPass: cryptoResult.cryptographicallyValid &&
       assessment.localChecksReportedPass && failedChecks.length === 0,
     failedChecks: [...new Set(failedChecks)],
