@@ -11,6 +11,7 @@ export const BRIDGE_SCHEMA = 'palaco-citadel-receipt-evidence-bridge-v1';
 export function assessSignedReceipt({ payloadBytes, envelope, publicJwk, claims } = {}) {
   const cryptoResult = verifyReceiptSignature(payloadBytes, envelope, publicJwk);
   let assessment;
+  let reviewerSigningKeyMatchesClaim = false;
   try {
     const acceptable = claims !== null && typeof claims === 'object' &&
       !Array.isArray(claims) && Object.getPrototypeOf(claims) === Object.prototype;
@@ -32,34 +33,22 @@ export function assessSignedReceipt({ payloadBytes, envelope, publicJwk, claims 
     // but does not establish reviewer identity, role or signing authority.
     const receiptDigest = cryptoResult.cryptographicallyValid
       ? cryptoResult.payloadSha256 : null;
-    const reviewerFingerprintMatches = cryptoResult.cryptographicallyValid &&
+    reviewerSigningKeyMatchesClaim = cryptoResult.cryptographicallyValid &&
       data.reviewerKeyFingerprint === cryptoResult.keyFingerprintSha256;
     assessment = assessLocalReceiptReview({
       ...data,
       receiptDigest,
-      signatureCryptographicallyValid: cryptoResult.cryptographicallyValid &&
-        reviewerFingerprintMatches
+      signatureCryptographicallyValid: reviewerSigningKeyMatchesClaim
     });
   } catch {
     assessment = assessLocalReceiptReview(null);
   }
   const failedChecks = [...assessment.failedChecks];
   if (!cryptoResult.cryptographicallyValid) failedChecks.push('actualSignatureVerificationFailed');
-  // Untrusted Proxy traps and accessors may throw or change between reads.
-  // Report matching only if descriptor inspection is safe and is a data property.
-  let reviewerSigningKeyMatchesClaim = false;
-  if (cryptoResult.cryptographicallyValid) {
-    try {
-      const descriptor = claims !== null && typeof claims === 'object' &&
-        !Array.isArray(claims) && Object.getPrototypeOf(claims) === Object.prototype &&
-        Object.getOwnPropertyDescriptor(claims, 'reviewerKeyFingerprint');
-      reviewerSigningKeyMatchesClaim = !!descriptor &&
-        Object.hasOwn(descriptor, 'value') &&
-        descriptor.value === cryptoResult.keyFingerprintSha256;
-    } catch {
-      reviewerSigningKeyMatchesClaim = false;
-    }
-    if (!reviewerSigningKeyMatchesClaim) failedChecks.push('reviewerSigningKeyMismatch');
+  // Bind a single validated descriptor snapshot: never re-read an untrusted Proxy
+  // after the review assessment, where a hostile trap could return new evidence.
+  if (cryptoResult.cryptographicallyValid && !reviewerSigningKeyMatchesClaim) {
+    failedChecks.push('reviewerSigningKeyMismatch');
   }
   return {
     schema: BRIDGE_SCHEMA,
