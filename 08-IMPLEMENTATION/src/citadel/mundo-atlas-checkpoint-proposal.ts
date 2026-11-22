@@ -164,12 +164,31 @@ export async function reviewAtlasCheckpointProposal(
   try {
     const current = await host.readCurrentPinnedCheckpoint();
     if (!current || !Number.isSafeInteger(current.version) ||
-        !HASH.test(current.digestHex)) {
+        current.version < 1 ||
+        typeof current.digestHex !== "string" ||
+        !HASH.test(current.digestHex) ||
+        (current.predecessorDigestHex !== null &&
+         (typeof current.predecessorDigestHex !== "string" ||
+          !HASH.test(current.predecessorDigestHex))) ||
+        !Array.isArray(current.previouslyRevokedKeyIds) ||
+        current.previouslyRevokedKeyIds.length > 256 ||
+        current.previouslyRevokedKeyIds.some((id) =>
+          typeof id !== "string" || !ID.test(id)) ||
+        new Set(current.previouslyRevokedKeyIds).size !==
+          current.previouslyRevokedKeyIds.length) {
       return outcome("unverified", "TRUSTED_PREDECESSOR_UNAVAILABLE",
         frozen.proposalId);
     }
-    if (current.version !== frozen.expectedVersion ||
-        current.digestHex !== frozen.expectedDigestHex) {
+    const pinnedSnapshot: AtlasRegistryCheckpoint = Object.freeze({
+      version: current.version,
+      digestHex: current.digestHex,
+      predecessorDigestHex: current.predecessorDigestHex,
+      previouslyRevokedKeyIds: Object.freeze([
+        ...current.previouslyRevokedKeyIds,
+      ]),
+    });
+    if (pinnedSnapshot.version !== frozen.expectedVersion ||
+        pinnedSnapshot.digestHex !== frozen.expectedDigestHex) {
       return outcome("conflict", "EXPECTED_PREDECESSOR_CHANGED",
         frozen.proposalId);
     }
@@ -188,14 +207,7 @@ export async function reviewAtlasCheckpointProposal(
       return outcome("unverified", "INDEPENDENT_REVIEW_NOT_CONFIRMED",
         frozen.proposalId);
     }
-    if (!await host.isStillPinned(Object.freeze({
-      version: current.version,
-      digestHex: current.digestHex,
-      predecessorDigestHex: current.predecessorDigestHex,
-      previouslyRevokedKeyIds: Object.freeze([
-        ...current.previouslyRevokedKeyIds,
-      ]),
-    }))) {
+    if (!await host.isStillPinned(pinnedSnapshot)) {
       return outcome("conflict", "CHECKPOINT_CHANGED_DURING_REVIEW",
         frozen.proposalId);
     }
