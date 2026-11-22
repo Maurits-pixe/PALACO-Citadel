@@ -63,6 +63,19 @@ test('signature forgery fails even with correctly calculated pin digest', () => 
   const forged={...data,signatureBase64Url:'AQID'};
   assert.equal(evaluate(forged).reason,'REGISTRY_INVALID_SIGNATURE_ENCODING');
 });
+test('valid-length modified registry signature fails cryptographic verification', () => {
+  const data=signed();
+  const bytes=Buffer.from(data.signatureBase64Url,'base64url');
+  bytes[bytes.length-1]^=1;
+  const result=evaluate({...data,signatureBase64Url:bytes.toString('base64url')});
+  assert.equal(result.exactSnapshotMatched,false);
+  assert.equal(result.reason,'REGISTRY_REGISTRY_SIGNATURE_INVALID');
+  assert.equal(result.trust,'NOT_ESTABLISHED');
+  assert.equal(result.authorization,'DENY');
+  assert.equal(result.executionAllowed,false);
+  assert.equal(result.releaseAllowed,false);
+});
+
 test('revoked reviewer fails even when exact registry is pinned', () => {
   const data=signed({...document(),reviewers:[{...document().reviewers[0],status:'revoked'}]});
   assert.equal(evaluate(data).reason,'REGISTRY_REVIEWER_REVOKED');
