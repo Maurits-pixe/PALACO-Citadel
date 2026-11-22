@@ -101,6 +101,11 @@ export async function reviewAtlasSigner(
   }
   const entries = new Map<string, AtlasSignerRecord>();
   const replacements = new Set<string>();
+  const registryKeys = Object.keys(snapshot);
+  if (registryKeys.length !== 2 ||
+      registryKeys.some((key) => key !== "registryVersion" && key !== "records")) {
+    return answer("rejected", "UNBOUND_REGISTRY_FIELDS");
+  }
   for (const item of snapshot.records) {
     if (!item || typeof item !== "object" ||
         typeof item.keyId !== "string" || !KEY.test(item.keyId) ||
@@ -121,6 +126,15 @@ export async function reviewAtlasSigner(
         (parseUtc(item.validFrom) as number) >=
           (parseUtc(item.validUntil) as number)) {
       return answer("rejected", "INVALID_SIGNER_RECORD");
+    }
+    const permitted = [
+      "keyId", "publicKeyFingerprint", "roles", "validFrom",
+      "validUntil", "revoked",
+      ...(item.replacesKeyId === undefined ? [] : ["replacesKeyId"]),
+    ];
+    if (Object.keys(item).length !== permitted.length ||
+        Object.keys(item).some((key) => !permitted.includes(key))) {
+      return answer("rejected", "UNBOUND_SIGNER_FIELDS");
     }
     entries.set(item.keyId, item);
     if (item.replacesKeyId !== undefined) replacements.add(item.replacesKeyId);
@@ -145,6 +159,21 @@ export async function reviewAtlasSigner(
       cursor = entries.get(cursor.replacesKeyId);
     }
   }
+  // Copy the validated fields into a deeply frozen snapshot so asynchronous
+  // host verification cannot inspect mutable data different from our checks.
+  const pinnedSnapshot: AtlasSignerRegistry = Object.freeze({
+    registryVersion: snapshot.registryVersion as number,
+    records: Object.freeze([...entries.values()].map((item) => Object.freeze({
+      keyId: item.keyId,
+      publicKeyFingerprint: item.publicKeyFingerprint,
+      roles: Object.freeze([...item.roles]),
+      validFrom: item.validFrom,
+      validUntil: item.validUntil,
+      revoked: item.revoked,
+      ...(item.replacesKeyId === undefined ? {} :
+        { replacesKeyId: item.replacesKeyId }),
+    }))),
+  });
   const candidate = entries.get(keyId);
   if (!candidate || !candidate.roles.includes(role) ||
       candidate.revoked || replacements.has(keyId)) {
@@ -157,7 +186,7 @@ export async function reviewAtlasSigner(
         now >= (parseUtc(candidate.validUntil) as number)) {
       return answer("rejected", "SIGNER_OUTSIDE_VALIDITY");
     }
-    if (!await host.verifyPinnedRegistry(registry as AtlasSignerRegistry)) {
+    if (!await host.verifyPinnedRegistry(pinnedSnapshot)) {
       return answer("unverified", "REGISTRY_NOT_TRUSTED");
     }
     if (!await host.isPinnedPublicKey(
