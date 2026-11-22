@@ -140,3 +140,13 @@ The private module exposes the observational `readState()` state union: `idle`, 
 **Host obligations:** deliver synchronous pre-change revocation on logout, permission withdrawal and session expiry; update context versions on every relevant transition; keep the fresh liveness callback accurate. Expiry detection after a mount requires host event delivery—this module does not run a clock or poll. The actual PALACO ONE API is neither assumed nor wired.
 
 **Acceptance scenarios not executed:** expired before admission; expired during source loading; expired after mount through before-change event; denial, navigation failure, cleanup exception, rapid logout/login, simultaneous handoff. No tests, merge, real credentials or private Citadel modification. PR #58 remains DRAFT/HOLD.
+
+## Extension 027 — synchronous private session revocation before host mutations
+
+New private source: `08-IMPLEMENTATION/src/citadel/mundo-atlas-session-revocation.ts`, exporting `connectAtlasSessionRevocation(host,handoff)`. The trusted Citadel host MUST provide `subscribeBeforeSessionChange(handler)`, with synchronous PRE-change notifications. Recognized notifications are `logout`, `session-expired`, `permissions-changed`, `identity-changed` and `atlas-closed`. Every notification calls the session handoff's `beforeSessionChange()` synchronously, invalidating the current protected view and pending requests before the session or permissions are actually changed. Unknown event values close the bridge terminally. The adapter never polls, assumes a PALACO ONE API or stores identity and tokens.
+
+Registration is fail closed. The host's subscription callback MUST be atomic if subscription throws, and return a synchronous, idempotent unsubscribe function. An event during registration invalidates registration; including the reentrant terminal-close case, a listener returned after closure is released. `dispose()` permanently shuts down the session handoff and removes the listener. Host teardown errors do not reopen it.
+
+**Security boundary:** this contract is only as strong as the real host's event ordering and DOM teardown. If a host omits or delays an expiry/logout event, this module cannot detect it autonomously. A genuine protected Citadel host and PALACO ONE identity verification are still not integrated. No public session-events or authenticated data are exposed.
+
+**Owner acceptance cases NOT EXECUTED:** logout after a mounted view; expiry during pending navigation; permissions withdrawal; identity change; atlas close; malformed/unknown event; event delivered while subscription registers; throwing unsubscribe; repeated dispose. No merge, private Sites modification or functional tests; PR #58 DRAFT/HOLD.
