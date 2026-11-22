@@ -251,3 +251,46 @@ test('first-read substituted audit PIN cannot be rescued by a later valid descri
  assert.equal(r.authorization,'DENY');
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('outer audit anchor signature Proxy descriptor is captured exactly once',()=>{
+ const valid=setup();
+ let reads=0;
+ const input=new Proxy(valid,{
+   getOwnPropertyDescriptor(target,key){
+     const descriptor=Reflect.getOwnPropertyDescriptor(target,key);
+     if(key==='signatureBase64Url'){
+       reads++;
+       return {...descriptor,value:reads===1?valid.signatureBase64Url:'AQID'};
+     }
+     return descriptor;
+   }
+ });
+ const r=inspectSignedAuditHeadAnchor(input);
+ assert.equal(reads,1);
+ assert.equal(r.anchoredLedgerMatched,true,JSON.stringify(r));
+ assert.equal(r.trust,'NOT_ESTABLISHED');
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('first-read invalid outer audit signature cannot be rescued by later Proxy value',()=>{
+ const valid=setup();
+ let reads=0;
+ const input=new Proxy(valid,{
+   getOwnPropertyDescriptor(target,key){
+     const descriptor=Reflect.getOwnPropertyDescriptor(target,key);
+     if(key==='signatureBase64Url'){
+       reads++;
+       return {...descriptor,value:reads===1?'AQID':valid.signatureBase64Url};
+     }
+     return descriptor;
+   }
+ });
+ const r=inspectSignedAuditHeadAnchor(input);
+ assert.equal(reads,1);
+ assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
