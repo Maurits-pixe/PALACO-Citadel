@@ -42,6 +42,14 @@ export function checkPinnedRegistrySnapshot(input = {}) {
       registryBytes, signatureBase64Url, issuerPublicJwk,
       pinnedSnapshot, evaluationTime, reviewerFingerprint
     } = inputSnapshot;
+    // Bound attacker-controlled textual fields before any cryptographic work.
+    // A valid P-256 DER signature fits within 80 bytes (107 base64url chars).
+    if (typeof signatureBase64Url !== 'string' ||
+        signatureBase64Url.length === 0 || signatureBase64Url.length > 107)
+      return deny('INVALID_SIGNATURE_ENCODING');
+    if (typeof evaluationTime !== 'string' || evaluationTime.length !== 24 ||
+        typeof reviewerFingerprint !== 'string' || reviewerFingerprint.length !== 64)
+      return deny('INVALID_POLICY_INPUT');
     if (!isRecord(pinnedSnapshot)) return deny('INVALID_PIN');
     const pinKeys = ['schema','issuerFingerprint','revision','registrySha256'];
     // Reflect.ownKeys does not invoke property-descriptor traps just to list
@@ -92,6 +100,12 @@ export function checkPinnedRegistrySnapshot(input = {}) {
         return deny('INVALID_ISSUER_KEY');
       keySnapshot[key] = descriptor.value;
     }
+    // P-256 affine coordinates are exactly 32 bytes, encoded as 43 base64url
+    // characters. Reject oversized/malformed key material before crypto import.
+    if (keySnapshot.kty !== 'EC' || keySnapshot.crv !== 'P-256' ||
+        !/^[A-Za-z0-9_-]{43}$/.test(keySnapshot.x) ||
+        !/^[A-Za-z0-9_-]{43}$/.test(keySnapshot.y))
+      return deny('INVALID_ISSUER_KEY');
     const checked = checkSignedReviewerRegistry({
       registryBytes: snapshotBytes, signatureBase64Url, issuerPublicJwk: keySnapshot,
       expectedIssuerFingerprint: pin.issuerFingerprint,
