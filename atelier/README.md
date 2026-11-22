@@ -569,3 +569,28 @@ De bron van de herstelkopie is onbetrouwbare lokale opslag; het bestaan van een 
 ## Regiekamer v6.35 — contracttest betrouwbaar uitvoeren (2026-11-22)
 
 Een statische regressietest voor notitieconflicten overschaduwde de bestaande bestandsleesfunctie `read()` met een lokale constante `read`. Door de JavaScript temporal dead zone faalde de test vóór de eigenlijke controles. De lokale positievariabele is hernoemd naar `readPosition`; de test verifieert opnieuw de volgorde van actuele opslaglezing, herkenning van onopgeslagen bewerkingen en echte conflictdetectie. Er zijn geen functionele wijzigingen in het Atelier en de drie bestaande creatieve opslagbronnen blijven ongemoeid. De eerder geconstateerde v6.34-validatiefout is hiermee in code gecorrigeerd; bevestiging door de nieuwe CI-uitvoering blijft vereist. **DRAFT/HOLD/DENY**; geen merge of publicatie.
+
+## Regiekamer v6.36 — verificatie- en vrijgaveregister (2026-11-22)
+
+Dit is een **release-gate-checklist**, niet een verklaring dat een controle is geslaagd. De status van dynamische checks verandert na nieuwe commits: controleer altijd de **actuele PR-head**. **Onbekend, niet uitgevoerd, pending of failure = BLOCKED**. Een succesvolle deploy-preview verleent geen toestemming voor merge of publieke uitrol.
+
+| Gate | Acceptatiecriterium | Vereist bewijs | Vrijgavestatus |
+| --- | --- | --- | --- |
+| G01 — DRAFT/NONE | Uitsluitend bekende DRAFT-schemas; geen autoriteitsverhoging | Node-contracttests en negatieve corruptie-/authority-tests | **NIET VRIJGEGEVEN** |
+| G02 — gegevensbehoud | EX, IN, NOTE blijven intact bij geweigerde import of corrupte recovery | Node-foutinjecties en browserregressies | **NIET VRIJGEGEVEN** |
+| G03 — tabconflicten | Geen stille overschrijving van concurrente ontwerpen of herstelkopieën | Playwright met twee echte tabbladen | **NIET VRIJGEGEVEN** |
+| G04 — rollback | Verifiëren via teruglezing; onvolledige rollback wordt niet als PASS gemeld | Tests voor write-then-throw, stille fout en concurrente wijziging | **NIET VRIJGEGEVEN** |
+| G05 — toegankelijkheid | Toetsenbordfocus, schermlezerfeedback en mobiele bruikbaarheid | Playwright plus handmatige toetsenbord-, schermlezer- en telefoontests | **NIET VRIJGEGEVEN** |
+| G06 — offline/portabiliteit | DRAFT-export/import werkt offline, na reload en met limieten | Browser-scenario's, offline smoke tests, SHA-256-controle | **NIET VRIJGEGEVEN** |
+| G07 — repositorykwaliteit | Alle verplichte checks op dezelfde SHA geslaagd; onafhankelijke review | GitHub CI en reviewrecord met volledige SHA | **NIET VRIJGEGEVEN** |
+| G08 — bevoegdheid | Afzonderlijk GO-13-besluit pas na volledige verificatie | Expliciete bevoegde toestemming | **HOLD / DENY** |
+
+### Bewijsdiscipline
+
+1. Registreer per vrijgavekandidaat commit-SHA, controlenaam, status, tijdstip, reviewer en observatie. Een groene controle op een oudere commit telt niet.
+2. Bij ontbrekende, wachtende of mislukte checks blijft de release geblokkeerd; een Vercel-preview is geen bewijs van volledige functionele acceptatie.
+3. Creatieve DRAFT-bestanden en herstelkopieën geven nooit rechten voor identiteit, EDTR, officiële Citadels of productiegegevens.
+4. localStorage blijft zonder atomair compare-and-swap, duurzame back-up, cross-device synchronisatie of transactiegarantie.
+5. Bij afwijking: corrigeer in de Draft-branch, voeg een gerichte regressie toe en verzamel bewijs op de nieuwe HEAD. Geen merge of publicatie zonder aparte GO.
+
+**GitHub-status vóór deze documentatiewijziging:** commit 2f0fe7cefd57323e595c381eef4e24f84830145b had één geslaagde Vercel-status, twee pending en één failure. Deze oudere uitslag is geen bewijs voor de commit van dit register. **Eindbesluit: DRAFT / HOLD / DENY.**
