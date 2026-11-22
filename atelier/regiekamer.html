@@ -688,7 +688,12 @@ $('bundleImport').addEventListener('change',async event=>{
    if(revision!==importRevision)return;
    $('bundleStatus').textContent=description;
    const warning=pendingNote?' LET OP: er staan nog niet-bewaarde notitiewijzigingen in deze pagina.':'';
+   const noteBeforeConfirm=noteValue();
    if(!confirm(description+' Herstel vervangt je huidige lokale Atelier-ontwerpen. Exporteer eerst je huidige werk als JSON. Wil je doorgaan?'+warning))return;
+   // A confirmation may invoke browser hooks or other code while the dialog
+   // is pending. Never overwrite text edited after the import was previewed.
+   if(noteValue()!==noteBeforeConfirm)
+     throw Error('Ontwerpnotitie gewijzigd tijdens bevestiging. Import afgebroken; je nieuwe tekst blijft staan.');
    showRollbackReport(null);
    api.restoreWithRecovery(localStorage,pack,current,expectedRecovery);
    $('statement').value=pack.note;
