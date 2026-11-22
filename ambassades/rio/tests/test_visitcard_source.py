@@ -41,6 +41,22 @@ class VisitCardSourceTests(unittest.TestCase):
         self.assertIn('target="_blank" rel="noopener noreferrer"', self.html)
         self.assertIn('rel="icon" type="image/svg+xml"', self.html)
 
+    def test_manual_copy_fallback_accessibility(self):
+        self.assertIn('id="rio-share-manual" hidden', self.html)
+        self.assertIn('id="rio-share-manual-url" type="text" readonly', self.html)
+        self.assertIn('aria-describedby="rio-share-feedback"', self.html)
+        self.assertIn('field.value=publicRioUrl;', self.html)
+        self.assertIn('field.focus();', self.html)
+        self.assertIn('field.select();', self.html)
+        self.assertIn('revealRioManualCopy();', self.html)
+
+    def test_manual_copy_labels_in_all_locales(self):
+        self.assertIn('const rioManualLabels=', self.html)
+        for lang in LOCALES:
+            with self.subTest(lang=lang):
+                self.assertIn('"' + lang + '":', self.html)
+        self.assertIn('rioManualLabels[language]||rioManualLabels.en', self.html)
+
     def test_trust_status_is_explicitly_unverified(self):
         self.assertIn('id="rio-trust-title"', self.html)
         self.assertIn('Niet geverifieerd · geen autorisatie', self.html)
