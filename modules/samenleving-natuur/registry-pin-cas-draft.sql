@@ -58,11 +58,11 @@ FOR EACH STATEMENT EXECUTE FUNCTION citadel_pin_draft.reject_history_mutation();
 
 CREATE OR REPLACE FUNCTION citadel_pin_draft.reject_state_mutation()
 RETURNS trigger LANGUAGE plpgsql SECURITY INVOKER
-SET search_path = pg_catalog, citadel_pin_draft AS $
+SET search_path = pg_catalog, citadel_pin_draft AS $$
 BEGIN
   RAISE EXCEPTION 'PALACO_CITADEL_PIN_STATE_FROZEN' USING ERRCODE = '42501';
 END;
-$;
+$$;
 DROP TRIGGER IF EXISTS pin_state_no_write ON citadel_pin_draft.pin_state;
 CREATE TRIGGER pin_state_no_write
 BEFORE INSERT OR UPDATE OR DELETE ON citadel_pin_draft.pin_state
