@@ -45,3 +45,13 @@ Suggested owner-review acceptance scenarios, **not executed**: before-change dur
 ## Public preview
 
 The public Render demonstration shows a static explanation of this integration contract. It does not import or exercise any privileged function and contains no live MUNDO records.
+
+## Extension 017 — Explicit protected-container ownership check
+
+The protected-container contract additionally requires `isProtectedContainerAuthorized(container): boolean`. This host-owned decision must independently establish that the exact element is associated with the CURRENT authorized private route and session; a connected DOM node alone does not prove this.
+
+The adapter invokes this callback both **before** rendering and **after** DOM mount, alongside container identity and context-version checks. Failure or an exception rejects the mount; on post-mount failure, it removes only the newly created scoped view. The real host must provide the predicate and must revoke before changing routes, permissions, or session.
+
+**Compatibility:** this is an intentional stricter host interface. Any future integration of `connectAtlasProtectedContainer` must supply the additional callback; absent callbacks cause construction to fail. This is not a working authentication or ownership verifier without the actual Citadel host.
+
+**Acceptance:** untested / HOLD. No modifications to the private Citadel Sites application; no merge or real user session handling. The public Atlas only documents the safeguard.
