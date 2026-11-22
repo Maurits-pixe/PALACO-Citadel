@@ -944,6 +944,9 @@ window.addEventListener('online',checkOfflineReady);
 window.addEventListener('offline',checkOfflineReady);
 if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('controllerchange',checkOfflineReady);
 window.addEventListener('storage',e=>{
+ // Only local Atelier persistence can invalidate a design import or note.
+ // Session storage and synthetic events without a matching storage area are unrelated.
+ if(e.storageArea!==localStorage)return;
  if((e.key===null||[EX,IN,NOTE].includes(e.key))&&importReadPending){
    ++importRevision;
    importReadPending=false;
