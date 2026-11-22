@@ -90,3 +90,12 @@ test('approval overrides are ignored even with a valid signature',()=>{
   assert.equal(r.authorization,'DENY');
   assert.equal(r.releaseAllowed,false);
 });
+
+test('missing reviewer fingerprint never silently passes key binding',()=>{
+  const incomplete=claims();
+  delete incomplete.reviewerKeyFingerprint;
+  const r=run({claims:incomplete});
+  assert.equal(r.localChecksReportedPass,false);
+  assert.equal(r.authorization,'DENY');
+  assert.ok(r.failedChecks.length>0);
+});
