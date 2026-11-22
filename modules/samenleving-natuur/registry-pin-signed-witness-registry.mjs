@@ -65,9 +65,9 @@ export function inspectSignedWitnessRegistry(input={}) {
     signature.toString('base64url')!==registrySignatureBase64Url||
     !verify('sha256',Buffer.concat([DOMAIN,bytes]),key,signature))
     return fail('REGISTRY_SIGNATURE_INVALID');
-  const doc=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));
-  if(!exact(doc,['schema','epoch','members'])||
-    doc.schema!==WITNESS_REGISTRY_SCHEMA||
+  const doc=snapshot(JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes)),
+    ['schema','epoch','members']);
+  if(!doc||doc.schema!==WITNESS_REGISTRY_SCHEMA||
     !Number.isSafeInteger(doc.epoch)||doc.epoch<minimumEpoch)
     return fail('REGISTRY_EPOCH_ROLLBACK_OR_SCHEMA');
   const policy=inspectWitnessRegistryPolicy({
