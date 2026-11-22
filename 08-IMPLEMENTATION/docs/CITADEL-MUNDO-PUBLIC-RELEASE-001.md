@@ -163,3 +163,9 @@ De bestaande `mundo-atlas-protected-container.ts` is aangescherpt: hij leest de 
 Nieuw integratiedocument: `08-IMPLEMENTATION/docs/CITADEL-MUNDO-HOST-INTEGRATION-016.md` met concrete eisen voor hostevents, bronverificatie, autorisatie, contextversies en de privémount. Het document bevat uitsluitend niet-uitgevoerde scenario's voor latere eigenaaracceptatie.
 
 De publieke Render Atlas toont een **uitsluitend verklarend** Hostintegratie 016-paneel. Er wordt geen private TypeScript-module op die pagina geladen en geen echte Citadel-sessie of kaart ontsloten. Oorspronkelijke ChatGPT Sites Citadel niet gewijzigd; PR #58 blijft DRAFT/HOLD; geen functionele tests, merge of private uitrol.
+
+## MUNDO-TRUSTED-CONTAINER-017 — dubbele privémachtiging
+
+De private `mundo-atlas-protected-container.ts` vereist nu de extra door de host geleverde functie `isProtectedContainerAuthorized(container)`. Deze controle gebeurt vóór en na een gemonteerde kaartweergave, naast de bestaande contextversie-, DOM-verbondenheids- en containeridentiteitscontroles. De noodzakelijke vertrouwensbeslissing komt uitsluitend van de echte beschermde Citadel-host; een bestaande HTML-node geldt niet als autorisatiebewijs. Ontbreekt de functie, dan wordt het connectorcontract afgewezen. Faalt de controle na montage, dan verwijdert de adapter zijn eigen nieuwe DOM-mount.
+
+De publieke Atlas heeft een apart, louter verklarend paneel **Vertrouwensgrens 017**. Geen feitelijke PALACO ONE-inlogkoppeling, privéroutes of persoonlijke records zijn geopend. Handleiding `CITADEL-MUNDO-HOST-INTEGRATION-016.md` bijgewerkt. Geen functionele tests, private Sites-wijziging of merge; PR #58 blijft DRAFT/HOLD.
