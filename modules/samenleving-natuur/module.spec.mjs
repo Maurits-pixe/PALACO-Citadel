@@ -1824,3 +1824,69 @@ test('existing stronger local revocation cannot be overwritten by older epoch',a
  await expect(page.locator('#issuerRevokeStatus')).toContainText('LOKALE INTREKKINGSBLOKKADE MISLUKT');
  expect(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),key)).toEqual(original);
 });
+
+async function localRevocationReceiptFixture(page){
+ await signedPreviewFixture(page);
+ const f=await issuerRevocationFixture(page);
+ await uploadIssuerRevocation(page,f);
+ await page.locator('#verifyIssuerRevoke').click();
+ await expect(page.locator('#confirmIssuerRevoke')).toBeEnabled();
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#confirmIssuerRevoke').click();
+ await expect(page.locator('#issuerRevokeStatus')).toContainText('UITGEVER LOKAAL GEBLOKKEERD');
+ const downloadPromise=page.waitForEvent('download');
+ await page.locator('#exportIssuerRevocation').click();
+ const download=await downloadPromise;
+ const {readFile}=await import('node:fs/promises');
+ return JSON.parse(await readFile(await download.path(),'utf8'));
+}
+test('local issuer revocation receipt exports and verifies without importing authority',async ({page})=>{
+ const receipt=await localRevocationReceiptFixture(page);
+ expect(receipt.schema).toBe('palaco-citadel-local-revocation-receipt-v1');
+ expect(receipt.authorization).toBe('DENY');
+ expect(receipt.issuance).toBe('HOLD');
+ expect(receipt.integrity.digest).toMatch(/^[a-f0-9]{64}$/);
+ const key='palaco.citadel.audit-issuer-revoked.v1.'+receipt.issuerFingerprint;
+ await page.evaluate(key=>localStorage.removeItem(key),key);
+ await page.locator('#issuerRevocationReceipt').setInputFiles({name:'receipt.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(receipt))});
+ await page.locator('#verifyIssuerRevocationReceipt').click();
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('SHA-256 BEWIJSINTEGRITEIT GELDIG');
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('GEEN INTREKKING GEÏMPORTEERD');
+ expect(await page.evaluate(key=>localStorage.getItem(key),key)).toBeNull();
+});
+
+test('modified issuer revocation receipt is rejected',async ({page})=>{
+ const receipt=await localRevocationReceiptFixture(page);
+ receipt.revocation.epoch+=1;
+ await page.locator('#issuerRevocationReceipt').setInputFiles({name:'tampered.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(receipt))});
+ await page.locator('#verifyIssuerRevocationReceipt').click();
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('BEWIJS AFGEWEZEN');
+});
+
+test('missing revocation or unsigned legacy export is rejected',async ({page})=>{
+ const receipt=await localRevocationReceiptFixture(page);
+ delete receipt.integrity;
+ await page.locator('#issuerRevocationReceipt').setInputFiles({name:'unsigned.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(receipt))});
+ await page.locator('#verifyIssuerRevocationReceipt').click();
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('BEWIJS AFGEWEZEN');
+ receipt.integrity={algorithm:'SHA-256',canonicalization:'palaco-sorted-json-v1',digest:'0'.repeat(64)};
+ receipt.revocation=null;
+ await page.locator('#issuerRevocationReceipt').setInputFiles({name:'missing.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(receipt))});
+ await page.locator('#verifyIssuerRevocationReceipt').click();
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('BEWIJS AFGEWEZEN');
+});
+
+test('receipt verification outcome is invalidated after file replacement',async ({page})=>{
+ const receipt=await localRevocationReceiptFixture(page);
+ await page.locator('#issuerRevocationReceipt').setInputFiles({name:'valid.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(receipt))});
+ await page.locator('#verifyIssuerRevocationReceipt').click();
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('SHA-256 BEWIJSINTEGRITEIT GELDIG');
+ await page.locator('#issuerRevocationReceipt').setInputFiles({name:'new.json',mimeType:'application/json',buffer:Buffer.from('{}')});
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('opnieuw controleren vereist');
+});
+
+test('receipt export refuses absent local revocation without creating a download',async ({page})=>{
+ await signedPreviewFixture(page);
+ await page.locator('#exportIssuerRevocation').click();
+ await expect(page.locator('#issuerReceiptStatus')).toContainText('EXPORT AFGEWEZEN');
+});
