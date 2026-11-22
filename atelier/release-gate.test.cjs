@@ -113,3 +113,43 @@ test('failure from a different commit does not contaminate current candidate',()
  assert.deepEqual(gate.conflicts,[]);
  assert.equal(gate.pass,false);
 });
+
+test('identical reviewed source twice cannot count as additional proof',()=>{
+ const x=base();const item={gate:'G01',kind:'automated_contracts',result:'pass',reviewed:true,source:'GitHub run 123',commit_sha:A};
+ x.evidence_items=[item,{...item}];
+ const r=evaluate(x,A),gate=r.gates.find(g=>g.id==='G01');
+ assert.deepEqual(gate.duplicates,['automated_contracts']);
+ assert.deepEqual(gate.accepted,[]);
+ assert.deepEqual(gate.missing,['automated_contracts']);
+ assert.ok(r.blockers.includes('G01:duplicate_evidence:automated_contracts'));
+});
+test('different actual sources are not falsely classified as duplicated',()=>{
+ const x=base();
+ x.evidence_items=[
+  {gate:'G01',kind:'automated_contracts',result:'pass',reviewed:true,source:'GitHub run 123',commit_sha:A},
+  {gate:'G01',kind:'automated_contracts',result:'pass',reviewed:true,source:'GitHub run 124',commit_sha:A}
+ ];
+ const gate=evaluate(x,A).gates.find(g=>g.id==='G01');
+ assert.deepEqual(gate.duplicates,[]);
+ assert.deepEqual(gate.accepted,['automated_contracts']);
+});
+test('independent-review evidence without distinct reviewer and author is not accepted',()=>{
+ const x=base();const item={gate:'G07',kind:'independent_review',result:'pass',reviewed:true,source:'review claim',commit_sha:A};
+ x.evidence_items=[{...item,reviewer_id:'same',author_id:'same'}];
+ const r=evaluate(x,A),gate=r.gates.find(g=>g.id==='G07');
+ assert.deepEqual(gate.reviewGaps,['independent_review']);
+ assert.ok(gate.missing.includes('independent_review'));
+ assert.ok(r.blockers.includes('G07:reviewer_independence_unverified:independent_review'));
+ x.evidence_items=[{...item}];
+ assert.ok(evaluate(x,A).gates.find(g=>g.id==='G07').reviewGaps.includes('independent_review'));
+});
+test('distinct claimed reviewer and author are diagnostic only and cannot authorize release',()=>{
+ const x=base();x.evidence_items=[
+  {gate:'G07',kind:'independent_review',result:'pass',reviewed:true,source:'GitHub PR review 1',commit_sha:A,reviewer_id:'reviewer',author_id:'author'}
+ ];
+ const r=evaluate(x,A),gate=r.gates.find(g=>g.id==='G07');
+ assert.ok(gate.accepted.includes('independent_review'));
+ assert.equal(gate.pass,false);
+ assert.equal(r.decision,'HOLD');
+ assert.equal(r.release_approved,false);
+});
