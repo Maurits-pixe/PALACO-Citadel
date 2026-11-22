@@ -47,7 +47,7 @@ test('missing link and reversed order fail',()=>{
  assert.equal(inspect([entries[1],entries[0]]).reason,'INVALID_CHAIN_LINK');
 });
 test('rollback and equal revision fail even if hash is internally consistent',()=>{
- for(const toPin of [genesis(),next()]){
+ for(const toPin of [genesis(),{...genesis(),registrySha256:'c'.repeat(64)}]){
   const first=link(1,'0'.repeat(64),genesis(),toPin);
   assert.equal(inspect([first]).reason,'PIN_ROLLBACK_OR_CONFLICT');
  }
