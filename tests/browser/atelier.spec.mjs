@@ -1685,3 +1685,22 @@ test('Atelier v6.21: concurrerend ontwerp tijdens import blijft intact en vraagt
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Oorspronkelijke notitie');
  await page.evaluate(()=>window.restoreAtelierWrites());
 });
+
+
+test('Atelier v6.22: andere opslagversie tijdens bevestiging wordt niet geladen',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Mijn onopgeslagen ontwerpnotitie');
+ await page.evaluate(()=>{
+   localStorage.setItem(window.PalacoAtelierBundle.NOTE,'Eerste opgeslagen versie');
+   window.confirm=()=>{
+     localStorage.setItem(window.PalacoAtelierBundle.NOTE,'Tweede opgeslagen versie');
+     return true;
+   };
+ });
+ await page.locator('#loadSavedNote').click();
+ await expect(page.locator('#feedback')).toContainText('Laden geweigerd');
+ await expect(page.locator('#statement')).toHaveValue('Mijn onopgeslagen ontwerpnotitie');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Tweede opgeslagen versie');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('Opslaan geweigerd');
+});
