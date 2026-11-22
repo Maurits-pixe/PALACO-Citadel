@@ -49,10 +49,11 @@ test('one-off failed write rolls back all three original values',()=>{
  assert.equal(storage.getItem(bundle.IN),'prior interior');
  assert.equal(storage.getItem(bundle.NOTE),'prior note');
 });
-test('persistent write failure explicitly reports incomplete rollback',()=>{
+test('failed first write leaves unchanged values intact without unnecessary rollback',()=>{
  const storage=fakeStorage({[bundle.EX]:'old'});
  storage.setItem=(key,value)=>{if(key===bundle.IN||key===bundle.EX)throw Error('Persistent storage failure');};
- assert.throws(()=>bundle.restore(storage,bundle.create(exterior(),interior(),'new')),/terugdraaien mislukt/);
+ assert.throws(()=>bundle.restore(storage,bundle.create(exterior(),interior(),'new')),/oorspronkelijke opslag teruggezet/);
+ assert.equal(storage.getItem(bundle.EX),'old');
 });
 
 test('stale preview cannot overwrite changes made in another tab',()=>{
@@ -230,4 +231,32 @@ test('failed design write never clobbers a competing recovery record',()=>{
  assert.throws(()=>bundle.restoreWithRecovery(storage,bundle.create(null,null,'incoming')),/herstelkopie is ondertussen gewijzigd/);
  assert.equal(storage.getItem(bundle.NOTE),'original');
  assert.equal(bundle.getRecovery(storage).draft.note,'rival');
+});
+
+test('rollback preserves a concurrent edit instead of clobbering it',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'before', [bundle.EX]:'original'});
+ const set=storage.setItem;
+ storage.setItem=(key,value)=>{
+  if(key===bundle.IN){
+   set(bundle.EX,'edited in another tab');
+   throw Error('write interrupted');
+  }
+  set(key,value);
+ };
+ assert.throws(()=>bundle.restore(storage,bundle.create(exterior(),interior(),'after')),/conflicteert met nieuwere gegevens/);
+ assert.equal(storage.getItem(bundle.EX),'edited in another tab');
+ assert.equal(storage.getItem(bundle.NOTE),'before');
+});
+
+test('rollback does not rewrite untouched keys after an early failure',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'original note'});
+ const set=storage.setItem; const writes=[];
+ storage.setItem=(key,value)=>{
+  writes.push(key);
+  if(key===bundle.EX)throw Error('quota');
+  set(key,value);
+ };
+ assert.throws(()=>bundle.restore(storage,bundle.create(exterior(),interior(),'new')),/oorspronkelijke opslag teruggezet/);
+ assert.deepEqual(writes,[bundle.EX]);
+ assert.equal(storage.getItem(bundle.NOTE),'original note');
 });
