@@ -201,3 +201,33 @@ test('undo refuses recovery changes during preparation without touching designs'
  assert.equal(storage.getItem(bundle.NOTE),'current');
  assert.equal(JSON.parse(storage.getItem(bundle.RECOVERY)).draft.note,'newer');
 });
+
+
+test('concurrent recovery replacement after save aborts before changing the design',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'untouched'});
+ const rival={schema:'palaco.citadel.atelier.recovery/1',state:'DRAFT',authority:'NONE',savedAt:'2026-11-22T12:00:00.000Z',draft:bundle.create(null,null,'rival')};
+ const baseSet=storage.setItem;
+ storage.setItem=(key,value)=>{
+  baseSet(key,value);
+  if(key===bundle.RECOVERY)baseSet(key,JSON.stringify(rival));
+ };
+ assert.throws(()=>bundle.restoreWithRecovery(storage,bundle.create(null,null,'incoming')),/gewijzigd na opslaan/);
+ assert.equal(storage.getItem(bundle.NOTE),'untouched');
+ assert.equal(bundle.getRecovery(storage).draft.note,'rival');
+});
+
+test('failed design write never clobbers a competing recovery record',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'original'});
+ const rival={schema:'palaco.citadel.atelier.recovery/1',state:'DRAFT',authority:'NONE',savedAt:'2026-11-22T12:00:00.000Z',draft:bundle.create(null,null,'rival')};
+ const baseSet=storage.setItem;
+ storage.setItem=(key,value)=>{
+  if(key===bundle.NOTE){
+   baseSet(bundle.RECOVERY,JSON.stringify(rival));
+   throw Error('Simulated write failure');
+  }
+  baseSet(key,value);
+ };
+ assert.throws(()=>bundle.restoreWithRecovery(storage,bundle.create(null,null,'incoming')),/herstelkopie is ondertussen gewijzigd/);
+ assert.equal(storage.getItem(bundle.NOTE),'original');
+ assert.equal(bundle.getRecovery(storage).draft.note,'rival');
+});
