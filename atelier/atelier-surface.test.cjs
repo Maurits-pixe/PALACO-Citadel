@@ -215,3 +215,15 @@ test('Atelier import must validate the JSON filename before reading bytes',()=>{
   assert.ok(validation>=0,'unsafe imported file names must be rejected');
   assert.ok(reading>validation,'filename validation must precede file read');
 });
+
+
+test('Atelier note synchronization must preserve unsaved edits from local tab',()=>{
+ const html=read('regiekamer.html');
+ const begin=html.lastIndexOf("window.addEventListener('storage',e=>{");
+ assert.ok(begin>=0,'cross-tab storage handler exists');
+ const handler=html.slice(begin);
+ assert.match(handler,/const locallyEdited=noteValue\(\)!==/);
+ assert.match(handler,/if\(locallyEdited\)/);
+ assert.match(handler,/onopgeslagen tekst blijft staan/);
+ assert.match(handler,/typeof e\.newValue==='string'\?e\.newValue\.slice\(0,6000\):''/);
+});
