@@ -80,6 +80,9 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/comparableName\(jsonFiles\[0\]\)===comparableName\(jsonFiles\[1\]\)/);
   assert.match(read('regiekamer.html'),/verschillende JSON-bestandsnamen hebben/);
   assert.match(read('regiekamer.html'),/function safeReceiptFilename\(name\)/);
+  assert.match(read('regiekamer.html'),/\\u200b-\\u200f/);
+  assert.match(read('regiekamer.html'),/\\u2060\\u2066-\\u206f/);
+  assert.match(read('regiekamer.html'),/\\ufeff/);
   assert.match(read('regiekamer.html'),/safeReceiptFilename\(txtFiles\[0\]\.name\)/);
   assert.match(read('regiekamer.html'),/safeReceiptFilename\(txt\.name\)/);
   assert.match(read('regiekamer.html'),/safeReceiptFilename\(file\.name\)/);
