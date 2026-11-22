@@ -436,3 +436,39 @@ Thirteen new tests cover signature failures, stale anchors, wrong
 identifiers, missing records, and local history changes. No test PASS
 is claimed without execution and skip-count review. **GO-13 HOLD**;
 no merge, public-site update or production deployment.
+
+## v2.2 — Separately provisioned anchor custody prototype (DRAFT / HOLD)
+
+`visitcard_anchor_custody.py` introduces an **embeddable independent-custody
+ledger**, intended to run with its own database, separately provisioned
+signing key and independently pinned audit-anchor producer keys. Its
+`archive_anchor` first verifies the v2.1 producer-signed envelope and
+validity window. Under `BEGIN IMMEDIATE` it persists a per-(issuer,nonce)
+monotone event count (1 to 2), retains both committed historical states
+and signs a domain-separated custody receipt before committing. The caller
+gets the receipt only after successful commit. An identical retry returns
+the original persisted receipt, while same-count forks, skipped genesis
+and lower-count rollback attempts fail closed.
+
+`verify_custody_receipt` checks the independently pinned custody signer,
+the exact issuer, nonce, event count and SHA-256 digest, and signature
+integrity. The receipt is **acknowledgment of custody storage only**.
+No admission, key activation or identity authorization is implied.
+
+**Important limitations:** this is a local SQLite library; NO external
+server was hosted, NO mTLS communication was established and NO external
+receipt was obtained. SQLite triggers are not sufficient against a
+privileged storage administrator or complete database restore. The
+1-to-2 transition preserves the predecessor receipt, but DOES NOT
+cryptographically prove event-history inclusion across both snapshots;
+that requires independent inclusion proofs or a separate hash-chain
+contract before operational acceptance. A caller must independently
+protect and retain the highest signed custody receipt outside the
+custody database to detect whole-database rollback. The custody receipt
+verifier checks the signed content and binding but does not itself
+establish receipt freshness or a trusted high-water timeline.
+
+Fifteen new tests are committed for persistence, idempotence, forks,
+rollback, trust isolation and signature rejection. They require actual
+execution before declaring PASS. No release, no merge and no public
+site update. **GO-13 HOLD**.
