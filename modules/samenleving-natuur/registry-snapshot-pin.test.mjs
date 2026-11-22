@@ -95,28 +95,51 @@ test('expired snapshot is rejected despite correct signature and pin', () => {
 });
 
 
-test('mutable caller bytes are snapshotted before digest and signature checks', () => {
+test('accessor-based pin cannot alter input bytes or bypass the local trust boundary', () => {
   const data=signed();
-  const originalDigest=sha(data.registryBytes);
   const expectedPin=pinned(data.registryBytes);
+  const originalDigest=sha(data.registryBytes);
   let reads=0;
   Object.defineProperty(expectedPin,'registrySha256',{
     configurable:true,enumerable:true,
     get(){
       reads++;
-      if(reads===2) data.registryBytes[0]^=1;
+      data.registryBytes[0]^=1;
       return originalDigest;
     }
   });
   const result=evaluate(data,{pinnedSnapshot:expectedPin});
-  assert.equal(reads,2);
-  assert.notEqual(sha(data.registryBytes),originalDigest,'input was changed during verification');
-  assert.equal(result.exactSnapshotMatched,true,JSON.stringify(result));
-  assert.equal(result.registrySha256,originalDigest);
+  assert.equal(reads,0,'untrusted pin getter must not execute');
+  assert.equal(sha(data.registryBytes),originalDigest);
+  assert.equal(result.exactSnapshotMatched,false);
+  assert.equal(result.reason,'INVALID_PIN');
   assert.equal(result.trust,'NOT_ESTABLISHED');
   assert.equal(result.authorization,'DENY');
   assert.equal(result.executionAllowed,false);
   assert.equal(result.releaseAllowed,false);
+});
+
+test('mutable registry bytes remain copied even when caller alters original after pin snapshot', () => {
+  const data=signed();
+  const originalDigest=sha(data.registryBytes);
+  let descriptorReads=0;
+  const pinProxy=new Proxy(pinned(data.registryBytes),{
+    getOwnPropertyDescriptor(target,key){
+      const descriptor=Reflect.getOwnPropertyDescriptor(target,key);
+      if(key==='registrySha256'){
+        descriptorReads++;
+        // The pin's data descriptor is read only once, after input bytes are copied.
+        data.registryBytes[0]^=1;
+      }
+      return descriptor;
+    }
+  });
+  const result=evaluate(data,{pinnedSnapshot:pinProxy});
+  assert.equal(descriptorReads,1);
+  assert.notEqual(sha(data.registryBytes),originalDigest);
+  assert.equal(result.exactSnapshotMatched,false);
+  assert.equal(result.reason,'SNAPSHOT_BYTES_DIFFER_FROM_PIN');
+  assert.equal(result.authorization,'DENY');
 });
 
 test('mutated bytes before pin check cannot match the prior signed snapshot', () => {
@@ -127,4 +150,20 @@ test('mutated bytes before pin check cannot match the prior signed snapshot', ()
   assert.equal(result.exactSnapshotMatched,false);
   assert.equal(result.reason,'SNAPSHOT_BYTES_DIFFER_FROM_PIN');
   assert.equal(result.authorization,'DENY');
+});
+
+
+test('pin descriptor Proxy that throws fails closed without raising exceptions', () => {
+  const data=signed();
+  const hostile=new Proxy(pinned(data.registryBytes),{
+    getOwnPropertyDescriptor(target,key){
+      if(key==='registrySha256')throw Error('untrusted pin descriptor');
+      return Reflect.getOwnPropertyDescriptor(target,key);
+    }
+  });
+  const result=evaluate(data,{pinnedSnapshot:hostile});
+  assert.equal(result.exactSnapshotMatched,false);
+  assert.equal(result.reason,'UNTRUSTED_PIN_INPUT');
+  assert.equal(result.authorization,'DENY');
+  assert.equal(result.releaseAllowed,false);
 });
