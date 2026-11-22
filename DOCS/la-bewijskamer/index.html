@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#132525"><title>Bewijskamer · PALACO Citadel</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,Segoe UI,sans-serif;color:#eee9d8;background:#08171a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 85% 0%,#254b42,transparent 55%),#08171a}
+header,main,footer{max-width:1100px;margin:auto;padding:22px}header{padding-top:45px}
+h1{font:normal clamp(2.6rem,6vw,5rem) Georgia,serif;margin:8px 0}h2{font:normal 1.75rem Georgia,serif}
+p{line-height:1.6}.intro{color:#bdcdc4;max-width:730px}.eyebrow{color:#dfc08b;font-size:.8rem;letter-spacing:.2em}
+a{color:#ddbf80}.links{display:flex;flex-wrap:wrap;gap:17px;margin:22px 0}
+.panel{background:#122729;border:1px solid #506152;border-radius:18px;padding:25px;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+label{display:block;margin:14px 0 7px;color:#e3ceae}textarea,input[type=file]{background:#0a1c21;color:#fff;border:1px solid #65786b;padding:12px;border-radius:10px;max-width:100%;width:100%;font:inherit}
+textarea{resize:vertical;min-height:100px}button{background:#d6ba82;color:#152324;border:1px solid #b89c6c;padding:11px 17px;border-radius:10px;font:600 1rem system-ui;cursor:pointer;margin:5px 7px 5px 0}
+button.secondary{background:transparent;color:#e4d1ab}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #e9ce90;outline-offset:3px}
+small,.muted{color:#acbeb7}.notice{background:#30291b;color:#f2deb4;border-left:3px solid #d9b477;padding:12px;margin:18px 0}
+.item{border-left:3px solid #c9a66b;background:#0c2021;padding:12px 16px;margin:12px 0;overflow-wrap:anywhere}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row span{border:1px solid #526b5c;border-radius:10px;padding:11px;flex:1;min-width:150px}
+.hidden{display:none}.ok{color:#c7e1bc}.bad{color:#f2ba9b}
+@media(max-width:740px){.grid{grid-template-columns:1fr}header,main,footer{padding:16px}.panel{padding:18px}}
+</style></head><body>
+<header>
+<p class="eyebrow">PALACO · CITADEL · LOCUS AMOENUS</p>
+<h1>De Bewijskamer</h1>
+<p class="intro">Een afzonderlijke, lokale ontvangstkamer voor Geheugenkamer-dossiers. Controleer een handmatig gekozen conceptbestand en inspecteer de versiegeschiedenis zonder bevoegdheid, uitgifte of verificatie toe te kennen.</p>
+<nav class="links" aria-label="Citadel navigatie"><a href="../../index.html">← Citadel</a><a href="../la-geheugenkamer/">De Geheugenkamer</a><a href="../la-observatorium/">Observatorium</a></nav>
+<p class="notice">PRIVÉPROEF · Alleen lokale analyse in deze tab · Niet-geverifieerd bronmateriaal · ERA/EDTR HOLD · Geen netwerkoverdracht, automatische opslag of goedkeuring.</p>
+<div class="row"><span><strong id="state">GEEN DOSSIER</strong><br><small>Lokale ontvangststatus</small></span><span><strong id="lineageCount">0</strong><br><small>Aangeleverde versies</small></span><span><strong>NONE</strong><br><small>Autorisatie</small></span></div>
+</header>
+<main class="grid">
+<section class="panel">
+<h2>Ontvang een conceptdossier</h2>
+<label for="handoff">Selecteer Geheugenkamer-overdracht (.json)</label>
+<input id="handoff" type="file" accept=".json,application/json" aria-describedby="filehint">
+<small id="filehint">Alleen schema PALACO-CITADEL-HANDOFF-DRAFT-1 · max. 256 KB. Gegevens worden niet naar een server verzonden.</small>
+<p role="status" id="status" aria-live="polite">Nog geen bestand geselecteerd.</p>
+<button type="button" id="discard" class="secondary">Verwerp dossier en wis uit tab</button>
+<section id="assessment" class="hidden" aria-labelledby="reviewtitle"><h3>Ontvangsttriage · geen bewijsverificatie</h3><p id="triageStatus" role="status">NOT_STARTED</p><div id="triageIssues" aria-label="Openstaande beoordelingspunten"></div>
+<h2 id="reviewtitle">Lokale beoordeling</h2>
+<p class="muted">De bron, identiteit, chronologie en volledigheid blijven onbeoordeeld. Een notitie verandert nooit de vertrouwensstatus.</p>
+<label for="notes">Beoordelingsnotitie (max. 1000 tekens)</label>
+<textarea id="notes" maxlength="1000" placeholder="Waarnemingen, ontbrekende stukken of vervolgstappen"></textarea>
+<button type="button" id="assessmentExport">Exporteer lokale notitie (niet-geverifieerd)</button><button type="button" id="triageExport" class="secondary">Exporteer triage-overzicht (DRAFT)</button>
+</section>
+</section>
+<section class="panel" aria-labelledby="dossiertitle">
+<h2 id="dossiertitle">Dossierinspectie</h2>
+<div id="details"><p class="muted">Kies eerst een handmatig geëxporteerd conceptbestand uit de Geheugenkamer.</p></div>
+</section>
+</main>
+<footer><small>PALACO VORM9EVIN9 · Bewijskamer v0.2 · OBSERVED ≠ PROVEN ≠ FINAL · Geen verificatie of EDTR-uitgifte</small></footer>
+<script type="module">
+import {parseHandoff,makeLocalAssessment} from "./handoff.mjs";
+import {triageHandoff,buildTriageRecord} from "./triage.mjs";
+const $=s=>document.querySelector(s);
+let current=null,loadSequence=0;
+const line=(text,tag="p")=>{const node=document.createElement(tag);node.textContent=text;return node};
+function clear(){
+ current=null;
+ $("#state").textContent="GEEN DOSSIER";$("#lineageCount").textContent="0";
+ $("#details").replaceChildren(line("Geen dossier geladen."));
+ $("#assessment").classList.add("hidden");
+ $("#notes").value="";$("#handoff").value="";$("#triageStatus").textContent="NOT_STARTED";$("#triageIssues").replaceChildren();
+}
+function render(doc,partial){
+ const details=$("#details");details.replaceChildren();
+ details.append(line("Dossier-ID: "+doc.origin.selectedRecordId));
+ details.append(line("Herkomst: "+doc.origin.module+" → "+doc.destination.module));
+ details.append(line("Doel: "+doc.destination.nextGate+" · handmatige bestandoverdracht"));
+ details.append(line("Status: "+doc.trust.state+" · review PENDING · authority NONE"));
+ details.append(line("Exportmoment (apparaat-UTC): "+doc.exportedAt));
+ if(partial)details.append(line("LET OP: onvolledige lineage; oudere voorganger ontbreekt in dit pakket.","p"));
+ details.append(line("Aangeleverde lineage","h3"));
+ for(const rec of doc.lineage){
+   const card=document.createElement("article");card.className="item";
+   card.append(line(rec.title,"h3"),line("Versie "+rec.version+" · "+rec.createdAt),line("Bron: "+(rec.source||"Niet opgegeven")),line("Collectie: "+rec.category),line("Record-ID: "+rec.recordId));
+   details.append(card);
+ }
+ details.append(line("Bronauthenticiteit: UNASSESSED · Identiteitsbinding: UNASSESSED · Chronologie: UNASSESSED · Volledigheid: UNASSESSED"));
+}
+$("#handoff").addEventListener("change",async ev=>{
+ const file=ev.target.files?.[0],request=++loadSequence;
+ clear();
+ if(!file)return;
+ if(file.size>256*1024){$("#status").textContent="GEWEIGERD: bestand groter dan 256 KB.";return}
+ try{
+   const raw=await file.text();if(request!==loadSequence)return;
+   const result=parseHandoff(raw);
+   if(!result.ok){$("#status").textContent="GEWEIGERD: "+result.reason;return}
+   current=result.document;
+   $("#state").textContent="CONCEPT ONTVANGEN";$("#lineageCount").textContent=String(result.count);
+   $("#status").textContent="Schema gecontroleerd; document blijft niet-geverifieerd. Dit is geen bewijsbeoordeling.";
+   $("#assessment").classList.remove("hidden");
+   render(current,result.partial);
+   const triage=triageHandoff(current);$("#triageStatus").textContent=triage.status;$("#triageIssues").replaceChildren();if(!triage.issues.length)$("#triageIssues").append(line("Geen ontbrekende bronvelden in dit pakket. Bronwaarheid en identiteit zijn niet geverifieerd."));else for(const issue of triage.issues)$("#triageIssues").append(line(issue.code+": "+issue.detail));
+ }catch{if(request!==loadSequence)return;clear();$("#status").textContent="GEWEIGERD: bestand kon niet worden ingelezen."}
+});
+$("#discard").addEventListener("click",()=>{loadSequence++;clear();$("#status").textContent="Dossier gewist uit deze tab."});
+$("#triageExport").addEventListener("click",()=>{if(!current){$("#status").textContent="Geen geldig dossier geladen.";return}const obj=buildTriageRecord(current,$("#notes").value);downloadJSON(obj,"palaco-bewijskamer-triage-draft.json");$("#status").textContent="Triageconcept geëxporteerd zonder verificatie of autorisatie."});
+function downloadJSON(obj,filename){const blob=new Blob([JSON.stringify(obj,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob),anchor=document.createElement("a");anchor.href=url;anchor.download=filename;anchor.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+$("#assessmentExport").addEventListener("click",()=>{
+ if(!current){$("#status").textContent="Geen geldig dossier geladen.";return}
+ const obj=makeLocalAssessment(current,$("#notes").value);
+ downloadJSON(obj,"palaco-bewijskamer-lokale-notitie.json");
+ $("#status").textContent="Lokale notitie geëxporteerd, zonder bewijsstatus of autorisatie.";
+});
+clear();
+</script>
+</body></html>
