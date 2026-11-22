@@ -35,6 +35,12 @@ jobs:
         run: node --test modules/samenleving-natuur/receipt-crypto-verifier.test.mjs
       - name: Signed receipt evidence bridge regression tests
         run: node --test modules/samenleving-natuur/receipt-evidence-bridge.test.mjs
+      - name: Signed receipt evidence bridge repeatability gate
+        run: |
+          for attempt in 1 2 3; do
+            echo "Receipt bridge regression repeat ${attempt}/3"
+            node --test modules/samenleving-natuur/receipt-evidence-bridge.test.mjs
+          done
       - name: Signed reviewer registry negative regression tests
         run: node --test modules/samenleving-natuur/reviewer-registry-check.test.mjs
       - name: Signed receipt and reviewer registry composite regressions
