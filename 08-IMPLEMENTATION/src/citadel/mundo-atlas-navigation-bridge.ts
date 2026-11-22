@@ -22,6 +22,8 @@ export interface AtlasNavigationHost {
   commitProtectedWorldRoute(worldId: AtlasWorldId): boolean;
   /** Read the current authenticated private route; null on any uncertainty. */
   readProtectedRouteWorldId(): AtlasWorldId | null;
+  /** Host-generated, non-reused opaque session+route+permission epoch. */
+  readProtectedContextVersion(): string | null;
   /**
    * Resolve a NEW host connection and immutable source for the requested
    * current route. No cached envelope, implicit retry or public fallback.
@@ -47,6 +49,7 @@ export function createAtlasNavigationBridge(
 ): AtlasNavigationBridge {
   if (!host || typeof host.commitProtectedWorldRoute !== "function" ||
       typeof host.readProtectedRouteWorldId !== "function" ||
+      typeof host.readProtectedContextVersion !== "function" ||
       typeof host.createFreshWorld !== "function") {
     throw new Error("MUNDO_ATLAS_NAVIGATION_HOST_INCOMPLETE");
   }
@@ -67,28 +70,34 @@ export function createAtlasNavigationBridge(
           try { committed = host.commitProtectedWorldRoute(worldId) === true; }
           catch { return null; }
           if (!committed || closed || generation !== request) return null;
+          // Read route and a strictly new host context version AFTER the
+          // protected route commit. A matching world ID is insufficient:
+          // session/permissions could have changed to a different identity.
+          let routeVersion: string | null = null;
           try {
             if (host.readProtectedRouteWorldId() !== worldId) return null;
+            routeVersion = host.readProtectedContextVersion();
           } catch { return null; }
+          if (closed || generation !== request ||
+              !routeVersion || !/^[a-zA-Z0-9._:-]{1,128}$/.test(routeVersion)) return null;
 
           let fresh: AtlasFreshWorld | null = null;
           try { fresh = await host.createFreshWorld(worldId, kind); }
           catch { return null; }
 
-          // This remains a host responsibility: the returned source must
-          // belong to this exact world, route, context and access policy.
-          if (closed || generation !== request) {
-            // The WorldTransition supervisor owns the late connection's
-            // disposal after invalidation; do not dispose it twice here.
-            return fresh;
-          }
-          let routeStillCurrent = false;
-          try { routeStillCurrent = host.readProtectedRouteWorldId() === worldId; }
-          catch { /* fail closed */ }
-          if (!routeStillCurrent) {
-            // A late source was resolved for a route that is no longer
-            // current. Dispose it here because null will be returned to the
-            // world transition, which cannot otherwise see that connection.
+          // A generation revoked while the factory was pending is handled by
+          // WorldTransition's recovery supervisor (including late disposal).
+          if (closed || generation !== request) return fresh;
+
+          let sameContext = false;
+          try {
+            sameContext =
+              host.readProtectedRouteWorldId() === worldId &&
+              host.readProtectedContextVersion() === routeVersion;
+          } catch { /* fail closed */ }
+          if (!sameContext || closed || generation !== request) {
+            // Here the bridge returns null: the transition cannot see and
+            // dispose this already-created connection.
             try { fresh?.connection.dispose(); } catch { /* no reuse */ }
             return null;
           }
