@@ -51,3 +51,33 @@ test('untrusted registry input rejects missing candidate SHA',()=>{
  assert.throws(()=>evaluate(base(),'not-a-commit'),/Ongeldige bewijsregistratie/);
  assert.throws(()=>evaluate(null,A),/Ongeldige bewijsregistratie/);
 });
+
+test('malformed registry schema is refused instead of silently evaluated',()=>{
+ const x=base();x.schema='palaco.citadel.atelier.release-evidence/unknown';
+ assert.throws(()=>evaluate(x,A),/Ongeldige bewijsregistratie/);
+});
+test('unexpected evidence kind or gate is rejected rather than silently ignored',()=>{
+ const x=base();x.evidence_items=[
+  {gate:'G99',kind:'automated_contracts',result:'pass',reviewed:true,source:'CI',commit_sha:A}
+ ];
+ assert.throws(()=>evaluate(x,A),/Ongbekende|Onbekende of ongeldige bewijsregel/);
+ x.evidence_items[0].gate='G01';x.evidence_items[0].kind='unapproved_release';
+ assert.throws(()=>evaluate(x,A),/Onbekende of ongeldige bewijsregel/);
+});
+test('malformed evidence items and oversized registries are rejected',()=>{
+ const x=base();x.evidence_items={unexpected:'record'};
+ assert.throws(()=>evaluate(x,A),/Ongeldige bewijsregels/);
+ x.evidence_items=Array(1001).fill(null);
+ assert.throws(()=>evaluate(x,A),/Ongeldige bewijsregels/);
+ x.evidence_items=[null];
+ assert.throws(()=>evaluate(x,A),/Onbekende of ongeldige bewijsregel/);
+});
+test('valid evidence remains only diagnostic, never GO',()=>{
+ const x=base();x.evidence_items=[
+  {gate:'G01',kind:'automated_contracts',result:'pass',reviewed:true,source:'GitHub Actions logged test',commit_sha:A}
+ ];
+ const r=evaluate(x,A);
+ assert.deepEqual(r.gates.find(g=>g.id==='G01').accepted,['automated_contracts']);
+ assert.equal(r.release_approved,false);
+ assert.equal(r.decision,'HOLD');
+});
