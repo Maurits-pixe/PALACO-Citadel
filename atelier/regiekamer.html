@@ -197,7 +197,7 @@ $('bundleSave').addEventListener('click',async ()=>{
 function safeProjectFilename(name){
  if(typeof name!=='string'||name.length===0||name.length>120||
    name!==name.trim()||name==='.'||name==='..'||
-   /[\\/\x00-\x1f\x7f\u202a-\u202e\u2066-\u2069]/.test(name)||
+   /[\\/\x00-\x1f\x7f\u00ad\u034f\u061c\u180e\u200b-\u200f\u202a-\u202e\u2060\u2066-\u206f\ufeff]/.test(name)||
    !/\.json$/i.test(name))
    throw Error('Ongeldige of misleidende JSON-bestandsnaam');
  return name;
@@ -205,7 +205,7 @@ function safeProjectFilename(name){
 function safeReceiptFilename(name){
  if(typeof name!=='string'||name.length===0||name.length>120||
    name!==name.trim()||name==='.'||name==='..'||
-   /[\\/\x00-\x1f\x7f\u202a-\u202e\u2066-\u2069]/.test(name)||
+   /[\\/\x00-\x1f\x7f\u00ad\u034f\u061c\u180e\u200b-\u200f\u202a-\u202e\u2060\u2066-\u206f\ufeff]/.test(name)||
    !/\.txt$/i.test(name))
    throw Error('Ongeldige of misleidende TXT-bestandsnaam');
  return name;
