@@ -594,3 +594,7 @@ Dit is een **release-gate-checklist**, niet een verklaring dat een controle is g
 5. Bij afwijking: corrigeer in de Draft-branch, voeg een gerichte regressie toe en verzamel bewijs op de nieuwe HEAD. Geen merge of publicatie zonder aparte GO.
 
 **GitHub-status vóór deze documentatiewijziging:** commit 2f0fe7cefd57323e595c381eef4e24f84830145b had één geslaagde Vercel-status, twee pending en één failure. Deze oudere uitslag is geen bewijs voor de commit van dit register. **Eindbesluit: DRAFT / HOLD / DENY.**
+
+## Regiekamer v6.37 — browsertest herstelstatus na initialisatie (2026-11-22)
+
+De v6.36 GitHub-validatie faalde in desktop- en mobiele Chromium op één scenario: de test maakte in het huidige tabblad rechtstreeks een herstelkopie aan via de JavaScript-API en verwachtte onmiddellijk dat de bij paginalading geïnitialiseerde herstelknop actief zou zijn. Binnen hetzelfde tabblad wordt voor zo'n rechtstreeks opslagcommando geen `storage`-event verzonden. De test herlaadt nu de Regiekamer voordat hij de herstelknoppen controleert en vervolgens een tweede tabblad de herstelkopie laat beschadigen. Hiermee wordt de echte herstelstart na paginalading getest en blijft de fail-closed afhandeling van beschadigde herstelkopieën intact. Productiecode is niet gewijzigd. De nieuwe v6.37 CI moet nog worden bevestigd. **DRAFT/HOLD/DENY** — geen merge, EDTR of publicatie.
