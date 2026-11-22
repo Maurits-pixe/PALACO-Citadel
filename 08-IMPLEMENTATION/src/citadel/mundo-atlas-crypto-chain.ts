@@ -121,6 +121,15 @@ export async function verifyAtlasDecisionChain(
         keys.some((key) => ![
           "entry", "digestHex", "previousDigestHex", "signerKeyId", "signatureHex",
         ].includes(key))) return report("invalid", index, "UNBOUND_SIGNED_FIELDS");
+    const entryKeys = Object.keys(row.entry);
+    const allowedEntryKeys = [
+      "sequence", "id", "previousId", "kind", "actorRef", "evidenceRef",
+      "outcome", ...(entry.targetId === undefined ? [] : ["targetId"]),
+    ];
+    if (entryKeys.length !== allowedEntryKeys.length ||
+        entryKeys.some((key) => !allowedEntryKeys.includes(key))) {
+      return report("invalid", index, "UNBOUND_DECISION_FIELDS");
+    }
 
     const signed = DOMAIN + canonicalAtlasDecision(entry, previous);
     try {
