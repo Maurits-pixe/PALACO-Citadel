@@ -60,6 +60,7 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
       !own(anchorPublicJwk,['kty','crv','x','y']) ||
       anchorPublicJwk.kty !== 'EC' || anchorPublicJwk.crv !== 'P-256' ||
       typeof signatureBase64Url !== 'string' ||
+      signatureBase64Url.length < 11 || signatureBase64Url.length > 107 ||
       !/^[A-Za-z0-9_-]+$/.test(signatureBase64Url))
       return reject('INVALID_ANCHOR_INPUT');
     const key = createPublicKey({format:'jwk',key:anchorPublicJwk});
