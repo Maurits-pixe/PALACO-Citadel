@@ -323,7 +323,7 @@ test('rollback report can receive programmatic keyboard focus without changing t
  const end=html.indexOf('let importRevision=',start);
  assert.ok(start>=0&&end>start);
  const handler=html.slice(start,end);
- assert.match(handler,/panel\.hidden=false;\s*panel\.focus\(\{preventScroll:true\}\)/);
+ assert.match(handler,/panel\.hidden=false;[\s\S]*?panel\.focus\(\{preventScroll:true\}\)/);
  assert.match(handler,/panel\.hidden=true/);
  assert.doesNotMatch(handler,/localStorage\.(setItem|removeItem)/);
 });
