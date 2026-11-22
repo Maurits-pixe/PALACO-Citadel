@@ -1845,3 +1845,37 @@ test('Atelier v6.26: opslagwisactie in tweede tab behoudt onopgeslagen ontwerpte
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBeNull();
  await other.close();
 });
+
+test('Atelier v6.31: vertraagd storage-event gebruikt actuele opgeslagen notitie',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.evaluate(()=>{
+   const api=window.PalacoAtelierBundle;
+   // Simulate a queued event for an older revision; persisted storage is newer.
+   localStorage.setItem(api.NOTE,'Nieuwste werkelijk opgeslagen versie');
+   window.dispatchEvent(new StorageEvent('storage',{
+     key:api.NOTE,oldValue:null,newValue:'Verouderde gebeurtenis',storageArea:localStorage,url:location.href
+   }));
+ });
+ await expect(page.locator('#statement')).toHaveValue('Nieuwste werkelijk opgeslagen versie');
+ await page.locator('#statement').fill('Vervolg na actualiseren');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('lokaal bewaard');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Vervolg na actualiseren');
+});
+
+test('Atelier v6.31: verouderd event overschrijft geen onopgeslagen notitie',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Mijn onopgeslagen creatieve werk');
+ await page.evaluate(()=>{
+   const api=window.PalacoAtelierBundle;
+   localStorage.setItem(api.NOTE,'Nieuwste opgeslagen versie');
+   window.dispatchEvent(new StorageEvent('storage',{
+     key:api.NOTE,oldValue:null,newValue:'Oude versie',storageArea:localStorage,url:location.href
+   }));
+ });
+ await expect(page.locator('#statement')).toHaveValue('Mijn onopgeslagen creatieve werk');
+ await expect(page.locator('#feedback')).toContainText('onopgeslagen tekst blijft staan');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('Opslaan geweigerd');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Nieuwste opgeslagen versie');
+});
