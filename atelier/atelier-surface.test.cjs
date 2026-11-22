@@ -416,3 +416,15 @@ test('Atelier note event replay cannot replace successful save feedback',()=>{
  assert.ok(guard>=0&&update>guard&&feedback>update);
  assert.match(handler,/if\(latest!==noteBaseline\)/);
 });
+
+test('Atelier storage listener ignores unrelated storage areas before any mutation',()=>{
+ const html=read('regiekamer.html');
+ const begin=html.lastIndexOf("window.addEventListener('storage',e=>{");
+ const end=html.indexOf("\n});",begin);
+ assert.ok(begin>=0&&end>begin);
+ const listener=html.slice(begin,end);
+ const check=listener.indexOf('if(e.storageArea!==localStorage)return;');
+ const importGate=listener.indexOf('if((e.key===null||[EX,IN,NOTE].includes(e.key))');
+ const refresh=listener.indexOf('refreshRecoveryInfo()');
+ assert.ok(check>=0&&importGate>check&&refresh>check);
+});
