@@ -35,7 +35,7 @@ test('valid cryptographic signature feeds local review but never authorization',
   assert.equal(r.schema,BRIDGE_SCHEMA);
   assert.equal(r.cryptographicallyValid,true);
   assert.equal(r.reviewerSigningKeyMatchesClaim,true);
-  assert.equal(r.localChecksReportedPass,true);
+  assert.equal(r.localChecksReportedPass,true,JSON.stringify(r));
   assert.deepEqual(r.failedChecks,[]);
   assert.equal(r.trust,'NOT_ESTABLISHED');
   assert.equal(r.authorization,'DENY');
