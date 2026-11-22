@@ -82,11 +82,18 @@ export function connectAtlasHostContract(contract: AtlasHostContract): Connected
   const beforeChange = (change: AtlasContextChange): void => {
     if (closed) return;
     if (subscribing) changedDuringRegistration = true;
-    // Unknown event names are treated as an unsafe context transition.
-    // Do not assume the prior authorization remains valid.
-    const normalized: AtlasContextChange = CHANGES.includes(change)
-      ? change : "session-changed";
-    void normalized;
+    // Unexpected events invalidate the integration contract, not just the
+    // current route. Otherwise a malfunctioning event source could keep
+    // authorizing new views under an unrecognized transition type.
+    if (!CHANGES.includes(change)) {
+      if (subscribing) {
+        changedDuringRegistration = true;
+        try { lifecycle.dispose(); } catch { /* host cleanup fault */ }
+      } else {
+        try { close(); } catch { /* no reuse after an unknown event */ }
+      }
+      return;
+    }
     try {
       lifecycle.beforeContextChange();
     } catch {
