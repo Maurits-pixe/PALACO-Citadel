@@ -958,7 +958,9 @@ window.addEventListener('storage',e=>{
    if(locallyEdited){
      $('feedback').textContent='Ontwerpnotitie gewijzigd in een ander tabblad. Je onopgeslagen tekst blijft staan; exporteer of vergelijk je wijzigingen voordat je opslaat.';
    }else{
-     const latest=e.key===null?null:e.newValue;
+     // Storage events can be queued while a tab is inactive; use the current
+     // stored revision rather than an event payload that may already be stale.
+     const latest=localStorage.getItem(NOTE);
      $('statement').value=typeof latest==='string'?latest.slice(0,6000):'';
      noteBaseline=latest;
      $('feedback').textContent='Ontwerpnotitie bijgewerkt vanuit een ander tabblad.';
