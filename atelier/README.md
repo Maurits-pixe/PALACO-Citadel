@@ -473,3 +473,9 @@ De knop **Bewaar notitie lokaal** meldt pas succes nadat de beoogde notitietekst
 Twee Playwright-regressies simuleren een stil genegeerde `setItem`-aanroep en een schrijfactie die een andere waarde achterlaat; na herstel van normale browseropslag kan respectievelijk veilig opgeslagen worden of wordt het conflict geblokkeerd. Een statische contracttest borgt de volgorde schrijven → teruglezen → uitgangswaarde vastleggen.
 
 **Beperking:** een directe terugleescontrole is geen duurzame opslaggarantie of atomaire transactie. Een ander tabblad kan later alsnog wijzigen. PR #60 blijft **DRAFT/HOLD/DENY**; geen merge, EDTR, autorisatie of live-publicatie.
+
+## Regiekamer v6.20 — toetsenbordfocus en browserregressie (2026-11-22)
+
+De begeleide herstelcontrole krijgt na een mislukte herstelactie programmatic focus via `tabindex="-1"` en `focus({preventScroll:true})`. Daardoor kan de gebruiker direct de foutdiagnostiek bereiken zonder een permanente extra tabstop. Bij een volgend herstelverzoek wordt de oude status verborgen. Twee Playwright-tests zijn toegevoegd voor een smal mobiel scherm (390 × 844, conflictstatus, drie statusregels, vijf herstelstappen, focus, opslag ongewijzigd en reset) en desktop (1280 × 800, gecontroleerde rollback, kort stappenoverzicht en focus). Een aanvullende statische contracttest borgt de focuslogica. De tests simuleren UI-statusmeldingen en leveren **geen** bewijs van een echte screenreader- of fysieke mobiele acceptatie.
+
+De bestaande v6.19-notitieopslagtests blijven behouden. `localStorage` blijft niet-transactioneel; er is geen autonome reparatie, machtiging, EDTR, merge of publieke uitrol. **DRAFT/HOLD/DENY**; CI, onafhankelijke toegankelijkheidsreview en fysieke mobiele controles blijven open.
