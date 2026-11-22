@@ -1195,3 +1195,41 @@ test('Atelier: maximum 64 JSON-niveaus vóór parsing, ook bij controles en hers
  await expect(page.locator('#verifyStatus')).toContainText('Geldig creatief DRAFT-project');
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(original);
 });
+
+test('Atelier: maximum 4096 JSON-objectvelden vóór parsing in alle dossierinvoer',async ({page})=>{
+ const {createHash}=await import('node:crypto');
+ await page.goto('/atelier/regiekamer.html');
+ const before=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const valid=await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage)));
+ const props=length=>'{'+Array.from({length},(_,i)=>'"field'+i+'":0').join(',')+'}';
+ const overload=valid.slice(0,-1)+',"probe":'+props(4097)+'}';
+ const bytes=Buffer.from(overload);
+ const project={name:'te-veel-velden.json',mimeType:'application/json',buffer:bytes};
+ const hash=createHash('sha256').update(bytes).digest('hex');
+ const receipt={name:'bewijs.txt',mimeType:'text/plain',buffer:Buffer.from('SHA-256: '+hash+'\nBestand: te-veel-velden.json\n')};
+ for(const [selector,status] of [
+   ['#bundleVerify','#verifyStatus'],
+   ['#bundleImport','#bundleStatus']
+ ]){
+   await page.locator(selector).setInputFiles(project);
+   await expect(page.locator(status)).toContainText('maximum van 4096 objectvelden');
+ }
+ await page.locator('#pairVerify').setInputFiles([project,receipt]);
+ await expect(page.locator('#pairStatus')).toContainText('maximum van 4096 objectvelden');
+ await expect(page.locator('#pairReportSave')).toBeDisabled();
+ const download=page.waitForEvent('download');
+ await page.locator('#bundleSave').click();
+ await download;
+ await page.locator('#checkExportFile').setInputFiles(project);
+ await expect(page.locator('#exportCheckStatus')).toContainText('maximum van 4096 objectvelden');
+ await page.locator('#reportVerify').setInputFiles([
+   project,receipt,{name:'rapport.json',mimeType:'application/json',buffer:Buffer.from('{}')}
+ ]);
+ await expect(page.locator('#reportVerifyStatus')).toContainText('maximum van 4096 objectvelden');
+ const below=valid.slice(0,-1)+',"probe":'+props(100)+'}';
+ await page.locator('#bundleVerify').setInputFiles({...project,buffer:Buffer.from(below)});
+ await expect(page.locator('#verifyStatus')).not.toContainText('maximum van 4096 objectvelden');
+ await page.locator('#bundleVerify').setInputFiles({name:'geldig.json',mimeType:'application/json',buffer:Buffer.from(valid)});
+ await expect(page.locator('#verifyStatus')).toContainText('Geldig creatief DRAFT-project');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+});
