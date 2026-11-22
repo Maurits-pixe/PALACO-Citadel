@@ -260,3 +260,53 @@ test('rollback does not rewrite untouched keys after an early failure',()=>{
  assert.deepEqual(writes,[bundle.EX]);
  assert.equal(storage.getItem(bundle.NOTE),'original note');
 });
+
+
+test('silent storage write failure cannot report successful project restoration',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'original note'});
+ const originalSet=storage.setItem;
+ storage.setItem=(key,value)=>{
+   if(key===bundle.NOTE)return; // Simulate adapter that acknowledges but drops a write.
+   originalSet(key,value);
+ };
+ assert.throws(
+   ()=>bundle.restore(storage,bundle.create(exterior(),interior(),'new note')),
+   /Herstel mislukt/
+ );
+ assert.equal(storage.getItem(bundle.EX),null);
+ assert.equal(storage.getItem(bundle.IN),null);
+ assert.equal(storage.getItem(bundle.NOTE),'original note');
+});
+
+test('readback detects competing modification and retains the competing value',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'original'});
+ const originalGet=storage.getItem;
+ let changed=false;
+ storage.getItem=key=>{
+   if(key===bundle.EX&&!changed&&originalGet(bundle.NOTE)==='imported'){
+     changed=true;
+     storage.map.set(bundle.EX,'concurrent-tab-edit');
+   }
+   return originalGet(key);
+ };
+ assert.throws(
+   ()=>bundle.restore(storage,bundle.create(exterior(),interior(),'imported')),
+   /conflicteert met nieuwere gegevens/
+ );
+ assert.equal(storage.getItem(bundle.EX),'concurrent-tab-edit');
+ assert.equal(storage.getItem(bundle.IN),null);
+ assert.equal(storage.getItem(bundle.NOTE),'original');
+});
+
+test('successful restore verifies its three intended storage values',()=>{
+ const storage=fakeStorage({external:'preserved'});
+ const design=exterior();
+ design.cells[3]='garden';
+ const result=bundle.restore(storage,bundle.create(design,null,'verified note'));
+ assert.equal(result.exterior,true);
+ assert.equal(result.interior,false);
+ assert.equal(JSON.parse(storage.getItem(bundle.EX)).cells[3],'garden');
+ assert.equal(storage.getItem(bundle.IN),null);
+ assert.equal(storage.getItem(bundle.NOTE),'verified note');
+ assert.equal(storage.getItem('external'),'preserved');
+});
