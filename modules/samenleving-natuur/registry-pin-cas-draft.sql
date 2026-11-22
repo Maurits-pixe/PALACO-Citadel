@@ -49,6 +49,27 @@ CREATE TRIGGER pin_history_no_mutation
 BEFORE UPDATE OR DELETE ON citadel_pin_draft.pin_history
 FOR EACH ROW EXECUTE FUNCTION citadel_pin_draft.reject_history_mutation();
 
+-- TRUNCATE does not fire row-level DELETE triggers; explicitly block it.
+-- Both audit history and current pin state remain non-writable in HOLD.
+CREATE TRIGGER pin_history_no_truncate
+BEFORE TRUNCATE ON citadel_pin_draft.pin_history
+FOR EACH STATEMENT EXECUTE FUNCTION citadel_pin_draft.reject_history_mutation();
+
+CREATE OR REPLACE FUNCTION citadel_pin_draft.reject_state_mutation()
+RETURNS trigger LANGUAGE plpgsql SECURITY INVOKER
+SET search_path = pg_catalog, citadel_pin_draft AS $
+BEGIN
+  RAISE EXCEPTION 'PALACO_CITADEL_PIN_STATE_FROZEN' USING ERRCODE = '42501';
+END;
+$;
+CREATE TRIGGER pin_state_no_write
+BEFORE INSERT OR UPDATE OR DELETE ON citadel_pin_draft.pin_state
+FOR EACH ROW EXECUTE FUNCTION citadel_pin_draft.reject_state_mutation();
+CREATE TRIGGER pin_state_no_truncate
+BEFORE TRUNCATE ON citadel_pin_draft.pin_state
+FOR EACH STATEMENT EXECUTE FUNCTION citadel_pin_draft.reject_state_mutation();
+REVOKE ALL ON FUNCTION citadel_pin_draft.reject_state_mutation() FROM PUBLIC;
+
 -- Deliberate execution barrier. This is not an activated CAS service.
 -- Future review must establish authenticated dual approval, trusted time,
 -- current revocation, and owner-governed privileges BEFORE replacing the barrier.
