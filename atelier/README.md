@@ -397,3 +397,9 @@ Het lokale herstelrecord vereist nu een volledig, daadwerkelijk bestaande UTC-ti
 ## Regiekamer v6.11 — herstelpunt-conflictcontrole (2026-11-22)
 
 Bij `undoLastImport` wordt het rauwe herstelrecord vastgelegd en vóór de volgende schrijffase opnieuw gecontroleerd. Als een ander tabblad het herstelrecord tijdens selectie of voorbereiding wijzigt, wordt het terugzetten afgebroken zonder een verouderd herstelpunt te gebruiken. Twee Node-regressies simuleren vervanging op beide momenten. Het bestaande importpad zonder undo gebruikt dezelfde interface zonder extra verplicht argument. **Beperking:** `localStorage` biedt geen atomair compare-and-swap: een wijziging na de laatste controle blijft mogelijk. Een backend-transactie en onafhankelijke review zijn nodig voor sterkere garanties. Status DRAFT/HOLD/DENY; geen merge of live-publicatie.
+
+## Regiekamer v6.12 — import bewaakt het geselecteerde herstelpunt (2026-11-22)
+
+Tijdens de importpreview wordt naast de drie creatieve opslagwaarden ook de ruwe herstelkopie vastgelegd. Na expliciete gebruikersbevestiging geeft de Regiekamer deze verwachte herstelkopie door aan `restoreWithRecovery`. De bestaande controles in de bundelmodule weigeren een import wanneer een ander tabblad of een gelijktijdige handeling de herstelkopie tussentijds veranderde, en controleren opnieuw vóór het schrijven van de nieuwe herstelkopie. Zo wordt een gewijzigd herstelpunt niet onopgemerkt overschreven. De browserregressie simuleert een wijziging tijdens de bevestiging en controleert de foutmelding, intacte creatieve opslag en behoud van de gewijzigde herstelkopie.
+
+Deze bescherming is een optimistic-concurrency-check, geen atomaire transactie: `localStorage` heeft geen compare-and-swap. PR #60 blijft DRAFT / HOLD / DENY; geen EDTR, merge of live-publicatie.
