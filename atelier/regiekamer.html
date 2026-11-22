@@ -61,6 +61,7 @@
 <input type="file" id="bundleImport" accept=".json,application/json" style="max-width:100%;font-size:13px">
 <p class="message">Herstel vervangt uitsluitend de drie lokale Atelier-opslagonderdelen na jouw bevestiging. Controleer vooraf het pakketoverzicht; exporteer je huidige werk eerst. Onbekende of niet-DRAFT-pakketten worden geweigerd. Een mislukte schrijfactie wordt zo mogelijk teruggedraaid.</p>
 <p id="bundleStatus" class="small" role="status" aria-live="polite">Er is nog geen projectpakket geselecteerd.</p>
+<section id="rollbackReport" class="message" role="status" aria-live="polite" aria-atomic="true" hidden><h3 id="rollbackHeading">Herstelcontrole</h3><p id="rollbackExplanation"></p><ul id="rollbackItems"></ul><p class="small">Dit overzicht bevat uitsluitend statuslabels, geen ontwerpgegevens. Bij conflicten: stop met bewerken en exporteer een veilige kopie vóór verder herstel.</p></section>
 <div class="actions"><button type="button" class="action" id="undoImport" disabled>Herstel vorig lokaal ontwerp</button><button type="button" class="action" id="exportRecovery" disabled>↓ Exporteer herstelkopie (JSON)</button></div>
 <p class="small" id="recoveryStatus" role="status" aria-live="polite">Lokale herstelkopie controleren…</p>
 </section>
@@ -578,6 +579,32 @@ $('bundleVerify').addEventListener('change',async event=>{
    status.textContent='Controle afgewezen: '+err.message+'. Er is niets geïmporteerd.';
  }finally{if(revision===dossierRevision)event.target.value='';}
 });
+function showRollbackReport(error){
+ const panel=$('rollbackReport');
+ const statuses={untouched:'Niet aangeraakt',original:'Oorspronkelijke waarde behouden',restored:'Teruggezet',conflict:'Conflict: handmatig controleren',failed:'Herstel mislukt: handmatig controleren'};
+ const fields=[['exterior','Exterieur'],['interior','Interieur'],['note','Ontwerpnotitie']];
+ const record=error&&error.rollback;
+ const code=error&&error.code;
+ if(!record||!['ATELIER_RESTORE_ROLLED_BACK','ATELIER_RESTORE_REVIEW_REQUIRED'].includes(code)){
+   panel.hidden=true;
+   $('rollbackItems').replaceChildren();
+   return false;
+ }
+ $('rollbackHeading').textContent=code==='ATELIER_RESTORE_ROLLED_BACK'?'Terugdraaien gecontroleerd':'Handmatige herstelcontrole noodzakelijk';
+ $('rollbackExplanation').textContent=code==='ATELIER_RESTORE_ROLLED_BACK'
+  ?'De vorige lokale waarden zijn volgens de directe terugleescontrole behouden of teruggezet. De import is niet voltooid.'
+  :'De import is niet voltooid. Niet alle oorspronkelijke waarden konden veilig worden bevestigd. Wijzig de ontwerpen niet voordat je ze hebt gecontroleerd.';
+ const list=$('rollbackItems');
+ list.replaceChildren();
+ for(const [key,label] of fields){
+   const item=document.createElement('li');
+   const status=Object.prototype.hasOwnProperty.call(statuses,record[key])?statuses[record[key]]:'Onbekende status: handmatig controleren';
+   item.textContent=label+': '+status;
+   list.appendChild(item);
+ }
+ panel.hidden=false;
+ return true;
+}
 let importRevision=0;
 let importReadPending=false;
 // Local unsaved edits must not be overwritten by a file read started earlier.
@@ -625,13 +652,14 @@ $('bundleImport').addEventListener('change',async event=>{
    $('bundleStatus').textContent=description;
    const warning=pendingNote?' LET OP: er staan nog niet-bewaarde notitiewijzigingen in deze pagina.':'';
    if(!confirm(description+' Herstel vervangt je huidige lokale Atelier-ontwerpen. Exporteer eerst je huidige werk als JSON. Wil je doorgaan?'+warning))return;
+   showRollbackReport(null);
    api.restoreWithRecovery(localStorage,pack,current,expectedRecovery);
    $('statement').value=pack.note;
    noteBaseline=localStorage.getItem(NOTE);
    refresh();
    $('bundleStatus').textContent='Projectpakket lokaal hersteld. Open de editors opnieuw om de gegevens te bekijken.';
    refreshRecoveryInfo();
- }catch(err){if(revision===importRevision)$('bundleStatus').textContent='Herstel geweigerd: '+err.message;}
+ }catch(err){if(revision===importRevision){$('bundleStatus').textContent='Herstel geweigerd: '+(showRollbackReport(err)?'Controleer de herstelstatus hieronder.':err.message);}}
  finally{if(revision===importRevision){importReadPending=false;event.target.value='';}}
 });
 $('bundleImport').addEventListener('cancel',()=>{
@@ -679,13 +707,14 @@ $('undoImport').addEventListener('click',()=>{
    const difference=api.preview(api.read(localStorage),record.draft);
    const warning=pending?' Onopgeslagen tekst in deze pagina gaat verloren.':'';
    if(!confirm('Vorige lokale Atelier-versie terugzetten? '+difference.changed+' vakken veranderen, '+difference.removed+' ingerichte vakken verdwijnen. De huidige opgeslagen versie wordt dan de nieuwe herstelkopie.'+warning))return;
+   showRollbackReport(null);
    api.undoLastImport(localStorage,before,previewedRecovery);
    $('statement').value=record.draft.note;
    noteBaseline=localStorage.getItem(NOTE);
    refresh();
    refreshRecoveryInfo();
    $('bundleStatus').textContent='Vorige Atelier-versie teruggezet vanuit de lokale herstelkopie.';
- }catch(err){$('bundleStatus').textContent='Terugzetten geweigerd: '+err.message;refreshRecoveryInfo();}
+ }catch(err){$('bundleStatus').textContent='Terugzetten geweigerd: '+(showRollbackReport(err)?'Controleer de herstelstatus hieronder.':err.message);refreshRecoveryInfo();}
 });
 $('saveNote').addEventListener('click',saveNote);
 $('refresh').addEventListener('click',()=>{refresh();$('feedback').textContent='Het lokale projectoverzicht is opnieuw geladen.';});
