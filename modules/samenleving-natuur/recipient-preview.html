@@ -700,6 +700,8 @@ $('verifyReceiptSignerReview').addEventListener('click',async()=>{
   // Never publish an earlier crypto result against a replaced/removed signer pin.
   if(id!==ticket||revision!==receiptSignerReviewRevision)return;
   if(receiptSignerPin(localStorage.getItem(RECEIPT_SIGNER_PIN_KEY))!==signerFp)throw Error('Ondertekenaarspinning gewijzigd tijdens beoordeling');
+  const completionTime=Date.now();
+  if(!Number.isFinite(completionTime)||completionTime>=reviewDeadline||completionTime<now)throw Error('Bewijs verlopen of lokale klok teruggezet tijdens verificatie');
   reviewerVerifiedSignerFingerprint=signerFp;
   reviewerVerifiedDeadline=reviewDeadline;
   reviewerVerifiedCheckedAt=Date.now();
