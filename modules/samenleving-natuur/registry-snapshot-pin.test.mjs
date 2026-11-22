@@ -343,3 +343,40 @@ test('first-read tampered outer signature stays denied despite later valid value
   assert.equal(result.authorization,'DENY');
   assert.equal(result.releaseAllowed,false);
 });
+
+
+test('oversized signature is rejected before cryptographic decoding', () => {
+  const data=signed();
+  const result=evaluate({...data,signatureBase64Url:'A'.repeat(200000)});
+  assert.equal(result.exactSnapshotMatched,false);
+  assert.equal(result.reason,'INVALID_SIGNATURE_ENCODING');
+  assert.equal(result.authorization,'DENY');
+  assert.equal(result.releaseAllowed,false);
+});
+
+test('noncanonical P-256 coordinate lengths are rejected before issuer import', () => {
+  const data=signed();
+  for (const malformed of [
+    {...issuerPublicJwk,x:'A'.repeat(42)},
+    {...issuerPublicJwk,y:'A'.repeat(44)},
+    {...issuerPublicJwk,x:'+'.repeat(43)}
+  ]) {
+    const result=evaluate(data,{issuerPublicJwk:malformed});
+    assert.equal(result.exactSnapshotMatched,false);
+    assert.equal(result.reason,'INVALID_ISSUER_KEY');
+    assert.equal(result.authorization,'DENY');
+  }
+});
+
+test('outer request rejects oversized policy time or reviewer fingerprint', () => {
+  const data=signed();
+  for (const override of [
+    {evaluationTime:'2026-11-22T00:00:00.000Z'.repeat(100)},
+    {reviewerFingerprint:'a'.repeat(200000)}
+  ]) {
+    const result=evaluate(data,override);
+    assert.equal(result.exactSnapshotMatched,false);
+    assert.equal(result.reason,'INVALID_POLICY_INPUT');
+    assert.equal(result.authorization,'DENY');
+  }
+});
