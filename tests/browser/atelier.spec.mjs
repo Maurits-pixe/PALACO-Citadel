@@ -1444,3 +1444,29 @@ test('Atelier v6.12: import weigert gewijzigde herstelkopie tussen preview en be
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBe('concurrent-herstelpunt');
 });
+
+
+test('Atelier v6.14: undo weigert een herstelkopie vervangen tijdens de bevestiging',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.evaluate(()=>{
+   const api=window.PalacoAtelierBundle;
+   localStorage.setItem(api.NOTE,'origineel ontwerp');
+   api.restoreWithRecovery(localStorage,api.create(null,null,'actueel ontwerp'));
+ });
+ await page.reload();
+ await expect(page.locator('#undoImport')).toBeEnabled();
+ const before=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ await page.evaluate(()=>{
+   window.confirm=()=>{
+     const api=window.PalacoAtelierBundle;
+     const modified=JSON.parse(localStorage.getItem(api.RECOVERY));
+     modified.draft.note='nieuw herstelpunt uit ander tabblad';
+     localStorage.setItem(api.RECOVERY,JSON.stringify(modified));
+     return true;
+   };
+ });
+ await page.locator('#undoImport').click();
+ await expect(page.locator('#bundleStatus')).toContainText('Herstelkopie gewijzigd sinds het herstelvoorstel');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+ expect(await page.evaluate(()=>JSON.parse(localStorage.getItem(window.PalacoAtelierBundle.RECOVERY)).draft.note)).toBe('nieuw herstelpunt uit ander tabblad');
+});
