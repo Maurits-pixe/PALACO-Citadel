@@ -127,3 +127,33 @@ administrator does not provide independent rollback protection. Add an
 audited authority model, authenticated time/sequence publication, challenge
 and response, network outage and crash recovery tests, and trusted witness
 reconciliation before considering deployment. **GO-13 HOLD.**
+
+## v1.1 — Isolated witness high-water registry (DRAFT / HOLD)
+
+`visitcard_witness_registry.py` is an embeddable transactional witness
+registry. For real independence it must execute on a **separately administered
+host**, using a database and Ed25519 signing key controlled independently of
+the RIO issuer and its checkpoint database.
+
+A publisher submits a domain-separated Ed25519-signed proposal containing
+`issuer`, `sequence`, `entry_hash` and `predecessor_hash`. The
+witness only accepts proposals authenticated by an out-of-band trusted issuer
+public key. It advances exactly one sequence, rejecting gaps, forks and
+unexpected predecessors. It signs the receipt and commits the receipt and
+high-water mark **in the same SQLite transaction**, allowing an identical
+retry to retrieve the original receipt after a lost response.
+
+The registry rejects malformed input, orphan journal entries and corrupted
+local head history. The witness can only confirm what its authenticated
+publisher submits. It cannot infer that the publisher's full checkpoint
+history is correct, or verify independent truth of its revocation claims.
+
+**Not yet delivered:** standalone server or authenticated network channel;
+secure key storage and rotation; durable witness receipts pushed back to RIO;
+high-water checkpoints mirrored to an independent third system; failover,
+disaster recovery and full database-rollback resistance. Compromising both
+the issuer and witness would defeat this prototype's independence.
+
+Operational recovery classification from v1.0 remains informational only.
+Neither a witness signature nor a MATCHED classification grants authorization.
+GO-13 HOLD, no public site integration, no merge or issuance.
