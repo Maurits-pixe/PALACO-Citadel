@@ -509,3 +509,39 @@ The v2.2 test suite now contains 19 tests (four added negative cases,
 plus revisions to expected successful transitions). Test cases are committed
 but are not PASS until executed without skips. **GO-13 HOLD** — no merge,
 no live deployment, no modification of the public RIO site.
+
+## v2.4 — Separately retained signed high-water ledger (DRAFT / HOLD)
+
+`visitcard_anchor_highwater.py` provides a **separate SQLite ledger**
+for retaining the highest custody-signed admission snapshot. It MUST be
+provisioned in separately administered storage from the custody database,
+with independently pinned custody public keys. Each incoming receipt is
+verified cryptographically before a monotone update is committed. The
+ledger retains signed receipts for both phases, requires count 1 before
+count 2, rejects stale/forked receipts, and returns identical retries
+without producing a second historical entry. All saved signatures and
+history continuity are checked before further advancement.
+
+`compare_restored_custody(custody_db, highwater_db, issuer, nonce, keys)`
+compares the current custody head against the independently retained
+signed high-water. It returns one of:
+`MATCHED`, `CUSTODY_BEHIND`, `CUSTODY_AHEAD_UNCONFIRMED`,
+`FORK_CONFLICT`, or `UNKNOWN`. Missing or forged trust evidence
+always results in `UNKNOWN`, never in approval.
+
+**Security boundary:** This is a reusable storage component, not a
+deployed independent host or cloud service. An attacker able to restore
+both databases to an earlier consistent state will evade this local
+comparison. For genuine cross-machine rollback resistance the highest
+receipt must be exported to independently controlled append-only
+custody, ideally with a third-party time/sequence witness and verified
+recovery procedure. SQLite triggers are not protection against a
+privileged storage administrator. A high-water count-2 receipt is
+authenticated but this module does not independently revalidate its
+v2.3 source-prefix proof. No trust-anchor activation, identity validation
+or operation authorization exists in this module.
+
+Seventeen regression tests have been added, covering separate databases,
+lost custody history, stale and forged signed receipts, duplicate writes
+and history tampering. They are not claimed PASS until executed. No merge,
+no public-site update, no deployment. **GO-13 HOLD**.
