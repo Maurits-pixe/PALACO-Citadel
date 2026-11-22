@@ -533,3 +533,9 @@ Drie Node-regressies dekken een write-then-throw, een concurrerende herstelkopie
 ## Regiekamer v6.29 — synchronisatie van statische testcontracten (2026-11-22)
 
 De actuele GitHub-validatie van v6.28 faalde op twee oudere statische verwachtingen in `atelier-surface.test.cjs`. Deze tests verwezen rechtstreeks naar `e.newValue`, terwijl de Regiekamer sinds v6.26 via `const latest=e.key===null?null:e.newValue` ook een volledige `localStorage.clear()` uit een ander tabblad veilig verwerkt. Beide contracttests controleren nu de feitelijke veilige route via `latest`, inclusief behoud van onopgeslagen tekst en correct bijwerken van de bekende notitiebaseline. Dit is een testcorrectie, geen uitbreiding van bevoegdheden of wijziging van productiecode. Nieuwe GitHub CI moet op deze commit nog slagen. **DRAFT/HOLD/DENY**, geen merge of publicatie.
+
+## Regiekamer v6.30 — terugleescontrole na herstelkopie-rollback (2026-11-22)
+
+Als een ontwerpimport mislukt nadat de tijdelijke herstelkopie is geschreven, probeert `restoreWithRecovery()` de vooraf aanwezige herstelkopie te herstellen of de tijdelijke kopie te verwijderen. Na deze opruiming leest de functie de herstelopslag nu terug. Alleen wanneer de werkelijke waarde exact overeenkomt met de vooraf vastgelegde ruwe waarde, wordt de oorspronkelijke importfout opnieuw gemeld. Bij een stil genegeerde opruiming, een concurrerende wijziging of een lees-/schrijffout wordt expliciet gemeld dat de herstelkopie **niet aantoonbaar** is teruggezet; de functie claimt dan geen geslaagde rollback.
+
+Drie Node-regressies zijn toegevoegd voor een stil genegeerde delete, een correct herstelde eerdere herstelkopie en een andere waarde tijdens cleanup. Deze code verandert geen bevoegdheden en verleent geen transactionele garantie: `localStorage` heeft geen atomaire compare-and-swap. De tests zijn opgeslagen maar nog niet als PASS bevestigd. **DRAFT/HOLD/DENY**; geen merge, EDTR of publieke uitrol.
