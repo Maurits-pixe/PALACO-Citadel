@@ -537,7 +537,7 @@ $('verifyIssuerRevoke').addEventListener('click',async()=>{
   if(id!==ticket||revision!==issuerRevokeRevision)return;
   issuerRevokeCandidate={issuerFp,epoch:declaration.epoch,effectiveAt:declaration.effectiveAt,digest,id,revision,file};
   $('confirmIssuerRevoke').disabled=false;
-  $('issuerRevokeStatus').textContent='UITGEVERSINTREKKING DUBBEL CRYPTOGRAFISCH GELDIG (epoch '+declaration.epoch+'); LOKALE BLOKKADE NOG NIET BEVESTIGD. Rollen NIET ONAFHANKELIJK VERTROUWD. Geen PALACO-autorisatie.';
+  $('issuerRevokeStatus').textContent='UITGEVERSINTREKKING DUBBEL CRYPTOGRAFISCH GELDIG (epoch '+declaration.epoch+'); GEEN AUTOMATISCHE INTREKKING; LOKALE BLOKKADE NOG NIET BEVESTIGD. Rollen NIET ONAFHANKELIJK VERTROUWD. Geen PALACO-autorisatie.';
  }catch{if(id===ticket&&revision===issuerRevokeRevision)$('issuerRevokeStatus').textContent='UITGEVERSINTREKKING AFGEWEZEN. Geen PALACO-autorisatie.'}
 });
 $('confirmIssuerRevoke').addEventListener('click',()=>{
