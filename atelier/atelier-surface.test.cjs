@@ -48,7 +48,8 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(gallery,/state==='DRAFT'/);
   assert.match(read('regiekamer.html'),/api\.restoreWithRecovery\(localStorage,pack,current,expectedRecovery\)/);
   assert.match(read('regiekamer.html'),/const expectedRecovery=localStorage\.getItem\(api\.RECOVERY\)/);
-  assert.match(read('regiekamer.html'),/api\.undoLastImport\(localStorage,before\)/);
+  assert.match(read('regiekamer.html'),/api\.undoLastImport\(localStorage,before,previewedRecovery\)/);
+  assert.match(read('regiekamer.html'),/const previewedRecovery=localStorage\.getItem\(api\.RECOVERY\)/);
   assert.match(read('regiekamer.html'),/id="exportRecovery" disabled/);
   assert.match(read('regiekamer.html'),/api\.getRecovery\(localStorage\)/);
   assert.match(read('regiekamer.html'),/id="bundleVerify"/);
