@@ -480,10 +480,20 @@ test('Atelier: inspectierapport kan met project en TXT opnieuw worden geverifiee
  await page.locator('#reportVerify').setInputFiles([reportFile,txtFile,jsonFile]);
  await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
  await expect(page.locator('#reportVerifyStatus')).toContainText(hash);
- // Distinct content with the same JSON filename must never look like two independent dossier files.
- await page.locator('#reportVerify').setInputFiles([reportFile,txtFile,{...jsonFile,name:'inspection.json'}]);
- await expect(page.locator('#reportVerifyStatus')).toContainText('verschillende JSON-bestandsnamen hebben');
- await expect(page.locator('#reportVerifyStatus')).toContainText('Drievoudige controle geweigerd');
+ // Distinct content with equal filenames, ignoring case or Unicode composition, must not masquerade as independent dossier files.
+ for(const collidingName of ['inspection.json','INSPECTION.JSON','InspectIon.JsOn']){
+   await page.locator('#reportVerify').setInputFiles([reportFile,txtFile,{...jsonFile,name:collidingName}]);
+   await expect(page.locator('#reportVerifyStatus')).toContainText('verschillende JSON-bestandsnamen hebben');
+   await expect(page.locator('#reportVerifyStatus')).toContainText('Drievoudige controle geweigerd');
+   await expect(page.locator('#inspectionResult')).toHaveAttribute('data-result','rejected');
+ }
+ const composedReport={...reportFile,name:'café.json'};
+ const unicodeNames=['cafe\u0301.json','CAFÉ.JSON'];
+ for(const collidingName of unicodeNames){
+   await page.locator('#reportVerify').setInputFiles([composedReport,txtFile,{...jsonFile,name:collidingName}]);
+   await expect(page.locator('#reportVerifyStatus')).toContainText('verschillende JSON-bestandsnamen hebben');
+   await expect(page.locator('#inspectionResult')).toHaveAttribute('data-result','rejected');
+ }
  await page.locator('#reportVerify').setInputFiles([reportFile,txtFile,jsonFile]);
  await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
  await page.locator('#reportVerify').setInputFiles([reportFile,jsonFile,{...txtFile,buffer:Buffer.from('SHA-256: '+hash+'\nBestand: ander-project.json\n')}]);
