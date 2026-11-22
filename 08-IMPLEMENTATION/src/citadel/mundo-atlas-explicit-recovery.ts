@@ -35,6 +35,8 @@ export function createAtlasRecoverySupervisor(): AtlasRecoverySupervisor {
   let quarantined = false;
   let connection: ConnectedAtlasHost | null = null;
   let recovering = false;
+  // Scoped single-flight token: old request finalizers cannot unlock a new epoch.
+  let inFlight: { readonly epoch: number; readonly host: ConnectedAtlasHost } | null = null;
 
   /** If host teardown fails, permanently disable THIS supervisor instance. */
   const release = (value: ConnectedAtlasHost | null): boolean => {
@@ -46,6 +48,7 @@ export function createAtlasRecoverySupervisor(): AtlasRecoverySupervisor {
   const invalidate = (): void => {
     if (closed) return;
     ++epoch;
+    inFlight = null;
     const previous = connection;
     connection = null;
     release(previous);
@@ -86,25 +89,33 @@ export function createAtlasRecoverySupervisor(): AtlasRecoverySupervisor {
       const current = connection;
       if (closed || quarantined || recovering || current === null)
         return { kind: "denied" };
-      const requestEpoch = epoch;
-      let result: AtlasMountResult;
-      try { result = await current.activate(input, worldId, kind); }
-      catch {
-        // An exception is never safe to retry under the old host context.
-        if (connection === current) invalidate();
-        return { kind: "denied" };
-      }
-      if (closed || quarantined || epoch !== requestEpoch || connection !== current)
-        return { kind: "stale" };
-      // A stale context or a failed mount is not safe for a second attempt
-      // using the same host bridge. Tear it down, invalidate its generation,
-      // and require an explicit new source AND new host registration.
-      if (result.kind === "stale" || result.kind === "mount-failed") {
-        invalidate();
+      // Do not invoke the host again while a prior request is in progress.
+      // A competing caller is denied; it cannot revoke the active request.
+      if (inFlight !== null) return { kind: "denied" };
+      const request = { epoch, host: current };
+      inFlight = request;
+      try {
+        let result: AtlasMountResult;
+        try { result = await current.activate(input, worldId, kind); }
+        catch {
+          // An exception is unsafe to retry with the same connection.
+          if (inFlight === request && connection === current) invalidate();
+          return { kind: "denied" };
+        }
+        if (closed || quarantined || epoch !== request.epoch ||
+            inFlight !== request || connection !== current)
+          return { kind: "stale" };
+        // Host must supply and re-authorize a NEW envelope after a stale
+        // context or failed mount; never replay previous data automatically.
+        if (result.kind === "stale" || result.kind === "mount-failed") {
+          invalidate();
+          return result;
+        }
         return result;
+      } finally {
+        // A late old request must not clear a lock belonging to a new host.
+        if (inFlight === request) inFlight = null;
       }
-      // Ordinary authorization denial does NOT grant access and never retries.
-      return result;
     },
     hasConnection(): boolean {
       return !closed && !quarantined && connection !== null;
