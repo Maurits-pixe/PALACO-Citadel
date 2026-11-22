@@ -1128,3 +1128,33 @@ test('Atelier: dubbele geneste JSON-sleutels en Unicode-aliassen worden in beide
  await expect(page.locator('#reportVerifyStatus')).toContainText('DRIEVOUDIGE CONTROLE GESLAAGD');
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
 });
+
+test('Atelier: dubbele geneste JSON-sleutels worden ook bij losse, paar-, export- en herstelcontrole geweigerd',async ({page})=>{
+ const {createHash}=await import('node:crypto');
+ await page.goto('/atelier/regiekamer.html');
+ const before=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const valid=await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage)));
+ const malformed=valid.slice(0,-1)+',"probe":[{"authority":"NONE","\\u0061uthority":"OWNER"}]}';
+ const bytes=Buffer.from(malformed);
+ const hash=createHash('sha256').update(bytes).digest('hex');
+ const json={name:'dossier.json',mimeType:'application/json',buffer:bytes};
+ const receipt={name:'bewijs.txt',mimeType:'text/plain',buffer:Buffer.from('SHA-256: '+hash+'\nBestand: dossier.json\n')};
+ await page.locator('#bundleVerify').setInputFiles(json);
+ await expect(page.locator('#verifyStatus')).toContainText('Dossier-JSON bevat dubbele velden');
+ await expect(page.locator('#exportFingerprint')).toBeDisabled();
+ await page.locator('#pairVerify').setInputFiles([json,receipt]);
+ await expect(page.locator('#pairStatus')).toContainText('Dossier-JSON bevat dubbele velden');
+ await expect(page.locator('#pairReportSave')).toBeDisabled();
+ await page.locator('#bundleImport').setInputFiles(json);
+ await expect(page.locator('#bundleStatus')).toContainText('Dossier-JSON bevat dubbele velden');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+ const dl=page.waitForEvent('download');
+ await page.locator('#bundleSave').click();
+ await dl;
+ await expect(page.locator('#checkExportFile')).toBeEnabled();
+ await page.locator('#checkExportFile').setInputFiles(json);
+ await expect(page.locator('#exportCheckStatus')).toContainText('Dossier-JSON bevat dubbele velden');
+ await page.locator('#bundleVerify').setInputFiles({...json,buffer:Buffer.from(valid)});
+ await expect(page.locator('#verifyStatus')).toContainText('Geldig creatief DRAFT-project');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+});
