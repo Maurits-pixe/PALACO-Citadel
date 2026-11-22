@@ -16,7 +16,7 @@ const snapshot=(v,keys)=>{
   const names=Reflect.ownKeys(v);
   if(names.length!==keys.length||
     names.some(k=>typeof k!=='string'||!keys.includes(k)))return null;
-  const copy=Object.create(null);
+  const copy={};
   for(const name of keys){
     const descriptor=Object.getOwnPropertyDescriptor(v,name);
     if(!descriptor||!Object.hasOwn(descriptor,'value'))return null;
