@@ -404,3 +404,15 @@ test('Atelier note synchronization handles inaccessible storage without losing e
  assert.match(handler,/Je huidige tekst blijft staan/);
  assert.ok(handler.indexOf('return;',handler.indexOf('browseropslag is niet toegankelijk'))<handler.indexOf('noteBaseline=latest'));
 });
+
+test('Atelier note event replay cannot replace successful save feedback',()=>{
+ const html=read('regiekamer.html');
+ const start=html.lastIndexOf("window.addEventListener('storage',e=>{");
+ assert.ok(start>=0);
+ const handler=html.slice(start);
+ const guard=handler.indexOf('}else if(latest!==noteBaseline){');
+ const update=handler.indexOf("noteBaseline=latest;",guard);
+ const feedback=handler.indexOf("Ontwerpnotitie bijgewerkt vanuit een ander tabblad.",guard);
+ assert.ok(guard>=0&&update>guard&&feedback>update);
+ assert.match(handler,/if\(latest!==noteBaseline\)/);
+});
