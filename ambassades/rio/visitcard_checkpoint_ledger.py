@@ -14,6 +14,7 @@ import sqlite3
 from pathlib import Path
 from typing import Iterator, Any
 
+from visitcard_audit_journal import initialize_journal, append_checkpoint, inspect_journal
 from visitcard_trust_policy import DisplayStatus
 from visitcard_verification_gate import (
     GateConfiguration, SnapshotCheckpoint, evaluate_visitcard, snapshot_checkpoint
@@ -32,6 +33,7 @@ CREATE TABLE IF NOT EXISTS rio_revocation_checkpoint (
 def initialize_schema(connection: sqlite3.Connection) -> None:
     """Create tables only: never fabricate or implicitly trust a checkpoint."""
     connection.execute(SCHEMA)
+    initialize_journal(connection)
 
 
 def _utc(dt: datetime) -> datetime:
@@ -79,6 +81,7 @@ def provision_trusted_checkpoint(connection: sqlite3.Connection, checkpoint: Sna
             "INSERT INTO rio_revocation_checkpoint (issuer, checked_at, digest_hex, revision) VALUES (?, ?, ?, 1)",
             (checkpoint.issuer, stamp, digest)
         )
+        append_checkpoint(connection, checkpoint.issuer, 1, stamp, digest)
         connection.commit()
     except Exception:
         connection.rollback()
@@ -113,6 +116,10 @@ def evaluate_and_advance(
             connection.rollback()
             return DisplayStatus.UNKNOWN
         baseline, revision = previous
+        journal_head = inspect_journal(connection, expected_issuer)
+        if journal_head is None or journal_head.sequence != revision:
+            connection.rollback()
+            return DisplayStatus.UNKNOWN
         outcome = evaluate_visitcard(
             credential, revocation_snapshot, configuration, baseline,
             expected_issuer=expected_issuer,
@@ -136,6 +143,11 @@ def evaluate_and_advance(
             if cursor.rowcount != 1:
                 connection.rollback()
                 return DisplayStatus.UNKNOWN
+            append_checkpoint(
+                connection, expected_issuer, revision + 1,
+                candidate.checked_at.astimezone(timezone.utc).isoformat(),
+                candidate.digest_hex,
+            )
         connection.commit()
         return outcome
     except (sqlite3.Error, ValueError, TypeError, AttributeError, KeyError, OverflowError):
