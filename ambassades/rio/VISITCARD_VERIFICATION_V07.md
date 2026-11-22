@@ -283,3 +283,34 @@ blocking only. It does **not** implement a remote latest-head challenge
 endpoint, trusted high-water reconciliation, TLS/mTLS or release approval.
 Do not infer that signed receipts or the recovery lock provide identity
 or execution authority. GO-13 HOLD, no merge, no public-site update.
+
+## v1.7 — Signed challenge-response current head (DRAFT / HOLD)
+
+`visitcard_witness_head.py` signs the latest audited witness head using a
+**separate Ed25519 domain** and a new 256-bit random challenge per request.
+The signed response binds issuer, sequence, journal head hash, challenge,
+witness ID and UTC observation time. The verifier rejects invalid
+signatures, wrong issuer/challenge, unknown witness keys, future timestamps,
+or attestations older than 60 seconds.
+
+`visitcard_witness_http.py` now exposes a local-only JSON
+`POST /v1/witness/head` endpoint with a 512-byte request limit. The
+`visitcard_witness_head_client.py` client accepts only localhost traffic
+and verifies every response using independently configured trust anchors.
+Its purely informational comparison returns ALREADY_WITNESSED,
+NEXT_PUBLICATION, CONFLICT or UNKNOWN.
+
+**Recovery gating not yet activated:** v1.5 `recover_once` still has no
+mandatory latest-head preflight. Introducing mandatory preflight requires
+a trusted genesis/bootstrap procedure for the initially empty witness and
+safe reconciliation of a head confirmed at the same sequence; those are
+not implemented. An existing v1.6 single-flight claim also lacks a
+cryptographically authenticated release ceremony.
+
+This challenge proves **response freshness from the selected signing
+key**, not integrity of the witness's underlying storage against a
+privileged attacker. Independent deployment, time synchronization,
+authoritative high-water anchoring, mTLS, audited key storage, negative
+network tests, test execution and security review remain necessary.
+Never treat a signed head or ACKNOWLEDGED as identity authority.
+**GO-13 HOLD; no merge or public site publication.**
