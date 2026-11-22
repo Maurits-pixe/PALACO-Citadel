@@ -96,7 +96,14 @@ export function createAtlasRecoverySupervisor(): AtlasRecoverySupervisor {
       }
       if (closed || quarantined || epoch !== requestEpoch || connection !== current)
         return { kind: "stale" };
-      // No automatic recovery of unsuccessful requests.
+      // A stale context or a failed mount is not safe for a second attempt
+      // using the same host bridge. Tear it down, invalidate its generation,
+      // and require an explicit new source AND new host registration.
+      if (result.kind === "stale" || result.kind === "mount-failed") {
+        invalidate();
+        return result;
+      }
+      // Ordinary authorization denial does NOT grant access and never retries.
       return result;
     },
     hasConnection(): boolean {
