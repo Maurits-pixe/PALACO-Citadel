@@ -2348,8 +2348,10 @@ test('rc42 pending reviewer registry read cannot restore success after issuer ke
  await page.locator('#requireReviewerRegistry').check();
  await page.evaluate(()=>{
   const original=File.prototype.text;
+  let delayed=false;
   File.prototype.text=function(){
-   if(this.name!=='reviewer-registry.json')return original.call(this);
+   if(this.name!=='reviewer-registry.json'||delayed)return original.call(this);
+   delayed=true;
    const pending=original.call(this);
    return new Promise((resolve,reject)=>{
     window.__rc42ReleaseRegistryRead=()=>pending.then(resolve,reject);
@@ -2372,8 +2374,10 @@ test('rc42 pending reviewer registry read cannot override stricter policy change
  await uploadReviewerRegistry(page,await reviewerRegistryFixture(page,review.declaration));
  await page.evaluate(()=>{
   const original=File.prototype.text;
+  let delayed=false;
   File.prototype.text=function(){
-   if(this.name!=='reviewer-registry.json')return original.call(this);
+   if(this.name!=='reviewer-registry.json'||delayed)return original.call(this);
+   delayed=true;
    const pending=original.call(this);
    return new Promise((resolve,reject)=>{
     window.__rc42ReleaseRegistryRead=()=>pending.then(resolve,reject);
