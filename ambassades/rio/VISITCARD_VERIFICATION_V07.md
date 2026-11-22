@@ -581,3 +581,36 @@ monotone receipt retention, failure/recovery drills, and security review.
 Sixteen regression tests have been added; they have not been confirmed
 PASS until a real Python test run and no-skip review. No merge, no
 deployment, no automatic key activation. **GO-13 HOLD**.
+
+## v2.6 — Full third-witness history audit and external-head reconciliation (DRAFT / HOLD)
+
+`visitcard_checkpoint_witness.audit_checkpoint_history` validates every
+retained checkpoint in strictly contiguous event-count order, verifies each
+domain-separated Ed25519 witness signature against **independently pinned**
+witness public keys, and requires exact equality between the retained
+history tip and the witness's current head. It is now called before a
+previously populated witness database can accept any idempotent retry or
+new checkpoint. Missing, forged or diverging history fails closed.
+
+`compare_checkpoint_history` compares that fully checked local history
+to a **separately supplied signed reference checkpoint**. It reports
+`MATCHED`, `BEHIND`, `AHEAD_UNCONFIRMED`, `FORK` or `UNKNOWN`.
+An old, internally consistent database can be detected as `BEHIND` only
+when the reference was retained independently of that restored database.
+
+**Non-goals:** no remotely hosted witness, external delivery or secure
+checkpoint-archive service is implemented here. A compromised witness
+private key may enable signing divergent histories; local SQLite triggers
+do not resist administrators or full disk restore. If both the witness DB
+and its reference checkpoint are rolled back together, this comparison
+cannot detect the rollback. The v2.5 `compare_checkpoint` helper remains
+a narrower high-water comparison and is not a replacement for full
+historical audit. A production consumer must insist on separately
+administered custody, trusted highest-head retention, authenticated
+transport, key-isolation and replay/rollback recovery drills.
+
+Eight additional regression tests cover tampering, removed history,
+wrong trust anchors and independently supplied future/forked checkpoints.
+No test should be called PASS without actual execution and skip review.
+No authorization, trust-key activation, merge or deployment.
+**GO-13 HOLD.**
