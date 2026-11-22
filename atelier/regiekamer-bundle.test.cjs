@@ -365,3 +365,42 @@ test('silent rollback failure reports section as failed rather than restored',()
  assert.equal(failure.rollback.note,'untouched');
  assert.notEqual(storage.getItem(bundle.EX),null);
 });
+
+
+test('recovery refuses a source note changed between capture and preparation',()=>{
+ const storage=fakeStorage({[bundle.NOTE]:'originele notitie'});
+ const get=storage.getItem;let noteReads=0;
+ storage.getItem=key=>{
+  if(key===bundle.NOTE&&++noteReads===2){
+   storage.map.set(bundle.NOTE,'wijziging vanuit ander tabblad');
+  }
+  return get(key);
+ };
+ assert.throws(
+  ()=>bundle.restoreWithRecovery(storage,bundle.create(null,null,'import')),
+  /gewijzigd tijdens voorbereiding/
+ );
+ assert.equal(storage.getItem(bundle.RECOVERY),null);
+ assert.equal(storage.getItem(bundle.NOTE),'wijziging vanuit ander tabblad');
+});
+
+test('recovery draft is made from the verified captured source values',()=>{
+ const saved=exterior();saved.cells[4]='garden';
+ const storage=fakeStorage({
+  [bundle.EX]:JSON.stringify(saved),
+  [bundle.NOTE]:'eerst bewaard'
+ });
+ const original=storage.getItem;
+ let exteriorReads=0;
+ storage.getItem=key=>{
+  if(key===bundle.EX)exteriorReads++;
+  return original(key);
+ };
+ bundle.restoreWithRecovery(storage,bundle.create(null,null,'nieuwe schets'));
+ const previous=bundle.getRecovery(storage);
+ assert.equal(previous.draft.exterior.cells[4],'garden');
+ assert.equal(previous.draft.note,'eerst bewaard');
+ assert.equal(previous.draft.state,'DRAFT');
+ assert.equal(previous.draft.authority,'NONE');
+ assert.ok(exteriorReads>=2,'a second snapshot verifies freshness before import');
+});
