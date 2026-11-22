@@ -1379,3 +1379,31 @@ test('Atelier: ander tabblad trekt lopende bestandsimport in vóór herstel',asy
  await expect(page.locator('#statement')).toHaveValue('Werk uit ander tabblad, aangepast');
  await other.close();
 });
+
+
+test('Atelier v6.8: lokale notitiebewerking annuleert een vertraagde import zonder herstel',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const before=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const valid=Buffer.from(await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage))));
+ await page.evaluate(()=>{
+   const native=File.prototype.arrayBuffer;
+   window.pendingLocalEdit=[];
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='traag-lokale-bewerking.json')
+       return new Promise((resolve,reject)=>window.pendingLocalEdit.push(()=>native.call(this).then(resolve,reject)));
+     return native.call(this);
+   };
+ });
+ let dialogs=0;
+ page.on('dialog',async dialog=>{dialogs++;await dialog.dismiss();});
+ await page.locator('#bundleImport').setInputFiles({name:'traag-lokale-bewerking.json',mimeType:'application/json',buffer:valid});
+ await expect.poll(()=>page.evaluate(()=>window.pendingLocalEdit.length)).toBe(1);
+ await page.locator('#statement').fill('Mijn onopgeslagen ontwerpwijziging');
+ await expect(page.locator('#bundleStatus')).toContainText('Projectimport onderbroken');
+ await expect(page.locator('#bundleImport')).toHaveValue('');
+ await page.evaluate(()=>window.pendingLocalEdit.shift()());
+ await expect(page.locator('#bundleStatus')).toContainText('de ontwerpnotitie is tijdens het lezen aangepast');
+ await expect(page.locator('#statement')).toHaveValue('Mijn onopgeslagen ontwerpwijziging');
+ expect(dialogs).toBe(0);
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+});
