@@ -265,3 +265,17 @@ test('Atelier import and undo show rollback report without leaking error details
  assert.match(html,/Object\.prototype\.hasOwnProperty\.call\(statuses,record\[key\]\)/);
  assert.match(html,/Geen ontwerpgegevens|geen ontwerpgegevens/i);
 });
+
+
+test('Atelier explicit note reload requires confirmation and updates baseline only after reading',()=>{
+ const html=read('regiekamer.html');
+ assert.match(html,/id="loadSavedNote"/);
+ const begin=html.indexOf("$('loadSavedNote').addEventListener('click'");
+ const end=html.indexOf("$('saveNote').addEventListener('click'",begin);
+ assert.ok(begin>=0&&end>begin);
+ const handler=html.slice(begin,end);
+ assert.match(handler,/confirm\('De huidige onopgeslagen notitie vervangen/);
+ assert.match(handler,/const latest=localStorage\.getItem\(NOTE\)/);
+ assert.ok(handler.indexOf('noteBaseline=latest')>handler.indexOf('const latest=localStorage.getItem(NOTE)'));
+ assert.doesNotMatch(handler,/localStorage\.setItem\(/);
+});
