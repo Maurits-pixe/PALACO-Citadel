@@ -154,7 +154,17 @@ function restoreWithRecovery(storage,bundle,expectedSnapshot,expectedRecovery){
  if(expectedRecovery!==undefined&&previousRecovery!==expectedRecovery){
    throw Error('Herstelkopie gewijzigd sinds de controle. Controleer het herstelpunt opnieuw.');
  }
- const record={schema:'palaco.citadel.atelier.recovery/1',state:'DRAFT',authority:'NONE',savedAt:new Date().toISOString(),draft:read(storage)};
+ // Build recovery from the exact validated snapshot, never a second live read.
+ // Another tab may have changed the project after the initial snapshot.
+ const draft=create(
+   prior[0]===null?null:JSON.parse(prior[0]),
+   prior[1]===null?null:JSON.parse(prior[1]),
+   prior[2]===null?'':prior[2]
+ );
+ if(snapshot(storage).some((value,i)=>value!==prior[i])){
+   throw Error('Lokaal project gewijzigd tijdens voorbereiding. Import afgebroken; controleer opnieuw.');
+ }
+ const record={schema:'palaco.citadel.atelier.recovery/1',state:'DRAFT',authority:'NONE',savedAt:new Date().toISOString(),draft};
  if(expectedRecovery!==undefined&&storage.getItem(RECOVERY)!==expectedRecovery){
    throw Error('Herstelkopie gewijzigd tijdens voorbereiding. Controleer het herstelpunt opnieuw.');
  }
