@@ -954,13 +954,14 @@ window.addEventListener('storage',e=>{
  if(e.key===null||e.key===window.PalacoAtelierBundle?.RECOVERY)refreshRecoveryInfo();
  if(e.key===NOTE||e.key===null){
    // A cross-tab save or full storage clear must never replace unsaved text.
+   // Queued or replayed events may describe a version no longer present.
+   // Diagnose a conflict only when the actual stored revision differs.
+   const latest=localStorage.getItem(NOTE);
    const locallyEdited=noteValue()!==(noteBaseline===null?'':noteBaseline.slice(0,6000));
    if(locallyEdited){
-     $('feedback').textContent='Ontwerpnotitie gewijzigd in een ander tabblad. Je onopgeslagen tekst blijft staan; exporteer of vergelijk je wijzigingen voordat je opslaat.';
+     if(latest!==noteBaseline)
+       $('feedback').textContent='Ontwerpnotitie gewijzigd in een ander tabblad. Je onopgeslagen tekst blijft staan; exporteer of vergelijk je wijzigingen voordat je opslaat.';
    }else{
-     // Storage events can be queued while a tab is inactive; use the current
-     // stored revision rather than an event payload that may already be stale.
-     const latest=localStorage.getItem(NOTE);
      $('statement').value=typeof latest==='string'?latest.slice(0,6000):'';
      noteBaseline=latest;
      $('feedback').textContent='Ontwerpnotitie bijgewerkt vanuit een ander tabblad.';
