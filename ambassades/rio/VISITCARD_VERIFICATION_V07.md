@@ -545,3 +545,39 @@ Seventeen regression tests have been added, covering separate databases,
 lost custody history, stale and forged signed receipts, duplicate writes
 and history tampering. They are not claimed PASS until executed. No merge,
 no public-site update, no deployment. **GO-13 HOLD**.
+
+## v2.5 — Third-party signed checkpoint protocol (DRAFT / HOLD)
+
+`visitcard_checkpoint_witness.py` defines a **separately deployable**
+third-witness ledger intended to run on a different independently managed
+host and SQLite database from both custody and the high-water register.
+Only a valid custody-signed receipt is accepted. Each commit stores its
+SHA-256 digest and the exact claimed event count/hash in an append-only
+historical table, updates the high-water head transactionally, and returns
+a domain-separated Ed25519 checkpoint signed by the third witness. The
+receipt is returned only after the database commit; identical resubmissions
+receive the exact previously signed checkpoint. Stale, skipped, conflicting
+or forged receipts are rejected. Client verification requires an
+independently pinned third-witness key.
+
+`compare_checkpoint` compares a separately supplied, correctly signed
+third-witness checkpoint against the local high-water record and reports
+`MATCHED`, `BEHIND`, `AHEAD_UNCONFIRMED`, `FORK` or `UNKNOWN`.
+It can demonstrate a local rollback **only if** the trusted third-party
+checkpoint has been retained outside the restored storage.
+
+**No external service has actually been deployed or contacted**. This
+repository contains an embeddable protocol and regression tests, not a
+hosted independent verification service. SQLite administrator compromise,
+restoring all three stores together, lost/withheld latest checkpoints and
+key compromise remain open risks. The comparison helper alone does not
+authenticate the local high-water history; callers also need
+`audit_highwater` with independently pinned custody keys. The third
+witness does not independently prove source-prefix continuity and depends
+on the custody service's v2.3 enforcement. Real deployment requires
+separately managed credentials, authenticated TLS, independently anchored
+monotone receipt retention, failure/recovery drills, and security review.
+
+Sixteen regression tests have been added; they have not been confirmed
+PASS until a real Python test run and no-skip review. No merge, no
+deployment, no automatic key activation. **GO-13 HOLD**.
