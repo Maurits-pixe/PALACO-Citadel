@@ -130,3 +130,13 @@ A requested `handoff(worldId,kind)` first revokes the current MUNDO navigation c
 **Critical host responsibilities:** provide the real PALACO ONE authentication verification and Citadel protected session permissions, generate non-reused opaque session versions on every relevant change, synchronously deliver BEFORE-change events and guarantee source integrity checks. This adapter cannot verify identity, authenticate users or prove a real Citadel session exists. It is not connected to the original Citadel Sites app and should not be loaded into the public Atlas.
 
 **Unexecuted owner acceptance:** logout while session establishment pending; permission change during navigation; same world under a different account; failed independent session establishment; navigation denial; concurrent handoff; lifecycle teardown exception. No tests, merge or private deployment. PR #58 remains DRAFT/HOLD.
+
+## Extension 026 — explicit session status and live authorization
+
+The private `mundo-atlas-session-handoff.ts` now requires `isProtectedSessionActive(): boolean`, supplied by the real trusted host. The host must read actual unexpired session and permission state rather than a cached client assertion. Handoff checks liveness immediately after session establishment and again after asynchronous world navigation, together with the same opaque session version.
+
+The private module exposes the observational `readState()` state union: `idle`, `establishing`, `navigating`, `mounted`, `denied`, `stale`, `quarantined`, `closed`. These values are **not authorization decisions**: only the trusted host can grant permission. Ordinary denial refuses the new request; missing or expired liveness after navigation synchronously revokes the Atlas context, reports `stale` and never retries old source data. Non-mounted navigation results revoke any partial context. Host teardown exceptions quarantine this adapter.
+
+**Host obligations:** deliver synchronous pre-change revocation on logout, permission withdrawal and session expiry; update context versions on every relevant transition; keep the fresh liveness callback accurate. Expiry detection after a mount requires host event delivery—this module does not run a clock or poll. The actual PALACO ONE API is neither assumed nor wired.
+
+**Acceptance scenarios not executed:** expired before admission; expired during source loading; expired after mount through before-change event; denial, navigation failure, cleanup exception, rapid logout/login, simultaneous handoff. No tests, merge, real credentials or private Citadel modification. PR #58 remains DRAFT/HOLD.
