@@ -1470,3 +1470,23 @@ test('Atelier v6.14: undo weigert een herstelkopie vervangen tijdens de bevestig
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem(window.PalacoAtelierBundle.RECOVERY)).draft.note)).toBe('nieuw herstelpunt uit ander tabblad');
 });
+
+
+test('Atelier v6.15: andere tab overschrijft geen onopgeslagen ontwerpnotitie',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const other=await page.context().newPage();
+ await other.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Mijn onopgeslagen creatieve notitie');
+ await other.locator('#statement').fill('Wijziging uit tweede tabblad');
+ await other.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('Je onopgeslagen tekst blijft staan');
+ await expect(page.locator('#statement')).toHaveValue('Mijn onopgeslagen creatieve notitie');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Wijziging uit tweede tabblad');
+ // When the local editor matches persisted text, subsequent remote changes sync normally.
+ await page.locator('#statement').fill('Wijziging uit tweede tabblad');
+ await other.locator('#statement').fill('Vervolgwijziging in tweede tabblad');
+ await other.locator('#saveNote').click();
+ await expect(page.locator('#statement')).toHaveValue('Vervolgwijziging in tweede tabblad');
+ await expect(page.locator('#feedback')).toContainText('bijgewerkt vanuit een ander tabblad');
+ await other.close();
+});
