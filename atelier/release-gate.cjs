@@ -33,20 +33,27 @@ function evaluate(registry,candidateSha){
   throw Error('Onbekende of ongeldige bewijsregel; register geweigerd');
  }
  const decisions=GATES.map(id=>{
-  const accepted=[];const missing=[];
+  const accepted=[];const missing=[];const conflicts=[];
   for(const kind of REQUIRED[id]){
-   const eligible=records.filter(x=>x&&x.gate===id&&x.kind===kind);
-   const verified=eligible.find(x=>x.result==='pass'&&x.commit_sha===candidateSha&&x.reviewed===true&&typeof x.source==='string'&&x.source.trim()!=='');
-   if(sameSha&&verified)accepted.push(kind);
+   const eligible=records.filter(x=>x&&x.gate===id&&x.kind===kind&&x.commit_sha===candidateSha&&
+     x.reviewed===true&&typeof x.source==='string'&&x.source.trim()!=='');
+   const hasPass=eligible.some(x=>x.result==='pass');
+   const hasFail=eligible.some(x=>x.result==='fail');
+   if(hasFail&&hasPass)conflicts.push(kind);
+   // A verified failure never gets hidden by another passing item.
+   if(sameSha&&hasPass&&!hasFail)accepted.push(kind);
    else missing.push(kind);
   }
-  return {id,pass:false,accepted,missing}; // Always fail-closed until authorized release semantics are independently reviewed.
+  return {id,pass:false,accepted,missing,conflicts}; // HOLD even if all categories appear accepted.
  });
  const blockers=[];
  if(!sameSha)blockers.push('stale_or_mismatched_commit');
  if(registry.release_approved!==true)blockers.push('no_release_approval');
  if(registry.authority!=='NONE'||registry.state!=='DRAFT')blockers.push('invalid_draft_boundary');
- for(const gate of decisions)if(gate.missing.length)blockers.push(gate.id+':'+gate.missing.join(','));
+ for(const gate of decisions){
+  if(gate.conflicts.length)blockers.push(gate.id+':conflicting_evidence:'+gate.conflicts.join(','));
+  if(gate.missing.length)blockers.push(gate.id+':'+gate.missing.join(','));
+ }
  return {
   schema:'palaco.citadel.atelier.release-evaluation/1',
   candidate_sha:candidateSha,observed_sha:observed||null,
