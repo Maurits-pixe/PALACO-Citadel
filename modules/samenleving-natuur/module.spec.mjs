@@ -2085,3 +2085,79 @@ test('changing reviewer key invalidates previous receipt signer review outcome',
  await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
  await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('CRYPTOGRAFISCH GELDIG');
 });
+
+async function reviewerRegistryFixture(page,review,{status='active',expired=false,tamper=false}={}){
+ return page.evaluate(async ({review,status,expired,tamper})=>{
+  const canonical=v=>Array.isArray(v)?'['+v.map(canonical).join(',')+']':v&&typeof v==='object'?'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canonical(v[k])).join(',')+'}':JSON.stringify(v);
+  const pair=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
+  const jwk=await crypto.subtle.exportKey('jwk',pair.publicKey),issuer={kty:'EC',crv:'P-256',x:jwk.x,y:jwk.y};
+  const fp=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonical(issuer)))),b=>b.toString(16).padStart(2,'0')).join('');
+  const now=Date.now();
+  const registry={schema:'palaco-citadel-reviewer-registry-v1',role:'receipt-reviewer',status,
+   reviewerFingerprint:review.reviewerFingerprint,issuerFingerprint:fp,
+   notBefore:new Date(now-7200000).toISOString(),notAfter:new Date(now+(expired?-1000:3600000)).toISOString(),
+   issuedAt:new Date(now-3600000).toISOString(),expiresAt:new Date(now+(expired?-1000:3600000)).toISOString()};
+  const bytes=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},pair.privateKey,new TextEncoder().encode(canonical(registry)));
+  const signed={...registry,signature:btoa(String.fromCharCode(...new Uint8Array(bytes)))};
+  if(tamper)signed.reviewerFingerprint='0'.repeat(64);
+  return {issuer,signed};
+ },{review,status,expired,tamper});
+}
+async function uploadReviewerRegistry(page,reg){
+ await page.locator('#receiptReviewerRegistryIssuer').fill(JSON.stringify(reg.issuer));
+ await page.locator('#receiptReviewerRegistry').setInputFiles({name:'reviewer-registry.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(reg.signed))});
+}
+test('signed reviewer registry accepts active matching reviewer without granting authority',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,fixture);
+ const registry=await reviewerRegistryFixture(page,fixture.declaration);
+ await uploadReviewerRegistry(page,registry);
+ await page.locator('#requireReviewerRegistry').check();
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('REVIEWERSREGISTER CRYPTOGRAFISCH GELDIG');
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('NIET ONAFHANKELIJK VERTROUWD');
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('GEEN ROLTOEWIJZING');
+});
+
+test('signed reviewer registry rejects locally revoked reviewer even if signature checks',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,fixture);
+ await uploadReviewerRegistry(page,await reviewerRegistryFixture(page,fixture.declaration,{status:'revoked'}));
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
+
+test('signed reviewer registry rejects expired snapshot and swapped reviewer',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,fixture);
+ await uploadReviewerRegistry(page,await reviewerRegistryFixture(page,fixture.declaration,{expired:true}));
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+ await uploadReviewerRegistry(page,await reviewerRegistryFixture(page,fixture.declaration,{tamper:true}));
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
+
+test('reviewer registry strict mode prevents falling back to unsigned dual review',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,fixture);
+ await page.locator('#requireReviewerRegistry').check();
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('BEWIJSSLEUTELBEOORDELING AFGEWEZEN');
+});
+
+test('changing reviewer registry issuer invalidates cryptographic outcome',async ({page})=>{
+ await signedPreviewFixture(page);
+ const fixture=await receiptSignerReviewFixture(page);
+ await uploadReceiptSignerReview(page,fixture);
+ await uploadReviewerRegistry(page,await reviewerRegistryFixture(page,fixture.declaration));
+ await page.locator('#verifyReceiptSignerReview').click();
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('REVIEWERSREGISTER CRYPTOGRAFISCH GELDIG');
+ await page.locator('#receiptReviewerRegistryIssuer').fill('{}');
+ await expect(page.locator('#receiptSignerReviewStatus')).toContainText('opnieuw controleren vereist');
+ await expect(page.locator('#receiptSignerReviewStatus')).not.toContainText('CRYPTOGRAFISCH GELDIG');
+});
