@@ -27,6 +27,7 @@ class DeliveryState(str, Enum):
 class DeliveryResult:
     state: DeliveryState
     receipt: VerifiedReceipt | None = None
+    receipt_envelope: dict | None = None
 
 
 def _loopback(host: str) -> bool:
@@ -94,7 +95,7 @@ def submit_local_witness(
             return rejected
         if receipt.head.sequence != payload["sequence"] or receipt.head.entry_hash != payload["entry_hash"]:
             return rejected
-        return DeliveryResult(DeliveryState.ACKNOWLEDGED, receipt)
+        return DeliveryResult(DeliveryState.ACKNOWLEDGED, receipt, result)
     except (OSError, TimeoutError, http.client.HTTPException):
         return pending
     except (ValueError, TypeError, UnicodeError, json.JSONDecodeError):
