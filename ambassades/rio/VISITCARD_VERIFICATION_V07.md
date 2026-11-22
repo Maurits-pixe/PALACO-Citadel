@@ -206,3 +206,34 @@ The development-only client uses plain HTTP on 127.0.0.1; it is not an
 approved network transport for multiple machines. Security review,
 actual test execution, bounded operational retries, independent outbox
 storage and privacy review remain required. **GO-13 HOLD**.
+
+## v1.4 — Durable local witness outbox (DRAFT / HOLD)
+
+`visitcard_witness_outbox.py` records an immutable, pre-signed publication
+proposal in a separate SQLite outbox before any network attempt. The
+`(issuer, sequence)` primary key prevents different proposals from occupying
+the same sequence. Repeated enqueue of the exact same signed request is
+idempotent; changing it is rejected. DELETE and request mutation are blocked
+by database triggers for ordinary SQL writers.
+
+`pending_request` returns only the previously persisted proposal for
+explicit, operator-controlled reconciliation. The outbox never sends a
+network request itself and never retries automatically. Network failure,
+timeout, a 5xx response or an unknown receipt **must remain PENDING** until
+reconciliation. `acknowledge` independently verifies the witness Ed25519
+signature and exact issuer/sequence/head before atomically persisting the
+receipt and changing the state to `ACKNOWLEDGED`. This is an informational
+delivery status, NOT cryptographic identity proof or access authorization.
+
+**Limitations:** the outbox currently validates a proposal's envelope format
+but cannot assert its producer signature without separately pinned producer
+keys. Only a trusted signer/producer pipeline may enqueue requests; the witness
+server itself validates the producer signature. The outbox is local SQLite
+storage, not a protected cross-machine queue. Neither SQL triggers nor SQLite
+alone defend against a malicious database administrator or full database
+restore. Actual retry control, remote witness reconciliation, durable
+external high-water publication, mTLS, rate limiting and independent
+operational review are not delivered.
+
+New outbox tests were committed; they require actual execution and no skips
+before claiming PASS. **GO-13 HOLD, no merge or live RIO publication.**
