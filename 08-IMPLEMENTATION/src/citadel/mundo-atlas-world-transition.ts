@@ -93,8 +93,7 @@ export function createAtlasWorldTransition(
         return closed || generation !== request ? "stale" : "denied";
       } finally {
         // The old promise must not change a newer context. No source retained.
-        if (generation === request) switching = false;
-        else switching = false; // exclusive single-flight token still belongs here
+        switching = false; // The exclusive switch finishes without replay.
         fresh = null;
       }
     },
