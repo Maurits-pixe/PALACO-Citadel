@@ -225,7 +225,7 @@ test('Atelier note synchronization must preserve unsaved edits from local tab',(
  assert.match(handler,/const locallyEdited=noteValue\(\)!==/);
  assert.match(handler,/if\(locallyEdited\)/);
  assert.match(handler,/onopgeslagen tekst blijft staan/);
- assert.match(handler,/const latest=e\.key===null\?null:e\.newValue/);
+ assert.match(handler,/const latest=localStorage\.getItem\(NOTE\)/);
  assert.match(handler,/typeof latest==='string'\?latest\.slice\(0,6000\):''/);
 });
 
@@ -364,7 +364,19 @@ test('Atelier full storage clear syncs clean notes and protects unsaved edits',(
  const handler=html.slice(start);
  assert.match(handler,/if\(e\.key===NOTE\|\|e\.key===null\)/);
  assert.match(handler,/const locallyEdited=noteValue\(\)!==/);
- assert.match(handler,/const latest=e\.key===null\?null:e\.newValue/);
+ assert.match(handler,/const latest=localStorage\.getItem\(NOTE\)/);
  assert.match(handler,/noteBaseline=latest/);
  assert.match(handler,/onopgeslagen tekst blijft staan/);
+});
+
+
+test('Atelier delayed note storage event must use the current stored revision',()=>{
+ const html=read('regiekamer.html');
+ const start=html.lastIndexOf("window.addEventListener('storage',e=>{");
+ assert.ok(start>=0);
+ const handler=html.slice(start);
+ assert.match(handler,/const latest=localStorage\.getItem\(NOTE\)/);
+ assert.doesNotMatch(handler,/const latest=e\.newValue/);
+ assert.doesNotMatch(handler,/const latest=e\.key===null\?null:e\.newValue/);
+ assert.match(handler,/noteBaseline=latest/);
 });
