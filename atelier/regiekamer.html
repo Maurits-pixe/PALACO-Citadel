@@ -640,6 +640,7 @@ $('statement').addEventListener('input',()=>{
  if(!importReadPending)return;
  ++importRevision;
  importReadPending=false;
+ importStartSnapshot=null;
  $('bundleImport').value='';
  $('bundleStatus').textContent='Projectimport onderbroken: de ontwerpnotitie is tijdens het lezen aangepast. De nieuwe tekst blijft behouden; kies het projectbestand opnieuw.';
 });
@@ -650,14 +651,19 @@ $('bundleImport').addEventListener('change',async event=>{
  importReadPending=true;
  try{
    const api=window.PalacoAtelierBundle;
+   if(!api)throw Error('Projectpakket-functie niet geladen');
    // Capture the source revision before reading external bytes.
    importStartSnapshot=api.snapshot(localStorage);
-   if(!api)throw Error('Projectpakket-functie niet geladen');
    // Match the verified DRAFT import filename policy before reading external bytes.
    safeProjectFilename(file.name);
    if(file.size>150000)throw Error('Bestand groter dan 150 KB');
    const importBytes=await file.arrayBuffer();
    if(revision!==importRevision)return;
+   // Changes in this tab do not fire a storage event. Check even when no
+   // event was received, before validating or previewing any import.
+   const afterRead=api.snapshot(localStorage);
+   if(!importStartSnapshot||afterRead.some((value,i)=>value!==importStartSnapshot[i]))
+     throw Error('Lokaal project gewijzigd tijdens het lezen. Kies het bestand opnieuw.');
    importReadPending=false;
    importStartSnapshot=null;
    let importText;
@@ -696,6 +702,7 @@ $('bundleImport').addEventListener('change',async event=>{
 $('bundleImport').addEventListener('cancel',()=>{
  ++importRevision;
  importReadPending=false;
+ importStartSnapshot=null;
  $('bundleImport').value='';
  $('bundleStatus').textContent='Projectimport geannuleerd. Er is niets hersteld.';
 });
