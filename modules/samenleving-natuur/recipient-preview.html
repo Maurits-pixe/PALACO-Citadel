@@ -700,6 +700,25 @@ $('verifyReceiptSignerReview').addEventListener('click',async()=>{
   $('receiptSignerReviewStatus').textContent='BEWIJSSLEUTELBEOORDELING DUBBEL CRYPTOGRAFISCH GELDIG (epoch '+declaration.epoch+'); '+(registryFile?'REVIEWERSREGISTER CRYPTOGRAFISCH GELDIG MAAR NIET ONAFHANKELIJK VERTROUWD; ':'')+'REVIEWER NIET ONAFHANKELIJK VERTROUWD. GEEN ROLTOEWIJZING. Geen PALACO-autorisatie.';
  }catch{if(id===ticket&&revision===receiptSignerReviewRevision)$('receiptSignerReviewStatus').textContent='BEWIJSSLEUTELBEOORDELING AFGEWEZEN. Geen PALACO-autorisatie.'}
 });
+// Cross-tab storage updates do not emit events in the tab that writes them.
+// The verification completion path also rechecks the live pin independently.
+window.addEventListener('storage',event=>{
+ if(event.key!==RECEIPT_SIGNER_PIN_KEY&&event.key!==null)return;
+ receiptSignerReviewRevision++;
+ $('receiptSignerReviewStatus').textContent='Lokale sleutelregistratie elders gewijzigd; opnieuw controleren vereist. Geen PALACO-autorisatie.';
+});
+window.addEventListener('focus',()=>{
+ const status=$('receiptSignerReviewStatus');
+ if(!status.textContent.includes('DUBBEL CRYPTOGRAFISCH GELDIG'))return;
+ try{
+  // A focus recheck is conservative: no successful result is retained without
+  // a currently parseable pin; identity matching is checked on next verification.
+  if(!receiptSignerPin(localStorage.getItem(RECEIPT_SIGNER_PIN_KEY)))throw Error('Pin ontbreekt');
+ }catch{
+  receiptSignerReviewRevision++;
+  status.textContent='Lokale sleutelregistratie niet geldig; opnieuw controleren vereist. Geen PALACO-autorisatie.';
+ }
+});
 for(const inputId of ['receiptSignerReviewFile','receiptSignerReviewKey','receiptSignerReviewerKey','receiptReviewerRegistry','receiptReviewerRegistryIssuer','requireReviewerRegistry']){
  $(inputId).addEventListener(['receiptSignerReviewFile','receiptReviewerRegistry','requireReviewerRegistry'].includes(inputId)?'change':'input',()=>{receiptSignerReviewRevision++;$('receiptSignerReviewStatus').textContent='Beoordelingsinvoer gewijzigd; opnieuw controleren vereist.'});
 }
