@@ -380,3 +380,16 @@ test('Atelier delayed note storage event must use the current stored revision',(
  assert.doesNotMatch(handler,/const latest=e\.key===null\?null:e\.newValue/);
  assert.match(handler,/noteBaseline=latest/);
 });
+
+test('Atelier note conflict notice requires a real stored revision mismatch',()=>{
+ const html=read('regiekamer.html');
+ const start=html.lastIndexOf("window.addEventListener('storage',e=>{");
+ assert.ok(start>=0);
+ const handler=html.slice(start);
+ const read=handler.indexOf('const latest=localStorage.getItem(NOTE)');
+ const edited=handler.indexOf('const locallyEdited=noteValue()');
+ const conflict=handler.indexOf('if(latest!==noteBaseline)');
+ const warning=handler.indexOf('Ontwerpnotitie gewijzigd in een ander tabblad');
+ assert.ok(read>=0&&edited>read&&conflict>edited&&warning>conflict);
+ assert.match(handler,/noteBaseline=latest/);
+});
