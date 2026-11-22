@@ -237,3 +237,27 @@ operational review are not delivered.
 
 New outbox tests were committed; they require actual execution and no skips
 before claiming PASS. **GO-13 HOLD, no merge or live RIO publication.**
+
+## v1.5 — Operator-approved one-shot recovery (DRAFT / HOLD)
+
+`visitcard_witness_recovery.py` links the v1.4 durable Outbox with the v1.3
+loopback witness client. `recover_once` requires explicit
+`operator_approved=True`, rejects missing or already malformed Outbox
+requests, submits only the exact persisted immutable signed proposal, and
+stores an independently verified receipt through `acknowledge`.
+
+A timeout or lost network reply remains `PENDING`, and a server conflict
+remains `REJECTED` for explicit investigation while the stored Outbox row
+remains unchanged. An already acknowledged row returns `ACKNOWLEDGED`
+without sending again. None of these results grant access or confirm a
+real-world identity.
+
+**Not built:** a trusted remote witness latest-head query, automatic
+resolution of conflicting histories, a cross-process single-flight lock,
+authenticated TLS transport, producer signing-key isolation, disaster-recovery
+witness persistence, and independently verified operator authentication.
+The explicit boolean approval flag is *only a development interlock*, not
+strong authorization. Do not use unattended retries or expose publicly.
+Ten additional integration-test cases cover restart, conflicts, deliberate
+manual recovery, pending connections and duplicate requests. Tests have
+not been verified as PASS until CI actually executes. **GO-13 HOLD**.
