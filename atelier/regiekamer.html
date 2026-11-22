@@ -952,14 +952,15 @@ window.addEventListener('storage',e=>{
  }
  if(e.key===null||[EX,IN].includes(e.key))refresh();
  if(e.key===null||e.key===window.PalacoAtelierBundle?.RECOVERY)refreshRecoveryInfo();
- if(e.key===NOTE){
-   // A cross-tab save must never replace a locally edited, unsaved note.
+ if(e.key===NOTE||e.key===null){
+   // A cross-tab save or full storage clear must never replace unsaved text.
    const locallyEdited=noteValue()!==(noteBaseline===null?'':noteBaseline.slice(0,6000));
    if(locallyEdited){
      $('feedback').textContent='Ontwerpnotitie gewijzigd in een ander tabblad. Je onopgeslagen tekst blijft staan; exporteer of vergelijk je wijzigingen voordat je opslaat.';
    }else{
-     $('statement').value=typeof e.newValue==='string'?e.newValue.slice(0,6000):'';
-     noteBaseline=e.newValue;
+     const latest=e.key===null?null:e.newValue;
+     $('statement').value=typeof latest==='string'?latest.slice(0,6000):'';
+     noteBaseline=latest;
      $('feedback').textContent='Ontwerpnotitie bijgewerkt vanuit een ander tabblad.';
    }
  }
