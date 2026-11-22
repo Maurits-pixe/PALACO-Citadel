@@ -1879,3 +1879,41 @@ test('Atelier v6.31: verouderd event overschrijft geen onopgeslagen notitie',asy
  await expect(page.locator('#feedback')).toContainText('Opslaan geweigerd');
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Nieuwste opgeslagen versie');
 });
+
+test('Atelier v6.33: verouderd event veroorzaakt geen vals conflict bij onopgeslagen notitie',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Mijn nog onopgeslagen versie');
+ const initial=await page.locator('#feedback').textContent();
+ await page.evaluate(()=>{
+   const api=window.PalacoAtelierBundle;
+   // The event carries an obsolete change, but the actual stored note
+   // still matches the baseline of this editor.
+   window.dispatchEvent(new StorageEvent('storage',{
+     key:api.NOTE,oldValue:'Voorheen',newValue:'Oude eventversie',
+     storageArea:localStorage,url:location.href
+   }));
+ });
+ await expect(page.locator('#statement')).toHaveValue('Mijn nog onopgeslagen versie');
+ expect(await page.locator('#feedback').textContent()).toBe(initial);
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('lokaal bewaard');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Mijn nog onopgeslagen versie');
+});
+
+test('Atelier v6.33: werkelijk opslagconflict blijft zichtbaar ondanks oude eventpayload',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Mijn onopgeslagen ontwerp');
+ await page.evaluate(()=>{
+   const api=window.PalacoAtelierBundle;
+   localStorage.setItem(api.NOTE,'Werkelijk andere opgeslagen versie');
+   window.dispatchEvent(new StorageEvent('storage',{
+     key:api.NOTE,oldValue:null,newValue:null,
+     storageArea:localStorage,url:location.href
+   }));
+ });
+ await expect(page.locator('#statement')).toHaveValue('Mijn onopgeslagen ontwerp');
+ await expect(page.locator('#feedback')).toContainText('onopgeslagen tekst blijft staan');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('Opslaan geweigerd');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Werkelijk andere opgeslagen versie');
+});
