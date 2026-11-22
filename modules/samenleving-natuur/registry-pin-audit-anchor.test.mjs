@@ -114,3 +114,27 @@ test('outer audit anchor Proxy enumeration failure remains fail closed',()=>{
  assert.equal(r.authorization,'DENY');
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('oversized anchor signature is rejected before base64url decoding',()=>{
+ const input=setup();
+ const result=inspectSignedAuditHeadAnchor({
+   ...input,signatureBase64Url:'A'.repeat(100000)
+ });
+ assert.equal(result.anchorSignatureValid,false);
+ assert.equal(result.anchoredLedgerMatched,false);
+ assert.equal(result.reason,'INVALID_ANCHOR_INPUT');
+ assert.equal(result.authorization,'DENY');
+ assert.equal(result.releaseAllowed,false);
+});
+
+test('non-base64url and undersized anchor signatures remain denied',()=>{
+ const input=setup();
+ for(const signatureBase64Url of ['AQID','+'.repeat(80),'A'.repeat(108)]) {
+   const result=inspectSignedAuditHeadAnchor({...input,signatureBase64Url});
+   assert.equal(result.anchorSignatureValid,false);
+   assert.equal(result.reason,'INVALID_ANCHOR_INPUT');
+   assert.equal(result.authorization,'DENY');
+   assert.equal(result.executionAllowed,false);
+ }
+});
