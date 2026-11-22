@@ -1273,3 +1273,37 @@ test('Atelier: JSON-objectvelden maximaal 256 tekens, ook Unicode-escaped en in 
  await expect(page.locator('#verifyStatus')).toContainText('Geldig creatief DRAFT-project');
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(baseline);
 });
+
+test('Atelier: lokale import weigert beschadigde UTF-8-bytes zonder herstel of stille tekstvervanging',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const before=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const project=await page.evaluate(()=>window.PalacoAtelierBundle.read(localStorage));
+ const original=Buffer.from(JSON.stringify({...project,note:'SCHILDERIJ'}),'utf8');
+ const marker=Buffer.from('SCHILDERIJ');
+ const offset=original.indexOf(marker);
+ expect(offset).toBeGreaterThan(0);
+ const malformedBytes=[
+   Buffer.from(original),
+   Buffer.from(original),
+   Buffer.from(original)
+ ];
+ malformedBytes[0][offset]=0xff;
+ malformedBytes[1][offset]=0xc3;
+ malformedBytes[1][offset+1]=0x28;
+ malformedBytes[2][offset]=0xed;
+ malformedBytes[2][offset+1]=0xa0;
+ malformedBytes[2][offset+2]=0x80;
+ let dialogs=0;
+ page.on('dialog',async dialog=>{dialogs++;await dialog.dismiss();});
+ for(const buffer of malformedBytes){
+   await page.locator('#bundleImport').setInputFiles({name:'beschadigd.json',mimeType:'application/json',buffer});
+   await expect(page.locator('#bundleStatus')).toContainText('Herstel geweigerd: Projectbestand bevat ongeldige UTF-8-bytes');
+   expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+ }
+ expect(dialogs).toBe(0);
+ const valid=Buffer.from(JSON.stringify({...project,note:'Muzenhof — café en tuinen 🌿'}),'utf8');
+ await page.locator('#bundleImport').setInputFiles({name:'geldig.json',mimeType:'application/json',buffer:valid});
+ await expect(page.locator('#bundleStatus')).toContainText('DRAFT-pakket');
+ expect(dialogs).toBe(1);
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+});
