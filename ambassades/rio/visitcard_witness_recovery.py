@@ -42,6 +42,8 @@ def recover_once(
         return RecoveryResult.UNKNOWN
     if db.in_transaction:
         return RecoveryResult.UNKNOWN
+    if outbox_status(db, issuer, sequence) == "ACKNOWLEDGED":
+        return RecoveryResult.ACKNOWLEDGED
     token = claim_recovery(db, issuer, sequence)
     if token is None:
         # Missing schema, conflict or crash-persisted claim: fail closed.
