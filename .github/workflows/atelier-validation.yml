@@ -33,6 +33,19 @@ jobs:
         run: node --test atelier/regiekamer-bundle.test.cjs atelier/regiekamer-gallery.test.cjs atelier/atelier-surface.test.cjs
       - name: Test original Atelier domain and wizard
         run: node --test atelier/builder.test.mjs atelier/wizard.test.mjs citadel-proof/proof.test.mjs
+      - name: Test fail-closed release evidence evaluator
+        run: node --test atelier/release-gate.test.cjs
+      - name: Verify release remains HOLD without matching approved evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          node atelier/release-gate.cjs "${GITHUB_SHA}" atelier/release-evidence-v6.40.json > "${RUNNER_TEMP}/atelier-release-diagnostic.json"
+          node -e 'const r=require(process.argv[1]);if(r.decision!=="HOLD"||r.publication!=="DENY"||r.release_approved!==false||r.gates.length!==8||r.gates.some(g=>g.pass!==false)){process.exit(1)}' "${RUNNER_TEMP}/atelier-release-diagnostic.json"
+          if node atelier/release-gate.cjs "${GITHUB_SHA}" atelier/release-evidence-v6.40.json --enforce > /dev/null; then
+            echo "ERROR: an unapproved DRAFT release was accepted"
+            exit 1
+          fi
+          echo "DRAFT gate: HOLD / DENY confirmed (no release permission)"
       - name: Install locked browser-test dependencies
         run: npm ci
       - name: Install Chromium for browser acceptance
