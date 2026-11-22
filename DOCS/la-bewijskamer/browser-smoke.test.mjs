@@ -1518,3 +1518,48 @@ test("dossier export refuses changed vault without delivered storage event",asyn
  assert.equal(await a.evaluate(()=>document.activeElement.id),"timeline");
  await c.close();
 });
+
+test("returning focus to a tab rejects changed vault before another dossier action",async()=>{
+ const c=await browser.newContext({viewport:{width:390,height:844}}),a=await c.newPage(),b=await c.newPage();
+ await a.addInitScript(()=>window.addEventListener("storage",e=>{
+  if(e.key==="palaco.citadel.geheugenkamer.vault.v1")e.stopImmediatePropagation();
+ },true));
+ await a.goto(base+"/DOCS/la-geheugenkamer/");
+ await b.goto(base+"/DOCS/la-geheugenkamer/");
+ await a.locator("#title").fill("Hercontrole bij focus");
+ await a.locator("#who").fill("W");await a.locator("#what").fill("Synthetisch");
+ await a.locator("#entryForm button[type=submit]").click();
+ await a.locator("#timeline button").filter({hasText:"Inspecteer dossier"}).click();
+ await a.locator("#handoffConsent").check();
+ await b.evaluate(()=>localStorage.setItem("palaco.citadel.geheugenkamer.vault.v1","vault-changed-in-other-tab"));
+ assert.equal(await a.locator("#dossier").isVisible(),true);
+ await a.evaluate(()=>window.dispatchEvent(new Event("focus")));
+ await a.waitForFunction(()=>document.querySelector("#message").textContent.includes("gewijzigd tijdens afwezigheid"));
+ assert.equal(await a.locator("#dossier").isVisible(),false);
+ assert.equal(await a.locator("#handoffConsent").isChecked(),false);
+ assert.equal(await a.evaluate(()=>document.activeElement.id),"timeline");
+ await c.close();
+});
+
+test("visibility resume preserves an unchanged dossier but invalidates changed draft",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true}),a=await c.newPage(),b=await c.newPage();
+ await a.addInitScript(()=>window.addEventListener("storage",e=>{
+  if(e.key==="palaco.citadel.geheugenkamer.v1")e.stopImmediatePropagation();
+ },true));
+ await a.goto(base+"/DOCS/la-geheugenkamer/");
+ await b.goto(base+"/DOCS/la-geheugenkamer/");
+ await a.locator("#title").fill("Hercontrole bij terugkeer");
+ await a.locator("#who").fill("W");await a.locator("#what").fill("Synthetisch");
+ await a.locator("#entryForm button[type=submit]").tap();
+ await a.locator("#timeline button").filter({hasText:"Inspecteer dossier"}).tap();
+ await a.locator("#handoffConsent").check();
+ await a.evaluate(()=>document.dispatchEvent(new Event("visibilitychange")));
+ assert.equal(await a.locator("#dossier").isVisible(),true);
+ assert.equal(await a.locator("#handoffConsent").isChecked(),true);
+ await b.evaluate(()=>localStorage.setItem("palaco.citadel.geheugenkamer.v1","changed-draft-while-away"));
+ await a.evaluate(()=>window.dispatchEvent(new Event("focus")));
+ await a.waitForFunction(()=>document.querySelector("#message").textContent.includes("gewijzigd tijdens afwezigheid"));
+ assert.equal(await a.locator("#dossier").isVisible(),false);
+ assert.equal(await a.locator("#handoffConsent").isChecked(),false);
+ await c.close();
+});
