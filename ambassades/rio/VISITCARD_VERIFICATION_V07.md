@@ -724,3 +724,42 @@ wrong trust keys, rollback/fork classification, broken history, and
 the permanent non-authorization policy. Python test execution and
 skip-count review are still required. No merge, deployment, public
 RIO site update, or key activation. **GO-13 HOLD**.
+
+## v3.0 — Fresh signed publication high-water challenge protocol (DRAFT / HOLD)
+
+`visitcard_fresh_publication_head.py` defines an independently provisionable
+high-water registry that accepts only pinned-publisher-key-verified v2.8
+publication receipts. A local SQLite transaction retains the exact signed
+receipt and monotone (issuer,nonce) head. The historical audit checks
+signatures, continuous counts, canonical receipts, the explicit zero
+genesis predecessor and the exact predecessor seal hash at stage 2.
+Replayed identical receipts are idempotent; stale/forked heads fail closed.
+
+A verifier produces an unpredictable 256-bit challenge via `challenge()`
+and sends it to a separately administered fresh-head signer. That signer
+runs `attest_fresh_head` only after local history audit and returns a
+domain-separated Ed25519 signed head containing issuer, nonce, count,
+seal hash, challenge, and UTC observation time. The client verifies exact
+challenge binding, an independently pinned signer key, and a timestamp
+between now and 60 seconds old. A stale replay for a different challenge
+or incorrect clock fails closed. Clock synchronization is essential.
+
+`classify_fresh_recovery` compares an independently verified fresh head
+with the local archive count and hash. Its five statuses are informational
+only: `MATCHED_INFORMATIONAL`, `LOCAL_BEHIND_BLOCKED`,
+`LOCAL_AHEAD_UNCONFIRMED`, `FORK_BLOCKED`, and `UNKNOWN_BLOCKED`.
+`execution_permitted` always returns False. No code path activates
+keys, grants access, issues identities, or authorizes recovery.
+
+**Key limitation:** This code does NOT host a separate trusted server,
+implement mutual TLS, perform a remote challenge, secure signer hardware,
+provide trusted time, or prove operator independence. Freshness of the
+signature does not prove freshness of the underlying register if its
+administrator or signer is compromised or the whole register is rolled
+back. Production additionally requires trusted latest-head publication,
+cross-checks from independent witnesses, robust root-key lifecycle,
+authenticated transport and rollback recovery procedures.
+
+Twenty-five new regression tests were committed (not yet executed).
+Actual Python test runs with skipped-test counts and independent security
+review are mandatory before any deployment. **GO-13 HOLD**.
