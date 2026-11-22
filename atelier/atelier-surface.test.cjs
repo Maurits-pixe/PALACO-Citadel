@@ -201,3 +201,15 @@ test('original New Citadel identity wizard is still linked and cannot authorize'
   assert.match(wizard,/href="\.\/studio\.html"/);
   assert.match(wizard,/href="\.\/regiekamer\.html"/);
 });
+
+test('Atelier import must validate the JSON filename before reading bytes',()=>{
+  const html=read('regiekamer.html');
+  const begin=html.indexOf("$('bundleImport').addEventListener('change',async event=>{");
+  const end=html.indexOf("$('bundleImport').addEventListener('cancel'",begin);
+  assert.ok(begin>=0&&end>begin,'import change handler must be present');
+  const handler=html.slice(begin,end);
+  const validation=handler.indexOf('safeProjectFilename(file.name)');
+  const reading=handler.indexOf('await file.arrayBuffer()');
+  assert.ok(validation>=0,'unsafe imported file names must be rejected');
+  assert.ok(reading>validation,'filename validation must precede file read');
+});
