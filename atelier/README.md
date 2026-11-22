@@ -613,3 +613,9 @@ Het bestand [release-evidence-v6.38.json](release-evidence-v6.38.json) legt de a
 ### Interpretatie en vrijgavegrens
 
 De machineleesbare registratie maakt onderscheid tussen een **bewezen positief resultaat voor één specifieke check** en een **niet-vrijgegeven gate**. Er zijn nog geen complete Node-/Playwright-resultaten voor alle vereiste regressies, menselijke schermlezer- en telefoontests, onafhankelijke code-review en formele GO-13-vrijgave op een identieke nieuwe commit aangetoond. Alle gates blijven daarom fail-closed en er is **geen releasegoedkeuring**. De JSON bevat geen geheime gegevens, gebruikersontwerpen of bevoegdheidsclaims. Er is in v6.38 geen runtime- of productgedrag gewijzigd. **DRAFT/HOLD/DENY**; geen merge, EDTR of publieke uitrol.
+
+## Regiekamer v6.39 — veilige foutafhandeling bij ontoegankelijke notitieopslag (2026-11-22)
+
+Een opslaggebeurtenis vanuit een ander tabblad kan binnenkomen terwijl browserbeleid, een extensie of een opslagadapter de notitie tijdelijk niet laat uitlezen. De Regiekamer beschermt de huidige editor nu met een afgevangen fout rondom het opnieuw lezen van de actuele notitie. Bij een leesfout verschijnt een duidelijke melding, terwijl de bestaande tekst en bekende opslagbaseline ongewijzigd blijven. De gebeurtenis leidt niet langer tot een ongecontroleerde fout of een onterecht gesynchroniseerde versie. Na herstel van browseropslag kan een gebruiker opnieuw proberen op te slaan; de bestaande conflictcontrole blijft van kracht.
+
+Twee Playwright-regressies injecteren een SecurityError op het uitlezen van de notitie tijdens een opslag-event, zowel voor een onopgeslagen als een reeds opgeslagen editor. Een statische contracttest controleert de foutafhandeling. Dit levert geen garantie voor volledige beschikbaarheid of duurzame browseropslag: localStorage blijft niet-transactioneel en apparaatgebonden. **DRAFT/HOLD/DENY**; geen merge, EDTR, machtiging of publieke uitrol.
