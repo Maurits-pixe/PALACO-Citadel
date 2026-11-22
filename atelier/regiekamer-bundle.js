@@ -109,7 +109,7 @@ function getRecovery(storage){
  if(typeof record.savedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(record.savedAt)||!Number.isFinite(Date.parse(record.savedAt))||new Date(record.savedAt).toISOString()!==record.savedAt)throw Error('Ongeldig herstelmoment');
  return {savedAt:record.savedAt,draft};
 }
-function restoreWithRecovery(storage,bundle,expectedSnapshot){
+function restoreWithRecovery(storage,bundle,expectedSnapshot,expectedRecovery){
  const incoming=parse(JSON.stringify(bundle));
  const prior=snapshot(storage);
  if(expectedSnapshot!==undefined&&(!Array.isArray(expectedSnapshot)||expectedSnapshot.length!==keys.length||expectedSnapshot.some((v,i)=>prior[i]!==v))){
@@ -125,7 +125,13 @@ function restoreWithRecovery(storage,bundle,expectedSnapshot){
  }
  if(prior[2]!==null&&prior[2].length>6000)throw Error('Bestaande ontwerpnotitie overschrijdt de veilige limiet');
  const previousRecovery=storage.getItem(RECOVERY);
+ if(expectedRecovery!==undefined&&previousRecovery!==expectedRecovery){
+   throw Error('Herstelkopie gewijzigd sinds de controle. Controleer het herstelpunt opnieuw.');
+ }
  const record={schema:'palaco.citadel.atelier.recovery/1',state:'DRAFT',authority:'NONE',savedAt:new Date().toISOString(),draft:read(storage)};
+ if(expectedRecovery!==undefined&&storage.getItem(RECOVERY)!==expectedRecovery){
+   throw Error('Herstelkopie gewijzigd tijdens voorbereiding. Controleer het herstelpunt opnieuw.');
+ }
  try{storage.setItem(RECOVERY,JSON.stringify(record));}
  catch{throw Error('Geen ruimte voor veilige herstelkopie; import afgebroken zonder wijzigingen.');}
  try{return restore(storage,incoming,prior);}
@@ -136,9 +142,10 @@ function restoreWithRecovery(storage,bundle,expectedSnapshot){
  }
 }
 function undoLastImport(storage,expectedSnapshot){
+ const expectedRecovery=storage.getItem(RECOVERY);
  const recovery=getRecovery(storage);
  if(!recovery)throw Error('Er is geen lokale herstelkopie beschikbaar');
- return restoreWithRecovery(storage,recovery.draft,expectedSnapshot);
+ return restoreWithRecovery(storage,recovery.draft,expectedSnapshot,expectedRecovery);
 }
 return Object.freeze({EX,IN,NOTE,RECOVERY,validExterior,validInterior,create,parse,read,preview,snapshot,restore,getRecovery,restoreWithRecovery,undoLastImport});
 });
