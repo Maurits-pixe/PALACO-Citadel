@@ -113,6 +113,12 @@ test('shared browser modules keep read-only and DRAFT contracts',()=>{
   assert.match(read('regiekamer.html'),/id="inspectionResult" class="inspection-result" data-result="idle"/);
   assert.match(read('regiekamer.html'),/id="inspectionHashes" class="inspection-hashes" hidden/);
   assert.match(read('regiekamer.html'),/function showInspectionHashes\(actual,reference,reported\)/);
+  assert.match(read('regiekamer.html'),/id="inspectionReceiptMatch"/);
+  assert.match(read('regiekamer.html'),/id="inspectionReportMatch"/);
+  assert.match(read('regiekamer.html'),/actual===reference/);
+  assert.match(read('regiekamer.html'),/actual===reported/);
+  assert.match(read('regiekamer.html'),/KOMT OVEREEN/);
+  assert.match(read('regiekamer.html'),/WIJKT AF/);
   assert.match(read('regiekamer.html'),/showInspectionHashes\(actual,expected,report\.sha256\)/);
   assert.match(read('regiekamer.html'),/inspectionHashes'\)\.hidden=true/);
   assert.match(read('regiekamer.html'),/function showInspectionResult\(result,heading,detail\)/);
