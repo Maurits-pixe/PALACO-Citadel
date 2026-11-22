@@ -1514,3 +1514,27 @@ test('Atelier v6.16: opslaan weigert een conflicterende notitie uit ander tabbla
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Veilig bijgewerkte versie');
  await other.close();
 });
+
+
+test('Atelier v6.17: expliciet laden lost notitieconflict op zonder stille overschrijving',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const other=await page.context().newPage();
+ await other.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Mijn onopgeslagen notitie');
+ await other.locator('#statement').fill('Bewaarde versie uit tweede tab');
+ await other.locator('#saveNote').click();
+ await expect(page.locator('#statement')).toHaveValue('Mijn onopgeslagen notitie');
+ page.once('dialog',dialog=>dialog.dismiss());
+ await page.locator('#loadSavedNote').click();
+ await expect(page.locator('#statement')).toHaveValue('Mijn onopgeslagen notitie');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Bewaarde versie uit tweede tab');
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('#loadSavedNote').click();
+ await expect(page.locator('#statement')).toHaveValue('Bewaarde versie uit tweede tab');
+ await expect(page.locator('#feedback')).toContainText('Opgeslagen ontwerpnotitie geladen');
+ await page.locator('#statement').fill('Mijn bewuste volgende versie');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('lokaal bewaard');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Mijn bewuste volgende versie');
+ await other.close();
+});
