@@ -300,3 +300,17 @@ test('guided recovery checklist is read-only, accessible and uses fixed Dutch ad
  assert.doesNotMatch(guide,/localStorage\.(setItem|removeItem)/);
  assert.doesNotMatch(guide,/\.innerHTML\s*=/);
 });
+
+
+test('Atelier note save verifies persisted content before advancing baseline',()=>{
+ const html=read('regiekamer.html');
+ const begin=html.indexOf('function saveNote(){');
+ const end=html.indexOf('function getSummary()',begin);
+ assert.ok(begin>=0&&end>begin);
+ const handler=html.slice(begin,end);
+ const write=handler.indexOf('localStorage.setItem(NOTE,value)');
+ const verify=handler.indexOf('localStorage.getItem(NOTE)!==value');
+ const baseline=handler.indexOf('noteBaseline=value');
+ assert.ok(write>=0&&verify>write&&baseline>verify,'save acknowledgement must follow read-back verification');
+ assert.match(handler,/Opslaan niet bevestigd/);
+});
