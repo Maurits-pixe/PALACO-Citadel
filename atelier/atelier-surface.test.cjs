@@ -343,3 +343,14 @@ test('Atelier note reload must refuse a revision changed during confirmation',()
  assert.ok(original>=0&&latest>original&&compare>latest&&baseline>compare);
  assert.match(handler,/Laden geweigerd/);
 });
+
+
+test('Atelier recovery actions refresh on cross-tab recovery record changes',()=>{
+ const html=read('regiekamer.html');
+ const start=html.lastIndexOf("window.addEventListener('storage',e=>{");
+ assert.ok(start>=0);
+ const handler=html.slice(start);
+ assert.match(handler,/e\.key===window\.PalacoAtelierBundle\?\.RECOVERY\)refreshRecoveryInfo\(\)/);
+ assert.match(html,/button\.disabled=true;exportButton\.disabled=true/);
+ assert.match(html,/button\.disabled=false;exportButton\.disabled=false/);
+});
