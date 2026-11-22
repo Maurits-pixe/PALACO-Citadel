@@ -1426,3 +1426,21 @@ test('Atelier v6.9: import weigert onveilige bestandsnamen vóór herstel',async
  await expect.poll(()=>dialogs).toBe(1);
  expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
 });
+
+
+test('Atelier v6.12: import weigert gewijzigde herstelkopie tussen preview en bevestiging',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const before=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ const valid=Buffer.from(await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage))));
+ await page.evaluate(()=>{
+   const api=window.PalacoAtelierBundle;
+   window.confirm=()=>{
+     localStorage.setItem(api.RECOVERY,'concurrent-herstelpunt');
+     return true;
+   };
+ });
+ await page.locator('#bundleImport').setInputFiles({name:'ontwerp.json',mimeType:'application/json',buffer:valid});
+ await expect(page.locator('#bundleStatus')).toContainText('Herstelkopie gewijzigd sinds de controle');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBe('concurrent-herstelpunt');
+});
