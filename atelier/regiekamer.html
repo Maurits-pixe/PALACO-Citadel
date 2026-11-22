@@ -67,7 +67,7 @@
 </section>
 <div class="bottom"><section class="section"><p class="eyebrow">04 / Ontwerpintentie</p><h2>Het creatieve dossier</h2><p class="small">Een eigen, lokale tekstnotitie die losstaat van de officiële Citadel-wizard. Dit is een ontwerpverklaring, geen bewijs, besluit, machtiging of registratie.</p>
 <label for="statement" class="eyebrow">Verhaal, uitgangspunten en materiaalvisie</label><textarea id="statement" maxlength="6000" placeholder="Beschrijf jouw visie op een luxueus en leefbaar Locus Amoenus: architectuur, natuur, ruimtes, kunst, ritme, toegankelijkheid…"></textarea>
-<div class="actions"><button class="action" id="saveNote">Bewaar notitie lokaal</button><button class="action primary" id="export">Exporteer DRAFT-dossier (JSON)</button><button class="action" id="exportTxt">Exporteer overzicht (TXT)</button><button class="action" id="refresh">Vernieuw overzicht</button></div>
+<div class="actions"><button class="action" id="saveNote">Bewaar notitie lokaal</button><button class="action" id="loadSavedNote" type="button">Laad opgeslagen notitie</button><button class="action primary" id="export">Exporteer DRAFT-dossier (JSON)</button><button class="action" id="exportTxt">Exporteer overzicht (TXT)</button><button class="action" id="refresh">Vernieuw overzicht</button></div>
 <p id="feedback" role="status" class="small">De projectgegevens worden uitsluitend uit deze browser gelezen.</p></section>
 <aside class="section"><p class="eyebrow">05 / Projectkompas</p><h2>Ontwerpchecks</h2><div class="diagnostics" id="diagnostics" role="list"></div>
 <h3>Bevoegdheid & veiligheid</h3><p class="message">Deze Regiekamer is alleen een lokaal, read-only overzicht van de maquettes, met een afzonderlijke ontwerpnotitie. Er worden geen officiële identiteiten, bewijsstukken, cryptografische handtekeningen, WORLD-creaties of autorisaties uitgevoerd.</p><p class="small">De export is een niet-geverifieerde creatieve DRAFT-kopie. Bewaar deze zelf. Browseropslag is geen veilige langdurige back-up.</p></aside></div>
@@ -715,6 +715,18 @@ $('undoImport').addEventListener('click',()=>{
    refreshRecoveryInfo();
    $('bundleStatus').textContent='Vorige Atelier-versie teruggezet vanuit de lokale herstelkopie.';
  }catch(err){$('bundleStatus').textContent='Terugzetten geweigerd: '+(showRollbackReport(err)?'Controleer de herstelstatus hieronder.':err.message);refreshRecoveryInfo();}
+});
+$('loadSavedNote').addEventListener('click',()=>{
+ try{
+   const stored=localStorage.getItem(NOTE);
+   const storedText=stored===null?'':stored.slice(0,6000);
+   if(noteValue()!==storedText&&!confirm('De huidige onopgeslagen notitie vervangen door de lokaal opgeslagen versie? Exporteer eerst je eigen tekst als je deze wilt bewaren.'))return;
+   // Read again after confirmation; do not acknowledge a version not actually displayed.
+   const latest=localStorage.getItem(NOTE);
+   $('statement').value=latest===null?'':latest.slice(0,6000);
+   noteBaseline=latest;
+   $('feedback').textContent='Opgeslagen ontwerpnotitie geladen. Je kunt nu veilig verder bewerken.';
+ }catch{$('feedback').textContent='Opgeslagen notitie kon niet worden geladen. Je huidige tekst blijft staan.';}
 });
 $('saveNote').addEventListener('click',saveNote);
 $('refresh').addEventListener('click',()=>{refresh();$('feedback').textContent='Het lokale projectoverzicht is opnieuw geladen.';});
