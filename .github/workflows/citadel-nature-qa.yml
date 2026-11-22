@@ -18,6 +18,37 @@ permissions:
   contents: read
 
 jobs:
+
+  ephemeral-postgresql-hold-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: citadel_ephemeral_ci_only
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: citadel_ephemeral_ci_only
+      PGDATABASE: postgres
+    steps:
+      - name: Checkout draft source
+        uses: actions/checkout@v4
+      - name: Install PostgreSQL client
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+      - name: Execute DRAFT HOLD denial tests on ephemeral PostgreSQL only
+        run: psql -X -v ON_ERROR_STOP=1 -f modules/samenleving-natuur/registry-pin-cas-ephemeral.test.sql
   offline-browser-qa:
     runs-on: ubuntu-latest
     timeout-minutes: 15
