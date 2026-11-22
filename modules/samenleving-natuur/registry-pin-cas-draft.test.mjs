@@ -46,3 +46,12 @@ test('draft state cannot be inserted, updated or deleted via ordinary DML',()=>{
   assert.match(source,/PALACO_CITADEL_PIN_STATE_FROZEN/);
   assert.match(source,/REVOKE ALL ON FUNCTION citadel_pin_draft\.reject_state_mutation\(\) FROM PUBLIC/);
 });
+
+test('every PL/pgSQL function has a paired full dollar-quote delimiter',()=>{
+  const opens=[...source.matchAll(/SET search_path = pg_catalog, citadel_pin_draft AS \$\$/g)];
+  const closes=[...source.matchAll(/^\$\$;$/gm)];
+  assert.equal(opens.length,3,'all three functions must declare AS $$');
+  assert.equal(closes.length,3,'all three function bodies must close with $$;');
+  assert.doesNotMatch(source,/ AS \$(?!\$)/);
+  assert.doesNotMatch(source,/^\$;$/m);
+});
