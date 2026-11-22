@@ -240,3 +240,28 @@ test('Atelier note save must reject a stale stored baseline before writing',()=>
  assert.match(handler,/Opslaan geweigerd/);
  assert.match(html,/noteBaseline=e.newValue/);
 });
+
+
+test('Regiekamer displays privacy-safe rollback diagnosis in accessible live region',()=>{
+ const html=read('regiekamer.html');
+ assert.match(html,/id="rollbackReport"[^>]*role="status" aria-live="polite" aria-atomic="true" hidden/);
+ assert.match(html,/id="rollbackHeading"/);
+ assert.match(html,/id="rollbackItems"/);
+ assert.match(html,/function showRollbackReport\(error\)/);
+ assert.match(html,/ATELIER_RESTORE_ROLLED_BACK/);
+ assert.match(html,/ATELIER_RESTORE_REVIEW_REQUIRED/);
+ assert.match(html,/document\.createElement\('li'\)/);
+ assert.match(html,/item\.textContent=label\+': '\+status/);
+ assert.doesNotMatch(html,/item\.innerHTML=/);
+ assert.match(html,/panel\.hidden=false/);
+ assert.match(html,/panel\.hidden=true/);
+});
+
+test('Atelier import and undo show rollback report without leaking error details into diagnostic panel',()=>{
+ const html=read('regiekamer.html');
+ assert.match(html,/showRollbackReport\(err\)\?'Controleer de herstelstatus hieronder\.'/);
+ assert.match(html,/showRollbackReport\(null\);\s*api\.restoreWithRecovery/);
+ assert.match(html,/showRollbackReport\(null\);\s*api\.undoLastImport/);
+ assert.match(html,/Object\.prototype\.hasOwnProperty\.call\(statuses,record\[key\]\)/);
+ assert.match(html,/Geen ontwerpgegevens|geen ontwerpgegevens/i);
+});
