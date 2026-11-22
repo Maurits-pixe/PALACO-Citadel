@@ -1580,3 +1580,44 @@ test('Atelier v6.19: afwijkende notitie na schrijfactie blijft een conflict',asy
  await expect(page.locator('#statement')).toHaveValue('Mijn nieuwe ontwerpnotitie');
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Concurrerende versie');
 });
+
+
+test('Atelier v6.20: herstelrapport is toetsenbordbereikbaar en bevat geen projecttekst',async ({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.goto('/atelier/regiekamer.html');
+ const before=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ await page.evaluate(()=>{
+   window.showRollbackReport({
+     code:'ATELIER_RESTORE_REVIEW_REQUIRED',
+     rollback:{exterior:'conflict',interior:'failed',note:'untouched'},
+     message:'PRIVÉ ONTWERPTEKST MAG NIET WORDEN GETOOND'
+   });
+ });
+ await expect(page.locator('#rollbackReport')).toBeVisible();
+ await expect(page.locator('#rollbackGuide')).toBeVisible();
+ await expect(page.locator('#rollbackItems li')).toHaveCount(3);
+ await expect(page.locator('#rollbackSteps li')).toHaveCount(5);
+ await expect(page.locator('#rollbackItems')).toContainText('Exterieur: Conflict');
+ await expect(page.locator('#rollbackItems')).toContainText('Interieur: Herstel mislukt');
+ await expect(page.locator('#rollbackItems')).not.toContainText('PRIVÉ ONTWERPTEKST');
+ await expect(page.locator('#rollbackReport')).toHaveAttribute('aria-live','polite');
+ await expect(page.locator('#rollbackReport')).toHaveAttribute('tabindex','-1');
+ await expect(page.locator('#rollbackReport')).toBeFocused();
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+ await page.evaluate(()=>window.showRollbackReport(null));
+ await expect(page.locator('#rollbackReport')).toBeHidden();
+ await expect(page.locator('#rollbackSteps li')).toHaveCount(0);
+});
+
+test('Atelier v6.20: gecontroleerde rollback toont korte checklist op desktop',async ({page})=>{
+ await page.setViewportSize({width:1280,height:800});
+ await page.goto('/atelier/regiekamer.html');
+ await page.evaluate(()=>window.showRollbackReport({
+   code:'ATELIER_RESTORE_ROLLED_BACK',
+   rollback:{exterior:'restored',interior:'original',note:'untouched'}
+ }));
+ await expect(page.locator('#rollbackHeading')).toHaveText('Terugdraaien gecontroleerd');
+ await expect(page.locator('#rollbackSteps li')).toHaveCount(2);
+ await expect(page.locator('#rollbackReport')).toBeFocused();
+ await expect(page.locator('#rollbackGuide')).toBeVisible();
+});
