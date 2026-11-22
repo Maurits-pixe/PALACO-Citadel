@@ -1706,7 +1706,8 @@ test('Atelier v6.22: andere opslagversie tijdens bevestiging wordt niet geladen'
 });
 
 
-test('Atelier v6.23: importbevestiging weigert echte wijziging vanuit tweede tabblad',async ({page})=>{
+
+test('Atelier v6.24: echte tweede tab onderbreekt lopende import vóór bevestiging',async ({page})=>{
  await page.goto('/atelier/regiekamer.html');
  const other=await page.context().newPage();
  await other.goto('/atelier/regiekamer.html');
@@ -1715,45 +1716,49 @@ test('Atelier v6.23: importbevestiging weigert echte wijziging vanuit tweede tab
   return JSON.stringify(api.create(null,null,'Te importeren versie'));
  });
  await page.locator('#statement').fill('Mijn onopgeslagen creatieve tekst');
- // A real second tab writes during the confirmation opened by the first tab.
- page.once('dialog',async dialog=>{
-  await other.evaluate(()=>{
+ await page.evaluate(()=>{
+   const original=File.prototype.arrayBuffer;
+   window.pendingCrossTabImport=[];
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='traag-project.json')
+       return new Promise((resolve,reject)=>window.pendingCrossTabImport.push(()=>original.call(this).then(resolve,reject)));
+     return original.call(this);
+   };
+ });
+ let dialogs=0;
+ page.on('dialog',async dialog=>{dialogs++;await dialog.dismiss();});
+ await page.locator('#bundleImport').setInputFiles({name:'traag-project.json',mimeType:'application/json',buffer:Buffer.from(payload)});
+ await expect.poll(()=>page.evaluate(()=>window.pendingCrossTabImport.length)).toBe(1);
+ await other.evaluate(()=>{
    const api=window.PalacoAtelierBundle;
    localStorage.setItem(api.NOTE,'Nieuwere notitie vanuit tweede tab');
-  });
-  await dialog.accept();
  });
- await page.locator('#bundleImport').setInputFiles({name:'project.json',mimeType:'application/json',buffer:Buffer.from(payload)});
- await expect(page.locator('#bundleStatus')).toContainText('gewijzigd sinds de controle');
+ await expect(page.locator('#bundleStatus')).toContainText('Projectimport onderbroken');
+ await page.evaluate(()=>window.pendingCrossTabImport.shift()());
  await expect(page.locator('#statement')).toHaveValue('Mijn onopgeslagen creatieve tekst');
+ expect(dialogs).toBe(0);
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Nieuwere notitie vanuit tweede tab');
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
  await other.close();
 });
 
-test('Atelier v6.23: herstelpunt gewijzigd door tweede tab tijdens undo wordt geweigerd',async ({page})=>{
+test('Atelier v6.24: herstelknoppen volgen wijziging van herstelkopie uit tweede tab',async ({page})=>{
  await page.goto('/atelier/regiekamer.html');
- await page.evaluate(()=>{
-  const api=window.PalacoAtelierBundle;
-  localStorage.setItem(api.NOTE,'Vóór import');
-  api.restoreWithRecovery(localStorage,api.create(null,null,'Huidig ontwerp'));
- });
  const other=await page.context().newPage();
  await other.goto('/atelier/regiekamer.html');
- await expect(page.locator('#undoImport')).toBeEnabled();
- const before=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
- page.once('dialog',async dialog=>{
-  await other.evaluate(()=>{
+ await expect(page.locator('#undoImport')).toBeDisabled();
+ await other.evaluate(()=>{
    const api=window.PalacoAtelierBundle;
-   const recovery=JSON.parse(localStorage.getItem(api.RECOVERY));
-   recovery.draft.note='Herstelpunt vanuit tweede tab';
-   localStorage.setItem(api.RECOVERY,JSON.stringify(recovery));
-  });
-  await dialog.accept();
+   localStorage.setItem(api.NOTE,'Vóór import');
+   api.restoreWithRecovery(localStorage,api.create(null,null,'Huidig ontwerp'));
  });
- await page.locator('#undoImport').click();
- await expect(page.locator('#bundleStatus')).toContainText('Herstelkopie gewijzigd sinds het herstelvoorstel');
- expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
- expect(await page.evaluate(()=>JSON.parse(localStorage.getItem(window.PalacoAtelierBundle.RECOVERY)).draft.note)).toBe('Herstelpunt vanuit tweede tab');
+ await expect(page.locator('#undoImport')).toBeEnabled();
+ await expect(page.locator('#exportRecovery')).toBeEnabled();
+ await other.evaluate(()=>{
+   localStorage.removeItem(window.PalacoAtelierBundle.RECOVERY);
+ });
+ await expect(page.locator('#undoImport')).toBeDisabled();
+ await expect(page.locator('#exportRecovery')).toBeDisabled();
+ await expect(page.locator('#recoveryStatus')).toContainText('Nog geen lokale herstelkopie');
  await other.close();
 });
