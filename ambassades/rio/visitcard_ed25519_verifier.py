@@ -67,8 +67,9 @@ def _signed(envelope: Any, keys: Mapping[str, bytes], domain: bytes) -> Mapping[
     payload, key_id = envelope["payload"], envelope["key_id"]
     if not isinstance(payload, dict) or not isinstance(key_id, str):
         raise ValueError("invalid payload or key ID")
-    if not key_id or len(key_id) > 128 or key_id not in keys:
-        raise ValueError("untrusted key")
+    # Registry keys are scoped to issuer identity, not arbitrary key aliases.
+    if not key_id or len(key_id) > 128 or key_id not in keys or payload.get("issuer") != key_id:
+        raise ValueError("untrusted issuer or key")
     key = keys[key_id]
     if not isinstance(key, bytes) or len(key) != 32:
         raise ValueError("invalid trusted key")
