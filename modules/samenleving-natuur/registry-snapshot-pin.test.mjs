@@ -196,3 +196,50 @@ test('hostile ownKeys Proxy trap fails closed without inspecting pin values', ()
   assert.equal(result.authorization,'DENY');
   assert.equal(result.releaseAllowed,false);
 });
+
+
+test('issuer JWK accessor is rejected without executing hostile getter', () => {
+  const data=signed();
+  const malicious={...issuerPublicJwk};
+  let reads=0;
+  Object.defineProperty(malicious,'x',{
+    enumerable:true,configurable:true,
+    get(){reads++;return issuerPublicJwk.x;}
+  });
+  const result=evaluate(data,{issuerPublicJwk:malicious});
+  assert.equal(reads,0);
+  assert.equal(result.exactSnapshotMatched,false);
+  assert.equal(result.reason,'INVALID_ISSUER_KEY');
+  assert.equal(result.authorization,'DENY');
+  assert.equal(result.releaseAllowed,false);
+});
+
+test('changing issuer JWK proxy descriptor is sampled once', () => {
+  const data=signed();
+  let reads=0;
+  const mutable=new Proxy({...issuerPublicJwk},{
+    getOwnPropertyDescriptor(target,key){
+      const descriptor=Reflect.getOwnPropertyDescriptor(target,key);
+      if(key==='x'){
+        reads++;
+        return {...descriptor,value:reads===1?issuerPublicJwk.x:'AAAAAAAA'};
+      }
+      return descriptor;
+    }
+  });
+  const result=evaluate(data,{issuerPublicJwk:mutable});
+  assert.equal(reads,1);
+  assert.equal(result.exactSnapshotMatched,true,JSON.stringify(result));
+  assert.equal(result.trust,'NOT_ESTABLISHED');
+  assert.equal(result.authorization,'DENY');
+  assert.equal(result.releaseAllowed,false);
+});
+
+test('issuer JWK with extra symbol property cannot bypass exact-key contract', () => {
+  const data=signed();
+  const malformed={...issuerPublicJwk,[Symbol('extra')]:'forbidden'};
+  const result=evaluate(data,{issuerPublicJwk:malformed});
+  assert.equal(result.exactSnapshotMatched,false);
+  assert.equal(result.reason,'INVALID_ISSUER_KEY');
+  assert.equal(result.authorization,'DENY');
+});
