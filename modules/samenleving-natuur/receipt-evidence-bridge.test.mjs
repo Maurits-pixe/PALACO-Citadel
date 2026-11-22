@@ -166,3 +166,49 @@ test('repeated altered receipt bytes cannot reuse signatures or claim authorizat
     assert.equal(result.releaseAllowed,false);
   }
 });
+
+
+test('changing reviewer fingerprint Proxy descriptor is sampled only once',()=>{
+  let reads=0;
+  const adversarial=new Proxy(claims(),{
+    getOwnPropertyDescriptor(target,key){
+      const descriptor=Reflect.getOwnPropertyDescriptor(target,key);
+      if(key==='reviewerKeyFingerprint'){
+        reads++;
+        return {...descriptor,value:reads===1?fingerprint:'0'.repeat(64)};
+      }
+      return descriptor;
+    }
+  });
+  const result=run({claims:adversarial});
+  assert.equal(reads,1,'reviewer key descriptor must not be read twice');
+  assert.equal(result.cryptographicallyValid,true);
+  assert.equal(result.reviewerSigningKeyMatchesClaim,true);
+  assert.equal(result.localChecksReportedPass,true);
+  assert.deepEqual(result.failedChecks,[]);
+  assert.equal(result.trust,'NOT_ESTABLISHED');
+  assert.equal(result.authorization,'DENY');
+  assert.equal(result.releaseAllowed,false);
+});
+
+test('first-read invalid reviewer key remains denied despite later valid Proxy value',()=>{
+  let reads=0;
+  const adversarial=new Proxy(claims(),{
+    getOwnPropertyDescriptor(target,key){
+      const descriptor=Reflect.getOwnPropertyDescriptor(target,key);
+      if(key==='reviewerKeyFingerprint'){
+        reads++;
+        return {...descriptor,value:reads===1?'0'.repeat(64):fingerprint};
+      }
+      return descriptor;
+    }
+  });
+  const result=run({claims:adversarial});
+  assert.equal(reads,1);
+  assert.equal(result.cryptographicallyValid,true);
+  assert.equal(result.reviewerSigningKeyMatchesClaim,false);
+  assert.equal(result.localChecksReportedPass,false);
+  assert.ok(result.failedChecks.includes('reviewerSigningKeyMismatch'));
+  assert.equal(result.authorization,'DENY');
+  assert.equal(result.executionAllowed,false);
+});
