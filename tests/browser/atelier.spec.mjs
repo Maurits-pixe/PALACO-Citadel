@@ -2056,3 +2056,48 @@ test('Atelier v6.41: gewijzigde opslag synchroniseert schone editor nog altijd',
  await page.locator('#saveNote').click();
  await expect(page.locator('#feedback')).toContainText('lokaal bewaard');
 });
+
+test('Atelier v6.43: sessionStorage-event mag notitiefeedback niet overschrijven',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Mijn opgeslagen ontwerp');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toHaveText('Ontwerpnotitie lokaal bewaard.');
+ await page.evaluate(()=>{
+   const api=window.PalacoAtelierBundle;
+   // A similarly named key in sessionStorage does not belong to Atelier persistence.
+   window.dispatchEvent(new StorageEvent('storage',{
+     key:api.NOTE,newValue:'Onverwachte sessieversie',
+     storageArea:sessionStorage,url:location.href
+   }));
+ });
+ await expect(page.locator('#statement')).toHaveValue('Mijn opgeslagen ontwerp');
+ await expect(page.locator('#feedback')).toHaveText('Ontwerpnotitie lokaal bewaard.');
+});
+
+test('Atelier v6.43: event zonder lokale opslagbron mag geen lopende import annuleren',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const content=await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.read(localStorage)));
+ await page.evaluate(()=>{
+   const original=File.prototype.arrayBuffer;
+   window.pendingUnrelatedStorageImport=[];
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='pending-storage-area.json')
+       return new Promise((resolve,reject)=>window.pendingUnrelatedStorageImport.push(()=>original.call(this).then(resolve,reject)));
+     return original.call(this);
+   };
+ });
+ await page.locator('#bundleImport').setInputFiles({name:'pending-storage-area.json',mimeType:'application/json',buffer:Buffer.from(content)});
+ await expect.poll(()=>page.evaluate(()=>window.pendingUnrelatedStorageImport.length)).toBe(1);
+ await page.evaluate(()=>{
+   const api=window.PalacoAtelierBundle;
+   window.dispatchEvent(new StorageEvent('storage',{
+     key:api.NOTE,newValue:'Sessieopslag',
+     storageArea:sessionStorage,url:location.href
+   }));
+ });
+ await expect(page.locator('#bundleStatus')).not.toContainText('Projectimport onderbroken');
+ await expect(page.locator('#bundleImport')).not.toHaveValue('');
+ page.once('dialog',dialog=>dialog.dismiss());
+ await page.evaluate(()=>window.pendingUnrelatedStorageImport.shift()());
+ await expect(page.locator('#bundleStatus')).not.toContainText('Projectimport onderbroken');
+});
