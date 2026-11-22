@@ -314,3 +314,34 @@ authoritative high-water anchoring, mTLS, audited key storage, negative
 network tests, test execution and security review remain necessary.
 Never treat a signed head or ACKNOWLEDGED as identity authority.
 **GO-13 HOLD; no merge or public site publication.**
+
+## v1.8 — Mandatory head preflight in the NEW recovery entrypoint (DRAFT / HOLD)
+
+`visitcard_witness_recovery_v18.py` introduces `recover_once_verified`.
+Unlike the older v1.5 recovery function, this v1.8 entrypoint **requires**
+a fresh, challenge-bound and independently signed witness head before any
+publication attempt. It obtains the v1.6 durable exclusive claim first,
+then compares the head against the exact immutable outbox proposal.
+
+- A missing, stale or invalid head stays `PENDING`; no request is sent.
+- A fork, skipped sequence or wrong predecessor yields `CONFLICT` and
+  leaves the outbox pending for manual investigation.
+- The next sequential proposal may be sent exactly once; a proposal
+  already present with matching head may be sent again to retrieve its
+  previously issued receipt.
+- A valid signed receipt must still be persisted in the outbox before
+  returning `ACKNOWLEDGED`.
+- Requests for sequence 1 (genesis) are **never** handled by normal recovery.
+  Bootstrap requires a separate, authenticated enrollment ceremony.
+
+**Important rollout boundary:** the preexisting `recover_once` from
+v1.5 remains in the DRAFT tree for legacy tests and is NOT replaced by
+this new strict entrypoint. No external caller may consider the older
+routine production-safe. Integration migration, elimination of the
+legacy bypass, secure genesis enrollment and authenticated operator
+approval remain release blockers. Also, the preflight query and receipt
+publication are not a single atomic witness transaction, although the
+witness server independently checks sequence and predecessor.
+
+Twelve additional v1.8 loopback tests have been added and await
+actual execution. This is **not** public or deployed. **GO-13 HOLD**.
