@@ -34,3 +34,15 @@ test('state has revision, exact digest and ledger-head constraints',()=>{
   assert.match(source,/revision bigint NOT NULL CHECK \(revision > 0\)/);
 });
 
+
+test('TRUNCATE is blocked on the history and current-state tables',()=>{
+  for(const table of ['pin_history','pin_state']) {
+    assert.match(source,new RegExp('BEFORE TRUNCATE ON citadel_pin_draft\\.'+table));
+    assert.match(source,new RegExp('DROP TRIGGER IF EXISTS '+table+'_no_truncate'));
+  }
+});
+test('draft state cannot be inserted, updated or deleted via ordinary DML',()=>{
+  assert.match(source,/BEFORE INSERT OR UPDATE OR DELETE ON citadel_pin_draft\.pin_state/);
+  assert.match(source,/PALACO_CITADEL_PIN_STATE_FROZEN/);
+  assert.match(source,/REVOKE ALL ON FUNCTION citadel_pin_draft\.reject_state_mutation\(\) FROM PUBLIC/);
+});
