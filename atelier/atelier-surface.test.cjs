@@ -225,7 +225,7 @@ test('Atelier note synchronization must preserve unsaved edits from local tab',(
  assert.match(handler,/const locallyEdited=noteValue\(\)!==/);
  assert.match(handler,/if\(locallyEdited\)/);
  assert.match(handler,/onopgeslagen tekst blijft staan/);
- assert.match(handler,/const latest=localStorage\.getItem\(NOTE\)/);
+ assert.match(handler,/latest=localStorage\.getItem\(NOTE\)/);
  assert.match(handler,/typeof latest==='string'\?latest\.slice\(0,6000\):''/);
 });
 
@@ -364,7 +364,7 @@ test('Atelier full storage clear syncs clean notes and protects unsaved edits',(
  const handler=html.slice(start);
  assert.match(handler,/if\(e\.key===NOTE\|\|e\.key===null\)/);
  assert.match(handler,/const locallyEdited=noteValue\(\)!==/);
- assert.match(handler,/const latest=localStorage\.getItem\(NOTE\)/);
+ assert.match(handler,/latest=localStorage\.getItem\(NOTE\)/);
  assert.match(handler,/noteBaseline=latest/);
  assert.match(handler,/onopgeslagen tekst blijft staan/);
 });
@@ -375,7 +375,7 @@ test('Atelier delayed note storage event must use the current stored revision',(
  const start=html.lastIndexOf("window.addEventListener('storage',e=>{");
  assert.ok(start>=0);
  const handler=html.slice(start);
- assert.match(handler,/const latest=localStorage\.getItem\(NOTE\)/);
+ assert.match(handler,/latest=localStorage\.getItem\(NOTE\)/);
  assert.doesNotMatch(handler,/const latest=e\.newValue/);
  assert.doesNotMatch(handler,/const latest=e\.key===null\?null:e\.newValue/);
  assert.match(handler,/noteBaseline=latest/);
@@ -386,10 +386,21 @@ test('Atelier note conflict notice requires a real stored revision mismatch',()=
  const start=html.lastIndexOf("window.addEventListener('storage',e=>{");
  assert.ok(start>=0);
  const handler=html.slice(start);
- const readPosition=handler.indexOf('const latest=localStorage.getItem(NOTE)');
+ const readPosition=handler.indexOf('latest=localStorage.getItem(NOTE)');
  const edited=handler.indexOf('const locallyEdited=noteValue()');
  const conflict=handler.indexOf('if(latest!==noteBaseline)');
  const warning=handler.indexOf('Ontwerpnotitie gewijzigd in een ander tabblad');
  assert.ok(readPosition>=0&&edited>readPosition&&conflict>edited&&warning>conflict);
  assert.match(handler,/noteBaseline=latest/);
+});
+
+test('Atelier note synchronization handles inaccessible storage without losing editor text',()=>{
+ const html=read('regiekamer.html');
+ const start=html.lastIndexOf("window.addEventListener('storage',e=>{");
+ assert.ok(start>=0);
+ const handler=html.slice(start);
+ assert.match(handler,/try\{latest=localStorage\.getItem\(NOTE\);\}/);
+ assert.match(handler,/browseropslag is niet toegankelijk/);
+ assert.match(handler,/Je huidige tekst blijft staan/);
+ assert.ok(handler.indexOf('return;',handler.indexOf('browseropslag is niet toegankelijk'))<handler.indexOf('noteBaseline=latest'));
 });
