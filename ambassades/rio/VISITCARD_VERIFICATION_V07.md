@@ -44,3 +44,28 @@ Do not report skipped crypto tests as passing crypto verification.
 4. Revocation issuer authority, publication cadence and rollback incident plan.
 5. Mobile/browser interoperability and privacy threat model.
 6. CI execution and documented release authorization. **No automatic merge.**
+
+## v0.8 — Transactional SQLite prototype (Draft / HOLD)
+
+`visitcard_checkpoint_ledger.py` adds a single-SQLite-database
+`BEGIN IMMEDIATE` transaction that reads the latest issuer checkpoint,
+verifies the signed snapshot against that baseline and only returns a
+display status after a successful commit. Update revision and previous
+checkpoint fields are checked in the conditional `UPDATE`.
+
+**Bootstrap is strictly out of band.** The administrative
+`provision_trusted_checkpoint` inserts an initial checkpoint once; never
+derive the first trusted checkpoint from a scanned credential or QR code.
+The database contains metadata only, not signed credentials.
+
+**Remaining limitations:** SQLite durability depends on trusted filesystem,
+transaction and backup configuration. Restoring an old database snapshot
+can still roll back the entire register. Cross-device operation requires
+a shared, authenticated authoritative store with monotonic high-water
+evidence or an external append-only witness. A timestamp-based checkpoint
+also requires trustworthy issuer time and an explicit publication sequence
+for stronger anti-replay guarantees. There is no public site integration,
+no real issuer enrollment, and no GO-13 authorization.
+
+Ten additional tests are committed but are not considered passing until
+executed in CI with `cryptography` installed and skip counts inspected.
