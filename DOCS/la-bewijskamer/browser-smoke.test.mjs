@@ -1419,3 +1419,46 @@ test("encrypted export refuses a vault changed by a second browser tab",async()=
  assert.equal(await a.evaluate(()=>window.__downloadCount),0);
  await c.close();
 });
+
+test("cross-tab draft storage update closes selected dossier and revokes handoff consent",async()=>{
+ const c=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true,acceptDownloads:true});
+ const a=await c.newPage(),b=await c.newPage();
+ await a.goto(base+"/DOCS/la-geheugenkamer/");
+ await b.goto(base+"/DOCS/la-geheugenkamer/");
+ await a.locator("#title").fill("Cross-tab dossier");
+ await a.locator("#who").fill("W");await a.locator("#what").fill("Synthetisch");
+ await a.locator("#entryForm button[type=submit]").tap();
+ await a.locator("#timeline button").filter({hasText:"Inspecteer dossier"}).tap();
+ await a.locator("#handoffConsent").check();
+ await b.evaluate(()=>localStorage.setItem("palaco.citadel.geheugenkamer.v1","wijziging-andere-tab"));
+ await a.waitForFunction(()=>document.querySelector("#message").textContent.includes("Apparaatopslag elders gewijzigd"));
+ assert.equal(await a.locator("#dossier").isVisible(),false);
+ assert.equal(await a.locator("#handoffConsent").isChecked(),false);
+ assert.equal(await a.evaluate(()=>document.activeElement.id),"timeline");
+ await a.evaluate(()=>document.querySelector("#contractExport").click());
+ assert.match(await a.locator("#message").innerText(),/geen geldig dossier geselecteerd/);
+ assert.equal(await a.locator("#count").innerText(),"1");
+ await c.close();
+});
+
+test("cross-tab vault update revokes consent but unrelated storage keys do not",async()=>{
+ const c=await browser.newContext({viewport:{width:390,height:844},acceptDownloads:true});
+ const a=await c.newPage(),b=await c.newPage();
+ await a.goto(base+"/DOCS/la-geheugenkamer/");
+ await b.goto(base+"/DOCS/la-geheugenkamer/");
+ await a.locator("#title").fill("Vault event dossier");
+ await a.locator("#who").fill("W");await a.locator("#what").fill("Synthetisch");
+ await a.locator("#entryForm button[type=submit]").click();
+ await a.locator("#timeline button").filter({hasText:"Inspecteer dossier"}).click();
+ await a.locator("#handoffConsent").check();
+ await b.evaluate(()=>localStorage.setItem("unrelated-test-key","unrelated-data"));
+ assert.equal(await a.locator("#dossier").isVisible(),true);
+ assert.equal(await a.locator("#handoffConsent").isChecked(),true);
+ await b.evaluate(()=>localStorage.setItem("palaco.citadel.geheugenkamer.vault.v1","gewijzigde-kluis"));
+ await a.waitForFunction(()=>document.querySelector("#message").textContent.includes("Kluis elders gewijzigd"));
+ assert.equal(await a.locator("#dossier").isVisible(),false);
+ assert.equal(await a.locator("#handoffConsent").isChecked(),false);
+ assert.equal(await a.evaluate(()=>document.activeElement.id),"timeline");
+ assert.equal(await a.locator("#count").innerText(),"1");
+ await c.close();
+});
