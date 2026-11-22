@@ -68,9 +68,14 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
       expectedAnchorKeyFingerprint, genesisPin, entries, currentPin,
       minimumAnchorSequence
     } = snapshot;
+    // Capture caller-owned PINs once; validating them before this point would
+    // invoke untrusted Proxy descriptor traps for a second read.
+    const genesisSnapshot = capturePin(genesisPin);
+    const currentSnapshot = capturePin(currentPin);
+    if (!genesisSnapshot || !currentSnapshot)
+      return reject('INVALID_ANCHOR_INPUT');
     if (!(anchorBytes instanceof Uint8Array) || !anchorBytes.length ||
       anchorBytes.length > 8192 || !Array.isArray(entries) ||
-      !pinOK(genesisPin) || !pinOK(currentPin) ||
       typeof expectedAnchorKeyFingerprint !== 'string' ||
       !HEX.test(expectedAnchorKeyFingerprint) ||
       !Number.isSafeInteger(minimumAnchorSequence) ||
@@ -78,10 +83,6 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
       typeof signatureBase64Url !== 'string' ||
       signatureBase64Url.length < 11 || signatureBase64Url.length > 107 ||
       !/^[A-Za-z0-9_-]+$/.test(signatureBase64Url))
-      return reject('INVALID_ANCHOR_INPUT');
-    const genesisSnapshot = capturePin(genesisPin);
-    const currentSnapshot = capturePin(currentPin);
-    if (!genesisSnapshot || !currentSnapshot)
       return reject('INVALID_ANCHOR_INPUT');
     // Snapshot each public JWK coordinate exactly once: hostile getters and
     // changing Proxy descriptors must not alter the key between fingerprint
