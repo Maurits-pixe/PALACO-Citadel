@@ -46,9 +46,13 @@ class WitnessClientTests(unittest.TestCase):
         return {"payload": payload, "signature": base64.urlsafe_b64encode(signature).rstrip(b"=").decode()}
 
     def send(self, claim=None, **kwargs):
+        # A test case may override the default ephemeral port, including 0.
+        # Compose arguments once to avoid duplicate keyword TypeError.
+        transport = {"port": self.server.server_port}
+        transport.update(kwargs)
         return submit_local_witness(
             self.claim() if claim is None else claim, self.trust,
-            expected_issuer="issuer.example", port=self.server.server_port, **kwargs
+            expected_issuer="issuer.example", **transport
         )
 
     def test_valid_receipt_is_verified_and_matches_claim(self):
