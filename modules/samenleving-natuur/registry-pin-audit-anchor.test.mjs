@@ -856,3 +856,30 @@ test('P-256 order minus one remains a parseable positive scalar',()=>{
    assert.equal(r.releaseAllowed,false);
  }
 });
+
+
+test('signed audit anchor rejects reordered top-level JSON members',()=>{
+ const doc=document();
+ const reordered={sequence:doc.sequence,schema:doc.schema,
+   headHash:doc.headHash,genesisPin:doc.genesisPin,currentPin:doc.currentPin};
+ const input=setup(reordered);
+ const r=inspectSignedAuditHeadAnchor(input);
+ assert.equal(r.reason,'NONCANONICAL_ANCHOR_DOCUMENT');
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('signed audit anchor rejects reordered nested PIN members',()=>{
+ const doc=document();
+ const pin=doc.genesisPin;
+ const genesisPin={revision:pin.revision,schema:pin.schema,
+   issuerFingerprint:pin.issuerFingerprint,registrySha256:pin.registrySha256};
+ const input=setup({...doc,genesisPin});
+ const r=inspectSignedAuditHeadAnchor(input);
+ assert.equal(r.reason,'NONCANONICAL_ANCHOR_DOCUMENT');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
