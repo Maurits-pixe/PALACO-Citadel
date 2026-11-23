@@ -2597,7 +2597,8 @@ test('Atelier v6.70: nieuwe editortekst tijdens opslag wordt niet als bewaard ge
  await page.goto('/atelier/regiekamer.html');
  await page.locator('#statement').fill('Mijn eerste versie');
  await page.evaluate(()=>{
-   const original=Storage.prototype.setItem;
+   window.originalNoteSetItem=Storage.prototype.setItem;
+   const original=window.originalNoteSetItem;
    Storage.prototype.setItem=function(key,value){
      if(this===localStorage&&key===window.PalacoAtelierBundle.NOTE){
        original.call(this,key,value);
@@ -2612,7 +2613,7 @@ test('Atelier v6.70: nieuwe editortekst tijdens opslag wordt niet als bewaard ge
  await expect(page.locator('#statement')).toHaveValue('Mijn nieuwere onopgeslagen versie');
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Mijn eerste versie');
  await page.evaluate(()=>{
-   delete Storage.prototype.setItem;
+   Storage.prototype.setItem=window.originalNoteSetItem;
  });
  await page.locator('#saveNote').click();
  await expect(page.locator('#feedback')).toHaveText('Ontwerpnotitie lokaal bewaard.');
