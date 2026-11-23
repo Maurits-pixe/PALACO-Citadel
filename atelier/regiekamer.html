@@ -790,14 +790,22 @@ $('undoImport').addEventListener('click',()=>{
    const previewedRecovery=localStorage.getItem(api.RECOVERY);
    const record=api.getRecovery(localStorage);
    if(!record){refreshRecoveryInfo();return;}
-   const pending=noteValue()!==(before[2]===null?'':before[2]);
+   // Compare the complete textarea, even when scripts bypass maxlength.
+   const editorBeforeConfirm=$('statement').value;
+   const pending=editorBeforeConfirm!==(before[2]===null?'':before[2]);
    const difference=api.preview(api.read(localStorage),record.draft);
    const warning=pending?' Onopgeslagen tekst in deze pagina gaat verloren.':'';
    if(!confirm('Vorige lokale Atelier-versie terugzetten? '+difference.changed+' vakken veranderen, '+difference.removed+' ingerichte vakken verdwijnen. De huidige opgeslagen versie wordt dan de nieuwe herstelkopie.'+warning))return;
+   // Do not authorize overwriting edits made while confirmation was open.
+   if($('statement').value!==editorBeforeConfirm){
+     $('bundleStatus').textContent='Terugzetten geweigerd: de ontwerpnotitie is tijdens bevestiging gewijzigd. Je nieuwste tekst blijft staan.';
+     return;
+   }
    showRollbackReport(null);
    api.undoLastImport(localStorage,before,previewedRecovery);
    $('statement').value=record.draft.note;
-   noteBaseline=localStorage.getItem(NOTE);
+   // Bind to the exact restored revision, not a later competing storage read.
+   noteBaseline=record.draft.note;
    refresh();
    refreshRecoveryInfo();
    $('bundleStatus').textContent='Vorige Atelier-versie teruggezet vanuit de lokale herstelkopie.';
