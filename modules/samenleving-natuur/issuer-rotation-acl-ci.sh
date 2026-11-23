@@ -68,7 +68,7 @@ deny 'audit INSERT' "INSERT INTO citadel_issuer_acl_ci.append_history VALUES (5,
 deny 'audit DELETE' "DELETE FROM citadel_issuer_acl_ci.append_history WHERE sequence=4;"
 deny 'audit TRUNCATE' "TRUNCATE citadel_issuer_acl_ci.append_history;"
 deny 'schema CREATE' "CREATE TABLE citadel_issuer_acl_ci.forbidden (id int);"
-deny 'privilege escalation' "GRANT UPDATE ON citadel_issuer_acl_ci.current_pin TO citadel_issuer_readonly_ci;"
+deny 'ownership takeover' "ALTER TABLE citadel_issuer_acl_ci.current_pin OWNER TO citadel_issuer_readonly_ci;"
 psql -X -v ON_ERROR_STOP=1 <<'SQL'
 DO $check$
 BEGIN
