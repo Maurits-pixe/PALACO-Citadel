@@ -504,3 +504,16 @@ test('Atelier async import guards against silent textarea changes',()=>{
  assert.match(handler,/Onopgeslagen ontwerpnotitie gewijzigd tijdens het lezen/);
  assert.match(handler,/importStartNote=null/);
 });
+
+test('Atelier canceled import confirmation cannot restore stale selection',()=>{
+ const html=read('regiekamer.html');
+ const start=html.indexOf("$('bundleImport').addEventListener('change'");
+ const end=html.indexOf("$('bundleImport').addEventListener('cancel'",start);
+ assert.ok(start>=0&&end>start);
+ const handler=html.slice(start,end);
+ const confirmation=handler.indexOf("if(!confirm(");
+ const guard=handler.indexOf('if(revision!==importRevision)return;',confirmation);
+ const restore=handler.indexOf('api.restoreWithRecovery(',confirmation);
+ assert.ok(confirmation>=0&&guard>confirmation&&restore>guard);
+ assert.match(handler,/A stale approval never authorizes a write/);
+});
