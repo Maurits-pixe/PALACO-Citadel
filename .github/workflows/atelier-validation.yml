@@ -79,7 +79,16 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+          PALACO_ARTIFACT_METADATA_PATH: ${{ runner.temp }}/atelier-artifact-metadata-observation.json
         run: node atelier/github-artifact-metadata.cjs
+      - name: Retain explicit GitHub artifact metadata observation
+        if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: atelier-artifact-metadata-observation
+          path: ${{ runner.temp }}/atelier-artifact-metadata-observation.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Verify release remains HOLD without matching approved evidence
         shell: bash
         run: |
