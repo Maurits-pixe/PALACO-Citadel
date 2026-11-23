@@ -484,9 +484,9 @@ test('Atelier import confirmation preserves edits made during the confirmation',
  const end=html.indexOf("$('bundleImport').addEventListener('cancel'",begin);
  assert.ok(begin>=0&&end>begin);
  const handler=html.slice(begin,end);
- const before=handler.indexOf('const noteBeforeConfirm=noteValue()');
+ const before=handler.indexOf("const noteBeforeConfirm=$('statement').value");
  const confirmation=handler.indexOf('if(!confirm(',before);
- const check=handler.indexOf('if(noteValue()!==noteBeforeConfirm)',confirmation);
+ const check=handler.indexOf("if($('statement').value!==noteBeforeConfirm)",confirmation);
  const restore=handler.indexOf('api.restoreWithRecovery(',check);
  assert.ok(before>=0&&confirmation>before&&check>confirmation&&restore>check);
  assert.match(handler,/Ontwerpnotitie gewijzigd tijdens bevestiging/);
@@ -498,9 +498,9 @@ test('Atelier async import guards against silent textarea changes',()=>{
  const end=html.indexOf("$('bundleImport').addEventListener('cancel'",begin);
  assert.ok(begin>=0&&end>begin);
  const handler=html.slice(begin,end);
- const original=handler.indexOf('importStartNote=noteValue()');
+ const original=handler.indexOf("importStartNote=$('statement').value");
  const asyncRead=handler.indexOf('const importBytes=await file.arrayBuffer()');
- const noteCheck=handler.indexOf('if(importStartNote===null||noteValue()!==importStartNote)');
+ const noteCheck=handler.indexOf("if(importStartNote===null||$('statement').value!==importStartNote)");
  const preview=handler.indexOf('const inspection=api.preview(');
  assert.ok(original>=0&&asyncRead>original&&noteCheck>asyncRead&&preview>noteCheck);
  assert.match(handler,/Onopgeslagen ontwerpnotitie gewijzigd tijdens het lezen/);
@@ -563,4 +563,17 @@ test('Atelier post-import baseline matches exactly restored note',()=>{
  const refresh=handler.indexOf('refresh()',baseline);
  assert.ok(restore>=0&&editor>restore&&baseline>editor&&refresh>baseline);
  assert.doesNotMatch(handler.slice(restore,refresh),/noteBaseline=localStorage\.getItem\(NOTE\)/);
+});
+
+test('Atelier import must compare full unsaved textarea including beyond save limit',()=>{
+ const html=read('regiekamer.html');
+ const start=html.indexOf("$('bundleImport').addEventListener('change'");
+ const end=html.indexOf("$('bundleImport').addEventListener('cancel'",start);
+ assert.ok(start>=0&&end>start);
+ const handler=html.slice(start,end);
+ assert.match(handler,/importStartNote=\$\('statement'\)\.value/);
+ assert.match(handler,/importStartNote===null\|\|\$\('statement'\)\.value!==importStartNote/);
+ assert.match(handler,/const noteBeforeConfirm=\$\('statement'\)\.value/);
+ assert.match(handler,/if\(\$\('statement'\)\.value!==noteBeforeConfirm\)/);
+ assert.match(handler,/const pendingNote=\$\('statement'\)\.value!==currentNote/);
 });
