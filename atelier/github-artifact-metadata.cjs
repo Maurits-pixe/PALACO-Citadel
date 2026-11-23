@@ -31,7 +31,7 @@ function getJson(url,token){
    const chunks=[];let n=0;
    res.on('data',chunk=>{n+=chunk.length;if(n>100000){req.destroy(Error('Artifact metadata oversized'));return;}chunks.push(chunk);});
    res.on('end',()=>{
-    if(res.statusCode!==200){reject(Error('GitHub API artifact status '+res.statusCode));return;}
+    if(res.statusCode!==200){const error=Error('GitHub API artifact status '+res.statusCode);error.statusCode=res.statusCode;reject(error);return;}
     try{resolve(JSON.parse(Buffer.concat(chunks).toString('utf8')));}
     catch(err){reject(err);}
    });
@@ -40,12 +40,26 @@ function getJson(url,token){
   req.on('error',reject);
  });
 }
-async function observe({repository,runId,headSha,artifactId,token,fetchJson=getJson}){
+async function observe({repository,runId,headSha,artifactId,token,fetchJson=getJson,wait=ms=>new Promise(resolve=>setTimeout(resolve,ms))}){
  if(!REPO.test(repository||'')||!positive(artifactId)||!positive(runId)||
    !SHA.test(headSha||'')||typeof token!=='string'||!token)
   throw Error('Invalid artifact observation arguments');
  const url='https://api.github.com/repos/'+repository+'/actions/artifacts/'+artifactId;
- const meta=await fetchJson(url,token);
+ let meta;
+ for(let attempt=0;attempt<3;attempt++){
+  try{meta=await fetchJson(url,token);break;}
+  catch(err){
+   // Newly uploaded artifacts may briefly return 404 before API indexing.
+   // Missing metadata is never silently promoted to verified evidence.
+   if(err?.statusCode!==404)throw err;
+   if(attempt===2)return {schema:'palaco.citadel.atelier.github-artifact-metadata/1',
+    artifact_id:artifactId,repository,run_id:runId,head_sha:headSha,
+    result:'GITHUB_METADATA_UNAVAILABLE',reason:'artifact_metadata_not_found_after_retries',
+    decision:'HOLD',publication:'DENY',release_approved:false,evidence_usable:false,
+    limitation:'Artifact metadata unavailable; no GitHub ZIP digest or authenticated artifact verification'};
+   await wait(attempt===0?500:1500);
+  }
+ }
  return validateMetadata(meta,{repository,runId,headSha,artifactId});
 }
 async function main(env=process.env){
