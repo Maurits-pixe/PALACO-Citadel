@@ -52,6 +52,7 @@ jobs:
         env:
           PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
           PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_REVIEW_INTEGRITY_PATH: ${{ runner.temp }}/atelier-review-integrity.json
         shell: bash
         run: |
           if [[ -f "${RUNNER_TEMP}/atelier-review-evidence.json" ]]; then
@@ -64,7 +65,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: atelier-review-evidence
-          path: ${{ runner.temp }}/atelier-review-evidence.json
+          path: |
+            ${{ runner.temp }}/atelier-review-evidence.json
+            ${{ runner.temp }}/atelier-review-integrity.json
           if-no-files-found: ignore
           retention-days: 7
       - name: Verify release remains HOLD without matching approved evidence
