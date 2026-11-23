@@ -741,3 +741,11 @@ De read-only `github-review-audit.cjs` houdt rekening met **opeenvolgende beoord
 Vijf nieuwe regressies beschermen tegen een ingetrokken goedkeuring, een latere goedkeuring voor een andere SHA, ontbrekende chronologie, dubbele IDs en een daadwerkelijk latere geldige goedkeuring die nog steeds geen releasebevoegdheid krijgt. De bestaande Atelier DRAFT-workflow neemt de tests automatisch mee.
 
 **Bewijsbeperking:** dit is nog steeds een offline audit van aangeleverde metadata. Een lokaal bestand kan geen authenticiteit, volledigheid of actuele GitHub-status aantonen. Een daadwerkelijk ingetrokken review of een niet-aangeleverde nieuwere review kan alleen met een actuele, onafhankelijk opgehaalde reviewlijst worden vastgesteld. Het besluit blijft onder alle omstandigheden **DRAFT / HOLD / DENY**; geen merge, EDTR of publieke uitrol.
+
+## Regiekamer v6.57 — volledigheid en actualiteit GitHub-reviewlijst (2026-11-23)
+
+De read-only `github-review-audit.cjs` beoordeelt nu naast individuele reviews ook de aangeleverde **ophaalmomentopname** (`provenance`). Voor de diagnostische melding `review_list_complete_claim` moeten `pr_number`, `head_sha`, `total_count`, `pagination_complete: true`, `has_next_page: false` en `fetched_at` kloppen met de kandidaat en de lijst. Het ophaalmoment mag niet in de toekomst liggen en mag bij beoordeling niet ouder zijn dan **15 minuten**. Ontbrekende, achterhaalde, onvolledig gepagineerde of aan een andere PR/HEAD gekoppelde momentopnamen krijgen expliciete `review_list_issues`.
+
+**De metadata blijft zelfgerapporteerde invoer**: zelfs wanneer alle velden plausibel zijn, staat `evidence_usable` op `false`, `decision` op `HOLD` en `publication` op `DENY`. Dit verhindert dat een gemanipuleerd of onvolledig lokaal JSON-bestand als door GitHub geauthenticeerd bewijs wordt aangemerkt. Een onafhankelijk opgehaalde volledige API-response en actuele reviewverificatie blijven vereist.
+
+Vijf nieuwe regressietests controleren ontbrekende herkomst, onvolledige paginering en aantallen, oude/toekomstige tijden, verkeerde PR/HEAD en ogenschijnlijk correcte maar niet-geauthenticeerde metadata. De bestaande Atelier DRAFT-validatieworkflow voert deze tests mee uit; uitvoering op de nieuwe commit wordt afzonderlijk gecontroleerd. Geen merge, EDTR, bevoegdheid of publieke uitrol. **GO-13 DRAFT / HOLD / DENY**.
