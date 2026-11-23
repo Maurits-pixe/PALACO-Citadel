@@ -132,6 +132,8 @@ jobs:
         run: node --test modules/samenleving-natuur/registry-pin-reviewer-roster-transition.test.mjs
       - name: Reviewer roster checkpoint hash chain CAS and rollback regressions
         run: node --test modules/samenleving-natuur/registry-pin-reviewer-roster-checkpoint.test.mjs
+      - name: Independently signed reviewer roster checkpoint attestation regressions
+        run: node --test modules/samenleving-natuur/registry-pin-reviewer-roster-attestation.test.mjs
       - name: Install dependencies
         run: npm ci --ignore-scripts
       - name: Install Chromium
