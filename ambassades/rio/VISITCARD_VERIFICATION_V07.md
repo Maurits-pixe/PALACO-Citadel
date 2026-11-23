@@ -1041,3 +1041,40 @@ not deployed. A matching verification never grants authority.
 
 No merge, deployment, automatic key activation or access issuance.
 **GO-13 HOLD.**
+
+## v3.9 — Out-of-band trust provenance, signed manifest and exact pin (DRAFT / HOLD)
+
+`visitcard_trust_provenance.py` adds the **opt-in read-only**
+`verify_with_trust_provenance` gate ahead of the v3.7 full-chain
+verifier. All ten keyring roles in `VerifiedContext` are canonically
+fingerprinted with SHA-256, including each key ID and exact public key
+bytes, plus issuer and nonce. The trust manifest binds this fingerprint,
+issuer, nonce, positive integer epoch, issued_at and expires_at and is
+domain-separated Ed25519 signed by an **out-of-band pinned administrative
+root**, with a validity window of no more than 24 hours. The caller
+MUST also provide the exact SHA-256 of the manifest from a separately
+protected, latest-version source. Merely presenting a signed older
+manifest does not satisfy the independent hash pin.
+
+Before verification the gate checks root signature, exact manifest
+pin, expiry and keyring binding and takes an immutable shallow snapshot
+of the ten role mappings, then invokes `verify_visitcard`. Missing
+roots, changed key bytes or IDs, expired/stale manifests, unknown
+or substituted signatures, and incomplete proof sets fail closed.
+The result remains informational only: `can_authorize=False`
+and `execution_permitted` always False.
+
+Twenty new tests cover a positive full-chain match, replacement of
+published and custodian keys, changed key IDs, manifest tampering,
+a newer independently retained pin, invalid/expired issuance,
+missing signed roots, no proof and snapshot integrity.
+
+**Security boundary:** This code does not provision the root, protect
+the independently pinned manifest hash, prove clock integrity, perform
+network trust distribution, or prevent a coordinated rollback of BOTH
+the manifest store and the independent pin. The v3.9 check is a new
+opt-in higher-assurance entrypoint; the legacy v3.7 consumer adapter
+has not been globally disabled, and the public RIO site/production
+consumers are not connected. Do not treat this as runtime authorization
+or complete source isolation. Independent provisioning and external
+security review are required before release. **GO-13 HOLD.**
