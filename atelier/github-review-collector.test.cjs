@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {collect}=require('./github-review-collector.cjs');
+const {collect,safeReport}=require('./github-review-collector.cjs');
 const A='a'.repeat(40),B='b'.repeat(40);
 const pr=(sha=A)=>({number:60,head:{sha},user:{login:'creator'}});
 const params=fetchJson=>({repository:'Maurits-pixe/PALACO-Citadel',number:60,token:'synthetic-test-token',fetchJson,now:'2026-11-23T04:00:00Z'});
@@ -39,4 +39,31 @@ test('full pagination boundary is incomplete rather than falsely successful',asy
  assert.equal(r.collection_complete,false);
  assert.ok(r.review_list_issues.includes('incomplete_pagination'));
  assert.equal(r.decision,'HOLD');
+});
+
+test('exportable review report contains only approved fields and no reviewer identities',()=>{
+ const report=safeReport({
+  pr_number:60,candidate_sha:A,review_count:1,
+  matching_approved_review_count:1,collection_complete:true,
+  review_list_issues:[],
+  approved:[{reviewer:'SENSITIVE_REVIEWER',body:'PRIVATE_REVIEW_BODY'}],
+  token:'SECRET_TOKEN',decision:'GO',publication:'PUBLIC',release_approved:true
+ },12345);
+ const encoded=JSON.stringify(report);
+ assert.equal(report.workflow_run_id,12345);
+ assert.equal(report.decision,'HOLD');
+ assert.equal(report.publication,'DENY');
+ assert.equal(report.release_approved,false);
+ assert.equal(report.evidence_usable,false);
+ assert.equal(report.candidate_sha,A);
+ for(const secret of ['SENSITIVE_REVIEWER','PRIVATE_REVIEW_BODY','SECRET_TOKEN','approved'])assert.equal(encoded.includes(secret),false);
+});
+test('non-finite or missing workflow run does not become a forged GitHub run ID',()=>{
+ const x={pr_number:60,candidate_sha:A,review_count:0,matching_approved_review_count:0,
+  collection_complete:false,review_list_issues:['incomplete_pagination']};
+ assert.equal(safeReport(x,NaN).workflow_run_id,null);
+ assert.equal(safeReport(x,-1).workflow_run_id,null);
+ assert.equal(safeReport(x,0).workflow_run_id,null);
+ assert.equal(safeReport(x,1).workflow_run_id,1);
+ assert.equal(safeReport(x,1).collection_complete,false);
 });
