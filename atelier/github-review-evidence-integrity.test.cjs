@@ -72,3 +72,36 @@ test('canonical writer output is accepted and returns the exact raw-byte SHA256'
  assert.equal(result.decision,'HOLD');
  assert.equal(result.evidence_usable,false);
 });
+
+test('integrity receipt records exact report bytes and CI context without granting GO',()=>{
+ const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'palaco-review-'));
+ try{
+  const source=path.join(dir,'review.json'),receipt=path.join(dir,'integrity.json');
+  const raw=bytes(record());fs.writeFileSync(source,raw);
+  const {run}=require('./github-review-evidence-integrity.cjs');
+  const env={GITHUB_REPOSITORY:ctx.repository,PALACO_PR_NUMBER:String(ctx.prNumber),
+   PALACO_EXPECTED_HEAD_SHA:ctx.headSha,GITHUB_RUN_ID:String(ctx.runId),
+   GITHUB_RUN_ATTEMPT:String(ctx.attempt),PALACO_REVIEW_INTEGRITY_PATH:receipt};
+  const result=run([source],env);
+  const saved=JSON.parse(fs.readFileSync(receipt,'utf8'));
+  assert.deepEqual(saved,result);
+  assert.equal(saved.candidate_sha,A);
+  assert.equal(saved.decision,'HOLD');
+  assert.equal(saved.evidence_usable,false);
+  assert.throws(()=>run([source],env),/EEXIST/);
+ }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
+test('an invalid source cannot produce an integrity receipt',()=>{
+ const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'palaco-review-bad-'));
+ try{
+  const source=path.join(dir,'bad.json'),receipt=path.join(dir,'integrity.json');
+  const bad=record();bad.decision='GO';fs.writeFileSync(source,bytes(bad));
+  const {run}=require('./github-review-evidence-integrity.cjs');
+  assert.throws(()=>run([source],{GITHUB_REPOSITORY:ctx.repository,
+   PALACO_PR_NUMBER:'60',PALACO_EXPECTED_HEAD_SHA:ctx.headSha,
+   GITHUB_RUN_ID:'123',GITHUB_RUN_ATTEMPT:'1',PALACO_REVIEW_INTEGRITY_PATH:receipt}),/Report boundary invalid/);
+  assert.equal(fs.existsSync(receipt),false);
+ }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
