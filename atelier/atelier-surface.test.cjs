@@ -666,3 +666,18 @@ test('Atelier undo confirmation guards full unsaved editor and exact restored ba
  assert.doesNotMatch(handler,/const pending=noteValue\(\)/);
  assert.doesNotMatch(handler,/noteBaseline=localStorage\.getItem\(NOTE\)/);
 });
+
+test('Atelier note reload must reject overlength stored source before confirmation',()=>{
+ const html=read('regiekamer.html');
+ const start=html.indexOf("$('loadSavedNote').addEventListener('click'");
+ const end=html.indexOf("$('saveNote').addEventListener('click'",start);
+ assert.ok(start>=0&&end>start);
+ const handler=html.slice(start,end);
+ const stored=handler.indexOf('const stored=localStorage.getItem(NOTE)');
+ const length=handler.indexOf('if(stored!==null&&stored.length>6000)',stored);
+ const reject=handler.indexOf('Laden geweigerd: de opgeslagen ontwerpnotitie bevat meer dan 6000 tekens',length);
+ const abort=handler.indexOf('return;',reject);
+ const prompt=handler.indexOf('if(editorBeforeConfirm!==storedText&&!confirm(',abort);
+ assert.ok(stored>=0&&length>stored&&reject>length&&abort>reject&&prompt>abort);
+ assert.match(handler,/const storedText=stored===null\?'':stored;/);
+});
