@@ -14,6 +14,7 @@ from typing import Any, Mapping
 
 from visitcard_fresh_publication_head import verify_fresh_head, _decode
 from visitcard_governance_attestation import verify_governance_separation
+from visitcard_governance_ledger import signer_is_current
 from visitcard_integrated_verification import (
     IntegratedState, verify_integrated_chain,
 )
@@ -147,4 +148,63 @@ def verify_governed_dual_witness_chain(
             secondary_signer_keys=secondary_signer_keys,now=now
         )
     except (ValueError,TypeError,KeyError,AttributeError,sqlite3.Error):
+        return unknown
+
+
+def verify_lifecycle_governed_chain(
+    archive_db: sqlite3.Connection,
+    governance_db: sqlite3.Connection,
+    publication_receipt: Any,
+    primary_response: Any,
+    primary_challenge: str,
+    secondary_response: Any,
+    secondary_challenge: str,
+    primary_governance: Any,
+    secondary_governance: Any,
+    *,
+    issuer: str, nonce: str,
+    witness_keys: Mapping[str,bytes],
+    archive_keys: Mapping[str,bytes],
+    publisher_keys: Mapping[str,bytes],
+    primary_signer_keys: Mapping[str,bytes],
+    secondary_signer_keys: Mapping[str,bytes],
+    primary_authorities: Mapping[str,bytes],
+    secondary_authorities: Mapping[str,bytes],
+    lifecycle_roots: Mapping[str,bytes],
+    now: datetime | None = None,
+) -> IntegratedState:
+    """v3.4 fail closed on stale/rotated/revoked keys before v3.3 checks.
+
+    The ledger is independently provisioned and externally pinned; this
+    read-only method never grants execution or changes trust configuration.
+    """
+    unknown=IntegratedState.UNKNOWN_BLOCKED
+    try:
+        if archive_db is governance_db or governance_db.in_transaction:
+            return unknown
+        if not isinstance(primary_response,dict) or not isinstance(secondary_response,dict):
+            return unknown
+        first_id=primary_response.get("signer_id")
+        second_id=secondary_response.get("signer_id")
+        if not isinstance(first_id,str) or not isinstance(second_id,str):
+            return unknown
+        key_a=primary_signer_keys.get(first_id)
+        key_b=secondary_signer_keys.get(second_id)
+        if not signer_is_current(governance_db,issuer,first_id,key_a,lifecycle_roots):
+            return unknown
+        if not signer_is_current(governance_db,issuer,second_id,key_b,lifecycle_roots):
+            return unknown
+        return verify_governed_dual_witness_chain(
+            archive_db,publication_receipt,
+            primary_response,primary_challenge,
+            secondary_response,secondary_challenge,
+            primary_governance,secondary_governance,
+            issuer=issuer,nonce=nonce,witness_keys=witness_keys,
+            archive_keys=archive_keys,publisher_keys=publisher_keys,
+            primary_signer_keys=primary_signer_keys,
+            secondary_signer_keys=secondary_signer_keys,
+            primary_authorities=primary_authorities,
+            secondary_authorities=secondary_authorities,now=now
+        )
+    except (sqlite3.Error,ValueError,TypeError,KeyError,AttributeError):
         return unknown
