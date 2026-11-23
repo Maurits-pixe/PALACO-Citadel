@@ -2802,3 +2802,41 @@ test('Atelier v6.80: bevestigde undo houdt de exact herstelde notitie aan',async
  await page.locator('#saveNote').click();
  await expect(page.locator('#feedback')).toHaveText('Ontwerpnotitie lokaal bewaard.');
 });
+
+test('Atelier v6.81: te lange opgeslagen bron wordt niet gedeeltelijk geladen',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const long='R'.repeat(6000)+'ONVERKORT';
+ await page.evaluate(value=>{
+   localStorage.setItem(window.PalacoAtelierBundle.NOTE,value);
+   document.getElementById('statement').value='Mijn eigen werk';
+   window.noteLoadConfirm=0;
+   window.confirm=()=>{window.noteLoadConfirm++;return true;};
+ },long);
+ await page.locator('#loadSavedNote').click();
+ await expect(page.locator('#feedback')).toContainText('Laden geweigerd: de opgeslagen ontwerpnotitie bevat meer dan 6000 tekens');
+ await expect(page.locator('#statement')).toHaveValue('Mijn eigen werk');
+ expect(await page.evaluate(()=>window.noteLoadConfirm)).toBe(0);
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe(long);
+});
+
+test('Atelier v6.81: bestaande notitie van exact 6000 tekens blijft volledig laadbaar',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const full='S'.repeat(6000);
+ await page.evaluate(value=>{
+   localStorage.setItem(window.PalacoAtelierBundle.NOTE,value);
+   document.getElementById('statement').value='Mijn alternatieve idee';
+   window.confirm=()=>true;
+ },full);
+ await page.locator('#loadSavedNote').click();
+ await expect(page.locator('#feedback')).toContainText('Opgeslagen ontwerpnotitie geladen');
+ await expect(page.locator('#statement')).toHaveValue(full);
+});
+
+test('Atelier v6.81: lege opgeslagen notitie blijft expliciet laadbaar',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Niet-bewaard idee');
+ await page.evaluate(()=>{window.confirm=()=>true;});
+ await page.locator('#loadSavedNote').click();
+ await expect(page.locator('#feedback')).toContainText('Opgeslagen ontwerpnotitie geladen');
+ await expect(page.locator('#statement')).toHaveValue('');
+});
