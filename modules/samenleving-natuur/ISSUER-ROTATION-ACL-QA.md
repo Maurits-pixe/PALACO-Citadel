@@ -2,8 +2,9 @@
 
 A PostgreSQL 16 scratch-only integration test checks that a non-login,
 non-superuser reader role can inspect the audit pin and history but cannot
-update a pin, insert/delete/truncate history, create tables, or self-grant
-write permissions. Every prohibited action is attempted under SET ROLE,
+update a pin, insert/delete/truncate history, create tables, or take ownership of the protected table. The test also
+inspects effective privileges directly, because PostgreSQL may return a
+warning rather than a nonzero exit code for a non-grantable GRANT. Every prohibited action is attempted under SET ROLE,
 and unexpected success fails the entire CI job. Initial fixture values are
 checked again to ensure no unauthorized mutations occurred.
 
