@@ -421,3 +421,39 @@ test('noncanonical trailing bits in P-256 JWK coordinates are denied',()=>{
    assert.equal(r.releaseAllowed,false);
  }
 });
+
+
+test('signed noncanonical JSON formatting is rejected even with valid signature',()=>{
+ const original=setup();
+ const canonical=JSON.stringify(document());
+ const noncanonical=canonical.replace(',"sequence"', ', "sequence"');
+ assert.notEqual(noncanonical,canonical);
+ const anchorBytes=Buffer.from(noncanonical,'utf8');
+ const signatureBase64Url=sign('sha256',Buffer.concat([
+   Buffer.from('PALACO-CITADEL-AUDIT-HEAD-ANCHOR-V1\n'),anchorBytes
+ ]),pair.privateKey).toString('base64url');
+ const r=inspectSignedAuditHeadAnchor({...original,anchorBytes,signatureBase64Url});
+ assert.equal(r.reason,'NONCANONICAL_ANCHOR_DOCUMENT');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('signed duplicate JSON member names cannot create ambiguous audit heads',()=>{
+ const original=setup();
+ const canonical=JSON.stringify(document());
+ const duplicate=canonical.replace('{"schema":',
+   '{"schema":"'+AUDIT_ANCHOR_SCHEMA+'","schema":');
+ assert.notEqual(duplicate,canonical);
+ const anchorBytes=Buffer.from(duplicate,'utf8');
+ const signatureBase64Url=sign('sha256',Buffer.concat([
+   Buffer.from('PALACO-CITADEL-AUDIT-HEAD-ANCHOR-V1\n'),anchorBytes
+ ]),pair.privateKey).toString('base64url');
+ const r=inspectSignedAuditHeadAnchor({...original,anchorBytes,signatureBase64Url});
+ assert.equal(r.reason,'NONCANONICAL_ANCHOR_DOCUMENT');
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.executionAllowed,false);
+ assert.equal(r.releaseAllowed,false);
+});
