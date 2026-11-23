@@ -219,7 +219,9 @@ def apply_governance_event(
         )
         db.commit()
         return True
-    except (sqlite3.Error,ValueError,TypeError,KeyError,AttributeError,OverflowError):
+    except (sqlite3.Error,ValueError,TypeError,KeyError,AttributeError,OverflowError) as exc:
+        # DRAFT CI diagnostics only; no private keys or payloads are printed.
+        print("RIO governance ledger transaction exception:",type(exc).__name__,str(exc))
         if db.in_transaction:
             db.rollback()
         return False
