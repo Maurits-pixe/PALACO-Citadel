@@ -755,3 +755,51 @@ test('nonminimal DER ECDSA INTEGER encoding is denied before key inspection',()=
  assert.equal(r.anchorSignatureValid,false);
  assert.equal(r.authorization,'DENY');
 });
+
+
+test('P-256 ECDSA scalars equal to curve order fail before untrusted key access',()=>{
+ const input=setup();
+ const order=Buffer.from(
+   'ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551','hex');
+ const oversizedInteger=Buffer.concat([Buffer.from([0x02,0x21,0x00]),order]);
+ const one=Buffer.from([0x02,0x01,0x01]);
+ let keyReads=0, pinReads=0;
+ const anchorPublicJwk=new Proxy({...input.anchorPublicJwk},{
+   ownKeys(){keyReads++;throw Error('key inspected before scalar validation');}
+ });
+ const genesisPin=new Proxy({...input.genesisPin},{
+   ownKeys(){pinReads++;throw Error('PIN inspected before scalar validation');}
+ });
+ for(const components of [
+   [oversizedInteger,one],
+   [one,oversizedInteger]
+ ]) {
+   const sequence=Buffer.concat(components);
+   const signature=Buffer.concat([Buffer.from([0x30,sequence.length]),sequence]);
+   const r=inspectSignedAuditHeadAnchor({...input,anchorPublicJwk,genesisPin,
+     signatureBase64Url:signature.toString('base64url')});
+   assert.equal(keyReads,0);
+   assert.equal(pinReads,0);
+   assert.equal(r.reason,'ANCHOR_SIGNATURE_INVALID');
+   assert.equal(r.anchorSignatureValid,false);
+   assert.equal(r.anchoredLedgerMatched,false);
+   assert.equal(r.authorization,'DENY');
+   assert.equal(r.releaseAllowed,false);
+ }
+});
+
+test('P-256 ECDSA scalar greater than curve order is rejected',()=>{
+ const input=setup();
+ const overOrder=Buffer.from(
+   'ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632552','hex');
+ const component=Buffer.concat([Buffer.from([0x02,0x21,0x00]),overOrder]);
+ const one=Buffer.from([0x02,0x01,0x01]);
+ const contents=Buffer.concat([one,component]);
+ const signature=Buffer.concat([Buffer.from([0x30,contents.length]),contents]);
+ const r=inspectSignedAuditHeadAnchor({...input,
+   signatureBase64Url:signature.toString('base64url')});
+ assert.equal(r.reason,'ANCHOR_SIGNATURE_INVALID');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+});
