@@ -183,6 +183,8 @@ class LifecycleIntegratedTests(GovernedWitnessTests):
         self.assertEqual(self.gate(),IntegratedState.UNKNOWN_BLOCKED)
 
     def test_missing_secondary_registry_blocks_chain(self):
+        # Simulate administrator-level tampering by removing the trigger.
+        self.registry.execute("DROP TRIGGER rio_governance_heads_no_delete")
         self.registry.execute("DELETE FROM rio_governance_heads WHERE signer_id='fresh-b'")
         self.assertEqual(self.gate(),IntegratedState.UNKNOWN_BLOCKED)
 
