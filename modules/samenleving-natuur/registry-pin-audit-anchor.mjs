@@ -121,7 +121,7 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
       typeof expectedAnchorKeyFingerprint !== 'string' ||
       !HEX.test(expectedAnchorKeyFingerprint) ||
       !Number.isSafeInteger(minimumAnchorSequence) ||
-      minimumAnchorSequence < 0 ||
+      minimumAnchorSequence < 0 || minimumAnchorSequence > 4096 ||
       typeof signatureBase64Url !== 'string' ||
       signatureBase64Url.length < 11 || signatureBase64Url.length > 107 ||
       !/^[A-Za-z0-9_-]+$/.test(signatureBase64Url))
