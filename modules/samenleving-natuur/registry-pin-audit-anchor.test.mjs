@@ -634,3 +634,48 @@ test('valid scalar inputs still inspect and deny hostile PINs without executing 
  assert.equal(r.authorization,'DENY');
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('audit anchor signed bytes are captured before key Proxy mutations',()=>{
+ const input=setup();
+ const anchorBytes=Buffer.from(input.anchorBytes);
+ let mutations=0;
+ const anchorPublicJwk=new Proxy({...input.anchorPublicJwk},{
+   getOwnPropertyDescriptor(target,key){
+     if(key==='x'){
+       mutations++;
+       anchorBytes[0]^=1;
+     }
+     return Reflect.getOwnPropertyDescriptor(target,key);
+   }
+ });
+ const r=inspectSignedAuditHeadAnchor({...input,anchorBytes,anchorPublicJwk});
+ assert.equal(mutations,1);
+ assert.equal(r.anchoredLedgerMatched,true,JSON.stringify(r));
+ assert.equal(r.anchorSignatureValid,true);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('tampered initial audit bytes cannot be repaired by a key Proxy trap',()=>{
+ const input=setup();
+ const anchorBytes=Buffer.from(input.anchorBytes);
+ anchorBytes[0]^=1;
+ let repairs=0;
+ const anchorPublicJwk=new Proxy({...input.anchorPublicJwk},{
+   getOwnPropertyDescriptor(target,key){
+     if(key==='x'){
+       repairs++;
+       anchorBytes[0]^=1;
+     }
+     return Reflect.getOwnPropertyDescriptor(target,key);
+   }
+ });
+ const r=inspectSignedAuditHeadAnchor({...input,anchorBytes,anchorPublicJwk});
+ assert.equal(repairs,1);
+ assert.equal(r.reason,'ANCHOR_SIGNATURE_INVALID');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
