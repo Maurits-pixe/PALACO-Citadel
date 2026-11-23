@@ -1189,3 +1189,36 @@ custody, durable pins and integration evidence remain missing
 until independently supplied and checked. Do not use synthetic
 fixtures as production evidence. **GO-13 HOLD** — no merge, rollout,
 key activation or access approval.
+
+## v4.3 — Signed offline dossier handoff chain (DRAFT / GO-13 HOLD)
+
+The new `visitcard_dossier_handoff.py` implements a content-addressed
+protocol for transferring v4.2 release dossiers between distinct
+receiving custodians. Each signed Ed25519 receipt cryptographically
+binds the dossier SHA-256, exact source commit SHA, contiguous sequence,
+previous receipt SHA-256, receiving custodian key ID, claimed receipt
+timestamp and `GO-13 HOLD`. Verifiers require separately **pre-pinned**
+receiving public keys, distinct physical key bytes and custodian IDs,
+and an **out-of-band independently retained latest signed receipt hash**.
+A valid old signed transfer history fails closed against a newer head
+pin, as do missing/reordered/tampered receipts, forked artifacts,
+substituted commits, unknown keys and incomplete chains.
+
+The v4.3 result remains `CHAIN_MATCHED_INFORMATIONAL` at best:
+`release_permitted`, `merge_permitted` and
+`activation_permitted` remain False for all outcomes.
+20 new regression tests exercise chain agreement, missing and outdated
+heads, tampering, duplicated custodians, substituted evidence,
+noncanonical signatures, future timestamps and maximum chain length.
+
+**Scope and limitations:** this is a self-contained offline transfer
+*verification protocol* only; it does not transfer bytes, store
+artifacts externally, provision signer keys, certify the real identity
+or physical separation of custodians, or attest that a claimed
+receipt time is trusted. The independently retained latest-head pin
+must be provisioned and maintained elsewhere. Coordinated rollback
+of all retained copies and the pin is not detectable here. The v4.2
+dossier validation must run separately on the actual evidence bytes,
+not just on a claimed SHA-256. No externally audited operational
+custodian service or production release authority is established.
+**GO-13 HOLD**.
