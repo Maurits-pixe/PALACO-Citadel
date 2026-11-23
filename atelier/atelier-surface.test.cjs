@@ -606,3 +606,18 @@ test('Atelier save acknowledgement only describes the actual editor revision',()
  assert.ok(write>=0&&readback>write&&baseline>readback&&editorCheck>baseline&&success>editorCheck);
  assert.match(handler,/huidige bewerking is nog niet opgeslagen/);
 });
+
+test('Atelier validates full editor after storage preflight before writing',()=>{
+ const html=read('regiekamer.html');
+ const start=html.indexOf('function saveNote(){');
+ const end=html.indexOf('function getSummary()',start);
+ assert.ok(start>=0&&end>start);
+ const handler=html.slice(start,end);
+ const preflight=handler.indexOf('const current=localStorage.getItem(NOTE)');
+ const capture=handler.indexOf("const value=$('statement').value",preflight);
+ const guard=handler.indexOf('if(value.length>6000)',capture);
+ const refusal=handler.indexOf('return;',guard);
+ const write=handler.indexOf('localStorage.setItem(NOTE,value)',refusal);
+ assert.ok(preflight>=0&&capture>preflight&&guard>capture&&refusal>guard&&write>refusal);
+ assert.doesNotMatch(handler.slice(preflight,write),/const value=noteValue\(\)/);
+});
