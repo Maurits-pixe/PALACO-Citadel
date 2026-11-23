@@ -2392,3 +2392,49 @@ test('Atelier v6.58: intrekken bevestiging beschermt ook bestaande lokale notiti
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Mijn bestaande lokale ontwerp');
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
 });
+
+test('Atelier v6.60: lege bestandsselectie annuleert lopende bestandslezing',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const draft=await page.evaluate(()=>JSON.stringify(
+   window.PalacoAtelierBundle.create(null,null,'Deze import mag niet worden uitgevoerd')
+ ));
+ await page.evaluate(()=>{
+   const original=File.prototype.arrayBuffer;
+   window.pendingEmptySelectionImport=[];
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='lopende-bestandslezing.json')
+       return new Promise((resolve,reject)=>window.pendingEmptySelectionImport.push(()=>original.call(this).then(resolve,reject)));
+     return original.call(this);
+   };
+ });
+ await page.locator('#bundleImport').setInputFiles({
+   name:'lopende-bestandslezing.json',mimeType:'application/json',buffer:Buffer.from(draft)
+ });
+ await expect.poll(()=>page.evaluate(()=>window.pendingEmptySelectionImport.length)).toBe(1);
+ await page.evaluate(()=>{
+   const input=document.getElementById('bundleImport');
+   input.value='';
+   input.dispatchEvent(new Event('change',{bubbles:true}));
+ });
+ await expect(page.locator('#bundleStatus')).toContainText('Geen projectbestand geselecteerd');
+ await expect(page.locator('#bundleImport')).toHaveValue('');
+ await page.evaluate(()=>window.pendingEmptySelectionImport.shift()());
+ await expect(page.locator('#bundleStatus')).toContainText('Een eerdere import is geannuleerd');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBeNull();
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
+});
+
+test('Atelier v6.60: lege bestandsselectie laat bestaande ontwerpnotitie ongemoeid',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Mijn bestaande bewaarde ontwerp');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('lokaal bewaard');
+ await page.evaluate(()=>{
+   const input=document.getElementById('bundleImport');
+   input.dispatchEvent(new Event('change',{bubbles:true}));
+ });
+ await expect(page.locator('#bundleStatus')).toContainText('Geen projectbestand geselecteerd');
+ await expect(page.locator('#statement')).toHaveValue('Mijn bestaande bewaarde ontwerp');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Mijn bestaande bewaarde ontwerp');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
+});
