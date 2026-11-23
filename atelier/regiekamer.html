@@ -131,6 +131,12 @@ function saveNote(){
      return;
    }
    noteBaseline=value;
+   // The storage write may have run integration hooks that changed the
+   // editor synchronously. A saved older revision is not the latest draft.
+   if($('statement').value!==value){
+     $('feedback').textContent='Eerdere ontwerpnotitie lokaal bewaard, maar de huidige bewerking is nog niet opgeslagen. Controleer de tekst en sla opnieuw op.';
+     return;
+   }
    $('feedback').textContent='Ontwerpnotitie lokaal bewaard.';
  }catch{$('feedback').textContent='Lokale notitie kon niet worden bewaard. Exporteer je dossier.';}
 }
