@@ -222,7 +222,7 @@ test('Atelier note synchronization must preserve unsaved edits from local tab',(
  const begin=html.lastIndexOf("window.addEventListener('storage',e=>{");
  assert.ok(begin>=0,'cross-tab storage handler exists');
  const handler=html.slice(begin);
- assert.match(handler,/const locallyEdited=noteValue\(\)!==/);
+ assert.match(handler,/const locallyEdited=\$\('statement'\)\.value!==\(noteBaseline===null\?'':noteBaseline\)/);
  assert.match(handler,/if\(locallyEdited\)/);
  assert.match(handler,/onopgeslagen tekst blijft staan/);
  assert.match(handler,/latest=localStorage\.getItem\(NOTE\)/);
@@ -363,7 +363,7 @@ test('Atelier full storage clear syncs clean notes and protects unsaved edits',(
  assert.ok(start>=0);
  const handler=html.slice(start);
  assert.match(handler,/if\(e\.key===NOTE\|\|e\.key===null\)/);
- assert.match(handler,/const locallyEdited=noteValue\(\)!==/);
+ assert.match(handler,/const locallyEdited=\$\('statement'\)\.value!==\(noteBaseline===null\?'':noteBaseline\)/);
  assert.match(handler,/latest=localStorage\.getItem\(NOTE\)/);
  assert.match(handler,/noteBaseline=latest/);
  assert.match(handler,/onopgeslagen tekst blijft staan/);
@@ -387,7 +387,7 @@ test('Atelier note conflict notice requires a real stored revision mismatch',()=
  assert.ok(start>=0);
  const handler=html.slice(start);
  const readPosition=handler.indexOf('latest=localStorage.getItem(NOTE)');
- const edited=handler.indexOf('const locallyEdited=noteValue()');
+ const edited=handler.indexOf("const locallyEdited=$('statement').value");
  const conflict=handler.indexOf('if(latest!==noteBaseline)');
  const warning=handler.indexOf('Ontwerpnotitie gewijzigd in een ander tabblad');
  assert.ok(readPosition>=0&&edited>readPosition&&conflict>edited&&warning>conflict);
