@@ -59,6 +59,13 @@ function run(args,env=process.env){
   headSha:env.PALACO_EXPECTED_HEAD_SHA,runId:Number(env.GITHUB_RUN_ID),
   attempt:Number(env.GITHUB_RUN_ATTEMPT)};
  const result=compareExtracted(args[0],args[1],context);
+ if(env.PALACO_EXTRACTED_REPORT_PATH){
+  const receipt={...result,artifact_id:Number(env.PALACO_ARTIFACT_ID)};
+  if(!Number.isSafeInteger(receipt.artifact_id)||receipt.artifact_id<=0)
+   throw Error('Missing exact GitHub review artifact ID for extracted receipt');
+  fs.writeFileSync(env.PALACO_EXTRACTED_REPORT_PATH,
+   JSON.stringify(receipt,null,2)+'\n',{flag:'wx',mode:0o600});
+ }
  process.stdout.write(JSON.stringify(result,null,2)+'\n');
  return result;
 }
