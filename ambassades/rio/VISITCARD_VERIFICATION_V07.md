@@ -763,3 +763,39 @@ authenticated transport and rollback recovery procedures.
 Twenty-five new regression tests were committed (not yet executed).
 Actual Python test runs with skipped-test counts and independent security
 review are mandatory before any deployment. **GO-13 HOLD**.
+
+## v3.1 — Integrated read-only verifier and draft CI verification gate (DRAFT / HOLD)
+
+`visitcard_integrated_verification.py` now reconciles the independently
+supplied, pinned-publisher-signed archive receipt with a separate
+challenge-bound, recent, pinned-signer Ed25519 fresh-head response and
+the locally audited complete witness/archive history. The receipt signature
+is checked **before** reporting a cryptographic fork; invalid
+publication signatures fail as `UNKNOWN_BLOCKED`. Signer and receipt
+must agree on the *exact* (issuer, nonce, event_count, seal SHA-256),
+and the fresh signer must have answered the verifier's expected
+random 256-bit challenge within the 60-second freshness window.
+
+Results are `MATCHED_INFORMATIONAL`, `LOCAL_BEHIND_BLOCKED`,
+`LOCAL_AHEAD_UNCONFIRMED`, `FORK_BLOCKED`, or
+`UNKNOWN_BLOCKED`. This gate is **read-only and entirely
+non-authorizing**: `execution_permitted` always returns `False`,
+even on a matching signed and fresh head.
+
+Fifteen integration regression tests exercise real signatures across
+custody → third witness → archive → publication → fresh head, including
+wrong trust roots, expired and replayed challenges, open DB transactions,
+tampered local history, an old independent receipt, and unsigned forgeries.
+The new `.github/workflows/rio-visitcard-draft-verification.yml` is
+restricted to this draft branch and RIO paths, uses read-only GitHub token
+permissions, and runs the entire `ambassades/rio/tests` unittest discovery
+suite with mandatory **zero skips**. It includes **no deployment**.
+
+**Verification honesty:** A committed workflow configuration is not
+evidence that GitHub Actions executed it. The full-suite result
+(PASS/FAIL/skips) must be confirmed from an actual run and its logs
+before any release gate can be cleared. The module does not create a
+real independent witness, transport, trusted clock, or pre-pinned
+production key store. Real operational independence and authenticated
+freshness delivery still require third-party infrastructure and
+independent review. **GO-13 HOLD.**
