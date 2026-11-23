@@ -129,6 +129,8 @@ class GovernanceLifecycleTests(unittest.TestCase):
 
     def test_corrupt_head_fails_closed(self):
         self.register()
+        # Privileged tampering can disable SQLite triggers; audit must still fail.
+        self.db.execute("DROP TRIGGER rio_governance_heads_monotone")
         self.db.execute("UPDATE rio_governance_heads SET fingerprint=?",("f"*64,))
         self.assertFalse(signer_is_current(self.db,ISSUER,"fresh-a",pub(self.key),self.roots))
 
