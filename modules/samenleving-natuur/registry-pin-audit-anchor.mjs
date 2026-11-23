@@ -122,6 +122,9 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
       signatureBase64Url.length < 11 || signatureBase64Url.length > 107 ||
       !/^[A-Za-z0-9_-]+$/.test(signatureBase64Url))
       return reject('INVALID_ANCHOR_INPUT');
+    // Copy signed bytes before consulting any caller-supplied PIN/JWK Proxy:
+    // descriptor traps may otherwise mutate the original byte view.
+    const snapshotBytes = Buffer.from(anchorBytes);
     // Caller-owned PINs are captured once; avoid mutable Proxy rereads.
     const genesisSnapshot = capturePin(genesisPin);
     const currentSnapshot = capturePin(currentPin);
@@ -167,9 +170,7 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
       key.export({format:'der',type:'spki'})).digest('hex');
     if (fingerprint !== expectedAnchorKeyFingerprint)
       return reject('UNPINNED_ANCHOR_KEY');
-    // Snapshot mutable caller-owned bytes exactly once so the signed bytes
-    // and decoded ledger claims cannot diverge during verification.
-    const snapshotBytes = Buffer.from(anchorBytes);
+    // Verify and decode the same early-captured immutable byte snapshot.
     const signature = Buffer.from(signatureBase64Url,'base64url');
     if (signature.length < 8 || signature.length > 80 ||
       signature.toString('base64url') !== signatureBase64Url ||
