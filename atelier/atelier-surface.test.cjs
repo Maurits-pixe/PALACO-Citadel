@@ -649,3 +649,20 @@ test('Atelier stored note reload checks whole editor and rechecks after confirma
  assert.ok(full>=0&&prompt>full&&guard>prompt&&storage>guard&&replace>storage);
  assert.doesNotMatch(handler,/if\(noteValue\(\)!==storedText/);
 });
+
+test('Atelier undo confirmation guards full unsaved editor and exact restored baseline',()=>{
+ const html=read('regiekamer.html');
+ const start=html.indexOf("$('undoImport').addEventListener('click'");
+ const end=html.indexOf("$('loadSavedNote').addEventListener('click'",start);
+ assert.ok(start>=0&&end>start);
+ const handler=html.slice(start,end);
+ const full=handler.indexOf("const editorBeforeConfirm=$('statement').value");
+ const pending=handler.indexOf("const pending=editorBeforeConfirm!==",full);
+ const prompt=handler.indexOf('if(!confirm(',pending);
+ const guard=handler.indexOf("if($('statement').value!==editorBeforeConfirm)",prompt);
+ const undo=handler.indexOf('api.undoLastImport(',guard);
+ const baseline=handler.indexOf('noteBaseline=record.draft.note',undo);
+ assert.ok(full>=0&&pending>full&&prompt>pending&&guard>prompt&&undo>guard&&baseline>undo);
+ assert.doesNotMatch(handler,/const pending=noteValue\(\)/);
+ assert.doesNotMatch(handler,/noteBaseline=localStorage\.getItem\(NOTE\)/);
+});
