@@ -29,6 +29,8 @@ const captureExactRecord = (value, keys) => {
 };
 // Accept only minimal positive DER INTEGERs for ECDSA P-256 (r,s).
 // This is a format gate, not a replacement for cryptographic verification.
+// Every ECDSA scalar must satisfy 1 <= scalar < the subgroup order.
+const P256_ORDER = BigInt('0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551');
 const canonicalEcdsaDer = signature => {
   if (signature.length < 8 || signature.length > 72 ||
       signature[0] !== 0x30 || signature[1] !== signature.length - 2)
@@ -47,11 +49,10 @@ const canonicalEcdsaDer = signature => {
         (size === 33 && first !== 0) ||
         (size === 1 && first === 0))
       return false;
-    let nonzero = false;
-    for (let j = 0; j < size; j++) {
-      if (signature[offset + j] !== 0) nonzero = true;
-    }
-    if (!nonzero) return false;
+    let scalar = 0n;
+    for (let j = 0; j < size; j++)
+      scalar = (scalar << 8n) | BigInt(signature[offset + j]);
+    if (scalar === 0n || scalar >= P256_ORDER) return false;
     offset += size;
   }
   return offset === signature.length;
