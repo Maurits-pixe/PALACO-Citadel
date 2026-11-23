@@ -799,3 +799,33 @@ real independent witness, transport, trusted clock, or pre-pinned
 production key store. Real operational independence and authenticated
 freshness delivery still require third-party infrastructure and
 independent review. **GO-13 HOLD.**
+
+## v3.2 — Dual fresh-head witness agreement (DRAFT / GO-13 HOLD)
+
+`visitcard_dual_witness_verification.py` requires **two separately pinned
+Ed25519 public keys** and **two different verifier-generated 256-bit challenges**.
+Each signed response must be independently verified for signature, audience,
+challenge and <=60-second UTC age, and both must agree on exactly the same
+publication head (issuer,nonce,event_count,seal SHA-256). Matching results
+are further checked by the v3.1 archive/publication/full-history verifier.
+
+The gate rejects using the same public-key bytes under two labels, the same
+signer ID, a reused challenge, forged/expired responses, a missing witness
+or uncertain advancement. Same-count, differently signed hashes are classified
+as `FORK_BLOCKED`; divergent counts become `UNKNOWN_BLOCKED`, never a
+verified match. All outputs remain informational and
+`execution_permitted` remains unconditionally false.
+
+**Important boundary:** distinct keys, signer labels and challenges do
+NOT establish independent operators, machines, network routes, trust-root
+custody or time sources. Both signing keys could still be administered by
+one compromised operator. Deployed services need independently attested
+key provisioning and physical/administrative isolation, plus receipt
+retention and full cross-service recovery drills. This code never
+authorizes recovery, identity issuance, witness enrollment or key
+activation.
+
+Fourteen negative/positive dual-witness integration tests were added to the
+existing zero-skip RIO VisitCard GitHub Actions suite. Their PASS status
+must be read from the workflow run, not inferred from source inspection.
+**GO-13 HOLD** — no merge and no deployment.
