@@ -2628,3 +2628,42 @@ test('Atelier v6.70: reguliere opslag zonder tussentijdse bewerking blijft beves
  await expect(page.locator('#statement')).toHaveValue('Ongeschonden creatieve tekst');
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Ongeschonden creatieve tekst');
 });
+
+test('Atelier v6.72: opslaglezing vergroot notitie vlak voor schrijven en blokkeert afkapping',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Aanvankelijk korte notitie');
+ await page.evaluate(()=>{
+   window.originalNoteRead=Storage.prototype.getItem;
+   Storage.prototype.getItem=function(key){
+     const result=window.originalNoteRead.call(this,key);
+     if(this===localStorage&&key===window.PalacoAtelierBundle.NOTE){
+       document.getElementById('statement').value='Z'.repeat(6000)+'UNIEK';
+     }
+     return result;
+   };
+ });
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('Opslaan geweigerd: ontwerpnotitie bevat meer dan 6000 tekens');
+ expect(await page.locator('#statement').inputValue()).toBe('Z'.repeat(6000)+'UNIEK');
+ expect(await page.evaluate(()=>window.originalNoteRead.call(localStorage,window.PalacoAtelierBundle.NOTE))).toBeNull();
+ await page.evaluate(()=>{Storage.prototype.getItem=window.originalNoteRead;});
+});
+
+test('Atelier v6.72: opslaglezing wijzigt korte tekst en schrijft exact de actuele versie',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Oorspronkelijke korte tekst');
+ await page.evaluate(()=>{
+   window.originalNoteRead=Storage.prototype.getItem;
+   Storage.prototype.getItem=function(key){
+     const result=window.originalNoteRead.call(this,key);
+     if(this===localStorage&&key===window.PalacoAtelierBundle.NOTE){
+       document.getElementById('statement').value='De vernieuwde korte tekst';
+     }
+     return result;
+   };
+ });
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toHaveText('Ontwerpnotitie lokaal bewaard.');
+ expect(await page.evaluate(()=>window.originalNoteRead.call(localStorage,window.PalacoAtelierBundle.NOTE))).toBe('De vernieuwde korte tekst');
+ await page.evaluate(()=>{Storage.prototype.getItem=window.originalNoteRead;});
+});
