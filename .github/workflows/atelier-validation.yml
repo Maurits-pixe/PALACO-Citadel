@@ -37,7 +37,7 @@ jobs:
       - name: Test fail-closed release evidence evaluator
         run: node --test atelier/release-gate.test.cjs
       - name: Test read-only GitHub review audit, collector and artifact integrity
-        run: node --test atelier/github-review-audit.test.cjs atelier/github-review-collector.test.cjs atelier/github-review-evidence-integrity.test.cjs
+        run: node --test atelier/github-review-audit.test.cjs atelier/github-review-collector.test.cjs atelier/github-review-evidence-integrity.test.cjs atelier/github-review-pair.test.cjs
       - name: Observe current GitHub PR review history without publication
         if: ${{ github.event_name == 'pull_request' }}
         continue-on-error: true
@@ -57,6 +57,7 @@ jobs:
         run: |
           if [[ -f "${RUNNER_TEMP}/atelier-review-evidence.json" ]]; then
             node atelier/github-review-evidence-integrity.cjs "${RUNNER_TEMP}/atelier-review-evidence.json"
+            node atelier/github-review-pair.cjs "${RUNNER_TEMP}/atelier-review-evidence.json" "${RUNNER_TEMP}/atelier-review-integrity.json"
           else
             echo "No authenticated review observation was collected; no artifact to verify."
           fi
