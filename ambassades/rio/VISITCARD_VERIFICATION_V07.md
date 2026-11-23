@@ -859,3 +859,38 @@ access, or authorizes key activation/recovery.
 Fifteen new tests cover successful matching plus forged, stale and
 overlapping governance claims. GitHub Actions must execute them with
 zero skips before calling this build PASS. **GO-13 HOLD.**
+
+## v3.4 — Signed governance lifecycle / rotation / revocation audit (DRAFT / HOLD)
+
+`visitcard_governance_ledger.py` provides a separately provisionable,
+SQLite-based governance audit register with signed and append-only
+`REGISTER`, `ROTATE` and terminal `REVOKE` events. Each record
+is verified against independently pinned governance root public keys,
+binds issuer, signer ID, exact key fingerprint, the prior key fingerprint,
+its sequence number and previous signed-event hash. The complete event
+history is replayed before each update or key-current check, and the
+derived state must match the latest stored head. Invalid genesis, broken
+hash links, skipped sequence, unknown root, stale rotation and
+post-revocation attempts fail closed.
+
+A new **opt-in v3.4 entrypoint**,
+`verify_lifecycle_governed_chain`, checks both fresh-head signer
+keys against the current, non-revoked lifecycle ledger state *before*
+the existing v3.3 governance and dual-witness verification.
+Existing v3.2/v3.3 entrypoints are retained as legacy prototype APIs,
+not silently claimed to enforce v3.4 lifecycle restrictions.
+
+**Security boundary:** signed governance commands and SQLite history
+do not physically install keys, perform authenticated administrator
+ceremonies, independently verify organizational identity, or resist
+privileged full-database rollback. An independent high-water checkpoint,
+key-isolation controls, dual-controlled lifecycle signing ceremonies,
+external physical/operator audit and key-rotation procedures remain
+required for any production admission. The registry itself cannot
+activate credentials or grant authority. A REVOKE is terminal for the
+signer ID; a new identity must follow a separately governed process.
+
+Nineteen new declared regression tests plus inherited fixture tests
+were added to the zero-skip workflow. Actual CI PASS/FAIL must be
+verified from the job logs. No merge, deploy or activation.
+**GO-13 HOLD**.
