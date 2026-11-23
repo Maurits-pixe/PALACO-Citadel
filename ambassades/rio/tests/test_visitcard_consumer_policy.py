@@ -25,10 +25,11 @@ class ConsumerPolicyTests(unittest.TestCase):
     def test_real_adapter_passes(self):
         self.assertEqual(audit_consumer_tree(RIO),())
 
-    def test_facade_only_candidate_passes(self):
+    def test_provenance_only_candidate_passes(self):
         self.assertEqual(self.check(
-            "from visitcard_verification_entrypoint import verify_visitcard\n"
-            "def run(a,b,c,p,t): return verify_visitcard(a,b,c,proof=p,trust=t)\n"
+            "from visitcard_verification_entrypoint import ProofPackage,VerifiedContext\n"
+            "from visitcard_trust_provenance import verify_with_trust_provenance\n"
+            "def run(a,b,c,p,t,m,r,h): return verify_with_trust_provenance(a,b,c,proof=p,trust=t,manifest=m,independently_pinned_roots=r,externally_pinned_manifest_sha256=h)\n"
         ),())
 
     def test_legacy_direct_import_rejected(self):
