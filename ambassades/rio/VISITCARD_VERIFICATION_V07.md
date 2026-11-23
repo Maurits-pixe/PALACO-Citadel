@@ -972,3 +972,35 @@ and must not be described as enforcing this new requirement.
 
 No merge, production deploy, key activation or access issuance.
 **GO-13 HOLD.**
+
+## v3.7 — Single full-chain entrypoint for new RIO consumers (DRAFT / HOLD)
+
+The module **visitcard_verification_entrypoint.py** provides the sole
+supported **new-consumer** read-only verifier, **verify_visitcard**.
+Its typed ProofPackage requires a publication receipt, two challenged
+fresh-head attestations, two governance claims and two independently
+signed custodian high-water checkpoints. VerifiedContext requires every
+trust root to be pre-pinned independently of all supplied evidence.
+Only the complete v3.6 high-water-governed gate is invoked; no fallback
+or legacy mode is accepted. VerificationResult has an informational
+state and can_authorize=False. Execution is never granted.
+
+**visitcard_consumer_adapter.py** is a demonstrator adapter for future
+consumers. An AST policy test enforces that all files named
+visitcard_consumer_*.py under ambassades/rio import the v3.7 facade
+rather than lower-level verification implementations. Eighteen
+regression tests cover missing and malformed proof parts, missing
+trust roots, wrong audience, expired challenge response, a restored
+revoked signer, database aliasing, and always-false authorization.
+
+**Important boundary:** This is a source-policy convention for future
+named adapters only. Prior v3.1–3.6 prototype entrypoints have not
+been removed, disabled, or physically rendered inaccessible. The
+public RIO site, PALACO ONE login and production consumers have not
+been wired to this facade. The independently trusted newest signed
+head, third-party custody, operator independence and secure transport
+remain deployment responsibilities. A matching proof is NOT an
+authorization, credential, identity issuance or recovery approval.
+
+The GitHub Actions no-skip suite must execute successfully before
+claiming tests passed. **GO-13 HOLD**, no merge or deployment.
