@@ -6,6 +6,27 @@ const path=require('node:path');
 const crypto=require('node:crypto');
 const {validatePair}=require('./github-review-pair.cjs');
 const FILES=['atelier-review-evidence.json','atelier-review-integrity.json'];
+function readBoundedRegularFile(filename){
+ // Prevent unbounded allocations and reject symlinks even if a directory
+ // entry is replaced between listing and reading.
+ const flags=fs.constants.O_RDONLY|fs.constants.O_NOFOLLOW;
+ const fd=fs.openSync(filename,flags);
+ try{
+  const stat=fs.fstatSync(fd);
+  if(!stat.isFile()||stat.size===0||stat.size>20000)
+   throw Error('Evidence file is not a bounded regular file');
+  const bytes=Buffer.alloc(stat.size);
+  let offset=0;
+  while(offset<bytes.length){
+   const count=fs.readSync(fd,bytes,offset,bytes.length-offset,offset);
+   if(count<=0)throw Error('Evidence file changed during bounded read');
+   offset+=count;
+  }
+  if(fs.fstatSync(fd).size!==bytes.length)
+   throw Error('Evidence file size changed during bounded read');
+  return bytes;
+ }finally{fs.closeSync(fd);}
+}
 function compareExtracted(downloadDir,originalDir,context){
  if(typeof downloadDir!=='string'||!downloadDir||typeof originalDir!=='string'||!originalDir)
   throw Error('Artifact directories required');
@@ -13,9 +34,9 @@ function compareExtracted(downloadDir,originalDir,context){
  if(entries.length!==2||entries.some(entry=>!entry.isFile()||!FILES.includes(entry.name)))
   throw Error('Downloaded artifact must contain exactly two regular JSON files');
  const data=FILES.map(name=>{
-  const extracted=fs.readFileSync(path.join(downloadDir,name));
-  const original=fs.readFileSync(path.join(originalDir,name));
-  if(extracted.length===0||extracted.length>20000||!extracted.equals(original))
+  const extracted=readBoundedRegularFile(path.join(downloadDir,name));
+  const original=readBoundedRegularFile(path.join(originalDir,name));
+  if(!extracted.equals(original))
    throw Error('Downloaded artifact bytes differ from original CI evidence');
   return extracted;
  });
@@ -45,4 +66,4 @@ if(require.main===module){
  try{run(process.argv.slice(2));}
  catch(err){process.stderr.write('Extracted review artifact verification failed: '+err.message+'\n');process.exitCode=1;}
 }
-module.exports={compareExtracted,run};
+module.exports={readBoundedRegularFile,compareExtracted,run};
