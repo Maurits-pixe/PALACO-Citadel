@@ -509,3 +509,50 @@ test('signed anchor rollback floor, schema and head hash reject before ledger en
    assert.equal(r.releaseAllowed,false);
  }
 });
+
+
+test('signed audit sequence/length mismatch rejects before ledger enumeration',()=>{
+ const signed=setup();
+ for(const length of [0,2]){
+   let enumerationCalls=0;
+   let lengthDescriptorCalls=0;
+   const history=new Proxy(new Array(length),{
+     getOwnPropertyDescriptor(target,key){
+       if(key==='length') lengthDescriptorCalls++;
+       return Reflect.getOwnPropertyDescriptor(target,key);
+     },
+     ownKeys(){
+       enumerationCalls++;
+       throw Error('mismatched ledger must not be enumerated');
+     }
+   });
+   const r=inspectSignedAuditHeadAnchor({...signed,entries:history});
+   assert.equal(lengthDescriptorCalls,1);
+   assert.equal(enumerationCalls,0);
+   assert.equal(r.reason,'LEDGER_INVALID_CHAIN_LINK');
+   assert.equal(r.anchoredLedgerMatched,false);
+   assert.equal(r.authorization,'DENY');
+   assert.equal(r.releaseAllowed,false);
+ }
+});
+
+test('signed audit ledger length Proxy is read once and cannot change after preflight',()=>{
+ const signed=setup();
+ let lengthReads=0;
+ const history=new Proxy([...signed.entries],{
+   getOwnPropertyDescriptor(target,key){
+     const d=Reflect.getOwnPropertyDescriptor(target,key);
+     if(key==='length'){
+       lengthReads++;
+       return {...d,value:lengthReads===1?1:2};
+     }
+     return d;
+   }
+ });
+ const r=inspectSignedAuditHeadAnchor({...signed,entries:history});
+ assert.equal(lengthReads,1);
+ assert.equal(r.anchoredLedgerMatched,true,JSON.stringify(r));
+ assert.equal(r.trust,'NOT_ESTABLISHED');
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
