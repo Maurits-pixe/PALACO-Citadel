@@ -829,3 +829,33 @@ Fourteen negative/positive dual-witness integration tests were added to the
 existing zero-skip RIO VisitCard GitHub Actions suite. Their PASS status
 must be read from the workflow run, not inferred from source inspection.
 **GO-13 HOLD** — no merge and no deployment.
+
+## v3.3 — Signed governance and custody-domain claims (DRAFT / HOLD)
+
+`visitcard_governance_attestation.py` verifies a bounded, signed
+administrative claim per fresh-head signer. Each claim is signed by a
+separately pinned Ed25519 administrative authority and binds the exact
+SHA-256 of that signer's public key, issuer, signer ID, operator ID,
+custody-domain claim, failure-domain claim and a validity window of at
+most one day. Signature and timestamp verification fail closed.
+
+The new `verify_governed_dual_witness_chain` entrypoint performs
+governance verification **before** the existing v3.2 dual-signature
+freshness and publication-history check. It rejects the same physical
+administrator key under different labels, identical administrator IDs,
+shared operator IDs, shared key-custody or claimed failure domains,
+expired/malformed claims, and a mismatched signer-key fingerprint.
+Two separate prior-pinned administrator public keys are mandatory.
+
+**Security boundary:** Signed statements are evidence of who signed
+claims, NOT proof the administrators, hosts, HSMs or physical failure
+domains are actually distinct. The IDs and domains are independently
+unverified declarations; independent human security audit, trusted
+registration of operator identities, external hardware attestation and
+administrative segregation remain release prerequisites. No governance
+evidence automatically installs trust roots, allows enrollment, grants
+access, or authorizes key activation/recovery.
+
+Fifteen new tests cover successful matching plus forged, stale and
+overlapping governance claims. GitHub Actions must execute them with
+zero skips before calling this build PASS. **GO-13 HOLD.**
