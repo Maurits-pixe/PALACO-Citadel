@@ -2474,3 +2474,42 @@ test('Atelier v6.62: ongeldige bytebuffer wordt geweigerd vóór decodering',asy
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBeNull();
 });
+
+test('Atelier v6.64: geïmporteerde revisie blijft uitgangspunt na concurrerende opslagwijziging',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const draft=await page.evaluate(()=>JSON.stringify(
+   window.PalacoAtelierBundle.create(null,null,'Notitie uit het geïmporteerde ontwerp')
+ ));
+ await page.evaluate(()=>{window.confirm=()=>true;});
+ await page.locator('#bundleImport').setInputFiles({
+   name:'concurrent-na-import.json',mimeType:'application/json',buffer:Buffer.from(draft)
+ });
+ await expect(page.locator('#bundleStatus')).toContainText('Projectpakket lokaal hersteld');
+ await expect(page.locator('#statement')).toHaveValue('Notitie uit het geïmporteerde ontwerp');
+ // Model an external tab writing a new revision without this tab receiving
+ // a storage event yet; save must compare against the imported revision.
+ await page.evaluate(()=>localStorage.setItem(
+   window.PalacoAtelierBundle.NOTE,'Nieuwere notitie van ander tabblad'
+ ));
+ await page.locator('#statement').fill('Mijn vervolg op het importontwerp');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('Opslaan geweigerd');
+ await expect(page.locator('#statement')).toHaveValue('Mijn vervolg op het importontwerp');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Nieuwere notitie van ander tabblad');
+});
+
+test('Atelier v6.64: geïmporteerde revisie kan zonder conflict normaal worden opgeslagen',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const draft=await page.evaluate(()=>JSON.stringify(
+   window.PalacoAtelierBundle.create(null,null,'Starttekst vanuit DRAFT')
+ ));
+ await page.evaluate(()=>{window.confirm=()=>true;});
+ await page.locator('#bundleImport').setInputFiles({
+   name:'import-geen-conflict.json',mimeType:'application/json',buffer:Buffer.from(draft)
+ });
+ await expect(page.locator('#bundleStatus')).toContainText('Projectpakket lokaal hersteld');
+ await page.locator('#statement').fill('Mijn vervolg zonder opslagconflict');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('lokaal bewaard');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Mijn vervolg zonder opslagconflict');
+});
