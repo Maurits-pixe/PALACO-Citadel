@@ -2840,3 +2840,42 @@ test('Atelier v6.81: lege opgeslagen notitie blijft expliciet laadbaar',async ({
  await expect(page.locator('#feedback')).toContainText('Opgeslagen ontwerpnotitie geladen');
  await expect(page.locator('#statement')).toHaveValue('');
 });
+
+test('Atelier v6.83: bij openen van de Regiekamer blijft te lange bron onaangetast',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const long='T'.repeat(6000)+'NOOIT-AFKAPPEN';
+ await page.evaluate(note=>localStorage.setItem(window.PalacoAtelierBundle.NOTE,note),long);
+ await page.reload();
+ await expect(page.locator('#feedback')).toContainText('Automatisch laden geweigerd');
+ await expect(page.locator('#statement')).toHaveValue('');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe(long);
+ await page.locator('#statement').fill('Mijn nieuwe ontwerp');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('Opslaan geweigerd: ontwerpnotitie is elders gewijzigd');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe(long);
+});
+
+test('Atelier v6.83: ander tabblad kan geen te lange bron als afgekorte synchronisatie tonen',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const other=await page.context().newPage();
+ await other.goto('/atelier/regiekamer.html');
+ const long='U'.repeat(6000)+'VOLLEDIGE-BRON';
+ await other.evaluate(note=>localStorage.setItem(window.PalacoAtelierBundle.NOTE,note),long);
+ await expect(page.locator('#feedback')).toContainText('Synchronisatie geweigerd');
+ await expect(page.locator('#statement')).toHaveValue('');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe(long);
+ await other.close();
+});
+
+test('Atelier v6.83: normale bron synchroniseert en laadt onverkort',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const other=await page.context().newPage();
+ await other.goto('/atelier/regiekamer.html');
+ const note='V'.repeat(6000);
+ await other.evaluate(value=>localStorage.setItem(window.PalacoAtelierBundle.NOTE,value),note);
+ await expect(page.locator('#feedback')).toContainText('Ontwerpnotitie bijgewerkt vanuit een ander tabblad');
+ await expect(page.locator('#statement')).toHaveValue(note);
+ await page.reload();
+ await expect(page.locator('#statement')).toHaveValue(note);
+ await other.close();
+});
