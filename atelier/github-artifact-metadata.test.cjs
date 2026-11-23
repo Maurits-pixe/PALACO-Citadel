@@ -82,7 +82,7 @@ test('unavailable artifact metadata is saved as explicitly unverified diagnostic
    artifact_id:ctx.artifactId,repository:ctx.repository,run_id:ctx.runId,head_sha:A,
    result:'GITHUB_METADATA_UNAVAILABLE',reason:'artifact_metadata_not_found_after_retries',
    decision:'HOLD',publication:'DENY',release_approved:false,evidence_usable:false,
-   limitation:'Artifact metadata unavailable',sensitive:'DO_NOT_COPY'},file);
+   limitation:'Artifact metadata unavailable; no GitHub ZIP digest or authenticated artifact verification',sensitive:'DO_NOT_COPY'},file);
   const serialized=fs.readFileSync(file,'utf8');
   assert.equal(result.result,'GITHUB_METADATA_UNAVAILABLE');
   assert.equal(serialized.includes('DO_NOT_COPY'),false);
@@ -101,5 +101,42 @@ test('metadata diagnostic refuses forged authorization or unknown outcome',()=>{
   valid.release_approved=false;valid.result='GITHUB_METADATA_FORGED';
   assert.throws(()=>saveObservation(valid,file),/Invalid artifact metadata diagnostic/);
   assert.equal(fs.existsSync(file),false);
+ }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
+
+test('observed metadata cannot omit its ZIP digest, size or required boundary',()=>{
+ const {sanitizeObservation}=require('./github-artifact-metadata.cjs');
+ const good=validateMetadata(metadata(),ctx);
+ assert.equal(sanitizeObservation(good).result,'GITHUB_METADATA_OBSERVED');
+ for(const replacement of [
+  {...good,github_zip_digest:undefined},
+  {...good,artifact_bytes:0},
+  {...good,limitation:'tampered arbitrary text'},
+  {...good,reason:'stale'}
+ ])assert.throws(()=>sanitizeObservation(replacement),/Invalid verified artifact metadata fields/);
+});
+test('unavailable metadata cannot carry a fabricated ZIP digest or explanation',()=>{
+ const {sanitizeObservation}=require('./github-artifact-metadata.cjs');
+ const base={schema:'palaco.citadel.atelier.github-artifact-metadata/1',
+  artifact_id:ctx.artifactId,repository:ctx.repository,run_id:ctx.runId,head_sha:A,
+  result:'GITHUB_METADATA_UNAVAILABLE',
+  reason:'artifact_metadata_not_found_after_retries',
+  decision:'HOLD',publication:'DENY',release_approved:false,evidence_usable:false,
+  limitation:'Artifact metadata unavailable; no GitHub ZIP digest or authenticated artifact verification'};
+ assert.equal(sanitizeObservation(base).result,'GITHUB_METADATA_UNAVAILABLE');
+ for(const x of [{...base,github_zip_digest:'sha256:'+'a'.repeat(64)},
+  {...base,artifact_bytes:1200},{...base,reason:'secret'}])
+  assert.throws(()=>sanitizeObservation(x),/Invalid unavailable artifact metadata fields/);
+});
+test('noncanonical or invalid metadata never creates a diagnostic file',()=>{
+ const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'palaco-metadata-hardening-'));
+ try{
+  const file=path.join(dir,'out.json'),good=validateMetadata(metadata(),ctx);
+  assert.throws(()=>saveObservation({...good,head_sha:'invalid'},file),/Invalid artifact metadata diagnostic/);
+  assert.equal(fs.existsSync(file),false);
+  const stored=saveObservation({...good,privateNote:'do not persist'},file);
+  assert.equal(fs.readFileSync(file,'utf8'),JSON.stringify(stored,null,2)+'\n');
+  assert.equal(fs.readFileSync(file,'utf8').includes('do not persist'),false);
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
