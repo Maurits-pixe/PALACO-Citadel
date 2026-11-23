@@ -2349,3 +2349,46 @@ test('Atelier v6.55: ongewijzigde onopgeslagen notitie laat importvoorstel toe',
  await expect(page.locator('#statement')).toHaveValue('Mijn lokale onopgeslagen notitie');
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
 });
+
+test('Atelier v6.58: intrekken bevestiging tijdens dialoog voorkomt herstel',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const draft=await page.evaluate(()=>JSON.stringify(
+   window.PalacoAtelierBundle.create(null,null,'Importnotitie die nooit mag worden hersteld')
+ ));
+ await page.evaluate(()=>{
+   window.confirm=()=>{
+     document.getElementById('bundleImport').dispatchEvent(new Event('cancel'));
+     return true;
+   };
+ });
+ await page.locator('#bundleImport').setInputFiles({
+   name:'ingetrokken-bevestiging.json',mimeType:'application/json',buffer:Buffer.from(draft)
+ });
+ await expect(page.locator('#bundleStatus')).toHaveText('Projectimport geannuleerd. Er is niets hersteld.');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBeNull();
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
+ await expect(page.locator('#statement')).toHaveValue('');
+});
+
+test('Atelier v6.58: intrekken bevestiging beschermt ook bestaande lokale notitie',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Mijn bestaande lokale ontwerp');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('lokaal bewaard');
+ const draft=await page.evaluate(()=>JSON.stringify(
+   window.PalacoAtelierBundle.create(null,null,'Ongewenste importnotitie')
+ ));
+ await page.evaluate(()=>{
+   window.confirm=()=>{
+     document.getElementById('bundleImport').dispatchEvent(new Event('cancel'));
+     return true;
+   };
+ });
+ await page.locator('#bundleImport').setInputFiles({
+   name:'ingetrokken-met-bestaande-data.json',mimeType:'application/json',buffer:Buffer.from(draft)
+ });
+ await expect(page.locator('#bundleStatus')).toHaveText('Projectimport geannuleerd. Er is niets hersteld.');
+ await expect(page.locator('#statement')).toHaveValue('Mijn bestaande lokale ontwerp');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Mijn bestaande lokale ontwerp');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
+});
