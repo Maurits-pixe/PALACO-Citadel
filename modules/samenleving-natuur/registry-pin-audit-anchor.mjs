@@ -181,6 +181,13 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
     // escapes so independent verifiers cannot disagree about the signed head.
     if (JSON.stringify(doc) !== text)
       return reject('NONCANONICAL_ANCHOR_DOCUMENT');
+    // Check the signed sequence bound before walking caller-supplied history.
+    // Impossible checkpoints must never trigger Proxy enumeration or a
+    // potentially expensive replay of an oversized untrusted ledger.
+    if (!own(doc,['schema','sequence','headHash','genesisPin','currentPin']) ||
+        !Number.isSafeInteger(doc.sequence) ||
+        doc.sequence < 0 || doc.sequence > 4096)
+      return reject('ANCHOR_ROLLBACK_OR_MISMATCH');
     const entriesSnapshot = captureLedgerEntries(entries);
     if (!entriesSnapshot) return reject('LEDGER_INVALID_CHAIN_LINK');
     if (!own(doc,['schema','sequence','headHash','genesisPin','currentPin']) ||
