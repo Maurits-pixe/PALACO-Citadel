@@ -721,3 +721,18 @@ test('Atelier blocks normal saves over oversized stored source before comparing 
  const write=handler.indexOf('localStorage.setItem(NOTE,value)',compare);
  assert.ok(readIndex>=0&&oversized>readIndex&&warning>oversized&&refusal>warning&&compare>refusal&&write>compare);
 });
+
+test('Atelier complete bundle export refuses silent truncation before any download',()=>{
+ const html=read('regiekamer.html');
+ const begin=html.indexOf("$('bundleSave').addEventListener('click'");
+ const end=html.indexOf('function isWindowsReservedFilename(',begin);
+ assert.ok(begin>=0&&end>begin);
+ const handler=html.slice(begin,end);
+ const guard=handler.indexOf("if($('statement').value.length>6000)");
+ const reject=handler.indexOf('Projectexport geweigerd: ontwerpnotitie bevat meer dan 6000 tekens',guard);
+ const abort=handler.indexOf('return;',reject);
+ const capture=handler.indexOf("pack.note=$('statement').value",abort);
+ const downloadIndex=handler.indexOf('download(PROJECT_FILENAME,serialized',capture);
+ assert.ok(guard>=0&&reject>guard&&abort>reject&&capture>abort&&downloadIndex>capture);
+ assert.doesNotMatch(handler.slice(capture,downloadIndex),/pack\.note=noteValue\(\)/);
+});
