@@ -13,6 +13,7 @@ on:
 permissions:
   contents: read
   pull-requests: read
+  actions: read
 
 concurrency:
   group: atelier-validation-${{ github.ref }}
@@ -37,7 +38,7 @@ jobs:
       - name: Test fail-closed release evidence evaluator
         run: node --test atelier/release-gate.test.cjs
       - name: Test read-only GitHub review audit, collector and artifact integrity
-        run: node --test atelier/github-review-audit.test.cjs atelier/github-review-collector.test.cjs atelier/github-review-evidence-integrity.test.cjs atelier/github-review-pair.test.cjs
+        run: node --test atelier/github-review-audit.test.cjs atelier/github-review-collector.test.cjs atelier/github-review-evidence-integrity.test.cjs atelier/github-review-pair.test.cjs atelier/github-artifact-metadata.test.cjs
       - name: Observe current GitHub PR review history without publication
         if: ${{ github.event_name == 'pull_request' }}
         continue-on-error: true
@@ -62,6 +63,7 @@ jobs:
             echo "No authenticated review observation was collected; no artifact to verify."
           fi
       - name: Retain sanitized review observation for inspection
+        id: review_artifact
         if: ${{ github.event_name == 'pull_request' }}
         uses: actions/upload-artifact@v4
         with:
@@ -71,6 +73,13 @@ jobs:
             ${{ runner.temp }}/atelier-review-integrity.json
           if-no-files-found: ignore
           retention-days: 7
+      - name: Verify GitHub metadata for retained evidence artifact
+        if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+        run: node atelier/github-artifact-metadata.cjs
       - name: Verify release remains HOLD without matching approved evidence
         shell: bash
         run: |
