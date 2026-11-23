@@ -550,3 +550,17 @@ test('Atelier verifies real imported byte length before decoding',()=>{
  assert.ok(preflight>=0&&readBytes>preflight&&guard>readBytes&&decode>guard&&restore>decode);
  assert.match(handler,/importBytes instanceof ArrayBuffer/);
 });
+
+test('Atelier post-import baseline matches exactly restored note',()=>{
+ const html=read('regiekamer.html');
+ const start=html.indexOf("$('bundleImport').addEventListener('change'");
+ const end=html.indexOf("$('bundleImport').addEventListener('cancel'",start);
+ assert.ok(start>=0&&end>start);
+ const handler=html.slice(start,end);
+ const restore=handler.indexOf('api.restoreWithRecovery(');
+ const editor=handler.indexOf("$('statement').value=pack.note",restore);
+ const baseline=handler.indexOf('noteBaseline=pack.note',editor);
+ const refresh=handler.indexOf('refresh()',baseline);
+ assert.ok(restore>=0&&editor>restore&&baseline>editor&&refresh>baseline);
+ assert.doesNotMatch(handler.slice(restore,refresh),/noteBaseline=localStorage\.getItem\(NOTE\)/);
+});
