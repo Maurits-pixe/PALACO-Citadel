@@ -2513,3 +2513,50 @@ test('Atelier v6.64: geïmporteerde revisie kan zonder conflict normaal worden o
  await expect(page.locator('#feedback')).toContainText('lokaal bewaard');
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Mijn vervolg zonder opslagconflict');
 });
+
+test('Atelier v6.66: wijziging na teken 6000 tijdens bestandslezing wordt opgemerkt',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const draft=await page.evaluate(()=>JSON.stringify(
+   window.PalacoAtelierBundle.create(null,null,'DRAFT-import')
+ ));
+ await page.evaluate(()=>{
+   document.getElementById('statement').value='A'.repeat(6000)+'O';
+   const original=File.prototype.arrayBuffer;
+   window.pendingLongNoteImport=[];
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='lange-notitie-tijdens-lezen.json')
+       return new Promise((resolve,reject)=>window.pendingLongNoteImport.push(()=>original.call(this).then(resolve,reject)));
+     return original.call(this);
+   };
+ });
+ await page.locator('#bundleImport').setInputFiles({
+   name:'lange-notitie-tijdens-lezen.json',mimeType:'application/json',buffer:Buffer.from(draft)
+ });
+ await expect.poll(()=>page.evaluate(()=>window.pendingLongNoteImport.length)).toBe(1);
+ await page.evaluate(()=>{document.getElementById('statement').value='A'.repeat(6000)+'N';});
+ await page.evaluate(()=>window.pendingLongNoteImport.shift()());
+ await expect(page.locator('#bundleStatus')).toContainText('Onopgeslagen ontwerpnotitie gewijzigd tijdens het lezen');
+ expect(await page.locator('#statement').inputValue()).toBe('A'.repeat(6000)+'N');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
+});
+
+test('Atelier v6.66: wijziging na teken 6000 tijdens importbevestiging blokkeert herstel',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const draft=await page.evaluate(()=>JSON.stringify(
+   window.PalacoAtelierBundle.create(null,null,'DRAFT-import')
+ ));
+ await page.evaluate(()=>{
+   document.getElementById('statement').value='B'.repeat(6000)+'O';
+   window.confirm=()=>{
+     document.getElementById('statement').value='B'.repeat(6000)+'N';
+     return true;
+   };
+ });
+ await page.locator('#bundleImport').setInputFiles({
+   name:'lange-notitie-bij-bevestiging.json',mimeType:'application/json',buffer:Buffer.from(draft)
+ });
+ await expect(page.locator('#bundleStatus')).toContainText('Ontwerpnotitie gewijzigd tijdens bevestiging');
+ expect(await page.locator('#statement').inputValue()).toBe('B'.repeat(6000)+'N');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBeNull();
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
+});
