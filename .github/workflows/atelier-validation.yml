@@ -36,8 +36,8 @@ jobs:
         run: node --test atelier/builder.test.mjs atelier/wizard.test.mjs citadel-proof/proof.test.mjs
       - name: Test fail-closed release evidence evaluator
         run: node --test atelier/release-gate.test.cjs
-      - name: Test read-only GitHub review audit and collector
-        run: node --test atelier/github-review-audit.test.cjs atelier/github-review-collector.test.cjs
+      - name: Test read-only GitHub review audit, collector and artifact integrity
+        run: node --test atelier/github-review-audit.test.cjs atelier/github-review-collector.test.cjs atelier/github-review-evidence-integrity.test.cjs
       - name: Observe current GitHub PR review history without publication
         if: ${{ github.event_name == 'pull_request' }}
         continue-on-error: true
@@ -47,6 +47,12 @@ jobs:
           PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PALACO_REVIEW_REPORT_PATH: ${{ runner.temp }}/atelier-review-evidence.json
         run: node atelier/github-review-collector.cjs
+      - name: Verify report bytes and exact event context before artifact retention
+        if: ${{ github.event_name == 'pull_request' && hashFiles(format('{0}/atelier-review-evidence.json', runner.temp)) != '' }}
+        env:
+          PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node atelier/github-review-evidence-integrity.cjs "${RUNNER_TEMP}/atelier-review-evidence.json"
       - name: Retain sanitized review observation for inspection
         if: ${{ github.event_name == 'pull_request' }}
         uses: actions/upload-artifact@v4
