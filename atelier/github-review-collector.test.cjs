@@ -67,3 +67,31 @@ test('non-finite or missing workflow run does not become a forged GitHub run ID'
  assert.equal(safeReport(x,1).workflow_run_id,1);
  assert.equal(safeReport(x,1).collection_complete,false);
 });
+
+test('workflow event SHA mismatch rejects live PR observation before review listing',async()=>{
+ let reviewsCalled=false;
+ await assert.rejects(()=>collect({...params(async url=>{
+  if(url.includes('/reviews?')){reviewsCalled=true;return [];}
+  return pr(B);
+ }),expectedHead:A}),/does not match workflow event commit/);
+ assert.equal(reviewsCalled,false);
+});
+test('matching workflow event SHA remains read-only HOLD',async()=>{
+ const r=await collect({...params(async url=>url.includes('/reviews?')?[]:pr(A)),expectedHead:A});
+ assert.equal(r.candidate_sha,A);
+ assert.equal(r.decision,'HOLD');
+ assert.equal(r.evidence_usable,false);
+});
+test('sanitized report binds repository, workflow attempt and run without identities',()=>{
+ const summary=safeReport({pr_number:60,candidate_sha:A,review_count:0,
+  matching_approved_review_count:0,collection_complete:true,review_list_issues:[]},
+  45111383043,2,'Maurits-pixe/PALACO-Citadel');
+ assert.equal(summary.repository,'Maurits-pixe/PALACO-Citadel');
+ assert.equal(summary.workflow_run_id,45111383043);
+ assert.equal(summary.workflow_run_attempt,2);
+ assert.equal(summary.release_approved,false);
+ const invalid=safeReport({pr_number:60,candidate_sha:A,review_count:0,
+  matching_approved_review_count:0,collection_complete:false},1,0,'invalid repository!');
+ assert.equal(invalid.repository,null);
+ assert.equal(invalid.workflow_run_attempt,null);
+});
