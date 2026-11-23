@@ -107,7 +107,7 @@ const checks=[
 ];$('diagnostics').replaceChildren(...checks.map(c=>line(...c)));
 renderGallery();
 }
-function noteValue(){return $('statement').value.slice(0,6000);}
+function noteValue(){const text=$('statement').value;if(text.length>6000)throw Error('Ontwerpnotitie bevat meer dan 6000 tekens; geen afgekapt dossier toegestaan');return text;}
 let noteBaseline=null;
 function saveNote(){
  // A programmatic textarea assignment can bypass the HTML maxlength limit.
@@ -856,8 +856,8 @@ $('loadSavedNote').addEventListener('click',()=>{
 });
 $('saveNote').addEventListener('click',saveNote);
 $('refresh').addEventListener('click',()=>{refresh();$('feedback').textContent='Het lokale projectoverzicht is opnieuw geladen.';});
-$('export').addEventListener('click',()=>{if($('statement').value.length>6000){$('feedback').textContent='Dossierexport geweigerd: ontwerpnotitie bevat meer dan 6000 tekens. De volledige tekst blijft in de editor; er is geen bestand gemaakt.';return;}refresh();download('PALACO-Atelier-Creatief-Dossier-DRAFT.json',JSON.stringify(packageDraft(),null,2),'application/json');$('feedback').textContent='Creatief DRAFT-dossier geëxporteerd. Geen officiële uitgifte.';});
-$('exportTxt').addEventListener('click',()=>{if($('statement').value.length>6000){$('feedback').textContent='Tekstexport geweigerd: ontwerpnotitie bevat meer dan 6000 tekens. De volledige tekst blijft in de editor; er is geen bestand gemaakt.';return;}refresh();const p=packageDraft();const lines=['PALACO CITADEL · CREATIEF PROJECTDOSSIER','DRAFT · AUTHORITY NONE · NIET GEAUTORISEERD','', 'Exterieur: '+(p.exterior?.name||'Niet beschikbaar'),'Interieur: '+(p.interior?.name||'Niet beschikbaar'),'Exterieurpercelen: '+p.summary.exterior_parcels_used+'/96','Natuur en water: '+p.summary.nature_and_water,'Interieurpercelen: '+p.summary.interior_parcels_used+'/240','Interieurfuncties: '+p.summary.interior_functions,'','ONTWERPVERKLARING',p.creative_statement||'(geen notitie)','', 'Geen officieel bewijs, autorisatie, vergunning of wereldactivatie.'];download('PALACO-Atelier-Overzicht-DRAFT.txt',lines.join(String.fromCharCode(10)),'text/plain;charset=utf-8');$('feedback').textContent='Tekstoverzicht geëxporteerd.';});
+$('export').addEventListener('click',()=>{try{if($('statement').value.length>6000)throw Error('ontwerpnotitie bevat meer dan 6000 tekens');refresh();const dossier=packageDraft();download('PALACO-Atelier-Creatief-Dossier-DRAFT.json',JSON.stringify(dossier,null,2),'application/json');$('feedback').textContent='Creatief DRAFT-dossier geëxporteerd. Geen officiële uitgifte.';}catch(err){$('feedback').textContent='Dossierexport geweigerd: '+err.message+'. De volledige tekst blijft in de editor; er is geen dossier gemaakt.';}});
+$('exportTxt').addEventListener('click',()=>{try{if($('statement').value.length>6000)throw Error('ontwerpnotitie bevat meer dan 6000 tekens');refresh();const p=packageDraft();const lines=['PALACO CITADEL · CREATIEF PROJECTDOSSIER','DRAFT · AUTHORITY NONE · NIET GEAUTORISEERD','', 'Exterieur: '+(p.exterior?.name||'Niet beschikbaar'),'Interieur: '+(p.interior?.name||'Niet beschikbaar'),'Exterieurpercelen: '+p.summary.exterior_parcels_used+'/96','Natuur en water: '+p.summary.nature_and_water,'Interieurpercelen: '+p.summary.interior_parcels_used+'/240','Interieurfuncties: '+p.summary.interior_functions,'','ONTWERPVERKLARING',p.creative_statement||'(geen notitie)','', 'Geen officieel bewijs, autorisatie, vergunning of wereldactivatie.'];download('PALACO-Atelier-Overzicht-DRAFT.txt',lines.join(String.fromCharCode(10)),'text/plain;charset=utf-8');$('feedback').textContent='Tekstoverzicht geëxporteerd.';}catch(err){$('feedback').textContent='Tekstexport geweigerd: '+err.message+'. De volledige tekst blijft in de editor; er is geen overzicht gemaakt.';}});
 
 let selectedView='exterior';
 function renderGallery(){
