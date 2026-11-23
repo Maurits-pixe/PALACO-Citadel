@@ -48,6 +48,36 @@ const capturePin = p => {
     HEX.test(copy.registrySha256) && Number.isSafeInteger(copy.revision) &&
     copy.revision > 0 ? copy : null;
 };
+// Keep the hash-linked history stable from validation through ledger replay.
+// A Proxy may change an entry between checks; copy only own data descriptors,
+// reject holes/accessors/extra keys and impose the ledger's 4096-entry cap.
+const captureLedgerEntries = entries => {
+  if (!Array.isArray(entries)) return null;
+  const lengthDescriptor = Object.getOwnPropertyDescriptor(entries, 'length');
+  if (!lengthDescriptor || !Object.hasOwn(lengthDescriptor, 'value') ||
+      !Number.isSafeInteger(lengthDescriptor.value) ||
+      lengthDescriptor.value > 4096) return null;
+  const length = lengthDescriptor.value;
+  const keys = Reflect.ownKeys(entries);
+  if (keys.length !== length + 1 ||
+      keys.some(k => k !== 'length' &&
+        (typeof k !== 'string' || !/^(0|[1-9][0-9]*)$/.test(k) ||
+          Number(k) >= length))) return null;
+  const captured = [];
+  for (let index = 0; index < length; index++) {
+    const item = Object.getOwnPropertyDescriptor(entries, String(index));
+    if (!item || !Object.hasOwn(item, 'value')) return null;
+    const record = captureExactRecord(item.value,
+      ['sequence','previousHash','fromPin','toPin']);
+    if (!record) return null;
+    const fromPin = capturePin(record.fromPin);
+    const toPin = capturePin(record.toPin);
+    if (!fromPin || !toPin) return null;
+    captured.push({sequence: record.sequence, previousHash: record.previousHash,
+      fromPin, toPin});
+  }
+  return captured;
+};
 const pinOK = p => capturePin(p) !== null;
 const samePin = (a,b) => a.schema===b.schema && a.revision===b.revision &&
   a.issuerFingerprint===b.issuerFingerprint && a.registrySha256===b.registrySha256;
@@ -137,16 +167,18 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
     // Decode an exact byte snapshot only after signature verification.
     const text = new TextDecoder('utf-8',{fatal:true}).decode(snapshotBytes);
     const doc = JSON.parse(text);
+    const entriesSnapshot = captureLedgerEntries(entries);
+    if (!entriesSnapshot) return reject('LEDGER_INVALID_CHAIN_LINK');
     if (!own(doc,['schema','sequence','headHash','genesisPin','currentPin']) ||
       doc.schema !== AUDIT_ANCHOR_SCHEMA ||
       !Number.isSafeInteger(doc.sequence) || doc.sequence < minimumAnchorSequence ||
       !HEX.test(doc.headHash) ||
       !pinOK(doc.genesisPin) || !pinOK(doc.currentPin) ||
       !samePin(doc.genesisPin,genesisSnapshot) ||
-      !samePin(doc.currentPin,currentSnapshot) || doc.sequence !== entries.length)
+      !samePin(doc.currentPin,currentSnapshot) || doc.sequence !== entriesSnapshot.length)
       return reject('ANCHOR_ROLLBACK_OR_MISMATCH');
     const ledger=inspectRegistryPinLedger({
-      genesisPin:genesisSnapshot,entries,expectedHeadHash:doc.headHash,
+      genesisPin:genesisSnapshot,entries:entriesSnapshot,expectedHeadHash:doc.headHash,
       expectedCurrentPin:currentSnapshot
     });
     if (!ledger.chainConsistent) return reject('LEDGER_'+ledger.reason);
