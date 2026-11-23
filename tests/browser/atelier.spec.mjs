@@ -2560,3 +2560,35 @@ test('Atelier v6.66: wijziging na teken 6000 tijdens importbevestiging blokkeert
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBeNull();
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
 });
+
+test('Atelier v6.68: te lange onopgeslagen notitie mag nooit stilzwijgend worden afgekapt',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const long='C'.repeat(6000)+'UNIEK';
+ await page.evaluate(text=>{document.getElementById('statement').value=text;},long);
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('Opslaan geweigerd: ontwerpnotitie bevat meer dan 6000 tekens');
+ expect(await page.locator('#statement').inputValue()).toBe(long);
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBeNull();
+});
+
+test('Atelier v6.68: bestaande notitie blijft behouden bij te lange nieuwe versie',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Mijn bestaande, complete ontwerp');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('lokaal bewaard');
+ const long='D'.repeat(6001);
+ await page.evaluate(text=>{document.getElementById('statement').value=text;},long);
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('Opslaan geweigerd: ontwerpnotitie bevat meer dan 6000 tekens');
+ expect(await page.locator('#statement').inputValue()).toBe(long);
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Mijn bestaande, complete ontwerp');
+});
+
+test('Atelier v6.68: normale notitie tot en met limiet mag worden bewaard',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const text='E'.repeat(6000);
+ await page.evaluate(note=>{document.getElementById('statement').value=note;},text);
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('lokaal bewaard');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe(text);
+});
