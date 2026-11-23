@@ -517,3 +517,19 @@ test('Atelier canceled import confirmation cannot restore stale selection',()=>{
  assert.ok(confirmation>=0&&guard>confirmation&&restore>guard);
  assert.match(handler,/A stale approval never authorizes a write/);
 });
+
+test('Atelier empty file selection clears stale async import state',()=>{
+ const html=read('regiekamer.html');
+ const begin=html.indexOf("$('bundleImport').addEventListener('change'");
+ const end=html.indexOf("$('bundleImport').addEventListener('cancel'",begin);
+ assert.ok(begin>=0&&end>begin);
+ const handler=html.slice(begin,end);
+ const noFile=handler.indexOf('if(!file){');
+ const pending=handler.indexOf('importReadPending=false;',noFile);
+ const snapshot=handler.indexOf('importStartSnapshot=null;',noFile);
+ const note=handler.indexOf('importStartNote=null;',noFile);
+ const returnIndex=handler.indexOf('return;',noFile);
+ const setPending=handler.indexOf('importReadPending=true;',returnIndex);
+ assert.ok(noFile>=0&&pending>noFile&&snapshot>pending&&note>snapshot&&returnIndex>note&&setPending>returnIndex);
+ assert.match(handler,/Geen projectbestand geselecteerd/);
+});
