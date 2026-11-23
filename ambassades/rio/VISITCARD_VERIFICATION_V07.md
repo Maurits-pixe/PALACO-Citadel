@@ -894,3 +894,44 @@ Nineteen new declared regression tests plus inherited fixture tests
 were added to the zero-skip workflow. Actual CI PASS/FAIL must be
 verified from the job logs. No merge, deploy or activation.
 **GO-13 HOLD**.
+
+## v3.5 — Extern te bewaren governance high-water (DRAFT / GO-13 HOLD)
+
+`visitcard_governance_highwater.py` levert een **afzonderlijk te beheren**
+high-water-protocol voor governance-intrekkingen en sleutelrotaties. Het
+checkpoint wordt pas na volledige verificatie van de ondertekende
+lifecycle-geschiedenis geproduceerd, en bevat de exacte volgnummerstand,
+sleutelvingerafdruk, revocatievlag en hash van het laatste event. Een
+afzonderlijke Ed25519-custodiansleutel ondertekent het resultaat met
+domeinscheiding; history en head worden atomair in een tweede
+SQLite-verbinding vastgelegd. Alle historische checkpoints en de
+head-consistentie worden gecontroleerd vóór een nieuwe bevestiging.
+Oude, gemanipuleerde of ontbrekende bewijsstukken blokkeren nieuwe
+bevestigingen.
+
+`compare_restored_governance` vergelijkt een hersteld en volledig
+geauditeerd lokaal governance-register met een **apart ontvangen**
+checkpoint dat is geverifieerd met een onafhankelijk vastgepinde
+custodian-publieke sleutel. Een lokaal register dat achterloopt op
+een extern vastgelegde intrekking resulteert in
+`REVOKED_ROLLBACK_BLOCKED`. Verder worden MATCHED_INFORMATIONAL,
+LOCAL_BEHIND_BLOCKED, LOCAL_AHEAD_UNCONFIRMED, FORK_BLOCKED en
+UNKNOWN_BLOCKED onderscheiden. De functie `execution_permitted`
+blijft altijd False.
+
+**Vertrouwensgrenzen:** dit is nog geen daadwerkelijk extern
+gehoste dienst en SQLite-triggers verhinderen geen volledige rollback
+door een geprivilegieerde beheerder. De externe checkpointdatabase,
+de privésleutel en vooral het laatst bevestigde checkpoint moeten
+echt onder onafhankelijk beheer staan om rollback te kunnen herkennen.
+Een ondertekend oud checkpoint bewijst niet dat het wereldwijd de
+nieuwste stand is. De bestaande v3.4-entrypoint krijgt niet
+automatisch deze v3.5-controle; integratie in een productiepoort
+vereist eerst onafhankelijk getoetste opslag, authenticatie en
+herstelprocedures. Er worden geen sleutels geactiveerd of bevoegdheden
+toegekend.
+
+Veertien nieuwe regressietests toetsen onder meer een teruggezette
+intrekking, rotatie, vervalsing, ontbrekend historisch record en
+niet-autoriseren. CI-log en skipaantallen zijn beslissend.
+**GO-13 HOLD**: geen merge of uitrol.
