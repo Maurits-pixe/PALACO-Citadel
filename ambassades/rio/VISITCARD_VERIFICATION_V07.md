@@ -1250,3 +1250,38 @@ establish the legal identity or independent control of the recipient.
 The externally pinned latest receipt must actually be provisioned
 outside the claimant's control. The v4.4 module is not connected to
 a release workflow capable of merging or deploying. **GO-13 HOLD**.
+
+## v4.5 — Signed audit checkpoint with an independently pinned head (DRAFT / HOLD)
+
+`visitcard_audit_checkpoint.py` provides an explicit higher-level
+`verify_checkpointed_audit` offline verifier. It first runs the entire
+byte-backed v4.4 release/transfer audit. Next, a separately pinned
+Ed25519 auditor key must verify a five-minute (maximum) signed
+checkpoint binding the exact source commit, dossier hash, latest
+transfer receipt hash, a caller-supplied 32-byte canonical base64url
+challenge, informational audit state and `GO-13 HOLD`. The signed
+checkpoint's canonical SHA-256 must match a separately **externally
+pinned current** digest. This independent pin must NOT be derived from
+the untrusted checkpoint or handed to the verifier by the same party
+whose evidence is being verified.
+
+Upon a fully matching checkpoint, the random challenge is atomically
+recorded in a local SQLite replay table under `BEGIN IMMEDIATE`.
+Its unique primary key and no-update/no-delete triggers reject
+subsequent local replay of the same challenge and accidental
+history mutations. `MATCHED_INFORMATIONAL`, `AUDIT_BLOCKED`,
+`CHECKPOINT_BLOCKED` and `REPLAY_BLOCKED` remain non-authorizing;
+release, merge and key activation flags are always false.
+22 new regression tests cover the first use and replay, alternate
+fresh challenges, forged signatures, wrong pins, expiry, incorrect
+dossier/receipt binding, missing archive evidence and schema damage.
+
+**Critical caveat:** independent latest-head storage, random
+challenge generation, trusted clock and database durability are
+**not implemented** in this module. The SQLite replay log can be
+rolled back by a privileged actor; two independent replicas do not
+share its consumed-challenge state. Actual global replay prevention
+requires a separately managed durable monotonic/CAS challenge ledger,
+proper clock and true out-of-band freshness guarantees. Source-code
+tests do NOT prove any of these deployed properties. No merge,
+release or production activation is permitted. **GO-13 HOLD.**
