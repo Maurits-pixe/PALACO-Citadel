@@ -218,8 +218,15 @@ $('bundleSave').addEventListener('click',async ()=>{
    return;
  }
  try{
+   // A script can bypass textarea maxlength. Never call a truncated
+   // project JSON export a complete creative backup.
+   if($('statement').value.length>6000){
+     $('bundleStatus').textContent='Projectexport geweigerd: ontwerpnotitie bevat meer dan 6000 tekens. De volledige tekst blijft in de editor; kort deze bewust in vóór export.';
+     $('bundleReceiptStatus').textContent='Geen export of SHA-256-referentie gemaakt: de volledige ontwerpnotitie past niet in een geldig DRAFT-projectpakket.';
+     return;
+   }
    const pack=api.read(localStorage);
-   pack.note=noteValue();
+   pack.note=$('statement').value;
    const checked=api.parse(JSON.stringify(pack));
    const serialized=JSON.stringify(checked,null,2);
    download(PROJECT_FILENAME,serialized,'application/json');
