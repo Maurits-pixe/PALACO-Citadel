@@ -1,6 +1,7 @@
 'use strict';
 // Verify GitHub-hosted Actions artifact metadata after upload; read-only, no GO.
 const https=require('node:https');
+const fs=require('node:fs');
 const SHA=/^[0-9a-f]{40}$/;
 const DIGEST=/^sha256:[0-9a-f]{64}$/;
 const REPO=/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
@@ -66,6 +67,11 @@ async function main(env=process.env){
  const result=await observe({repository:env.GITHUB_REPOSITORY,runId:Number(env.GITHUB_RUN_ID),
   headSha:env.PALACO_EXPECTED_HEAD_SHA,artifactId:Number(env.PALACO_ARTIFACT_ID),
   token:env.GITHUB_TOKEN});
+ // Record the API observation separately. It contains only fixed diagnostics.
+ // A 404 result remains explicitly UNAVAILABLE rather than VERIFIED.
+ if(env.PALACO_ARTIFACT_METADATA_PATH)
+  fs.writeFileSync(env.PALACO_ARTIFACT_METADATA_PATH,JSON.stringify(result,null,2)+'\n',
+   {flag:'wx',mode:0o600});
  process.stdout.write(JSON.stringify(result,null,2)+'\n');
  return result;
 }
