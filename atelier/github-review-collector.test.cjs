@@ -56,7 +56,7 @@ test('exportable review report contains only approved fields and no reviewer ide
  assert.equal(report.release_approved,false);
  assert.equal(report.evidence_usable,false);
  assert.equal(report.candidate_sha,A);
- for(const secret of ['SENSITIVE_REVIEWER','PRIVATE_REVIEW_BODY','SECRET_TOKEN','approved'])assert.equal(encoded.includes(secret),false);
+ for(const secret of ['SENSITIVE_REVIEWER','PRIVATE_REVIEW_BODY','SECRET_TOKEN','"approved":'])assert.equal(encoded.includes(secret),false);
 });
 test('non-finite or missing workflow run does not become a forged GitHub run ID',()=>{
  const x={pr_number:60,candidate_sha:A,review_count:0,matching_approved_review_count:0,
