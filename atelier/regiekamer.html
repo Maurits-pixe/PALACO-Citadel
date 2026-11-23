@@ -110,6 +110,12 @@ renderGallery();
 function noteValue(){return $('statement').value.slice(0,6000);}
 let noteBaseline=null;
 function saveNote(){
+ // A programmatic textarea assignment can bypass the HTML maxlength limit.
+ // Refuse silent truncation rather than claiming the entire draft was saved.
+ if($('statement').value.length>6000){
+   $('feedback').textContent='Opslaan geweigerd: ontwerpnotitie bevat meer dan 6000 tekens. Je volledige tekst blijft zichtbaar; verkort de notitie of exporteer je dossier.';
+   return;
+ }
  try{
    const current=localStorage.getItem(NOTE);
    if(current!==noteBaseline){
