@@ -23,9 +23,9 @@ class IntegratedReleaseTransferTests(unittest.TestCase):
         self.bundle=self.dossier.build()
         self.assertIsNotNone(self.bundle.manifest_sha256)
         digest=self.bundle.manifest_sha256
-        self.first=self.handoff.sign(1,ZERO,"receiver-a",self.handoff.key_a,dossier=digest)
+        self.first=self.handoff.sign(1,ZERO,"receiver-a",self.handoff.key_a,dossier=digest,time=NOW)
         self.second=self.handoff.sign(
-            2,transfer_receipt_digest(self.first),"receiver-b",self.handoff.key_b,dossier=digest)
+            2,transfer_receipt_digest(self.first),"receiver-b",self.handoff.key_b,dossier=digest,time=NOW)
         self.receipts=[self.first,self.second]
         self.latest=transfer_receipt_digest(self.second)
 
@@ -103,9 +103,9 @@ class IntegratedReleaseTransferTests(unittest.TestCase):
         }).state,AuditState.TRANSFER_BLOCKED)
 
     def test_other_dossier_receipt_even_validly_signed_blocks(self):
-        first=self.handoff.sign(1,ZERO,"receiver-a",self.handoff.key_a,dossier="c"*64)
+        first=self.handoff.sign(1,ZERO,"receiver-a",self.handoff.key_a,dossier="c"*64,time=NOW)
         second=self.handoff.sign(
-            2,transfer_receipt_digest(first),"receiver-b",self.handoff.key_b,dossier="c"*64)
+            2,transfer_receipt_digest(first),"receiver-b",self.handoff.key_b,dossier="c"*64,time=NOW)
         self.assertEqual(self.check(receipts=[first,second],latest=transfer_receipt_digest(second)).state,
                          AuditState.TRANSFER_BLOCKED)
 
