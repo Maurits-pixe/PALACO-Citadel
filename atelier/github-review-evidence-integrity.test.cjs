@@ -14,7 +14,7 @@ const record=()=>({
  release_approved:false,evidence_usable:false,
  limitation:'An observation artifact cannot replace current authenticated GitHub review verification'
 });
-const bytes=o=>Buffer.from(JSON.stringify(o)+'\n');
+const bytes=o=>Buffer.from(JSON.stringify(o,null,2)+'\n');
 test('matching complete review report yields local SHA256 and never GO',()=>{
  const raw=bytes(record());const r=inspect(raw,ctx);
  assert.match(r.report_sha256,/^[a-f0-9]{64}$/);
@@ -50,4 +50,25 @@ test('complete reports cannot contain blockers and truncated files are rejected'
  assert.throws(()=>inspect(bytes(x),ctx),/observations inconsistent/);
  assert.throws(()=>inspect(Buffer.alloc(0),ctx),/byte length/);
  assert.throws(()=>inspect(Buffer.alloc(20001),ctx),/byte length/);
+});
+
+test('duplicate JSON keys are rejected even if parsed value looks correct',()=>{
+ const raw=bytes(record()).toString('utf8');
+ const duplicate=raw.replace('  "decision": "HOLD",','  "decision": "GO",\n  "decision": "HOLD",');
+ assert.notEqual(duplicate,raw);
+ assert.throws(()=>inspect(Buffer.from(duplicate),ctx),/Noncanonical review evidence JSON bytes/);
+});
+test('unexpected whitespace, UTF-8 BOM or appended bytes cannot be verified',()=>{
+ const raw=bytes(record());
+ assert.throws(()=>inspect(Buffer.from(JSON.stringify(record())+'\n'),ctx),/Noncanonical review evidence JSON bytes/);
+ assert.throws(()=>inspect(Buffer.concat([Buffer.from([0xef,0xbb,0xbf]),raw]),ctx));
+ assert.throws(()=>inspect(Buffer.concat([raw,Buffer.from(' ')]),ctx),/Noncanonical review evidence JSON bytes/);
+});
+test('canonical writer output is accepted and returns the exact raw-byte SHA256',()=>{
+ const raw=bytes(record());
+ const result=inspect(raw,ctx);
+ const crypto=require('node:crypto');
+ assert.equal(result.report_sha256,crypto.createHash('sha256').update(raw).digest('hex'));
+ assert.equal(result.decision,'HOLD');
+ assert.equal(result.evidence_usable,false);
 });
