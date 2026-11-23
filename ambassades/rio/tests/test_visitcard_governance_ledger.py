@@ -12,7 +12,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from visitcard_witness_enrollment import _canonical
 from visitcard_governance_ledger import (
     DOMAIN,ZERO,initialize_governance_ledger,apply_governance_event,
-    signer_is_current
+    signer_is_current,_verify_command
 )
 from visitcard_dual_witness_verification import (
     verify_lifecycle_governed_chain,IntegratedState
@@ -51,8 +51,10 @@ class GovernanceLifecycleTests(unittest.TestCase):
         ).fetchone()
 
     def register(self):
-        result=self.accept(self.event(1,"REGISTER",self.fp))
-        self.assertTrue(result)
+        entry=self.event(1,"REGISTER",self.fp)
+        self.assertTrue(_verify_command(entry,self.roots,issuer=ISSUER,signer_id="fresh-a"),"signature envelope verification")
+        result=self.accept(entry)
+        self.assertTrue(result,"signed genesis transaction")
 
     def test_signed_registration_and_current_key(self):
         self.register()
