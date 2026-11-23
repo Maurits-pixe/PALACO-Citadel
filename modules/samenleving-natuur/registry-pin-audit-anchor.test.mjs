@@ -596,3 +596,41 @@ test('nonintegral audit sequence floor is denied before key verification',()=>{
  assert.equal(r.anchoredLedgerMatched,false);
  assert.equal(r.authorization,'DENY');
 });
+
+
+test('invalid scalar anchor input cannot inspect caller-owned PIN descriptors',()=>{
+ const input=setup();
+ let pinEnumerations=0;
+ const hostilePin=new Proxy(input.genesisPin,{
+   ownKeys(){pinEnumerations++;throw Error('PIN enumeration should not run');}
+ });
+ for (const override of [
+   {minimumAnchorSequence:4097},
+   {minimumAnchorSequence:-1},
+   {expectedAnchorKeyFingerprint:'not-a-digest'},
+   {signatureBase64Url:'AQID'}
+ ]) {
+   const r=inspectSignedAuditHeadAnchor({...input,genesisPin:hostilePin,...override});
+   assert.equal(pinEnumerations,0,JSON.stringify(override));
+   assert.equal(r.reason,'INVALID_ANCHOR_INPUT',JSON.stringify(override));
+   assert.equal(r.anchoredLedgerMatched,false);
+   assert.equal(r.authorization,'DENY');
+   assert.equal(r.releaseAllowed,false);
+ }
+});
+
+test('valid scalar inputs still inspect and deny hostile PINs without executing getters',()=>{
+ const input=setup();
+ const hostilePin={...input.genesisPin};
+ let getterCalls=0;
+ Object.defineProperty(hostilePin,'revision',{
+   enumerable:true,configurable:true,
+   get(){getterCalls++;throw Error('untrusted PIN getter executed');}
+ });
+ const r=inspectSignedAuditHeadAnchor({...input,genesisPin:hostilePin});
+ assert.equal(getterCalls,0);
+ assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
