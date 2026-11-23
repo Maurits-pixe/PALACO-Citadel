@@ -670,6 +670,10 @@ $('bundleImport').addEventListener('change',async event=>{
    if(file.size>150000)throw Error('Bestand groter dan 150 KB');
    const importBytes=await file.arrayBuffer();
    if(revision!==importRevision)return;
+   // The declared File.size is only a preflight hint. Check the actual bytes
+   // returned by file adapters before decoding or inspecting external data.
+   if(!(importBytes instanceof ArrayBuffer)||importBytes.byteLength>150000)
+     throw Error('Werkelijke projectbestandsgrootte ongeldig of groter dan 150 KB');
    // Changes in this tab do not fire a storage event. Check even when no
    // event was received, before validating or previewing any import.
    const afterRead=api.snapshot(localStorage);
