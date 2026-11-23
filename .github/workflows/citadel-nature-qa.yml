@@ -106,6 +106,8 @@ jobs:
         run: node --test modules/samenleving-natuur/registry-pin-witness-registry.test.mjs
       - name: Signed witness registry issuer and epoch security regressions
         run: node --test modules/samenleving-natuur/registry-pin-signed-witness-registry.test.mjs
+      - name: Signed witness registry transition and revocation rollback regressions
+        run: node --test modules/samenleving-natuur/registry-pin-witness-transition.test.mjs
       - name: Install dependencies
         run: npm ci --ignore-scripts
       - name: Install Chromium
