@@ -713,11 +713,11 @@ test('Atelier blocks normal saves over oversized stored source before comparing 
  const end=html.indexOf('function getSummary()',start);
  assert.ok(start>=0&&end>start);
  const handler=html.slice(start,end);
- const read=handler.indexOf('const current=localStorage.getItem(NOTE)');
- const oversized=handler.indexOf('if(current!==null&&current.length>6000)',read);
+ const readIndex=handler.indexOf('const current=localStorage.getItem(NOTE)');
+ const oversized=handler.indexOf('if(current!==null&&current.length>6000)',readIndex);
  const warning=handler.indexOf('Stel de volledige bron eerst afzonderlijk veilig',oversized);
  const refusal=handler.indexOf('return;',warning);
  const compare=handler.indexOf('if(current!==noteBaseline)',refusal);
  const write=handler.indexOf('localStorage.setItem(NOTE,value)',compare);
- assert.ok(read>=0&&oversized>read&&warning>oversized&&refusal>warning&&compare>refusal&&write>compare);
+ assert.ok(readIndex>=0&&oversized>readIndex&&warning>oversized&&refusal>warning&&compare>refusal&&write>compare);
 });
