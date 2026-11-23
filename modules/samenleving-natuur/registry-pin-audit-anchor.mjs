@@ -27,6 +27,35 @@ const captureExactRecord = (value, keys) => {
   }
   return snapshot;
 };
+// Accept only minimal positive DER INTEGERs for ECDSA P-256 (r,s).
+// This is a format gate, not a replacement for cryptographic verification.
+const canonicalEcdsaDer = signature => {
+  if (signature.length < 8 || signature.length > 72 ||
+      signature[0] !== 0x30 || signature[1] !== signature.length - 2)
+    return false;
+  let offset = 2;
+  for (let component = 0; component < 2; component++) {
+    if (offset + 2 > signature.length || signature[offset] !== 0x02)
+      return false;
+    const size = signature[offset + 1];
+    offset += 2;
+    if (size < 1 || size > 33 || offset + size > signature.length)
+      return false;
+    const first = signature[offset], second = size > 1 ? signature[offset + 1] : 0;
+    // No negative, zero, redundant sign padding or oversized scalars.
+    if ((first & 0x80) || (size > 1 && first === 0 && !(second & 0x80)) ||
+        (size === 33 && first !== 0) ||
+        (size === 1 && first === 0))
+      return false;
+    let nonzero = false;
+    for (let j = 0; j < size; j++) {
+      if (signature[offset + j] !== 0) nonzero = true;
+    }
+    if (!nonzero) return false;
+    offset += size;
+  }
+  return offset === signature.length;
+};
 const pinKeys = ['schema','issuerFingerprint','revision','registrySha256'];
 // Capture a PIN's own data descriptors once, never evaluating accessors or
 // rereading attacker-controlled Proxy fields after validation.
@@ -128,8 +157,8 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
     // Validate canonical signature transport before inspecting untrusted PIN
     // and key objects; no cryptographic work is justified for malformed data.
     const signature = Buffer.from(signatureBase64Url,'base64url');
-    if (signature.length < 8 || signature.length > 80 ||
-        signature.toString('base64url') !== signatureBase64Url)
+    if (signature.toString('base64url') !== signatureBase64Url ||
+        !canonicalEcdsaDer(signature))
       return reject('ANCHOR_SIGNATURE_INVALID');
     // Caller-owned PINs are captured once; avoid mutable Proxy rereads.
     const genesisSnapshot = capturePin(genesisPin);
