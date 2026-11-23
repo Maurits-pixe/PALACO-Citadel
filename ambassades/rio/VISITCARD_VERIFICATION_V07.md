@@ -1078,3 +1078,39 @@ has not been globally disabled, and the public RIO site/production
 consumers are not connected. Do not treat this as runtime authorization
 or complete source isolation. Independent provisioning and external
 security review are required before release. **GO-13 HOLD.**
+
+## v4.0 — Required provenance for the supported new-consumer adapter (DRAFT / HOLD)
+
+`visitcard_consumer_adapter.py` now requires the signed v3.9
+trust-provenance manifest, separately pinned administrative roots and
+an **out-of-band, exact SHA-256 manifest pin** as mandatory keyword
+arguments. The adapter calls only `verify_with_trust_provenance`.
+It cannot silently fall back to the unguarded v3.7 verifier.
+The independently signed manifest fingerprint binds all ten keyrings,
+issuer and nonce before the complete double-witness/governance/
+high-water proof is evaluated.
+
+The v3.8 source policy now explicitly requires consumer modules to
+import the provenance gate and rejects direct imports and calls of
+`verify_visitcard`, in addition to its older restrictions against
+other lower-level verifier imports, dynamic importing and locally
+constructed trust objects. The example adapter is migrated; its
+previous positional-only trust/no-manifest call path is rejected.
+Twelve new v4 tests verify that missing/expired manifests, wrong pins,
+unknown root keys, incomplete evidence, changed witness keys and
+legacy direct-call attempts are rejected. Existing earlier tests
+were updated to invoke the signed-manifest path as well.
+
+**Important:** The v3.7 verifier still exists as a Python API, and
+this policy covers the named consumer adapters in this source tree
+only. This is neither a Python security sandbox nor a mandatory
+production runtime dispatch. Source access or alternative scripts
+could still invoke legacy functions. Physical independent key
+custody, authenticated transport, trusted time, and truly immutable
+and most-current manifest-pin storage are not deployed. No
+authentication decision, access right, recovery approval or identity
+issuance may be inferred from `MATCHED_INFORMATIONAL`.
+
+Only an actual GitHub Actions no-skip run establishes test PASS.
+**GO-13 HOLD — no merge, production deploy, key activation or public
+site changes.**
