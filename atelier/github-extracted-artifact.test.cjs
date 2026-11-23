@@ -68,3 +68,32 @@ test('the original CI source is also required to be a bounded regular file',()=>
  fs.writeFileSync(path.join(original,'atelier-review-integrity.json'),Buffer.alloc(20001));
  assert.throws(()=>compareExtracted(download,original,ctx),/bounded regular file/);
 }));
+
+test('downloaded byte comparison writes a bound read-only receipt',()=>fixture(({original,download})=>{
+ const {run}=require('./github-extracted-artifact.cjs');
+ const out=path.join(path.dirname(original),'extracted-check.json');
+ const env={GITHUB_REPOSITORY:ctx.repository,PALACO_PR_NUMBER:'60',
+  PALACO_EXPECTED_HEAD_SHA:ctx.headSha,GITHUB_RUN_ID:'123',GITHUB_RUN_ATTEMPT:'1',
+  PALACO_ARTIFACT_ID:'456',PALACO_EXTRACTED_REPORT_PATH:out};
+ const result=run([download,original],env);
+ const receipt=JSON.parse(fs.readFileSync(out,'utf8'));
+ assert.equal(receipt.artifact_id,456);
+ assert.equal(receipt.evidence_sha256,result.evidence_sha256);
+ assert.equal(receipt.integrity_receipt_sha256,result.integrity_receipt_sha256);
+ assert.equal(receipt.decision,'HOLD');
+ assert.equal(receipt.evidence_usable,false);
+ assert.throws(()=>run([download,original],env),/EEXIST/);
+}));
+test('invalid artifact context or mismatched downloaded bytes never writes receipt',()=>fixture(({original,download})=>{
+ const {run}=require('./github-extracted-artifact.cjs');
+ const out=path.join(path.dirname(original),'extracted-check.json');
+ const env={GITHUB_REPOSITORY:ctx.repository,PALACO_PR_NUMBER:'60',
+  PALACO_EXPECTED_HEAD_SHA:ctx.headSha,GITHUB_RUN_ID:'123',GITHUB_RUN_ATTEMPT:'1',
+  PALACO_ARTIFACT_ID:'0',PALACO_EXTRACTED_REPORT_PATH:out};
+ assert.throws(()=>run([download,original],env),/Missing exact GitHub review artifact ID/);
+ assert.equal(fs.existsSync(out),false);
+ env.PALACO_ARTIFACT_ID='456';
+ fs.appendFileSync(path.join(download,'atelier-review-integrity.json'),'x');
+ assert.throws(()=>run([download,original],env),/bytes differ/);
+ assert.equal(fs.existsSync(out),false);
+}));
