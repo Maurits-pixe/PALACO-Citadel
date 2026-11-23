@@ -535,3 +535,18 @@ test('Atelier empty file selection clears stale async import state',()=>{
  assert.ok(noFile>=0&&pending>noFile&&snapshot>pending&&note>snapshot&&returnIndex>note&&setPending>returnIndex);
  assert.match(handler,/Geen projectbestand geselecteerd/);
 });
+
+test('Atelier verifies real imported byte length before decoding',()=>{
+ const html=read('regiekamer.html');
+ const begin=html.indexOf("$('bundleImport').addEventListener('change'");
+ const end=html.indexOf("$('bundleImport').addEventListener('cancel'",begin);
+ assert.ok(begin>=0&&end>begin);
+ const handler=html.slice(begin,end);
+ const preflight=handler.indexOf('if(file.size>150000)');
+ const readBytes=handler.indexOf('const importBytes=await file.arrayBuffer()');
+ const guard=handler.indexOf('importBytes.byteLength>150000');
+ const decode=handler.indexOf("new TextDecoder('utf-8'");
+ const restore=handler.indexOf('api.restoreWithRecovery(');
+ assert.ok(preflight>=0&&readBytes>preflight&&guard>readBytes&&decode>guard&&restore>decode);
+ assert.match(handler,/importBytes instanceof ArrayBuffer/);
+});
