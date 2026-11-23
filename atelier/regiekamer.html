@@ -1070,15 +1070,27 @@ window.addEventListener('storage',e=>{
      if(latest!==noteBaseline)
        $('feedback').textContent='Ontwerpnotitie gewijzigd in een ander tabblad. Je onopgeslagen tekst blijft staan; exporteer of vergelijk je wijzigingen voordat je opslaat.';
    }else if(latest!==noteBaseline){
+     // Never truncate an oversized stored note while synchronizing another tab.
+     if(typeof latest==='string'&&latest.length>6000){
+       $('feedback').textContent='Synchronisatie geweigerd: de opgeslagen ontwerpnotitie bevat meer dan 6000 tekens. Je huidige tekst blijft staan; controleer de volledige bron.';
+       return;
+     }
      // Ignore stale or replayed events when storage already matches this editor.
-     // In particular, do not replace a valid local save confirmation.
-     $('statement').value=typeof latest==='string'?latest.slice(0,6000):'';
+     $('statement').value=latest===null?'':latest;
      noteBaseline=latest;
      $('feedback').textContent='Ontwerpnotitie bijgewerkt vanuit een ander tabblad.';
    }
  }
 });
-try{const v=localStorage.getItem(NOTE);noteBaseline=v;if(v)$('statement').value=v.slice(0,6000);}catch{$('feedback').textContent='Lokale opslag is niet toegankelijk; export blijft beschikbaar.';}
+try{
+ const v=localStorage.getItem(NOTE);
+ noteBaseline=v;
+ if(v!==null&&v.length>6000){
+   $('feedback').textContent='Automatisch laden geweigerd: de opgeslagen ontwerpnotitie bevat meer dan 6000 tekens. De volledige bron blijft bewaard; laad of herstel deze buiten de editor.';
+ }else if(v!==null){
+   $('statement').value=v;
+ }
+}catch{$('feedback').textContent='Lokale opslag is niet toegankelijk; export blijft beschikbaar.';}
 refresh();
 refreshRecoveryInfo();
 checkOfflineReady();
