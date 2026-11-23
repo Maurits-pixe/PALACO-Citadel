@@ -351,3 +351,47 @@ test('first-read altered audit ledger PIN cannot be rescued by later Proxy data'
  assert.equal(r.authorization,'DENY');
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('audit ledger rejects sparse entries and hidden array keys',()=>{
+ const input=setup();
+ const sparse=new Array(1);
+ const withSymbol=[...input.entries];
+ withSymbol[Symbol('hidden')]='untrusted';
+ for(const history of [sparse,withSymbol]){
+   const r=inspectSignedAuditHeadAnchor({...input,entries:history});
+   assert.equal(r.reason,'LEDGER_INVALID_CHAIN_LINK');
+   assert.equal(r.anchoredLedgerMatched,false);
+   assert.equal(r.authorization,'DENY');
+   assert.equal(r.releaseAllowed,false);
+ }
+});
+
+test('audit ledger rejects oversized entry count without walking entries',()=>{
+ const input=setup();
+ let reads=0;
+ const oversized=new Proxy(new Array(4097),{
+   ownKeys(){reads++;throw Error('should not enumerate oversized ledger');}
+ });
+ const r=inspectSignedAuditHeadAnchor({...input,entries:oversized});
+ assert.equal(reads,0);
+ assert.equal(r.reason,'LEDGER_INVALID_CHAIN_LINK');
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('audit ledger array indexed accessor is rejected without invoking it',()=>{
+ const input=setup();
+ const history=[...input.entries];
+ let reads=0;
+ Object.defineProperty(history,'0',{configurable:true,enumerable:true,
+   get(){reads++;throw Error('hostile history entry');}
+ });
+ const r=inspectSignedAuditHeadAnchor({...input,entries:history});
+ assert.equal(reads,0);
+ assert.equal(r.reason,'LEDGER_INVALID_CHAIN_LINK');
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
