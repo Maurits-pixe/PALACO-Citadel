@@ -110,12 +110,8 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
       expectedAnchorKeyFingerprint, genesisPin, entries, currentPin,
       minimumAnchorSequence
     } = snapshot;
-    // Capture caller-owned PINs once; validating them before this point would
-    // invoke untrusted Proxy descriptor traps for a second read.
-    const genesisSnapshot = capturePin(genesisPin);
-    const currentSnapshot = capturePin(currentPin);
-    if (!genesisSnapshot || !currentSnapshot)
-      return reject('INVALID_ANCHOR_INPUT');
+    // Validate bounded scalar inputs before accessing caller-controlled PINs
+    // or cryptographic key descriptors. Malformed requests fail early.
     if (!(anchorBytes instanceof Uint8Array) || !anchorBytes.length ||
       anchorBytes.length > 8192 || !Array.isArray(entries) ||
       typeof expectedAnchorKeyFingerprint !== 'string' ||
@@ -125,6 +121,11 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
       typeof signatureBase64Url !== 'string' ||
       signatureBase64Url.length < 11 || signatureBase64Url.length > 107 ||
       !/^[A-Za-z0-9_-]+$/.test(signatureBase64Url))
+      return reject('INVALID_ANCHOR_INPUT');
+    // Caller-owned PINs are captured once; avoid mutable Proxy rereads.
+    const genesisSnapshot = capturePin(genesisPin);
+    const currentSnapshot = capturePin(currentPin);
+    if (!genesisSnapshot || !currentSnapshot)
       return reject('INVALID_ANCHOR_INPUT');
     // Snapshot each public JWK coordinate exactly once: hostile getters and
     // changing Proxy descriptors must not alter the key between fingerprint
