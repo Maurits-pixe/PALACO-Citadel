@@ -814,7 +814,13 @@ $('undoImport').addEventListener('click',()=>{
 $('loadSavedNote').addEventListener('click',()=>{
  try{
    const stored=localStorage.getItem(NOTE);
-   const storedText=stored===null?'':stored.slice(0,6000);
+   // A script or another storage client can bypass the editor's maxlength.
+   // Never present a silently truncated stored draft as completely loaded.
+   if(stored!==null&&stored.length>6000){
+     $('feedback').textContent='Laden geweigerd: de opgeslagen ontwerpnotitie bevat meer dan 6000 tekens. Je huidige tekst blijft staan; exporteer of herstel eerst de volledige versie.';
+     return;
+   }
+   const storedText=stored===null?'':stored;
    const editorBeforeConfirm=$('statement').value;
    // Compare the full editor: scripts can bypass textarea maxlength.
    if(editorBeforeConfirm!==storedText&&!confirm('De huidige onopgeslagen notitie vervangen door de lokaal opgeslagen versie? Exporteer eerst je eigen tekst als je deze wilt bewaren.'))return;
