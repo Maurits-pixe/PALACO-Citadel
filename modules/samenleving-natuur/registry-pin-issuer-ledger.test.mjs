@@ -35,7 +35,7 @@ const rotationProof={
  oldIssuerPublicJwk:jwk(oldKey),newIssuerPublicJwk:jwk(newKey),
  pinnedOldIssuerFingerprint:fp(oldKey),
  expectedPreviousSha256:h(previous.bytes),minimumEpoch:4,
- rotationStatementBytes,
+ rotationStatementBytes:statementBytes,
  oldRotationSignatureBase64Url:sign('sha256',rotationMessage,oldKey.privateKey).toString('base64url'),
  newRotationSignatureBase64Url:sign('sha256',rotationMessage,newKey.privateKey).toString('base64url')
 };
