@@ -958,3 +958,39 @@ test('audit domain prefix requires exact version and trailing newline',()=>{
    assert.equal(r.releaseAllowed,false);
  }
 });
+
+
+test('shared-memory audit bytes fail closed before PIN and key inspection',()=>{
+ const input=setup();
+ const shared=new SharedArrayBuffer(input.anchorBytes.length);
+ const anchorBytes=new Uint8Array(shared);
+ anchorBytes.set(input.anchorBytes);
+ let keyReads=0, pinReads=0;
+ const anchorPublicJwk=new Proxy({...input.anchorPublicJwk},{
+   ownKeys(){keyReads++;throw Error('untrusted key must not be inspected');}
+ });
+ const genesisPin=new Proxy({...input.genesisPin},{
+   ownKeys(){pinReads++;throw Error('untrusted PIN must not be inspected');}
+ });
+ const r=inspectSignedAuditHeadAnchor({...input,anchorBytes,anchorPublicJwk,genesisPin});
+ assert.equal(keyReads,0);
+ assert.equal(pinReads,0);
+ assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('ordinary isolated Uint8Array audit bytes preserve read-only verification',()=>{
+ const input=setup();
+ const anchorBytes=Uint8Array.from(input.anchorBytes);
+ assert.equal(anchorBytes.buffer instanceof SharedArrayBuffer,false);
+ const r=inspectSignedAuditHeadAnchor({...input,anchorBytes});
+ assert.equal(r.anchorSignatureValid,true,JSON.stringify(r));
+ assert.equal(r.anchoredLedgerMatched,true);
+ assert.equal(r.trust,'NOT_ESTABLISHED');
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.executionAllowed,false);
+ assert.equal(r.releaseAllowed,false);
+});
