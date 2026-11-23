@@ -2438,3 +2438,39 @@ test('Atelier v6.60: lege bestandsselectie laat bestaande ontwerpnotitie ongemoe
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Mijn bestaande bewaarde ontwerp');
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
 });
+
+test('Atelier v6.62: daadwerkelijke bestandsgrootte boven limiet wordt geweigerd',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const draft=await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.create(null,null,'Testontwerp')));
+ await page.evaluate(()=>{
+   const original=File.prototype.arrayBuffer;
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='onjuiste-grootte.json')return Promise.resolve(new ArrayBuffer(150001));
+     return original.call(this);
+   };
+ });
+ await page.locator('#bundleImport').setInputFiles({
+   name:'onjuiste-grootte.json',mimeType:'application/json',buffer:Buffer.from(draft)
+ });
+ await expect(page.locator('#bundleStatus')).toContainText('Werkelijke projectbestandsgrootte ongeldig of groter dan 150 KB');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBeNull();
+});
+
+test('Atelier v6.62: ongeldige bytebuffer wordt geweigerd vóór decodering',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const draft=await page.evaluate(()=>JSON.stringify(window.PalacoAtelierBundle.create(null,null,'Testontwerp')));
+ await page.evaluate(()=>{
+   const original=File.prototype.arrayBuffer;
+   File.prototype.arrayBuffer=function(){
+     if(this.name==='ongeldige-buffer.json')return Promise.resolve('geen ArrayBuffer');
+     return original.call(this);
+   };
+ });
+ await page.locator('#bundleImport').setInputFiles({
+   name:'ongeldige-buffer.json',mimeType:'application/json',buffer:Buffer.from(draft)
+ });
+ await expect(page.locator('#bundleStatus')).toContainText('Werkelijke projectbestandsgrootte ongeldig of groter dan 150 KB');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.RECOVERY))).toBeNull();
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBeNull();
+});
