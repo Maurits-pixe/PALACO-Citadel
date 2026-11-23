@@ -1,3 +1,10 @@
+## v6.88 — losse dossierexports weigeren stille tekstafkapping
+
+- Zowel de afzonderlijke creatieve JSON-dossierexport als de TXT-overzichtsexport weigert een editorwaarde boven 6.000 tekens vóór `refresh()` en `download()`.
+- De volledige onopgeslagen editorinhoud blijft intact; er ontstaat geen misleidend, afgekapt exportbestand.
+- Exact 6.000 tekens blijven exporteerbaar; drie Playwright-regressies toegevoegd.
+- **DRAFT / HOLD / DENY**: geen merge, EDTR, autorisatie of productiepublicatie. CI op deze HEAD afzonderlijk controleren.
+
 # PALACO ATELIER / LABORATORIUM — Citadel vertical slice v0.1
 
 `la-foundation.v0.1.json` defines a reusable L.A. template sourced from `EVA-LA-001`, with a separate identity for each new Citadel. Its source status is DRAFT. The template preserves the constitutional kernel and ordered L.A. trajectory; design fields are limited to an allowlist. OR6IT is declared as the WORLD development ELIXER and only receives an entry contract for an independently verified official ACTIVE Citadel. No WORLD is created by this module.
