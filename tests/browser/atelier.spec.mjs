@@ -2699,3 +2699,48 @@ test('Atelier v6.74: volledige onopgeslagen tekst blijft staan na leegmaken van 
  expect(await page.locator('#statement').inputValue()).toBe(long);
  await other.close();
 });
+
+test('Atelier v6.76: lange onopgeslagen notitie vereist expliciete toestemming voor laden',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('F'.repeat(6000));
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toHaveText('Ontwerpnotitie lokaal bewaard.');
+ const long='F'.repeat(6000)+'MIJN-NIEUWSTE-WERK';
+ await page.evaluate(text=>{
+   document.getElementById('statement').value=text;
+   window.loadNoteConfirmCount=0;
+   window.confirm=()=>{window.loadNoteConfirmCount++;return false;};
+ },long);
+ await page.locator('#loadSavedNote').click();
+ expect(await page.evaluate(()=>window.loadNoteConfirmCount)).toBe(1);
+ await expect(page.locator('#statement')).toHaveValue(long);
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('F'.repeat(6000));
+});
+
+test('Atelier v6.76: nieuwe notitietekst tijdens laadbevestiging mag niet worden vervangen',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Eerder opgeslagen creatieve visie');
+ await page.locator('#saveNote').click();
+ await page.locator('#statement').fill('Mijn nieuwe, onopgeslagen werk');
+ await page.evaluate(()=>{
+   window.confirm=()=>{
+     document.getElementById('statement').value='Nog nieuwere tekst tijdens bevestiging';
+     return true;
+   };
+ });
+ await page.locator('#loadSavedNote').click();
+ await expect(page.locator('#feedback')).toContainText('Laden geweigerd: je ontwerpnotitie is tijdens de bevestiging gewijzigd');
+ await expect(page.locator('#statement')).toHaveValue('Nog nieuwere tekst tijdens bevestiging');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Eerder opgeslagen creatieve visie');
+});
+
+test('Atelier v6.76: expliciet bevestigd laden van onveranderde opgeslagen notitie blijft mogelijk',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Mijn bewaarde visie');
+ await page.locator('#saveNote').click();
+ await page.locator('#statement').fill('Een concept dat ik bewust vervang');
+ await page.evaluate(()=>{window.confirm=()=>true;});
+ await page.locator('#loadSavedNote').click();
+ await expect(page.locator('#feedback')).toContainText('Opgeslagen ontwerpnotitie geladen');
+ await expect(page.locator('#statement')).toHaveValue('Mijn bewaarde visie');
+});
