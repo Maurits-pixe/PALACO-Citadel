@@ -85,6 +85,8 @@ jobs:
         env:
           PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
           PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+          PALACO_EXTRACTED_REPORT_PATH: ${{ runner.temp }}/atelier-extracted-evidence-check.json
         run: node atelier/github-extracted-artifact.cjs "${RUNNER_TEMP}/atelier-downloaded-evidence" "${RUNNER_TEMP}"
       - name: Verify GitHub metadata for retained evidence artifact
         if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
@@ -107,7 +109,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: atelier-artifact-metadata-observation
-          path: ${{ runner.temp }}/atelier-artifact-metadata-observation.json
+          path: |
+            ${{ runner.temp }}/atelier-artifact-metadata-observation.json
+            ${{ runner.temp }}/atelier-extracted-evidence-check.json
           if-no-files-found: error
           retention-days: 7
       - name: Verify release remains HOLD without matching approved evidence
