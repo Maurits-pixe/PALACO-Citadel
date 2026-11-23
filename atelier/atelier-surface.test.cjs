@@ -621,3 +621,16 @@ test('Atelier validates full editor after storage preflight before writing',()=>
  assert.ok(preflight>=0&&capture>preflight&&guard>capture&&refusal>guard&&write>refusal);
  assert.doesNotMatch(handler.slice(preflight,write),/const value=noteValue\(\)/);
 });
+
+test('Atelier full unsaved note survives cross-tab synchronization',()=>{
+ const html=read('regiekamer.html');
+ const start=html.lastIndexOf("window.addEventListener('storage',e=>{");
+ const end=html.indexOf("\n});",start);
+ assert.ok(start>=0&&end>start);
+ const handler=html.slice(start,end);
+ const check=handler.indexOf("const locallyEdited=$('statement').value!==(noteBaseline===null?'':noteBaseline)");
+ const conflict=handler.indexOf('if(locallyEdited){',check);
+ const replace=handler.indexOf("$('statement').value=typeof latest",conflict);
+ assert.ok(check>=0&&conflict>check&&replace>conflict);
+ assert.doesNotMatch(handler,/const locallyEdited=noteValue\(\)/);
+});
