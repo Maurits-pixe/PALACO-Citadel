@@ -951,3 +951,11 @@ De Atelier DRAFT-workflow haalt nu na `actions/upload-artifact@v4` het **exacte 
 Vier nieuwe Node-regressies testen een geldig uitgepakt paar, wijziging van één bestand, ontbrekende of extra bestanden en een afwijkende run of commit. De bestaande drieledige controle op GitHub REST-metadata blijft aanvullend aanwezig.
 
 **Vertrouwensgrens:** deze verificatie vergelijkt de twee door GitHub Actions *uitgepakte* JSON-bestanden. Zij bewijst niet onafhankelijk de cryptografische authenticiteit of SHA-256-hash van de oorspronkelijke ZIP-archivebytes en vervangt geen formele reviewgoedkeuring. De nieuwe CI moet de daadwerkelijke download en bytevergelijking voor deze HEAD nog bevestigen. **GO-13 DRAFT/HOLD/DENY**, geen merge, EDTR of publieke uitrol.
+
+## Regiekamer v6.85 — bronbehoud bij opgeslagen notities boven de limiet (2026-11-23)
+
+De v6.84 GitHub Actions-run `45130635768` faalde op precies twee Playwright-gevallen (desktop en mobiel) bij het openen van een opgeslagen ontwerpnotitie boven 6.000 tekens. Automatisch laden werd terecht geweigerd, maar de normale knop ‘Bewaar notitie lokaal’ kon daarna een kortere editorinhoud over de nog intacte te lange bron schrijven. De test verwachte bescherming was daardoor terecht niet gehaald. Algemene CI en previewconformiteit waren wel geslaagd.
+
+De opslagfunctie controleert voortaan direct na het lezen van localStorage of de reeds opgeslagen bron de limiet overschrijdt. In dat geval weigert een gewone schrijfactie deze bron te vervangen, onafhankelijk van de vorige baseline, en adviseert zij de volledige bron afzonderlijk veilig te stellen. De bestaande opslagbron én de nieuwe editortekst blijven behouden. Geldige bronnen van maximaal 6.000 tekens blijven normaal bewerkbaar.
+
+De bestaande twee mislukte browsergevallen gebruiken nu de gerichte foutmelding. Twee aanvullende Playwright-regressies controleren het behoud van een lange externe bron en een toegestane update van een geldige grenswaarde. Een nieuwe statische contracttest controleert dat deze weigering gebeurt vóór baselinevergelijking en schrijfactie. De actuele CI moet de verbetering nog bevestigen. **GO-13 DRAFT/HOLD/DENY** — geen merge, EDTR, autorisatie of publieke uitrol.
