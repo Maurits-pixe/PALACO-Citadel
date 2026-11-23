@@ -18,6 +18,7 @@ from visitcard_publication_recovery_gate import (
 )
 from visitcard_fresh_publication_head import verify_fresh_head
 from visitcard_checkpoint_archive import _hex
+from visitcard_archive_publication import verify_publication_receipt
 
 
 class IntegratedState(str, Enum):
@@ -60,6 +61,15 @@ def verify_integrated_chain(
         receipt_count = payload.get("event_count")
         receipt_hash = payload.get("seal_sha256")
         if type(receipt_count) is not int or receipt_count not in (1, 2) or not _hex(receipt_hash):
+            return unknown
+        # Authenticate the independently supplied publication claim BEFORE
+        # comparing its hash to a second signature. A forged claim is UNKNOWN,
+        # not a genuine cryptographic fork.
+        if not verify_publication_receipt(
+            publication_receipt, publisher_keys,
+            issuer=issuer, nonce=nonce,
+            event_count=receipt_count, seal_sha256=receipt_hash,
+        ):
             return unknown
         # Fresh attestation includes the expected random challenge and a
         # bounded UTC timestamp, verified against a separately pinned key.
