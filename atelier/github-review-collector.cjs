@@ -56,6 +56,19 @@ async function collect({repository,number,token,expectedHead,fetchJson=requestJs
   // No self-asserted JSON output is a release authorization.
   evidence_usable:false,decision:'HOLD',publication:'DENY',release_approved:false};
 }
+const REVIEW_ISSUES=new Set([
+ 'missing_fetch_provenance','wrong_pr_provenance','stale_head_provenance',
+ 'incomplete_review_count','incomplete_pagination','stale_or_invalid_fetch_time'
+]);
+function safeCount(value){
+ return Number.isSafeInteger(value)&&value>=0&&value<=1000?value:null;
+}
+function safeIssues(items){
+ if(!Array.isArray(items))return ['invalid_review_issue_list'];
+ if(items.length>20||items.some(x=>typeof x!=='string'||!REVIEW_ISSUES.has(x)))
+  return ['invalid_review_issue_list'];
+ return [...new Set(items)];
+}
 function safeReport(result,runId,runAttempt,repository){
  // Explicit field allowlist: never persist reviewer identities, review bodies,
  // GitHub token, or untrusted API payloads.
@@ -65,12 +78,16 @@ function safeReport(result,runId,runAttempt,repository){
   workflow_run_id:Number.isSafeInteger(runId)&&runId>0?runId:null,
   workflow_run_attempt:Number.isSafeInteger(runAttempt)&&runAttempt>0?runAttempt:null,
   repository:typeof repository==='string'&&REPO.test(repository)?repository:null,
-  pr_number:result.pr_number,
-  candidate_sha:result.candidate_sha,
-  review_count:result.review_count,
-  matching_approved_review_count:result.matching_approved_review_count,
-  collection_complete:result.collection_complete===true,
-  review_list_issues:Array.isArray(result.review_list_issues)?result.review_list_issues.slice():[],
+  pr_number:Number.isSafeInteger(result.pr_number)&&result.pr_number>0?result.pr_number:null,
+  candidate_sha:SHA.test(result.candidate_sha||'')?result.candidate_sha:null,
+  review_count:safeCount(result.review_count),
+  matching_approved_review_count:safeCount(result.matching_approved_review_count),
+  collection_complete:result.collection_complete===true&&
+   safeCount(result.review_count)!==null&&
+   safeCount(result.matching_approved_review_count)!==null&&
+   result.matching_approved_review_count<=result.review_count&&
+   Array.isArray(result.review_list_issues)&&result.review_list_issues.length===0,
+  review_list_issues:safeIssues(result.review_list_issues),
   decision:'HOLD',publication:'DENY',release_approved:false,
   evidence_usable:false,
   limitation:'An observation artifact cannot replace current authenticated GitHub review verification'
