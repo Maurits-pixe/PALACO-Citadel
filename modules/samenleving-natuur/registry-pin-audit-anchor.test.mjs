@@ -716,3 +716,42 @@ test('canonical but invalid signature remains denied by crypto verification',()=
  assert.equal(r.authorization,'DENY');
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('non-DER ECDSA signature is rejected before PIN and public-key inspection',()=>{
+ const input=setup();
+ let pinReads=0, keyReads=0;
+ const genesisPin=new Proxy({...input.genesisPin},{
+   ownKeys(){pinReads++;throw Error('PIN must not be enumerated');}
+ });
+ const anchorPublicJwk=new Proxy({...input.anchorPublicJwk},{
+   ownKeys(){keyReads++;throw Error('key must not be enumerated');}
+ });
+ // Syntactically canonical base64url but not a DER SEQUENCE.
+ const signatureBase64Url=Buffer.alloc(64,0x2a).toString('base64url');
+ const r=inspectSignedAuditHeadAnchor({
+   ...input,signatureBase64Url,genesisPin,anchorPublicJwk
+ });
+ assert.equal(pinReads,0);
+ assert.equal(keyReads,0);
+ assert.equal(r.reason,'ANCHOR_SIGNATURE_INVALID');
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('nonminimal DER ECDSA INTEGER encoding is denied before key inspection',()=>{
+ const input=setup();
+ // SEQUENCE(INTEGER 0x0001, INTEGER 0x01) has redundant leading zero.
+ const signature=Buffer.from([0x30,0x07,0x02,0x02,0x00,0x01,0x02,0x01,0x01]);
+ let keyReads=0;
+ const anchorPublicJwk=new Proxy({...input.anchorPublicJwk},{
+   ownKeys(){keyReads++;throw Error('key must not be enumerated');}
+ });
+ const r=inspectSignedAuditHeadAnchor({...input,
+   signatureBase64Url:signature.toString('base64url'),anchorPublicJwk});
+ assert.equal(keyReads,0);
+ assert.equal(r.reason,'ANCHOR_SIGNATURE_INVALID');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.authorization,'DENY');
+});
