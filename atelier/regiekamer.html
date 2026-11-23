@@ -664,7 +664,7 @@ $('bundleImport').addEventListener('change',async event=>{
    if(!api)throw Error('Projectpakket-functie niet geladen');
    // Capture the source revision before reading external bytes.
    importStartSnapshot=api.snapshot(localStorage);
-   importStartNote=noteValue();
+   importStartNote=$('statement').value;
    // Match the verified DRAFT import filename policy before reading external bytes.
    safeProjectFilename(file.name);
    if(file.size>150000)throw Error('Bestand groter dan 150 KB');
@@ -681,7 +681,7 @@ $('bundleImport').addEventListener('change',async event=>{
      throw Error('Lokaal project gewijzigd tijdens het lezen. Kies het bestand opnieuw.');
    // Programmatic changes to a textarea do not emit an input event.
    // Never preview an import against a newer, unrecorded creative draft.
-   if(importStartNote===null||noteValue()!==importStartNote)
+   if(importStartNote===null||$('statement').value!==importStartNote)
      throw Error('Onopgeslagen ontwerpnotitie gewijzigd tijdens het lezen. Import afgebroken; je tekst blijft staan.');
    importReadPending=false;
    importStartSnapshot=null;
@@ -696,7 +696,7 @@ $('bundleImport').addEventListener('change',async event=>{
    const current=api.snapshot(localStorage);
    const expectedRecovery=localStorage.getItem(api.RECOVERY);
    const currentNote=current[2]===null?'':current[2];
-   const pendingNote=noteValue()!==currentNote;
+   const pendingNote=$('statement').value!==currentNote;
    const inspection=api.preview(api.read(localStorage),pack);
    const filledEx=pack.exterior?pack.exterior.cells.filter(Boolean).length:0;
    const filledIn=pack.interior?pack.interior.floors.flat().filter(Boolean).length:0;
@@ -708,14 +708,14 @@ $('bundleImport').addEventListener('change',async event=>{
    if(revision!==importRevision)return;
    $('bundleStatus').textContent=description;
    const warning=pendingNote?' LET OP: er staan nog niet-bewaarde notitiewijzigingen in deze pagina.':'';
-   const noteBeforeConfirm=noteValue();
+   const noteBeforeConfirm=$('statement').value;
    if(!confirm(description+' Herstel vervangt je huidige lokale Atelier-ontwerpen. Exporteer eerst je huidige werk als JSON. Wil je doorgaan?'+warning))return;
    // A cancellation or newer file selection may invalidate this import while
    // confirmation is open. A stale approval never authorizes a write.
    if(revision!==importRevision)return;
    // A confirmation may invoke browser hooks or other code while the dialog
    // is pending. Never overwrite text edited after the import was previewed.
-   if(noteValue()!==noteBeforeConfirm)
+   if($('statement').value!==noteBeforeConfirm)
      throw Error('Ontwerpnotitie gewijzigd tijdens bevestiging. Import afgebroken; je nieuwe tekst blijft staan.');
    showRollbackReport(null);
    api.restoreWithRecovery(localStorage,pack,current,expectedRecovery);
