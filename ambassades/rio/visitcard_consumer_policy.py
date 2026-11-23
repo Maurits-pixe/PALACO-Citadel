@@ -12,6 +12,7 @@ import ast
 from pathlib import Path
 
 FACADE="visitcard_verification_entrypoint"
+PROVENANCE="visitcard_trust_provenance"
 PREFIX="visitcard_consumer_"
 ALLOWED_STDLIB=frozenset({
     "__future__","datetime","sqlite3","typing","dataclasses",
@@ -36,12 +37,15 @@ def audit_consumer_source(root: Path, source: str, name: str) -> tuple[str,...]:
         return (f"{name}: invalid Python syntax: {type(exc).__name__}",)
 
     saw_facade=False
+    saw_provenance=False
     for node in ast.walk(tree):
         if isinstance(node,ast.Import):
             for alias in node.names:
                 target=alias.name
                 if target==FACADE:
                     saw_facade=True
+                elif target==PROVENANCE:
+                    saw_provenance=True
                 elif target in ALLOWED_STDLIB:
                     pass
                 elif target.startswith(PREFIX) and "." not in target:
@@ -57,6 +61,10 @@ def audit_consumer_source(root: Path, source: str, name: str) -> tuple[str,...]:
                 issues.append(f"{name}: wildcard import prohibited")
             elif target==FACADE:
                 saw_facade=True
+                if any(alias.name=="verify_visitcard" for alias in node.names):
+                    issues.append(f"{name}: legacy verifier import prohibited")
+            elif target==PROVENANCE:
+                saw_provenance=True
             elif target in ALLOWED_STDLIB:
                 pass
             elif target.startswith(PREFIX) and "." not in target:
@@ -70,6 +78,10 @@ def audit_consumer_source(root: Path, source: str, name: str) -> tuple[str,...]:
                 issues.append(f"{name}: dynamic call prohibited: {call.id}")
             elif isinstance(call,ast.Attribute) and call.attr in FORBIDDEN_FUNCTIONS:
                 issues.append(f"{name}: dynamic attribute call prohibited: {call.attr}")
+            if isinstance(call,ast.Name) and call.id=="verify_visitcard":
+                issues.append(f"{name}: legacy direct verifier call prohibited")
+            if isinstance(call,ast.Attribute) and call.attr=="verify_visitcard":
+                issues.append(f"{name}: legacy attribute verifier call prohibited")
             if isinstance(call,ast.Name) and call.id in TRUST_CONSTRUCTORS:
                 issues.append(f"{name}: trust/proof constructors belong to upstream provisioner")
             if isinstance(call,ast.Attribute) and call.attr in TRUST_CONSTRUCTORS:
@@ -80,6 +92,8 @@ def audit_consumer_source(root: Path, source: str, name: str) -> tuple[str,...]:
     # cannot silently hide a verifier behind an unrelated local helper.
     if not saw_facade:
         issues.append(f"{name}: full-chain facade import required")
+    if not saw_provenance:
+        issues.append(f"{name}: v4.0 provenance gateway import required")
     return tuple(issues)
 
 
