@@ -79,6 +79,7 @@ jobs:
         with:
           artifact-ids: ${{ steps.review_artifact.outputs.artifact-id }}
           path: ${{ runner.temp }}/atelier-downloaded-evidence
+          merge-multiple: true
       - name: Verify extracted GitHub artifact bytes against checked source
         if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
         env:
