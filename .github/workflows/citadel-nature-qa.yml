@@ -55,6 +55,10 @@ jobs:
         env:
           CITADEL_EPHEMERAL_CI_ONLY: '1'
         run: bash modules/samenleving-natuur/registry-pin-cas-concurrency-ci.sh
+      - name: Ephemeral issuer rotation atomicity and stale replay QA
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/issuer-rotation-atomicity-ci.sh
   offline-browser-qa:
     runs-on: ubuntu-latest
     timeout-minutes: 15
