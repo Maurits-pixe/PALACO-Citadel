@@ -2744,3 +2744,61 @@ test('Atelier v6.76: expliciet bevestigd laden van onveranderde opgeslagen notit
  await expect(page.locator('#feedback')).toContainText('Opgeslagen ontwerpnotitie geladen');
  await expect(page.locator('#statement')).toHaveValue('Mijn bewaarde visie');
 });
+
+test('Atelier v6.80: langere onopgeslagen tekst bij terugzetten vereist zichtbare waarschuwing',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('A'.repeat(6000));
+ await page.locator('#saveNote').click();
+ await page.evaluate(()=>{
+   const api=window.PalacoAtelierBundle;
+   api.restoreWithRecovery(localStorage,api.create(null,null,'Nieuw ontwerp'),api.snapshot(localStorage),localStorage.getItem(api.RECOVERY));
+ });
+ await page.reload();
+ const long='Nieuw ontwerp'+'-ONOPGESLAGEN';
+ await page.evaluate(text=>{document.getElementById('statement').value=text;},long);
+ await page.evaluate(()=>{window.undoPrompt='';window.confirm=msg=>{window.undoPrompt=msg;return false;};});
+ await page.locator('#undoImport').click();
+ expect(await page.evaluate(()=>window.undoPrompt)).toContain('Onopgeslagen tekst in deze pagina gaat verloren');
+ await expect(page.locator('#statement')).toHaveValue(long);
+});
+
+test('Atelier v6.80: gewijzigde tekst tijdens herstelbevestiging blokkeert undo',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Vorige ontwerpversie');
+ await page.locator('#saveNote').click();
+ await page.evaluate(()=>{
+   const api=window.PalacoAtelierBundle;
+   api.restoreWithRecovery(localStorage,api.create(null,null,'Nieuw ontwerp'),api.snapshot(localStorage),localStorage.getItem(api.RECOVERY));
+ });
+ await page.reload();
+ await page.evaluate(()=>{
+   document.getElementById('statement').value='Mijn kladversie';
+   window.confirm=()=>{
+     document.getElementById('statement').value='Nieuwste tekst tijdens bevestiging';
+     return true;
+   };
+ });
+ const before=await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage));
+ await page.locator('#undoImport').click();
+ await expect(page.locator('#bundleStatus')).toContainText('Terugzetten geweigerd: de ontwerpnotitie is tijdens bevestiging gewijzigd');
+ await expect(page.locator('#statement')).toHaveValue('Nieuwste tekst tijdens bevestiging');
+ expect(await page.evaluate(()=>window.PalacoAtelierBundle.snapshot(localStorage))).toEqual(before);
+});
+
+test('Atelier v6.80: bevestigde undo houdt de exact herstelde notitie aan',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Vorige ontwerpversie');
+ await page.locator('#saveNote').click();
+ await page.evaluate(()=>{
+   const api=window.PalacoAtelierBundle;
+   api.restoreWithRecovery(localStorage,api.create(null,null,'Nieuw ontwerp'),api.snapshot(localStorage),localStorage.getItem(api.RECOVERY));
+ });
+ await page.reload();
+ await page.evaluate(()=>{window.confirm=()=>true;});
+ await page.locator('#undoImport').click();
+ await expect(page.locator('#bundleStatus')).toContainText('Vorige Atelier-versie teruggezet');
+ await expect(page.locator('#statement')).toHaveValue('Vorige ontwerpversie');
+ await page.locator('#statement').fill('Vervolg van vorige ontwerpversie');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toHaveText('Ontwerpnotitie lokaal bewaard.');
+});
