@@ -634,3 +634,18 @@ test('Atelier full unsaved note survives cross-tab synchronization',()=>{
  assert.ok(check>=0&&conflict>check&&replace>conflict);
  assert.doesNotMatch(handler,/const locallyEdited=noteValue\(\)/);
 });
+
+test('Atelier stored note reload checks whole editor and rechecks after confirmation',()=>{
+ const html=read('regiekamer.html');
+ const begin=html.indexOf("$('loadSavedNote').addEventListener('click'");
+ const end=html.indexOf("\n});",begin);
+ assert.ok(begin>=0&&end>begin);
+ const handler=html.slice(begin,end);
+ const full=handler.indexOf("const editorBeforeConfirm=$('statement').value");
+ const prompt=handler.indexOf('if(editorBeforeConfirm!==storedText&&!confirm(',full);
+ const guard=handler.indexOf("if($('statement').value!==editorBeforeConfirm)",prompt);
+ const storage=handler.indexOf('const latest=localStorage.getItem(NOTE)',guard);
+ const replace=handler.indexOf("$('statement').value=latest===null?",storage);
+ assert.ok(full>=0&&prompt>full&&guard>prompt&&storage>guard&&replace>storage);
+ assert.doesNotMatch(handler,/if\(noteValue\(\)!==storedText/);
+});
