@@ -807,7 +807,14 @@ $('loadSavedNote').addEventListener('click',()=>{
  try{
    const stored=localStorage.getItem(NOTE);
    const storedText=stored===null?'':stored.slice(0,6000);
-   if(noteValue()!==storedText&&!confirm('De huidige onopgeslagen notitie vervangen door de lokaal opgeslagen versie? Exporteer eerst je eigen tekst als je deze wilt bewaren.'))return;
+   const editorBeforeConfirm=$('statement').value;
+   // Compare the full editor: scripts can bypass textarea maxlength.
+   if(editorBeforeConfirm!==storedText&&!confirm('De huidige onopgeslagen notitie vervangen door de lokaal opgeslagen versie? Exporteer eerst je eigen tekst als je deze wilt bewaren.'))return;
+   // A confirmation cannot authorize replacing edits made while it was open.
+   if($('statement').value!==editorBeforeConfirm){
+     $('feedback').textContent='Laden geweigerd: je ontwerpnotitie is tijdens de bevestiging gewijzigd. Je nieuwste tekst blijft staan.';
+     return;
+   }
    // Confirming one version cannot authorize loading a different, newer revision.
    const latest=localStorage.getItem(NOTE);
    if(latest!==stored){
