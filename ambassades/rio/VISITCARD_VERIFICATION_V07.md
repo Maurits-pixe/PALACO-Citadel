@@ -1222,3 +1222,31 @@ dossier validation must run separately on the actual evidence bytes,
 not just on a claimed SHA-256. No externally audited operational
 custodian service or production release authority is established.
 **GO-13 HOLD**.
+
+## v4.4 — Unified byte-backed dossier and signed handoff audit (DRAFT / HOLD)
+
+The new read-only `visitcard_release_transfer_audit.py` composes
+`validate_release_dossier` (v4.2) and `verify_dossier_handoff` (v4.3)
+as a **single fail-closed audit entrypoint**. It first re-verifies the
+complete original evidence bytes, independently pinned review authority
+keys, five signed review attestations, exact Git commit and canonical
+manifest digest. Only the hash derived from that fully validated dossier
+can be passed as the expected content identifier to the independently
+signed transfer-receipt chain. The latter also must match an externally
+retained latest receipt hash and the exact same source commit.
+
+The result distinguishes `DOSSIER_BLOCKED`, `TRANSFER_BLOCKED`,
+and `MATCHED_INFORMATIONAL`; all outcomes have release, merge and
+activation permission fixed to False. Missing original evidence,
+altered manifest, bad review key, rollback to an older signed transfer
+head, swapped dossier, tampered receipt and repeated custodian keys
+fail closed. Seventeen direct integration tests cover the complete
+chain and failures in either subverification.
+
+This remains an **offline proof contract**, not operational external
+storage, an independent trusted clock, a physically delivered package,
+or production authorization. Receiving a valid signed receipt does not
+establish the legal identity or independent control of the recipient.
+The externally pinned latest receipt must actually be provisioned
+outside the claimant's control. The v4.4 module is not connected to
+a release workflow capable of merging or deploying. **GO-13 HOLD**.
