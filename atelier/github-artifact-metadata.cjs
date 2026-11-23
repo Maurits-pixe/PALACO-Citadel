@@ -63,6 +63,21 @@ async function observe({repository,runId,headSha,artifactId,token,fetchJson=getJ
  }
  return validateMetadata(meta,{repository,runId,headSha,artifactId});
 }
+function saveObservation(result,filename){
+ if(typeof filename!=='string'||!filename)throw Error('Missing artifact metadata diagnostic path');
+ if(!result||!['GITHUB_METADATA_OBSERVED','GITHUB_METADATA_UNAVAILABLE'].includes(result.result)||
+   result.decision!=='HOLD'||result.publication!=='DENY'||
+   result.release_approved!==false||result.evidence_usable!==false)
+  throw Error('Invalid artifact metadata diagnostic');
+ // Only a trusted observer's fixed output fields are serialized.
+ const fields=['schema','artifact_id','repository','run_id','head_sha','github_zip_digest',
+  'artifact_bytes','result','reason','decision','publication','release_approved',
+  'evidence_usable','limitation'];
+ const diagnostic={};
+ for(const k of fields)if(Object.hasOwn(result,k))diagnostic[k]=result[k];
+ fs.writeFileSync(filename,JSON.stringify(diagnostic,null,2)+'\n',{flag:'wx',mode:0o600});
+ return diagnostic;
+}
 async function main(env=process.env){
  const result=await observe({repository:env.GITHUB_REPOSITORY,runId:Number(env.GITHUB_RUN_ID),
   headSha:env.PALACO_EXPECTED_HEAD_SHA,artifactId:Number(env.PALACO_ARTIFACT_ID),
@@ -70,8 +85,7 @@ async function main(env=process.env){
  // Record the API observation separately. It contains only fixed diagnostics.
  // A 404 result remains explicitly UNAVAILABLE rather than VERIFIED.
  if(env.PALACO_ARTIFACT_METADATA_PATH)
-  fs.writeFileSync(env.PALACO_ARTIFACT_METADATA_PATH,JSON.stringify(result,null,2)+'\n',
-   {flag:'wx',mode:0o600});
+  saveObservation(result,env.PALACO_ARTIFACT_METADATA_PATH);
  process.stdout.write(JSON.stringify(result,null,2)+'\n');
  return result;
 }
@@ -79,4 +93,4 @@ if(require.main===module)main().catch(e=>{
  process.stderr.write('GitHub artifact metadata verification failed: '+e.message+'\n');
  process.exitCode=1;
 });
-module.exports={validateMetadata,observe,main};
+module.exports={validateMetadata,observe,saveObservation,main};
