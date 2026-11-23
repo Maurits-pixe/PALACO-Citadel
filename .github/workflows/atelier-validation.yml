@@ -38,7 +38,7 @@ jobs:
       - name: Test fail-closed release evidence evaluator
         run: node --test atelier/release-gate.test.cjs
       - name: Test read-only GitHub review audit, collector and artifact integrity
-        run: node --test atelier/github-review-audit.test.cjs atelier/github-review-collector.test.cjs atelier/github-review-evidence-integrity.test.cjs atelier/github-review-pair.test.cjs atelier/github-artifact-metadata.test.cjs
+        run: node --test atelier/github-review-audit.test.cjs atelier/github-review-collector.test.cjs atelier/github-review-evidence-integrity.test.cjs atelier/github-review-pair.test.cjs atelier/github-artifact-metadata.test.cjs atelier/github-artifact-chain.test.cjs
       - name: Observe current GitHub PR review history without publication
         if: ${{ github.event_name == 'pull_request' }}
         continue-on-error: true
@@ -81,6 +81,14 @@ jobs:
           PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
           PALACO_ARTIFACT_METADATA_PATH: ${{ runner.temp }}/atelier-artifact-metadata-observation.json
         run: node atelier/github-artifact-metadata.cjs
+      - name: Cross-check review evidence, receipt and GitHub metadata observation
+        if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
+        env:
+          PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+        run: |
+          node atelier/github-artifact-chain.cjs "${RUNNER_TEMP}/atelier-review-evidence.json" "${RUNNER_TEMP}/atelier-review-integrity.json" "${RUNNER_TEMP}/atelier-artifact-metadata-observation.json"
       - name: Retain explicit GitHub artifact metadata observation
         if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
         uses: actions/upload-artifact@v4
