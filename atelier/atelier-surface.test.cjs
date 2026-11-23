@@ -591,3 +591,18 @@ test('Atelier saving notes refuses overlength input before any storage write',()
  assert.ok(lengthGuard>=0&&warning>lengthGuard&&exit>warning&&write>exit);
  assert.match(handler,/Je volledige tekst blijft zichtbaar/);
 });
+
+test('Atelier save acknowledgement only describes the actual editor revision',()=>{
+ const html=read('regiekamer.html');
+ const start=html.indexOf('function saveNote(){');
+ const end=html.indexOf('function getSummary()',start);
+ assert.ok(start>=0&&end>start);
+ const handler=html.slice(start,end);
+ const write=handler.indexOf('localStorage.setItem(NOTE,value)');
+ const readback=handler.indexOf('localStorage.getItem(NOTE)!==value',write);
+ const baseline=handler.indexOf('noteBaseline=value',readback);
+ const editorCheck=handler.indexOf("if($('statement').value!==value)",baseline);
+ const success=handler.indexOf("Ontwerpnotitie lokaal bewaard.",editorCheck);
+ assert.ok(write>=0&&readback>write&&baseline>readback&&editorCheck>baseline&&success>editorCheck);
+ assert.match(handler,/huidige bewerking is nog niet opgeslagen/);
+});
