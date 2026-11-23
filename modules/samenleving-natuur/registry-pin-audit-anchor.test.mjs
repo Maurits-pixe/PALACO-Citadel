@@ -486,3 +486,26 @@ test('signed negative audit sequence is denied before touching history',()=>{
  assert.equal(r.executionAllowed,false);
  assert.equal(r.authorization,'DENY');
 });
+
+
+test('signed anchor rollback floor, schema and head hash reject before ledger enumeration',()=>{
+ const cases=[
+   {doc:document(),overrides:{minimumAnchorSequence:2}},
+   {doc:document({schema:'untrusted-anchor-v1'}),overrides:{}},
+   {doc:document({headHash:'NOT_A_SHA256_DIGEST'}),overrides:{}},
+   {doc:document({currentPin:{...currentPin,revision:3}}),overrides:{}}
+ ];
+ for (const {doc,overrides} of cases) {
+   const input=setup(doc,overrides);
+   let enumerations=0;
+   const hostileHistory=new Proxy([...input.entries],{
+     ownKeys(){enumerations++;throw Error('ledger should not be enumerated');}
+   });
+   const r=inspectSignedAuditHeadAnchor({...input,entries:hostileHistory});
+   assert.equal(enumerations,0,JSON.stringify(doc));
+   assert.equal(r.reason,'ANCHOR_ROLLBACK_OR_MISMATCH',JSON.stringify(doc));
+   assert.equal(r.anchoredLedgerMatched,false);
+   assert.equal(r.authorization,'DENY');
+   assert.equal(r.releaseAllowed,false);
+ }
+});
