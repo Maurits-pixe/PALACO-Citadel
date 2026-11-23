@@ -720,7 +720,9 @@ $('bundleImport').addEventListener('change',async event=>{
    showRollbackReport(null);
    api.restoreWithRecovery(localStorage,pack,current,expectedRecovery);
    $('statement').value=pack.note;
-   noteBaseline=localStorage.getItem(NOTE);
+   // Bind the editor to the exact revision restored above, not a later
+   // competing write made by another tab between restore and UI update.
+   noteBaseline=pack.note;
    refresh();
    $('bundleStatus').textContent='Projectpakket lokaal hersteld. Open de editors opnieuw om de gegevens te bekijken.';
    refreshRecoveryInfo();
