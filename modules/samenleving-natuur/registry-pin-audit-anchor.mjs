@@ -229,6 +229,20 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
         !samePin(doc.genesisPin,genesisSnapshot) ||
         !samePin(doc.currentPin,currentSnapshot))
       return reject('ANCHOR_ROLLBACK_OR_MISMATCH');
+    // A byte-stable signed schema also requires a fixed member order.
+    // JSON.stringify(parse(text)) alone permits multiple valid permutations;
+    // reserialize the exact typed contract to eliminate such aliases.
+    const orderedPin = pin => ({
+      schema:pin.schema, issuerFingerprint:pin.issuerFingerprint,
+      revision:pin.revision, registrySha256:pin.registrySha256
+    });
+    const canonicalDocument = JSON.stringify({
+      schema:doc.schema, sequence:doc.sequence, headHash:doc.headHash,
+      genesisPin:orderedPin(doc.genesisPin),
+      currentPin:orderedPin(doc.currentPin)
+    });
+    if (canonicalDocument !== text)
+      return reject('NONCANONICAL_ANCHOR_DOCUMENT');
     // One descriptor read establishes the length/sequence agreement before
     // enumerable Proxy traps or individual untrusted ledger entries are read.
     const entriesSnapshot = captureLedgerEntries(entries, doc.sequence);
