@@ -1004,3 +1004,40 @@ authorization, credential, identity issuance or recovery approval.
 
 The GitHub Actions no-skip suite must execute successfully before
 claiming tests passed. **GO-13 HOLD**, no merge or deployment.
+
+## v3.8 — Consumer import-chain and trust-origin source policy (DRAFT / HOLD)
+
+The new **visitcard_consumer_policy.py** provides a mandatory static
+audit for future Python RIO modules named **visitcard_consumer_*.py**.
+Every consumer and local consumer helper must import the v3.7
+**visitcard_verification_entrypoint** facade directly. Imports of
+lower-level verification implementations, unrelated local modules,
+wildcard or relative imports, unapproved stdlib modules, and imports
+through a different local helper namespace are refused. Because every
+consumer file is independently scanned, a forbidden dependency hidden
+in a consumer-prefixed helper is also detected. Python syntax errors,
+dynamic import/reflection primitives such as importlib, __import__,
+getattr, exec and eval, and constructing VerifiedContext or ProofPackage
+within a consumer are rejected. TrustedContext must instead be passed
+from a separately administered upstream provisioner; this checker
+does not create one.
+
+The draft GitHub Actions workflow executes the policy as a separate
+mandatory step **before** the full zero-skip unittest suite. Twenty
+new regression tests exercise the real adapter, indirect helper
+bypasses, aliases, wildcard and relative imports, dynamic importing,
+direct/indirect trust construction, missing facade, malformed Python
+and missing consumer modules. Legacy prototypes are retained for
+development; this does not make old Python APIs physically inaccessible.
+
+**Boundary:** the AST policy is deliberately scoped to files under
+ambassades/rio named visitcard_consumer_*.py and is not a Python
+sandbox, a repository-wide import graph audit, a secure provenance
+store or a production access-control system. Malicious code can
+circumvent static checks. Runtime consumers, the public RIO site and
+PALACO ONE are still not wired to this mandatory verifier, and key
+provisioning and actual independent custodian infrastructure are
+not deployed. A matching verification never grants authority.
+
+No merge, deployment, automatic key activation or access issuance.
+**GO-13 HOLD.**
