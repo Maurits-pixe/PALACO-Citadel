@@ -470,7 +470,9 @@ test('Atelier verifies import start snapshot on completion of file read',()=>{
  const asyncRead=handler.indexOf('const importBytes=await file.arrayBuffer()');
  const reread=handler.indexOf('const afterRead=api.snapshot(localStorage)');
  const mismatch=handler.indexOf('afterRead.some((value,i)=>value!==importStartSnapshot[i])');
- const finish=handler.indexOf('importReadPending=false');
+ // The empty-file branch resets this flag earlier. Check the reset on the
+ // successful post-read path, not the first textual occurrence in the handler.
+ const finish=handler.indexOf('importReadPending=false',mismatch);
  assert.ok(original>=0&&asyncRead>original&&reread>asyncRead&&mismatch>reread&&finish>mismatch);
  assert.match(handler,/Lokaal project gewijzigd tijdens het lezen/);
  assert.match(html,/importStartSnapshot=null/);
