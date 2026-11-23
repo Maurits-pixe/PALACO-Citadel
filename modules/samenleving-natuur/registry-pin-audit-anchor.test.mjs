@@ -679,3 +679,40 @@ test('tampered initial audit bytes cannot be repaired by a key Proxy trap',()=>{
  assert.equal(r.authorization,'DENY');
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('noncanonical signature is rejected before any PIN or JWK descriptor inspection',()=>{
+ const input=setup();
+ const signatureBase64Url='B'.repeat(11);
+ assert.notEqual(Buffer.from(signatureBase64Url,'base64url').toString('base64url'),
+   signatureBase64Url);
+ let pinReads=0;
+ let keyReads=0;
+ const genesisPin=new Proxy({...input.genesisPin},{
+   ownKeys(){pinReads++;throw Error('untrusted PIN enumerated');}
+ });
+ const anchorPublicJwk=new Proxy({...input.anchorPublicJwk},{
+   ownKeys(){keyReads++;throw Error('untrusted key enumerated');}
+ });
+ const r=inspectSignedAuditHeadAnchor({
+   ...input,signatureBase64Url,genesisPin,anchorPublicJwk
+ });
+ assert.equal(pinReads,0);
+ assert.equal(keyReads,0);
+ assert.equal(r.reason,'ANCHOR_SIGNATURE_INVALID');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('canonical but invalid signature remains denied by crypto verification',()=>{
+ const input=setup();
+ const signatureBase64Url=Buffer.alloc(64,42).toString('base64url');
+ const r=inspectSignedAuditHeadAnchor({...input,signatureBase64Url});
+ assert.equal(r.reason,'ANCHOR_SIGNATURE_INVALID');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
