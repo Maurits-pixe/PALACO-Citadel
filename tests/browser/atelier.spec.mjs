@@ -2592,3 +2592,38 @@ test('Atelier v6.68: normale notitie tot en met limiet mag worden bewaard',async
  await expect(page.locator('#feedback')).toContainText('lokaal bewaard');
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe(text);
 });
+
+test('Atelier v6.70: nieuwe editortekst tijdens opslag wordt niet als bewaard gemeld',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Mijn eerste versie');
+ await page.evaluate(()=>{
+   const original=Storage.prototype.setItem;
+   Storage.prototype.setItem=function(key,value){
+     if(this===localStorage&&key===window.PalacoAtelierBundle.NOTE){
+       original.call(this,key,value);
+       document.getElementById('statement').value='Mijn nieuwere onopgeslagen versie';
+       return;
+     }
+     return original.call(this,key,value);
+   };
+ });
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('huidige bewerking is nog niet opgeslagen');
+ await expect(page.locator('#statement')).toHaveValue('Mijn nieuwere onopgeslagen versie');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Mijn eerste versie');
+ await page.evaluate(()=>{
+   delete Storage.prototype.setItem;
+ });
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toHaveText('Ontwerpnotitie lokaal bewaard.');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Mijn nieuwere onopgeslagen versie');
+});
+
+test('Atelier v6.70: reguliere opslag zonder tussentijdse bewerking blijft bevestigd',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Ongeschonden creatieve tekst');
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toHaveText('Ontwerpnotitie lokaal bewaard.');
+ await expect(page.locator('#statement')).toHaveValue('Ongeschonden creatieve tekst');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Ongeschonden creatieve tekst');
+});
