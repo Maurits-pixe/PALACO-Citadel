@@ -577,3 +577,17 @@ test('Atelier import must compare full unsaved textarea including beyond save li
  assert.match(handler,/if\(\$\('statement'\)\.value!==noteBeforeConfirm\)/);
  assert.match(handler,/const pendingNote=\$\('statement'\)\.value!==currentNote/);
 });
+
+test('Atelier saving notes refuses overlength input before any storage write',()=>{
+ const html=read('regiekamer.html');
+ const start=html.indexOf('function saveNote(){');
+ const end=html.indexOf('function getSummary()',start);
+ assert.ok(start>=0&&end>start);
+ const handler=html.slice(start,end);
+ const lengthGuard=handler.indexOf("if($('statement').value.length>6000)");
+ const warning=handler.indexOf('Opslaan geweigerd: ontwerpnotitie bevat meer dan 6000 tekens');
+ const exit=handler.indexOf('return;',warning);
+ const write=handler.indexOf('localStorage.setItem(NOTE,value)');
+ assert.ok(lengthGuard>=0&&warning>lengthGuard&&exit>warning&&write>exit);
+ assert.match(handler,/Je volledige tekst blijft zichtbaar/);
+});
