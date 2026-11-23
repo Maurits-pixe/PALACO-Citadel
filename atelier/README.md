@@ -921,3 +921,9 @@ Bij **OBSERVED** moeten een syntactisch geldige SHA-256-ZIP-digest, positieve by
 Drie nieuwe regressietests controleren onvolledige of gefingeerde OBSERVED-gegevens, een ongeoorloofde digest bij UNAVAILABLE, ongeldige runcontext en veilige veldsanitisatie. De oude v6.79-run `45126624695` is volledig geslaagd en bevat beide artifacts: `atelier-review-evidence` (ID `14796131751`) en `atelier-artifact-metadata-observation` (ID `14795937525`). Dat de artifacts bestaan, bewijst nog niet dat een actuele onafhankelijke reviewer formeel heeft goedgekeurd. De nieuwste HEAD moet opnieuw door CI.
 
 **GO-13 DRAFT/HOLD/DENY**; geen merge, EDTR-uitgifte of publieke uitrol.
+
+## Regiekamer v6.81 — volledige bron beschermen bij expliciet notitieherladen (2026-11-23)
+
+De knop ‘Laad opgeslagen notitie’ nam eerder bij een directe browseropslagleesactie alleen de eerste 6.000 tekens van een opgeslagen notitie over, zelfs als die opslag door een externe client of programma was gevuld met meer tekst. De editor kon daarna ten onrechte melden dat de opgeslagen notitie volledig geladen was, hoewel een deel ontbrak.
+
+De laadfunctie weigert nu vooraf iedere opgeslagen bron met meer dan 6.000 tekens, zonder de tekst in de editor of de opgeslagen bron te veranderen. Een exact 6.000 tekens lange notitie en de lege opslagtoestand blijven normaal laadbaar. Drie Playwright-tests toetsen de te lange bron, exacte grenswaarde en lege toestand. Een statische contracttest borgt dat de weigering **vóór** een mogelijke bevestiging of editorvervanging gebeurt. Deze wijziging raakt geen bevoegdheden of vrijgavecontrole. **GO-13 DRAFT/HOLD/DENY**, geen merge, EDTR, autorisatie of publieke uitrol.
