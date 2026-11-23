@@ -294,3 +294,60 @@ test('first-read invalid outer audit signature cannot be rescued by later Proxy 
  assert.equal(r.authorization,'DENY');
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('audit ledger array Proxy entry is sampled once before replay',()=>{
+ const input=setup();
+ let reads=0;
+ const history=new Proxy([...input.entries],{
+   getOwnPropertyDescriptor(target,key){
+     const d=Reflect.getOwnPropertyDescriptor(target,key);
+     if(key==='0'){
+       reads++;
+       return {...d,value:reads===1?input.entries[0]:{...input.entries[0],sequence:9}};
+     }
+     return d;
+   }
+ });
+ const r=inspectSignedAuditHeadAnchor({...input,entries:history});
+ assert.equal(reads,1);
+ assert.equal(r.anchoredLedgerMatched,true,JSON.stringify(r));
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('audit ledger entry accessor fails without executing caller code',()=>{
+ const input=setup();
+ const entryWithGetter={...input.entries[0]};
+ let getterCalls=0;
+ Object.defineProperty(entryWithGetter,'toPin',{enumerable:true,configurable:true,
+   get(){getterCalls++;throw Error('hostile ledger getter');}
+ });
+ const r=inspectSignedAuditHeadAnchor({...input,entries:[entryWithGetter]});
+ assert.equal(getterCalls,0);
+ assert.equal(r.reason,'LEDGER_INVALID_CHAIN_LINK');
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('first-read altered audit ledger PIN cannot be rescued by later Proxy data',()=>{
+ const input=setup();
+ let reads=0;
+ const tampered=new Proxy({...input.entries[0].toPin},{
+   getOwnPropertyDescriptor(target,key){
+     const d=Reflect.getOwnPropertyDescriptor(target,key);
+     if(key==='registrySha256'){
+       reads++;
+       return {...d,value:reads===1?'f'.repeat(64):input.entries[0].toPin.registrySha256};
+     }
+     return d;
+   }
+ });
+ const r=inspectSignedAuditHeadAnchor({...input,
+   entries:[{...input.entries[0],toPin:tampered}]});
+ assert.equal(reads,1);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
