@@ -706,3 +706,18 @@ test('Atelier cross-tab sync refuses oversized saved notes before replacing edit
  const assignment=handler.indexOf("$('statement').value=latest===null?'':latest",abort);
  assert.ok(guard>=0&&warn>guard&&abort>warn&&assignment>abort);
 });
+
+test('Atelier blocks normal saves over oversized stored source before comparing baseline',()=>{
+ const html=read('regiekamer.html');
+ const start=html.indexOf('function saveNote(){');
+ const end=html.indexOf('function getSummary()',start);
+ assert.ok(start>=0&&end>start);
+ const handler=html.slice(start,end);
+ const read=handler.indexOf('const current=localStorage.getItem(NOTE)');
+ const oversized=handler.indexOf('if(current!==null&&current.length>6000)',read);
+ const warning=handler.indexOf('Stel de volledige bron eerst afzonderlijk veilig',oversized);
+ const refusal=handler.indexOf('return;',warning);
+ const compare=handler.indexOf('if(current!==noteBaseline)',refusal);
+ const write=handler.indexOf('localStorage.setItem(NOTE,value)',compare);
+ assert.ok(read>=0&&oversized>read&&warning>oversized&&refusal>warning&&compare>refusal&&write>compare);
+});
