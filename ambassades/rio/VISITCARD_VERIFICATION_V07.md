@@ -1114,3 +1114,40 @@ issuance may be inferred from `MATCHED_INFORMATIONAL`.
 Only an actual GitHub Actions no-skip run establishes test PASS.
 **GO-13 HOLD — no merge, production deploy, key activation or public
 site changes.**
+
+## v4.1 — Signed release review bundle (DRAFT / GO-13 HOLD)
+
+`visitcard_release_review.py` is an explicit **non-authorizing release
+review assessor**. It requires five individually signed attestations
+for `CI_ZERO_SKIP`, `EXTERNAL_CUSTODY`, `TRUST_PIN_DURABILITY`,
+`SECURITY_REVIEW`, and `RUNTIME_INTEGRATION`. Each attestation
+binds the same exact 40-character commit SHA, the same release scope,
+a distinct SHA-256 evidence-artifact digest, PASS status, and a
+validity window no longer than 24 hours. Each must be verified under
+its own previously pinned Ed25519 authority key; repeated authority
+IDs, key bytes, artifact digests, categories, missing credentials or
+wrong versions fail closed.
+
+The *best possible* result is `READY_FOR_HUMAN_REVIEW`, NOT
+`RELEASE_APPROVED`. The result fields `release_permitted`,
+`merge_permitted` and `activation_permitted` are always False;
+`release_permitted()` also always returns False. A complete signed
+bundle is not sufficient evidence of independence, truthful review
+or operational readiness.
+
+The five domains are **not currently proven**: CI test success is
+only one potential evidence item; independent physical custodian
+controls, durable latest-manifest pins, completed external security
+review and a real runtime/production integration remain unverified
+and must not be fabricated. The module does not fetch CI logs or
+external files and does not possess real independent auditor keys.
+Test fixtures create ephemeral keys to validate protocol behavior,
+not to issue actual release attestations. A reviewer must bind
+externally gathered durable evidence and verify source-commit
+immutability, root custody and trust-domain separation.
+
+Eighteen new regression tests cover complete but nonauthorizing
+bundles, invalid/expired attestations, forged signatures, duplicate
+proofs, wrong commit, wrong scope, missing domains and negative
+review results. No production deployment or public changes.
+**GO-13 HOLD.**
