@@ -2667,3 +2667,35 @@ test('Atelier v6.72: opslaglezing wijzigt korte tekst en schrijft exact de actue
  expect(await page.evaluate(()=>window.originalNoteRead.call(localStorage,window.PalacoAtelierBundle.NOTE))).toBe('De vernieuwde korte tekst');
  await page.evaluate(()=>{Storage.prototype.getItem=window.originalNoteRead;});
 });
+
+test('Atelier v6.74: langere onopgeslagen notitie wordt niet overschreven door tabbladmelding',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const other=await page.context().newPage();
+ await other.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('A'.repeat(6000));
+ await page.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toHaveText('Ontwerpnotitie lokaal bewaard.');
+ await other.reload();
+ const long='A'.repeat(6000)+'MIJN-ONOPGESLAGEN-EINDE';
+ await page.evaluate(value=>{document.getElementById('statement').value=value;},long);
+ await other.locator('#statement').fill('Bewaarde andere revisie');
+ await other.locator('#saveNote').click();
+ await expect(page.locator('#feedback')).toContainText('Je onopgeslagen tekst blijft staan');
+ expect(await page.locator('#statement').inputValue()).toBe(long);
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Bewaarde andere revisie');
+ await other.close();
+});
+
+test('Atelier v6.74: volledige onopgeslagen tekst blijft staan na leegmaken van browseropslag',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const other=await page.context().newPage();
+ await other.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('C'.repeat(6000));
+ await page.locator('#saveNote').click();
+ const long='C'.repeat(6000)+'NIET-WISSEN';
+ await page.evaluate(value=>{document.getElementById('statement').value=value;},long);
+ await other.evaluate(()=>localStorage.clear());
+ await expect(page.locator('#feedback')).toContainText('Je onopgeslagen tekst blijft staan');
+ expect(await page.locator('#statement').inputValue()).toBe(long);
+ await other.close();
+});
