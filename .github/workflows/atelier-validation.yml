@@ -48,11 +48,17 @@ jobs:
           PALACO_REVIEW_REPORT_PATH: ${{ runner.temp }}/atelier-review-evidence.json
         run: node atelier/github-review-collector.cjs
       - name: Verify report bytes and exact event context before artifact retention
-        if: ${{ github.event_name == 'pull_request' && hashFiles(format('{0}/atelier-review-evidence.json', runner.temp)) != '' }}
+        if: ${{ github.event_name == 'pull_request' }}
         env:
           PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
           PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: node atelier/github-review-evidence-integrity.cjs "${RUNNER_TEMP}/atelier-review-evidence.json"
+        shell: bash
+        run: |
+          if [[ -f "${RUNNER_TEMP}/atelier-review-evidence.json" ]]; then
+            node atelier/github-review-evidence-integrity.cjs "${RUNNER_TEMP}/atelier-review-evidence.json"
+          else
+            echo "No authenticated review observation was collected; no artifact to verify."
+          fi
       - name: Retain sanitized review observation for inspection
         if: ${{ github.event_name == 'pull_request' }}
         uses: actions/upload-artifact@v4
