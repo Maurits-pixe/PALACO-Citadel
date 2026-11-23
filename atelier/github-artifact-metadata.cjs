@@ -98,7 +98,7 @@ function sanitizeObservation(result){
 function saveObservation(result,filename){
  if(typeof filename!=='string'||!filename)throw Error('Missing artifact metadata diagnostic path');
  const diagnostic=sanitizeObservation(result);
- fs.writeFileSync(filename,JSON.stringify(diagnostic,null,2)+'\\n',{flag:'wx',mode:0o600});
+ fs.writeFileSync(filename,JSON.stringify(diagnostic,null,2)+'\n',{flag:'wx',mode:0o600});
  return diagnostic;
 }
 async function main(env=process.env){
