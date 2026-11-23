@@ -60,6 +60,10 @@ function run(argv,env=process.env){
  const result=inspect(raw,{repository:env.GITHUB_REPOSITORY,
   prNumber:Number(env.PALACO_PR_NUMBER),headSha:env.PALACO_EXPECTED_HEAD_SHA,
   runId:Number(env.GITHUB_RUN_ID),attempt:Number(env.GITHUB_RUN_ATTEMPT)});
+ // Separate receipt binds JSON bytes to the current CI context; it is not signed.
+ if(env.PALACO_REVIEW_INTEGRITY_PATH)
+  fs.writeFileSync(env.PALACO_REVIEW_INTEGRITY_PATH,JSON.stringify(result,null,2)+'\n',
+   {flag:'wx',mode:0o600});
  process.stdout.write(JSON.stringify(result,null,2)+'\n');
  return result;
 }
