@@ -63,19 +63,42 @@ async function observe({repository,runId,headSha,artifactId,token,fetchJson=getJ
  }
  return validateMetadata(meta,{repository,runId,headSha,artifactId});
 }
+function sanitizeObservation(result){
+ if(!result||typeof result!=='object'||Array.isArray(result)||
+  result.schema!=='palaco.citadel.atelier.github-artifact-metadata/1'||
+  !positive(result.artifact_id)||!positive(result.run_id)||
+  !REPO.test(result.repository||'')||!SHA.test(result.head_sha||'')||
+  result.decision!=='HOLD'||result.publication!=='DENY'||
+  result.release_approved!==false||result.evidence_usable!==false)
+  throw Error('Invalid artifact metadata diagnostic');
+ const base={schema:result.schema,artifact_id:result.artifact_id,
+  repository:result.repository,run_id:result.run_id,head_sha:result.head_sha};
+ if(result.result==='GITHUB_METADATA_OBSERVED'){
+  if(!DIGEST.test(result.github_zip_digest||'')||
+   !positive(result.artifact_bytes)||
+   result.limitation!=='REST metadata attests GitHub-reported ZIP digest, not locally verified ZIP bytes or release approval'||
+   Object.hasOwn(result,'reason'))
+    throw Error('Invalid verified artifact metadata fields');
+  return {...base,github_zip_digest:result.github_zip_digest,
+   artifact_bytes:result.artifact_bytes,result:'GITHUB_METADATA_OBSERVED',
+   decision:'HOLD',publication:'DENY',release_approved:false,evidence_usable:false,
+   limitation:result.limitation};
+ }
+ if(result.result==='GITHUB_METADATA_UNAVAILABLE'){
+  if(result.reason!=='artifact_metadata_not_found_after_retries'||
+   result.limitation!=='Artifact metadata unavailable; no GitHub ZIP digest or authenticated artifact verification'||
+   Object.hasOwn(result,'github_zip_digest')||Object.hasOwn(result,'artifact_bytes'))
+    throw Error('Invalid unavailable artifact metadata fields');
+  return {...base,result:'GITHUB_METADATA_UNAVAILABLE',
+   reason:result.reason,decision:'HOLD',publication:'DENY',
+   release_approved:false,evidence_usable:false,limitation:result.limitation};
+ }
+ throw Error('Invalid artifact metadata diagnostic');
+}
 function saveObservation(result,filename){
  if(typeof filename!=='string'||!filename)throw Error('Missing artifact metadata diagnostic path');
- if(!result||!['GITHUB_METADATA_OBSERVED','GITHUB_METADATA_UNAVAILABLE'].includes(result.result)||
-   result.decision!=='HOLD'||result.publication!=='DENY'||
-   result.release_approved!==false||result.evidence_usable!==false)
-  throw Error('Invalid artifact metadata diagnostic');
- // Only a trusted observer's fixed output fields are serialized.
- const fields=['schema','artifact_id','repository','run_id','head_sha','github_zip_digest',
-  'artifact_bytes','result','reason','decision','publication','release_approved',
-  'evidence_usable','limitation'];
- const diagnostic={};
- for(const k of fields)if(Object.hasOwn(result,k))diagnostic[k]=result[k];
- fs.writeFileSync(filename,JSON.stringify(diagnostic,null,2)+'\n',{flag:'wx',mode:0o600});
+ const diagnostic=sanitizeObservation(result);
+ fs.writeFileSync(filename,JSON.stringify(diagnostic,null,2)+'\\n',{flag:'wx',mode:0o600});
  return diagnostic;
 }
 async function main(env=process.env){
@@ -93,4 +116,4 @@ if(require.main===module)main().catch(e=>{
  process.stderr.write('GitHub artifact metadata verification failed: '+e.message+'\n');
  process.exitCode=1;
 });
-module.exports={validateMetadata,observe,saveObservation,main};
+module.exports={validateMetadata,observe,sanitizeObservation,saveObservation,main};
