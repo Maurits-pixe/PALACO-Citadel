@@ -1285,3 +1285,38 @@ requires a separately managed durable monotonic/CAS challenge ledger,
 proper clock and true out-of-band freshness guarantees. Source-code
 tests do NOT prove any of these deployed properties. No merge,
 release or production activation is permitted. **GO-13 HOLD.**
+
+## v4.6 — Externally signed replay-log high-water recovery (DRAFT / HOLD)
+
+The new `visitcard_replay_recovery.py` verifies the exact
+SQLite consumed-challenge log against a separately **signed, pinned**
+monotonic replay-head snapshot. The snapshot must bind the exact
+commit, bounded release scope, numeric row count, canonical SHA-256
+of each stored challenge/checkpoint/timestamp row and GO-13 HOLD.
+A previously pinned recovery custodian Ed25519 key authenticates the
+snapshot; its canonical hash must match a second latest-head digest
+retained separately from the claimant's database. A restored local
+database with fewer challenge rows or altered row content therefore
+fails closed **when the newer external snapshot is still available**.
+
+The verifier acquires a SQLite `BEGIN IMMEDIATE` lock before comparing
+the replay head; it holds that transaction through the full v4.4
+dossier audit, v4.5 challenge-bound signed audit-checkpoint
+verification, and insertion of the newly consumed challenge.
+On successful commit, the signed external snapshot is now *stale*
+and must be renewed before further verification can succeed.
+Twenty negative/positive regressions cover stale external heads,
+local rollback, forged signatures, wrong scope, independent pin
+mismatch, repeat use, transaction rejection and fail-closed writes.
+
+**Not production replay protection:** there is no implemented
+external replay registrar, external CAS transaction, independently
+durable storage, trusted clock, or authenticated checkpoint delivery.
+Multiple replicas still could accept the same challenge if they
+share an old snapshot and operate on different SQLite databases.
+The caller must provision unpredictable challenges and securely
+retain the newest custodian snapshot, otherwise rollback is not
+detectable. A locally signed and pinned checkpoint is not proof of
+physical or administrative independence. Even matching results are
+informational only, never release, identity, merge or access rights.
+**GO-13 HOLD — no merge, public deployment or key activation.**
