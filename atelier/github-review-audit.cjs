@@ -6,10 +6,27 @@ const fs=require('node:fs');
 const SHA=/^[0-9a-f]{40}$/;
 const login=v=>typeof v==='string'?v.trim().toLowerCase():'';
 const state=v=>typeof v==='string'?v.toUpperCase():'';
-function audit({reviews,candidateSha,prNumber,authorLogin}){
+function audit({reviews,candidateSha,prNumber,authorLogin,provenance,now}){
  if(!Array.isArray(reviews)||reviews.length>1000||!SHA.test(candidateSha||'')||
     !Number.isSafeInteger(prNumber)||prNumber<=0||!login(authorLogin)){
    throw Error('Ongeldige GitHub-reviewinvoer');
+ }
+ const issues=[];
+ // The review list is diagnostic unless completeness/freshness metadata is supplied.
+ // This metadata is declarative, NOT proof of GitHub API authenticity.
+ const checkedAt=provenance?.fetched_at;
+ const asOf=typeof now==='string'?Date.parse(now):Date.now();
+ const fetched=typeof checkedAt==='string'?Date.parse(checkedAt):NaN;
+ if(!provenance||typeof provenance!=='object'||Array.isArray(provenance))issues.push('missing_fetch_provenance');
+ else {
+  if(provenance.pr_number!==prNumber)issues.push('wrong_pr_provenance');
+  if(provenance.head_sha!==candidateSha)issues.push('stale_head_provenance');
+  if(!Number.isSafeInteger(provenance.total_count)||provenance.total_count!==reviews.length)
+   issues.push('incomplete_review_count');
+  if(provenance.has_next_page!==false||provenance.pagination_complete!==true)
+   issues.push('incomplete_pagination');
+  if(!Number.isFinite(fetched)||!Number.isFinite(asOf)||fetched>asOf||
+     asOf-fetched>15*60*1000)issues.push('stale_or_invalid_fetch_time');
  }
  const approved=[];const rejected=[];
  const latestByReviewer=new Map();
@@ -62,6 +79,8 @@ function audit({reviews,candidateSha,prNumber,authorLogin}){
  return {schema:'palaco.citadel.atelier.github-review-audit/1',state:'DRAFT',
   candidate_sha:candidateSha,pr_number:prNumber,review_count:reviews.length,
   matching_approved_review_count:approved.length,approved,rejected,
+  evidence_usable:false,review_list_complete_claim:issues.length===0,
+  review_list_issues:issues,
   decision:'HOLD',publication:'DENY',release_approved:false,
   provenance_warning:'Locally supplied review JSON is not an authenticated GitHub API attestation'};
 }
@@ -70,7 +89,8 @@ function main(args){
  const prNumber=Number(prText);
  const input=JSON.parse(fs.readFileSync(filename,'utf8'));
  const reviews=Array.isArray(input)?input:input?.reviews;
- const result=audit({reviews,candidateSha,prNumber,authorLogin});
+ const provenance=Array.isArray(input)?undefined:input?.provenance;
+ const result=audit({reviews,candidateSha,prNumber,authorLogin,provenance});
  process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
 if(require.main===module){
