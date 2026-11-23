@@ -1042,7 +1042,9 @@ window.addEventListener('storage',e=>{
      $('feedback').textContent='Ontwerpnotitie kon niet worden gesynchroniseerd: browseropslag is niet toegankelijk. Je huidige tekst blijft staan; exporteer je dossier.';
      return;
    }
-   const locallyEdited=noteValue()!==(noteBaseline===null?'':noteBaseline.slice(0,6000));
+   // Compare the full editor: programmatic values can exceed maxlength.
+   // Never replace unsaved text whose only difference is after char 6000.
+   const locallyEdited=$('statement').value!==(noteBaseline===null?'':noteBaseline);
    if(locallyEdited){
      if(latest!==noteBaseline)
        $('feedback').textContent='Ontwerpnotitie gewijzigd in een ander tabblad. Je onopgeslagen tekst blijft staan; exporteer of vergelijk je wijzigingen voordat je opslaat.';
