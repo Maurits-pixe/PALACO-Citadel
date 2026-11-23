@@ -143,7 +143,12 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
     // Validate bounded scalar inputs before accessing caller-controlled PINs
     // or cryptographic key descriptors. Malformed requests fail early.
     if (!(anchorBytes instanceof Uint8Array) || !anchorBytes.length ||
-      anchorBytes.length > 8192 || !Array.isArray(entries) ||
+      anchorBytes.length > 8192 ||
+      // Shared memory can be concurrently rewritten during verification.
+      // The caller must provide an ordinary, independently owned byte view.
+      (typeof SharedArrayBuffer !== 'undefined' &&
+        anchorBytes.buffer instanceof SharedArrayBuffer) ||
+      !Array.isArray(entries) ||
       typeof expectedAnchorKeyFingerprint !== 'string' ||
       !HEX.test(expectedAnchorKeyFingerprint) ||
       !Number.isSafeInteger(minimumAnchorSequence) ||
