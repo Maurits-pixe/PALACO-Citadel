@@ -38,3 +38,37 @@ test('API errors and invalid caller context fail closed',async()=>{
  await assert.rejects(()=>observe({...ctx,token:'test',fetchJson:async()=>{throw Error('API denied');}}),/API denied/);
  await assert.rejects(()=>observe({...ctx,artifactId:0,token:'test',fetchJson:async()=>metadata()}),/Invalid artifact observation arguments/);
 });
+
+test('temporarily unavailable metadata retries then verifies exact GitHub artifact',async()=>{
+ let attempts=0,waits=[];
+ const result=await observe({...ctx,token:'test',wait:async ms=>{waits.push(ms);},
+  fetchJson:async()=>{attempts++;if(attempts<3){const e=Error('404');e.statusCode=404;throw e;}return metadata();}});
+ assert.equal(attempts,3);
+ assert.deepEqual(waits,[500,1500]);
+ assert.equal(result.result,'GITHUB_METADATA_OBSERVED');
+ assert.equal(result.decision,'HOLD');
+ assert.equal(result.evidence_usable,false);
+});
+test('persistently missing artifact metadata is explicitly unverified and denies release',async()=>{
+ let attempts=0;
+ const result=await observe({...ctx,token:'test',wait:async()=>{},
+  fetchJson:async()=>{attempts++;const e=Error('404');e.statusCode=404;throw e;}});
+ assert.equal(attempts,3);
+ assert.equal(result.result,'GITHUB_METADATA_UNAVAILABLE');
+ assert.equal(result.reason,'artifact_metadata_not_found_after_retries');
+ assert.equal(result.decision,'HOLD');
+ assert.equal(result.publication,'DENY');
+ assert.equal(result.release_approved,false);
+ assert.equal(result.evidence_usable,false);
+ assert.equal(result.github_zip_digest,undefined);
+});
+test('available but mismatched artifact metadata still fails closed',async()=>{
+ await assert.rejects(()=>observe({...ctx,token:'test',wait:async()=>{},
+  fetchJson:async()=>({...metadata(),digest:'invalid'})}),/does not match expected run and head/);
+});
+test('non-404 API access failure is never converted into verified evidence',async()=>{
+ let attempts=0;
+ await assert.rejects(()=>observe({...ctx,token:'test',wait:async()=>{},
+  fetchJson:async()=>{attempts++;const e=Error('forbidden');e.statusCode=403;throw e;}}),/forbidden/);
+ assert.equal(attempts,1);
+});
