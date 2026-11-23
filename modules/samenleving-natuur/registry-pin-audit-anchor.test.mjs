@@ -556,3 +556,43 @@ test('signed audit ledger length Proxy is read once and cannot change after pref
  assert.equal(r.authorization,'DENY');
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('impossible minimum audit sequence rejects before key and ledger inspection',()=>{
+ const input=setup();
+ let keyEnumerations=0;
+ let ledgerEnumerations=0;
+ const anchorPublicJwk=new Proxy(input.anchorPublicJwk,{
+   ownKeys(){keyEnumerations++;throw Error('key must not be enumerated');}
+ });
+ const entries=new Proxy([...input.entries],{
+   ownKeys(){ledgerEnumerations++;throw Error('ledger must not be enumerated');}
+ });
+ for(const minimumAnchorSequence of [4097, Number.MAX_SAFE_INTEGER]) {
+   const r=inspectSignedAuditHeadAnchor({
+     ...input,anchorPublicJwk,entries,minimumAnchorSequence
+   });
+   assert.equal(keyEnumerations,0);
+   assert.equal(ledgerEnumerations,0);
+   assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+   assert.equal(r.anchorSignatureValid,false);
+   assert.equal(r.anchoredLedgerMatched,false);
+   assert.equal(r.authorization,'DENY');
+   assert.equal(r.executionAllowed,false);
+   assert.equal(r.releaseAllowed,false);
+ }
+});
+
+test('nonintegral audit sequence floor is denied before key verification',()=>{
+ const input=setup();
+ const r=inspectSignedAuditHeadAnchor({
+   ...input, minimumAnchorSequence:4095.5,
+   anchorPublicJwk:new Proxy(input.anchorPublicJwk,{
+     ownKeys(){throw Error('untrusted key accessed');}
+   })
+ });
+ assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+});
