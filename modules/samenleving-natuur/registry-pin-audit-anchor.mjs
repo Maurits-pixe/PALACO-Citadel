@@ -125,6 +125,12 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
     // Copy signed bytes before consulting any caller-supplied PIN/JWK Proxy:
     // descriptor traps may otherwise mutate the original byte view.
     const snapshotBytes = Buffer.from(anchorBytes);
+    // Validate canonical signature transport before inspecting untrusted PIN
+    // and key objects; no cryptographic work is justified for malformed data.
+    const signature = Buffer.from(signatureBase64Url,'base64url');
+    if (signature.length < 8 || signature.length > 80 ||
+        signature.toString('base64url') !== signatureBase64Url)
+      return reject('ANCHOR_SIGNATURE_INVALID');
     // Caller-owned PINs are captured once; avoid mutable Proxy rereads.
     const genesisSnapshot = capturePin(genesisPin);
     const currentSnapshot = capturePin(currentPin);
@@ -170,11 +176,8 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
       key.export({format:'der',type:'spki'})).digest('hex');
     if (fingerprint !== expectedAnchorKeyFingerprint)
       return reject('UNPINNED_ANCHOR_KEY');
-    // Verify and decode the same early-captured immutable byte snapshot.
-    const signature = Buffer.from(signatureBase64Url,'base64url');
-    if (signature.length < 8 || signature.length > 80 ||
-      signature.toString('base64url') !== signatureBase64Url ||
-      !verify('sha256',Buffer.concat([PREFIX,snapshotBytes]),key,signature))
+    // Verify the canonical signature over the early-captured byte snapshot.
+    if (!verify('sha256',Buffer.concat([PREFIX,snapshotBytes]),key,signature))
       return reject('ANCHOR_SIGNATURE_INVALID');
     // Decode an exact byte snapshot only after signature verification.
     const text = new TextDecoder('utf-8',{fatal:true}).decode(snapshotBytes);
