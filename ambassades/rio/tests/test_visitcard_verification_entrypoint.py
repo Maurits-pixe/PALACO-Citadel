@@ -1,5 +1,7 @@
 """RIO v3.7 consumer entrypoint negative/positive and import-policy tests."""
 import ast
+import base64
+import hashlib
 from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
@@ -15,6 +17,10 @@ from visitcard_verification_entrypoint import (
     execution_permitted,IntegratedState,
 )
 from visitcard_consumer_adapter import inspect_visitcard
+from visitcard_trust_provenance import DOMAIN, trust_fingerprint, verify_with_trust_provenance
+from visitcard_witness_enrollment import _canonical
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from cryptography.hazmat.primitives.serialization import Encoding,PublicFormat
 
 
 class EntryPointTests(unittest.TestCase):
@@ -51,6 +57,23 @@ class EntryPointTests(unittest.TestCase):
             secondary_custodians=self.fixture.custodians_b,
         )
 
+        # Signed v4 fixture: provenance source is separate from VisitCard proof.
+        self.provenance_private=Ed25519PrivateKey.generate()
+        root=self.provenance_private.public_key().public_bytes(Encoding.Raw,PublicFormat.Raw)
+        self.provenance_roots={"root-a":root}
+        payload={
+            "version":1,"issuer":self.trust.issuer,"nonce":self.trust.nonce,
+            "epoch":1,"trust_sha256":trust_fingerprint(self.trust),
+            "issued_at":NOW.isoformat(),
+            "expires_at":(NOW+timedelta(hours=1)).isoformat()
+        }
+        signature=self.provenance_private.sign(DOMAIN+b"root-a\\x00"+_canonical(payload))
+        self.manifest={
+            "payload":payload,"root_id":"root-a",
+            "signature":base64.urlsafe_b64encode(signature).rstrip(b"=").decode("ascii"),
+        }
+        self.manifest_pin=hashlib.sha256(_canonical(self.manifest)).hexdigest()
+
     def check(self,proof=None,trust=None,archive=None,governance=None,custodian=None,now=NOW):
         g=self.fixture.fixture
         return inspect_visitcard(
@@ -59,6 +82,9 @@ class EntryPointTests(unittest.TestCase):
             self.fixture.custodian if custodian is None else custodian,
             self.proof if proof is None else proof,
             self.trust if trust is None else trust,
+            manifest=self.manifest,
+            independently_pinned_roots=self.provenance_roots,
+            externally_pinned_manifest_sha256=self.manifest_pin,
             now=now,
         )
 
@@ -71,9 +97,13 @@ class EntryPointTests(unittest.TestCase):
 
     def test_public_api_matches_direct_facade(self):
         g=self.fixture.fixture
-        direct=verify_visitcard(
+        direct=verify_with_trust_provenance(
             g.fixture.archive,g.registry,self.fixture.custodian,
-            proof=self.proof,trust=self.trust,now=NOW,
+            proof=self.proof,trust=self.trust,
+            manifest=self.manifest,
+            independently_pinned_roots=self.provenance_roots,
+            externally_pinned_manifest_sha256=self.manifest_pin,
+            now=NOW,
         )
         self.assertEqual(self.check(),direct)
 
