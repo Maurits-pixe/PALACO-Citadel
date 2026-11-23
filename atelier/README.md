@@ -777,3 +777,9 @@ De v6.60 GitHub Actions-run `45109185542` was **FAIL** in `Atelier DRAFT validat
 De contracttest zoekt de post-read reset nu vanaf de index van de daadwerkelijke bronvergelijking (`mismatch`). Daarmee controleert zij opnieuw de bedoelde volgorde: startmomentopname → `arrayBuffer()` → opslagherlezing → conflictvergelijking → afsluiting van de leesstatus. Deze wijziging raakt **alleen de testcode**; er is geen productiegedrag, opslagherstel of bevoegdheidsgrens aangepast.
 
 De reviewcollector uit v6.59 bleef in de mislukte run ongetest, omdat de workflow na de eerste falende stap stopte. Die stappen moeten op de nieuwe HEAD nog aantoonbaar succesvol worden uitgevoerd. **GO-13 DRAFT / HOLD / DENY**; geen merge, EDTR of publieke uitrol.
+
+## Regiekamer v6.62 — werkelijke bestandsbytes begrenzen (2026-11-23)
+
+De Atelier-import controleert al vóór het lezen of de bestandsmetadata maximaal 150.000 bytes meldt. De gerapporteerde File.size is echter niet altijd gelijk aan het resultaat van een afwijkende of aangepaste bestandsadapter. Daarom controleert de Regiekamer na de asynchrone File.arrayBuffer-aanroep opnieuw of het resultaat werkelijk een ArrayBuffer is en of de werkelijke byteLength niet groter is dan 150.000. Een te groot of ongeldig resultaat wordt geweigerd vóór de UTF-8-decodering, JSON-validatie, bevestiging of het schrijven van herstelgegevens.
+
+Twee Playwright-regressies simuleren een bestand met een kleine opgegeven grootte waarvoor de lezer toch 150.001 bytes oplevert, en een lezer die een ongeldig type terugstuurt. Een statische contracttest borgt dat zowel de metadata- als de werkelijke bytetoets vóór decodering en herstel plaatsvinden. De bestaande bron- en notitierevisiecontrole blijft gehandhaafd. De nieuwe CI moet op deze commit nog worden gecontroleerd. **DRAFT/HOLD/DENY**, geen merge, EDTR, autorisatie of publieke uitrol.
