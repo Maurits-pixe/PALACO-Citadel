@@ -457,3 +457,32 @@ test('signed duplicate JSON member names cannot create ambiguous audit heads',()
  assert.equal(r.executionAllowed,false);
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('oversized signed audit sequence is denied before ledger enumeration',()=>{
+ const input=setup(document({sequence:4097}));
+ let enumerations=0;
+ const hostileHistory=new Proxy([...input.entries],{
+   ownKeys(){enumerations++;throw Error('untrusted ledger must not be inspected');}
+ });
+ const r=inspectSignedAuditHeadAnchor({...input,entries:hostileHistory});
+ assert.equal(enumerations,0);
+ assert.equal(r.reason,'ANCHOR_ROLLBACK_OR_MISMATCH');
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('signed negative audit sequence is denied before touching history',()=>{
+ const input=setup(document({sequence:-1}));
+ let enumerations=0;
+ const hostileHistory=new Proxy([...input.entries],{
+   ownKeys(){enumerations++;throw Error('history must not be enumerated');}
+ });
+ const r=inspectSignedAuditHeadAnchor({...input,entries:hostileHistory});
+ assert.equal(enumerations,0);
+ assert.equal(r.reason,'ANCHOR_ROLLBACK_OR_MISMATCH');
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.executionAllowed,false);
+ assert.equal(r.authorization,'DENY');
+});
