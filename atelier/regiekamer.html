@@ -649,7 +649,15 @@ $('statement').addEventListener('input',()=>{
 $('bundleImport').addEventListener('change',async event=>{
  const revision=++importRevision;
  const file=event.target.files?.[0];
- if(!file)return;
+ if(!file){
+   // An empty selection invalidates any pending async read just like cancel.
+   importReadPending=false;
+   importStartSnapshot=null;
+   importStartNote=null;
+   event.target.value='';
+   $('bundleStatus').textContent='Geen projectbestand geselecteerd. Een eerdere import is geannuleerd; er is niets hersteld.';
+   return;
+ }
  importReadPending=true;
  try{
    const api=window.PalacoAtelierBundle;
