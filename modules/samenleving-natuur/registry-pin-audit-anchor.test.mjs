@@ -803,3 +803,56 @@ test('P-256 ECDSA scalar greater than curve order is rejected',()=>{
  assert.equal(r.anchoredLedgerMatched,false);
  assert.equal(r.authorization,'DENY');
 });
+
+
+test('ECDSA DER rejects zero, negative and trailing encoded scalar bytes before key access',()=>{
+ const input=setup();
+ const one=Buffer.from([0x02,0x01,0x01]);
+ const invalid=[
+   Buffer.from([0x02,0x01,0x00]), // zero INTEGER
+   Buffer.from([0x02,0x01,0x80]), // negative INTEGER
+   Buffer.from([0x02,0x02,0x00,0x01]), // redundant sign prefix
+   Buffer.from([0x02,0x01,0x7f,0x00]) // trailing byte after two integers
+ ];
+ for (const bad of invalid) {
+   for (const position of [0,1]) {
+     const components=position===0?[bad,one]:[one,bad];
+     const body=Buffer.concat(components);
+     const signature=Buffer.concat([Buffer.from([0x30,body.length]),body]);
+     let keyReads=0;
+     const anchorPublicJwk=new Proxy({...input.anchorPublicJwk},{
+       ownKeys(){keyReads++;throw Error('malformed DER must not reach key parsing');}
+     });
+     const r=inspectSignedAuditHeadAnchor({...input,anchorPublicJwk,
+       signatureBase64Url:signature.toString('base64url')});
+     assert.equal(keyReads,0,'case '+position+' '+bad.toString('hex'));
+     assert.equal(r.reason,'ANCHOR_SIGNATURE_INVALID');
+     assert.equal(r.anchorSignatureValid,false);
+     assert.equal(r.anchoredLedgerMatched,false);
+     assert.equal(r.authorization,'DENY');
+   }
+ }
+});
+
+test('P-256 order minus one remains a parseable positive scalar',()=>{
+ const input=setup();
+ const high=Buffer.from(
+   'ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632550','hex');
+ const highInteger=Buffer.concat([Buffer.from([0x02,0x21,0x00]),high]);
+ const one=Buffer.from([0x02,0x01,0x01]);
+ for(const parts of [[highInteger,one],[one,highInteger]]){
+   let keyReads=0;
+   const anchorPublicJwk=new Proxy({...input.anchorPublicJwk},{
+     ownKeys(target){keyReads++;return Reflect.ownKeys(target);}
+   });
+   const body=Buffer.concat(parts);
+   const signature=Buffer.concat([Buffer.from([0x30,body.length]),body]);
+   const r=inspectSignedAuditHeadAnchor({...input,anchorPublicJwk,
+     signatureBase64Url:signature.toString('base64url')});
+   assert.equal(keyReads,1,'valid P-256 boundary must reach cryptographic key verification');
+   assert.equal(r.anchorSignatureValid,false);
+   assert.equal(r.anchoredLedgerMatched,false);
+   assert.equal(r.authorization,'DENY');
+   assert.equal(r.releaseAllowed,false);
+ }
+});
