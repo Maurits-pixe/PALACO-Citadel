@@ -2971,3 +2971,48 @@ test('Atelier v6.88: losse JSON-export bevat exact 6000 tekens zonder afkapping'
  const bytes=await (await import('node:fs/promises')).readFile(await file.path());
  expect(JSON.parse(bytes.toString('utf8')).creative_statement).toBe(exact);
 });
+
+
+test('Atelier v6.89: gewijzigde notitie tijdens refresh blokkeert losse JSON-export',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Aanvankelijk kort');
+ await page.evaluate(()=>{
+   window.dossierDownloadCount=0;
+   window.originalDownloadClick=HTMLAnchorElement.prototype.click;
+   HTMLAnchorElement.prototype.click=function(){window.dossierDownloadCount++;};
+   window.originalStorageGet=Storage.prototype.getItem;
+   let changed=false;
+   Storage.prototype.getItem=function(key){
+     const value=window.originalStorageGet.call(this,key);
+     if(!changed&&this===localStorage){changed=true;document.getElementById('statement').value='R'.repeat(6001);}
+     return value;
+   };
+ });
+ await page.locator('#export').click();
+ await expect(page.locator('#feedback')).toContainText('Dossierexport geweigerd');
+ await expect(page.locator('#statement')).toHaveValue('R'.repeat(6001));
+ expect(await page.evaluate(()=>window.dossierDownloadCount)).toBe(0);
+ await page.evaluate(()=>{HTMLAnchorElement.prototype.click=window.originalDownloadClick;Storage.prototype.getItem=window.originalStorageGet;});
+});
+
+test('Atelier v6.89: gewijzigde notitie tijdens refresh blokkeert losse TXT-export',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Aanvankelijk kort');
+ await page.evaluate(()=>{
+   window.dossierDownloadCount=0;
+   window.originalDownloadClick=HTMLAnchorElement.prototype.click;
+   HTMLAnchorElement.prototype.click=function(){window.dossierDownloadCount++;};
+   window.originalStorageGet=Storage.prototype.getItem;
+   let changed=false;
+   Storage.prototype.getItem=function(key){
+     const value=window.originalStorageGet.call(this,key);
+     if(!changed&&this===localStorage){changed=true;document.getElementById('statement').value='S'.repeat(6001);}
+     return value;
+   };
+ });
+ await page.locator('#exportTxt').click();
+ await expect(page.locator('#feedback')).toContainText('Tekstexport geweigerd');
+ await expect(page.locator('#statement')).toHaveValue('S'.repeat(6001));
+ expect(await page.evaluate(()=>window.dossierDownloadCount)).toBe(0);
+ await page.evaluate(()=>{HTMLAnchorElement.prototype.click=window.originalDownloadClick;Storage.prototype.getItem=window.originalStorageGet;});
+});
