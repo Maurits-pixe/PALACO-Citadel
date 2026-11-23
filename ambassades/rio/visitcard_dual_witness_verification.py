@@ -13,6 +13,7 @@ import sqlite3
 from typing import Any, Mapping
 
 from visitcard_fresh_publication_head import verify_fresh_head, _decode
+from visitcard_governance_attestation import verify_governance_separation
 from visitcard_integrated_verification import (
     IntegratedState, verify_integrated_chain,
 )
@@ -94,3 +95,56 @@ def verify_dual_witness_chain(
 def execution_permitted(status: IntegratedState) -> bool:
     """Every verification result remains informational; GO-13 HOLD."""
     return False
+
+
+def verify_governed_dual_witness_chain(
+    archive_db: sqlite3.Connection,
+    publication_receipt: Any,
+    primary_response: Any,
+    primary_challenge: str,
+    secondary_response: Any,
+    secondary_challenge: str,
+    primary_governance: Any,
+    secondary_governance: Any,
+    *,
+    issuer: str, nonce: str,
+    witness_keys: Mapping[str,bytes],
+    archive_keys: Mapping[str,bytes],
+    publisher_keys: Mapping[str,bytes],
+    primary_signer_keys: Mapping[str,bytes],
+    secondary_signer_keys: Mapping[str,bytes],
+    primary_authorities: Mapping[str,bytes],
+    secondary_authorities: Mapping[str,bytes],
+    now: datetime | None = None,
+) -> IntegratedState:
+    """v3.3 separate signed governance claim gate; NEVER authorization."""
+    unknown=IntegratedState.UNKNOWN_BLOCKED
+    try:
+        if not isinstance(primary_response,dict) or not isinstance(secondary_response,dict):
+            return unknown
+        first_id=primary_response.get("signer_id")
+        second_id=secondary_response.get("signer_id")
+        if not isinstance(first_id,str) or not isinstance(second_id,str):
+            return unknown
+        key_a=primary_signer_keys.get(first_id)
+        key_b=secondary_signer_keys.get(second_id)
+        if not verify_governance_separation(
+            primary_governance,secondary_governance,
+            primary_authorities,secondary_authorities,
+            expected_issuer=issuer,primary_signer_id=first_id,
+            secondary_signer_id=second_id,
+            primary_public_key=key_a,secondary_public_key=key_b,now=now,
+        ):
+            return unknown
+        return verify_dual_witness_chain(
+            archive_db,publication_receipt,
+            primary_response,primary_challenge,
+            secondary_response,secondary_challenge,
+            issuer=issuer,nonce=nonce,
+            witness_keys=witness_keys,archive_keys=archive_keys,
+            publisher_keys=publisher_keys,
+            primary_signer_keys=primary_signer_keys,
+            secondary_signer_keys=secondary_signer_keys,now=now
+        )
+    except (ValueError,TypeError,KeyError,AttributeError,sqlite3.Error):
+        return unknown
