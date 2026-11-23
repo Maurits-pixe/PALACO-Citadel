@@ -148,6 +148,15 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
         !/^[A-Za-z0-9_-]{43}$/.test(keySnapshot.x) ||
         !/^[A-Za-z0-9_-]{43}$/.test(keySnapshot.y))
       return reject('INVALID_ANCHOR_INPUT');
+    // P-256 coordinates are exactly 32 bytes: a valid-looking 43-character
+    // base64url string can still have nonzero unused trailing bits. Require
+    // canonical encoding so a single public key has one textual form.
+    const xBytes = Buffer.from(keySnapshot.x,'base64url');
+    const yBytes = Buffer.from(keySnapshot.y,'base64url');
+    if (xBytes.length !== 32 || yBytes.length !== 32 ||
+        xBytes.toString('base64url') !== keySnapshot.x ||
+        yBytes.toString('base64url') !== keySnapshot.y)
+      return reject('INVALID_ANCHOR_INPUT');
     const key = createPublicKey({format:'jwk',key:keySnapshot});
     if (key.asymmetricKeyType !== 'ec' ||
       key.asymmetricKeyDetails?.namedCurve !== 'prime256v1')
