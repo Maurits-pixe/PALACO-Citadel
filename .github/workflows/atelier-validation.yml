@@ -44,7 +44,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
+          PALACO_REVIEW_REPORT_PATH: ${{ runner.temp }}/atelier-review-evidence.json
         run: node atelier/github-review-collector.cjs
+      - name: Retain sanitized review observation for inspection
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: atelier-review-evidence
+          path: ${{ runner.temp }}/atelier-review-evidence.json
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Verify release remains HOLD without matching approved evidence
         shell: bash
         run: |
