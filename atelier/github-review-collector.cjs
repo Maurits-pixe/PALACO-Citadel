@@ -24,14 +24,16 @@ function requestJson(url,token){
   req.on('error',reject);
  });
 }
-async function collect({repository,number,token,fetchJson=requestJson,now=new Date().toISOString()}){
+async function collect({repository,number,token,expectedHead,fetchJson=requestJson,now=new Date().toISOString()}){
  if(!REPO.test(repository||'')||!Number.isSafeInteger(number)||number<=0||typeof token!=='string'||!token){
   throw Error('Invalid read-only GitHub collection parameters');
  }
  const base='https://api.github.com/repos/'+repository+'/pulls/'+number;
  const pr=await fetchJson(base,token);
  if(!pr||!SHA.test(pr.head?.sha||'')||!pr.user?.login||pr.number!==number)throw Error('Invalid PR API response');
- const expectedHead=pr.head.sha;
+ const observedHead=pr.head.sha;
+ if(expectedHead!==undefined&&(!SHA.test(expectedHead)||expectedHead!==observedHead))
+  throw Error('PR head does not match workflow event commit');
  const reviews=[];let paginationComplete=false;
  for(let page=1;page<=11;page++){
   if(page===11)break; // Never claim completeness beyond our ten-page safety bound.
@@ -43,24 +45,26 @@ async function collect({repository,number,token,fetchJson=requestJson,now=new Da
  }
  // Re-fetch the PR to detect a head change while collecting.
  const after=await fetchJson(base,token);
- if(after?.head?.sha!==expectedHead||after.number!==number)throw Error('PR head changed during review collection');
- const provenance={pr_number:number,head_sha:expectedHead,
+ if(after?.head?.sha!==observedHead||after.number!==number)throw Error('PR head changed during review collection');
+ const provenance={pr_number:number,head_sha:observedHead,
   total_count:reviews.length,pagination_complete:paginationComplete,
   has_next_page:!paginationComplete,fetched_at:now};
- const result=audit({reviews,candidateSha:expectedHead,prNumber:number,
+ const result=audit({reviews,candidateSha:observedHead,prNumber:number,
   authorLogin:pr.user.login,provenance,now});
  return {...result,origin:'github_rest_read_only_runtime_observation',
   collection_complete:paginationComplete&&result.review_list_issues.length===0,
   // No self-asserted JSON output is a release authorization.
   evidence_usable:false,decision:'HOLD',publication:'DENY',release_approved:false};
 }
-function safeReport(result,runId){
+function safeReport(result,runId,runAttempt,repository){
  // Explicit field allowlist: never persist reviewer identities, review bodies,
  // GitHub token, or untrusted API payloads.
  return {
   schema:'palaco.citadel.atelier.github-review-evidence/1',
   source:'github_actions_readonly_api_observation',
   workflow_run_id:Number.isSafeInteger(runId)&&runId>0?runId:null,
+  workflow_run_attempt:Number.isSafeInteger(runAttempt)&&runAttempt>0?runAttempt:null,
+  repository:typeof repository==='string'&&REPO.test(repository)?repository:null,
   pr_number:result.pr_number,
   candidate_sha:result.candidate_sha,
   review_count:result.review_count,
@@ -76,8 +80,11 @@ async function main(){
  const repository=process.env.GITHUB_REPOSITORY;
  const number=Number(process.env.PALACO_PR_NUMBER);
  const token=process.env.GITHUB_TOKEN;
- const result=await collect({repository,number,token});
- const report=safeReport(result,Number(process.env.GITHUB_RUN_ID));
+ const expectedHead=process.env.PALACO_EXPECTED_HEAD_SHA;
+ if(!SHA.test(expectedHead||''))throw Error('Missing or invalid exact workflow PR head SHA');
+ const result=await collect({repository,number,token,expectedHead});
+ const report=safeReport(result,Number(process.env.GITHUB_RUN_ID),
+  Number(process.env.GITHUB_RUN_ATTEMPT),repository);
  const reportPath=process.env.PALACO_REVIEW_REPORT_PATH;
  if(reportPath)fs.writeFileSync(reportPath,JSON.stringify(report,null,2)+'\n',{flag:'wx',mode:0o600});
  process.stdout.write(JSON.stringify(report,null,2)+'\n');
