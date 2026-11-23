@@ -51,12 +51,13 @@ const capturePin = p => {
 // Keep the hash-linked history stable from validation through ledger replay.
 // A Proxy may change an entry between checks; copy only own data descriptors,
 // reject holes/accessors/extra keys and impose the ledger's 4096-entry cap.
-const captureLedgerEntries = entries => {
+const captureLedgerEntries = (entries, expectedSequence) => {
   if (!Array.isArray(entries)) return null;
   const lengthDescriptor = Object.getOwnPropertyDescriptor(entries, 'length');
   if (!lengthDescriptor || !Object.hasOwn(lengthDescriptor, 'value') ||
       !Number.isSafeInteger(lengthDescriptor.value) ||
-      lengthDescriptor.value > 4096) return null;
+      lengthDescriptor.value > 4096 ||
+      lengthDescriptor.value !== expectedSequence) return null;
   const length = lengthDescriptor.value;
   const keys = Reflect.ownKeys(entries);
   if (keys.length !== length + 1 ||
@@ -193,10 +194,10 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
         !samePin(doc.genesisPin,genesisSnapshot) ||
         !samePin(doc.currentPin,currentSnapshot))
       return reject('ANCHOR_ROLLBACK_OR_MISMATCH');
-    const entriesSnapshot = captureLedgerEntries(entries);
+    // One descriptor read establishes the length/sequence agreement before
+    // enumerable Proxy traps or individual untrusted ledger entries are read.
+    const entriesSnapshot = captureLedgerEntries(entries, doc.sequence);
     if (!entriesSnapshot) return reject('LEDGER_INVALID_CHAIN_LINK');
-    if (doc.sequence !== entriesSnapshot.length)
-      return reject('ANCHOR_ROLLBACK_OR_MISMATCH');
     const ledger=inspectRegistryPinLedger({
       genesisPin:genesisSnapshot,entries:entriesSnapshot,expectedHeadHash:doc.headHash,
       expectedCurrentPin:currentSnapshot
