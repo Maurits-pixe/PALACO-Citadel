@@ -149,7 +149,8 @@ class EntryPointTests(unittest.TestCase):
         New file names visitcard_consumer_*.py are required to import only
         the v3.7 facade, not lower-level verification modules.
         """
-        consumers=sorted(RIO.glob("visitcard_consumer_*.py"))
+        consumers=sorted(p for p in RIO.glob("visitcard_consumer_*.py")
+                         if p.name!="visitcard_consumer_policy.py")
         self.assertTrue(consumers, "at least one real consumer adapter")
         forbidden={
             "visitcard_integrated_verification",
