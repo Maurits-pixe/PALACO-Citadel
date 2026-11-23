@@ -919,3 +919,42 @@ test('maximum transport-length base64url still reaches DER parser',()=>{
  assert.equal(r.authorization,'DENY');
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('valid ECDSA signatures from another domain cannot authenticate a Citadel audit anchor',()=>{
+ const original=setup();
+ for(const domain of [
+   Buffer.alloc(0),
+   Buffer.from('PALACO-CITADEL-AUDIT-HEAD-ANCHOR-V2\n'),
+   Buffer.from('PALACO-CITADEL-REGISTRY-PIN-V1\n')
+ ]) {
+   const signatureBase64Url=sign('sha256',
+     Buffer.concat([domain,original.anchorBytes]),pair.privateKey).toString('base64url');
+   const r=inspectSignedAuditHeadAnchor({...original,signatureBase64Url});
+   assert.equal(r.reason,'ANCHOR_SIGNATURE_INVALID');
+   assert.equal(r.anchorSignatureValid,false);
+   assert.equal(r.anchoredLedgerMatched,false);
+   assert.equal(r.authorization,'DENY');
+   assert.equal(r.executionAllowed,false);
+   assert.equal(r.releaseAllowed,false);
+ }
+});
+
+test('audit domain prefix requires exact version and trailing newline',()=>{
+ const original=setup();
+ for(const prefix of [
+   'PALACO-CITADEL-AUDIT-HEAD-ANCHOR-V1',
+   'PALACO-CITADEL-AUDIT-HEAD-ANCHOR-V1\r\n',
+   'PALACO-CITADEL-AUDIT-HEAD-ANCHOR-V1\n\n'
+ ]) {
+   const signatureBase64Url=sign('sha256',
+     Buffer.concat([Buffer.from(prefix),original.anchorBytes]),
+     pair.privateKey).toString('base64url');
+   const r=inspectSignedAuditHeadAnchor({...original,signatureBase64Url});
+   assert.equal(r.reason,'ANCHOR_SIGNATURE_INVALID');
+   assert.equal(r.anchorSignatureValid,false);
+   assert.equal(r.anchoredLedgerMatched,false);
+   assert.equal(r.authorization,'DENY');
+   assert.equal(r.releaseAllowed,false);
+ }
+});
