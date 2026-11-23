@@ -59,6 +59,10 @@ jobs:
         env:
           CITADEL_EPHEMERAL_CI_ONLY: '1'
         run: bash modules/samenleving-natuur/issuer-rotation-atomicity-ci.sh
+      - name: Ephemeral issuer rotation read-only ACL denial checks
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/issuer-rotation-acl-ci.sh
   offline-browser-qa:
     runs-on: ubuntu-latest
     timeout-minutes: 15
