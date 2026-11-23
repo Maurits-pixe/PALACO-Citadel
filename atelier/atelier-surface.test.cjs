@@ -226,7 +226,8 @@ test('Atelier note synchronization must preserve unsaved edits from local tab',(
  assert.match(handler,/if\(locallyEdited\)/);
  assert.match(handler,/onopgeslagen tekst blijft staan/);
  assert.match(handler,/latest=localStorage\.getItem\(NOTE\)/);
- assert.match(handler,/typeof latest==='string'\?latest\.slice\(0,6000\):''/);
+ assert.match(handler,/if\(typeof latest==='string'&&latest\.length>6000\)/);
+ assert.match(handler,/\$\('statement'\)\.value=latest===null\?'':latest/);
 });
 
 
@@ -630,7 +631,7 @@ test('Atelier full unsaved note survives cross-tab synchronization',()=>{
  const handler=html.slice(start,end);
  const check=handler.indexOf("const locallyEdited=$('statement').value!==(noteBaseline===null?'':noteBaseline)");
  const conflict=handler.indexOf('if(locallyEdited){',check);
- const replace=handler.indexOf("$('statement').value=typeof latest",conflict);
+ const replace=handler.indexOf("$('statement').value=latest===null?",conflict);
  assert.ok(check>=0&&conflict>check&&replace>conflict);
  assert.doesNotMatch(handler,/const locallyEdited=noteValue\(\)/);
 });
@@ -680,4 +681,28 @@ test('Atelier note reload must reject overlength stored source before confirmati
  const prompt=handler.indexOf('if(editorBeforeConfirm!==storedText&&!confirm(',abort);
  assert.ok(stored>=0&&length>stored&&reject>length&&abort>reject&&prompt>abort);
  assert.match(handler,/const storedText=stored===null\?'':stored;/);
+});
+
+test('Atelier startup refuses oversized saved notes before assigning editor text',()=>{
+ const html=read('regiekamer.html');
+ const start=html.lastIndexOf('try{\n const v=localStorage.getItem(NOTE);');
+ assert.ok(start>=0);
+ const handler=html.slice(start);
+ const guard=handler.indexOf('if(v!==null&&v.length>6000)');
+ const warn=handler.indexOf('Automatisch laden geweigerd',guard);
+ const assignment=handler.indexOf("$('statement').value=v;",warn);
+ assert.ok(guard>=0&&warn>guard&&assignment>warn);
+ assert.doesNotMatch(handler,/v\.slice\(0,6000\)/);
+});
+test('Atelier cross-tab sync refuses oversized saved notes before replacing editor',()=>{
+ const html=read('regiekamer.html');
+ const start=html.lastIndexOf("window.addEventListener('storage',e=>{");
+ const end=html.indexOf("\n});",start);
+ assert.ok(start>=0&&end>start);
+ const handler=html.slice(start,end);
+ const guard=handler.indexOf("if(typeof latest==='string'&&latest.length>6000)");
+ const warn=handler.indexOf('Synchronisatie geweigerd',guard);
+ const abort=handler.indexOf('return;',warn);
+ const assignment=handler.indexOf("$('statement').value=latest===null?'':latest",abort);
+ assert.ok(guard>=0&&warn>guard&&abort>warn&&assignment>abort);
 });
