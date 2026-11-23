@@ -67,7 +67,7 @@ class EntryPointTests(unittest.TestCase):
             "issued_at":NOW.isoformat(),
             "expires_at":(NOW+timedelta(hours=1)).isoformat()
         }
-        signature=self.provenance_private.sign(DOMAIN+b"root-a\\x00"+_canonical(payload))
+        signature=self.provenance_private.sign(DOMAIN+b"root-a\x00"+_canonical(payload))
         self.manifest={
             "payload":payload,"root_id":"root-a",
             "signature":base64.urlsafe_b64encode(signature).rstrip(b"=").decode("ascii"),
