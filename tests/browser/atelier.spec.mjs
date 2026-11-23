@@ -2751,10 +2751,10 @@ test('Atelier v6.80: langere onopgeslagen tekst bij terugzetten vereist zichtbar
  await page.locator('#saveNote').click();
  await page.evaluate(()=>{
    const api=window.PalacoAtelierBundle;
-   api.restoreWithRecovery(localStorage,api.create(null,null,'Nieuw ontwerp'),api.snapshot(localStorage),localStorage.getItem(api.RECOVERY));
+   api.restoreWithRecovery(localStorage,api.create(null,null,'B'.repeat(6000)),api.snapshot(localStorage),localStorage.getItem(api.RECOVERY));
  });
  await page.reload();
- const long='Nieuw ontwerp'+'-ONOPGESLAGEN';
+ const long='B'.repeat(6000)+'-ONOPGESLAGEN';
  await page.evaluate(text=>{document.getElementById('statement').value=text;},long);
  await page.evaluate(()=>{window.undoPrompt='';window.confirm=msg=>{window.undoPrompt=msg;return false;};});
  await page.locator('#undoImport').click();
