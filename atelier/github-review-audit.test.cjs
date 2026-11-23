@@ -82,3 +82,45 @@ test('later current-commit approval can be inspected but never grants release',(
  assert.equal(result.release_approved,false);
  assert.equal(result.decision,'HOLD');
 });
+
+test('missing provenance cannot establish complete review history',()=>{
+ const r=audit(options([review()]));
+ assert.ok(r.review_list_issues.includes('missing_fetch_provenance'));
+ assert.equal(r.review_list_complete_claim,false);
+ assert.equal(r.evidence_usable,false);
+ assert.equal(r.decision,'HOLD');
+});
+test('partial pagination and a missing review count fail closed',()=>{
+ const provenance={pr_number:60,head_sha:A,total_count:2,pagination_complete:false,
+  has_next_page:true,fetched_at:'2026-11-23T03:00:00Z'};
+ const r=audit({...options([review()]),provenance,now:'2026-11-23T03:05:00Z'});
+ assert.ok(r.review_list_issues.includes('incomplete_pagination'));
+ assert.ok(r.review_list_issues.includes('incomplete_review_count'));
+ assert.equal(r.evidence_usable,false);
+});
+test('stale or future fetch timestamps are rejected',()=>{
+ const provenance={pr_number:60,head_sha:A,total_count:0,pagination_complete:true,
+  has_next_page:false,fetched_at:'2026-11-23T01:00:00Z'};
+ const stale=audit({...options([]),provenance,now:'2026-11-23T03:00:00Z'});
+ assert.ok(stale.review_list_issues.includes('stale_or_invalid_fetch_time'));
+ const future=audit({...options([]),provenance:{...provenance,fetched_at:'2026-11-23T04:00:00Z'},now:'2026-11-23T03:00:00Z'});
+ assert.ok(future.review_list_issues.includes('stale_or_invalid_fetch_time'));
+});
+test('review-list metadata bound to different PR or head cannot be accepted',()=>{
+ const provenance={pr_number:61,head_sha:B,total_count:0,pagination_complete:true,
+  has_next_page:false,fetched_at:'2026-11-23T03:00:00Z'};
+ const r=audit({...options([]),provenance,now:'2026-11-23T03:05:00Z'});
+ assert.ok(r.review_list_issues.includes('wrong_pr_provenance'));
+ assert.ok(r.review_list_issues.includes('stale_head_provenance'));
+});
+test('plausibly complete metadata is diagnostic and cannot attest its own origin',()=>{
+ const provenance={pr_number:60,head_sha:A,total_count:1,pagination_complete:true,
+  has_next_page:false,fetched_at:'2026-11-23T03:00:00Z'};
+ const r=audit({...options([review()]),provenance,now:'2026-11-23T03:05:00Z'});
+ assert.equal(r.review_list_complete_claim,true);
+ assert.deepEqual(r.review_list_issues,[]);
+ assert.equal(r.evidence_usable,false);
+ assert.equal(r.matching_approved_review_count,1);
+ assert.equal(r.release_approved,false);
+ assert.equal(r.decision,'HOLD');
+});
