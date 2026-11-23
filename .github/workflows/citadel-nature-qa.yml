@@ -63,6 +63,10 @@ jobs:
         env:
           CITADEL_EPHEMERAL_CI_ONLY: '1'
         run: bash modules/samenleving-natuur/issuer-rotation-acl-ci.sh
+      - name: Disabled issuer rotation writer and unauthorized calls QA
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/issuer-rotation-writer-hold-ci.sh
   offline-browser-qa:
     runs-on: ubuntu-latest
     timeout-minutes: 15
