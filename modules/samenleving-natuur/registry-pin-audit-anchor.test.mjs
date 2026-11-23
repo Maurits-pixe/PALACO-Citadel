@@ -395,3 +395,29 @@ test('audit ledger array indexed accessor is rejected without invoking it',()=>{
  assert.equal(r.authorization,'DENY');
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('noncanonical trailing bits in P-256 JWK coordinates are denied',()=>{
+ const input=setup();
+ const alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+ const noncanonical=value=>{
+   const last=alphabet.indexOf(value.at(-1));
+   assert.ok(last>=0);
+   const alternate=alphabet[last ^ 1];
+   const changed=value.slice(0,-1)+alternate;
+   assert.equal(Buffer.from(changed,'base64url').toString('base64url'),value);
+   return changed;
+ };
+ for (const coordinate of ['x','y']) {
+   const anchorPublicJwk={
+     ...input.anchorPublicJwk,
+     [coordinate]:noncanonical(input.anchorPublicJwk[coordinate])
+   };
+   const r=inspectSignedAuditHeadAnchor({...input,anchorPublicJwk});
+   assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+   assert.equal(r.anchorSignatureValid,false);
+   assert.equal(r.anchoredLedgerMatched,false);
+   assert.equal(r.authorization,'DENY');
+   assert.equal(r.releaseAllowed,false);
+ }
+});
