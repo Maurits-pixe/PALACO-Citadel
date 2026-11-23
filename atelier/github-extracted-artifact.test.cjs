@@ -53,3 +53,18 @@ test('downloaded evidence cannot impersonate a different run or commit',()=>fixt
  assert.throws(()=>compareExtracted(download,original,{...ctx,runId:124}),/does not match exact workflow context/);
  assert.throws(()=>compareExtracted(download,original,{...ctx,headSha:'b'.repeat(40)}),/does not match exact workflow context/);
 }));
+
+test('oversized downloaded source is rejected before reading into memory',()=>fixture(({original,download})=>{
+ fs.writeFileSync(path.join(download,'atelier-review-evidence.json'),Buffer.alloc(20001));
+ assert.throws(()=>compareExtracted(download,original,ctx),/bounded regular file/);
+}));
+test('downloaded symlink cannot substitute evidence, even if its target is valid',()=>fixture(({original,download})=>{
+ const target=path.join(download,'atelier-review-evidence.json');
+ fs.unlinkSync(target);
+ fs.symlinkSync(path.join(original,'atelier-review-evidence.json'),target);
+ assert.throws(()=>compareExtracted(download,original,ctx),/exactly two regular JSON files|ELOOP/);
+}));
+test('the original CI source is also required to be a bounded regular file',()=>fixture(({original,download})=>{
+ fs.writeFileSync(path.join(original,'atelier-review-integrity.json'),Buffer.alloc(20001));
+ assert.throws(()=>compareExtracted(download,original,ctx),/bounded regular file/);
+}));
