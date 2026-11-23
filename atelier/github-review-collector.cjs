@@ -1,6 +1,7 @@
 'use strict';
 // Read-only GitHub collection. Never authenticates local JSON or authorizes release.
 const https=require('node:https');
+const fs=require('node:fs');
 const {audit}=require('./github-review-audit.cjs');
 const REPO=/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const SHA=/^[0-9a-f]{40}$/;
@@ -53,22 +54,36 @@ async function collect({repository,number,token,fetchJson=requestJson,now=new Da
   // No self-asserted JSON output is a release authorization.
   evidence_usable:false,decision:'HOLD',publication:'DENY',release_approved:false};
 }
+function safeReport(result,runId){
+ // Explicit field allowlist: never persist reviewer identities, review bodies,
+ // GitHub token, or untrusted API payloads.
+ return {
+  schema:'palaco.citadel.atelier.github-review-evidence/1',
+  source:'github_actions_readonly_api_observation',
+  workflow_run_id:Number.isSafeInteger(runId)&&runId>0?runId:null,
+  pr_number:result.pr_number,
+  candidate_sha:result.candidate_sha,
+  review_count:result.review_count,
+  matching_approved_review_count:result.matching_approved_review_count,
+  collection_complete:result.collection_complete===true,
+  review_list_issues:Array.isArray(result.review_list_issues)?result.review_list_issues.slice():[],
+  decision:'HOLD',publication:'DENY',release_approved:false,
+  evidence_usable:false,
+  limitation:'An observation artifact cannot replace current authenticated GitHub review verification'
+ };
+}
 async function main(){
  const repository=process.env.GITHUB_REPOSITORY;
  const number=Number(process.env.PALACO_PR_NUMBER);
  const token=process.env.GITHUB_TOKEN;
  const result=await collect({repository,number,token});
- process.stdout.write(JSON.stringify({
-  schema:result.schema,origin:result.origin,pr_number:result.pr_number,
-  candidate_sha:result.candidate_sha,review_count:result.review_count,
-  matching_approved_review_count:result.matching_approved_review_count,
-  review_list_issues:result.review_list_issues,
-  collection_complete:result.collection_complete,
-  decision:result.decision,publication:result.publication,release_approved:false
- },null,2)+'\n');
+ const report=safeReport(result,Number(process.env.GITHUB_RUN_ID));
+ const reportPath=process.env.PALACO_REVIEW_REPORT_PATH;
+ if(reportPath)fs.writeFileSync(reportPath,JSON.stringify(report,null,2)+'\n',{flag:'wx',mode:0o600});
+ process.stdout.write(JSON.stringify(report,null,2)+'\n');
 }
 if(require.main===module)main().catch(e=>{
  process.stderr.write('Read-only GitHub review inspection unavailable: '+e.message+'\n');
  process.exitCode=1;
 });
-module.exports={collect};
+module.exports={collect,safeReport};
