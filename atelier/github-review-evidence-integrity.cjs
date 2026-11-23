@@ -14,6 +14,11 @@ const integer=v=>Number.isSafeInteger(v)&&v>0;
 function inspect(raw,context){
  if(!Buffer.isBuffer(raw)||raw.length===0||raw.length>20000)throw Error('Invalid report byte length');
  const report=JSON.parse(raw.toString('utf8'));
+ // Collector emits canonical pretty JSON with a single trailing newline.
+ // Byte-for-byte comparison rejects duplicate keys, ambiguous encodings and
+ // reserialized or appended content before assessing any authority fields.
+ const canonical=Buffer.from(JSON.stringify(report,null,2)+'\n','utf8');
+ if(!raw.equals(canonical))throw Error('Noncanonical review evidence JSON bytes');
  if(!report||typeof report!=='object'||Array.isArray(report)||
     Object.keys(report).length!==FIELDS.length||
     Object.keys(report).some(k=>!FIELDS.includes(k)))throw Error('Unexpected report structure');
