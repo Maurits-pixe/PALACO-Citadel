@@ -2903,3 +2903,37 @@ test('Atelier v6.85: bestaande bron van precies 6000 tekens kan expliciet worden
  await expect(page.locator('#feedback')).toHaveText('Ontwerpnotitie lokaal bewaard.');
  expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe('Mijn volgende versie');
 });
+
+test('Atelier v6.87: lange onopgeslagen notitie blokkeert volledige projectexport',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const long='Z'.repeat(6000)+'VOLLEDIG-BEHOUDEN';
+ await page.evaluate(value=>{
+   document.getElementById('statement').value=value;
+   window.projectDownloadAttemptCount=0;
+   window.originalProjectLinkClick=HTMLAnchorElement.prototype.click;
+   HTMLAnchorElement.prototype.click=function(){
+     window.projectDownloadAttemptCount++;
+   };
+ },long);
+ await page.locator('#bundleSave').click();
+ await expect(page.locator('#bundleStatus')).toContainText('Projectexport geweigerd: ontwerpnotitie bevat meer dan 6000 tekens');
+ await expect(page.locator('#bundleReceiptStatus')).toContainText('Geen export of SHA-256-referentie gemaakt');
+ await expect(page.locator('#statement')).toHaveValue(long);
+ expect(await page.evaluate(()=>window.projectDownloadAttemptCount)).toBe(0);
+ await expect(page.locator('#exportBundleReceipt')).toBeDisabled();
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBeNull();
+ await page.evaluate(()=>{HTMLAnchorElement.prototype.click=window.originalProjectLinkClick;});
+});
+
+test('Atelier v6.87: projectexport met exact 6000 tekens bevat volledige ontwerpnotitie',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const exact='P'.repeat(6000);
+ await page.evaluate(value=>{document.getElementById('statement').value=value;},exact);
+ const downloadPromise=page.waitForEvent('download');
+ await page.locator('#bundleSave').click();
+ const file=await downloadPromise;
+ const bytes=await (await import('node:fs/promises')).readFile(await file.path());
+ const exported=JSON.parse(bytes.toString('utf8'));
+ expect(exported.note).toBe(exact);
+ await expect(page.locator('#bundleStatus')).toContainText('Creatief projectpakket geëxporteerd');
+});
