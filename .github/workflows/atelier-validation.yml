@@ -44,6 +44,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PALACO_REVIEW_REPORT_PATH: ${{ runner.temp }}/atelier-review-evidence.json
         run: node atelier/github-review-collector.cjs
       - name: Retain sanitized review observation for inspection
