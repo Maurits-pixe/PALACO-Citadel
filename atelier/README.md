@@ -1,3 +1,11 @@
+## v6.89 — hercontrole vóór losse dossierdownloads
+
+- `noteValue()` kapt de editor niet langer stilzwijgend af: bij meer dan 6.000 tekens wordt een fout veroorzaakt.
+- Beide losse dossierexportroutes vangen de weigering af en geven expliciete feedback zonder bestand te maken.
+- Hiermee wordt ook tekst beschermd die tussen de eerste controle en de export na `refresh()` programmatisch verandert.
+- Twee extra Playwright-regressies dekken deze race af. CI-validatie op nieuwe HEAD vereist.
+- **DRAFT / HOLD / DENY**; geen merge, EDTR, autorisatie of productiepublicatie.
+
 ## v6.88 — losse dossierexports weigeren stille tekstafkapping
 
 - Zowel de afzonderlijke creatieve JSON-dossierexport als de TXT-overzichtsexport weigert een editorwaarde boven 6.000 tekens vóór `refresh()` en `download()`.
