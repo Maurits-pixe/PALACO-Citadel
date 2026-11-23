@@ -95,3 +95,34 @@ test('sanitized report binds repository, workflow attempt and run without identi
  assert.equal(invalid.repository,null);
  assert.equal(invalid.workflow_run_attempt,null);
 });
+
+test('untrusted review issue text is never serialized into evidence artifact',()=>{
+ const report=safeReport({pr_number:60,candidate_sha:A,review_count:1,
+  matching_approved_review_count:0,collection_complete:true,
+  review_list_issues:['SECRET_PERSONAL_NOTE']},77,1,'Maurits-pixe/PALACO-Citadel');
+ assert.deepEqual(report.review_list_issues,['invalid_review_issue_list']);
+ assert.equal(report.collection_complete,false);
+ assert.equal(JSON.stringify(report).includes('SECRET_PERSONAL_NOTE'),false);
+ assert.equal(report.decision,'HOLD');
+});
+test('malformed counts and candidate SHA cannot become trustworthy evidence',()=>{
+ const report=safeReport({pr_number:60,candidate_sha:'NOT_A_SHA',
+  review_count:3,matching_approved_review_count:4,collection_complete:true,
+  review_list_issues:[]},77,1,'Maurits-pixe/PALACO-Citadel');
+ assert.equal(report.candidate_sha,null);
+ assert.equal(report.collection_complete,false);
+ assert.equal(report.evidence_usable,false);
+ const oversized=safeReport({pr_number:-1,candidate_sha:A,review_count:1001,
+  matching_approved_review_count:-1,collection_complete:true,review_list_issues:[]});
+ assert.equal(oversized.pr_number,null);
+ assert.equal(oversized.review_count,null);
+ assert.equal(oversized.matching_approved_review_count,null);
+ assert.equal(oversized.collection_complete,false);
+});
+test('known issue codes deduplicate and prevent complete classification',()=>{
+ const r=safeReport({pr_number:60,candidate_sha:A,review_count:0,
+  matching_approved_review_count:0,collection_complete:true,
+  review_list_issues:['incomplete_pagination','incomplete_pagination']});
+ assert.deepEqual(r.review_list_issues,['incomplete_pagination']);
+ assert.equal(r.collection_complete,false);
+});
