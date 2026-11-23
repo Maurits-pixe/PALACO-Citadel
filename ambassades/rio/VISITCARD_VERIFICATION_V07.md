@@ -935,3 +935,40 @@ Veertien nieuwe regressietests toetsen onder meer een teruggezette
 intrekking, rotatie, vervalsing, ontbrekend historisch record en
 niet-autoriseren. CI-log en skipaantallen zijn beslissend.
 **GO-13 HOLD**: geen merge of uitrol.
+
+## v3.6 — Full fail-closed dual governance high-water integration (DRAFT / HOLD)
+
+`visitcard_highwater_governed_gate.py` supplies an **explicit new
+read-only entrypoint** `verify_highwater_governed_chain`. It requires
+THREE distinct SQLite connections for the local archive, lifecycle
+ledger and independently provisioned custodian history. It also
+requires an externally supplied, independently retained, signed
+governance checkpoint for **each** of the two current fresh-head
+signers. Both custodians must have separately pinned, distinct
+Ed25519 public keys and signer identities.
+
+Before invoking v3.4's full lifecycle/governance/freshness/receipt/archive
+gate, the new entrypoint authenticates both custodian checkpoints,
+audits each custodian's complete signed history, requires each supplied
+checkpoint to equal the current stored custodian high-water tip,
+compares each against the fully replayed local lifecycle event log,
+rejects any revoked/rotated/stale fingerprint, and refuses any
+insufficiently evidenced result. Even a fully matching pair of
+high-water records remains `MATCHED_INFORMATIONAL`, never an
+authorization. `execution_permitted` always returns False.
+
+Sixteen new v3.6 regression tests cover success, fake signatures,
+missing checkpoints, reused custodian keys, missing history,
+stale remotely delivered checkpoints, revoked signer keys,
+old database restore after revocation/rotation, transaction state,
+and shared-storage aliases. Verification cannot prove operational
+independence of operators or storage just by checking different
+handles and keys. In particular, a coordinated rollback of the
+local and custodian databases **and** every externally retained
+checkpoint remains undetectable. Trusted external most-recent-head
+distribution, key isolation, authenticated transport and release
+review are not implemented; the legacy entrypoints remain available
+and must not be described as enforcing this new requirement.
+
+No merge, production deploy, key activation or access issuance.
+**GO-13 HOLD.**
