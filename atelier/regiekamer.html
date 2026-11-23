@@ -122,7 +122,13 @@ function saveNote(){
      $('feedback').textContent='Opslaan geweigerd: ontwerpnotitie is elders gewijzigd. Je eigen tekst blijft staan; exporteer je dossier en vergelijk de versies.';
      return;
    }
-   const value=noteValue();
+   // A storage read can invoke an adapter hook that changes the textarea
+   // after the initial limit check. Validate the full live text at commit.
+   const value=$('statement').value;
+   if(value.length>6000){
+     $('feedback').textContent='Opslaan geweigerd: ontwerpnotitie bevat meer dan 6000 tekens. Je volledige tekst blijft zichtbaar; verkort de notitie of exporteer je dossier.';
+     return;
+   }
    localStorage.setItem(NOTE,value);
    // Local storage may silently reject a write (or be changed by another tab).
    // Only acknowledge a save after verifying the exact stored text.
