@@ -176,6 +176,11 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
     // Decode an exact byte snapshot only after signature verification.
     const text = new TextDecoder('utf-8',{fatal:true}).decode(snapshotBytes);
     const doc = JSON.parse(text);
+    // A signature authenticates bytes, not an agreed interpretation of JSON.
+    // Reject whitespace variants, duplicate member names and noncanonical
+    // escapes so independent verifiers cannot disagree about the signed head.
+    if (JSON.stringify(doc) !== text)
+      return reject('NONCANONICAL_ANCHOR_DOCUMENT');
     const entriesSnapshot = captureLedgerEntries(entries);
     if (!entriesSnapshot) return reject('LEDGER_INVALID_CHAIN_LINK');
     if (!own(doc,['schema','sequence','headHash','genesisPin','currentPin']) ||
