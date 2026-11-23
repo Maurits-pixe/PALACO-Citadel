@@ -875,3 +875,9 @@ Vier nieuwe Node-regressies controleren het geldige paar, een gewijzigde oorspro
 De v6.73-run `45124281804` was succesvol en bevat artifact `14795196160` met GitHub-digest `sha256:46ae80851e5e0b1a0021615542d4d0ceeb1206d7d847589465d6ec08f07acf20`. In v6.74 faalden drie oudere statische notitiesynchronisatietests op een inmiddels bedoelde volledige-editorvergelijking; die zijn gecorrigeerd zodat zij geen afkappende `noteValue()` meer verwachten. Het complete nieuwe HEAD-testresultaat moet apart worden bevestigd.
 
 Een correct paar is **geen digitale handtekening** of bewijs van formele onafhankelijke reviewgoedkeuring. **GO-13 DRAFT/HOLD/DENY**, geen merge, EDTR of publieke uitrol.
+
+## Regiekamer v6.76 — veilige bevestiging bij laden van opgeslagen notities (2026-11-23)
+
+De knop ‘Laad opgeslagen notitie’ vergeleek voor de bevestiging alleen de tot 6.000 tekens afgekapte noteValue() met de opgeslagen tekst. Scripts kunnen textarea.maxlength omzeilen en een langere, onopgeslagen editorinhoud plaatsen. Als de eerste 6.000 tekens overeenkwamen met de opgeslagen revisie, kon de pagina de editor zonder bevestiging vervangen en het extra gedeelte verliezen.
+
+De Regiekamer vergelijkt nu de volledige actuele textarea.value met de opgeslagen versie. Wanneer die afwijkt, is expliciete bevestiging nodig. Ook na een bevestigend antwoord wordt gecontroleerd of de editor tijdens het bevestigen niet opnieuw is gewijzigd. Alleen wanneer zowel de editor als de opgeslagen opslagrevisie stabiel is, wordt de opgeslagen notitie geladen. Drie Playwright-regressies testen langere onopgeslagen tekst, een synchrone editorwijziging tijdens bevestiging en de normale bevestigde laadroute. Een statisch contract bewaakt deze volgorde. De reguliere opslaglimiet blijft ongewijzigd; browseropslag is niet transactioneel. **GO-13 DRAFT/HOLD/DENY**; geen merge, EDTR of publieke uitrol.
