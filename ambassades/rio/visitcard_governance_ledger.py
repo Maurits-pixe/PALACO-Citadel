@@ -212,16 +212,14 @@ def apply_governance_event(
         )
         db.execute(
             """INSERT INTO rio_governance_heads VALUES (?,?,?,?,?,?)
-               ON CONFLICT(issuer,signer) DO UPDATE SET
+               ON CONFLICT(issuer,signer_id) DO UPDATE SET
                sequence=excluded.sequence,fingerprint=excluded.fingerprint,
                revoked=excluded.revoked,event_sha256=excluded.event_sha256""",
             (issuer,signer,p["sequence"],p["fingerprint"],int(p["kind"]=="REVOKE"),digest)
         )
         db.commit()
         return True
-    except (sqlite3.Error,ValueError,TypeError,KeyError,AttributeError,OverflowError) as exc:
-        # DRAFT CI diagnostics only; no private keys or payloads are printed.
-        print("RIO governance ledger transaction exception:",type(exc).__name__,str(exc))
+    except (sqlite3.Error,ValueError,TypeError,KeyError,AttributeError,OverflowError):
         if db.in_transaction:
             db.rollback()
         return False
