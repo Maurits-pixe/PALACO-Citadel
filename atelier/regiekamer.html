@@ -698,6 +698,9 @@ $('bundleImport').addEventListener('change',async event=>{
    const warning=pendingNote?' LET OP: er staan nog niet-bewaarde notitiewijzigingen in deze pagina.':'';
    const noteBeforeConfirm=noteValue();
    if(!confirm(description+' Herstel vervangt je huidige lokale Atelier-ontwerpen. Exporteer eerst je huidige werk als JSON. Wil je doorgaan?'+warning))return;
+   // A cancellation or newer file selection may invalidate this import while
+   // confirmation is open. A stale approval never authorizes a write.
+   if(revision!==importRevision)return;
    // A confirmation may invoke browser hooks or other code while the dialog
    // is pending. Never overwrite text edited after the import was previewed.
    if(noteValue()!==noteBeforeConfirm)
