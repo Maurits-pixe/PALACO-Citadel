@@ -2937,3 +2937,37 @@ test('Atelier v6.87: projectexport met exact 6000 tekens bevat volledige ontwerp
  expect(exported.note).toBe(exact);
  await expect(page.locator('#bundleStatus')).toContainText('Creatief projectpakket geëxporteerd');
 });
+
+
+test('Atelier v6.88: losse JSON-dossierexport weigert afkappen van lange notitie',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const long='J'.repeat(6000)+'VOLLEDIGE-TEKST';
+ await page.evaluate(text=>{document.getElementById('statement').value=text;window.dossierDownloads=0;window.originalDossierClick=HTMLAnchorElement.prototype.click;HTMLAnchorElement.prototype.click=function(){window.dossierDownloads++;};},long);
+ await page.locator('#export').click();
+ await expect(page.locator('#feedback')).toContainText('Dossierexport geweigerd: ontwerpnotitie bevat meer dan 6000 tekens');
+ await expect(page.locator('#statement')).toHaveValue(long);
+ expect(await page.evaluate(()=>window.dossierDownloads)).toBe(0);
+ await page.evaluate(()=>{HTMLAnchorElement.prototype.click=window.originalDossierClick;});
+});
+
+test('Atelier v6.88: losse TXT-overzichtsexport weigert afkappen van lange notitie',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const long='T'.repeat(6000)+'ONAFGEKORT';
+ await page.evaluate(text=>{document.getElementById('statement').value=text;window.dossierDownloads=0;window.originalDossierClick=HTMLAnchorElement.prototype.click;HTMLAnchorElement.prototype.click=function(){window.dossierDownloads++;};},long);
+ await page.locator('#exportTxt').click();
+ await expect(page.locator('#feedback')).toContainText('Tekstexport geweigerd: ontwerpnotitie bevat meer dan 6000 tekens');
+ await expect(page.locator('#statement')).toHaveValue(long);
+ expect(await page.evaluate(()=>window.dossierDownloads)).toBe(0);
+ await page.evaluate(()=>{HTMLAnchorElement.prototype.click=window.originalDossierClick;});
+});
+
+test('Atelier v6.88: losse JSON-export bevat exact 6000 tekens zonder afkapping',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const exact='Q'.repeat(6000);
+ await page.evaluate(text=>{document.getElementById('statement').value=text;},exact);
+ const downloadPromise=page.waitForEvent('download');
+ await page.locator('#export').click();
+ const file=await downloadPromise;
+ const bytes=await (await import('node:fs/promises')).readFile(await file.path());
+ expect(JSON.parse(bytes.toString('utf8')).creative_statement).toBe(exact);
+});
