@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {validateMetadata,observe}=require('./github-artifact-metadata.cjs');
+const {validateMetadata,observe,saveObservation}=require('./github-artifact-metadata.cjs');
 const A='a'.repeat(40),B='b'.repeat(40);
 const ctx={repository:'Maurits-pixe/PALACO-Citadel',runId:45125345188,headSha:A,artifactId:14795661114};
 const metadata=()=>({id:ctx.artifactId,name:'atelier-review-evidence',
@@ -71,4 +71,35 @@ test('non-404 API access failure is never converted into verified evidence',asyn
  await assert.rejects(()=>observe({...ctx,token:'test',wait:async()=>{},
   fetchJson:async()=>{attempts++;const e=Error('forbidden');e.statusCode=403;throw e;}}),/forbidden/);
  assert.equal(attempts,1);
+});
+
+test('unavailable artifact metadata is saved as explicitly unverified diagnostic',()=>{
+ const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'palaco-artifact-'));
+ try{
+  const file=path.join(dir,'out.json');
+  const result=saveObservation({schema:'palaco.citadel.atelier.github-artifact-metadata/1',
+   artifact_id:ctx.artifactId,repository:ctx.repository,run_id:ctx.runId,head_sha:A,
+   result:'GITHUB_METADATA_UNAVAILABLE',reason:'artifact_metadata_not_found_after_retries',
+   decision:'HOLD',publication:'DENY',release_approved:false,evidence_usable:false,
+   limitation:'Artifact metadata unavailable',sensitive:'DO_NOT_COPY'},file);
+  const serialized=fs.readFileSync(file,'utf8');
+  assert.equal(result.result,'GITHUB_METADATA_UNAVAILABLE');
+  assert.equal(serialized.includes('DO_NOT_COPY'),false);
+  assert.equal(serialized.includes('github_zip_digest'),false);
+  assert.throws(()=>saveObservation(result,file),/EEXIST/);
+ }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
+test('metadata diagnostic refuses forged authorization or unknown outcome',()=>{
+ const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'palaco-artifact-invalid-'));
+ try{
+  const file=path.join(dir,'out.json');
+  const valid={...validateMetadata(metadata(),ctx),release_approved:true};
+  assert.throws(()=>saveObservation(valid,file),/Invalid artifact metadata diagnostic/);
+  assert.equal(fs.existsSync(file),false);
+  valid.release_approved=false;valid.result='GITHUB_METADATA_FORGED';
+  assert.throws(()=>saveObservation(valid,file),/Invalid artifact metadata diagnostic/);
+  assert.equal(fs.existsSync(file),false);
+ }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
