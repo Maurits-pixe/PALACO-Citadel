@@ -185,18 +185,17 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
     // Impossible checkpoints must never trigger Proxy enumeration or a
     // potentially expensive replay of an oversized untrusted ledger.
     if (!own(doc,['schema','sequence','headHash','genesisPin','currentPin']) ||
+        doc.schema !== AUDIT_ANCHOR_SCHEMA ||
         !Number.isSafeInteger(doc.sequence) ||
-        doc.sequence < 0 || doc.sequence > 4096)
+        doc.sequence < minimumAnchorSequence || doc.sequence > 4096 ||
+        !HEX.test(doc.headHash) ||
+        !pinOK(doc.genesisPin) || !pinOK(doc.currentPin) ||
+        !samePin(doc.genesisPin,genesisSnapshot) ||
+        !samePin(doc.currentPin,currentSnapshot))
       return reject('ANCHOR_ROLLBACK_OR_MISMATCH');
     const entriesSnapshot = captureLedgerEntries(entries);
     if (!entriesSnapshot) return reject('LEDGER_INVALID_CHAIN_LINK');
-    if (!own(doc,['schema','sequence','headHash','genesisPin','currentPin']) ||
-      doc.schema !== AUDIT_ANCHOR_SCHEMA ||
-      !Number.isSafeInteger(doc.sequence) || doc.sequence < minimumAnchorSequence ||
-      !HEX.test(doc.headHash) ||
-      !pinOK(doc.genesisPin) || !pinOK(doc.currentPin) ||
-      !samePin(doc.genesisPin,genesisSnapshot) ||
-      !samePin(doc.currentPin,currentSnapshot) || doc.sequence !== entriesSnapshot.length)
+    if (doc.sequence !== entriesSnapshot.length)
       return reject('ANCHOR_ROLLBACK_OR_MISMATCH');
     const ledger=inspectRegistryPinLedger({
       genesisPin:genesisSnapshot,entries:entriesSnapshot,expectedHeadHash:doc.headHash,
