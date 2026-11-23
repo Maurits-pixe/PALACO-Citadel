@@ -1151,3 +1151,41 @@ bundles, invalid/expired attestations, forged signatures, duplicate
 proofs, wrong commit, wrong scope, missing domains and negative
 review results. No production deployment or public changes.
 **GO-13 HOLD.**
+
+## v4.2 — Reproducible release dossier and explicit evidence blockers (DRAFT / HOLD)
+
+`visitcard_release_dossier.py` assembles a deterministic signed-evidence
+index for the **same five v4.1 review domains**. Evidence bytes must
+be supplied separately by the reviewer, never manufactured by the
+application. The SHA-256 of each artifact's exact bytes must equal
+the digest in its separately authenticated v4.1 review attestation.
+Every indexed artifact contains the domain, the content-addressed
+`sha256:<hex-digest>` reference and its length. The deterministic,
+ordered dossier binds the exact source commit, the five signed
+attestations, the evidence index, release policy and GO-13 HOLD,
+with a reproducible canonical SHA-256 manifest fingerprint.
+
+`build_release_dossier` produces a sorted blocker list and **no**
+manifest when any evidence artifact, signature, category, trust anchor,
+content digest, commit binding, scope or timestamp fails validation.
+`validate_release_dossier` recomputes the manifest, verifies the
+original bytes and signed reviews, and rejects changed fields even
+when an attacker recomputes the unkeyed manifest hash. GO-13 HOLD is
+embedded in the verified schema, and merge/activation/release flags
+are always False.
+
+Twenty v4.2 regression tests exercise reproducibility, missing
+evidence, tampering before and after dossier construction, changed
+manifest structures, altered commit, wrong review keys, expiration,
+unauthorized release flags, oversized artifacts and blocking reasons.
+
+**Boundary:** This is an offline testable protocol, not a claim
+that the five external evidence domains are currently complete.
+The dossier index is NOT an independent archive, network retrieval,
+authenticated external storage, actual human approval or a
+non-repudiable public timestamp. Test fixtures use disposable signing
+keys and synthetic artifact bytes. Independent reviews, operational
+custody, durable pins and integration evidence remain missing
+until independently supplied and checked. Do not use synthetic
+fixtures as production evidence. **GO-13 HOLD** — no merge, rollout,
+key activation or access approval.
