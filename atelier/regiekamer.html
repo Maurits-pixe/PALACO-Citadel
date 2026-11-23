@@ -118,6 +118,13 @@ function saveNote(){
  }
  try{
    const current=localStorage.getItem(NOTE);
+   // An externally stored oversized source cannot be faithfully loaded
+   // into the 6000-character editor. Never allow an ordinary save to
+   // silently replace that full source, even when its baseline matches.
+   if(current!==null&&current.length>6000){
+     $('feedback').textContent='Opslaan geweigerd: de opgeslagen ontwerpnotitie bevat meer dan 6000 tekens. Stel de volledige bron eerst afzonderlijk veilig; de opgeslagen tekst blijft behouden.';
+     return;
+   }
    if(current!==noteBaseline){
      $('feedback').textContent='Opslaan geweigerd: ontwerpnotitie is elders gewijzigd. Je eigen tekst blijft staan; exporteer je dossier en vergelijk de versies.';
      return;
