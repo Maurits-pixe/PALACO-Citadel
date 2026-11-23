@@ -967,3 +967,11 @@ De controle van daadwerkelijk teruggehaalde GitHub Actions-artifactbestanden in 
 Drie nieuwe regressietests toetsen een te groot teruggehaald bestand, een symbolische link naar een geldig bewijsbestand en een te groot origineel CI-bestand. De twee JSON-bestanden worden nog altijd exact byte voor byte vergeleken. De verifieerder downloadt niet zelfstandig de oorspronkelijke ZIP-bytes en claimt geen onafhankelijke validatie van de GitHub ZIP-digest.
 
 Bij controle van de vorige bouwreeks bleek de v6.84 Actions-validatie te zijn mislukt in browseracceptatietests rond lange opgeslagen notities. Ook v6.85 had een statische testfout; de branch werd tijdens de controle reeds verder aangepast. Nieuwe CI op deze HEAD moet volledig slagen vóór enig PASS-rapport. **GO-13 DRAFT/HOLD/DENY**; geen merge, EDTR-uitgifte of publieke uitrol.
+
+## Regiekamer v6.87 — projectexport mag geen onopgeslagen notitietekst afkappen (2026-11-23)
+
+De Regiekamer kon een volledig DRAFT-projectpakket exporteren via `bundleSave` terwijl een browserintegratie meer dan 6.000 tekens in de editor had geplaatst. De vorige code kende `pack.note=noteValue()` toe; deze helper kapt tekst af na 6.000 tekens. De download werd dan als een volledige creatieve projectexport aangekondigd, hoewel de nieuwste editorinhoud niet compleet in het bestand stond.
+
+De volledige projectexport weigert nu vóór validatie en download een textarea met meer dan 6.000 tekens. De huidige tekst blijft volledig in de editor, er wordt geen nieuw projectbestand of SHA-256-referentie uitgegeven en de gebruiker krijgt een specifieke waarschuwing. Bij geldige editorinhoud gebruikt de export rechtstreeks de volledige textarea-waarde; een notitie van precies 6.000 tekens wordt onverkort opgenomen.
+
+Twee Playwright-regressies controleren de weigering zonder download en de positieve grenswaarde; een statische contracttest bewaakt de volgorde van controle, bronvastlegging en download. Dit betreft de complete projectexport en verandert geen officiële bevoegdheid of vrijgavegate. **GO-13 DRAFT/HOLD/DENY**, geen merge, EDTR of publieke uitrol. De nieuwste CI op deze commit moet nog slagen.
