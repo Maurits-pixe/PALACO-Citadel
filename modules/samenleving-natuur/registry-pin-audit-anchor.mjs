@@ -149,7 +149,8 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
       !Number.isSafeInteger(minimumAnchorSequence) ||
       minimumAnchorSequence < 0 || minimumAnchorSequence > 4096 ||
       typeof signatureBase64Url !== 'string' ||
-      signatureBase64Url.length < 11 || signatureBase64Url.length > 107 ||
+      // Canonical DER ECDSA P-256 fits in at most 72 bytes (96 base64url chars).
+      signatureBase64Url.length < 11 || signatureBase64Url.length > 96 ||
       !/^[A-Za-z0-9_-]+$/.test(signatureBase64Url))
       return reject('INVALID_ANCHOR_INPUT');
     // Copy signed bytes before consulting any caller-supplied PIN/JWK Proxy:
