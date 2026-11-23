@@ -883,3 +883,39 @@ test('signed audit anchor rejects reordered nested PIN members',()=>{
  assert.equal(r.authorization,'DENY');
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('P-256 DER transport rejects >96 base64url characters before PIN and JWK access',()=>{
+ const input=setup();
+ let pinReads=0, keyReads=0;
+ const genesisPin=new Proxy({...input.genesisPin},{
+   ownKeys(){pinReads++;throw Error('PIN must not be inspected');}
+ });
+ const anchorPublicJwk=new Proxy({...input.anchorPublicJwk},{
+   ownKeys(){keyReads++;throw Error('JWK must not be inspected');}
+ });
+ for(const signatureBase64Url of ['A'.repeat(97),'A'.repeat(107)]){
+   const r=inspectSignedAuditHeadAnchor({...input,signatureBase64Url,
+     genesisPin,anchorPublicJwk});
+   assert.equal(pinReads,0);
+   assert.equal(keyReads,0);
+   assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+   assert.equal(r.anchoredLedgerMatched,false);
+   assert.equal(r.authorization,'DENY');
+   assert.equal(r.releaseAllowed,false);
+ }
+});
+
+test('maximum transport-length base64url still reaches DER parser',()=>{
+ const input=setup();
+ // 72 zero bytes encode to the maximum 96-character transport length,
+ // but are not a valid ASN.1 DER ECDSA signature.
+ const signatureBase64Url=Buffer.alloc(72).toString('base64url');
+ assert.equal(signatureBase64Url.length,96);
+ const r=inspectSignedAuditHeadAnchor({...input,signatureBase64Url});
+ assert.equal(r.reason,'ANCHOR_SIGNATURE_INVALID');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
