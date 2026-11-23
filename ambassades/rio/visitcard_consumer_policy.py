@@ -86,7 +86,7 @@ def audit_consumer_source(root: Path, source: str, name: str) -> tuple[str,...]:
 def audit_consumer_tree(root: Path) -> tuple[str,...]:
     """Scan ALL consumer modules, not just ones imported by the example adapter."""
     root=Path(root)
-    paths=sorted(root.glob(PREFIX+"*.py"))
+    paths=sorted(p for p in root.glob(PREFIX+"*.py") if p.name!="visitcard_consumer_policy.py")
     if not paths:
         return ("no consumer modules found",)
     issues=[]
