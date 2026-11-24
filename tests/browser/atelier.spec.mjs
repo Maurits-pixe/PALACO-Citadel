@@ -3062,3 +3062,36 @@ test('Atelier v6.90: projectexport na opslaglezing met precies 6000 tekens is co
  expect(JSON.parse(bytes.toString('utf8')).note).toBe(exact);
  await page.evaluate(()=>{Storage.prototype.getItem=window.nativeBundleGet;});
 });
+
+
+test('Atelier v6.91: oversized opgeslagen bronnotitie kan onverkort als TXT worden veiliggesteld',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ const oversized='O'.repeat(6000)+'DIT-MAG-NIET-VERDWIJNEN';
+ await page.evaluate(text=>localStorage.setItem(window.PalacoAtelierBundle.NOTE,text),oversized);
+ await page.reload();
+ await expect(page.locator('#feedback')).toContainText('Automatisch laden geweigerd');
+ await page.locator('#statement').fill('Mijn onopgeslagen, nieuwe tekst');
+ const downloadPromise=page.waitForEvent('download');
+ await page.locator('#backupStoredNote').click();
+ const file=await downloadPromise;
+ const bytes=await (await import('node:fs/promises')).readFile(await file.path());
+ expect(bytes.toString('utf8')).toBe(oversized);
+ await expect(page.locator('#statement')).toHaveValue('Mijn onopgeslagen, nieuwe tekst');
+ expect(await page.evaluate(()=>localStorage.getItem(window.PalacoAtelierBundle.NOTE))).toBe(oversized);
+});
+
+test('Atelier v6.91: zonder opgeslagen bronnotitie vindt geen download plaats',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.evaluate(()=>{
+   localStorage.removeItem(window.PalacoAtelierBundle.NOTE);
+   window.backupDownloads=0;
+   window.backupOriginalClick=HTMLAnchorElement.prototype.click;
+   HTMLAnchorElement.prototype.click=function(){window.backupDownloads++;};
+ });
+ await page.locator('#statement').fill('Mijn nieuwste nog niet opgeslagen idee');
+ await page.locator('#backupStoredNote').click();
+ await expect(page.locator('#feedback')).toContainText('Geen opgeslagen bronnotitie gevonden');
+ expect(await page.evaluate(()=>window.backupDownloads)).toBe(0);
+ await expect(page.locator('#statement')).toHaveValue('Mijn nieuwste nog niet opgeslagen idee');
+ await page.evaluate(()=>{HTMLAnchorElement.prototype.click=window.backupOriginalClick;});
+});
