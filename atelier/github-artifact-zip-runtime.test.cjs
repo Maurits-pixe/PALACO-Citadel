@@ -71,3 +71,15 @@ test('regular file as extraction destination is rejected',()=>fixture(good,({arc
  assert.notEqual(r.status,0);
  assert.equal(fs.readFileSync(out,'utf8'),'not a directory');
 }));
+
+test('symlinked parent of extraction destination is rejected',()=>fixture(good,({root,archive})=>{
+ const outside=path.join(root,'outside');
+ const linkedParent=path.join(root,'linked-parent');
+ fs.mkdirSync(outside);
+ fs.symlinkSync(outside,linkedParent,'dir');
+ const output=path.join(linkedParent,'created');
+ const r=spawnSync('python3',[py,archive,output],{encoding:'utf8'});
+ assert.notEqual(r.status,0);
+ assert.match(r.stderr,/must not contain symlinks/);
+ assert.deepEqual(fs.readdirSync(outside),[]);
+}));
