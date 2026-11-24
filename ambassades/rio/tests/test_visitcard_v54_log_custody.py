@@ -140,9 +140,20 @@ class V54LogCustodyTests(unittest.TestCase):
         self.assertEqual(self.inspect(receipt=self.sign(method="LOCAL_SELF_REPORT")).state,
                          LogState.ACQUISITION_BLOCKED)
 
-    def test_expired_acquisition_block(self):
+    def test_expired_upstream_observation_blocks_before_acquisition(self):
         self.assertEqual(self.inspect(now=NOW+timedelta(minutes=20)).state,
-                         LogState.ACQUISITION_BLOCKED)
+                         LogState.RUN_BLOCKED)
+
+    def test_expired_acquisition_receipt_rejected_directly(self):
+        receipt=self.sign(expires=NOW+timedelta(minutes=2))
+        verified=verify_acquisition_receipt(
+            receipt,self.keys,expected_repository=self.f.f.repository,
+            expected_run_id="123456",expected_run_attempt=1,
+            expected_job_id=self.job,expected_workflow_sha=self.f.workflow_sha,
+            expected_commit_sha=COMMIT,log_bytes=self.log,
+            now=NOW+timedelta(minutes=3),
+        )
+        self.assertIsNone(verified)
 
     def test_future_acquisition_block(self):
         self.assertEqual(self.inspect(
