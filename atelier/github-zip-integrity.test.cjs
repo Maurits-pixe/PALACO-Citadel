@@ -58,3 +58,38 @@ test('symlink and excessive ZIP size are rejected before hashing',()=>fixture(({
  fs.writeFileSync(zip,Buffer.alloc(100001));
  assert.throws(()=>verifyZip(zip,encode(metadata()),ctx),/bounded regular file/);
 }));
+
+test('validated ZIP writes exclusive canonical HOLD receipt with exact metadata binding',()=>fixture(({zip,metadata})=>{
+ const {run}=require('./github-zip-integrity.cjs');
+ const receipt=zip+'.receipt.json';
+ const meta=zip+'.metadata.json';
+ fs.writeFileSync(meta,encode(metadata()));
+ const env={GITHUB_REPOSITORY:ctx.repository,GITHUB_RUN_ID:'123',
+  PALACO_EXPECTED_HEAD_SHA:sha,PALACO_ARTIFACT_ID:'456',
+  PALACO_ZIP_INTEGRITY_REPORT_PATH:receipt};
+ const result=run([zip,meta],env);
+ const saved=fs.readFileSync(receipt);
+ assert.deepEqual(JSON.parse(saved.toString()),result);
+ assert.equal(saved.toString(),JSON.stringify(result,null,2)+'\n');
+ assert.equal(result.release_approved,false);
+ assert.throws(()=>run([zip,meta],env),/EEXIST/);
+ assert.deepEqual(JSON.parse(fs.readFileSync(receipt)),result);
+}));
+test('changed ZIP or unavailable metadata cannot produce a receipt',()=>fixture(({zip,metadata})=>{
+ const {run}=require('./github-zip-integrity.cjs');
+ const receipt=zip+'.receipt.json';
+ const meta=zip+'.metadata.json';
+ fs.writeFileSync(meta,encode(metadata()));
+ const env={GITHUB_REPOSITORY:ctx.repository,GITHUB_RUN_ID:'123',
+  PALACO_EXPECTED_HEAD_SHA:sha,PALACO_ARTIFACT_ID:'456',
+  PALACO_ZIP_INTEGRITY_REPORT_PATH:receipt};
+ fs.appendFileSync(zip,'x');
+ assert.throws(()=>run([zip,meta],env),/size differs/);
+ assert.equal(fs.existsSync(receipt),false);
+ fs.writeFileSync(zip,Buffer.from('PK\u0003\u0004-original-downloaded-archive-bytes'));
+ const observed=metadata();
+ delete observed.github_zip_digest;
+ fs.writeFileSync(meta,encode(observed));
+ assert.throws(()=>run([zip,meta],env),/Invalid verified artifact metadata fields/);
+ assert.equal(fs.existsSync(receipt),false);
+}));
