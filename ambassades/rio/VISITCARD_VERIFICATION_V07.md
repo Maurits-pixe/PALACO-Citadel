@@ -1363,3 +1363,34 @@ verified v4.6 result. All result permission fields remain False.
 
 **GO-13 HOLD:** no release, merge, installation, key activation or
 production authorization.
+
+## v4.8 — Verified audit-to-shared-CAS bridge with interrupted-ack recovery (DRAFT / HOLD)
+
+`visitcard_shared_audit_bridge.py` defines a read-only v4.6
+**recovery-head preflight**, followed by the full byte-backed v4.4
+dossier and signed handoff verification and v4.5 signed challenge-bound
+checkpoint validation. Only then does it call the v4.7 shared SQLite
+compare-and-swap to reserve the canonical checkpoint and challenge.
+The v4.6 local SQLite consumed-challenge table is **NOT** also mutated;
+the shared v4.7 table is the only replay-consumption point in this
+composed route. Invalid evidence cannot consume a shared challenge.
+A successful reservation is explicitly
+`PENDING_EXTERNAL_ACK`, not completed authorization. A separately
+signed and independently pinned v4.7 receipt can subsequently be
+verified by `confirm_shared_handoff`; retrying the same signed
+acknowledgement is idempotent.
+
+18 integration regressions cover valid pending and acknowledgement,
+wrong external pins, damaged evidence and checkpoints, stale CAS,
+second process losing the CAS, replay, interrupted acknowledgement,
+invalid signed receipt, local preflight not consuming the challenge
+and transactional lock errors.
+
+**Scope:** neither v4.6 nor v4.7 is a globally atomic distributed
+consensus mechanism. The read-only recovery preflight and shared
+SQLite CAS are separate resources; no cross-resource transaction
+exists, and adversarial external trust-input changes in that interval
+require authenticated immutable provisioning. A live external
+signer, durable independent latest-head pins and the actual public
+RIO runtime remain unimplemented. No release, merge, production
+activation or permission follows from a matching audit. **GO-13 HOLD.**
