@@ -1320,3 +1320,46 @@ detectable. A locally signed and pinned checkpoint is not proof of
 physical or administrative independence. Even matching results are
 informational only, never release, identity, merge or access rights.
 **GO-13 HOLD — no merge, public deployment or key activation.**
+
+## v4.7 — Shared SQLite CAS and signed synchronization acknowledgement (DRAFT / HOLD)
+
+`visitcard_shared_replay_cas.py` implements a **two-phase, single-DB
+shared replay coordination contract** for processes using the same
+SQLite database file. A transaction protected by `BEGIN IMMEDIATE`
+validates the complete append-only event/hash chain, an expected
+monotonic sequence and SHA-256 head, and a separately supplied external
+head pin before reserving an unused 32-byte challenge. A committed
+reservation returns `PENDING_EXTERNAL_ACK` and *blocks all subsequent
+reservations* until a separately pinned Ed25519 custodian signs the
+exact new sequence and head. The signed receipt itself must match
+an independently retained SHA-256 pin. A duplicated identical receipt
+can safely be retried after an interrupted acknowledgement; conflicting
+receipts are rejected. The latest acknowledged state and signed
+receipt digest are retained in SQLite. The full event chain is
+rehashed before each CAS or acknowledgement.
+
+22 new tests use **two separate SQLite connections pointing at the
+same file**, checking stale-CAS conflict, one-challenge reuse,
+external-ack pending stops, key/signature replacement, wrong sequence
+or head, idempotent acknowledgement, malformed or deleted event
+rows, overlapping SQLite transactions and two successive signed
+acknowledgements.
+
+**Critical operational limits:** This is not a cross-database/global
+transaction protocol, authenticated remote endpoint, distributed
+consensus, HSM, real durable independent custodian, or external
+monotonic timestamp. Two replicas that do not share the same durable
+SQLite file can independently accept a challenge; no remote
+compare-and-swap is implemented. The latest external head pin and
+acknowledgement SHA are caller-provisioned, not securely stored
+by this module. After a local reservation, the external signer must
+actually observe and independently authenticate the corresponding
+committed head before acknowledgement. Full rollback of BOTH the
+SQLite file and external pins cannot be detected. Local SQLite
+storage durability depends on the host and filesystem settings.
+This module does not directly invoke the full v4.6 audit; consumers
+must ensure the supplied checkpoint hash comes from an independently
+verified v4.6 result. All result permission fields remain False.
+
+**GO-13 HOLD:** no release, merge, installation, key activation or
+production authorization.
