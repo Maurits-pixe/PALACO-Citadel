@@ -994,3 +994,54 @@ test('ordinary isolated Uint8Array audit bytes preserve read-only verification',
  assert.equal(r.executionAllowed,false);
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('signed nested duplicate PIN fields are rejected as noncanonical JSON',()=>{
+ const input=setup();
+ const original=input.anchorBytes.toString('utf8');
+ const marker='"revision":1,';
+ assert.ok(original.includes(marker));
+ const duplicate=original.replace(marker,'"revision":1,"revision":1,');
+ const anchorBytes=Buffer.from(duplicate,'utf8');
+ const signatureBase64Url=sign('sha256',Buffer.concat([
+   Buffer.from('PALACO-CITADEL-AUDIT-HEAD-ANCHOR-V1\n'),anchorBytes
+ ]),pair.privateKey).toString('base64url');
+ const r=inspectSignedAuditHeadAnchor({...input,anchorBytes,signatureBase64Url});
+ assert.equal(r.reason,'NONCANONICAL_ANCHOR_DOCUMENT');
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('signed alternative JSON numeric notation cannot alias an audit sequence',()=>{
+ const input=setup();
+ const canonical=input.anchorBytes.toString('utf8');
+ const changed=canonical.replace('"sequence":1,','"sequence":1.0,');
+ assert.notEqual(changed,canonical);
+ const anchorBytes=Buffer.from(changed,'utf8');
+ const signatureBase64Url=sign('sha256',Buffer.concat([
+   Buffer.from('PALACO-CITADEL-AUDIT-HEAD-ANCHOR-V1\n'),anchorBytes
+ ]),pair.privateKey).toString('base64url');
+ const r=inspectSignedAuditHeadAnchor({...input,anchorBytes,signatureBase64Url});
+ assert.equal(r.reason,'NONCANONICAL_ANCHOR_DOCUMENT');
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.executionAllowed,false);
+});
+
+test('signed escaped JSON schema character does not alias canonical audit schema',()=>{
+ const input=setup();
+ const canonical=input.anchorBytes.toString('utf8');
+ const changed=canonical.replace('palaco-citadel-audit-head-anchor-v1',
+   'palaco-citadel-audit-head-anchor-v\\u0031');
+ assert.notEqual(changed,canonical);
+ const anchorBytes=Buffer.from(changed,'utf8');
+ const signatureBase64Url=sign('sha256',Buffer.concat([
+   Buffer.from('PALACO-CITADEL-AUDIT-HEAD-ANCHOR-V1\n'),anchorBytes
+ ]),pair.privateKey).toString('base64url');
+ const r=inspectSignedAuditHeadAnchor({...input,anchorBytes,signatureBase64Url});
+ assert.equal(r.reason,'NONCANONICAL_ANCHOR_DOCUMENT');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+});
