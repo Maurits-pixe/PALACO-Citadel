@@ -1,3 +1,10 @@
+## v6.95 — ZIP-extractie weigert doorgelinkte uitvoermap
+
+- De Python-extractor weigert nu expliciet een symlink als extractiedoel, zelfs wanneer de doelmap leeg lijkt. Zo kunnen artifact-bestanden niet via een doorgelinkte uitvoermap buiten de bedoelde doelmap worden geschreven.
+- Ook een gewoon bestand als extractiedoel wordt veilig geweigerd.
+- Twee uitvoerbare regressietests toegevoegd voor symlinkdoel en bestanddoel. Bestaande artifact-ID-, digest- en HOLD-gates blijven intact.
+- Nieuwe CI-HEAD moet onafhankelijk slagen. **DRAFT/HOLD/DENY**, geen merge of productiepublicatie.
+
 ## v6.94 — contracttest afgestemd op strikte ZIP-extractie
 
 - De Atelier CI faalde bij de statische contracttest: deze verwachtte nog `unzip -tqq`, terwijl de workflow inmiddels `github-artifact-zip-extract.py` met strengere ZIP-beperkingen verplicht stelt.
