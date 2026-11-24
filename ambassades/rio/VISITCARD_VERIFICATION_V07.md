@@ -1895,3 +1895,48 @@ The only acceptable results are `ACKNOWLEDGED_QUARANTINED`,
 `VERIFIED_QUARANTINED` or `BLOCKED`; no merge,
 execution, issuance, activation or release is possible.
 **GO-13 DRAFT / HOLD / DENY.**
+
+## v6.2 — Durable idempotent handoff outbox and recovered signed receipts (DRAFT / HOLD)
+
+`visitcard_v62_handoff.py` adds a SQLite **transactional outbox**
+to v6.0 incident evidence and the v6.1 dual archive-receipt ledger.
+`prepare_handoffs` validates the incident ledger against a caller-
+supplied independently pinned latest incident head, and immutably
+stores two canonical archive-scoped requests, each with a stable
+SHA-256 handoff ID. Re-preparation is idempotent for identical
+immutable requests and rejects conflicting existing requests.
+Update/delete triggers forbid ordinary local alterations.
+
+`deliver_handoffs` uses an injected transport callback to hand off
+the exact stored request including its idempotency ID. It records
+**only** correctly signed, independently pinned v6.1 archive
+receipts bound to the exact incident sequence, current incident
+head and conflict hash. Partial network failures remain pending.
+After process restart, only requests without a locally validated
+receipt are retried. A unique receipt table key and local CAS
+protect against duplicate local acknowledgement insertion.
+Historically accepted receipt signatures are rechecked at their
+original signed capture instant when reopened.
+
+`finalize_handoffs` requires two signed archive receipts and
+delegates final atomic receipt-ledger compare-and-swap and validation
+to the original v6.1 module. No successful receipt or handoff
+can ever release a quarantined incident. 25 new synthetic tests
+cover partial delivery, retry without duplicate local ACK,
+restart continuation, malformed/wrong receipts, tampering,
+outbox immutability, stale external heads and double finalization.
+
+**Important:** The callback is a protocol boundary, not a
+configured, authenticated production archive endpoint. Actual
+archive service provisioning, authenticated TLS/mTLS, remote
+idempotency enforcement, remote physical custody, external pin
+storage, at-least-once redelivery policy and fault-tolerant
+two-phase remote acknowledgement are still unverified. A crash
+after remote receipt but before local commit can cause the
+same handoff to be sent again: the remote archive MUST dedupe
+by `handoff_id` to achieve safe retries. Local SQLite state
+and simulated successful callback responses are not proof that
+two independent external archives received the records.
+
+**GO-13 DRAFT / HOLD / DENY:** no merge, production rollout,
+external key activation, issue or release.
