@@ -151,14 +151,10 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
     // or cryptographic key descriptors. Malformed requests fail early.
     // Buffer.from(Uint8Array) may invoke an overridden valueOf method on a
     // subclass; restrict input to intrinsic byte-view prototypes before copy.
-    if (!(anchorBytes instanceof Uint8Array) ||
+    if (!ArrayBuffer.isView(anchorBytes) ||
+      !(anchorBytes instanceof Uint8Array) ||
       (Object.getPrototypeOf(anchorBytes) !== Uint8Array.prototype &&
        Object.getPrototypeOf(anchorBytes) !== Buffer.prototype) ||
-      !anchorBytes.length || anchorBytes.length > 8192 ||
-      // Shared memory can be concurrently rewritten during verification.
-      // The caller must provide an ordinary, independently owned byte view.
-      (typeof SharedArrayBuffer !== 'undefined' &&
-        anchorBytes.buffer instanceof SharedArrayBuffer) ||
       !Array.isArray(entries) ||
       typeof expectedAnchorKeyFingerprint !== 'string' ||
       !HEX.test(expectedAnchorKeyFingerprint) ||
@@ -169,10 +165,19 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
       signatureBase64Url.length < 11 || signatureBase64Url.length > 96 ||
       !/^[A-Za-z0-9_-]+$/.test(signatureBase64Url))
       return reject('INVALID_ANCHOR_INPUT');
-    // Snapshot through the intrinsic typed-array copy operation. Buffer.from(view)
-    // consults an own valueOf method even on an ordinary Uint8Array, allowing
-    // attacker-controlled code to replace or mutate the signed bytes.
-    const snapshotBytes = Buffer.alloc(anchorBytes.length);
+    // Read internal typed-array slots, not attacker-supplied .length/.buffer
+    // properties. ArrayBuffer.isView also rejects prototype-spoofing Proxies.
+    const intrinsicView = Object.getPrototypeOf(Uint8Array.prototype);
+    const byteLength = Object.getOwnPropertyDescriptor(intrinsicView,'length')
+      .get.call(anchorBytes);
+    const backing = Object.getOwnPropertyDescriptor(intrinsicView,'buffer')
+      .get.call(anchorBytes);
+    if (!byteLength || byteLength > 8192 ||
+        (typeof SharedArrayBuffer !== 'undefined' &&
+          backing instanceof SharedArrayBuffer))
+      return reject('INVALID_ANCHOR_INPUT');
+    // Copy bytes without invoking own .valueOf or indexed getters.
+    const snapshotBytes = Buffer.alloc(byteLength);
     Uint8Array.prototype.set.call(snapshotBytes,anchorBytes);
     // Validate canonical signature transport before inspecting untrusted PIN
     // and key objects; no cryptographic work is justified for malformed data.
