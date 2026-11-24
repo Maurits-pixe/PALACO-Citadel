@@ -1,3 +1,11 @@
+## v6.91 — volledige bronnotitie afzonderlijk veiligstellen
+
+- Nieuwe knop in de Regiekamer exporteert de exacte opgeslagen notitie als TXT, ook als de bron langer is dan 6.000 tekens en niet in de editor kan worden geladen.
+- De bewerking leest uitsluitend de ruwe `localStorage`-bron en verandert niets aan editor, opslag of herstelkopieën.
+- Zonder opgeslagen bron wordt geen leeg of misleidend bestand gegenereerd.
+- Twee Playwright-regressies dekken onverkorte TXT-download en ontbrekende bron. De gebruiker moet de daadwerkelijke download zelf controleren; er wordt geen duurzame opslag gegarandeerd.
+- **GO-13 DRAFT/HOLD/DENY** — geen merge, EDTR, autorisatie of productiepublicatie.
+
 ## v6.90 — volledige notitiecontrole na opslaglezing bij projectexport
 
 - Complete projectexport controleert de actuele volledige editorwaarde opnieuw na `api.read(localStorage)`.
