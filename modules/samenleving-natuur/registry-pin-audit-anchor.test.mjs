@@ -1139,3 +1139,43 @@ test('signed trailing JSON whitespace cannot be silently normalized',()=>{
    assert.equal(r.releaseAllowed,false);
  }
 });
+
+
+test('P-256 JWK coordinates equal to field prime are rejected before key import',()=>{
+ const original=setup();
+ const prime=Buffer.from('ffffffff00000001000000000000000000000000ffffffffffffffffffffffff','hex')
+   .toString('base64url');
+ assert.equal(prime.length,43);
+ for (const coordinate of ['x','y']){
+   const anchorPublicJwk={...original.anchorPublicJwk,[coordinate]:prime};
+   const r=inspectSignedAuditHeadAnchor({...original,anchorPublicJwk});
+   assert.equal(r.reason,'INVALID_ANCHOR_INPUT',coordinate);
+   assert.equal(r.anchorSignatureValid,false);
+   assert.equal(r.anchoredLedgerMatched,false);
+   assert.equal(r.authorization,'DENY');
+   assert.equal(r.executionAllowed,false);
+   assert.equal(r.releaseAllowed,false);
+ }
+});
+
+test('P-256 coordinates above field prime are rejected consistently',()=>{
+ const original=setup();
+ const tooLarge=Buffer.alloc(32,255).toString('base64url');
+ for (const coordinate of ['x','y']){
+   const anchorPublicJwk={...original.anchorPublicJwk,[coordinate]:tooLarge};
+   const r=inspectSignedAuditHeadAnchor({...original,anchorPublicJwk});
+   assert.equal(r.reason,'INVALID_ANCHOR_INPUT',coordinate);
+   assert.equal(r.anchorSignatureValid,false);
+   assert.equal(r.anchoredLedgerMatched,false);
+   assert.equal(r.authorization,'DENY');
+ }
+});
+
+test('unchanged valid P-256 JWK still verifies signed anchor after field preflight',()=>{
+ const r=inspectSignedAuditHeadAnchor(setup());
+ assert.equal(r.anchorSignatureValid,true,JSON.stringify(r));
+ assert.equal(r.anchoredLedgerMatched,true);
+ assert.equal(r.trust,'NOT_ESTABLISHED');
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
