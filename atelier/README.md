@@ -1184,3 +1184,21 @@ Deze integriteit is **niet onafhankelijk van GitHub of de uitvoerende runner**:
 de REST-digest is geen externe digitale handtekening of chain-of-custody over
 meerdere vertrouwensdomeinen. GO-13 blijft DRAFT / HOLD / DENY; geen merge,
 EDTR, autorisatie of publieke uitrol.
+
+
+### v7.03 — portable custody handoff (DRAFT/HOLD/DENY)
+Na succesvolle v7.02-controles ontstaat een afzonderlijk, canoniek JSON-overdrachtsbewijs
+(`atelier-custody-handoff.json`). Het bevat SHA-256 en grootte van de gedownloade
+diagnostische ZIP én het originele vijf-bestandenmanifest, plus repository, PR,
+kandidaat-SHA, run/attempt en beide GitHub-artifact-ID's.
+De workflow maakt dit bestand exclusief aan, controleert de overgedragen bytes
+opnieuw en bewaart het zeven dagen als apart inspectieartifact. Vijf regressietests
+testen determinisme, ZIP-/manifestwijzigingen, replay en gefingeerde toestemming.
+
+**Belangrijk:** dit is uitsluitend een **voorbereid** overdrachtsbewijs met
+`custody_state: NOT_EXTERNALLY_ACKNOWLEDGED`. GitHub-bewaring is geen ontvangstbewijs
+van een externe beheerder. Voor werkelijke onafhankelijke custody is een afzonderlijke
+externe opslag- of ondertekeningshandeling en een aantoonbaar onafhankelijk
+ontvangstbewijs nodig. Dit bestand is niet ondertekend, geen externe attestatie
+en geen vrijgaveautorisatie. GO-13 blijft DRAFT/HOLD/DENY; geen merge, EDTR
+of publieke uitrol.
