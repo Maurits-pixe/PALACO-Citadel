@@ -29,7 +29,8 @@ function verifiedInventory(dir){
 }
 function verifyDownloaded(original,downloaded,ctx){
  if(path.resolve(original)===path.resolve(downloaded))throw Error('Source and download must be separate');
- const a=verifiedInventory(original),b=verifiedInventory(downloaded);
+ const a=Object.fromEntries(ALL.map(n=>[n,safeRead(original,n)]));
+ const b=verifiedInventory(downloaded);
  // The manifest is recomputed using the downloaded reports, not trusted on its face.
  const reports=Object.fromEntries(NAMES.map(n=>[n,b[n]]));
  const expected=verifyManifest(b['atelier-archive-manifest.json'],reports,ctx);
