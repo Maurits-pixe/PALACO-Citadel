@@ -1144,3 +1144,13 @@ De nieuwe read-only module `atelier/github-final-witness-recheck.cjs` herverifie
 Vier nieuwe Node-regressies toetsen geldige herberekening, gefingeerde GO-velden en extra inhoud, hergebruik onder een andere commit/run/artifact en wijzigingen aan gedownloade bewijsbestanden. De verplichte CI-hercontrole vindt plaats **na** creatie van de finale getuige en **vóór** upload van het bewijspakket. De bestaande finale PR-headcontrole blijft eveneens verplicht. De voorafgaande v6.98-commit `e5262f364001dfe96b88a52cfa8e08b6247b510b` heeft 3/3 succesvolle GitHub Actions-workflows; de actuele v6.99-HEAD vereist afzonderlijke verificatie.
 
 **Vertrouwensgrens:** lokale herverificatie van GitHub-gerapporteerde ZIP-integriteit is geen onafhankelijke digitale handtekening of bewijs van een externe archivaris. **GO-13 DRAFT/HOLD/DENY**: geen merge, EDTR-uitgifte of publieke uitrol.
+
+## Regiekamer v7.00 — deterministisch archiefmanifest voor vier bewijsverslagen (2026-11-24)
+
+De nieuwe `atelier/github-archive-manifest.cjs` schrijft na de v6.99-getuigeherberekening een **deterministisch SHA-256-archiefmanifest**. Het registreert de exacte bestandsnaam, bytegrootte en SHA-256 van vier al gecontroleerde diagnostische bestanden: `atelier-artifact-metadata-observation.json`, `atelier-extracted-evidence-check.json`, `atelier-zip-integrity-check.json` en `atelier-final-artifact-witness.json`. Alle vier zijn expliciet gebonden aan dezelfde repository, PR-kandidaat-HEAD, workflowrun en artifact-ID; de beschikbare PR- en runpogingvelden worden eveneens gecontroleerd.
+
+De GitHub Actions-workflow voert achtereenvolgens `create` en **onafhankelijk `verify`** uit vóór archivering, en bewaart `atelier-archive-manifest.json` samen met de vier diagnostische verslagen. Een niet-canoniek verslag, gewijzigde bestandsbytes, ontbrekende of extra bestanden, verkeerd gekoppeld bewijs, afwijkende hashes of gefingeerde vrijgave veroorzaken een fout. Het manifest wordt exclusief opgeslagen (`wx`, `0600`); bestandslezing weigert symbolische links via `O_NOFOLLOW` en hanteert per diagnostisch bestand een limiet van 20.000 bytes.
+
+Vijf nieuwe regressietests controleren deterministische SHA-256-inventarisatie, gewijzigde bytes, replay over commits/artifacts/runs, ontbrekende velden en vervalste goedkeuring. De voorgaande v6.99-commit `757246f4cece453f11fa3b8512ccd0e7391353e9` heeft **3/3 GitHub-workflows SUCCESS**. De nieuwste v7.00-HEAD vereist een eigen CI-bevestiging.
+
+**Vertrouwensgrens:** deze inventaris betreft lokaal gecontroleerde bytes en kan geen externe, onafhankelijke archiefbewaring, digitale ondertekening, GO-toestemming of EDTR-uitgifte aantonen. **GO-13 DRAFT/HOLD/DENY** blijft van kracht; geen merge of publieke uitrol.
