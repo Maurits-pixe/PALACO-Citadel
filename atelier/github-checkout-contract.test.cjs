@@ -67,7 +67,9 @@ test('artifact download retries remain fail-closed and never skip downstream int
  const check=(fragment)=>assert.ok(step.includes(fragment),'Missing fail-closed contract: '+fragment);
  check('set -euo pipefail');
  check('if [[ "${code}" == "200" ]]; then');
- check('unzip -tqq "${zip_path}"');
+ check('python3 atelier/github-artifact-zip-extract.py "${zip_path}" "${output}"');
+ check('Downloaded artifact ZIP failed strict bounded extraction; HOLD/DENY');
+ assert.doesNotMatch(step,/unzip -q|unzip -o|unzip -tqq/);
  check('if [[ "${code}" != "404" && "${code}" != "502" && "${code}" != "503" && "${code}" != "504" ]]; then');
  check('if [[ "${attempt}" != "5" ]]; then sleep 3; fi');
  check('if [[ "${downloaded}" != "1" ]]; then');
