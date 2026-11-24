@@ -57,7 +57,7 @@ class V63TransportTests(unittest.TestCase):
         self.assertEqual(req.get_header("Idempotency-key"),body["handoff_id"])
         self.assertEqual(req.get_header("Authorization"),
                          "Bearer "+self.tokens[body["archive_id"]])
-        receipt=self.f.f.reply[body["archive_id"]]
+        receipt=self.f.reply[body["archive_id"]]
         response={"handoff_id":body["handoff_id"],"receipt":receipt}
         if self.override is not None:
             response=self.override(response,body)
