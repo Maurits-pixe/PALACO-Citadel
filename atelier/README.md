@@ -1006,3 +1006,11 @@ De nieuwe read-only module `atelier/github-extracted-receipt.cjs` controleert he
 Vier nieuwe regressietests bewaken geldige herberekening, replay vanuit een andere run/commit/artifact, onverwachte of gemanipuleerde JSON-velden en gewijzigde downloadbytes. De bestaande Atelier DRAFT-workflow voert de extra controle uit vóór het archiveren van de metadata-observatie en het gedownloade-bestandsverslag. De eerdere v6.88 CI is volledig geslaagd en bevat zowel reviewbewijs als metadata-observatie; het actuele resultaat van v6.89 moet opnieuw worden bevestigd.
 
 **Vertrouwensgrens:** dit is een vergelijking met de bestanden uit dezelfde CI-run, geen onafhankelijke ondertekening of verificatie van GitHubs ZIP-archivebytes. **GO-13 DRAFT/HOLD/DENY**; geen merge, EDTR-uitgifte of publieke uitrol.
+
+## Regiekamer v6.90 — exacte broncheckout voor de GitHub-bewijsketen (2026-11-24)
+
+De Atelier DRAFT-workflow checkt voor een PR voortaan expliciet `github.event.pull_request.head.sha` uit, in plaats van de standaard synthetische PR-mergecommit. Voor handmatige workflowuitvoering gebruikt hij als terugval `github.sha`. `persist-credentials: false` voorkomt dat de checkout GitHub-credentials onnodig in de lokale repositoryconfiguratie bewaart. Nog vóór enige regressietest verifieert een fail-closed shellcontrole dat `git rev-parse HEAD` exact gelijk is aan de bedoelde kandidaat-SHA; een mismatch stopt de workflow.
+
+Ook de afzonderlijke `release-gate.cjs` krijgt de werkelijk uitgecheckte commit, zowel voor de diagnostiek als voor de verplichte `--enforce`-weigering. Hierdoor verwijzen codecontrole, reviewwaarneming en releaseweigering naar dezelfde kandidaatbron. Drie nieuwe Node-regressies toetsen de expliciete SHA-keuze, de controlevolgorde en de releasegate-binding.
+
+De voorafgaande v6.89-run op de eerdere kandidaat-HEAD `3017500692537890c02f0fecdd0529497034bb5d` is voor alle drie GitHub Actions-workflows geslaagd en leverde reviewbewijsartifact `14798353247` en metadata-observatieartifact `14798233889`. De nieuwe v6.90-HEAD vereist afzonderlijke CI-verificatie. **GO-13 DRAFT/HOLD/DENY**; geen merge, EDTR of publieke uitrol.
