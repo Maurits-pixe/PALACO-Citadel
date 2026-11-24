@@ -1,3 +1,9 @@
+## v6.94 — contracttest afgestemd op strikte ZIP-extractie
+
+- De Atelier CI faalde bij de statische contracttest: deze verwachtte nog `unzip -tqq`, terwijl de workflow inmiddels `github-artifact-zip-extract.py` met strengere ZIP-beperkingen verplicht stelt.
+- De contracttest controleert nu de daadwerkelijke Python-extractor, het fail-closed foutpad en de afwezigheid van onbegrensde `unzip`-extractie. De bestaande voorwaarden voor begrensde retries en verplichte downstream verificaties blijven intact.
+- Nieuwe CI-validatie op deze commit is vereist; **DRAFT/HOLD/DENY**, geen merge of productiepublicatie.
+
 ## v6.93 — contractbewaking van artifact-retry en bewijscontrole
 
 - Nieuwe statische Node-contracttest controleert dat alleen tijdelijke HTTP-statussen 404/502/503/504 opnieuw geprobeerd worden, met een vaste maximale herhaallimiet.
