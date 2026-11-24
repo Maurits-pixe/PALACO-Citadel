@@ -1,3 +1,9 @@
+## v6.96 — symlinkcontrole over het volledige extractiepad
+
+- De GitHub-bewijs-ZIP-extractor weigert nu ook symlinks in bovenliggende mappen van de extractiebestemming. Daarmee mag een nieuw aangemaakte doelmap niet ongemerkt via een doorgelinkte parent buiten het bedoelde pad terechtkomen.
+- Een nieuwe uitvoerbare Node/Python-regressietest controleert een symlinked parent en verifieert dat buiten de doelmap geen bestand wordt aangemaakt.
+- De bestaande weigering bij symlinkdoelen blijft gelden; artifact-integriteit, reviewgates en release HOLD/DENY blijven ongewijzigd. Nieuwe CI op de actuele HEAD vereist.
+
 ## v6.95 — ZIP-extractie weigert doorgelinkte uitvoermap
 
 - De Python-extractor weigert nu expliciet een symlink als extractiedoel, zelfs wanneer de doelmap leeg lijkt. Zo kunnen artifact-bestanden niet via een doorgelinkte uitvoermap buiten de bedoelde doelmap worden geschreven.
