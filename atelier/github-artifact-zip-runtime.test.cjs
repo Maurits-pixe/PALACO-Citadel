@@ -55,3 +55,19 @@ test('preexisting extraction files cannot be overwritten',()=>fixture(good,({arc
  assert.notEqual(r.status,0);
  assert.equal(fs.readFileSync(path.join(out,'atelier-review-evidence.json'),'utf8'),'existing');
 }));
+
+test('symlink extraction directory is rejected without writing outside sandbox',()=>fixture(good,({root,archive,out})=>{
+ const outside=path.join(root,'outside');
+ fs.mkdirSync(outside);
+ fs.symlinkSync(outside,out,'dir');
+ const r=spawnSync('python3',[py,archive,out],{encoding:'utf8'});
+ assert.notEqual(r.status,0);
+ assert.match(r.stderr,/must not be a symlink/);
+ assert.deepEqual(fs.readdirSync(outside),[]);
+}));
+test('regular file as extraction destination is rejected',()=>fixture(good,({archive,out})=>{
+ fs.writeFileSync(out,'not a directory');
+ const r=spawnSync('python3',[py,archive,out],{encoding:'utf8'});
+ assert.notEqual(r.status,0);
+ assert.equal(fs.readFileSync(out,'utf8'),'not a directory');
+}));
