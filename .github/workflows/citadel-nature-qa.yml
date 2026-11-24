@@ -99,6 +99,38 @@ jobs:
         env:
           CITADEL_EPHEMERAL_CI_ONLY: '1'
         run: bash modules/samenleving-natuur/issuer-rotation-writer-hold-ci.sh
+  isolated-postmaster-crash-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: citadel_ephemeral_ci_only
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: citadel_ephemeral_ci_only
+      PGDATABASE: postgres
+      CITADEL_EPHEMERAL_CI_ONLY: '1'
+      CITADEL_POSTGRES_CRASH_JOB_ONLY: '1'
+    steps:
+      - name: Checkout draft source
+        uses: actions/checkout@v4
+      - name: Install PostgreSQL client
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+      - name: Kill isolated postmaster and verify committed versus pending checkpoint recovery
+        run: bash modules/samenleving-natuur/reviewer-roster-postmaster-crash-ci.sh
   offline-browser-qa:
     runs-on: ubuntu-latest
     timeout-minutes: 15
