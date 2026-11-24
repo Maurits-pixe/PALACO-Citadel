@@ -60,6 +60,10 @@ function run(args,env=process.env){
  const result=verifyZip(args[0],fs.readFileSync(args[1]),{
   repository:env.GITHUB_REPOSITORY,runId:Number(env.GITHUB_RUN_ID),
   headSha:env.PALACO_EXPECTED_HEAD_SHA,artifactId:Number(env.PALACO_ARTIFACT_ID)});
+ if(env.PALACO_ZIP_INTEGRITY_REPORT_PATH){
+  fs.writeFileSync(env.PALACO_ZIP_INTEGRITY_REPORT_PATH,
+   JSON.stringify(result,null,2)+'\n',{flag:'wx',mode:0o600});
+ }
  process.stdout.write(JSON.stringify(result,null,2)+'\n');
  return result;
 }
