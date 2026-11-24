@@ -28,8 +28,10 @@ def extract(archive_path: str, output_path: str) -> None:
                 raise ValueError("Artifact ZIP member has invalid size")
             if item.file_size > 100 * item.compress_size:
                 raise ValueError("Artifact ZIP member compression ratio is excessive")
-        if target.exists() and any(target.iterdir()):
-            raise ValueError("Artifact extraction directory must be empty")
+        if target.is_symlink():
+            raise ValueError("Artifact extraction directory must not be a symlink")
+        if target.exists() and (not target.is_dir() or any(target.iterdir())):
+            raise ValueError("Artifact extraction directory must be an empty directory")
         target.mkdir(mode=0o700, parents=True, exist_ok=True)
         for item in items:
             # Only exact basenames are accepted; no zip-slip, path nesting or symlinks.
