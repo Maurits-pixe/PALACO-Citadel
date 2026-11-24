@@ -42,17 +42,18 @@ test('pull request validation cannot pass without authenticated review observati
  assert.doesNotMatch(uploader,/if-no-files-found: ignore/);
 });
 
-test('download uses authenticated GitHub REST mode for exact listed artifact ID',()=>{
+test('download uses read-only REST endpoint with bounded retries and exact artifact ID',()=>{
  const y=workflow();
  const start=y.indexOf('Download exact uploaded review evidence artifact');
  const end=y.indexOf('Verify extracted GitHub artifact bytes against checked source',start);
  assert.ok(start>=0&&end>start);
  const step=y.slice(start,end);
- assert.match(step,/uses: actions\/download-artifact@v4/);
- assert.match(step,/artifact-ids: \$\{\{ steps\.review_artifact\.outputs\.artifact-id \}\}/);
- assert.match(step,/github-token: \$\{\{ github\.token \}\}/);
- assert.match(step,/run-id: \$\{\{ github\.run_id \}\}/);
- assert.match(step,/repository: \$\{\{ github\.repository \}\}/);
+ assert.match(step,/GITHUB_TOKEN: \\$\\{\\{ github\\.token \\}\\}/);
+ assert.match(step,/PALACO_ARTIFACT_ID: \\$\\{\\{ steps\\.review_artifact\\.outputs\\.artifact-id \\}\\}/);
+ assert.match(step,/actions\\/artifacts\\/\\$\\{PALACO_ARTIFACT_ID\\}\\/zip/);
+ assert.match(step,/for attempt in 1 2 3 4 5/);
+ assert.match(step,/--max-time 30/);
+ assert.match(step,/if \\[\\[ "\\$\\{downloaded\\}" != "1" \\]\\]; then/);
  assert.match(y,/actions: read/);
  assert.ok(y.indexOf('Wait for exact artifact ID in GitHub run listing')<start);
 });
