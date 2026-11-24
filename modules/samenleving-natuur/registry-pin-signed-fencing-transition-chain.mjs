@@ -38,12 +38,15 @@ export function inspectSignedFencingTransitionChain(input={}){
    last.schema!==FENCING_ANCHOR_SCHEMA||!hex(first.anchorSha256)||!hex(last.anchorSha256))
    return deny('INVALID_ANCHOR');
   if(first.epoch<x.minimumEpoch)return deny('EXTERNAL_EPOCH_FLOOR');
-  const pins=exact(x.witnessKeyPins,x.requiredWitnessIds);
-  if(!pins)return deny('INVALID_WITNESS_PINS');
-  const ids=new Set(),keyPins=new Set();
+  const ids=new Set();
   for(const name of x.requiredWitnessIds){
    if(!id(name)||ids.has(name))return deny('INVALID_WITNESS_ROSTER');
    ids.add(name);
+  }
+  const pins=exact(x.witnessKeyPins,x.requiredWitnessIds);
+  if(!pins)return deny('INVALID_WITNESS_PINS');
+  const keyPins=new Set();
+  for(const name of ids){
    if(!hex(pins[name])||keyPins.has(pins[name]))return deny('DUPLICATE_OR_INVALID_WITNESS_KEY_PIN');
    keyPins.add(pins[name]);
   }
