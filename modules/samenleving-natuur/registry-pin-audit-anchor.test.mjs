@@ -1396,3 +1396,51 @@ test('rejected audit evidence cannot be changed into an allow decision',()=>{
  assert.equal(r.anchorSignatureValid,false);
  assert.equal(r.executionAllowed,false);
 });
+
+
+test('signed audit anchor accepts only the exact nonzero-offset Uint8Array window',()=>{
+ const original=setup();
+ const paddingBefore=19, paddingAfter=23;
+ const backing=new Uint8Array(paddingBefore+original.anchorBytes.length+paddingAfter);
+ backing.fill(0xa5);
+ backing.set(original.anchorBytes,paddingBefore);
+ const anchorBytes=backing.subarray(paddingBefore,paddingBefore+original.anchorBytes.length);
+ assert.ok(anchorBytes.byteOffset>0);
+ const r=inspectSignedAuditHeadAnchor({...original,anchorBytes});
+ assert.equal(r.anchorSignatureValid,true,JSON.stringify(r));
+ assert.equal(r.anchoredLedgerMatched,true);
+ assert.equal(r.trust,'NOT_ESTABLISHED');
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('tampering bytes inside offset view is rejected even if surrounding buffer is intact',()=>{
+ const original=setup();
+ const prefixLength=13;
+ const backing=new Uint8Array(prefixLength+original.anchorBytes.length+11);
+ backing.fill(0x91);
+ backing.set(original.anchorBytes,prefixLength);
+ const anchorBytes=backing.subarray(prefixLength,prefixLength+original.anchorBytes.length);
+ anchorBytes[0]^=1;
+ const r=inspectSignedAuditHeadAnchor({...original,anchorBytes});
+ assert.equal(r.reason,'ANCHOR_SIGNATURE_INVALID');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('tampering outside the signed view cannot affect audit anchor verification',()=>{
+ const original=setup();
+ const start=17,end=start+original.anchorBytes.length;
+ const backing=new Uint8Array(end+29);
+ backing.set(original.anchorBytes,start);
+ const anchorBytes=backing.subarray(start,end);
+ backing[0]^=1;
+ backing[end]^=1;
+ const r=inspectSignedAuditHeadAnchor({...original,anchorBytes});
+ assert.equal(r.anchorSignatureValid,true,JSON.stringify(r));
+ assert.equal(r.anchoredLedgerMatched,true);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
