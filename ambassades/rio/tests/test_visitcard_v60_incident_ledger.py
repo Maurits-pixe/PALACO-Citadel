@@ -7,7 +7,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from test_visitcard_v59_dual_custody import DualCustodyTests,GENESIS,REPO
+from test_visitcard_v59_dual_custody import DualCustodyTests,GENESIS,REPO,NOW
 from visitcard_witness_enrollment import _canonical
 from visitcard_v60_incident_ledger import (
     GENESIS as LEDGER_GENESIS,IncidentState,initialize_incident_ledger,
@@ -43,7 +43,7 @@ class V60IncidentLedgerTests(unittest.TestCase):
             expected_min_sequence=1,
             expected_ledger_sequence=kw.get("seq",self.seq),
             independently_pinned_ledger_head_sha256=kw.get("head",self.head),
-            now=self.f.fixture.verify.__globals__["NOW"],
+            now=NOW,
         )
 
     def read(self,**kw):
