@@ -1527,3 +1527,47 @@ test('correctly signed anchor cannot authenticate a different canonical payload'
  assert.equal(r.executionAllowed,false);
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('attacker-controlled signing key and matching self-declared fingerprint never establish trust',()=>{
+ const original=setup();
+ const attacker=generateKeyPairSync('ec',{namedCurve:'prime256v1'});
+ const jwk=attacker.publicKey.export({format:'jwk'});
+ const anchorPublicJwk={kty:'EC',crv:'P-256',x:jwk.x,y:jwk.y};
+ const expectedAnchorKeyFingerprint=sha(
+   attacker.publicKey.export({format:'der',type:'spki'}));
+ const signatureBase64Url=sign('sha256',Buffer.concat([
+   Buffer.from('PALACO-CITADEL-AUDIT-HEAD-ANCHOR-V1\n'),
+   original.anchorBytes
+ ]),attacker.privateKey).toString('base64url');
+ const r=inspectSignedAuditHeadAnchor({...original,
+   anchorPublicJwk,expectedAnchorKeyFingerprint,signatureBase64Url});
+ assert.equal(r.anchorSignatureValid,true,JSON.stringify(r));
+ assert.equal(r.anchoredLedgerMatched,true);
+ assert.equal(r.trust,'NOT_ESTABLISHED');
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.executionAllowed,false);
+ assert.equal(r.releaseAllowed,false);
+ assert.equal(r.stateChanged,false);
+ assert.deepEqual(r.unresolvedGates,[
+   'INDEPENDENT_PROTECTED_KEY_FINGERPRINT',
+   'EXTERNALLY_PERSISTED_ANCHOR',
+   'TRUSTED_REVOCATION_AND_CLOCK'
+ ]);
+ assert.equal(Object.isFrozen(r),true);
+ assert.equal(Object.isFrozen(r.unresolvedGates),true);
+});
+
+test('attacker-selected fingerprint cannot authenticate a different signing key',()=>{
+ const original=setup();
+ const attacker=generateKeyPairSync('ec',{namedCurve:'prime256v1'});
+ const expectedAnchorKeyFingerprint=sha(
+   attacker.publicKey.export({format:'der',type:'spki'}));
+ const r=inspectSignedAuditHeadAnchor({...original,expectedAnchorKeyFingerprint});
+ assert.equal(r.reason,'UNPINNED_ANCHOR_KEY');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.executionAllowed,false);
+ assert.equal(r.releaseAllowed,false);
+});
