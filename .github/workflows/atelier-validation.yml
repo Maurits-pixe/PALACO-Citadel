@@ -303,6 +303,7 @@ jobs:
           if-no-files-found: error
           retention-days: 7
       - name: Confirm external custody remains unproven in GitHub-only CI
+        if: ${{ github.event_name == 'pull_request' && steps.diagnostic_artifact.outputs.artifact-id != '' }}
         shell: bash
         run: |
           set -euo pipefail
