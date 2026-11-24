@@ -1207,3 +1207,37 @@ test('legitimate P-256 public point still verifies the signed audit anchor',()=>
  assert.equal(r.executionAllowed,false);
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('malicious genesis PIN hash object cannot execute implicit string coercion',()=>{
+ const input=setup();
+ let coercions=0;
+ const hostileHash={
+   toString(){coercions++;throw Error('untrusted PIN toString executed');},
+   valueOf(){coercions++;throw Error('untrusted PIN valueOf executed');}
+ };
+ const genesisPin={...input.genesisPin,registrySha256:hostileHash};
+ const r=inspectSignedAuditHeadAnchor({...input,genesisPin});
+ assert.equal(coercions,0);
+ assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('malicious current PIN issuer object cannot execute implicit string coercion',()=>{
+ const input=setup();
+ let coercions=0;
+ const hostileIssuer={
+   [Symbol.toPrimitive](){coercions++;throw Error('untrusted PIN primitive conversion executed');}
+ };
+ const currentPin={...input.currentPin,issuerFingerprint:hostileIssuer};
+ const r=inspectSignedAuditHeadAnchor({...input,currentPin});
+ assert.equal(coercions,0);
+ assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
