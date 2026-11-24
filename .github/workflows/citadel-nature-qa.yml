@@ -226,6 +226,8 @@ jobs:
         run: node --test modules/samenleving-natuur/registry-pin-reviewer-roster-failover-reconciliation.test.mjs
       - name: Signed failover fencing witness reconciliation regressions
         run: node --test modules/samenleving-natuur/registry-pin-fencing-witness-reconciliation.test.mjs
+      - name: Fencing epoch anchored hash-chain and rollback regressions
+        run: node --test modules/samenleving-natuur/registry-pin-fencing-epoch-anchor-chain.test.mjs
       - name: Install dependencies
         run: npm ci --ignore-scripts
       - name: Install Chromium
