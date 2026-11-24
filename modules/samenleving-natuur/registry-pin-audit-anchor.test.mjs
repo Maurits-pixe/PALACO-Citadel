@@ -1241,3 +1241,35 @@ test('malicious current PIN issuer object cannot execute implicit string coercio
  assert.equal(r.authorization,'DENY');
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('Uint8Array subclass valueOf cannot run during audit-byte snapshot',()=>{
+ const original=setup();
+ let coercions=0;
+ class HostileBytes extends Uint8Array {
+   valueOf(){coercions++;throw Error('subclass valueOf must never run');}
+ }
+ const anchorBytes=new HostileBytes(original.anchorBytes);
+ const r=inspectSignedAuditHeadAnchor({...original,anchorBytes});
+ assert.equal(coercions,0);
+ assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('ordinary Buffer and Uint8Array remain valid byte inputs',()=>{
+ const original=setup();
+ for(const anchorBytes of [
+   Buffer.from(original.anchorBytes),
+   Uint8Array.from(original.anchorBytes)
+ ]){
+   const r=inspectSignedAuditHeadAnchor({...original,anchorBytes});
+   assert.equal(r.anchorSignatureValid,true,JSON.stringify(r));
+   assert.equal(r.anchoredLedgerMatched,true);
+   assert.equal(r.trust,'NOT_ESTABLISHED');
+   assert.equal(r.authorization,'DENY');
+   assert.equal(r.releaseAllowed,false);
+ }
+});
