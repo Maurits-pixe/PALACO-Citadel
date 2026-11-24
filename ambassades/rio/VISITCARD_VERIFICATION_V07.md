@@ -1429,3 +1429,51 @@ requests are never automatically timed out or deleted; an operator
 must resolve them using authentic external evidence. The
 existing v4.8 read-only audit + v4.7 replay CAS remains the
 reservation path. **GO-13 HOLD — no merge, release or deployment.**
+
+## v5.0 — Consolidated security review inventory (DRAFT / GO-13 HOLD)
+
+`visitcard_v5_security_review.py` provides a non-authorizing,
+deterministic source inventory and explicit production blocker register.
+It covers the consumer provenance path plus the signed release review,
+byte-backed dossier, handoff, unified audit, audit checkpoint,
+monotonic replay recovery, SQLite shared compare-and-swap,
+audit-to-CAS bridge and pending session restart recovery. Each of the
+13 audited modules is referenced by its exact filename and SHA-256,
+which is included in a canonical inventory digest. An expected digest
+for each module MUST be provisioned from an independent trusted
+inventory; computing the expected hashes from the same untrusted tree
+does not establish a trusted source baseline.
+
+The review rejects missing/linked source files, mismatched hashes,
+invalid syntax, unexpected network/subprocess imports, missing
+contract entrypoints and dataclass fields that default release, merge
+or activation permission to a value other than False. The AST checks
+are intentionally a *limited heuristic*, not complete static analysis,
+taint analysis, vulnerability testing or a Python security sandbox.
+The caller's test count is informational **self-reported metadata**,
+not an independent CI attestation or evidence of the tests running.
+
+The best possible v5.0 classification is
+`EXTERNAL_EVIDENCE_REQUIRED`, never production-ready. Seven
+non-negotiable blockers remain: independent key custody,
+durable latest-pin storage, genuinely global replay CAS,
+an operational external signed receipt service, runtime
+enforcement/integration, independent security assessment,
+and trusted time and recovery infrastructure. No purely
+local source inventory can resolve those controls. Nineteen
+new v5 regression tests cover deterministic inventory,
+modified source, missing files, missing pins, forbidden
+imports, incorrect authorization defaults, invalid syntax
+and absent external evidence.
+
+The previous modules remain separately callable Python APIs.
+In particular, v4.8 uses a read-only v4.6 recovery preflight
+and v4.7 shared replay CAS: this is not one distributed
+transaction over separately managed stores. External pins
+and independently signed receipts are not automatically
+provisioned by any of these modules. v5.0 does not make
+claims about completed real-world code audits beyond the
+specific tests performed.
+
+**GO-13 HOLD** — never auto-merge, issue identities,
+activate keys, deploy or grant access.
