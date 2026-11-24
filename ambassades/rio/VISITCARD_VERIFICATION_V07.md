@@ -1846,3 +1846,52 @@ active. Backups, filesystem permissions, fsync configuration and
 independent incident replication require deployment-level design.
 
 **GO-13 HOLD — no merge, release, deployment or key activation.**
+
+## v6.1 — Dual signed archive receipts, local CAS and restart audit (DRAFT / GO-13 HOLD)
+
+`visitcard_v61_archive_receipts.py` adds a **separate** append-only
+SQLite receipt table above the v6.0 split-view incident ledger.
+A receipt pair is accepted only if both independently pinned
+Ed25519 archive keys verify signed envelopes binding the **exact**
+v6.0 incident sequence, incident chain-head SHA-256 and conflict
+SHA-256, with the archive identity, bounded fifteen-minute
+time interval and permanent `GO-13 HOLD`. Signing keys must be
+different; receipt identities must match two distinct externally
+specified archives. There is no local or remotely generated
+signing key in the production module.
+
+The v6.1 receipt ledger uses an explicit SQLite
+`BEGIN IMMEDIATE` local compare-and-swap, with the *caller-supplied
+independently pinned* latest v6.0 incident head and latest v6.1
+receipt head/sequence. Each canonical receipt pair is linked
+to the prior receipt head with a deterministic SHA-256 chain.
+SQLite UPDATE/DELETE triggers reject routine replacement and
+removal. Reopen-time auditing checks the entire signed receipt
+chain, validates the corresponding incident rows, re-verifies
+both archive signatures at their original capture times, and
+checks independently pinned current sequence and digest.
+Historical receipts remain auditable after their short
+acceptance windows expire.
+
+28 v6.1 regression tests cover exact binding, independent keys,
+wrong conflict / incident head / incident sequence, forged or
+reused receipt keys, stale or expired evidence, duplicate
+receipts, archive table tampering, privileged trigger removal,
+database restart, rollback and constant nonauthorization.
+
+**External trust boundary:** these are locally stored signed
+**claims** of archival receipt, not evidence of an actual
+operational offsite archiving service. The protocol does not
+issue receipts, contact two remote archives, complete a
+distributed transaction, persist external pins, enforce real
+independent key custody, or establish a remotely verified
+post-write acknowledgement. A local DB operator with
+privileged access can replace stored rows or restore an old
+database. Independent latest-head pin storage, operational
+archive durability and real external attestation remain
+production blockers.
+
+The only acceptable results are `ACKNOWLEDGED_QUARANTINED`,
+`VERIFIED_QUARANTINED` or `BLOCKED`; no merge,
+execution, issuance, activation or release is possible.
+**GO-13 DRAFT / HOLD / DENY.**
