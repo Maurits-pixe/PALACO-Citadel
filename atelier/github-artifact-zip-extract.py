@@ -28,8 +28,11 @@ def extract(archive_path: str, output_path: str) -> None:
                 raise ValueError("Artifact ZIP member has invalid size")
             if item.file_size > 100 * item.compress_size:
                 raise ValueError("Artifact ZIP member compression ratio is excessive")
-        if target.is_symlink():
-            raise ValueError("Artifact extraction directory must not be a symlink")
+        # Reject redirects anywhere in the destination ancestry, including
+        # a symlinked parent of a not-yet-created output directory.
+        for component in (target, *target.parents):
+            if component.is_symlink():
+                raise ValueError("Artifact extraction path must not contain symlinks")
         if target.exists() and (not target.is_dir() or any(target.iterdir())):
             raise ValueError("Artifact extraction directory must be an empty directory")
         target.mkdir(mode=0o700, parents=True, exist_ok=True)
