@@ -93,7 +93,7 @@ def _state(db:sqlite3.Connection)->tuple[int,str,int,str]|None:
         if header is None or len(header)!=4:
             return None
         seq,head,ackseq,ackhead=header
-        if type(seq) is not int or type(ackseq) is not int or not 0<=ackseq<=seq<=MAX_EVENTS:
+        if type(seq) is not int or type(ackseq) is not int or not 0<=ackseq<=seq<=MAX_EVENTS or seq-ackseq>1:
             return None
         rows=db.execute("""SELECT sequence,challenge,checkpoint_sha256,previous_sha256,
                            head_sha256 FROM rio_shared_replay_events ORDER BY sequence""").fetchall()
@@ -122,7 +122,7 @@ def _state(db:sqlite3.Connection)->tuple[int,str,int,str]|None:
             return None
         if ackseq==0 and receipts:
             return None
-        if ackseq>0 and (not receipts or ackseq!=seq):
+        if ackseq>0 and not receipts:
             return None
         return seq,head,ackseq,ackhead
     except (sqlite3.Error,TypeError,ValueError,OverflowError):
