@@ -1584,3 +1584,35 @@ missing source provenance and permanent GO-13 HOLD. Even the most
 favorable result is `REVIEWABLE_INFORMATIONAL`, never authorization.
 
 **GO-13 HOLD:** no merge, deployment, access or key activation.
+
+## v5.4 — Byte-exact job log acquisition receipt (DRAFT / GO-13 HOLD)
+
+`visitcard_v54_log_custody.py` extends the verified v5.3 run-observation
+protocol with an independently signed and pinned *log acquisition
+receipt*. The original bytes of a retrieved GitHub Actions job log
+must be available (bounded to 8 MiB); the receipt must bind their
+exact SHA-256 digest and byte count, an explicit expected numeric
+job ID, the same repository, source commit, pinned workflow SHA,
+GitHub run ID and attempt already checked by v5.3, a declared
+`GITHUB_ACTIONS_JOB_LOGS_API` retrieval method, and an at-most
+15-minute verification interval. The receipt signer must be a
+separately pinned Ed25519 collector key, **different from the pinned
+v5.3 observation signing key**. Failure in either verification layer
+blocks; no local log substring or keyword alone can establish CI
+trust. Twenty-two new regression tests cover log substitutions,
+missing bytes, stale/future retrieval claims, wrong job/run/attempt,
+forged signatures, reused signing keys and unchanged GO-13 HOLD.
+
+**Important:** the retrieval method is a *signed declaration*, not
+cryptographic proof that TLS, GitHub API authorization or the
+authenticated GitHub job log source was used. The collector
+service, Github token binding, run/job membership verification,
+GitHub-managed artifact attestation/OIDC and immutable third-party
+pin storage are NOT implemented in this offline module. Synthetic
+job logs are only fixtures. Verification does not establish a real
+independent external auditor. The seven external production
+blockers continue to apply, and even a matching packet remains
+`REVIEWABLE_INFORMATIONAL`.
+
+**GO-13 HOLD:** No merge, deployment, issuance, key activation,
+production authentication or release.
