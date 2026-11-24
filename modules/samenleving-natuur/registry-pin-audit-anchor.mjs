@@ -169,9 +169,11 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
       signatureBase64Url.length < 11 || signatureBase64Url.length > 96 ||
       !/^[A-Za-z0-9_-]+$/.test(signatureBase64Url))
       return reject('INVALID_ANCHOR_INPUT');
-    // Copy signed bytes before consulting any caller-supplied PIN/JWK Proxy:
-    // descriptor traps may otherwise mutate the original byte view.
-    const snapshotBytes = Buffer.from(anchorBytes);
+    // Snapshot through the intrinsic typed-array copy operation. Buffer.from(view)
+    // consults an own valueOf method even on an ordinary Uint8Array, allowing
+    // attacker-controlled code to replace or mutate the signed bytes.
+    const snapshotBytes = Buffer.alloc(anchorBytes.length);
+    Uint8Array.prototype.set.call(snapshotBytes,anchorBytes);
     // Validate canonical signature transport before inspecting untrusted PIN
     // and key objects; no cryptographic work is justified for malformed data.
     const signature = Buffer.from(signatureBase64Url,'base64url');
