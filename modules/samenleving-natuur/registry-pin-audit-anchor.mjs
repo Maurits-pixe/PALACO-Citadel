@@ -149,8 +149,12 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
     } = snapshot;
     // Validate bounded scalar inputs before accessing caller-controlled PINs
     // or cryptographic key descriptors. Malformed requests fail early.
-    if (!(anchorBytes instanceof Uint8Array) || !anchorBytes.length ||
-      anchorBytes.length > 8192 ||
+    // Buffer.from(Uint8Array) may invoke an overridden valueOf method on a
+    // subclass; restrict input to intrinsic byte-view prototypes before copy.
+    if (!(anchorBytes instanceof Uint8Array) ||
+      (Object.getPrototypeOf(anchorBytes) !== Uint8Array.prototype &&
+       Object.getPrototypeOf(anchorBytes) !== Buffer.prototype) ||
+      !anchorBytes.length || anchorBytes.length > 8192 ||
       // Shared memory can be concurrently rewritten during verification.
       // The caller must provide an ordinary, independently owned byte view.
       (typeof SharedArrayBuffer !== 'undefined' &&
