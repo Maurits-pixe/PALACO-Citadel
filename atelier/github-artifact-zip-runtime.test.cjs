@@ -62,7 +62,7 @@ test('symlink extraction directory is rejected without writing outside sandbox',
  fs.symlinkSync(outside,out,'dir');
  const r=spawnSync('python3',[py,archive,out],{encoding:'utf8'});
  assert.notEqual(r.status,0);
- assert.match(r.stderr,/must not be a symlink/);
+ assert.match(r.stderr,/must not contain symlinks/);
  assert.deepEqual(fs.readdirSync(outside),[]);
 }));
 test('regular file as extraction destination is rejected',()=>fixture(good,({archive,out})=>{
