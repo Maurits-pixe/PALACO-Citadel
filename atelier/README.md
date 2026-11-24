@@ -1,3 +1,10 @@
+## v6.93 — contractbewaking van artifact-retry en bewijscontrole
+
+- Nieuwe statische Node-contracttest controleert dat alleen tijdelijke HTTP-statussen 404/502/503/504 opnieuw geprobeerd worden, met een vaste maximale herhaallimiet.
+- Controleert dat kapotte ZIP-bestanden, permanente fouten en uitgeputte pogingen fail-closed eindigen en dat verificatie van extractie, metadata, review-keten en release-HOLD in de workflow aanwezig blijft.
+- Dit is een aanvullende broncodecontracttest, geen bewijs dat GitHub-artifactdownloads op deze HEAD al geslaagd zijn.
+- **GO-13 DRAFT/HOLD/DENY**: geen merge, EDTR of productiepublicatie.
+
 ## v6.91 — volledige bronnotitie afzonderlijk veiligstellen
 
 - Nieuwe knop in de Regiekamer exporteert de exacte opgeslagen notitie als TXT, ook als de bron langer is dan 6.000 tekens en niet in de editor kan worden geladen.
