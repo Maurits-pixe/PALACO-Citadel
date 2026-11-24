@@ -1225,3 +1225,29 @@ ingelezen; er is geen derde partij geconfigureerd en geen werkelijk ontvangstbew
 aanwezig. Zelfs een valide handtekening bewijst niet zelfstandig dat archiefdata
 duurzaam bewaard worden of dat de beheerder onafhankelijk is.
 GO-13 DRAFT/HOLD/DENY; geen merge, EDTR of publieke uitrol.
+
+
+### v7.05 — onafhankelijk gepind beheerderssleutelregister (DRAFT/HOLD/DENY)
+De nieuwe `github-custodian-key-registry.cjs` accepteert uitsluitend een **canoniek,
+expliciet versienummerd register** waarvan de complete SHA-256-hash vooraf
+buiten GitHub en buiten het ontvangstbewijs als vertrouwensanker is vastgelegd.
+Een geregistreerde Ed25519-sleutel bevat een vaste beheerder-ID, sleutel-ID,
+SPKI-fingerprint, publieke sleutel, status (ACTIVE/RETIRED/REVOKED) en
+geldigheidstijdvak. Registratiecontrole verwerpt dubbele sleutels, afwijkend
+sleutelmateriaal, niet-canonieke JSON en gefingeerde releaseautorisatie.
+
+Voor registerupdates moet de voorafgaande hash kloppen en het versienummer
+precies één hoger liggen. Historische sleutels mogen niet verdwijnen of worden
+vervangen; ingetrokken sleutels kunnen niet worden heractiveerd.
+Een RETIRED-sleutel vereist een einddatum; een REVOKED-sleutel wordt ook
+voor historische ontvangstbewijzen geweigerd. Een ontvangen bewijs wordt aan
+de betreffende registry-sleutel en de v7.04-handtekeningcontrole gekoppeld.
+
+**Vertrouwensgrens:** een gepinde registerhash is alleen veilig wanneer
+de vastlegging en actuele versie onafhankelijk worden beheerd. Zonder een
+extern anti-rollbackmechanisme kan een historisch, ooit vertrouwd register
+nog steeds aangeboden worden. De gesigneerde ontvangsttijd is geen
+onafhankelijke tijdstempel. De GitHub-workflow gebruikt uitsluitend synthetische
+regressies: er zijn geen echte beheerderssleutels, externe receipts of
+operationele trust anchors toegevoegd. GO-13 blijft DRAFT/HOLD/DENY;
+geen merge, EDTR, officiële autorisatie of publieke uitrol.
