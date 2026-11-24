@@ -63,6 +63,10 @@ jobs:
         env:
           CITADEL_EPHEMERAL_CI_ONLY: '1'
         run: bash modules/samenleving-natuur/reviewer-roster-storage-atomicity-ci.sh
+      - name: Reviewer checkpoint duplicate audit disconnect and stale retry QA (disposable PostgreSQL)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/reviewer-roster-storage-recovery-ci.sh
       - name: Ephemeral issuer rotation atomicity and stale replay QA
         env:
           CITADEL_EPHEMERAL_CI_ONLY: '1'
