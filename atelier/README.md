@@ -1154,3 +1154,17 @@ De GitHub Actions-workflow voert achtereenvolgens `create` en **onafhankelijk `v
 Vijf nieuwe regressietests controleren deterministische SHA-256-inventarisatie, gewijzigde bytes, replay over commits/artifacts/runs, ontbrekende velden en vervalste goedkeuring. De voorgaande v6.99-commit `757246f4cece453f11fa3b8512ccd0e7391353e9` heeft **3/3 GitHub-workflows SUCCESS**. De nieuwste v7.00-HEAD vereist een eigen CI-bevestiging.
 
 **Vertrouwensgrens:** deze inventaris betreft lokaal gecontroleerde bytes en kan geen externe, onafhankelijke archiefbewaring, digitale ondertekening, GO-toestemming of EDTR-uitgifte aantonen. **GO-13 DRAFT/HOLD/DENY** blijft van kracht; geen merge of publieke uitrol.
+
+
+### v7.01 — onafhankelijke terugdownloadcontrole (DRAFT/HOLD/DENY)
+De Atelier DRAFT-workflow bewaart het vijfdelige diagnostische archief, downloadt daarna
+het **exacte** nieuwe GitHub artifact-ID via de geauthenticeerde API en extraheert alleen
+de vijf toegestane JSON-bestanden met harde limieten. De hercontrole berekent de
+SHA-256-inventaris opnieuw uit de gedownloade bytes, controleert exact PR, kandidaat-SHA,
+run/attempt en het oorspronkelijke bewijsartifact-ID, en vergelijkt elk gedownload
+bestand met zijn lokaal geverifieerde bron. Ontbrekende of extra members, symlinks,
+gewijzigde bytes, niet-canoniek JSON en replay geven een CI-fout. De vijf
+Node-regressies bewaken het positieve pad en deze afwijzingen.
+Dit is **geen** onafhankelijke externe handtekening of waarborg tegen een gelijktijdig
+gecompromitteerde GitHub-runner. GO-13 blijft DRAFT/HOLD/DENY; geen merge, EDTR,
+productiepublicatie of releaseautorisatie.
