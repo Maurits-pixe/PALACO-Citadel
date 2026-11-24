@@ -1477,3 +1477,39 @@ specific tests performed.
 
 **GO-13 HOLD** — never auto-merge, issue identities,
 activate keys, deploy or grant access.
+
+## v5.1 — Signed source, CI and independent-review packet (DRAFT / GO-13 HOLD)
+
+`visitcard_v51_review_packet.py` adds an offline, non-authorizing
+security review packet. A complete packet requires an externally
+pinned SHA-256 inventory of the 13 v5.0 source modules, an exact
+source-commit identifier, and two separately signed Ed25519 review
+attestations: `CI_ZERO_SKIP` and `SECURITY_REVIEW`. Each attestation
+must bind the **same exact commit** and the `RIO-VISITCARD-V5.1-SECURITY-REVIEW`
+domain/scope, a different independently provisioned signer key, a
+distinct SHA-256 digest of the exact supplied evidence bytes, and a
+valid bounded lifetime under the original v4.1 verifier. The review
+packet computes a deterministic canonical SHA-256 digest of the
+inventory and signed evidence. Corrupted evidence, missing review
+files, unpinned keys, expired or forged signatures, scope mismatch,
+duplicate reviewers, or source hash mismatch fail closed.
+
+The best possible software classification is
+`REVIEWABLE_INFORMATIONAL`: **seven external production blockers
+remain open**, independently of the evidence supplied here. Real
+key custody, global replay coordination, independent pin storage,
+trusted time, signed receipt service, runtime enforcement, and an
+actual independent security assessment must be verified operationally.
+Signing synthetic test evidence does not establish that CI actually
+ran or that an independent professional auditor approved the system.
+
+Twenty new regressions exercise valid synthetic protocol paths,
+incomplete or forged evidence, changed source files, reused signer
+keys, expiry, wrong commit/scope and permanent nonauthorization.
+The `test_count` in the v5.0 source report is placeholder metadata
+inside this packet; the packet does not scrape the GitHub Actions API
+or automatically verify CI provenance. Independently pin GitHub
+run identifiers, immutable log bytes and auditor identities in
+a real evidence provisioner before making any such claim.
+
+**GO-13 HOLD:** no merge, live deployment, permission or key issuance.
