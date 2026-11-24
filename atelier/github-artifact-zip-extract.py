@@ -35,13 +35,19 @@ def extract(archive_path: str, output_path: str) -> None:
                 raise ValueError("Artifact extraction path must not contain symlinks")
         if target.exists() and (not target.is_dir() or any(target.iterdir())):
             raise ValueError("Artifact extraction directory must be an empty directory")
-        target.mkdir(mode=0o700, parents=True, exist_ok=True)
+        # Verify both entries completely before creating the output directory.
+        # A corrupt later entry must not leave an earlier evidence file behind.
+        verified = {}
         for item in items:
-            # Only exact basenames are accepted; no zip-slip, path nesting or symlinks.
             with zipped.open(item) as source:
                 data = source.read(MAX_MEMBER + 1)
                 if len(data) != item.file_size or source.read(1):
                     raise ValueError("ZIP member size mismatch")
+            verified[item.filename] = data
+        target.mkdir(mode=0o700, parents=True, exist_ok=True)
+        for item in items:
+            # Only exact basenames are accepted; no zip-slip, path nesting or symlinks.
+            data = verified[item.filename]
             destination = target / item.filename
             fd = os.open(destination, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
             try:
