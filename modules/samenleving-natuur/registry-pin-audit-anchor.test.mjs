@@ -1273,3 +1273,39 @@ test('ordinary Buffer and Uint8Array remain valid byte inputs',()=>{
    assert.equal(r.releaseAllowed,false);
  }
 });
+
+
+test('plain Uint8Array own valueOf cannot mutate signed audit snapshot',()=>{
+ const input=setup();
+ const anchorBytes=Uint8Array.from(input.anchorBytes);
+ let valueOfCalls=0;
+ Object.defineProperty(anchorBytes,'valueOf',{value(){
+   valueOfCalls++;
+   anchorBytes[0]^=1;
+   return Uint8Array.from(input.anchorBytes);
+ }});
+ const r=inspectSignedAuditHeadAnchor({...input,anchorBytes});
+ assert.equal(valueOfCalls,0);
+ assert.equal(r.anchorSignatureValid,true,JSON.stringify(r));
+ assert.equal(r.anchoredLedgerMatched,true);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('own valueOf cannot substitute tampered audit bytes with authentic bytes',()=>{
+ const input=setup();
+ const anchorBytes=Uint8Array.from(input.anchorBytes);
+ anchorBytes[0]^=1;
+ let valueOfCalls=0;
+ Object.defineProperty(anchorBytes,'valueOf',{value(){
+   valueOfCalls++;
+   return Uint8Array.from(input.anchorBytes);
+ }});
+ const r=inspectSignedAuditHeadAnchor({...input,anchorBytes});
+ assert.equal(valueOfCalls,0);
+ assert.equal(r.reason,'ANCHOR_SIGNATURE_INVALID');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
