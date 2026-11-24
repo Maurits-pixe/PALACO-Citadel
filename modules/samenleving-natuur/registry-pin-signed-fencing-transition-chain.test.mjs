@@ -103,3 +103,26 @@ test('missing required signer, invalid roster and empty input are denied',()=>{
  denied(y,'INVALID_WITNESS_ROSTER');
  denied({},'INVALID_INPUT');
 });
+
+
+test('duplicate witness roster fails before attacker-owned key-pin enumeration',()=>{
+ const x=make();
+ x.requiredWitnessIds=['witness-one','witness-one'];
+ let pinEnumerations=0;
+ x.witnessKeyPins=new Proxy(pins(),{
+  ownKeys(){pinEnumerations++;throw Error('duplicate roster must not inspect PIN map');}
+ });
+ denied(x,'INVALID_WITNESS_ROSTER');
+ assert.equal(pinEnumerations,0);
+});
+
+test('invalid witness roster identifier fails before attacker-owned key-pin enumeration',()=>{
+ const x=make();
+ x.requiredWitnessIds=['witness-one','BAD ID'];
+ let pinEnumerations=0;
+ x.witnessKeyPins=new Proxy(pins(),{
+  ownKeys(){pinEnumerations++;throw Error('invalid witness ID must not inspect PIN map');}
+ });
+ denied(x,'INVALID_WITNESS_ROSTER');
+ assert.equal(pinEnumerations,0);
+});
