@@ -83,3 +83,25 @@ test('symlinked parent of extraction destination is rejected',()=>fixture(good,(
  assert.match(r.stderr,/must not contain symlinks/);
  assert.deepEqual(fs.readdirSync(outside),[]);
 }));
+
+test('corrupt second ZIP member is rejected before either file is written',()=>fixture(good,({archive,out})=>{
+ const bytes=fs.readFileSync(archive);
+ const needle=Buffer.from('{"integrity":1}\\n');
+ // Use stored ZIP payloads to locate and tamper the second member deterministically.
+ const rewrite=spawnSync('python3',['-c',`
+import sys,zipfile
+p=sys.argv[1]
+with zipfile.ZipFile(p,'w',compression=zipfile.ZIP_STORED) as z:
+ z.writestr('atelier-review-evidence.json','{"report":1}\\n')
+ z.writestr('atelier-review-integrity.json','{"integrity":1}\\n')
+`,archive],{encoding:'utf8'});
+ assert.equal(rewrite.status,0,rewrite.stderr);
+ const payload=fs.readFileSync(archive);
+ const at=payload.indexOf(Buffer.from('{"integrity":1}'));
+ assert.ok(at>0);
+ payload[at+3]^=1;
+ fs.writeFileSync(archive,payload);
+ const result=spawnSync('python3',[py,archive,out],{encoding:'utf8'});
+ assert.notEqual(result.status,0);
+ assert.equal(fs.existsSync(out),false);
+}));
