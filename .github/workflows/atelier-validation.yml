@@ -53,7 +53,7 @@ jobs:
       - name: Test fail-closed release evidence evaluator
         run: node --test atelier/release-gate.test.cjs
       - name: Test read-only GitHub review audit, collector and artifact integrity
-        run: node --test atelier/github-review-audit.test.cjs atelier/github-review-collector.test.cjs atelier/github-review-evidence-integrity.test.cjs atelier/github-review-pair.test.cjs atelier/github-artifact-metadata.test.cjs atelier/github-artifact-chain.test.cjs atelier/github-extracted-artifact.test.cjs atelier/github-extracted-receipt.test.cjs atelier/github-checkout-contract.test.cjs atelier/github-pr-head-freshness.test.cjs atelier/github-artifact-visibility.test.cjs atelier/github-artifact-zip-extract.test.cjs atelier/github-artifact-zip-runtime.test.cjs atelier/github-zip-integrity.test.cjs
+        run: node --test atelier/github-review-audit.test.cjs atelier/github-review-collector.test.cjs atelier/github-review-evidence-integrity.test.cjs atelier/github-review-pair.test.cjs atelier/github-artifact-metadata.test.cjs atelier/github-artifact-chain.test.cjs atelier/github-extracted-artifact.test.cjs atelier/github-extracted-receipt.test.cjs atelier/github-checkout-contract.test.cjs atelier/github-pr-head-freshness.test.cjs atelier/github-artifact-visibility.test.cjs atelier/github-artifact-zip-extract.test.cjs atelier/github-artifact-zip-runtime.test.cjs atelier/github-zip-integrity.test.cjs atelier/github-zip-receipt-recheck.test.cjs
       - name: Observe current GitHub PR review history without publication
         if: ${{ github.event_name == 'pull_request' }}
         continue-on-error: true
@@ -177,6 +177,12 @@ jobs:
           PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
         run: node atelier/github-extracted-receipt.cjs "${RUNNER_TEMP}/atelier-extracted-evidence-check.json" "${RUNNER_TEMP}/atelier-downloaded-evidence" "${RUNNER_TEMP}"
+      - name: Recompute retained ZIP receipt before artifact archival
+        if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
+        env:
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+        run: node atelier/github-zip-receipt-recheck.cjs "${RUNNER_TEMP}/atelier-zip-integrity-check.json" "${RUNNER_TEMP}/atelier-review-evidence-download.zip" "${RUNNER_TEMP}/atelier-artifact-metadata-observation.json"
       - name: Retain explicit GitHub artifact metadata observation
         if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
         uses: actions/upload-artifact@v4
