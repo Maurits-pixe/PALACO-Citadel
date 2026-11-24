@@ -1940,3 +1940,44 @@ two independent external archives received the records.
 
 **GO-13 DRAFT / HOLD / DENY:** no merge, production rollout,
 external key activation, issue or release.
+
+## v6.3 — Restricted HTTPS archive transport and idempotent signed receipt intake (DRAFT / HOLD)
+
+`visitcard_v63_https_archive.py` is a v6.2-compatible HTTPS POST transport
+adapter for two **explicitly configured** archive endpoints. It requires
+distinct archive IDs, endpoint URLs and independently supplied pinned
+Ed25519 verification keys, plus caller-managed credentials. The transport
+rejects HTTP, local/reserved host suffixes, IP-literal endpoints, unexpected
+ports, credentials embedded in URLs, query strings, fragments, unexpected
+paths, and ambiguous origins. Each request is reconstructed and matched to
+the immutable v6.2 canonical `handoff_id` SHA-256. It sends that digest as
+an `Idempotency-Key` header. Its standard-library HTTPS client uses normal
+certificate verification, a bounded eight-second request, no implicit
+redirects or automatic retries, explicit JSON headers and a strict 8 KiB
+response-size ceiling. It rejects duplicate JSON object keys and a response
+whose echoed handoff ID does not match the original request.
+
+A successful transport response still requires a cryptographically valid
+v6.1 Ed25519 archive receipt covering the expected archive ID, incident
+sequence, exact incident ledger head, conflict digest and validity window.
+Only then may v6.2 record the receipt in its local append-only outbox.
+A network failure, wrong receipt or refusal leaves the archive pending,
+never automatically clears quarantine or escalates privileges. The receiver
+must independently enforce exactly-once processing of retried handoff IDs;
+the sender provides only at-least-once retry compatibility.
+
+29 new synthetic transport/response regressions cover valid signed
+receipts, interrupted archive delivery, idempotent retry, wrong archive
+signatures, echoed handoff IDs, content types, redirects, oversized data,
+duplicate JSON keys, malicious URLs, unsafe tokens and no-release rules.
+
+**External trust boundary:** the transport is implemented but no production
+archive endpoints, archive credentials or real remote independent storage
+were provisioned or contacted during the tests. Domain-name validation
+does not by itself prevent DNS rebinding to private networks; deployments
+need an independent network egress policy or IP enforcement. TLS
+authentication does not prove offsite durable evidence retention; external
+archive-side receipt issuance, trusted DNS, signing-key custody, remote
+deduplication, independently pinned heads and disaster recovery still
+require integration and validation. The seven production blockers
+continue. **GO-13 DRAFT / HOLD / DENY; no merge, rollout or key activation.**
