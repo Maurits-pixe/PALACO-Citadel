@@ -1045,3 +1045,44 @@ test('signed escaped JSON schema character does not alias canonical audit schema
  assert.equal(r.anchoredLedgerMatched,false);
  assert.equal(r.authorization,'DENY');
 });
+
+
+test('validly signed UTF-8 BOM audit document is rejected without ledger access',()=>{
+ const original=setup();
+ const anchorBytes=Buffer.concat([Buffer.from([0xef,0xbb,0xbf]),original.anchorBytes]);
+ const signatureBase64Url=sign('sha256',Buffer.concat([
+   Buffer.from('PALACO-CITADEL-AUDIT-HEAD-ANCHOR-V1\n'),anchorBytes
+ ]),pair.privateKey).toString('base64url');
+ let ledgerEnumerations=0;
+ const entries=new Proxy([...original.entries],{
+   ownKeys(){ledgerEnumerations++;throw Error('BOM document must not reach ledger');}
+ });
+ const r=inspectSignedAuditHeadAnchor({...original,anchorBytes,signatureBase64Url,entries});
+ assert.equal(ledgerEnumerations,0);
+ assert.equal(r.reason,'MALFORMED_OR_UNTRUSTED_ANCHOR');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('validly signed invalid UTF-8 cannot reach ledger verification',()=>{
+ const original=setup();
+ const anchorBytes=Buffer.concat([
+   Buffer.from([0xc0,0xaf]),original.anchorBytes
+ ]);
+ const signatureBase64Url=sign('sha256',Buffer.concat([
+   Buffer.from('PALACO-CITADEL-AUDIT-HEAD-ANCHOR-V1\n'),anchorBytes
+ ]),pair.privateKey).toString('base64url');
+ let ledgerEnumerations=0;
+ const entries=new Proxy([...original.entries],{
+   ownKeys(){ledgerEnumerations++;throw Error('invalid UTF-8 must not reach ledger');}
+ });
+ const r=inspectSignedAuditHeadAnchor({...original,anchorBytes,signatureBase64Url,entries});
+ assert.equal(ledgerEnumerations,0);
+ assert.equal(r.reason,'MALFORMED_OR_UNTRUSTED_ANCHOR');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.executionAllowed,false);
+});
