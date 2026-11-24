@@ -101,6 +101,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           artifact-ids: ${{ steps.review_artifact.outputs.artifact-id }}
+          github-token: ${{ github.token }}
+          run-id: ${{ github.run_id }}
+          repository: ${{ github.repository }}
           path: ${{ runner.temp }}/atelier-downloaded-evidence
           merge-multiple: true
       - name: Verify extracted GitHub artifact bytes against checked source
