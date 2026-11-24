@@ -78,3 +78,33 @@ test('missing GitHub metadata digest cannot produce a final witness',()=>fixture
  assert.throws(()=>verifyAll({...input,metadata:enc(metadata)},ctx),
   /Invalid verified artifact metadata fields/);
 }));
+
+const {recheckWitness}=require('./github-final-witness-recheck.cjs');
+test('persisted final witness is independently recomputed and remains HOLD',()=>fixture(input=>{
+ const stored=enc(verifyAll(input,ctx));
+ const checked=recheckWitness(stored,input,ctx);
+ assert.equal(checked.result,'FINAL_WITNESS_RECOMPUTED');
+ assert.equal(checked.review_sha256,JSON.parse(stored).review_sha256);
+ assert.equal(checked.decision,'HOLD');
+ assert.equal(checked.release_approved,false);
+ assert.equal(checked.evidence_usable,false);
+}));
+test('fabricated GO and additional fields cannot validate persisted witness',()=>fixture(input=>{
+ const normal=verifyAll(input,ctx);
+ assert.throws(()=>recheckWitness(enc({...normal,release_approved:true}),input,ctx),
+  /differs from freshly verified/);
+ assert.throws(()=>recheckWitness(enc({...normal,reviewer:'injected'}),input,ctx),
+  /Noncanonical or unexpected/);
+}));
+test('wrong run, commit, artifact ID and noncanonical JSON are refused',()=>fixture(input=>{
+ const saved=enc(verifyAll(input,ctx));
+ for(const changed of [{...ctx,runId:124},{...ctx,headSha:'b'.repeat(40)},{...ctx,artifactId:789}])
+  assert.throws(()=>recheckWitness(saved,input,changed),/does not match|different candidate/);
+ assert.throws(()=>recheckWitness(Buffer.concat([saved,Buffer.from(' ')]),input,ctx),
+  /Noncanonical or unexpected/);
+}));
+test('changed downloaded evidence cannot reuse retained witness',()=>fixture(input=>{
+ const saved=enc(verifyAll(input,ctx));
+ fs.appendFileSync(path.join(input.downloadDir,'atelier-review-integrity.json'),'x');
+ assert.throws(()=>recheckWitness(saved,input,ctx),/bytes differ/);
+}));
