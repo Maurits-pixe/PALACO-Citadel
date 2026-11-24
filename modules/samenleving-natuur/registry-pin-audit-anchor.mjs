@@ -119,7 +119,9 @@ const captureLedgerEntries = (entries, expectedSequence) => {
 const pinOK = p => capturePin(p) !== null;
 const samePin = (a,b) => a.schema===b.schema && a.revision===b.revision &&
   a.issuerFingerprint===b.issuerFingerprint && a.registrySha256===b.registrySha256;
-const reject = reason => ({
+// Verification evidence must remain immutable after the decision is returned.
+// In particular, downstream callers must not rewrite DENY or unresolved gates.
+const reject = reason => Object.freeze({
   schema:AUDIT_ANCHOR_SCHEMA, anchorSignatureValid:false,
   anchoredLedgerMatched:false, reason, trust:'NOT_ESTABLISHED',
   authorization:'DENY',stateChanged:false,
@@ -291,14 +293,14 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
       expectedCurrentPin:currentSnapshot
     });
     if (!ledger.chainConsistent) return reject('LEDGER_'+ledger.reason);
-    return {
+    return Object.freeze({
       schema:AUDIT_ANCHOR_SCHEMA,anchorSignatureValid:true,
       anchoredLedgerMatched:true,anchoredSequence:doc.sequence,
       anchoredHeadHash:doc.headHash,
-      unresolvedGates:['INDEPENDENT_PROTECTED_KEY_FINGERPRINT',
-        'EXTERNALLY_PERSISTED_ANCHOR','TRUSTED_REVOCATION_AND_CLOCK'],
+      unresolvedGates:Object.freeze(['INDEPENDENT_PROTECTED_KEY_FINGERPRINT',
+        'EXTERNALLY_PERSISTED_ANCHOR','TRUSTED_REVOCATION_AND_CLOCK']),
       trust:'NOT_ESTABLISHED',authorization:'DENY',
       stateChanged:false,executionAllowed:false,releaseAllowed:false
-    };
+    });
   } catch { return reject('MALFORMED_OR_UNTRUSTED_ANCHOR'); }
 }
