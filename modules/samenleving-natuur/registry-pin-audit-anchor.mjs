@@ -32,6 +32,7 @@ const captureExactRecord = (value, keys) => {
 // Every ECDSA scalar must satisfy 1 <= scalar < the subgroup order.
 const P256_ORDER = BigInt('0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551');
 const P256_FIELD_PRIME = BigInt('0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff');
+const P256_B = BigInt('0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b');
 const canonicalEcdsaDer = signature => {
   if (signature.length < 8 || signature.length > 72 ||
       signature[0] !== 0x30 || signature[1] !== signature.length - 2)
@@ -210,6 +211,12 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
     const xCoordinate = BigInt('0x' + xBytes.toString('hex'));
     const yCoordinate = BigInt('0x' + yBytes.toString('hex'));
     if (xCoordinate >= P256_FIELD_PRIME || yCoordinate >= P256_FIELD_PRIME)
+      return reject('INVALID_ANCHOR_INPUT');
+    // P-256: y^2 = x^3 - 3x + b (mod p). A field-range check alone
+    // does not establish that the supplied point belongs to the curve.
+    const mod = value => ((value % P256_FIELD_PRIME) + P256_FIELD_PRIME) % P256_FIELD_PRIME;
+    if (mod(yCoordinate * yCoordinate) !==
+        mod(xCoordinate * xCoordinate * xCoordinate - 3n * xCoordinate + P256_B))
       return reject('INVALID_ANCHOR_INPUT');
     const key = createPublicKey({format:'jwk',key:keySnapshot});
     if (key.asymmetricKeyType !== 'ec' ||
