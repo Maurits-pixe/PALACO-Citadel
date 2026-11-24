@@ -99,6 +99,10 @@ jobs:
         env:
           CITADEL_EPHEMERAL_CI_ONLY: '1'
         run: bash modules/samenleving-natuur/reviewer-roster-reconnect-fencing-ci.sh
+      - name: Fencing anchor CAS race and fork rollback (disposable PostgreSQL)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/reviewer-roster-fencing-anchor-register-ci.sh
       - name: Ephemeral issuer rotation atomicity and stale replay QA
         env:
           CITADEL_EPHEMERAL_CI_ONLY: '1'
