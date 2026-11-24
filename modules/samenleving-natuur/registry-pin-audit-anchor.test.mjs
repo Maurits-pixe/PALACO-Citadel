@@ -1629,3 +1629,44 @@ test('ECDSA alternate-S signature does not authenticate a changed signed audit h
  assert.equal(r.authorization,'DENY');
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('signed genesis audit anchor with zero ledger transitions verifies but remains DENY',()=>{
+ const genesisDocument=document({
+   sequence:0,headHash:'0'.repeat(64),currentPin:genesisPin
+ });
+ const input=setup(genesisDocument,{
+   entries:[],currentPin:genesisPin,minimumAnchorSequence:0
+ });
+ const r=inspectSignedAuditHeadAnchor(input);
+ assert.equal(r.anchorSignatureValid,true,JSON.stringify(r));
+ assert.equal(r.anchoredLedgerMatched,true);
+ assert.equal(r.anchoredSequence,0);
+ assert.equal(r.anchoredHeadHash,'0'.repeat(64));
+ assert.equal(r.trust,'NOT_ESTABLISHED');
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.executionAllowed,false);
+ assert.equal(r.releaseAllowed,false);
+ assert.equal(r.stateChanged,false);
+ assert.equal(Object.isFrozen(r),true);
+});
+
+test('signed genesis checkpoint cannot bypass higher rollback sequence floor',()=>{
+ const genesisDocument=document({
+   sequence:0,headHash:'0'.repeat(64),currentPin:genesisPin
+ });
+ const input=setup(genesisDocument,{
+   entries:[],currentPin:genesisPin,minimumAnchorSequence:1
+ });
+ let ledgerReads=0;
+ const entries=new Proxy([],{
+   ownKeys(){ledgerReads++;throw Error('rollback must fail before history');}
+ });
+ const r=inspectSignedAuditHeadAnchor({...input,entries});
+ assert.equal(ledgerReads,0);
+ assert.equal(r.reason,'ANCHOR_ROLLBACK_OR_MISMATCH');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
