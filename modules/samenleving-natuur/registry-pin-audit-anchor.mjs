@@ -31,6 +31,7 @@ const captureExactRecord = (value, keys) => {
 // This is a format gate, not a replacement for cryptographic verification.
 // Every ECDSA scalar must satisfy 1 <= scalar < the subgroup order.
 const P256_ORDER = BigInt('0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551');
+const P256_FIELD_PRIME = BigInt('0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff');
 const canonicalEcdsaDer = signature => {
   if (signature.length < 8 || signature.length > 72 ||
       signature[0] !== 0x30 || signature[1] !== signature.length - 2)
@@ -203,6 +204,12 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
     if (xBytes.length !== 32 || yBytes.length !== 32 ||
         xBytes.toString('base64url') !== keySnapshot.x ||
         yBytes.toString('base64url') !== keySnapshot.y)
+      return reject('INVALID_ANCHOR_INPUT');
+    // Both affine P-256 coordinates are field elements in [0, p-1].
+    // Reject non-field encodings before asking the crypto library to import.
+    const xCoordinate = BigInt('0x' + xBytes.toString('hex'));
+    const yCoordinate = BigInt('0x' + yBytes.toString('hex'));
+    if (xCoordinate >= P256_FIELD_PRIME || yCoordinate >= P256_FIELD_PRIME)
       return reject('INVALID_ANCHOR_INPUT');
     const key = createPublicKey({format:'jwk',key:keySnapshot});
     if (key.asymmetricKeyType !== 'ec' ||
