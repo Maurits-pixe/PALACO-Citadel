@@ -1055,3 +1055,9 @@ De nieuwe module `atelier/github-artifact-visibility.cjs` vraagt vóór het down
 Vijf nieuwe Node-regressies toetsen een geldige listing, tijdelijke 404/lege listing, uitgeputte pogingen, foutieve context en hard falende API-antwoorden. De download, bytevergelijking, receiptcontrole en laatste PR-headcontrole blijven afzonderlijke verplichte controles. Een zichtbare listing is nog **geen** ZIP-integriteitsbewijs en nooit vrijgaveautorisatie.
 
 De nieuwe v6.93-HEAD moet apart door GitHub Actions worden geverifieerd. **GO-13 DRAFT/HOLD/DENY**, geen merge, EDTR-uitgifte of publieke uitrol.
+
+### v6.93 downloadfix — geauthenticeerde GitHub REST-download (2026-11-24)
+
+De nieuwe artifactlisting-controle slaagde op run `45327177343` en vond exact artifact `14889678281`, maar `actions/download-artifact@v4` vond ondanks die REST-zichtbaarheid nog nul artifacts. De downloadactie werd namelijk zonder expliciete `github-token` uitgevoerd en gebruikte daarmee een ander intern artifactzoekpad. De workflow geeft de downloadactie nu expliciet een read-only GitHub-token, `github.run_id` en `github.repository`, zodat zij dezelfde geauthenticeerde, rungebonden REST-verzameling raadpleegt als de zichtbaarheidsgate. De `actions: read`-bevoegdheid was reeds aanwezig. De exact opgegeven artifact-ID en alle bestaande byte-, SHA-256- en release-HOLD-controles blijven verplicht.
+
+Een extra statische regressietest controleert deze configuratie en de volgorde van de artifactlisting en download. De nieuwe CI-run moet nog bevestigen of dit de live downloadfout oplost. **GO-13 DRAFT/HOLD/DENY**; geen merge, EDTR of publieke uitrol.
