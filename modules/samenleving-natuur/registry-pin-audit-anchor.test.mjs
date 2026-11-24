@@ -1366,3 +1366,33 @@ test('shared-memory audit bytes with spoofed buffer property remain denied',()=>
  assert.equal(r.authorization,'DENY');
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('successful audit evidence and unresolved gates are immutable',()=>{
+ const r=inspectSignedAuditHeadAnchor(setup());
+ assert.equal(r.anchorSignatureValid,true,JSON.stringify(r));
+ assert.equal(r.anchoredLedgerMatched,true);
+ assert.equal(Object.isFrozen(r),true);
+ assert.equal(Object.isFrozen(r.unresolvedGates),true);
+ assert.throws(()=>{r.authorization='ALLOW';},TypeError);
+ assert.throws(()=>{r.releaseAllowed=true;},TypeError);
+ assert.throws(()=>{r.unresolvedGates.length=0;},TypeError);
+ assert.throws(()=>{r.unresolvedGates.push('FAKE_GATE');},TypeError);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+ assert.equal(r.unresolvedGates.length,3);
+});
+
+test('rejected audit evidence cannot be changed into an allow decision',()=>{
+ const input=setup();
+ const r=inspectSignedAuditHeadAnchor({...input,signatureBase64Url:'AQID'});
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(Object.isFrozen(r),true);
+ assert.throws(()=>{r.authorization='ALLOW';},TypeError);
+ assert.throws(()=>{r.anchorSignatureValid=true;},TypeError);
+ assert.throws(()=>{r.executionAllowed=true;},TypeError);
+ assert.throws(()=>{r.reason='TRUST_ESTABLISHED';},TypeError);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.executionAllowed,false);
+});
