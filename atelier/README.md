@@ -1,3 +1,10 @@
+## v6.97 — voorafgaande validatie van beide ZIP-bewijsbestanden
+
+- De extractor leest en verifieert nu eerst beide verwachte JSON-bestanden volledig vóór aanmaken van de extractiemap of schrijven van bewijsbestanden.
+- Een fout in het tweede ZIP-member (zoals ongeldige CRC of beschadigde inhoud) kan daardoor geen reeds geschreven eerste bewijsbestand achterlaten.
+- Uitvoerbare regressietest beschadigt het tweede ZIP-member en controleert dat er geen extractiedoel wordt aangemaakt.
+- De bestaande naam-, grootte-, symlink-, digest- en release-HOLD-controles blijven verplicht. Nieuwe CI-resultaten op HEAD afzonderlijk controleren.
+
 ## v6.96 — symlinkcontrole over het volledige extractiepad
 
 - De GitHub-bewijs-ZIP-extractor weigert nu ook symlinks in bovenliggende mappen van de extractiebestemming. Daarmee mag een nieuw aangemaakte doelmap niet ongemerkt via een doorgelinkte parent buiten het bedoelde pad terechtkomen.
