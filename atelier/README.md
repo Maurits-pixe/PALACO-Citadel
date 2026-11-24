@@ -1,3 +1,10 @@
+## v6.90 — volledige notitiecontrole na opslaglezing bij projectexport
+
+- Complete projectexport controleert de actuele volledige editorwaarde opnieuw na `api.read(localStorage)`.
+- Een synchrone opslagadapter die daarna een notitie van meer dan 6.000 tekens achterlaat kan geen ongeldig of gedeeltelijk projectbestand laten downloaden.
+- Grenswaarde exact 6.000 tekens blijft ondersteund. Twee Playwright-regressies toegevoegd.
+- **DRAFT / HOLD / DENY**; nieuwe HEAD vereist onafhankelijke CI-controle. Geen merge of productiepublicatie.
+
 ## v6.89 — hercontrole vóór losse dossierdownloads
 
 - `noteValue()` kapt de editor niet langer stilzwijgend af: bij meer dan 6.000 tekens wordt een fout veroorzaakt.
