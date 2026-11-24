@@ -1653,3 +1653,34 @@ authenticated. The segment manifest detects local omissions relative
 to the signed *supplied* log, not remote GitHub truncation if a
 signer attests incomplete data. No merge, rollout, key activation
 or release is permitted. **GO-13 HOLD.**
+
+## v5.6 — Signed workflow-run / job-parent membership dossier (DRAFT / GO-13 HOLD)
+
+`visitcard_v56_run_job_parent.py` extends the complete v5.5
+verified source, CI, signed provenance, run observation, original
+job-log acquisition receipt and contiguous segment dossier.
+A separately pinned Ed25519 signer attests to an exact run/job
+parent relationship and SHA-256 digests of **both** supplied
+canonical job and run metadata snapshots. The contract rejects
+run-ID substitution, a job moved to a different parent run, mismatched
+run attempts, wrong source/workflow SHA, bad job result, stale
+metadata and inconsistent signed log/dossier hashes. The parent
+observer must use a key different from run observer, log collector
+and job-dossier observer. The signed statement expires within
+15 minutes and explicitly enforces `GO-13 HOLD`.
+
+24 synthetic regression tests cover complete chain matching, wrong
+parent IDs, swapped job associations, inconsistent attempts, forged
+signatures, altered/re-signed bad snapshots, stale links, key reuse,
+mismatched hashes and permanently false permission flags.
+
+**Trust limitation:** The metadata snapshots and parent linkage
+are supplied by the caller. This module does not authenticate
+GitHub API transport, validate a GitHub token/OIDC JWT, establish
+a genuinely independent upstream collector, prove a job belongs
+to a run by querying GitHub, or check artifact provenance against
+GitHub directly. The matching signed result is informational
+only, not externally authenticated GitHub-origin evidence.
+All seven external infrastructure blockers remain in effect.
+
+**GO-13 HOLD — no merge, deployment, release or key activation.**
