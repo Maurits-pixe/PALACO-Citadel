@@ -1616,3 +1616,40 @@ blockers continue to apply, and even a matching packet remains
 
 **GO-13 HOLD:** No merge, deployment, issuance, key activation,
 production authentication or release.
+
+## v5.5 — Signed job metadata and contiguous log evidence dossier (DRAFT / HOLD)
+
+`visitcard_v55_job_dossier.py` adds a signed job-observation
+dossier on top of the entire v5.4 verified source, CI,
+provenance, run-observation and acquisition-receipt chain. The
+job dossier binds repository, run ID, run attempt, numeric
+job ID, source commit SHA, workflow SHA, successful completed job
+claim and SHA-256 and exact byte count of the original CI job log.
+
+A bounded ordered segment manifest (1–128 chunks) must reconstruct
+**every byte** of the original log without gaps, overlaps, empty
+chunks, reordering, trailing omissions or altered segment hashes.
+Each segment carries its byte offset, size, SHA-256 and the
+previous segment SHA-256; the first predecessor is all zeroes.
+Ed25519 verification requires a separately pinned job-observer
+key which must differ from BOTH the v5.3 run observer and the
+v5.4 log collector public keys. Exact log bytes, job metadata and
+signature must all agree. The signed observation is valid for at
+most 15 minutes and GO-13 remains HOLD for all outcomes.
+
+24 new v5.5 tests exercise valid synthetic evidence, omitted/
+overlapping/changed segments, wrong job/run/attempt/commit/workflow,
+forged/reused keys, failed job states, expiry and permanent
+non-authorization. The best result is
+`REVIEWABLE_INFORMATIONAL` and all seven external blockers remain.
+
+**External trust boundary:** this offline component verifies
+signatures and exact supplied bytes, NOT a direct authenticated
+GitHub API job response, the run-job parent relationship, actual
+runner identity, GitHub-native artifact attestation, or independent
+physical custody. A trusted upstream provisioner must establish
+those conditions before evidence may be considered externally
+authenticated. The segment manifest detects local omissions relative
+to the signed *supplied* log, not remote GitHub truncation if a
+signer attests incomplete data. No merge, rollout, key activation
+or release is permitted. **GO-13 HOLD.**
