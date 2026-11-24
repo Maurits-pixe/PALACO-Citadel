@@ -1513,3 +1513,42 @@ run identifiers, immutable log bytes and auditor identities in
 a real evidence provisioner before making any such claim.
 
 **GO-13 HOLD:** no merge, live deployment, permission or key issuance.
+
+## v5.2 — Signed provenance claims for CI and security-review evidence (DRAFT / HOLD)
+
+The new `visitcard_v52_provenance.py` layers a provenance-claim
+verification step **after** the v5.1 source and exact-byte evidence
+checks. Both `CI_ZERO_SKIP` and `SECURITY_REVIEW` require distinct
+Ed25519-signed provenance claims, scoped to the same exact Git
+commit, separately pinned source inventory hash and SHA-256 of
+their respective source evidence bytes. Claims bind explicit
+repository, workflow or independent-review reference, execution
+identifier, execution attempt, executor identity, canonical
+content-addressed `sha256:` artifact URI, and bounded issuance/
+expiration dates. Each claim is verified against independently
+provisioned expected identity/reference and pinned signer keys.
+Reusing the same key across the two provenance domains, unknown
+signers, wrong runner metadata, wrong SHA, changed source, forged
+signatures and stale provenance are rejected. The canonical digest
+of the combined provenances and the previously verified v5.1
+packet is reproducible.
+
+**Trust boundary:** Signed provenance is a cryptographically
+authenticated *claim made by the named signer*, not direct
+evidence that GitHub itself authenticated an Actions workflow,
+runner or artifact. The module does not call GitHub, validate
+GitHub OIDC issuer/audience/JWKS, compare workflow_run/run_attempt
+against the authenticated GitHub API, or verify that a reviewer
+was operationally independent. Upstream trusted provisioners
+must supply genuine immutable run identifiers, actor identity,
+review references, expected executions and trust roots.
+Synthetic fixtures do not fulfill any external blocker.
+
+23 added regressions exercise source and artifact substitution,
+changed workflow/repository/runner identity, key reuse, missing
+or forged claims, incorrect execution IDs/attempts, expiration
+and permanent no-release flags. The best possible result remains
+`REVIEWABLE_INFORMATIONAL`; all seven v5.0 external production
+blockers remain active.
+
+**GO-13 HOLD:** no merge, deployment, live credentials or authority.
