@@ -8,6 +8,7 @@ Local SQLite triggers are tamper resistance, not independent durable custody.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 import hashlib
 import json
@@ -104,15 +105,14 @@ def _chain(db:sqlite3.Connection,roots:Mapping[str,bytes])->tuple[int,str]|None:
             names=[note.get("custodian_id") for note in notes if isinstance(note,dict)]
             if len(names)!=2 or names[0]==names[1] or set(names)!=set(pins):
                 return None
+            # Revalidate at the signed capture instant, not wall-clock now:
+            # historical incidents remain auditable after receipts expire.
             verified=[
-                _verified_observation(note,roots,pins[name],
-                                      expected_repository=payload["repository"],now=None)
-                for note,name in zip(notes,names)
+                _verified_observation(
+                    note,roots,pins[name],expected_repository=payload["repository"],
+                    now=datetime.fromisoformat(note["payload"]["observed_at"].replace("Z","+00:00")),
+                ) for note,name in zip(notes,names)
             ]
-            # Archived signature validity must not depend on current time.
-            # A signature may have expired since capture; verify historical
-            # capture by passing original observed_at and ensure expiry itself
-            # was bounded by the custody protocol.
             if any(item is None for item in verified):
                 return None
             if verified[0][1]==verified[1][1]:
