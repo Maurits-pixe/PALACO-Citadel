@@ -1251,3 +1251,26 @@ onafhankelijke tijdstempel. De GitHub-workflow gebruikt uitsluitend synthetische
 regressies: er zijn geen echte beheerderssleutels, externe receipts of
 operationele trust anchors toegevoegd. GO-13 blijft DRAFT/HOLD/DENY;
 geen merge, EDTR, officiële autorisatie of publieke uitrol.
+
+
+### v7.06 — out-of-band registrycheckpoint en anti-rollbackvloer (DRAFT/HOLD/DENY)
+De nieuwe offline module `github-registry-checkpoint.cjs` accepteert een canoniek
+checkpoint uitsluitend indien **zowel** de checkpoint-SHA-256 als de registry-SHA-256
+van buiten de GitHub-runner zijn geleverd en het checkpointvolgnummer minimaal
+gelijk is aan een **extern bijgehouden** minimum. De checkpointinhoud bindt
+registerversie en volledige registerhash aan de PALACO-Citadel-repository.
+Een exact overeenkomende registerversie is vereist: ook een nieuwer, nog
+niet onafhankelijk vastgelegd register wordt geweigerd. Checkpointtransities
+vereisen precies één hoger volgnummer, de hash van het vorige checkpoint
+en een niet-teruglopende registerversie. Zes synthetische regressietests
+bewaken de geldige HOLD-situatie, terugrol, wijziging, forks, overslaan,
+niet-canonieke invoer en gefingeerde bevoegdheid.
+
+**Vertrouwensgrens:** er is bewust geen operationele checkpointwaarde,
+vertrouwde sleutel of minimale versie in de repository of workflow opgeslagen.
+Een aanvaller die ook de externe checkpointbron en minimumstand mag wijzigen,
+kan nog steeds terugrollen. De hash bewijst geen authenticiteit zonder een
+zelfstandig beheerde, geauthenticeerde distributieroute. Regels in deze
+repository zijn een *verificatiecontract*, niet bewijs dat onafhankelijke
+checkpointbewaring al gebeurt. GO-13 DRAFT/HOLD/DENY; geen merge,
+EDTR-uitgifte of publieke uitrol.
