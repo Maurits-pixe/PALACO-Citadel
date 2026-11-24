@@ -1801,3 +1801,48 @@ anti-rollback or split-view protection. The seven existing
 external production blockers remain unresolved.
 
 **GO-13 HOLD — no merge, release, rollout or key activation.**
+
+## v6.0 — Durable append-only SQLite split-view incident ledger (DRAFT / HOLD)
+
+`visitcard_v60_incident_ledger.py` adds a SQLite incident ledger
+that accepts **only** an independently verified v5.9
+`SPLIT_VIEW_QUARANTINED` result. Each row stores both complete
+signed custodian observations, externally provisioned digest pins,
+their comparison/conflict SHA-256, an exact canonical JSON
+representation and a cryptographically chained sequence and
+predecessor head. Insertion uses `BEGIN IMMEDIATE` for local
+compare-and-swap (CAS) and insists that the expected sequence and
+current head SHA were obtained from an **external, independently
+pinned source**. The evidence table has unique conflict digests and
+immutable UPDATE/DELETE triggers to prevent accidental overwrites.
+
+Reading after restart recomputes every ledger head, re-verifies
+the archived custodian Ed25519 signatures at their signed
+capture instants, verifies all checkpoint comparison and conflict
+fingerprints, requires canonical serialization, and checks
+the externally pinned latest sequence/head. This detects an
+accidentally pruned or rolled-back local ledger provided the
+verifier receives an independently protected latest head. Explicit
+results are `RECORDED_QUARANTINED`,
+`VERIFIED_QUARANTINED`, or `BLOCKED`; none permits
+release, merge or activation. No automatic incident deletion,
+quarantine clearance or authority elevation exists.
+
+27 synthetic regressions cover persistence across SQLite reopen,
+historical signature verification, duplicate conflict refusal,
+tampered archive bytes, missing/stale head pins, local rollback,
+simulated privileged trigger removal, concurrent stale heads,
+active transaction rejection and constant HOLD.
+
+**Trust boundary and operational limits:** The SQLite file is a
+local durable incident ledger, NOT an off-device, independent,
+tamper-proof archive. A privileged administrator can drop SQL
+triggers and replace the database; protection against a consistent
+rollback depends on an independently stored trusted latest-head
+pin that this module does not itself provision. This is NOT a
+cross-database transaction, independent custodian server or
+production release gate. The seven production blockers remain
+active. Backups, filesystem permissions, fsync configuration and
+independent incident replication require deployment-level design.
+
+**GO-13 HOLD — no merge, release, deployment or key activation.**
