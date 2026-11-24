@@ -3016,3 +3016,49 @@ test('Atelier v6.89: gewijzigde notitie tijdens refresh blokkeert losse TXT-expo
  expect(await page.evaluate(()=>window.dossierDownloadCount)).toBe(0);
  await page.evaluate(()=>{HTMLAnchorElement.prototype.click=window.originalDownloadClick;Storage.prototype.getItem=window.originalStorageGet;});
 });
+
+
+test('Atelier v6.90: projectexport weigert notitie die tijdens opslaglezing te lang wordt',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Korte creatieve bron');
+ const oversized='L'.repeat(6000)+'GEEN-AFKAPPING';
+ await page.evaluate(()=>{
+   window.bundleDownloads=0;
+   window.nativeBundleClick=HTMLAnchorElement.prototype.click;
+   HTMLAnchorElement.prototype.click=function(){window.bundleDownloads++;};
+   window.nativeBundleGet=Storage.prototype.getItem;
+   let changed=false;
+   Storage.prototype.getItem=function(key){
+     const current=window.nativeBundleGet.call(this,key);
+     if(this===localStorage&&!changed){changed=true;document.getElementById('statement').value='L'.repeat(6000)+'GEEN-AFKAPPING';}
+     return current;
+   };
+ });
+ await page.locator('#bundleSave').click();
+ await expect(page.locator('#bundleStatus')).toContainText('Projectexport geweigerd');
+ await expect(page.locator('#statement')).toHaveValue(oversized);
+ await expect(page.locator('#exportBundleReceipt')).toBeDisabled();
+ expect(await page.evaluate(()=>window.bundleDownloads)).toBe(0);
+ await page.evaluate(()=>{HTMLAnchorElement.prototype.click=window.nativeBundleClick;Storage.prototype.getItem=window.nativeBundleGet;});
+});
+
+test('Atelier v6.90: projectexport na opslaglezing met precies 6000 tekens is compleet',async ({page})=>{
+ await page.goto('/atelier/regiekamer.html');
+ await page.locator('#statement').fill('Korte creatieve bron');
+ const exact='K'.repeat(6000);
+ await page.evaluate(()=>{
+   window.nativeBundleGet=Storage.prototype.getItem;
+   let changed=false;
+   Storage.prototype.getItem=function(key){
+     const current=window.nativeBundleGet.call(this,key);
+     if(this===localStorage&&!changed){changed=true;document.getElementById('statement').value='K'.repeat(6000);}
+     return current;
+   };
+ });
+ const downloadPromise=page.waitForEvent('download');
+ await page.locator('#bundleSave').click();
+ const download=await downloadPromise;
+ const bytes=await (await import('node:fs/promises')).readFile(await download.path());
+ expect(JSON.parse(bytes.toString('utf8')).note).toBe(exact);
+ await page.evaluate(()=>{Storage.prototype.getItem=window.nativeBundleGet;});
+});
