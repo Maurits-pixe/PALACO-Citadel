@@ -1086,3 +1086,56 @@ test('validly signed invalid UTF-8 cannot reach ledger verification',()=>{
  assert.equal(r.authorization,'DENY');
  assert.equal(r.executionAllowed,false);
 });
+
+
+test('signed exponent-form audit sequence cannot alias canonical integer JSON',()=>{
+ const original=setup();
+ const canonical=original.anchorBytes.toString('utf8');
+ const changed=canonical.replace('"sequence":1,','"sequence":1e0,');
+ assert.notEqual(changed,canonical);
+ const anchorBytes=Buffer.from(changed,'utf8');
+ const signatureBase64Url=sign('sha256',Buffer.concat([
+   Buffer.from('PALACO-CITADEL-AUDIT-HEAD-ANCHOR-V1\n'),anchorBytes
+ ]),pair.privateKey).toString('base64url');
+ let ledgerReads=0;
+ const entries=new Proxy([...original.entries],{
+   ownKeys(){ledgerReads++;throw Error('noncanonical sequence must not reach ledger');}
+ });
+ const r=inspectSignedAuditHeadAnchor({...original,anchorBytes,signatureBase64Url,entries});
+ assert.equal(ledgerReads,0);
+ assert.equal(r.reason,'NONCANONICAL_ANCHOR_DOCUMENT');
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('signed noncanonical PIN revision exponent cannot alias original revision',()=>{
+ const original=setup();
+ const canonical=original.anchorBytes.toString('utf8');
+ const changed=canonical.replace('"revision":1,','"revision":1e0,');
+ assert.notEqual(changed,canonical);
+ const anchorBytes=Buffer.from(changed,'utf8');
+ const signatureBase64Url=sign('sha256',Buffer.concat([
+   Buffer.from('PALACO-CITADEL-AUDIT-HEAD-ANCHOR-V1\n'),anchorBytes
+ ]),pair.privateKey).toString('base64url');
+ const r=inspectSignedAuditHeadAnchor({...original,anchorBytes,signatureBase64Url});
+ assert.equal(r.reason,'NONCANONICAL_ANCHOR_DOCUMENT');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+});
+
+test('signed trailing JSON whitespace cannot be silently normalized',()=>{
+ const original=setup();
+ for(const suffix of ['\n','\t',' ']){
+   const anchorBytes=Buffer.concat([original.anchorBytes,Buffer.from(suffix)]);
+   const signatureBase64Url=sign('sha256',Buffer.concat([
+     Buffer.from('PALACO-CITADEL-AUDIT-HEAD-ANCHOR-V1\n'),anchorBytes
+   ]),pair.privateKey).toString('base64url');
+   const r=inspectSignedAuditHeadAnchor({...original,anchorBytes,signatureBase64Url});
+   assert.equal(r.reason,'NONCANONICAL_ANCHOR_DOCUMENT');
+   assert.equal(r.anchoredLedgerMatched,false);
+   assert.equal(r.authorization,'DENY');
+   assert.equal(r.releaseAllowed,false);
+ }
+});
