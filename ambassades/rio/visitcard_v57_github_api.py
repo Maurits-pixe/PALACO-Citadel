@@ -24,7 +24,7 @@ from visitcard_witness_enrollment import _canonical
 from visitcard_v5_security_review import EXTERNAL_BLOCKERS
 
 BASE="https://api.github.com"
-REPO=re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\Z",re.ASCII)
+REPO=re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]*/[A-Za-z0-9][A-Za-z0-9_.-]*\Z",re.ASCII)
 MAX_BODY=256*1024
 
 
