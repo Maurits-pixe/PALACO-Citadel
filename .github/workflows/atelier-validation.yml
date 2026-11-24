@@ -53,7 +53,7 @@ jobs:
       - name: Test fail-closed release evidence evaluator
         run: node --test atelier/release-gate.test.cjs
       - name: Test read-only GitHub review audit, collector and artifact integrity
-        run: node --test atelier/github-review-audit.test.cjs atelier/github-review-collector.test.cjs atelier/github-review-evidence-integrity.test.cjs atelier/github-review-pair.test.cjs atelier/github-artifact-metadata.test.cjs atelier/github-artifact-chain.test.cjs atelier/github-extracted-artifact.test.cjs atelier/github-extracted-receipt.test.cjs atelier/github-checkout-contract.test.cjs atelier/github-pr-head-freshness.test.cjs atelier/github-artifact-visibility.test.cjs atelier/github-artifact-zip-extract.test.cjs atelier/github-artifact-zip-runtime.test.cjs atelier/github-zip-integrity.test.cjs atelier/github-zip-receipt-recheck.test.cjs atelier/github-final-artifact-witness.test.cjs atelier/github-archive-manifest.test.cjs
+        run: node --test atelier/github-review-audit.test.cjs atelier/github-review-collector.test.cjs atelier/github-review-evidence-integrity.test.cjs atelier/github-review-pair.test.cjs atelier/github-artifact-metadata.test.cjs atelier/github-artifact-chain.test.cjs atelier/github-extracted-artifact.test.cjs atelier/github-extracted-receipt.test.cjs atelier/github-checkout-contract.test.cjs atelier/github-pr-head-freshness.test.cjs atelier/github-artifact-visibility.test.cjs atelier/github-artifact-zip-extract.test.cjs atelier/github-artifact-zip-runtime.test.cjs atelier/github-zip-integrity.test.cjs atelier/github-zip-receipt-recheck.test.cjs atelier/github-final-artifact-witness.test.cjs atelier/github-archive-manifest.test.cjs atelier/github-archive-redownload.test.cjs
       - name: Observe current GitHub PR review history without publication
         if: ${{ github.event_name == 'pull_request' }}
         continue-on-error: true
@@ -208,6 +208,7 @@ jobs:
           node atelier/github-archive-manifest.cjs create "${RUNNER_TEMP}"
           node atelier/github-archive-manifest.cjs verify "${RUNNER_TEMP}"
       - name: Retain explicit GitHub artifact metadata observation
+        id: diagnostic_artifact
         if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
         uses: actions/upload-artifact@v4
         with:
@@ -220,6 +221,44 @@ jobs:
             ${{ runner.temp }}/atelier-archive-manifest.json
           if-no-files-found: error
           retention-days: 7
+      - name: Independently download and verify retained five-file diagnostic archive
+        if: ${{ github.event_name == 'pull_request' && steps.diagnostic_artifact.outputs.artifact-id != '' }}
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+          PALACO_DIAGNOSTIC_ARCHIVE_ID: ${{ steps.diagnostic_artifact.outputs.artifact-id }}
+        run: |
+          set -euo pipefail
+          zip_path="${RUNNER_TEMP}/atelier-diagnostic-redownload.zip"
+          extracted="${RUNNER_TEMP}/atelier-diagnostic-redownloaded"
+          url="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${PALACO_DIAGNOSTIC_ARCHIVE_ID}/zip"
+          downloaded=0
+          for attempt in 1 2 3 4 5; do
+            rm -f "${zip_path}"
+            code="$(curl --silent --show-error --location --output "${zip_path}" --write-out '%{http_code}' \
+              --header "Authorization: Bearer ${GITHUB_TOKEN}" \
+              --header "Accept: application/vnd.github+json" \
+              --header "X-GitHub-Api-Version: 2022-11-28" \
+              --max-time 30 "${url}")" || { echo "::error::Diagnostic archive transport failure"; exit 1; }
+            if [[ "${code}" == "200" ]]; then
+              downloaded=1
+              break
+            fi
+            if [[ "${code}" != "404" && "${code}" != "502" && "${code}" != "503" && "${code}" != "504" ]]; then
+              echo "::error::Diagnostic archive download HTTP ${code}; HOLD/DENY"
+              exit 1
+            fi
+            if [[ "${attempt}" != "5" ]]; then sleep 3; fi
+          done
+          if [[ "${downloaded}" != "1" ]]; then
+            echo "::error::Diagnostic archive unavailable; HOLD/DENY"
+            exit 1
+          fi
+          python3 atelier/github-diagnostic-archive-extract.py "${zip_path}" "${extracted}"
+          node atelier/github-archive-redownload.cjs "${RUNNER_TEMP}" "${extracted}"
       - name: Verify release remains HOLD without matching approved evidence
         shell: bash
         run: |
