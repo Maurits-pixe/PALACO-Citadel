@@ -1202,3 +1202,26 @@ externe opslag- of ondertekeningshandeling en een aantoonbaar onafhankelijk
 ontvangstbewijs nodig. Dit bestand is niet ondertekend, geen externe attestatie
 en geen vrijgaveautorisatie. GO-13 blijft DRAFT/HOLD/DENY; geen merge, EDTR
 of publieke uitrol.
+
+
+### v7.04 — externe ontvangstbewijsverificatie als offline contract (DRAFT/HOLD/DENY)
+De nieuwe `github-external-receipt-verify.cjs` verifieert een **extern aangeleverd**
+canoniek JSON-ontvangstbewijs met een losstaande Ed25519-handtekening.
+Het gebruikte publieke sleutelmateriaal en de SHA-256-SPKI-pin moeten
+**buiten het ontvangstbewijs om** vertrouwd en beschikbaar gesteld worden.
+De gesigneerde payload bindt de SHA-256 van de v7.03-handoff, archief-ZIP,
+manifest, exacte repository/PR/HEAD, run/attempt, beide artifact-ID's,
+beheerderidentiteit, ontvangsttijd en nonce. De verificatie gebruikt
+domeinscheiding voor de handtekening en weigert gewijzigde bytes, replay,
+vreemde sleutels, onbekende velden en gefingeerde releasebevoegdheid.
+Vijf nieuwe Node-testscenario's gebruiken tijdelijk gegenereerde
+**synthetische** sleutels; er wordt géén echte beheerder of externe ontvangst gesimuleerd
+als productiefeit.
+
+De normale GitHub Actions-workflow draait uitsluitend deze tests en controleert
+dat de bestaande interne handoff `NOT_EXTERNALLY_ACKNOWLEDGED` blijft.
+Een echte externe handtekening wordt **niet** door de runner gemaakt of
+ingelezen; er is geen derde partij geconfigureerd en geen werkelijk ontvangstbewijs
+aanwezig. Zelfs een valide handtekening bewijst niet zelfstandig dat archiefdata
+duurzaam bewaard worden of dat de beheerder onafhankelijk is.
+GO-13 DRAFT/HOLD/DENY; geen merge, EDTR of publieke uitrol.
