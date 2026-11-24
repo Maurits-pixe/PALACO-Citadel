@@ -1493,3 +1493,37 @@ test('oversized audit byte subview is rejected at intrinsic byte-length gate',()
  assert.equal(r.authorization,'DENY');
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('foreign ECDSA signer fails despite correctly pinned legitimate public key',()=>{
+ const original=setup();
+ const foreign=generateKeyPairSync('ec',{namedCurve:'prime256v1'});
+ const signatureBase64Url=sign('sha256',Buffer.concat([
+   Buffer.from('PALACO-CITADEL-AUDIT-HEAD-ANCHOR-V1\n'),original.anchorBytes
+ ]),foreign.privateKey).toString('base64url');
+ let ledgerReads=0;
+ const entries=new Proxy([...original.entries],{
+   ownKeys(){ledgerReads++;throw Error('foreign signature must not reach ledger');}
+ });
+ const r=inspectSignedAuditHeadAnchor({...original,signatureBase64Url,entries});
+ assert.equal(ledgerReads,0);
+ assert.equal(r.reason,'ANCHOR_SIGNATURE_INVALID');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('correctly signed anchor cannot authenticate a different canonical payload',()=>{
+ const original=setup();
+ const differentBytes=Buffer.from(JSON.stringify(document({
+   headHash:'f'.repeat(64)
+ })));
+ const r=inspectSignedAuditHeadAnchor({...original,anchorBytes:differentBytes});
+ assert.equal(r.reason,'ANCHOR_SIGNATURE_INVALID');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.executionAllowed,false);
+ assert.equal(r.releaseAllowed,false);
+});
