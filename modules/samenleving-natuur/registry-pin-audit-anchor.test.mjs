@@ -1444,3 +1444,52 @@ test('tampering outside the signed view cannot affect audit anchor verification'
  assert.equal(r.authorization,'DENY');
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('detached audit byte buffer is denied without inspecting PIN or key',()=>{
+ const original=setup();
+ const anchorBytes=Uint8Array.from(original.anchorBytes);
+ structuredClone(anchorBytes.buffer,{transfer:[anchorBytes.buffer]});
+ let pinReads=0,keyReads=0;
+ const genesisPin=new Proxy({...original.genesisPin},{
+   ownKeys(){pinReads++;throw Error('detached bytes must fail before PIN inspection');}
+ });
+ const anchorPublicJwk=new Proxy({...original.anchorPublicJwk},{
+   ownKeys(){keyReads++;throw Error('detached bytes must fail before key inspection');}
+ });
+ const r=inspectSignedAuditHeadAnchor({...original,anchorBytes,genesisPin,anchorPublicJwk});
+ assert.equal(pinReads,0);
+ assert.equal(keyReads,0);
+ assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('empty audit byte view is rejected before cryptographic verification',()=>{
+ const original=setup();
+ const r=inspectSignedAuditHeadAnchor({...original,anchorBytes:new Uint8Array(0)});
+ assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.executionAllowed,false);
+});
+
+test('oversized audit byte subview is rejected at intrinsic byte-length gate',()=>{
+ const original=setup();
+ const backing=new Uint8Array(8300);
+ const anchorBytes=backing.subarray(40,40+8193);
+ let pinReads=0;
+ const genesisPin=new Proxy({...original.genesisPin},{
+   ownKeys(){pinReads++;throw Error('oversized bytes must fail before PIN inspection');}
+ });
+ const r=inspectSignedAuditHeadAnchor({...original,anchorBytes,genesisPin});
+ assert.equal(pinReads,0);
+ assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
