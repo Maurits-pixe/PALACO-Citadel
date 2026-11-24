@@ -89,7 +89,7 @@ def _chain(db:sqlite3.Connection,roots:Mapping[str,bytes])->tuple[int,str]|None:
                 return None
             seen.add(conflict)
             payload=json.loads(raw)
-            if not isinstance(payload,dict) or set(payload)!={
+            if not isinstance(payload,dict) or raw.encode("utf-8")!=_canonical(payload) or set(payload)!={
                 "version","comparison_sha256","conflict_sha256",
                 "repository","observation_pins","observations","go13"
             }:
