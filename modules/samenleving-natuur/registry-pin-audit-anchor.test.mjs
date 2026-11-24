@@ -1179,3 +1179,31 @@ test('unchanged valid P-256 JWK still verifies signed anchor after field preflig
  assert.equal(r.authorization,'DENY');
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('in-range P-256 JWK coordinates not on curve fail before cryptographic import',()=>{
+ const original=setup();
+ const zero=Buffer.alloc(32).toString('base64url');
+ for(const anchorPublicJwk of [
+   {...original.anchorPublicJwk,x:zero,y:zero},
+   {...original.anchorPublicJwk,y:zero}
+ ]){
+   const r=inspectSignedAuditHeadAnchor({...original,anchorPublicJwk});
+   assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+   assert.equal(r.anchorSignatureValid,false);
+   assert.equal(r.anchoredLedgerMatched,false);
+   assert.equal(r.authorization,'DENY');
+   assert.equal(r.releaseAllowed,false);
+ }
+});
+
+test('legitimate P-256 public point still verifies the signed audit anchor',()=>{
+ const input=setup();
+ const r=inspectSignedAuditHeadAnchor(input);
+ assert.equal(r.anchorSignatureValid,true,JSON.stringify(r));
+ assert.equal(r.anchoredLedgerMatched,true);
+ assert.equal(r.trust,'NOT_ESTABLISHED');
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.executionAllowed,false);
+ assert.equal(r.releaseAllowed,false);
+});
