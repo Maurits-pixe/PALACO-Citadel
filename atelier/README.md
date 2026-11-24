@@ -1136,3 +1136,11 @@ Vijf aanvullende uitvoerende Node-regressies toetsen geldige ketens, verkeerde c
 De v6.97-commit `77cbf584c48acbbe9d54d65fa35eca505aef43ad` heeft 3/3 GitHub-workflows met SUCCESS. Een latere commit in dezelfde Draft-branch had bij controle algemene CI en preview PASS, terwijl de Atelier-browseracceptatie nog liep. De nieuwste v6.98-HEAD vereist een eigen volledige CI-bevestiging.
 
 **Vertrouwensgrens:** deze finale getuige bundelt uitsluitend lokale controles en GitHub-gerapporteerde integriteitsmetadata. Zij is geen onafhankelijk ondertekend bewijs, geen toestemming om te mergen en geen release- of EDTR-autorisatie. **GO-13 DRAFT/HOLD/DENY** blijft verplicht.
+
+## Regiekamer v6.99 — finale artifactgetuige onafhankelijk herberekenen (2026-11-24)
+
+De nieuwe read-only module `atelier/github-final-witness-recheck.cjs` herverifieert vóór archivering het opgeslagen `atelier-final-artifact-witness.json` tegen alle originele CI-evidence, beide individuele verificatiereceipts, de uit GitHub teruggedownloade ZIP, de uitgepakte JSON-bestanden en de geobserveerde GitHub REST-artifactmetadata. Het verslag moet volledig canoniek zijn: exacte toegestane velden, geen onverwachte waarden of duplicaten en geen extraruimte na het afsluitende newline. De oorspronkelijke kandidaat-HEAD, workflowrun, runpoging, PR en artifact-ID worden opnieuw gebonden. Een opgeslagen verslag kan niet zelf vrijgaveautorisatie verschaffen.
+
+Vier nieuwe Node-regressies toetsen geldige herberekening, gefingeerde GO-velden en extra inhoud, hergebruik onder een andere commit/run/artifact en wijzigingen aan gedownloade bewijsbestanden. De verplichte CI-hercontrole vindt plaats **na** creatie van de finale getuige en **vóór** upload van het bewijspakket. De bestaande finale PR-headcontrole blijft eveneens verplicht. De voorafgaande v6.98-commit `e5262f364001dfe96b88a52cfa8e08b6247b510b` heeft 3/3 succesvolle GitHub Actions-workflows; de actuele v6.99-HEAD vereist afzonderlijke verificatie.
+
+**Vertrouwensgrens:** lokale herverificatie van GitHub-gerapporteerde ZIP-integriteit is geen onafhankelijke digitale handtekening of bewijs van een externe archivaris. **GO-13 DRAFT/HOLD/DENY**: geen merge, EDTR-uitgifte of publieke uitrol.
