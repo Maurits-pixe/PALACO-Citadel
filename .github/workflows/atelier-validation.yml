@@ -160,6 +160,7 @@ jobs:
         env:
           PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+          PALACO_ZIP_INTEGRITY_REPORT_PATH: ${{ runner.temp }}/atelier-zip-integrity-check.json
         run: node atelier/github-zip-integrity.cjs "${RUNNER_TEMP}/atelier-review-evidence-download.zip" "${RUNNER_TEMP}/atelier-artifact-metadata-observation.json"
       - name: Cross-check review evidence, receipt and GitHub metadata observation
         if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
@@ -184,6 +185,7 @@ jobs:
           path: |
             ${{ runner.temp }}/atelier-artifact-metadata-observation.json
             ${{ runner.temp }}/atelier-extracted-evidence-check.json
+            ${{ runner.temp }}/atelier-zip-integrity-check.json
           if-no-files-found: error
           retention-days: 7
       - name: Verify release remains HOLD without matching approved evidence
