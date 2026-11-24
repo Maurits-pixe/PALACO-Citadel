@@ -75,7 +75,8 @@ jobs:
             node atelier/github-review-evidence-integrity.cjs "${RUNNER_TEMP}/atelier-review-evidence.json"
             node atelier/github-review-pair.cjs "${RUNNER_TEMP}/atelier-review-evidence.json" "${RUNNER_TEMP}/atelier-review-integrity.json"
           else
-            echo "No authenticated review observation was collected; no artifact to verify."
+            echo "::error::Required review observation missing; retaining no artifact is not a verified result"
+            exit 1
           fi
       - name: Retain sanitized review observation for inspection
         id: review_artifact
@@ -86,7 +87,7 @@ jobs:
           path: |
             ${{ runner.temp }}/atelier-review-evidence.json
             ${{ runner.temp }}/atelier-review-integrity.json
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 7
       - name: Download exact uploaded review evidence artifact
         if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
