@@ -226,7 +226,15 @@ $('bundleSave').addEventListener('click',async ()=>{
      return;
    }
    const pack=api.read(localStorage);
-   pack.note=$('statement').value;
+   // Storage adapters can synchronously change the editor during api.read.
+   // Capture the live note only after that read and validate it again.
+   const completeNote=$('statement').value;
+   if(completeNote.length>6000){
+     $('bundleStatus').textContent='Projectexport geweigerd: ontwerpnotitie is tijdens opslaglezing gewijzigd en bevat meer dan 6000 tekens. Je volledige tekst blijft in de editor.';
+     $('bundleReceiptStatus').textContent='Geen export of SHA-256-referentie gemaakt: de actuele notitie overschrijdt de grens.';
+     return;
+   }
+   pack.note=completeNote;
    const checked=api.parse(JSON.stringify(pack));
    const serialized=JSON.stringify(checked,null,2);
    download(PROJECT_FILENAME,serialized,'application/json');
