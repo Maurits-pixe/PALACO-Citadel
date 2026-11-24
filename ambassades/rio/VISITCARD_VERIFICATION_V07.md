@@ -1552,3 +1552,35 @@ and permanent no-release flags. The best possible result remains
 blockers remain active.
 
 **GO-13 HOLD:** no merge, deployment, live credentials or authority.
+
+## v5.3 — Signed GitHub workflow run observation verification (DRAFT / HOLD)
+
+`visitcard_v53_github_run.py` verifies a separately Ed25519-signed
+and pinned *run observation* after the entire v5.2 source, CI-evidence,
+auditor evidence and provenance chain. The signed observation binds
+the exact repository, workflow path, source commit, workflow source
+SHA, head branch, GitHub run ID, run attempt, declared runner event,
+completed/successful state, canonical GitHub Actions run URL, SHA-256
+of the original CI artifact bytes and a short (maximum 15-minute)
+verification interval. Its run ID and attempt must agree with the
+previously verified v5.2 provenance claim. Forged signatures, unpinned
+observers, stale observations, other workflows/branches/commits,
+failed or queued runs and changed artifact bytes are rejected.
+
+**Critical provenance boundary:** the observed metadata is a
+signed assertion by the pinned observer, NOT an authenticated GitHub
+API response or GitHub OIDC trust chain. This module does NOT
+authenticate GitHub API transport, OIDC issuer/audience/JWKS,
+the original Actions runner or independent GitHub-hosted artifact
+attestation. A properly secured external observation service must
+validate authenticated GitHub metadata before signing. Fixture
+signers and invented test run IDs do not establish a real production
+run, authenticated provenance, or independent professional audit.
+The independent seven production blockers remain in force.
+
+23 new negative/positive tests cover run ID/attempt, SHA, branch,
+workflow, repository, expiry, signature, completed/success status,
+missing source provenance and permanent GO-13 HOLD. Even the most
+favorable result is `REVIEWABLE_INFORMATIONAL`, never authorization.
+
+**GO-13 HOLD:** no merge, deployment, access or key activation.
