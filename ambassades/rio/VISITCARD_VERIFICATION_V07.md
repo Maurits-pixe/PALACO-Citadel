@@ -1684,3 +1684,42 @@ only, not externally authenticated GitHub-origin evidence.
 All seven external infrastructure blockers remain in effect.
 
 **GO-13 HOLD — no merge, deployment, release or key activation.**
+
+## v5.7 — Read-only HTTPS GitHub API acquisition adapter (DRAFT / HOLD)
+
+`visitcard_v57_github_api.py` introduces a genuine stdlib HTTPS GET
+adapter for `https://api.github.com`. It requests the exact run
+`/repos/{owner}/{repo}/actions/runs/{run_id}` and the
+**attempt-scoped** job list
+`/repos/{owner}/{repo}/actions/runs/{run_id}/attempts/{attempt}/jobs`.
+Request paths are built only from validated repository and integer
+identifiers. Python's default certificate verification is enabled;
+automatic HTTP redirects are disabled. The caller provides an
+ephemeral token via an argument; the module never stores the token,
+returns it or performs write operations. Requests have an eight-second
+timeout, fixed Accept/API-version headers, JSON content-type checks,
+and 256 KiB maximum response bodies.
+
+The adapter fails closed on malformed/partial responses, non-success
+HTTP codes, mismatched repository, commit, workflow, run attempt,
+missing target job, and all job lists with pagination beyond the
+first page (100). The job must report a completed successful
+state and the same parent run ID. The attempt-specific listing binds
+job membership to the exact attempt, without relying on any
+undocumented job `run_attempt` field. It computes canonical
+SHA-256 hashes for the returned run and job metadata and a
+deterministic relationship digest.
+
+27 isolated negative/positive tests use an injectable **offline fake
+HTTP transport**. They do NOT perform a real authenticated GitHub
+request and do NOT constitute a production runtime verification.
+Real use requires a narrowly scoped read-only GitHub token, trusted
+runtime/credential lifecycle, an independently immutable pin for
+the resulting digest, assurance that the real API response came from
+GitHub, and separate log custody verification. A TLS-authenticated
+API retrieval alone does not authenticate GitHub Actions runner
+identity, deliver GitHub OIDC attestation, sign provenance through
+a physically independent auditor, or grant any release permission.
+The seven existing external production blockers remain.
+
+**GO-13 HOLD:** no merge, rollout, issuance or key activation.
