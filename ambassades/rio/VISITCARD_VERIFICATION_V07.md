@@ -1723,3 +1723,38 @@ a physically independent auditor, or grant any release permission.
 The seven existing external production blockers remain.
 
 **GO-13 HOLD:** no merge, rollout, issuance or key activation.
+
+## v5.8 — Independent-pin GitHub API evidence succession (DRAFT / GO-13 HOLD)
+
+`visitcard_v58_api_succession.py` adds an independently verifiable
+signed succession record above the v5.7 run/job metadata acquisition
+result. A pinned Ed25519 custodian signs exact repository, run ID,
+attempt, job ID, commit, workflow path, the three API observation
+SHA-256 hashes, monotonic sequence number, and the previous record
+hash. A relying party MUST supply **both** the previous record hash
+and current record SHA-256 from an independent trusted source; the
+module never obtains its own expected value from the untrusted
+record. The record has a short validity window (at most 15 minutes)
+and enforces `GO-13 HOLD`. The result remains informational.
+
+25 synthetic regression tests check valid succession and
+re-verification, changed run/job/commit/attempt/workflow, altered
+API metadata hashes, forged or unpinned custodian signatures,
+stale current pins, old predecessor replay, rollback sequence,
+expired/future evidence, and immutable non-authorizing results.
+
+**Important security boundary:** this is an offline verification
+protocol, not an implemented remote custody or consensus service.
+It does not itself obtain authenticated independent latest pins,
+enforce monotonicity across independently managed processes,
+prevent a custodian and its pin source colluding, or independently
+authenticate a GitHub API response. The v5.7 GET client and its
+token provisioning remain separate. Without an authenticated,
+independently durable latest-head store, rollback/split-view
+protection is only conditional on correct externally supplied
+pins. Signing synthetic test fixtures never demonstrates actual
+independent archiving. The seven external production blockers
+remain unresolved.
+
+**GO-13 HOLD:** no merge, rollout, identity issuance, release
+or key activation.
