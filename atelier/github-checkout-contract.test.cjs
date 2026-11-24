@@ -27,3 +27,17 @@ test('release HOLD gate receives the checked-out revision, not synthetic merge S
  assert.match(gate,/--enforce/);
  assert.doesNotMatch(gate,/\$\{GITHUB_SHA\}|\$GITHUB_SHA/);
 });
+
+test('pull request validation cannot pass without authenticated review observation',()=>{
+ const y=workflow();
+ const collector=y.indexOf('Observe current GitHub PR review history without publication');
+ const verify=y.indexOf('Verify report bytes and exact event context before artifact retention');
+ const upload=y.indexOf('Retain sanitized review observation for inspection');
+ assert.ok(collector>=0&&verify>collector&&upload>verify);
+ const verification=y.slice(verify,upload);
+ assert.match(verification,/Required review observation missing/);
+ assert.match(verification,/exit 1/);
+ const uploader=y.slice(upload,y.indexOf('Download exact uploaded review evidence artifact',upload));
+ assert.match(uploader,/if-no-files-found: error/);
+ assert.doesNotMatch(uploader,/if-no-files-found: ignore/);
+});
