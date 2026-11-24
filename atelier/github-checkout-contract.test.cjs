@@ -57,3 +57,24 @@ test('download uses read-only REST endpoint with bounded retries and exact artif
  assert.ok(y.includes('actions: read'));
  assert.ok(y.indexOf('Wait for exact artifact ID in GitHub run listing')<start);
 });
+
+test('artifact download retries remain fail-closed and never skip downstream integrity checks',()=>{
+ const y=workflow();
+ const start=y.indexOf('Download exact uploaded review evidence artifact');
+ const end=y.indexOf('Verify extracted GitHub artifact bytes against checked source',start);
+ assert.ok(start>=0&&end>start);
+ const step=y.slice(start,end);
+ const check=(fragment)=>assert.ok(step.includes(fragment),'Missing fail-closed contract: '+fragment);
+ check('set -euo pipefail');
+ check('if [[ "${code}" == "200" ]]; then');
+ check('unzip -tqq "${zip_path}"');
+ check('if [[ "${code}" != "404" && "${code}" != "502" && "${code}" != "503" && "${code}" != "504" ]]; then');
+ check('if [[ "${attempt}" != "5" ]]; then sleep 3; fi');
+ check('if [[ "${downloaded}" != "1" ]]; then');
+ check('exit 1');
+ assert.ok(y.indexOf('Verify extracted GitHub artifact bytes against checked source')>start);
+ assert.ok(y.indexOf('Verify GitHub metadata for retained evidence artifact')>end);
+ assert.ok(y.indexOf('Cross-check review evidence, receipt and GitHub metadata observation')>end);
+ assert.ok(y.indexOf('Verify release remains HOLD without matching approved evidence')>end);
+ assert.doesNotMatch(step,/continue-on-error:\s*true|\|\|\s*true/);
+});
