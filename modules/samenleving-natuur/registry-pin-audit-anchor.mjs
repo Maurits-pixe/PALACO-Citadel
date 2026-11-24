@@ -76,8 +76,13 @@ const capturePin = p => {
     if (!d || !Object.hasOwn(d,'value')) return null;
     copy[key] = d.value;
   }
-  return copy.schema === PIN_SCHEMA && HEX.test(copy.issuerFingerprint) &&
-    HEX.test(copy.registrySha256) && Number.isSafeInteger(copy.revision) &&
+  // RegExp.test coerces objects to strings; never invoke an attacker-owned
+  // toString/valueOf while inspecting untrusted PIN descriptor values.
+  return copy.schema === PIN_SCHEMA &&
+    typeof copy.issuerFingerprint === 'string' &&
+    typeof copy.registrySha256 === 'string' &&
+    HEX.test(copy.issuerFingerprint) && HEX.test(copy.registrySha256) &&
+    Number.isSafeInteger(copy.revision) &&
     copy.revision > 0 ? copy : null;
 };
 // Keep the hash-linked history stable from validation through ledger replay.
