@@ -731,8 +731,13 @@ test('Atelier complete bundle export refuses silent truncation before any downlo
  const guard=handler.indexOf("if($('statement').value.length>6000)");
  const reject=handler.indexOf('Projectexport geweigerd: ontwerpnotitie bevat meer dan 6000 tekens',guard);
  const abort=handler.indexOf('return;',reject);
- const capture=handler.indexOf("pack.note=$('statement').value",abort);
- const downloadIndex=handler.indexOf('download(PROJECT_FILENAME,serialized',capture);
- assert.ok(guard>=0&&reject>guard&&abort>reject&&capture>abort&&downloadIndex>capture);
+ const read=handler.indexOf('const pack=api.read(localStorage)',abort);
+ const capture=handler.indexOf("const completeNote=$('statement').value",read);
+ const secondGuard=handler.indexOf('if(completeNote.length>6000)',capture);
+ const secondAbort=handler.indexOf('return;',secondGuard);
+ const assign=handler.indexOf('pack.note=completeNote',secondAbort);
+ const downloadIndex=handler.indexOf('download(PROJECT_FILENAME,serialized',assign);
+ assert.ok(guard>=0&&reject>guard&&abort>reject&&read>abort&&capture>read&&
+  secondGuard>capture&&secondAbort>secondGuard&&assign>secondAbort&&downloadIndex>assign);
  assert.doesNotMatch(handler.slice(capture,downloadIndex),/pack\.note=noteValue\(\)/);
 });
