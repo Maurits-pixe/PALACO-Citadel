@@ -1758,3 +1758,46 @@ remain unresolved.
 
 **GO-13 HOLD:** no merge, rollout, identity issuance, release
 or key activation.
+
+## v5.9 — Dual-custodian checkpoint comparison and split-view quarantine (DRAFT / HOLD)
+
+`visitcard_v59_dual_custody.py` adds a two-custodian cross-check
+of the signed v5.8 API-evidence succession checkpoint. Each named
+custodian signs a scope-bound Ed25519 observation containing its
+checkpoint sequence, current record digest, predecessor digest,
+repository, 15-minute maximum validity window and `GO-13 HOLD`.
+Both distinct public keys must be independently pinned, and each
+entire signed observation must match its **own independently
+provisioned SHA-256 pin**. Equal, valid observations are checked
+against the v5.8 signed record, its predecessor and a separately
+supplied minimum checkpoint sequence. They remain
+`MATCHED_INFORMATIONAL`, never executable or releasable.
+
+When two individually valid, independently pinned, and distinct
+custodian observations disagree on sequence, record hash or
+predecessor, the result becomes `SPLIT_VIEW_QUARANTINED`.
+The module emits a deterministic comparison digest and
+conflict-evidence digest. Both preserve a stable fingerprint of
+the observed contradiction, but they are not themselves a
+durable conflict incident register, archive or independent
+arbitration. Missing signatures/pins, reused custodian keys,
+unknown custodians, stale observations, an expired upstream
+proof, or an agreed head different from the signed v5.8
+checkpoint fail closed. Quarantine is NEVER automatically lifted.
+
+24 new synthetic regressions exercise matching witnesses,
+conflicting signed heads, divergent sequences/predecessors,
+deterministic incident hashes, wrong or missing pins, forged
+signatures, reused keys, stale evidence and permanent
+GO-13 non-authorization.
+
+**Trust boundary:** The verifier does not run two separate
+custodian servers, independently provision trust roots, store
+the latest pins durably, perform cross-process consensus,
+prevent signing-key collusion, or persist incident evidence
+outside the caller's process. Independent provisioning and
+custody must be demonstrated before claiming production-grade
+anti-rollback or split-view protection. The seven existing
+external production blockers remain unresolved.
+
+**GO-13 HOLD — no merge, release, rollout or key activation.**
