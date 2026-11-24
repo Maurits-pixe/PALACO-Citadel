@@ -17,7 +17,7 @@ from typing import Any,Callable,Mapping
 from visitcard_release_review import _hex
 from visitcard_v60_incident_ledger import _chain
 from visitcard_v61_archive_receipts import (
-    ArchiveState,append_archive_receipts,verify_archive_receipt,
+    ArchiveState,append_archive_receipts,verify_archive_receipt,_time,
 )
 from visitcard_v5_security_review import EXTERNAL_BLOCKERS
 from visitcard_witness_enrollment import _canonical
@@ -211,7 +211,7 @@ def deliver_handoffs(db:sqlite3.Connection,*,incident_sequence:int,
                     expected_incident_sequence=incident_sequence,
                     expected_incident_head_sha256=req["incident_head_sha256"],
                     expected_conflict_sha256=req["conflict_sha256"],
-                    now=now if now is not None else None
+                    now=_time(receipt["payload"]["received_at"])
                 ) is None:
                     return _deny("STORED_ACK_INVALID")
                 continue
@@ -291,7 +291,7 @@ def finalize_handoffs(db:sqlite3.Connection,*,incident_sequence:int,
                     expected_archive_id=req["archive_id"],
                     expected_incident_sequence=incident_sequence,
                     expected_incident_head_sha256=independently_pinned_incident_head_sha256,
-                    expected_conflict_sha256=row[0],now=now) is None):
+                    expected_conflict_sha256=row[0],now=_time(receipt["payload"]["received_at"])) is None):
                 return _deny("ACK_INVALID_AT_FINALIZE")
             receipts.append(receipt)
         r=append_archive_receipts(
