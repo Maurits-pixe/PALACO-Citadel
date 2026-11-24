@@ -67,7 +67,7 @@
 </section>
 <div class="bottom"><section class="section"><p class="eyebrow">04 / Ontwerpintentie</p><h2>Het creatieve dossier</h2><p class="small">Een eigen, lokale tekstnotitie die losstaat van de officiële Citadel-wizard. Dit is een ontwerpverklaring, geen bewijs, besluit, machtiging of registratie.</p>
 <label for="statement" class="eyebrow">Verhaal, uitgangspunten en materiaalvisie</label><textarea id="statement" maxlength="6000" placeholder="Beschrijf jouw visie op een luxueus en leefbaar Locus Amoenus: architectuur, natuur, ruimtes, kunst, ritme, toegankelijkheid…"></textarea>
-<div class="actions"><button class="action" id="saveNote">Bewaar notitie lokaal</button><button class="action" id="loadSavedNote" type="button">Laad opgeslagen notitie</button><button class="action primary" id="export">Exporteer DRAFT-dossier (JSON)</button><button class="action" id="exportTxt">Exporteer overzicht (TXT)</button><button class="action" id="refresh">Vernieuw overzicht</button></div>
+<div class="actions"><button class="action" id="saveNote">Bewaar notitie lokaal</button><button class="action" id="loadSavedNote" type="button">Laad opgeslagen notitie</button><button class="action" id="backupStoredNote" type="button">↓ Veiligstellen volledige bronnotitie (TXT)</button><button class="action primary" id="export">Exporteer DRAFT-dossier (JSON)</button><button class="action" id="exportTxt">Exporteer overzicht (TXT)</button><button class="action" id="refresh">Vernieuw overzicht</button></div>
 <p id="feedback" role="status" class="small">De projectgegevens worden uitsluitend uit deze browser gelezen.</p></section>
 <aside class="section"><p class="eyebrow">05 / Projectkompas</p><h2>Ontwerpchecks</h2><div class="diagnostics" id="diagnostics" role="list"></div>
 <h3>Bevoegdheid & veiligheid</h3><p class="message">Deze Regiekamer is alleen een lokaal, read-only overzicht van de maquettes, met een afzonderlijke ontwerpnotitie. Er worden geen officiële identiteiten, bewijsstukken, cryptografische handtekeningen, WORLD-creaties of autorisaties uitgevoerd.</p><p class="small">De export is een niet-geverifieerde creatieve DRAFT-kopie. Bewaar deze zelf. Browseropslag is geen veilige langdurige back-up.</p></aside></div>
@@ -861,6 +861,22 @@ $('loadSavedNote').addEventListener('click',()=>{
    noteBaseline=latest;
    $('feedback').textContent='Opgeslagen ontwerpnotitie geladen. Je kunt nu veilig verder bewerken.';
  }catch{$('feedback').textContent='Opgeslagen notitie kon niet worden geladen. Je huidige tekst blijft staan.';}
+});
+$('backupStoredNote').addEventListener('click',()=>{
+ try{
+   // Read the original raw source, not the maxlength-limited textarea.
+   // This is a non-destructive escape hatch for oversized historic notes.
+   const stored=localStorage.getItem(NOTE);
+   if(stored===null){
+     $('feedback').textContent='Geen opgeslagen bronnotitie gevonden. Er is geen bestand gemaakt.';
+     return;
+   }
+   // Snapshot precisely the stored text. Do not call noteValue() or mutate storage.
+   download('PALACO-Atelier-Volledige-Bronnotitie-DRAFT.txt',stored,'text/plain;charset=utf-8');
+   $('feedback').textContent='Volledige opgeslagen bronnotitie als TXT aangeboden. Controleer het gedownloade bestand en bewaar het veilig; de editor en opslag zijn niet gewijzigd.';
+ }catch{
+   $('feedback').textContent='Veiligstellen bronnotitie niet gelukt. De editor en opgeslagen bron zijn niet gewijzigd.';
+ }
 });
 $('saveNote').addEventListener('click',saveNote);
 $('refresh').addEventListener('click',()=>{refresh();$('feedback').textContent='Het lokale projectoverzicht is opnieuw geladen.';});
