@@ -216,7 +216,10 @@ export function inspectSignedAuditHeadAnchor(input = {}) {
     if (!verify('sha256',Buffer.concat([PREFIX,snapshotBytes]),key,signature))
       return reject('ANCHOR_SIGNATURE_INVALID');
     // Decode an exact byte snapshot only after signature verification.
-    const text = new TextDecoder('utf-8',{fatal:true}).decode(snapshotBytes);
+    // Preserve any leading UTF-8 BOM in the decoded text: the default
+    // decoder silently strips it, creating a second signed byte encoding
+    // for the same JSON document. JSON.parse will reject the preserved BOM.
+    const text = new TextDecoder('utf-8',{fatal:true,ignoreBOM:true}).decode(snapshotBytes);
     const doc = JSON.parse(text);
     // A signature authenticates bytes, not an agreed interpretation of JSON.
     // Reject whitespace variants, duplicate member names and noncanonical
