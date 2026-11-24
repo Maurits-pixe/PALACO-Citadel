@@ -85,8 +85,6 @@ test('symlinked parent of extraction destination is rejected',()=>fixture(good,(
 }));
 
 test('corrupt second ZIP member is rejected before either file is written',()=>fixture(good,({archive,out})=>{
- const bytes=fs.readFileSync(archive);
- const needle=Buffer.from('{"integrity":1}\\n');
  // Use stored ZIP payloads to locate and tamper the second member deterministically.
  const rewrite=spawnSync('python3',['-c',`
 import sys,zipfile
