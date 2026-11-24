@@ -1021,3 +1021,11 @@ De Atelier DRAFT-workflow checkt voor een PR voortaan expliciet `github.event.pu
 Ook de afzonderlijke `release-gate.cjs` krijgt de werkelijk uitgecheckte commit, zowel voor de diagnostiek als voor de verplichte `--enforce`-weigering. Hierdoor verwijzen codecontrole, reviewwaarneming en releaseweigering naar dezelfde kandidaatbron. Drie nieuwe Node-regressies toetsen de expliciete SHA-keuze, de controlevolgorde en de releasegate-binding.
 
 De voorafgaande v6.89-run op de eerdere kandidaat-HEAD `3017500692537890c02f0fecdd0529497034bb5d` is voor alle drie GitHub Actions-workflows geslaagd en leverde reviewbewijsartifact `14798353247` en metadata-observatieartifact `14798233889`. De nieuwe v6.90-HEAD vereist afzonderlijke CI-verificatie. **GO-13 DRAFT/HOLD/DENY**; geen merge, EDTR of publieke uitrol.
+
+## Regiekamer v6.91 — fail-closed reviewbewijs en volledig exporttestcontract (2026-11-24)
+
+De Atelier DRAFT-validatie weigert op PR-events nu ontbrekend geschoond reviewbewijs expliciet als fout, ook wanneer de read-only verzamelstap door een API-probleem niets heeft vastgelegd. De bestaande `actions/upload-artifact` voor het reviewbewijs gebruikt voortaan `if-no-files-found: error` in plaats van `ignore`. Daardoor mag het ontbreken van vereist bewijs niet meer ongemerkt een groene validatie opleveren. Het rapport blijft uitsluitend een waarneming en draagt geen autorisatie; de releasegate blijft afzonderlijk HOLD/DENY. De handmatige workflowuitvoering verzamelt geen PR-reviewbewijs, en heeft daarom geen PR-publicatiebevoegdheid.
+
+Daarnaast is het statische testcontract voor de volledige projectexport bijgewerkt. Het bewaakt nu expliciet beide 6.000-teken-controles: eerst vóór het lezen van browseropslag en opnieuw nadat een opslagadapter de live editor mogelijk heeft gewijzigd. De export legt vervolgens `completeNote` vast in het projectpakket. Hiermee sluit de test aan op de bestaande, strengere bescherming tegen stil tekstverlies; de productie-exportlogica blijft behouden.
+
+Een nieuwe regressietest controleert dat een ontbrekend PR-reviewrapport de workflow moet laten falen. De v6.90-HEAD had bij inspectie één fout in het oude exporttestcontract; nieuwe CI moet de herstelde tests en alle browsercontroles bevestigen. **GO-13 DRAFT/HOLD/DENY**: geen merge, EDTR-uitgifte of publieke uitrol.
