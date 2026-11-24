@@ -1045,3 +1045,13 @@ De Atelier DRAFT-workflow controleert nu **na** de volledige browseracceptatie o
 Drie nieuwe Node-regressies toetsen een correct open PR, afwijkende HEAD/repository/status en onbeschikbare GitHub API. De nieuwe controle wordt als laatste stap uitgevoerd, zodat een inmiddels verouderde kandidaat niet zonder melding een groene Atelier-validatie oplevert. Ook een geslaagde laatste controle verleent **geen** vrijgave- of mergebevoegdheid; de PR kan ná die waarneming opnieuw wijzigen en daarom blijft verificatie bij een eventueel afzonderlijk autorisatiebesluit noodzakelijk.
 
 De v6.91-CI op `1472e5e` faalde in de eerder verouderde statische exporttest; latere commits in dezelfde Draft-branch hebben dat testcontract bijgewerkt. Voor de v6.92-HEAD moeten de nieuwe CI- en browserresultaten afzonderlijk bevestigd worden. **GO-13 DRAFT/HOLD/DENY**; geen merge, EDTR of publieke uitrol.
+
+## Regiekamer v6.93 — artifactindexering vóór terugdownloaden bewaken (2026-11-24)
+
+Bij de controle van de eerdere v6.92-branch op HEAD `665d496eff09f4f8e60515c8b73b6c959a2767ad` bleek een GitHub Actions-artifact correct te zijn geüpload (ID `14889134852`), maar de onmiddellijk volgende `actions/download-artifact@v4`-stap vond nog **nul** artifacts. De download liep daardoor vast op `None of the provided artifact IDs were found`. Dit is een verschil tussen de voltooiing van de upload en de beschikbaarheid van het artifact in de GitHub-lijst, geen geldig bewijs van een gecontroleerde download.
+
+De nieuwe module `atelier/github-artifact-visibility.cjs` vraagt vóór het downloaden read-only de artifacts van de **exacte workflowrun** op en zoekt het originele artifact-ID en de verwachte naam `atelier-review-evidence`. Een verlopen artifact, onjuiste grootte of afwijkende meegeleverde run- of HEAD-binding wordt geweigerd. Bij een tijdelijke 404 of nog niet geïndexeerd artifact volgen maximaal acht controles met een begrensde wachttijd van twee seconden tussen pogingen. Wanneer het artifact ook daarna niet vindbaar is, stopt de workflow met een fout; zij mag geen geldigheid of autorisatie claimen.
+
+Vijf nieuwe Node-regressies toetsen een geldige listing, tijdelijke 404/lege listing, uitgeputte pogingen, foutieve context en hard falende API-antwoorden. De download, bytevergelijking, receiptcontrole en laatste PR-headcontrole blijven afzonderlijke verplichte controles. Een zichtbare listing is nog **geen** ZIP-integriteitsbewijs en nooit vrijgaveautorisatie.
+
+De nieuwe v6.93-HEAD moet apart door GitHub Actions worden geverifieerd. **GO-13 DRAFT/HOLD/DENY**, geen merge, EDTR-uitgifte of publieke uitrol.
