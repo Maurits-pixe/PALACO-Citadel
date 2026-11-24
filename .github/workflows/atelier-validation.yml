@@ -53,7 +53,7 @@ jobs:
       - name: Test fail-closed release evidence evaluator
         run: node --test atelier/release-gate.test.cjs
       - name: Test read-only GitHub review audit, collector and artifact integrity
-        run: node --test atelier/github-review-audit.test.cjs atelier/github-review-collector.test.cjs atelier/github-review-evidence-integrity.test.cjs atelier/github-review-pair.test.cjs atelier/github-artifact-metadata.test.cjs atelier/github-artifact-chain.test.cjs atelier/github-extracted-artifact.test.cjs atelier/github-extracted-receipt.test.cjs atelier/github-checkout-contract.test.cjs atelier/github-pr-head-freshness.test.cjs atelier/github-artifact-visibility.test.cjs atelier/github-artifact-zip-extract.test.cjs atelier/github-artifact-zip-runtime.test.cjs atelier/github-zip-integrity.test.cjs atelier/github-zip-receipt-recheck.test.cjs atelier/github-final-artifact-witness.test.cjs atelier/github-archive-manifest.test.cjs atelier/github-archive-redownload.test.cjs atelier/github-diagnostic-zip-verify.test.cjs atelier/github-custody-handoff.test.cjs
+        run: node --test atelier/github-review-audit.test.cjs atelier/github-review-collector.test.cjs atelier/github-review-evidence-integrity.test.cjs atelier/github-review-pair.test.cjs atelier/github-artifact-metadata.test.cjs atelier/github-artifact-chain.test.cjs atelier/github-extracted-artifact.test.cjs atelier/github-extracted-receipt.test.cjs atelier/github-checkout-contract.test.cjs atelier/github-pr-head-freshness.test.cjs atelier/github-artifact-visibility.test.cjs atelier/github-artifact-zip-extract.test.cjs atelier/github-artifact-zip-runtime.test.cjs atelier/github-zip-integrity.test.cjs atelier/github-zip-receipt-recheck.test.cjs atelier/github-final-artifact-witness.test.cjs atelier/github-archive-manifest.test.cjs atelier/github-archive-redownload.test.cjs atelier/github-diagnostic-zip-verify.test.cjs atelier/github-custody-handoff.test.cjs atelier/github-external-receipt-verify.test.cjs
       - name: Observe current GitHub PR review history without publication
         if: ${{ github.event_name == 'pull_request' }}
         continue-on-error: true
@@ -302,6 +302,13 @@ jobs:
           path: ${{ runner.temp }}/atelier-custody-handoff.json
           if-no-files-found: error
           retention-days: 7
+      - name: Confirm external custody remains unproven in GitHub-only CI
+        shell: bash
+        run: |
+          set -euo pipefail
+          # No custodian private key, external receipt or trusted key pin in this workflow.
+          # Real independent custody must be verified in a separate trust domain.
+          node -e 'const fs=require("node:fs");const p=process.env.RUNNER_TEMP+"/atelier-custody-handoff.json";const r=JSON.parse(fs.readFileSync(p,"utf8"));if(r.custody_state!=="NOT_EXTERNALLY_ACKNOWLEDGED"||r.release_approved!==false||r.publication!=="DENY"){process.exit(1)}'
       - name: Verify release remains HOLD without matching approved evidence
         shell: bash
         run: |
