@@ -1309,3 +1309,60 @@ test('own valueOf cannot substitute tampered audit bytes with authentic bytes',(
  assert.equal(r.authorization,'DENY');
  assert.equal(r.releaseAllowed,false);
 });
+
+
+test('own length and buffer getters cannot manipulate audit byte bounds',()=>{
+ const input=setup();
+ const anchorBytes=Uint8Array.from(input.anchorBytes);
+ let lengthReads=0,bufferReads=0;
+ Object.defineProperty(anchorBytes,'length',{get(){
+   lengthReads++;
+   throw Error('untrusted length getter must not run');
+ }});
+ Object.defineProperty(anchorBytes,'buffer',{get(){
+   bufferReads++;
+   throw Error('untrusted buffer getter must not run');
+ }});
+ const r=inspectSignedAuditHeadAnchor({...input,anchorBytes});
+ assert.equal(lengthReads,0);
+ assert.equal(bufferReads,0);
+ assert.equal(r.anchorSignatureValid,true,JSON.stringify(r));
+ assert.equal(r.anchoredLedgerMatched,true);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('prototype-spoofing byte Proxy fails before property access or signature parsing',()=>{
+ const input=setup();
+ let reads=0;
+ const anchorBytes=new Proxy(Uint8Array.from(input.anchorBytes),{
+   getPrototypeOf(){return Uint8Array.prototype;},
+   get(){reads++;throw Error('proxy byte read forbidden');}
+ });
+ const r=inspectSignedAuditHeadAnchor({...input,anchorBytes});
+ assert.equal(reads,0);
+ assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
+
+test('shared-memory audit bytes with spoofed buffer property remain denied',()=>{
+ const input=setup();
+ const backing=new SharedArrayBuffer(input.anchorBytes.length);
+ const anchorBytes=new Uint8Array(backing);
+ anchorBytes.set(input.anchorBytes);
+ let reads=0;
+ Object.defineProperty(anchorBytes,'buffer',{get(){
+   reads++;
+   return Uint8Array.from(input.anchorBytes).buffer;
+ }});
+ const r=inspectSignedAuditHeadAnchor({...input,anchorBytes});
+ assert.equal(reads,0);
+ assert.equal(r.reason,'INVALID_ANCHOR_INPUT');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
