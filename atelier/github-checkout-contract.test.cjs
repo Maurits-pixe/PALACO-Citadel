@@ -1,0 +1,29 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const workflow=()=>fs.readFileSync(path.join(__dirname,'../.github/workflows/atelier-validation.yml'),'utf8');
+test('Atelier checkout pins the PR head, with manual dispatch fallback',()=>{
+ const y=workflow();
+ assert.match(y,/ref: \$\{\{ github\.event\.pull_request\.head\.sha \|\| github\.sha \}\}/);
+ assert.match(y,/persist-credentials: false/);
+ assert.match(y,/PALACO_CHECKOUT_SHA: \$\{\{ github\.event\.pull_request\.head\.sha \|\| github\.sha \}\}/);
+});
+test('verified checkout occurs before tests and checks actual Git HEAD',()=>{
+ const y=workflow();
+ const checkout=y.indexOf('Checkout exact PR head revision');
+ const verify=y.indexOf('Verify checked-out commit matches candidate under review');
+ const tests=y.indexOf('Test Atelier data and static route contracts');
+ assert.ok(checkout>=0&&verify>checkout&&tests>verify);
+ assert.match(y,/actual="\$\(git rev-parse HEAD\)"/);
+ assert.match(y,/if \[\[ "\$\{actual\}" != "\$\{PALACO_CHECKOUT_SHA\}" \]\]; then/);
+ assert.match(y,/exit 1/);
+});
+test('release HOLD gate receives the checked-out revision, not synthetic merge SHA',()=>{
+ const y=workflow();
+ const gate=y.slice(y.indexOf('Verify release remains HOLD without matching approved evidence'));
+ assert.match(gate,/node atelier\/release-gate\.cjs "\$\(git rev-parse HEAD\)"/);
+ assert.match(gate,/--enforce/);
+ assert.doesNotMatch(gate,/\$\{GITHUB_SHA\}|\$GITHUB_SHA/);
+});
