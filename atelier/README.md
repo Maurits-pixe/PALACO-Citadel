@@ -1029,3 +1029,11 @@ De Atelier DRAFT-validatie weigert op PR-events nu ontbrekend geschoond reviewbe
 Daarnaast is het statische testcontract voor de volledige projectexport bijgewerkt. Het bewaakt nu expliciet beide 6.000-teken-controles: eerst vóór het lezen van browseropslag en opnieuw nadat een opslagadapter de live editor mogelijk heeft gewijzigd. De export legt vervolgens `completeNote` vast in het projectpakket. Hiermee sluit de test aan op de bestaande, strengere bescherming tegen stil tekstverlies; de productie-exportlogica blijft behouden.
 
 Een nieuwe regressietest controleert dat een ontbrekend PR-reviewrapport de workflow moet laten falen. De v6.90-HEAD had bij inspectie één fout in het oude exporttestcontract; nieuwe CI moet de herstelde tests en alle browsercontroles bevestigen. **GO-13 DRAFT/HOLD/DENY**: geen merge, EDTR-uitgifte of publieke uitrol.
+
+## Regiekamer v6.92 — laatste PR-head controleren na alle bewijs- en browsertests (2026-11-24)
+
+De Atelier DRAFT-workflow controleert nu **na** de volledige browseracceptatie opnieuw via de read-only GitHub REST API of het pull request nog open is en zijn actuele HEAD exact overeenkomt met de kandidaat-SHA die bij de eerste checkout en bewijsverzameling werd gecontroleerd. `atelier/github-pr-head-freshness.cjs` weigert een gewijzigde HEAD, een gesloten PR, afwijkende bron- of doelrepository en een niet-beschikbare API. Het GitHub-token dient uitsluitend voor het lezen van PR-gegevens, er worden geen reviewersidentiteiten of reviewteksten opgeslagen.
+
+Drie nieuwe Node-regressies toetsen een correct open PR, afwijkende HEAD/repository/status en onbeschikbare GitHub API. De nieuwe controle wordt als laatste stap uitgevoerd, zodat een inmiddels verouderde kandidaat niet zonder melding een groene Atelier-validatie oplevert. Ook een geslaagde laatste controle verleent **geen** vrijgave- of mergebevoegdheid; de PR kan ná die waarneming opnieuw wijzigen en daarom blijft verificatie bij een eventueel afzonderlijk autorisatiebesluit noodzakelijk.
+
+De v6.91-CI op `1472e5e` faalde in de eerder verouderde statische exporttest; latere commits in dezelfde Draft-branch hebben dat testcontract bijgewerkt. Voor de v6.92-HEAD moeten de nieuwe CI- en browserresultaten afzonderlijk bevestigd worden. **GO-13 DRAFT/HOLD/DENY**; geen merge, EDTR of publieke uitrol.
