@@ -1168,3 +1168,19 @@ Node-regressies bewaken het positieve pad en deze afwijzingen.
 Dit is **geen** onafhankelijke externe handtekening of waarborg tegen een gelijktijdig
 gecompromitteerde GitHub-runner. GO-13 blijft DRAFT/HOLD/DENY; geen merge, EDTR,
 productiepublicatie of releaseautorisatie.
+
+
+### v7.02 — GitHub ZIP-herkomstcontrole na terugdownload (DRAFT/HOLD/DENY)
+De tweede bewijsartifact-upload wordt na terugdownload expliciet gecontroleerd tegen
+GitHub REST-metadata van **hetzelfde artifact-ID**, de exacte PR-kandidaat-SHA en
+workflowrun. De nieuwe `github-diagnostic-zip-verify.cjs` weigert een verkeerde
+artifactnaam, verlopen of niet-passende metadata, ongeldige digest, gewijzigde
+ZIP-bytes en een afwijkende ZIP-grootte voordat de v7.01 vijf-bestandenextractie
+en canonieke manifestvergelijking worden uitgevoerd. Metadata-404/502/503/504
+kent uitsluitend begrensde retries; permanente afwezigheid blijft een CI-fout.
+Vijf gerichte Node-regressies toegevoegd.
+
+Deze integriteit is **niet onafhankelijk van GitHub of de uitvoerende runner**:
+de REST-digest is geen externe digitale handtekening of chain-of-custody over
+meerdere vertrouwensdomeinen. GO-13 blijft DRAFT / HOLD / DENY; geen merge,
+EDTR, autorisatie of publieke uitrol.
