@@ -15,7 +15,7 @@ from visitcard_v64_archive_status import (
     inspect_archive_storage,execution_permitted,
 )
 
-CHALLENGE=base64.urlsafe_b64encode(b"PALACO-v64-challenge-for-testing!").rstrip(b"=").decode()
+CHALLENGE=base64.urlsafe_b64encode(b"PALACO-v64-challenge-for-testing").rstrip(b"=").decode()
 
 
 class V64StorageStatusTests(unittest.TestCase):
