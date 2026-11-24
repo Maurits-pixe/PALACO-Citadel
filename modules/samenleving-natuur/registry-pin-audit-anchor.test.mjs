@@ -1571,3 +1571,61 @@ test('attacker-selected fingerprint cannot authenticate a different signing key'
  assert.equal(r.executionAllowed,false);
  assert.equal(r.releaseAllowed,false);
 });
+
+
+const ecdsaAlternateS = signatureBase64Url => {
+ const der=Buffer.from(signatureBase64Url,'base64url');
+ assert.equal(der[0],0x30);
+ assert.equal(der[1],der.length-2);
+ let offset=2;
+ const readScalar=()=>{
+   assert.equal(der[offset++],0x02);
+   const length=der[offset++];
+   const bytes=der.subarray(offset,offset+length);
+   offset+=length;
+   return BigInt('0x'+bytes.toString('hex'));
+ };
+ const r=readScalar(),s=readScalar();
+ assert.equal(offset,der.length);
+ const order=BigInt('0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551');
+ const encodeScalar=value=>{
+   let hex=value.toString(16);
+   if(hex.length%2) hex='0'+hex;
+   let bytes=Buffer.from(hex,'hex');
+   if(bytes[0]&0x80) bytes=Buffer.concat([Buffer.from([0]),bytes]);
+   return Buffer.concat([Buffer.from([0x02,bytes.length]),bytes]);
+ };
+ const body=Buffer.concat([encodeScalar(r),encodeScalar(order-s)]);
+ return Buffer.concat([Buffer.from([0x30,body.length]),body]).toString('base64url');
+};
+
+test('ECDSA high-S and low-S twins cannot change the read-only DENY decision',()=>{
+ const input=setup();
+ const alternate=ecdsaAlternateS(input.signatureBase64Url);
+ assert.notEqual(alternate,input.signatureBase64Url);
+ for(const signatureBase64Url of [input.signatureBase64Url,alternate]){
+   const r=inspectSignedAuditHeadAnchor({...input,signatureBase64Url});
+   assert.equal(r.anchorSignatureValid,true,JSON.stringify(r));
+   assert.equal(r.anchoredLedgerMatched,true);
+   assert.equal(r.trust,'NOT_ESTABLISHED');
+   assert.equal(r.authorization,'DENY');
+   assert.equal(r.executionAllowed,false);
+   assert.equal(r.releaseAllowed,false);
+   assert.equal(r.stateChanged,false);
+   assert.equal(Object.isFrozen(r),true);
+   assert.equal(r.unresolvedGates.length,3);
+ }
+});
+
+test('ECDSA alternate-S signature does not authenticate a changed signed audit head',()=>{
+ const input=setup();
+ const signatureBase64Url=ecdsaAlternateS(input.signatureBase64Url);
+ const alternateDocument=document({headHash:'e'.repeat(64)});
+ const anchorBytes=Buffer.from(JSON.stringify(alternateDocument));
+ const r=inspectSignedAuditHeadAnchor({...input,signatureBase64Url,anchorBytes});
+ assert.equal(r.reason,'ANCHOR_SIGNATURE_INVALID');
+ assert.equal(r.anchorSignatureValid,false);
+ assert.equal(r.anchoredLedgerMatched,false);
+ assert.equal(r.authorization,'DENY');
+ assert.equal(r.releaseAllowed,false);
+});
