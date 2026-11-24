@@ -53,7 +53,7 @@ jobs:
       - name: Test fail-closed release evidence evaluator
         run: node --test atelier/release-gate.test.cjs
       - name: Test read-only GitHub review audit, collector and artifact integrity
-        run: node --test atelier/github-review-audit.test.cjs atelier/github-review-collector.test.cjs atelier/github-review-evidence-integrity.test.cjs atelier/github-review-pair.test.cjs atelier/github-artifact-metadata.test.cjs atelier/github-artifact-chain.test.cjs atelier/github-extracted-artifact.test.cjs atelier/github-extracted-receipt.test.cjs atelier/github-checkout-contract.test.cjs atelier/github-pr-head-freshness.test.cjs atelier/github-artifact-visibility.test.cjs atelier/github-artifact-zip-extract.test.cjs atelier/github-artifact-zip-runtime.test.cjs atelier/github-zip-integrity.test.cjs atelier/github-zip-receipt-recheck.test.cjs atelier/github-final-artifact-witness.test.cjs atelier/github-archive-manifest.test.cjs atelier/github-archive-redownload.test.cjs atelier/github-diagnostic-zip-verify.test.cjs
+        run: node --test atelier/github-review-audit.test.cjs atelier/github-review-collector.test.cjs atelier/github-review-evidence-integrity.test.cjs atelier/github-review-pair.test.cjs atelier/github-artifact-metadata.test.cjs atelier/github-artifact-chain.test.cjs atelier/github-extracted-artifact.test.cjs atelier/github-extracted-receipt.test.cjs atelier/github-checkout-contract.test.cjs atelier/github-pr-head-freshness.test.cjs atelier/github-artifact-visibility.test.cjs atelier/github-artifact-zip-extract.test.cjs atelier/github-artifact-zip-runtime.test.cjs atelier/github-zip-integrity.test.cjs atelier/github-zip-receipt-recheck.test.cjs atelier/github-final-artifact-witness.test.cjs atelier/github-archive-manifest.test.cjs atelier/github-archive-redownload.test.cjs atelier/github-diagnostic-zip-verify.test.cjs atelier/github-custody-handoff.test.cjs
       - name: Observe current GitHub PR review history without publication
         if: ${{ github.event_name == 'pull_request' }}
         continue-on-error: true
@@ -282,6 +282,26 @@ jobs:
           node atelier/github-diagnostic-zip-verify.cjs "${zip_path}" "${metadata_path}"
           python3 atelier/github-diagnostic-archive-extract.py "${zip_path}" "${extracted}"
           node atelier/github-archive-redownload.cjs "${RUNNER_TEMP}" "${extracted}"
+      - name: Create and verify portable unsigned custody handoff
+        if: ${{ github.event_name == 'pull_request' && steps.diagnostic_artifact.outputs.artifact-id != '' }}
+        env:
+          PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+          PALACO_DIAGNOSTIC_ARCHIVE_ID: ${{ steps.diagnostic_artifact.outputs.artifact-id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node atelier/github-custody-handoff.cjs create "${RUNNER_TEMP}/atelier-diagnostic-redownload.zip" "${RUNNER_TEMP}/atelier-diagnostic-redownloaded/atelier-archive-manifest.json" "${RUNNER_TEMP}/atelier-custody-handoff.json"
+          node atelier/github-custody-handoff.cjs verify "${RUNNER_TEMP}/atelier-diagnostic-redownload.zip" "${RUNNER_TEMP}/atelier-diagnostic-redownloaded/atelier-archive-manifest.json" "${RUNNER_TEMP}/atelier-custody-handoff.json"
+      - name: Retain portable custody handoff without release authority
+        if: ${{ github.event_name == 'pull_request' && steps.diagnostic_artifact.outputs.artifact-id != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: atelier-custody-handoff
+          path: ${{ runner.temp }}/atelier-custody-handoff.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Verify release remains HOLD without matching approved evidence
         shell: bash
         run: |
