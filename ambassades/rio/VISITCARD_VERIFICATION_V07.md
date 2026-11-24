@@ -1394,3 +1394,38 @@ require authenticated immutable provisioning. A live external
 signer, durable independent latest-head pins and the actual public
 RIO runtime remain unimplemented. No release, merge, production
 activation or permission follows from a matching audit. **GO-13 HOLD.**
+
+## v4.9 — Restart-safe pending-session reconciliation (DRAFT / GO-13 HOLD)
+
+`visitcard_pending_recovery.py` adds explicit read-only recovery
+inspection for a v4.7/v4.8 shared SQLite replay reservation after a
+process crash. It verifies the **entire v4.7 append-only hash chain**
+and requires out-of-band, exact expected sequence, 32-byte challenge,
+signed audit-checkpoint digest, pending head digest and **previously
+acknowledged external head**. A missing, altered, reordered or
+unrecognized pending reservation fails closed. The inspection uses
+one SQLite read transaction and performs no replay consumption or
+automatic acknowledgement.
+
+`resume_signed_acknowledgement` only advances a valid pending
+reservation through the original signed and independently pinned
+v4.7 `acknowledge_head` gate. An identical already-acknowledged
+receipt can be retried after a process restart **only if** the
+caller supplies the updated externally pinned acknowledged head.
+A missing, forged or conflicting receipt never promotes a pending
+verification. Results distinguish pending, acknowledged and blocked;
+no state grants release, merge, execution or key activation.
+21 regressions exercise reconnecting to the same SQLite file,
+idempotent retry, crash before receipt delivery, forged ack,
+wrong checkpoint, stale head, corrupted event and active transaction.
+
+**Security boundary:** This is a restart/reconciliation *contract*,
+not an independent recipient service. All expected values and pins
+must come from authenticated independent provisioning; the caller
+must not derive its 'external' head directly from the same mutable
+database being verified. SQLite rollback across both the local
+file and independent external state is out of scope. Pending
+requests are never automatically timed out or deleted; an operator
+must resolve them using authentic external evidence. The
+existing v4.8 read-only audit + v4.7 replay CAS remains the
+reservation path. **GO-13 HOLD — no merge, release or deployment.**
