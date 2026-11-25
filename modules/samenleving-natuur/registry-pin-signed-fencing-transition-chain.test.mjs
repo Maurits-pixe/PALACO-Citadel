@@ -157,3 +157,31 @@ test('denied signed fencing evidence cannot be rewritten as authorized',()=>{
  assert.equal(out.authorization,'DENY');
  assert.equal(out.releaseAllowed,false);
 });
+
+
+test('witness DER signature with appended trailing byte fails canonical transport validation',()=>{
+ const x=make();
+ const original=Buffer.from(x.batches[0].witnesses[0].signatureBase64Url,'base64url');
+ const changed=Buffer.concat([original,Buffer.from([0])]);
+ changed[1]=original[1]+1;
+ x.batches[0].witnesses[0].signatureBase64Url=changed.toString('base64url');
+ denied(x,'INVALID_SIGNATURE_ENCODING');
+});
+
+test('witness DER signature with invalid INTEGER tag is denied before verification',()=>{
+ const x=make();
+ const changed=Buffer.from(x.batches[0].witnesses[0].signatureBase64Url,'base64url');
+ assert.equal(changed[2],0x02);
+ changed[2]=0x03;
+ x.batches[0].witnesses[0].signatureBase64Url=changed.toString('base64url');
+ denied(x,'INVALID_SIGNATURE_ENCODING');
+});
+
+test('witness DER signature with noncanonical sequence length is denied',()=>{
+ const x=make();
+ const changed=Buffer.from(x.batches[0].witnesses[0].signatureBase64Url,'base64url');
+ assert.equal(changed[1],changed.length-2);
+ changed[1]--;
+ x.batches[0].witnesses[0].signatureBase64Url=changed.toString('base64url');
+ denied(x,'INVALID_SIGNATURE_ENCODING');
+});
