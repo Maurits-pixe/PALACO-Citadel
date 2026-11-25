@@ -2022,3 +2022,43 @@ requirements, and the seven production blockers remain active.
 
 **GO-13 DRAFT / HOLD / DENY:** no merge, release, deployment,
 publication, issuance or key activation.
+
+## v6.5 — Exact-byte archive evidence read-back verification (DRAFT / HOLD)
+
+`visitcard_v65_exact_readback.py` adds a byte-exact cross-check
+above the entire v6.0 incident, v6.1 dual-signed receipt,
+v6.2 immutable outbox and v6.4 challenge-bound signed status
+chain. It first requires both signed archive status claims
+to be `VERIFIED_INFORMATIONAL` against independent latest
+incident and receipt ledger pins. It then reopens a consistent
+local SQLite snapshot, independently rechecks the verified
+chain heads, hashes the *exact archived canonical incident JSON
+bytes* and requests the corresponding raw bytes from the two
+named archive read-back adapters. Both must return non-empty
+`bytes` payloads of at most 32 KiB that are **exactly equal**
+to the independently pinned local original. Truncation,
+appending, mutation, missing bytes or unexpected response
+type rejects the claim. A deterministic comparison fingerprint
+binds the two archive names, nonce, upstream signed-status
+digest and original evidence SHA-256.
+
+21 new synthetic tests cover successful full-byte equality,
+malformed/truncated/altered/oversized results, one archive outage,
+missing signed storage status, wrong incident/receipt pins,
+reopening a persisted database, corrupt local evidence and
+permanently denied merge/release/activation.
+
+**Trust boundary:** The injected `fetch_evidence` callback
+must be independently authenticated and bound to the expected
+archive origin and challenged object; this implementation
+does NOT create an HTTP GET read-back endpoint, supply trusted
+archive identities or remotely prove that evidence remains
+durable over time. A callback replaying locally known bytes
+could satisfy the comparison. The v6.4 challenge must come
+from a fresh secure caller. A verified result remains solely
+`VERIFIED_INFORMATIONAL`; the seven external production
+blockers are not lifted. Never mistake synthetic regression
+evidence for proof of two real offsite archive copies.
+
+**GO-13 DRAFT / HOLD / DENY — no merge, production activation,
+external key activation, public site changes or release.**
