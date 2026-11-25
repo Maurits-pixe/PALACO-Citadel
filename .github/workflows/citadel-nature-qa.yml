@@ -234,6 +234,8 @@ jobs:
         run: node --test modules/samenleving-natuur/registry-pin-fencing-epoch-anchor-chain.test.mjs
       - name: Signed fencing transition anchor-chain witness regressions
         run: node --test modules/samenleving-natuur/registry-pin-signed-fencing-transition-chain.test.mjs
+      - name: Signed fencing anchor CAS preflight and rollback regression
+        run: node --test modules/samenleving-natuur/registry-pin-signed-anchor-cas-preflight.test.mjs
       - name: Install dependencies
         run: npm ci --ignore-scripts
       - name: Install Chromium
