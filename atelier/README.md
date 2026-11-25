@@ -1274,3 +1274,28 @@ zelfstandig beheerde, geauthenticeerde distributieroute. Regels in deze
 repository zijn een *verificatiecontract*, niet bewijs dat onafhankelijke
 checkpointbewaring al gebeurt. GO-13 DRAFT/HOLD/DENY; geen merge,
 EDTR-uitgifte of publieke uitrol.
+
+
+### v7.07 — dubbele checkpointgetuigen en split-viewincident (DRAFT/HOLD/DENY)
+`github-checkpoint-witness.cjs` controleert twee afzonderlijke canonieke,
+met Ed25519 ondertekende waarnemingen via **twee buiten GitHub gepinde**
+publieke sleutels en afzonderlijke observer-ID's. De gesigneerde inhoud
+bevat repository, checkpointvolgnummer, checkpoint-SHA-256,
+registerversie en register-SHA-256. De controle koppelt beide
+waarnemingen aan de v7.06 checkpointverificatie, inclusief extern
+minimumvolgnummer. Verschillende waarnemingen resulteren in een beperkt
+`CHECKPOINT_SPLIT_VIEW_OR_STALE_OBSERVATION`-incidentrapport dat
+alleen hashes, volgnummers en controleur-ID's vastlegt; de strengere
+`requireAgreement`-poort weigert die toestand. Geen van beide resultaten
+geeft vrijgavebevoegdheid. Zes synthetische regressietests toetsen
+overeenstemming, conflicten, oude waarnemingen, verkeerde sleutels,
+manipulatie en vervalste autorisatie.
+
+**Vertrouwensgrens:** dit is een offline verificatiecontract, geen
+operationele externe getuigendienst. Beide controleurs, hun publieke
+sleutelpins, het minimumvolgnummer en de onafhankelijke distributieroute
+moeten buiten de runner worden beheerd. Zelfs twee overeenstemmende
+handtekeningen bewijzen niet zelfstandig onafhankelijke bewaring,
+tijdversheid of beheerderonafhankelijkheid. De CI test alleen synthetische
+scenario's; GO-13 blijft DRAFT/HOLD/DENY, zonder merge, EDTR of
+publieke uitrol.
