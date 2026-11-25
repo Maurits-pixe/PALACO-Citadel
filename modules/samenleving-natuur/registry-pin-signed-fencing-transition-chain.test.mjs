@@ -126,3 +126,34 @@ test('invalid witness roster identifier fails before attacker-owned key-pin enum
  denied(x,'INVALID_WITNESS_ROSTER');
  assert.equal(pinEnumerations,0);
 });
+
+
+test('verified signed fencing evidence and unresolved trust gates are immutable',()=>{
+ const out=inspect(make());
+ assert.equal(out.verified,true,JSON.stringify(out));
+ assert.equal(Object.isFrozen(out),true);
+ assert.equal(Object.isFrozen(out.unresolvedGates),true);
+ assert.throws(()=>{out.authorization='ALLOW';},TypeError);
+ assert.throws(()=>{out.executionAllowed=true;},TypeError);
+ assert.throws(()=>{out.finalEpoch=999;},TypeError);
+ assert.throws(()=>{out.unresolvedGates.pop();},TypeError);
+ assert.equal(out.authorization,'DENY');
+ assert.equal(out.executionAllowed,false);
+ assert.equal(out.finalEpoch,9);
+ assert.equal(out.unresolvedGates.length,5);
+});
+
+test('denied signed fencing evidence cannot be rewritten as authorized',()=>{
+ const input=make();
+ input.batches[0].witnesses.pop();
+ const out=inspect(input);
+ assert.equal(out.reason,'INVALID_BATCH');
+ assert.equal(Object.isFrozen(out),true);
+ assert.throws(()=>{out.verified=true;},TypeError);
+ assert.throws(()=>{out.authorization='ALLOW';},TypeError);
+ assert.throws(()=>{out.releaseAllowed=true;},TypeError);
+ assert.throws(()=>{out.reason='AUTHORIZED';},TypeError);
+ assert.equal(out.verified,false);
+ assert.equal(out.authorization,'DENY');
+ assert.equal(out.releaseAllowed,false);
+});
