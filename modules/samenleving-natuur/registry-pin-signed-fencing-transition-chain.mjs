@@ -4,6 +4,27 @@ import {computeFencingAnchorHash,inspectFencingEpochAnchorChain,FENCING_ANCHOR_S
 export const SIGNED_FENCING_TRANSITION_SCHEMA='palaco-citadel-signed-fencing-transition-v1';
 const DOMAIN=Buffer.from('PALACO-CITADEL-SIGNED-FENCING-TRANSITION-V1\n');
 const HEX=/^[0-9a-f]{64}$/;
+// Accept only minimal DER SEQUENCEs of two positive P-256 ECDSA scalars.
+// A valid cryptographic check must not accept multiple transport encodings.
+const P256_ORDER=BigInt('0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551');
+function canonicalWitnessDer(signature){
+ if(signature.length<8||signature.length>72||
+    signature[0]!==0x30||signature[1]!==signature.length-2)return false;
+ let offset=2;
+ for(let part=0;part<2;part++){
+  if(offset+2>signature.length||signature[offset]!==0x02)return false;
+  const size=signature[offset+1];offset+=2;
+  if(size<1||size>33||offset+size>signature.length)return false;
+  const first=signature[offset],second=size>1?signature[offset+1]:0;
+  if((first&0x80)||(size>1&&first===0&&!(second&0x80))||
+     (size===33&&first!==0)||(size===1&&first===0))return false;
+  let scalar=0n;
+  for(let i=0;i<size;i++)scalar=(scalar<<8n)|BigInt(signature[offset+i]);
+  if(scalar===0n||scalar>=P256_ORDER)return false;
+  offset+=size;
+ }
+ return offset===signature.length;
+}
 const AF=['schema','registryKey','epoch','leaderId','tokenSha256','checkpointHeadSha256','anchorSha256'];
 const SF=['registryKey','previousEpoch','epoch','leaderId','tokenSha256','checkpointHeadSha256'];
 const PF=['previousAnchorSha256','step','candidateAnchorSha256'];
@@ -83,8 +104,8 @@ export function inspectSignedFencingTransitionChain(input={}){
     const fingerprint=createHash('sha256').update(key.export({format:'der',type:'spki'})).digest('hex');
     if(fingerprint!==pins[e.witnessId])return deny('WITNESS_KEY_SUBSTITUTION');
     const signature=Buffer.from(e.signatureBase64Url,'base64url');
-    if(signature.length<8||signature.length>80||
-     signature.toString('base64url')!==e.signatureBase64Url)return deny('INVALID_SIGNATURE_ENCODING');
+    if(signature.toString('base64url')!==e.signatureBase64Url||
+     !canonicalWitnessDer(signature))return deny('INVALID_SIGNATURE_ENCODING');
     const signed=Buffer.from(JSON.stringify({payload:{previousAnchorSha256:payload.previousAnchorSha256,
      step,candidateAnchorSha256:payload.candidateAnchorSha256},witnessId:e.witnessId}));
     if(!verify('sha256',Buffer.concat([DOMAIN,signed]),key,signature))
