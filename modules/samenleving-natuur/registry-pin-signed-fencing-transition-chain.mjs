@@ -9,7 +9,7 @@ const SF=['registryKey','previousEpoch','epoch','leaderId','tokenSha256','checkp
 const PF=['previousAnchorSha256','step','candidateAnchorSha256'];
 const EF=['witnessId','witnessPublicJwk','expectedWitnessFingerprint','signatureBase64Url'];
 const BATCH=['payload','witnesses'];
-const deny=reason=>({schema:SIGNED_FENCING_TRANSITION_SCHEMA,verified:false,reason,
+const deny=reason=>Object.freeze({schema:SIGNED_FENCING_TRANSITION_SCHEMA,verified:false,reason,
  trust:'NOT_ESTABLISHED',authorization:'DENY',stateChanged:false,releaseAllowed:false,executionAllowed:false});
 function exact(o,keys){
  if(!o||typeof o!=='object'||Array.isArray(o)||Object.getPrototypeOf(o)!==Object.prototype)return null;
@@ -100,12 +100,12 @@ export function inspectSignedFencingTransitionChain(input={}){
   const chain=inspectFencingEpochAnchorChain({previousAnchor:first,transitions:steps,
    expectedFinalAnchor:last,minimumEpoch:x.minimumEpoch});
   if(!chain.chainValid)return deny('ANCHOR_'+chain.reason);
-  return {schema:SIGNED_FENCING_TRANSITION_SCHEMA,verified:true,
+  return Object.freeze({schema:SIGNED_FENCING_TRANSITION_SCHEMA,verified:true,
    finalEpoch:cursor.epoch,finalAnchorSha256:cursor.anchorSha256,
    witnessCount:ids.size,transitionCount:steps.length,
-   unresolvedGates:['INDEPENDENT_WITNESS_CUSTODY','AUTHENTICATED_WITNESS_READS',
-    'EXTERNALLY_PROTECTED_ANCHOR','FRESH_REVOCATION','ATOMIC_FENCING_ENFORCEMENT'],
+   unresolvedGates:Object.freeze(['INDEPENDENT_WITNESS_CUSTODY','AUTHENTICATED_WITNESS_READS',
+    'EXTERNALLY_PROTECTED_ANCHOR','FRESH_REVOCATION','ATOMIC_FENCING_ENFORCEMENT']),
    trust:'NOT_ESTABLISHED',authorization:'DENY',stateChanged:false,
-   releaseAllowed:false,executionAllowed:false};
+   releaseAllowed:false,executionAllowed:false});
  }catch{return deny('MALFORMED_UNTRUSTED_SIGNED_TRANSITION');}
 }
