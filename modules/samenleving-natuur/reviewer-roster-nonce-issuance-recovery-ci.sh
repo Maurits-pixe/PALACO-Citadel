@@ -183,6 +183,7 @@ nonce3="$(issue)"
 }
 psql -X -v ON_ERROR_STOP=1 <<SQL
 UPDATE citadel_nonce_issue_ci.challenge SET
+ issued_at=clock_timestamp()-interval '2 seconds',
  expires_at=clock_timestamp()-interval '1 second'
  WHERE nonce_sha256=encode(digest(decode('$nonce3','hex'),'sha256'),'hex');
 DO \$test\$
