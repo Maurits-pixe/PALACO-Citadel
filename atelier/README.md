@@ -1379,3 +1379,28 @@ hardware-, NFS-, cloud- of beheerdersfouten. De module schrijft geen
 actuele productie-ledger weg vanuit GitHub Actions en garandeert geen
 externe bewaring. GO-13 blijft DRAFT/HOLD/DENY; geen merge, EDTR of
 publieke uitrol.
+
+
+### v7.11 — quarantine-assessment voor onderbroken archieftransacties (DRAFT/HOLD/DENY)
+De nieuwe `github-incident-recovery.cjs` voert uitsluitend een **alleen-lezen**
+onderzoek uit op één achtergebleven `.prepare-commit-...`-map.
+De verificateur eist exact de drie canonieke v7.10-bestanden
+(`ledger.json`, `proof.json`, `commit-manifest.json`), controleert
+hun SHA-256-bindingen en de volledige incident-ledgerhashketen,
+vergelijkt het voorgaande ledgerbytebeeld met de laatst gecommitteerde
+transactie en verifieert de precieze verwachte commitnaam,
+volgnummer en vorige recordhash. Een afwijkende externe minimumledgerkop,
+een aanwezige writer-lock, meerdere voorbereidingsmappen, ontbrekende
+bestanden, symlinks, niet-canonieke JSON of misleidende bewijsvelden
+blokkeren hersteladvies. Zes gerichte regressietests zijn verplicht in CI.
+
+Een positief resultaat betekent uitsluitend
+`QUARANTINED_ARCHIVE_INTEGRITY_CHECK_PASSED` met
+`recovery_authorized:false` en `promotion_performed:false`.
+**Er bestaat bewust geen automatische promotie, lock-overname,
+verwijdering of herstelmutatie.** Het onderzoek bewijst geen
+onafhankelijke authenticiteit van voorafgaande getuigen of externe
+duurzame bewaring. Iedere handmatige herstelactie vergt aparte
+procedure, autorisatie en onafhankelijk bewijs; dat wordt niet
+door v7.11 verleend. GO-13 blijft DRAFT/HOLD/DENY;
+geen merge, EDTR of publieke uitrol.
