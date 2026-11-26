@@ -44,3 +44,31 @@ test('accessors and symbols rejected without invocation',()=>{
  denied(x,'INVALID_OBSERVATION');assert.equal(n,0);
  denied({...fixture(),[Symbol('extra')]:true},'INVALID_INPUT');
 });
+
+
+test('signed anchor reader rejects trailing DER bytes even with adjusted outer length',()=>{
+ const x=fixture();
+ const der=Buffer.from(x.envelope.signatureBase64Url,'base64url');
+ const changed=Buffer.concat([der,Buffer.from([0])]);
+ changed[1]=der[1]+1;
+ x.envelope.signatureBase64Url=changed.toString('base64url');
+ denied(x,'INVALID_SIGNATURE_ENCODING');
+});
+
+test('signed anchor reader rejects noncanonical DER INTEGER tags',()=>{
+ const x=fixture();
+ const der=Buffer.from(x.envelope.signatureBase64Url,'base64url');
+ assert.equal(der[2],0x02);
+ der[2]=0x03;
+ x.envelope.signatureBase64Url=der.toString('base64url');
+ denied(x,'INVALID_SIGNATURE_ENCODING');
+});
+
+test('signed anchor reader rejects DER sequence-length disagreement',()=>{
+ const x=fixture();
+ const der=Buffer.from(x.envelope.signatureBase64Url,'base64url');
+ assert.equal(der[1],der.length-2);
+ der[1]-=1;
+ x.envelope.signatureBase64Url=der.toString('base64url');
+ denied(x,'INVALID_SIGNATURE_ENCODING');
+});
