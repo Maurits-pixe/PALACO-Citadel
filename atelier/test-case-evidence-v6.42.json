@@ -1,0 +1,124 @@
+{
+  "schema": "palaco.citadel.atelier.test-case-evidence/1",
+  "version": "6.42",
+  "state": "DRAFT",
+  "authority": "NONE",
+  "release_approved": false,
+  "decision": "HOLD",
+  "observed_commit_sha": "f21c98ca6b35ab097fbf61188dc9b27639021edd",
+  "observation_is_historical_after_this_file_is_committed": true,
+  "source": {
+    "provider": "github_actions",
+    "workflow": "Atelier DRAFT validation",
+    "run_id": 44997681110,
+    "job_id": 137132144542,
+    "job_name": "Atelier isolated regression and contract checks",
+    "observed_job_status": "completed",
+    "observed_job_conclusion": "success"
+  },
+  "suite_summaries": [
+    {
+      "suite": "node_surface_and_bundle",
+      "tests": 64,
+      "passed": 64,
+      "failed": 0,
+      "step": "Test Atelier data and static route contracts"
+    },
+    {
+      "suite": "node_domain_wizard",
+      "tests": 5,
+      "passed": 5,
+      "failed": 0,
+      "step": "Test original Atelier domain and wizard"
+    },
+    {
+      "suite": "playwright_chromium_desktop_mobile",
+      "tests": 140,
+      "passed": 140,
+      "failed": 0,
+      "step": "Verify Atelier in desktop and mobile Chromium"
+    }
+  ],
+  "selected_case_evidence": [
+    {
+      "gate": "G01",
+      "name": "malformed recovery record is rejected without altering the local draft",
+      "log_marker": "ok 60",
+      "result": "pass",
+      "evidence_type": "job_log"
+    },
+    {
+      "gate": "G02",
+      "name": "recovery quota failure blocks import without changing the current project",
+      "log_marker": "ok 36",
+      "result": "pass",
+      "evidence_type": "job_log"
+    },
+    {
+      "gate": "G03",
+      "name": "rollback conflict reports review required and preserves another tab edit",
+      "log_marker": "ok 49",
+      "result": "pass",
+      "evidence_type": "job_log"
+    },
+    {
+      "gate": "G04",
+      "name": "failed import detects recovery modified during cleanup",
+      "log_marker": "ok 58",
+      "result": "pass",
+      "evidence_type": "job_log"
+    },
+    {
+      "gate": "G04",
+      "name": "undo refuses recovery swapped after parsing but before restoring",
+      "log_marker": "ok 59",
+      "result": "pass",
+      "evidence_type": "job_log"
+    },
+    {
+      "gate": "G04",
+      "name": "recovery write that commits before throwing is reversed without touching designs",
+      "log_marker": "ok 53",
+      "result": "pass",
+      "evidence_type": "job_log"
+    },
+    {
+      "gate": "G04",
+      "name": "silent storage write failure cannot report successful project restoration",
+      "log_marker": "ok 45",
+      "result": "pass",
+      "evidence_type": "job_log"
+    },
+    {
+      "gate": "G05",
+      "name": "Atelier note synchronization handles inaccessible storage without losing editor text",
+      "log_marker": "ok 21",
+      "result": "pass",
+      "evidence_type": "job_log"
+    }
+  ],
+  "unverified_release_requirements": [
+    "Manual screenreader acceptance",
+    "Physical mobile device review",
+    "Offline end-to-end evidence beyond current workflow",
+    "Independent code-review",
+    "All required deployment checks on exact release HEAD",
+    "Explicit GO-13 authorization"
+  ],
+  "gate_release_pass": {
+    "G01": false,
+    "G02": false,
+    "G03": false,
+    "G04": false,
+    "G05": false,
+    "G06": false,
+    "G07": false,
+    "G08": false
+  },
+  "notes": [
+    "Selected cases represent only log-visible test cases, not exhaustive per-gate evidence",
+    "Success on observed commit does not imply success on newly created evidence-file commit",
+    "localStorage has no atomic transaction guarantees"
+  ],
+  "publication": "DENY"
+}

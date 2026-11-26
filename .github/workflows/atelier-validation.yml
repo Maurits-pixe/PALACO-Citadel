@@ -1,0 +1,337 @@
+name: Atelier DRAFT validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'atelier/**'
+      - 'sw.js'
+      - 'tests/browser/atelier.spec.mjs'
+      - '.github/workflows/atelier-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: read
+
+concurrency:
+  group: atelier-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  atelier-check:
+    name: Atelier isolated regression and contract checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact PR head revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Verify checked-out commit matches candidate under review
+        env:
+          PALACO_CHECKOUT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          if [[ "${actual}" != "${PALACO_CHECKOUT_SHA}" ]]; then
+            echo "::error::Checked-out source differs from the intended candidate revision"
+            exit 1
+          fi
+          echo "Verified exact candidate source commit: ${actual}"
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test Atelier data and static route contracts
+        run: node --test atelier/regiekamer-bundle.test.cjs atelier/regiekamer-gallery.test.cjs atelier/atelier-surface.test.cjs
+      - name: Test original Atelier domain and wizard
+        run: node --test atelier/builder.test.mjs atelier/wizard.test.mjs citadel-proof/proof.test.mjs
+      - name: Test fail-closed release evidence evaluator
+        run: node --test atelier/release-gate.test.cjs
+      - name: Test read-only GitHub review audit, collector and artifact integrity
+        run: node --test atelier/github-review-audit.test.cjs atelier/github-review-collector.test.cjs atelier/github-review-evidence-integrity.test.cjs atelier/github-review-pair.test.cjs atelier/github-artifact-metadata.test.cjs atelier/github-artifact-chain.test.cjs atelier/github-extracted-artifact.test.cjs atelier/github-extracted-receipt.test.cjs atelier/github-checkout-contract.test.cjs atelier/github-pr-head-freshness.test.cjs atelier/github-artifact-visibility.test.cjs atelier/github-artifact-zip-extract.test.cjs atelier/github-artifact-zip-runtime.test.cjs atelier/github-zip-integrity.test.cjs atelier/github-zip-receipt-recheck.test.cjs atelier/github-final-artifact-witness.test.cjs atelier/github-archive-manifest.test.cjs atelier/github-archive-redownload.test.cjs atelier/github-diagnostic-zip-verify.test.cjs atelier/github-custody-handoff.test.cjs atelier/github-external-receipt-verify.test.cjs atelier/github-custodian-key-registry.test.cjs atelier/github-registry-checkpoint.test.cjs atelier/github-checkpoint-witness.test.cjs atelier/github-incident-ledger.test.cjs atelier/github-authenticated-incident.test.cjs atelier/github-atomic-incident-archive.test.cjs atelier/github-incident-recovery.test.cjs atelier/github-manual-recovery-review.test.cjs atelier/github-spent-recovery-register.test.cjs atelier/github-spent-registry-reconcile.test.cjs
+      - name: Observe current GitHub PR review history without publication
+        if: ${{ github.event_name == 'pull_request' }}
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_REVIEW_REPORT_PATH: ${{ runner.temp }}/atelier-review-evidence.json
+        run: node atelier/github-review-collector.cjs
+      - name: Verify report bytes and exact event context before artifact retention
+        if: ${{ github.event_name == 'pull_request' }}
+        env:
+          PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_REVIEW_INTEGRITY_PATH: ${{ runner.temp }}/atelier-review-integrity.json
+        shell: bash
+        run: |
+          if [[ -f "${RUNNER_TEMP}/atelier-review-evidence.json" ]]; then
+            node atelier/github-review-evidence-integrity.cjs "${RUNNER_TEMP}/atelier-review-evidence.json"
+            node atelier/github-review-pair.cjs "${RUNNER_TEMP}/atelier-review-evidence.json" "${RUNNER_TEMP}/atelier-review-integrity.json"
+          else
+            echo "::error::Required review observation missing; retaining no artifact is not a verified result"
+            exit 1
+          fi
+      - name: Retain sanitized review observation for inspection
+        id: review_artifact
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: atelier-review-evidence
+          path: |
+            ${{ runner.temp }}/atelier-review-evidence.json
+            ${{ runner.temp }}/atelier-review-integrity.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Wait for exact artifact ID in GitHub run listing
+        if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node atelier/github-artifact-visibility.cjs
+      - name: Download exact uploaded review evidence artifact with bounded propagation retries
+        if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+        run: |
+          set -euo pipefail
+          output="${RUNNER_TEMP}/atelier-downloaded-evidence"
+          zip_path="${RUNNER_TEMP}/atelier-review-evidence-download.zip"
+          mkdir -p "${output}"
+          url="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${PALACO_ARTIFACT_ID}/zip"
+          downloaded=0
+          for attempt in 1 2 3 4 5; do
+            rm -f "${zip_path}"
+            code="$(curl --silent --show-error --location --output "${zip_path}" --write-out '%{http_code}' \
+              --header "Authorization: Bearer ${GITHUB_TOKEN}" \
+              --header "Accept: application/vnd.github+json" \
+              --header "X-GitHub-Api-Version: 2022-11-28" \
+              --max-time 30 "${url}")" || {
+                echo "::error::Artifact download transport failed; HOLD/DENY"
+                exit 1
+              }
+            if [[ "${code}" == "200" ]]; then
+              if ! python3 atelier/github-artifact-zip-extract.py "${zip_path}" "${output}"; then
+                echo "::error::Downloaded artifact ZIP failed strict bounded extraction; HOLD/DENY"
+                exit 1
+              fi
+              downloaded=1
+              break
+            fi
+            if [[ "${code}" != "404" && "${code}" != "502" && "${code}" != "503" && "${code}" != "504" ]]; then
+              echo "::error::Artifact download HTTP ${code}; HOLD/DENY"
+              exit 1
+            fi
+            echo "::warning::Artifact not downloadable yet (HTTP ${code}, attempt ${attempt}/5)"
+            if [[ "${attempt}" != "5" ]]; then sleep 3; fi
+          done
+          if [[ "${downloaded}" != "1" ]]; then
+            echo "::error::Exact artifact unavailable after bounded retries; HOLD/DENY"
+            exit 1
+          fi
+          echo "Downloaded exact artifact ID ${PALACO_ARTIFACT_ID} for downstream integrity verification"
+      - name: Verify extracted GitHub artifact bytes against checked source
+        if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
+        env:
+          PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+          PALACO_EXTRACTED_REPORT_PATH: ${{ runner.temp }}/atelier-extracted-evidence-check.json
+        run: node atelier/github-extracted-artifact.cjs "${RUNNER_TEMP}/atelier-downloaded-evidence" "${RUNNER_TEMP}"
+      - name: Verify GitHub metadata for retained evidence artifact
+        if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+          PALACO_ARTIFACT_METADATA_PATH: ${{ runner.temp }}/atelier-artifact-metadata-observation.json
+        run: node atelier/github-artifact-metadata.cjs
+      - name: Verify downloaded ZIP digest and size against GitHub REST metadata
+        if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
+        env:
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+          PALACO_ZIP_INTEGRITY_REPORT_PATH: ${{ runner.temp }}/atelier-zip-integrity-check.json
+        run: node atelier/github-zip-integrity.cjs "${RUNNER_TEMP}/atelier-review-evidence-download.zip" "${RUNNER_TEMP}/atelier-artifact-metadata-observation.json"
+      - name: Cross-check review evidence, receipt and GitHub metadata observation
+        if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
+        env:
+          PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+        run: |
+          node atelier/github-artifact-chain.cjs "${RUNNER_TEMP}/atelier-review-evidence.json" "${RUNNER_TEMP}/atelier-review-integrity.json" "${RUNNER_TEMP}/atelier-artifact-metadata-observation.json"
+      - name: Recompute and bind downloaded evidence receipt before archival
+        if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
+        env:
+          PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+        run: node atelier/github-extracted-receipt.cjs "${RUNNER_TEMP}/atelier-extracted-evidence-check.json" "${RUNNER_TEMP}/atelier-downloaded-evidence" "${RUNNER_TEMP}"
+      - name: Recompute retained ZIP receipt before artifact archival
+        if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
+        env:
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+        run: node atelier/github-zip-receipt-recheck.cjs "${RUNNER_TEMP}/atelier-zip-integrity-check.json" "${RUNNER_TEMP}/atelier-review-evidence-download.zip" "${RUNNER_TEMP}/atelier-artifact-metadata-observation.json"
+      - name: Final cross-check of original evidence, downloaded files and ZIP
+        if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
+        env:
+          PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+          PALACO_FINAL_ARTIFACT_WITNESS_PATH: ${{ runner.temp }}/atelier-final-artifact-witness.json
+        run: node atelier/github-final-artifact-witness.cjs "${RUNNER_TEMP}/atelier-review-evidence.json" "${RUNNER_TEMP}/atelier-review-integrity.json" "${RUNNER_TEMP}/atelier-artifact-metadata-observation.json" "${RUNNER_TEMP}/atelier-extracted-evidence-check.json" "${RUNNER_TEMP}/atelier-zip-integrity-check.json" "${RUNNER_TEMP}/atelier-review-evidence-download.zip" "${RUNNER_TEMP}/atelier-downloaded-evidence" "${RUNNER_TEMP}"
+      - name: Recompute retained final witness before archive
+        if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
+        env:
+          PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+        run: node atelier/github-final-witness-recheck.cjs "${RUNNER_TEMP}/atelier-final-artifact-witness.json" "${RUNNER_TEMP}/atelier-review-evidence.json" "${RUNNER_TEMP}/atelier-review-integrity.json" "${RUNNER_TEMP}/atelier-artifact-metadata-observation.json" "${RUNNER_TEMP}/atelier-extracted-evidence-check.json" "${RUNNER_TEMP}/atelier-zip-integrity-check.json" "${RUNNER_TEMP}/atelier-review-evidence-download.zip" "${RUNNER_TEMP}/atelier-downloaded-evidence" "${RUNNER_TEMP}"
+      - name: Create and independently verify four-file archive manifest
+        if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
+        env:
+          PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+        run: |
+          node atelier/github-archive-manifest.cjs create "${RUNNER_TEMP}"
+          node atelier/github-archive-manifest.cjs verify "${RUNNER_TEMP}"
+      - name: Retain explicit GitHub artifact metadata observation
+        id: diagnostic_artifact
+        if: ${{ github.event_name == 'pull_request' && steps.review_artifact.outputs.artifact-id != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: atelier-artifact-metadata-observation
+          path: |
+            ${{ runner.temp }}/atelier-artifact-metadata-observation.json
+            ${{ runner.temp }}/atelier-extracted-evidence-check.json
+            ${{ runner.temp }}/atelier-zip-integrity-check.json
+            ${{ runner.temp }}/atelier-final-artifact-witness.json
+            ${{ runner.temp }}/atelier-archive-manifest.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Independently download and verify retained five-file diagnostic archive
+        if: ${{ github.event_name == 'pull_request' && steps.diagnostic_artifact.outputs.artifact-id != '' }}
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+          PALACO_DIAGNOSTIC_ARCHIVE_ID: ${{ steps.diagnostic_artifact.outputs.artifact-id }}
+        run: |
+          set -euo pipefail
+          zip_path="${RUNNER_TEMP}/atelier-diagnostic-redownload.zip"
+          extracted="${RUNNER_TEMP}/atelier-diagnostic-redownloaded"
+          url="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${PALACO_DIAGNOSTIC_ARCHIVE_ID}/zip"
+          downloaded=0
+          for attempt in 1 2 3 4 5; do
+            rm -f "${zip_path}"
+            code="$(curl --silent --show-error --location --output "${zip_path}" --write-out '%{http_code}' \
+              --header "Authorization: Bearer ${GITHUB_TOKEN}" \
+              --header "Accept: application/vnd.github+json" \
+              --header "X-GitHub-Api-Version: 2022-11-28" \
+              --max-time 30 "${url}")" || { echo "::error::Diagnostic archive transport failure"; exit 1; }
+            if [[ "${code}" == "200" ]]; then
+              downloaded=1
+              break
+            fi
+            if [[ "${code}" != "404" && "${code}" != "502" && "${code}" != "503" && "${code}" != "504" ]]; then
+              echo "::error::Diagnostic archive download HTTP ${code}; HOLD/DENY"
+              exit 1
+            fi
+            if [[ "${attempt}" != "5" ]]; then sleep 3; fi
+          done
+          if [[ "${downloaded}" != "1" ]]; then
+            echo "::error::Diagnostic archive unavailable; HOLD/DENY"
+            exit 1
+          fi
+          # Authenticate the ZIP itself against REST artifact metadata, not only extracted files.
+          metadata_path="${RUNNER_TEMP}/atelier-diagnostic-metadata.json"
+          metadata_url="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${PALACO_DIAGNOSTIC_ARCHIVE_ID}"
+          metadata_ok=0
+          for attempt in 1 2 3 4 5; do
+            rm -f "${metadata_path}"
+            code="$(curl --silent --show-error --location --output "${metadata_path}" --write-out '%{http_code}' \
+              --header "Authorization: Bearer ${GITHUB_TOKEN}" \
+              --header "Accept: application/vnd.github+json" \
+              --header "X-GitHub-Api-Version: 2022-11-28" \
+              --max-time 30 "${metadata_url}")" || { echo "::error::Diagnostic metadata transport failure"; exit 1; }
+            if [[ "${code}" == "200" ]]; then metadata_ok=1; break; fi
+            if [[ "${code}" != "404" && "${code}" != "502" && "${code}" != "503" && "${code}" != "504" ]]; then
+              echo "::error::Diagnostic metadata HTTP ${code}; HOLD/DENY"
+              exit 1
+            fi
+            if [[ "${attempt}" != "5" ]]; then sleep 3; fi
+          done
+          if [[ "${metadata_ok}" != "1" ]]; then
+            echo "::error::Diagnostic metadata unavailable; HOLD/DENY"
+            exit 1
+          fi
+          node atelier/github-diagnostic-zip-verify.cjs "${zip_path}" "${metadata_path}"
+          python3 atelier/github-diagnostic-archive-extract.py "${zip_path}" "${extracted}"
+          node atelier/github-archive-redownload.cjs "${RUNNER_TEMP}" "${extracted}"
+      - name: Create and verify portable unsigned custody handoff
+        if: ${{ github.event_name == 'pull_request' && steps.diagnostic_artifact.outputs.artifact-id != '' }}
+        env:
+          PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PALACO_ARTIFACT_ID: ${{ steps.review_artifact.outputs.artifact-id }}
+          PALACO_DIAGNOSTIC_ARCHIVE_ID: ${{ steps.diagnostic_artifact.outputs.artifact-id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node atelier/github-custody-handoff.cjs create "${RUNNER_TEMP}/atelier-diagnostic-redownload.zip" "${RUNNER_TEMP}/atelier-diagnostic-redownloaded/atelier-archive-manifest.json" "${RUNNER_TEMP}/atelier-custody-handoff.json"
+          node atelier/github-custody-handoff.cjs verify "${RUNNER_TEMP}/atelier-diagnostic-redownload.zip" "${RUNNER_TEMP}/atelier-diagnostic-redownloaded/atelier-archive-manifest.json" "${RUNNER_TEMP}/atelier-custody-handoff.json"
+      - name: Retain portable custody handoff without release authority
+        if: ${{ github.event_name == 'pull_request' && steps.diagnostic_artifact.outputs.artifact-id != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: atelier-custody-handoff
+          path: ${{ runner.temp }}/atelier-custody-handoff.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Confirm external custody remains unproven in GitHub-only CI
+        if: ${{ github.event_name == 'pull_request' && steps.diagnostic_artifact.outputs.artifact-id != '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # No custodian private key, external receipt or trusted key pin in this workflow.
+          # Real independent custody must be verified in a separate trust domain.
+          node -e 'const fs=require("node:fs");const p=process.env.RUNNER_TEMP+"/atelier-custody-handoff.json";const r=JSON.parse(fs.readFileSync(p,"utf8"));if(r.custody_state!=="NOT_EXTERNALLY_ACKNOWLEDGED"||r.release_approved!==false||r.publication!=="DENY"){process.exit(1)}'
+      - name: Verify release remains HOLD without matching approved evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          node atelier/release-gate.cjs "$(git rev-parse HEAD)" atelier/release-evidence-v6.40.json > "${RUNNER_TEMP}/atelier-release-diagnostic.json"
+          node -e 'const r=require(process.argv[1]);if(r.decision!=="HOLD"||r.publication!=="DENY"||r.release_approved!==false||r.gates.length!==8||r.gates.some(g=>g.pass!==false)){process.exit(1)}' "${RUNNER_TEMP}/atelier-release-diagnostic.json"
+          if node atelier/release-gate.cjs "$(git rev-parse HEAD)" atelier/release-evidence-v6.40.json --enforce > /dev/null; then
+            echo "ERROR: an unapproved DRAFT release was accepted"
+            exit 1
+          fi
+          echo "DRAFT gate: HOLD / DENY confirmed (no release permission)"
+      - name: Install locked browser-test dependencies
+        run: npm ci
+      - name: Install Chromium for browser acceptance
+        run: npx playwright install --with-deps chromium
+      - name: Verify Atelier in desktop and mobile Chromium
+        run: npx playwright test tests/browser/atelier.spec.mjs
+      - name: Reject stale PR head after all Atelier checks
+        if: ${{ github.event_name == 'pull_request' }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PALACO_PR_NUMBER: ${{ github.event.pull_request.number }}
+          PALACO_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node atelier/github-pr-head-freshness.cjs
+

@@ -1,0 +1,224 @@
+/* PALACO Atelier portable draft bundle v1. Local creative data only. */
+(function(root,factory){
+  'use strict';
+  const api=factory();
+  if(typeof module==='object'&&module.exports)module.exports=api;
+  if(root)root.PalacoAtelierBundle=api;
+})(typeof window!=='undefined'?window:null,function(){
+'use strict';
+const EX='palaco.citadel.atelier.grand-studio.v1';
+const IN='palaco.citadel.atelier.interior.v1';
+const NOTE='palaco.citadel.atelier.regiekamer.note.v1';
+const RECOVERY='palaco.citadel.atelier.regiekamer.recovery.v1';
+const keys=Object.freeze([EX,IN,NOTE]);
+const extKinds=new Set(['royal','home','park','water','culture','trade','care','path','observatory','atelier','garden','bridge']);
+const intKinds=new Set(['salon','bedroom','kitchen','bath','library','gallery','atelier','terrace','hall','stairs','pool','wellness','dining','greenhouse']);
+const scales=new Set(['Dorp','Stad','Gemeente','Community','Metropool']);
+const styles=new Set(['PALACO · Emerald & Gold','Neoklassiek','Organische architectuur','Art Deco','Toekomstig minimalisme']);
+const moods=new Set(['Gouden uur','Ochtendlicht','Sterrennacht','Lente','Winterglans']);
+const materials=new Set(['Smaragd & goud','Marmer & travertin','Warm eiken & linnen','Art Deco & messing','Glas & licht']);
+const lights=new Set(['Gouden avond','Zacht daglicht','Museumlicht','Warme kaarsgloed','Koel maanlicht']);
+const text=(v,n)=>typeof v==='string'&&v.length<=n;
+const cells=(a,n,kinds)=>Array.isArray(a)&&a.length===n&&a.every(x=>x===null||kinds.has(x));
+function validExterior(v){return !!(v&&v.schema==='palaco.citadel.atelier.studio/1'&&v.state==='DRAFT'&&v.authority==='NONE'&&text(v.name,80)&&scales.has(v.scale)&&styles.has(v.style)&&moods.has(v.mood)&&cells(v.cells,96,extKinds));}
+function validInterior(v){return !!(v&&v.schema==='palaco.citadel.atelier.interior/1'&&v.state==='DRAFT'&&v.authority==='NONE'&&text(v.name,80)&&materials.has(v.material)&&lights.has(v.mood)&&Array.isArray(v.floors)&&v.floors.length===3&&v.floors.every(f=>cells(f,80,intKinds)));}
+function cleanExterior(v){
+ if(!validExterior(v))throw Error('Ongeldige exterieurgegevens');
+ return {schema:v.schema,state:'DRAFT',authority:'NONE',name:v.name,scale:v.scale,style:v.style,mood:v.mood,cells:v.cells.slice(),snapshots:[]};
+}
+function cleanInterior(v){
+ if(!validInterior(v))throw Error('Ongeldige interieurgegevens');
+ return {schema:v.schema,state:'DRAFT',authority:'NONE',name:v.name,material:v.material,mood:v.mood,floors:v.floors.map(f=>f.slice())};
+}
+function create(exterior,interior,note){
+ if(exterior!==null&&!validExterior(exterior))throw Error('Exterieur heeft ongeldige DRAFT-gegevens');
+ if(interior!==null&&!validInterior(interior))throw Error('Interieur heeft ongeldige DRAFT-gegevens');
+ if(!text(note,6000))throw Error('Ontwerpnotitie ongeldig');
+ return {schema:'palaco.citadel.atelier.portable/1',state:'DRAFT',authority:'NONE',purpose:'CREATIVE_BACKUP_ONLY',exterior:exterior?cleanExterior(exterior):null,interior:interior?cleanInterior(interior):null,note,limitations:['No authorization','No official identity','No server registration','No issuance']};
+}
+function parse(input){
+ if(typeof input!=='string'||input.length>150000)throw Error('Bestand te groot of ongeldig');
+ const b=JSON.parse(input);
+ if(!b||b.schema!=='palaco.citadel.atelier.portable/1'||b.state!=='DRAFT'||b.authority!=='NONE'||b.purpose!=='CREATIVE_BACKUP_ONLY')throw Error('Onbekend of niet-geautoriseerd pakket');
+ if(!Object.prototype.hasOwnProperty.call(b,'exterior')||!Object.prototype.hasOwnProperty.call(b,'interior')||!Object.prototype.hasOwnProperty.call(b,'note'))throw Error('Ontbrekende verplichte onderdelen');
+ return create(b.exterior,b.interior,b.note);
+}
+function read(storage){
+ const get=k=>{const s=storage.getItem(k);return s===null?null:JSON.parse(s);};
+ let exterior=null,interior=null;
+ try{const e=get(EX);if(validExterior(e))exterior=e;}catch{}
+ try{const i=get(IN);if(validInterior(i))interior=i;}catch{}
+ const note=storage.getItem(NOTE);
+ return create(exterior,interior,typeof note==='string'?note.slice(0,6000):'');
+}
+function preview(current,incoming){
+ const now=parse(JSON.stringify(current));
+ const next=parse(JSON.stringify(incoming));
+ const compare=(a,b)=>({
+   existing:a?a.filter(Boolean).length:0,
+   incoming:b?b.filter(Boolean).length:0,
+   changed:a&&b?a.reduce((sum,value,i)=>sum+Number(value!==b[i]),0):a||b?(a||b).filter(Boolean).length:0,
+   removed:a&&!b?a.filter(Boolean).length:a&&b?a.reduce((sum,value,i)=>sum+Number(Boolean(value)&&!b[i]),0):0
+ });
+ const exterior=compare(now.exterior?.cells||null,next.exterior?.cells||null);
+ const floors=[0,1,2].map(i=>compare(now.interior?.floors[i]||null,next.interior?.floors[i]||null));
+ const removed=floors.reduce((a,f)=>a+f.removed,exterior.removed);
+ const namesChanged=(now.exterior?.name||'')!==(next.exterior?.name||'')||(now.interior?.name||'')!==(next.interior?.name||'');
+ const noteChanged=now.note!==next.note;
+ return {exterior,floors,removed,noteChanged,namesChanged,
+   replacesExterior:Boolean(now.exterior),replacesInterior:Boolean(now.interior),
+   removesExterior:Boolean(now.exterior&&!next.exterior),
+   removesInterior:Boolean(now.interior&&!next.interior),
+   changed:exterior.changed+floors.reduce((a,f)=>a+f.changed,0)};
+}
+function snapshot(storage){
+ return keys.map(key=>storage.getItem(key));
+}
+function restore(storage,bundle,expectedSnapshot){
+ const b=parse(JSON.stringify(bundle));
+ // Optimistic compare: refuse a write if another tab changed source data after preview.
+ const prior=snapshot(storage);
+ if(expectedSnapshot!==undefined){
+   if(!Array.isArray(expectedSnapshot)||expectedSnapshot.length!==keys.length||expectedSnapshot.some((value,i)=>prior[i]!==value)){
+     throw Error('Lokaal project gewijzigd sinds de controle. Heropen het bestand en controleer opnieuw.');
+   }
+ }
+ const changes=[[EX,b.exterior?JSON.stringify(b.exterior):null],[IN,b.interior?JSON.stringify(b.interior):null],[NOTE,b.note]];
+ let attempted=-1;
+ try{
+   changes.forEach(([key,value],i)=>{
+     attempted=i;
+     value===null?storage.removeItem(key):storage.setItem(key,value);
+   });
+   // Storage adapters can silently fail or data can change between writes.
+   // Read back each intended value before reporting a successful restore.
+   for(const [key,wanted] of changes){
+     if(storage.getItem(key)!==wanted)
+       throw Error('Opslagverificatie mislukt; opgeslagen project wijkt af van het herstelvoorstel.');
+   }
+ }catch(err){
+   // Only roll back keys this operation attempted, never a newer competing edit.
+   // localStorage is not transactional; this is a best-effort conflict guard.
+   const result={exterior:'untouched',interior:'untouched',note:'untouched'};
+   const labels=['exterior','interior','note'];
+   for(let i=attempted;i>=0;i--){
+     const [key,wanted]=changes[i];
+     const label=labels[i];
+     try{
+       const observed=storage.getItem(key);
+       if(observed===prior[i]){result[label]='original';continue;}
+       if(observed!==wanted){result[label]='conflict';continue;}
+       prior[i]===null?storage.removeItem(key):storage.setItem(key,prior[i]);
+       result[label]=storage.getItem(key)===prior[i]?'restored':'failed';
+     }catch{result[label]='failed';}
+   }
+   const complete=Object.values(result).every(v=>v==='untouched'||v==='original'||v==='restored');
+   const failure=Error(complete
+     ?'Herstel mislukt; oorspronkelijke opslag teruggezet.'
+     :'Herstel onderbroken en terugdraaien mislukt of conflicteert met nieuwere gegevens. Stop met bewerken en controleer lokale gegevens.');
+   failure.code=complete?'ATELIER_RESTORE_ROLLED_BACK':'ATELIER_RESTORE_REVIEW_REQUIRED';
+   // Only safe status labels, never stored project content or personal notes.
+   failure.rollback=Object.freeze(result);
+   throw failure;
+ }
+ return {exterior:!!b.exterior,interior:!!b.interior,noteLength:b.note.length};
+}
+function getRecovery(storage){
+ const raw=storage.getItem(RECOVERY);
+ if(raw===null)return null;
+ if(raw.length>150000)throw Error('Herstelkopie is te groot');
+ const record=JSON.parse(raw);
+ if(!record||record.schema!=='palaco.citadel.atelier.recovery/1'||record.authority!=='NONE'||record.state!=='DRAFT'){
+   throw Error('Onbekende herstelkopie');
+ }
+ const draft=parse(JSON.stringify(record.draft));
+ if(typeof record.savedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(record.savedAt)||!Number.isFinite(Date.parse(record.savedAt))||new Date(record.savedAt).toISOString()!==record.savedAt)throw Error('Ongeldig herstelmoment');
+ return {savedAt:record.savedAt,draft};
+}
+function restoreWithRecovery(storage,bundle,expectedSnapshot,expectedRecovery){
+ const incoming=parse(JSON.stringify(bundle));
+ const prior=snapshot(storage);
+ if(expectedSnapshot!==undefined&&(!Array.isArray(expectedSnapshot)||expectedSnapshot.length!==keys.length||expectedSnapshot.some((v,i)=>prior[i]!==v))){
+   throw Error('Lokaal project gewijzigd sinds de controle. Heropen het bestand en controleer opnieuw.');
+ }
+ // Never silently discard unreadable source data during a destructive import.
+ for(const [i,validate] of [[0,validExterior],[1,validInterior]]){
+   if(prior[i]!==null){
+     let value;
+     try{value=JSON.parse(prior[i]);}catch{throw Error('Bestaande Atelier-bron bevat onleesbare gegevens; exporteer of herstel deze eerst.');}
+     if(!validate(value))throw Error('Bestaande Atelier-bron is geen geldig DRAFT-project; automatisch overschrijven geweigerd.');
+   }
+ }
+ if(prior[2]!==null&&prior[2].length>6000)throw Error('Bestaande ontwerpnotitie overschrijdt de veilige limiet');
+ const previousRecovery=storage.getItem(RECOVERY);
+ if(expectedRecovery!==undefined&&previousRecovery!==expectedRecovery){
+   throw Error('Herstelkopie gewijzigd sinds de controle. Controleer het herstelpunt opnieuw.');
+ }
+ // Build recovery from the exact validated snapshot, never a second live read.
+ // Another tab may have changed the project after the initial snapshot.
+ const draft=create(
+   prior[0]===null?null:JSON.parse(prior[0]),
+   prior[1]===null?null:JSON.parse(prior[1]),
+   prior[2]===null?'':prior[2]
+ );
+ if(snapshot(storage).some((value,i)=>value!==prior[i])){
+   throw Error('Lokaal project gewijzigd tijdens voorbereiding. Import afgebroken; controleer opnieuw.');
+ }
+ const record={schema:'palaco.citadel.atelier.recovery/1',state:'DRAFT',authority:'NONE',savedAt:new Date().toISOString(),draft};
+ if(expectedRecovery!==undefined&&storage.getItem(RECOVERY)!==expectedRecovery){
+   throw Error('Herstelkopie gewijzigd tijdens voorbereiding. Controleer het herstelpunt opnieuw.');
+ }
+ const writtenRecovery=JSON.stringify(record);
+ try{storage.setItem(RECOVERY,writtenRecovery);}
+ catch{
+   // Some adapters write the value and *then* throw. Only undo our own value.
+   let current;
+   try{current=storage.getItem(RECOVERY);}
+   catch{throw Error('Herstelkopie schrijven mislukt; opslagstatus onbekend. Controleer de lokale herstelkopie.');}
+   if(current===writtenRecovery){
+     try{
+       previousRecovery===null?storage.removeItem(RECOVERY):storage.setItem(RECOVERY,previousRecovery);
+       if(storage.getItem(RECOVERY)!==previousRecovery)throw Error('readback');
+     }catch{throw Error('Herstelkopie schrijven mislukt; terugdraaien niet bevestigd. Controleer de lokale herstelkopie.');}
+   }else if(current!==previousRecovery){
+     throw Error('Herstelkopie schrijven mislukt en is ondertussen gewijzigd. Laat herstelkopie ongemoeid.');
+   }
+   throw Error('Geen ruimte voor veilige herstelkopie; import afgebroken zonder ontwerpwijzigingen.');
+ }
+ // Stop if another tab replaced our recovery point before the design write.
+ if(storage.getItem(RECOVERY)!==writtenRecovery){
+   throw Error('Herstelkopie gewijzigd na opslaan. Import afgebroken; controleer lokale gegevens.');
+ }
+ try{return restore(storage,incoming,prior);}
+ catch(err){
+   // Never overwrite a recovery point that another tab has replaced.
+   if(storage.getItem(RECOVERY)!==writtenRecovery){
+     throw Error('Import faalde en herstelkopie is ondertussen gewijzigd. Laat herstelkopie ongemoeid; controleer lokale gegevens.');
+   }
+   try{
+     previousRecovery===null?storage.removeItem(RECOVERY):storage.setItem(RECOVERY,previousRecovery);
+     // A storage adapter can silently ignore cleanup or another tab can intervene.
+     if(storage.getItem(RECOVERY)!==previousRecovery){
+       throw Error('Recovery rollback verification failed');
+     }
+   }catch{
+     throw Error('Import faalde en herstelkopie kon niet aantoonbaar worden teruggezet. Controleer je lokale projectgegevens.');
+   }
+   throw err;
+ }
+}
+function undoLastImport(storage,expectedSnapshot,previewedRecovery){
+ const expectedRecovery=storage.getItem(RECOVERY);
+ // A confirmation must apply only to the recovery point actually previewed.
+ if(previewedRecovery!==undefined&&expectedRecovery!==previewedRecovery)
+   throw Error('Herstelkopie gewijzigd sinds het herstelvoorstel. Controleer het herstelpunt opnieuw.');
+ const recovery=getRecovery(storage);
+ if(!recovery)throw Error('Er is geen lokale herstelkopie beschikbaar');
+ // The parsed recovery must still be the exact record selected before validation.
+ // Never restore a draft from one version while trusting a newer recovery record.
+ if(storage.getItem(RECOVERY)!==expectedRecovery)
+   throw Error('Herstelkopie gewijzigd tijdens verificatie. Controleer het herstelpunt opnieuw.');
+ return restoreWithRecovery(storage,recovery.draft,expectedSnapshot,expectedRecovery);
+}
+return Object.freeze({EX,IN,NOTE,RECOVERY,validExterior,validInterior,create,parse,read,preview,snapshot,restore,getRecovery,restoreWithRecovery,undoLastImport});
+});
