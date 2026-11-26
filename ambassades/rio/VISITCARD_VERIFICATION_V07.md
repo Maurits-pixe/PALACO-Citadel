@@ -2062,3 +2062,48 @@ evidence for proof of two real offsite archive copies.
 
 **GO-13 DRAFT / HOLD / DENY — no merge, production activation,
 external key activation, public site changes or release.**
+
+## v6.6 — Restricted HTTPS exact-byte archive readback transport (DRAFT / HOLD)
+
+`visitcard_v66_https_readback.py` supplies a v6.5-compatible callback
+that fetches raw evidence bytes over HTTPS from two distinct,
+caller-configured and strictly validated archive endpoints. A fixed
+`/v1/incident-readback` route is reused with the v6.3 HTTPS
+authority restrictions. The adapter requires independently pinned
+archive Ed25519 keys, distinct URLs and caller-provided bearer tokens;
+it never provisions or activates remote services or signs proof.
+
+Each POST binds the archive identity, the v6.2 canonical handoff
+digest, original incident and conflict digests, SHA-256 of exact
+original evidence, and the caller's v6.4 32-byte challenge. The
+response must be HTTP 200 from the unchanged URL, have raw
+`application/octet-stream` content type, and echo matching
+archive ID, handoff ID, challenge and evidence SHA-256 headers.
+The body is bounded by the v6.5 32 KiB maximum and must match
+the expected SHA-256 and declared Content-Length. The client
+uses Python default TLS certificate checking, a fixed eight-second
+timeout, disabled proxy inheritance and no HTTP redirects or
+implicit retries. The v6.5 verifier still checks byte-for-byte
+equality to the independently pinned incident record; it requires
+**both signed v6.4 status statements first**.
+
+36 new synthetic regressions cover successful matched bytes,
+changed/truncated/appended/oversized responses, malformed
+headers, redirects, wrong content types/status, URL/credential
+rejection, unavailable archives, invalid challenge, wrong
+archive identity and immutable HOLD permission boundaries.
+
+**Trust boundary:** A TLS endpoint and header echoes authenticate
+neither physical offsite durability nor signing-key custody.
+The adapter relies on the v6.4 signed status path to bind remote
+archive claims to pinned keys. Tests use injected synthetic
+transports and do not contact two real independent archives.
+Deployment must separately validate DNS/egress pinning against
+re-binding, independent trust roots, endpoint credentials, archive
+retention guarantees, and externally durable latest checkpoint
+pins. A malicious but authorized archive could return the correct
+bytes without proving long-term storage; external audit remains
+required. All seven prior production blockers remain open.
+
+**GO-13 DRAFT / HOLD / DENY: no merge, release, rollout, public site
+changes, identity issuance or key activation.**
