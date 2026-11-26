@@ -3,6 +3,27 @@ import {createHash,createPublicKey,verify} from 'node:crypto';
 export const ANCHOR_OBSERVATION_SCHEMA='palaco-citadel-anchor-observation-v1';
 const DOMAIN=Buffer.from('PALACO-CITADEL-ANCHOR-OBSERVATION-V1\n');
 const HEX=/^[0-9a-f]{64}$/;
+// Enforce canonical DER P-256 ECDSA representation before crypto verification.
+// Reject zero, negative, oversized or non-minimally encoded (r,s) scalars.
+const P256_ORDER=BigInt('0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551');
+function canonicalReaderSignature(signature){
+ if(signature.length<8||signature.length>72||
+    signature[0]!==0x30||signature[1]!==signature.length-2)return false;
+ let offset=2;
+ for(let component=0;component<2;component++){
+  if(offset+2>signature.length||signature[offset]!==0x02)return false;
+  const length=signature[offset+1];offset+=2;
+  if(length<1||length>33||offset+length>signature.length)return false;
+  const first=signature[offset],second=length>1?signature[offset+1]:0;
+  if((first&0x80)||(length>1&&first===0&&!(second&0x80))||
+     (length===33&&first!==0)||(length===1&&first===0))return false;
+  let scalar=0n;
+  for(let i=0;i<length;i++)scalar=(scalar<<8n)|BigInt(signature[offset+i]);
+  if(scalar===0n||scalar>=P256_ORDER)return false;
+  offset+=length;
+ }
+ return offset===signature.length;
+}
 const DATA=['schema','registryKey','epoch','anchorSha256','nonceSha256','observedAtUtc','expiresAtUtc'];
 const ENVELOPE=['observation','readerId','readerPublicJwk','expectedReaderFingerprint','signatureBase64Url'];
 const deny=reason=>({schema:ANCHOR_OBSERVATION_SCHEMA,observationValid:false,reason,
@@ -62,7 +83,8 @@ export function inspectSignedAnchorObservation(input={}){
    createHash('sha256').update(key.export({format:'der',type:'spki'})).digest('hex')!==x.expectedReaderFingerprint)
    return deny('READER_KEY_SUBSTITUTION');
   const signature=Buffer.from(e.signatureBase64Url,'base64url');
-  if(signature.length<8||signature.length>80||signature.toString('base64url')!==e.signatureBase64Url)
+  if(signature.toString('base64url')!==e.signatureBase64Url||
+     !canonicalReaderSignature(signature))
    return deny('INVALID_SIGNATURE_ENCODING');
   const signed=Buffer.from(JSON.stringify({observation:o,readerId:e.readerId}));
   if(!verify('sha256',Buffer.concat([DOMAIN,signed]),key,signature))
