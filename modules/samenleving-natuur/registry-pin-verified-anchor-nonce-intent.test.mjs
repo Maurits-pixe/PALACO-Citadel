@@ -74,3 +74,45 @@ test('symbol injection and empty input rejected',()=>{
  denied({...fixture(),[Symbol('extra')]:true},'INVALID_INPUT');
  denied({},'INVALID_INPUT');
 });
+
+
+test('equivalent independently signed observations have the same canonical intent digest',()=>{
+ const first=fixture(),second=fixture();
+ assert.notEqual(first.envelope.signatureBase64Url,second.envelope.signatureBase64Url);
+ const a=inspect(first),b=inspect(second);
+ assert.equal(a.intentValid,true,JSON.stringify(a));
+ assert.equal(b.intentValid,true,JSON.stringify(b));
+ assert.equal(a.proposedNonceConsumption.observationSha256,
+   b.proposedNonceConsumption.observationSha256);
+ assert.equal(a.authorization,'DENY');
+ assert.equal(b.authorization,'DENY');
+});
+
+test('verified nonce intent and proposal cannot be mutated into consumption authority',()=>{
+ const result=inspect(fixture());
+ assert.equal(result.intentValid,true,JSON.stringify(result));
+ assert.equal(Object.isFrozen(result),true);
+ assert.equal(Object.isFrozen(result.proposedNonceConsumption),true);
+ assert.equal(Object.isFrozen(result.unresolvedGates),true);
+ assert.throws(()=>{result.authorization='ALLOW';},TypeError);
+ assert.throws(()=>{result.stateChanged=true;},TypeError);
+ assert.throws(()=>{result.proposedNonceConsumption.nonceSha256='f'.repeat(64);},TypeError);
+ assert.throws(()=>{result.unresolvedGates.pop();},TypeError);
+ assert.equal(result.authorization,'DENY');
+ assert.equal(result.stateChanged,false);
+ assert.equal(result.proposedNonceConsumption.nonceSha256,'b'.repeat(64));
+ assert.equal(result.unresolvedGates.length,6);
+});
+
+test('invalid nonce observation denial result is immutable',()=>{
+ const input=fixture();
+ input.expectedNonceSha256='c'.repeat(64);
+ const result=inspect(input);
+ assert.equal(result.intentValid,false);
+ assert.equal(Object.isFrozen(result),true);
+ assert.throws(()=>{result.intentValid=true;},TypeError);
+ assert.throws(()=>{result.releaseAllowed=true;},TypeError);
+ assert.throws(()=>{result.authorization='ALLOW';},TypeError);
+ assert.equal(result.authorization,'DENY');
+ assert.equal(result.releaseAllowed,false);
+});
