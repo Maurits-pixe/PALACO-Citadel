@@ -1,0 +1,275 @@
+name: Citadel Samenleving & Natuur browser QA
+
+on:
+  pull_request:
+    paths:
+      - 'modules/samenleving-natuur/**'
+      - '.github/workflows/citadel-nature-qa.yml'
+      - 'package.json'
+      - 'package-lock.json'
+  push:
+    branches: [main]
+    paths:
+      - 'modules/samenleving-natuur/**'
+      - '.github/workflows/citadel-nature-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+
+  ephemeral-postgresql-hold-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: citadel_ephemeral_ci_only
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: citadel_ephemeral_ci_only
+      PGDATABASE: postgres
+    steps:
+      - name: Checkout draft source
+        uses: actions/checkout@v4
+      - name: Install PostgreSQL client
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+      - name: Execute DRAFT HOLD denial tests on ephemeral PostgreSQL only
+        run: psql -X -v ON_ERROR_STOP=1 -f modules/samenleving-natuur/registry-pin-cas-ephemeral.test.sql
+      - name: Populated tables UPDATE DELETE and transaction rollback QA
+        run: psql -X -v ON_ERROR_STOP=1 -f modules/samenleving-natuur/registry-pin-cas-populated.test.sql
+      - name: Two-session row locking and stale CAS integration test
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/registry-pin-cas-concurrency-ci.sh
+      - name: Two-session reviewer storage receipt CAS race (disposable PostgreSQL only)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/reviewer-roster-storage-race-ci.sh
+      - name: Reviewer checkpoint audit append transaction rollback (disposable PostgreSQL only)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/reviewer-roster-storage-atomicity-ci.sh
+      - name: Reviewer checkpoint duplicate audit disconnect and stale retry QA (disposable PostgreSQL)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/reviewer-roster-storage-recovery-ci.sh
+      - name: Reviewer checkpoint idempotent recovery retries (disposable PostgreSQL only)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/reviewer-roster-storage-idempotency-ci.sh
+      - name: Two-session reviewer recovery idempotency race (disposable PostgreSQL)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/reviewer-roster-storage-idempotency-race-ci.sh
+      - name: Reviewer recovery disconnect and concurrent retry (disposable PostgreSQL)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/reviewer-roster-storage-disconnect-race-ci.sh
+      - name: Reviewer unknown COMMIT outcome and lost acknowledgement recovery (disposable PostgreSQL)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/reviewer-roster-commit-outcome-ci.sh
+      - name: Reviewer backend termination rollback and exactly-once retry (disposable PostgreSQL)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/reviewer-roster-backend-termination-ci.sh
+      - name: Reviewer failover fencing epoch and stale leader regression (disposable PostgreSQL)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/reviewer-roster-fencing-epoch-ci.sh
+      - name: Rival failover leader split-brain epoch race (disposable PostgreSQL)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/reviewer-roster-split-brain-race-ci.sh
+      - name: Stale leader reconnect fencing after failover (disposable PostgreSQL)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/reviewer-roster-reconnect-fencing-ci.sh
+      - name: Fencing anchor CAS race and fork rollback (disposable PostgreSQL)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/reviewer-roster-fencing-anchor-register-ci.sh
+      - name: One-time anchor nonce consumption concurrency and rollback (disposable PostgreSQL)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/reviewer-roster-anchor-nonce-register-ci.sh
+      - name: Verified signed observation and atomic nonce boundary (disposable PostgreSQL)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: node modules/samenleving-natuur/registry-pin-verified-nonce-boundary-ci.mjs
+      - name: Database-issued nonce challenge and replay recovery (disposable PostgreSQL)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/reviewer-roster-nonce-issuance-recovery-ci.sh
+      - name: Nonce receipt atomic commit and lost ACK recovery (disposable PostgreSQL)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/reviewer-roster-nonce-receipt-recovery-ci.sh
+      - name: Ephemeral issuer rotation atomicity and stale replay QA
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/issuer-rotation-atomicity-ci.sh
+      - name: Ephemeral issuer rotation read-only ACL denial checks
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/issuer-rotation-acl-ci.sh
+      - name: Disabled issuer rotation writer and unauthorized calls QA
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/issuer-rotation-writer-hold-ci.sh
+  isolated-postmaster-crash-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: citadel_ephemeral_ci_only
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: citadel_ephemeral_ci_only
+      PGDATABASE: postgres
+      CITADEL_EPHEMERAL_CI_ONLY: '1'
+      CITADEL_POSTGRES_CRASH_JOB_ONLY: '1'
+    steps:
+      - name: Checkout draft source
+        uses: actions/checkout@v4
+      - name: Install PostgreSQL client
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+      - name: Kill isolated postmaster and verify committed versus pending checkpoint recovery
+        run: bash modules/samenleving-natuur/reviewer-roster-postmaster-crash-ci.sh
+  offline-browser-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Local receipt trust gate negative regression tests
+        run: node --test modules/samenleving-natuur/receipt-review-gate.test.mjs
+      - name: Cryptographic receipt verification negative regression tests
+        run: node --test modules/samenleving-natuur/receipt-crypto-verifier.test.mjs
+      - name: Signed receipt evidence bridge regression tests
+        run: node --test modules/samenleving-natuur/receipt-evidence-bridge.test.mjs
+      - name: Signed receipt evidence bridge repeatability gate
+        run: |
+          for attempt in 1 2 3; do
+            echo "Receipt bridge regression repeat ${attempt}/3"
+            node --test modules/samenleving-natuur/receipt-evidence-bridge.test.mjs
+          done
+      - name: Signed reviewer registry negative regression tests
+        run: node --test modules/samenleving-natuur/reviewer-registry-check.test.mjs
+      - name: Signed receipt and reviewer registry composite regressions
+        run: node --test modules/samenleving-natuur/receipt-registry-composite.test.mjs
+      - name: Pinned registry snapshot rollback and substitution regressions
+        run: node --test modules/samenleving-natuur/registry-snapshot-pin.test.mjs
+      - name: Monotone registry pin transition regressions
+        run: node --test modules/samenleving-natuur/registry-pin-transition.test.mjs
+      - name: Registry pin ledger tamper and rollback regressions
+        run: node --test modules/samenleving-natuur/registry-pin-ledger.test.mjs
+      - name: Dual reviewer signatures and CAS preflight regressions
+        run: node --test modules/samenleving-natuur/registry-pin-dual-review.test.mjs
+      - name: Registry pin CAS simulation conflict regressions
+        run: node --test modules/samenleving-natuur/registry-pin-cas-simulation.test.mjs
+      - name: Disabled PostgreSQL CAS contract static checks
+        run: node --test modules/samenleving-natuur/registry-pin-cas-draft.test.mjs
+      - name: Signed audit anchor rollback and substitution regressions
+        run: node --test modules/samenleving-natuur/registry-pin-audit-anchor.test.mjs
+      - name: Audit anchor continuity tests
+        run: node --test modules/samenleving-natuur/registry-pin-anchor-continuity.test.mjs
+      - name: Protected audit anchor register CAS preflight regressions
+        run: node --test modules/samenleving-natuur/registry-pin-anchor-register.test.mjs
+      - name: Signed independent audit witness negative regressions
+        run: node --test modules/samenleving-natuur/registry-pin-anchor-witness.test.mjs
+      - name: Witness enrollment revocation and epoch rollback regressions
+        run: node --test modules/samenleving-natuur/registry-pin-witness-registry.test.mjs
+      - name: Signed witness registry issuer and epoch security regressions
+        run: node --test modules/samenleving-natuur/registry-pin-signed-witness-registry.test.mjs
+      - name: Signed witness registry transition and revocation rollback regressions
+        run: node --test modules/samenleving-natuur/registry-pin-witness-transition.test.mjs
+      - name: Dual-signed issuer rotation and anti-rollback regressions
+        run: node --test modules/samenleving-natuur/registry-pin-witness-issuer-rotation.test.mjs
+      - name: Issuer rotation pin ledger conflict and replay tests
+        run: node --test modules/samenleving-natuur/registry-pin-issuer-ledger.test.mjs
+      - name: Issuer rotation dual reviewer signature and revocation regressions
+        run: node --test modules/samenleving-natuur/registry-pin-issuer-review-approvals.test.mjs
+      - name: Signed reviewer roster issuer revocation and rollback regressions
+        run: node --test modules/samenleving-natuur/registry-pin-signed-reviewer-roster.test.mjs
+      - name: Signed reviewer roster transition and revocation rollback regressions
+        run: node --test modules/samenleving-natuur/registry-pin-reviewer-roster-transition.test.mjs
+      - name: Reviewer roster checkpoint hash chain CAS and rollback regressions
+        run: node --test modules/samenleving-natuur/registry-pin-reviewer-roster-checkpoint.test.mjs
+      - name: Independently signed reviewer roster checkpoint attestation regressions
+        run: node --test modules/samenleving-natuur/registry-pin-reviewer-roster-attestation.test.mjs
+      - name: Reviewer checkpoint witness continuity rollback and forgery regressions
+        run: node --test modules/samenleving-natuur/registry-pin-reviewer-roster-witness-continuity.test.mjs
+      - name: Multi-witness reviewer checkpoint quorum regressions
+        run: node --test modules/samenleving-natuur/registry-pin-reviewer-roster-witness-quorum.test.mjs
+      - name: Reviewer roster quorum continuity and anti-rollback regressions
+        run: node --test modules/samenleving-natuur/registry-pin-reviewer-roster-quorum-continuity.test.mjs
+      - name: Signed checkpoint storage receipt and rollback regressions
+        run: node --test modules/samenleving-natuur/registry-pin-reviewer-roster-storage-receipt.test.mjs
+      - name: Signed reviewer roster storage continuity and version rollback regressions
+        run: node --test modules/samenleving-natuur/registry-pin-reviewer-roster-storage-continuity.test.mjs
+      - name: Reviewer roster storage optimistic CAS preflight regressions
+        run: node --test modules/samenleving-natuur/registry-pin-reviewer-roster-storage-cas-preflight.test.mjs
+      - name: Reviewer roster signed failover reconciliation and split-view regressions
+        run: node --test modules/samenleving-natuur/registry-pin-reviewer-roster-failover-reconciliation.test.mjs
+      - name: Signed failover fencing witness reconciliation regressions
+        run: node --test modules/samenleving-natuur/registry-pin-fencing-witness-reconciliation.test.mjs
+      - name: Fencing epoch anchored hash-chain and rollback regressions
+        run: node --test modules/samenleving-natuur/registry-pin-fencing-epoch-anchor-chain.test.mjs
+      - name: Signed fencing transition anchor-chain witness regressions
+        run: node --test modules/samenleving-natuur/registry-pin-signed-fencing-transition-chain.test.mjs
+      - name: Signed fencing anchor CAS preflight and rollback regression
+        run: node --test modules/samenleving-natuur/registry-pin-signed-anchor-cas-preflight.test.mjs
+      - name: Signed anchor observation nonce and freshness regressions
+        run: node --test modules/samenleving-natuur/registry-pin-signed-anchor-observation.test.mjs
+      - name: Verified signed anchor observation to inert nonce intent regressions
+        run: node --test modules/samenleving-natuur/registry-pin-verified-anchor-nonce-intent.test.mjs
+      - name: Signed nonce recovery receipt and signer pin regressions
+        run: node --test modules/samenleving-natuur/registry-pin-signed-nonce-recovery-receipt.test.mjs
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Browser regression tests (desktop and mobile)
+        run: npx playwright test --config modules/samenleving-natuur/playwright.config.mjs
+      - name: Retain QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: citadel-nature-playwright-evidence
+          path: |
+            modules/samenleving-natuur/test-results/
+          if-no-files-found: warn
+          retention-days: 14
