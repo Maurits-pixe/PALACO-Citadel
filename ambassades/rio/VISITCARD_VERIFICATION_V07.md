@@ -2276,3 +2276,45 @@ trigger trust boundary. The seven production blockers remain.
 
 **GO-13 DRAFT / HOLD / DENY.** No merge, key activation, release,
 public site changes, production deployment or issuance.
+
+## v7.1 — Independently verifiable offline atomic retention evidence bundle (DRAFT / HOLD)
+
+`visitcard_v71_audit_bundle.py` exports a **canonical, bounded**
+audit package containing the immutable v6.8 schedule, complete
+v6.8 history and original v6.9 dual-Ed25519 signed proof
+records. It exports only when the source database's full event and
+signed-proof chains pass their existing verification logic and
+both latest heads match independently supplied pins.
+
+An unrelated auditor may call `verify_atomic_audit_bundle` with
+the raw bundle bytes, independently pinned **bundle SHA-256**,
+latest audit sequence/head, latest proof sequence/head and two
+independently trusted archive Ed25519 public keys. The verifier
+requires no access to the originating SQLite database: it parses
+the canonical bundle with duplicate-key rejection into a
+disposable in-memory database, then replays the v6.8 and v6.9
+strict signature, schedule, lineage and historical quarantine
+verification. Untrusted inputs cannot supply their own
+verification roots. Limits: 4 MiB raw bundle and 256 events
+and proof entries; larger histories need a separate segmented
+and independently pinned export protocol.
+
+28 new synthetic regressions check a complete offline verified
+bundle, historic missed/failed quarantine, wrong external pins,
+missing and altered original signatures, corrupted audit rows,
+changed schedule, malformed and noncanonical JSON, duplicate
+object keys, truncated data, untrusted public keys, stale source
+heads, open transactions and universal nonauthorization.
+
+**Trust boundary:** This is independent verification of a **data
+package**, not an externally notarized export, a production
+signing service, proof of remote archive physical retention or
+proof of secure key custody. The ephemeral SQLite engine is
+a parsing/replay implementation detail; the auditor needs no
+original database. Independent public-key provisioning and latest
+head/bundle pins MUST happen outside the exported package.
+Exporting a full snapshot is not the same as remote storage
+and does not lift any of the seven production blockers.
+
+**GO-13 DRAFT / HOLD / DENY.** No merge, rollout, public release,
+identity issuance, key activation or authorization.
