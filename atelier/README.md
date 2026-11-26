@@ -1299,3 +1299,27 @@ handtekeningen bewijzen niet zelfstandig onafhankelijke bewaring,
 tijdversheid of beheerderonafhankelijkheid. De CI test alleen synthetische
 scenario's; GO-13 blijft DRAFT/HOLD/DENY, zonder merge, EDTR of
 publieke uitrol.
+
+
+### v7.08 — append-only split-viewincidentregister met hashketen (DRAFT/HOLD/DENY)
+`github-incident-ledger.cjs` bouwt een canonieke JSON-keten van incidenten:
+elk record heeft een strikt oplopend volgnummer, een unieke incident-ID, de
+SHA-256 van het aangeleverde v7.07-waarnemingsrapport, een checkpoint-hash,
+de voorafgaande recordhash en zijn eigen reproduceerbare SHA-256.
+Dubbele OPEN-registraties, herstel zonder open incident, dubbele herstelregistraties,
+onbekende velden, gewijzigde of verkeerd geordende records falen gesloten.
+De optionele **extern beheerde** minimumpositie en headhash detecteren
+truncatie of herschrijving vóór dat checkpoint. De module schrijft een
+nieuwe ledger uitsluitend als nieuw bestand met exclusieve creatie;
+zij overschrijft geen bestaande archieven.
+
+`RECOVERY_RECORDED` betekent alleen dat een bijbehorend v7.07-rapport
+met twee overeenstemmende controleurs is geregistreerd, **niet** dat
+onafhankelijke custody of veilige vrijgave is aangetoond. De ledger
+vertrouwt op de upstream-verificatie van v7.07 en authenticeert de
+JSON-rapporten niet zelfstandig: wie de invoer mag fabriceren kan
+ook een synthetische historie maken. Een echte deployment vereist
+afzonderlijke authentieke evidence, duurzaam append-only opslagbeheer,
+en onafhankelijk gepinde ledger-heads; dit is nog niet aangesloten.
+De CI bevat uitsluitend zes synthetische regressietests.
+GO-13 DRAFT/HOLD/DENY blijft onveranderd; geen merge, EDTR of publieke uitrol.
