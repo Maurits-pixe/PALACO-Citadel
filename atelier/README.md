@@ -1323,3 +1323,27 @@ afzonderlijke authentieke evidence, duurzaam append-only opslagbeheer,
 en onafhankelijk gepinde ledger-heads; dit is nog niet aangesloten.
 De CI bevat uitsluitend zes synthetische regressietests.
 GO-13 DRAFT/HOLD/DENY blijft onveranderd; geen merge, EDTR of publieke uitrol.
+
+
+### v7.09 — cryptografisch geautoriseerde incidenttransities (DRAFT/HOLD/DENY)
+`github-authenticated-incident.cjs` accepteert geen zelfstandig aangeleverd
+JSON-incidentrapport als autoritatieve invoer. Het herberekent het v7.07-rapport
+rechtstreeks uit **twee originele Ed25519-ondertekende waarnemingen**, twee
+buiten de runner vertrouwde publieke sleutels/pins en het exact gecontroleerde
+v7.06-registercheckpoint met externe minimumstand.
+Alleen aantoonbare `CHECKPOINT_SPLIT_VIEW_OR_STALE_OBSERVATION` mag een
+`OPEN`-record starten. Alleen `TWO_PINNED_WITNESSES_AGREE` mag voor
+een **reeds open** incident `RECOVERY_RECORDED` toevoegen. Duplicaten,
+vervalste samenvattingen, misvormde handtekeningen, een verkeerde sleutelpin
+en teruggerolde ledger-heads worden geweigerd.
+De canonieke nevenregistratie legt de SHA-256 van beide oorspronkelijke
+getuigenbestanden, de bewijsrapporthash en de nieuwe ledger-recordhash vast,
+zonder ooit GO, EDTR of publicatie te autoriseren. Zes synthetische Node-tests
+zijn onderdeel van de verplichte Atelier DRAFT-workflow.
+
+De aanwezigheid van twee verschillende sleutels **bewijst niet** dat
+getuigen feitelijk onafhankelijk zijn. De module schrijft nieuwe uitvoerbestanden
+met exclusieve creatie maar maakt nog geen atomair, duurzaam extern
+tweebestandenarchief. De aangeleverde minimumstand en witness-sleutels
+moeten onafhankelijk beheerd blijven; echte externe getuigendiensten zijn
+nog niet aangesloten. GO-13 blijft DRAFT/HOLD/DENY; geen merge, EDTR of uitrol.
