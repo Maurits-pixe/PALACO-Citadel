@@ -120,8 +120,10 @@ class V70AtomicRetentionTests(unittest.TestCase):
 
     def test_same_root_under_two_names_fails_success(self):
         reused={x:self.signed.keys[self.signed.ids[0]] for x in self.signed.ids}
-        r=self.save(keys=reused)
-        self.assertEqual(r.outcome,"FAILED_QUARANTINED")
+        r=self.write(keys=reused)
+        self.assertEqual(r.state,AtomicState.BLOCKED)
+        self.assertEqual(self.plan.db.execute(
+            "SELECT count(*) FROM rio_v68_history").fetchone()[0],0)
 
     def test_wrong_expected_retention_pin_fails_success(self):
         r=self.save(pin="f"*64)
