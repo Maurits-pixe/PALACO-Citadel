@@ -41,6 +41,26 @@ function exact(o,keys){
   if(!d||!Object.hasOwn(d,'value'))return null;out[k]=d.value;}
  return out;
 }
+// Snapshot a bounded witness roster using own data descriptors. Iterating a
+// caller-owned array directly can execute indexed getters or Proxy get traps.
+function captureWitnessRoster(roster){
+ if(!Array.isArray(roster))return null;
+ const length=Object.getOwnPropertyDescriptor(roster,'length');
+ if(!length||!Object.hasOwn(length,'value')||
+    !Number.isSafeInteger(length.value)||length.value<2||length.value>5)return null;
+ const names=Reflect.ownKeys(roster);
+ if(names.length!==length.value+1)return null;
+ const copy=[];
+ for(let i=0;i<length.value;i++){
+  const field=Object.getOwnPropertyDescriptor(roster,String(i));
+  if(!field||!Object.hasOwn(field,'value'))return null;
+  copy.push(field.value);
+ }
+ if(names.some(name=>name!=='length'&&
+   (typeof name!=='string'||!/^(0|[1-9][0-9]*)$/.test(name)||
+    Number(name)>=length.value)))return null;
+ return copy;
+}
 const hex=v=>typeof v==='string'&&HEX.test(v);
 const id=v=>typeof v==='string'&&/^[a-z0-9-]{3,80}$/.test(v);
 const eq=(a,b,fields)=>fields.every(k=>a[k]===b[k]);
@@ -52,19 +72,20 @@ export function inspectSignedFencingTransitionChain(input={}){
  try{
   const x=exact(input,['previousAnchor','batches','expectedFinalAnchor','minimumEpoch','requiredWitnessIds','witnessKeyPins']);
   if(!x||!Array.isArray(x.batches)||x.batches.length<1||x.batches.length>8||
-   !Array.isArray(x.requiredWitnessIds)||x.requiredWitnessIds.length<2||x.requiredWitnessIds.length>5||
    !Number.isSafeInteger(x.minimumEpoch)||x.minimumEpoch<1)return deny('INVALID_INPUT');
+  const roster=captureWitnessRoster(x.requiredWitnessIds);
+  if(!roster)return deny('INVALID_WITNESS_ROSTER');
   const first=exact(x.previousAnchor,AF),last=exact(x.expectedFinalAnchor,AF);
   if(!first||!last||first.schema!==FENCING_ANCHOR_SCHEMA||
    last.schema!==FENCING_ANCHOR_SCHEMA||!hex(first.anchorSha256)||!hex(last.anchorSha256))
    return deny('INVALID_ANCHOR');
   if(first.epoch<x.minimumEpoch)return deny('EXTERNAL_EPOCH_FLOOR');
   const ids=new Set();
-  for(const name of x.requiredWitnessIds){
+  for(const name of roster){
    if(!id(name)||ids.has(name))return deny('INVALID_WITNESS_ROSTER');
    ids.add(name);
   }
-  const pins=exact(x.witnessKeyPins,x.requiredWitnessIds);
+  const pins=exact(x.witnessKeyPins,roster);
   if(!pins)return deny('INVALID_WITNESS_PINS');
   const keyPins=new Set();
   for(const name of ids){
