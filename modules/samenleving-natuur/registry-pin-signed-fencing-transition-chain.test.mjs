@@ -185,3 +185,56 @@ test('witness DER signature with noncanonical sequence length is denied',()=>{
  x.batches[0].witnesses[0].signatureBase64Url=changed.toString('base64url');
  denied(x,'INVALID_SIGNATURE_ENCODING');
 });
+
+
+test('witness roster indexed accessor cannot execute during verification',()=>{
+ const x=make();
+ let reads=0;
+ Object.defineProperty(x.requiredWitnessIds,'0',{get(){
+  reads++;
+  throw Error('untrusted witness array getter must not execute');
+ }});
+ denied(x,'INVALID_WITNESS_ROSTER');
+ assert.equal(reads,0);
+});
+
+test('witness roster proxy index get trap cannot execute during verification',()=>{
+ const x=make();
+ let reads=0;
+ x.requiredWitnessIds=new Proxy([...x.requiredWitnessIds],{
+  get(target,property,receiver){
+   if(property==='0'||property===Symbol.iterator){
+    reads++;
+    throw Error('untrusted witness array get trap must not execute');
+   }
+   return Reflect.get(target,property,receiver);
+  }
+ });
+ const out=inspect(x);
+ assert.equal(reads,0);
+ assert.equal(out.verified,true,JSON.stringify(out));
+ assert.equal(out.authorization,'DENY');
+ assert.equal(out.releaseAllowed,false);
+});
+
+test('sparse witness roster is rejected without reading witness key pins',()=>{
+ const x=make();
+ delete x.requiredWitnessIds[0];
+ let pinReads=0;
+ x.witnessKeyPins=new Proxy(pins(),{
+  ownKeys(){pinReads++;throw Error('sparse roster must fail before key pins');}
+ });
+ denied(x,'INVALID_WITNESS_ROSTER');
+ assert.equal(pinReads,0);
+});
+
+test('symbol-bearing witness roster is rejected before key-pin inspection',()=>{
+ const x=make();
+ x.requiredWitnessIds[Symbol('hidden')]='witness-rogue';
+ let pinReads=0;
+ x.witnessKeyPins=new Proxy(pins(),{
+  ownKeys(){pinReads++;throw Error('invalid roster must fail before key pins');}
+ });
+ denied(x,'INVALID_WITNESS_ROSTER');
+ assert.equal(pinReads,0);
+});
