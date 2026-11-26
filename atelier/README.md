@@ -1347,3 +1347,35 @@ met exclusieve creatie maar maakt nog geen atomair, duurzaam extern
 tweebestandenarchief. De aangeleverde minimumstand en witness-sleutels
 moeten onafhankelijk beheerd blijven; echte externe getuigendiensten zijn
 nog niet aangesloten. GO-13 blijft DRAFT/HOLD/DENY; geen merge, EDTR of uitrol.
+
+
+### v7.10 — transactionele incidentarchivering (DRAFT/HOLD/DENY)
+Nieuwe `github-atomic-incident-archive.cjs` slaat een **al door v7.09
+geverifieerde** ledgerupdate en het bijbehorende bewijs samen op in
+een nieuwe, onveranderlijk bedoelde commitmap. De module eist een
+bewijsrecord dat exact is gebonden aan het laatste ledgerrecord
+(incident-ID, actietype, volgnummer, record- en bewijshash).
+Per archiefroot beschermt een exclusief aangemaakte schrijversvergrendeling
+tegen twee gelijktijdige schrijvers; de volledige vorige ledger en de
+verwachte head moeten overeenkomen. Een voorbereidingsmap bevat
+`ledger.json`, `proof.json` en een canoniek SHA-256-commitmanifest.
+Elk bestand wordt exclusief geschreven en gefsynct; na directoryfsync
+en onafhankelijke herlezing wordt dezelfde map binnen het **zelfde
+bestandssysteem** atomair hernoemd tot `commit-<seq>-<hash>`.
+Bestaande commits worden nooit overschreven.
+
+Bij falen vóór de rename blijft de voorbereidingsmap achter als
+forensisch spoor en wordt een volgende commit **geweigerd** totdat
+handmatige, onafhankelijke recovery plaatsvindt. Een achtergebleven
+writer-lock wordt eveneens niet stilzwijgend overgenomen. Zes
+synthetische regressies testen de succesvolle bundel, onderbreking,
+exact vorige-ledgercontrole, lock-conflict, manipulatie en vervalste GO.
+
+**Begrenzing:** atomair betekent hier één zichtbare commitdirectory
+onder gangbare POSIX-bestandssysteemgaranties, **niet** een gedistribueerde
+ACID-transactie of onafhankelijk duurzaam archief. De opdracht
+`fsync` en directoryrename beschermen niet tegen alle mogelijke
+hardware-, NFS-, cloud- of beheerdersfouten. De module schrijft geen
+actuele productie-ledger weg vanuit GitHub Actions en garandeert geen
+externe bewaring. GO-13 blijft DRAFT/HOLD/DENY; geen merge, EDTR of
+publieke uitrol.
