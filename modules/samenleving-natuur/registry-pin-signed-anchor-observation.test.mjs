@@ -102,3 +102,36 @@ test('rejected signed anchor observation cannot be rewritten as authorized',()=>
  assert.equal(out.authorization,'DENY');
  assert.equal(out.releaseAllowed,false);
 });
+
+
+const noncanonicalCoordinate = canonical => {
+ const alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+ const last=alphabet.indexOf(canonical.at(-1));
+ assert.ok(last>=0);
+ const altered=canonical.slice(0,-1)+alphabet[last^1];
+ assert.notEqual(altered,canonical);
+ assert.deepEqual(Buffer.from(altered,'base64url'),Buffer.from(canonical,'base64url'));
+ return altered;
+};
+
+test('P-256 reader x coordinate rejects noncanonical base64url trailing bits',()=>{
+ const x=fixture();
+ x.envelope.readerPublicJwk.x=noncanonicalCoordinate(x.envelope.readerPublicJwk.x);
+ denied(x,'INVALID_OBSERVATION');
+});
+
+test('P-256 reader y coordinate rejects noncanonical base64url trailing bits',()=>{
+ const x=fixture();
+ x.envelope.readerPublicJwk.y=noncanonicalCoordinate(x.envelope.readerPublicJwk.y);
+ denied(x,'INVALID_OBSERVATION');
+});
+
+test('canonical reader coordinates still verify despite strict JWK transport gate',()=>{
+ const x=fixture();
+ assert.equal(Buffer.from(x.envelope.readerPublicJwk.x,'base64url').toString('base64url'),x.envelope.readerPublicJwk.x);
+ assert.equal(Buffer.from(x.envelope.readerPublicJwk.y,'base64url').toString('base64url'),x.envelope.readerPublicJwk.y);
+ const out=inspect(x);
+ assert.equal(out.observationValid,true,JSON.stringify(out));
+ assert.equal(out.authorization,'DENY');
+ assert.equal(out.executionAllowed,false);
+});
