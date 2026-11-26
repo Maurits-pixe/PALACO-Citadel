@@ -175,9 +175,27 @@ BEGIN
  IF (SELECT count(*) FROM citadel_nonce_issue_ci.challenge WHERE consumed_at IS NOT NULL)<>2
  THEN RAISE EXCEPTION 'wrong consumed count'; END IF;
 END \$test\$;
--- Fixture-only manipulation simulates a challenge that expired before use.
+SQL
+# A third challenge expires before consumption. Expiry cannot be bypassed.
+nonce3="$(issue)"
+[[ "$nonce3" =~ ^[0-9a-f]{64}$ && "$nonce3" != "$nonce" && "$nonce3" != "$nonce2" ]] || {
+ echo 'FAIL: third issued nonce not unique' >&2; exit 1
+}
+psql -X -v ON_ERROR_STOP=1 <<SQL
 UPDATE citadel_nonce_issue_ci.challenge SET
  expires_at=clock_timestamp()-interval '1 second'
- WHERE nonce_sha256=repeat('0',64);
+ WHERE nonce_sha256=encode(digest(decode('$nonce3','hex'),'sha256'),'hex');
+DO \$test\$
+DECLARE result text;
+BEGIN
+ result:=citadel_nonce_issue_ci.consume('citadel-draft','$nonce3',
+  'reader-east',8,repeat('a',64),repeat('e',64));
+ IF result<>'DENY_UNKNOWN_EXPIRED_USED_OR_MISMATCH'
+ THEN RAISE EXCEPTION 'expired nonce accepted: %',result; END IF;
+ IF citadel_nonce_issue_ci.inspect('citadel-draft','$nonce3')<>'EXPIRED'
+ THEN RAISE EXCEPTION 'expired nonce status missing'; END IF;
+ IF (SELECT count(*) FROM citadel_nonce_issue_ci.challenge WHERE consumed_at IS NOT NULL)<>2
+ THEN RAISE EXCEPTION 'expiry changed consumed count'; END IF;
+END \$test\$;
 SQL
-echo 'PASS: nonce challenge issuance, concurrency, replay and rollback; DRAFT/HOLD'
+echo 'PASS: nonce challenge issuance, concurrent replay denial, expiry and rollback; DRAFT/HOLD'
