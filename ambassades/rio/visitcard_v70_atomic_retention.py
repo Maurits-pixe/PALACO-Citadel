@@ -89,7 +89,11 @@ def record_atomic_retention_check(db:sqlite3.Connection,*,
         or not isinstance(expected_archive_ids,tuple)
         or len(expected_archive_ids)!=2
         or expected_archive_ids[0]==expected_archive_ids[1]
-        or any(not isinstance(x,str) or not x for x in expected_archive_ids)):
+        or any(not isinstance(x,str) or not x for x in expected_archive_ids)
+        or any(not isinstance(pinned_archive_keys.get(x),bytes)
+               or len(pinned_archive_keys[x])!=32 for x in expected_archive_ids)
+        or pinned_archive_keys[expected_archive_ids[0]]==
+           pinned_archive_keys[expected_archive_ids[1]]):
         return _deny("INVALID_ATOMIC_CAS_INPUT")
     try:
         current=_utc(now)
