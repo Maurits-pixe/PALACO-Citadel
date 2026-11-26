@@ -107,6 +107,10 @@ jobs:
         env:
           CITADEL_EPHEMERAL_CI_ONLY: '1'
         run: bash modules/samenleving-natuur/reviewer-roster-anchor-nonce-register-ci.sh
+      - name: Verified signed observation and atomic nonce boundary (disposable PostgreSQL)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: node modules/samenleving-natuur/registry-pin-verified-nonce-boundary-ci.mjs
       - name: Ephemeral issuer rotation atomicity and stale replay QA
         env:
           CITADEL_EPHEMERAL_CI_ONLY: '1'
