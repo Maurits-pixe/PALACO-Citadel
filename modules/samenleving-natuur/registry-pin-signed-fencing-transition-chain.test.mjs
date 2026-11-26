@@ -238,3 +238,74 @@ test('symbol-bearing witness roster is rejected before key-pin inspection',()=>{
  denied(x,'INVALID_WITNESS_ROSTER');
  assert.equal(pinReads,0);
 });
+
+
+test('fencing batch index accessor cannot execute before signature checks',()=>{
+ const x=make();let reads=0;
+ Object.defineProperty(x.batches,'0',{get(){
+  reads++;throw Error('untrusted transition array getter');
+ }});
+ denied(x,'INVALID_INPUT');
+ assert.equal(reads,0);
+});
+
+test('fencing batch Proxy iterator and indexed read traps never execute',()=>{
+ const x=make();let reads=0;
+ x.batches=new Proxy(x.batches,{get(target,property,receiver){
+  if(property===Symbol.iterator||property==='0'){
+   reads++;throw Error('untrusted transition Proxy getter');
+  }
+  return Reflect.get(target,property,receiver);
+ }});
+ const out=inspect(x);
+ assert.equal(reads,0);
+ assert.equal(out.verified,true,JSON.stringify(out));
+ assert.equal(out.authorization,'DENY');
+});
+
+test('sparse and symbol-bearing transition batch arrays fail closed',()=>{
+ for(const mutate of [
+  a=>{delete a[0];},
+  a=>{a[Symbol('hidden')]=1;}
+ ]){
+  const x=make();mutate(x.batches);
+  denied(x,'INVALID_INPUT');
+ }
+});
+
+test('witness evidence index accessor cannot execute before signature checks',()=>{
+ const x=make();let reads=0;
+ Object.defineProperty(x.batches[0].witnesses,'0',{get(){
+  reads++;throw Error('untrusted witness evidence array getter');
+ }});
+ denied(x,'INVALID_BATCH');
+ assert.equal(reads,0);
+});
+
+test('witness evidence Proxy index and iterator traps are not executed',()=>{
+ const x=make();let reads=0;
+ const witnesses=x.batches[0].witnesses;
+ x.batches[0].witnesses=new Proxy(witnesses,{
+  get(target,property,receiver){
+   if(property===Symbol.iterator||property==='0'){
+    reads++;throw Error('untrusted witness evidence Proxy getter');
+   }
+   return Reflect.get(target,property,receiver);
+  }
+ });
+ const out=inspect(x);
+ assert.equal(reads,0);
+ assert.equal(out.verified,true,JSON.stringify(out));
+ assert.equal(out.authorization,'DENY');
+ assert.equal(out.releaseAllowed,false);
+});
+
+test('sparse and symbol-bearing witness evidence arrays fail closed',()=>{
+ for(const mutate of [
+  a=>{delete a[0];},
+  a=>{a[Symbol('hidden')]=1;}
+ ]){
+  const x=make();mutate(x.batches[0].witnesses);
+  denied(x,'INVALID_BATCH');
+ }
+});
