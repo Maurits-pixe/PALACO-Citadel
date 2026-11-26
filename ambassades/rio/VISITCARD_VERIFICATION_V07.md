@@ -2142,3 +2142,49 @@ production blockers remain unresolved.
 
 **GO-13 DRAFT / HOLD / DENY — no merge, public release, production
 rollout, identity issuance or signing-key activation.**
+
+## v6.8 — Restart-safe retention cadence, overdue alerts and immutable audit succession (DRAFT / HOLD)
+
+`visitcard_v68_retention_schedule.py` adds a local durable SQLite
+schedule and canonical append-only history for repeated v6.7 retention
+check results. The once-defined schedule contains UTC anchor time,
+fixed check interval and bounded grace period. SQLite UPDATE/DELETE
+triggers refuse ordinary policy and audit-history replacement.
+Each event stores its deterministically calculated due timestamp,
+actual check timestamp, slot number, status, optional verified
+v6.7 epoch/checkpoint digest and `GO-13 HOLD`. Every row has a
+SHA-256 head linked to the preceding event's head.
+
+An external scheduler must call the read-only inspection function
+and `record_retention_check` with a trusted timezone-aware clock.
+Overdue time windows are identified even if no writer has run.
+Checks after the configured grace window are recorded permanently as
+`MISSED_QUARANTINED`, **even when the caller supplies a positive
+v6.7 result**. An on-time missing or invalid review is
+`FAILED_QUARANTINED`; a matching verified v6.7 review is stored
+as `VERIFIED_INFORMATIONAL` but the operation's returned authority
+state is still `RECORDED_QUARANTINED`. New rows must consume
+sequential slots, with a local `BEGIN IMMEDIATE` compare-and-swap.
+Independent latest-history sequence and SHA-256 pins are required
+for reads and writes. Restart verification re-derives all deadlines,
+validates each event's canonical encoding, verifies the full hash
+chain, and checks the independently supplied latest pin.
+
+29 synthetic tests cover successful and failed checks, late
+and skipped slots, restart persistence, stale writers, missing
+pins, deleted/replaced events, immutable policy, timezones,
+missing reviews and universal nonauthorization.
+
+**Security boundaries:** this module stores the *reported* v6.7
+verification result and its digest but does not independently
+reverify the original v6.7 signed statements from the stored
+history. It is not an automatically running scheduler or a trusted
+clock, and its local SQLite state is not a tamper-proof remote audit
+archive. Actual independent monotonic head storage, proof
+replication, robust offsite retention, watchdog scheduling,
+incident escalation and separate security review remain external
+requirements. No release authority is derived from positive
+historical observations. The seven production blockers remain.
+
+**GO-13 DRAFT / HOLD / DENY — no merge, rollout, key activation
+or public changes.**
