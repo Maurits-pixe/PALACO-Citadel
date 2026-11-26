@@ -2188,3 +2188,45 @@ historical observations. The seven production blockers remain.
 
 **GO-13 DRAFT / HOLD / DENY — no merge, rollout, key activation
 or public changes.**
+
+## v6.9 — Historic Ed25519 retention-proof re-verification and sticky quarantine (DRAFT / HOLD)
+
+`visitcard_v69_historical_proofs.py` adds a separate, immutable SQLite
+evidence companion to the v6.8 retention audit history. Each successful
+v6.8 event must have an original signed v6.7 two-archive proof: the
+canonical statements, upstream v6.5 evidence/readback digests, the
+independently pinned retention predecessor and the minimum retention
+deadline. The evidence companion uses a SHA-256 chain bound to the
+exact original v6.8 event-head hash and requires externally provisioned
+latest v6.8 audit and latest v6.9 proof-head pins on audit and append.
+
+The restart auditor checks **all** stored v6.8 events and re-verifies
+the *original* Ed25519 signatures for each successful retention event
+at that event's recorded checked-at time, against the independently
+supplied archive public keys. It reconstructs the epoch-specific
+retention checkpoint and verifies its binding to the v6.8 event,
+the previous successful retention checkpoint and the new companion
+evidence chain. A reported success with missing signed evidence is
+BLOCKED, not trusted as a success. Missed/failed historical audit
+events remain `HISTORICAL_QUARANTINE` permanently in the read-only
+audit, even if later signed checks pass. No code path grants merge,
+release or activation permission.
+
+23 synthetic regression tests cover restart/reverification, forged or
+absent signatures, missing/backdated proof records, stale external
+heads, immutable SQL triggers, tampered original audit events and
+permanently retained missed/failed audit history.
+
+**Operational trust boundary:** A legacy v6.8 success with no
+v6.9 proof requires separately verified backfill and must fail closed
+until proven. Recording the v6.8 event and its signed v6.9 evidence
+currently uses two separate local operations, not one atomic commit;
+a crash between them leaves the audit blocked. The v6.9 auditor
+re-verifies signed v6.7 retention claims and their stored v6.5
+fingerprints, but does NOT redo the original remote v6.5 evidence
+readback, independently recover the trusted clock, or prove physical
+offsite durability. Independent external pin custody, archive-side
+retention and production security audit remain unresolved.
+
+**GO-13 DRAFT / HOLD / DENY.** No merge, rollout, public changes,
+identity issuance, external signing-key activation or release.
