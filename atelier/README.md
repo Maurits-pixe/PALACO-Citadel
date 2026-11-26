@@ -1429,3 +1429,27 @@ lijst met reeds gebruikte besluit-ID's en een betrouwbare beoordelingstijd.
 Deze operationele bron en echte onafhankelijk vertrouwde beoordelaars
 zijn niet aangesloten; de GitHub-tests zijn uitsluitend synthetisch.
 Geen automatische promotie, lock-overname, merge, EDTR of publieke uitrol.
+
+
+### v7.13 — eenmalig verbruiksregister voor herstelbeoordelingen (DRAFT/HOLD/DENY)
+`github-spent-recovery-register.cjs` verifieert de twee ondertekende v7.12-
+beoordelingen opnieuw onder een exclusieve per-root schrijversvergrendeling.
+Elke eenmaal geaccepteerde `decision_id` krijgt een canoniek afzonderlijk
+`spent-<sequence>-<digest>.json`-record met SHA-256-hashketen, vaste
+beoordelingshash en twee beoordelaar-ID's. Onder dezelfde writer-lock wordt
+de volledige bestaande geschiedenis gecontroleerd vóór het nieuwe record
+wordt gecreëerd. Een extern aangeleverde minimumpositie en bijbehorende
+ledger-head detecteren terugrol of wijziging van de bekende geschiedenis.
+De procedure schrijft een exclusief `.prepare-...`-bestand, fsynct de bytes,
+verifieert het record en publiceert binnen hetzelfde bestandssysteem met rename.
+Onvolledige staged bestanden en bestaande lockmappen blokkeren nieuwe writes
+zonder automatische opschoning. Zes regressies controleren hergebruik,
+hashketen, anti-rollbackvloer, onderbreking, lockconflict en manipulatie.
+
+**Vertrouwensgrens:** lokaal schrijfserialiseren en een hashketen garanderen
+geen onafhankelijke, externe of multi-host-atomische opslag. De externe
+minimum-head, betrouwbare tijd, beschermde trust anchors en werkelijke
+beoordelaars worden niet door GitHub aangemaakt of beheerd. Een verbruiksrecord
+markeert uitsluitend een akkoord voor *handmatige beoordeling*: het
+autoriseert nooit de vrijgave of promotie van een archief. Geen echte
+recoveryhandeling of EDTR-uitgifte. GO-13 DRAFT/HOLD/DENY blijft van kracht.
