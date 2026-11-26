@@ -1404,3 +1404,28 @@ duurzame bewaring. Iedere handmatige herstelactie vergt aparte
 procedure, autorisatie en onafhankelijk bewijs; dat wordt niet
 door v7.11 verleend. GO-13 blijft DRAFT/HOLD/DENY;
 geen merge, EDTR of publieke uitrol.
+
+
+### v7.12 — ondertekend besluit voor uitsluitend handmatige herstelbeoordeling (DRAFT/HOLD/DENY)
+De nieuwe `github-manual-recovery-review.cjs` accepteert alleen een canoniek
+v7.11-quarantaineonderzoek met `recovery_authorized:false` en
+`promotion_performed:false`. Twee afzonderlijk, buiten de runner vertrouwde
+Ed25519-publieke sleutels moeten hetzelfde `decision_id` ondertekenen.
+De domeingescheiden handtekeningen verbinden de complete SHA-256 van het
+onderzoeksrapport aan de exacte voorbereidingsmap, ledgervolgnummer,
+ledger-head, beoordelaar-ID en een begrensd UTC-tijdvak.
+Niet-canonieke JSON, ongeldige pin/handtekening, verlopen besluit,
+gewijzigde stage, dubbele beoordelaar of eerder gebruikt besluit-ID
+worden geweigerd. Zes synthetische regressies zijn toegevoegd aan de
+verplichte Atelier DRAFT-validatie.
+
+Het toegestane besluit heet uitdrukkelijk
+`ASSESSMENT_ACCEPTED_FOR_MANUAL_REVIEW` en verleent **geen herstelbevoegdheid**.
+Zelfs na twee geldige handtekeningen blijven
+`recovery_authorized:false`, `promotion_performed:false`,
+`decision:HOLD` en `publication:DENY`.
+Anti-replay is afhankelijk van een buiten GitHub duurzaam bijgehouden
+lijst met reeds gebruikte besluit-ID's en een betrouwbare beoordelingstijd.
+Deze operationele bron en echte onafhankelijk vertrouwde beoordelaars
+zijn niet aangesloten; de GitHub-tests zijn uitsluitend synthetisch.
+Geen automatische promotie, lock-overname, merge, EDTR of publieke uitrol.
