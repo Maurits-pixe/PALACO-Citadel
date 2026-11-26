@@ -2230,3 +2230,49 @@ retention and production security audit remain unresolved.
 
 **GO-13 DRAFT / HOLD / DENY.** No merge, rollout, public changes,
 identity issuance, external signing-key activation or release.
+
+## v7.0 — Atomic retention event and original signed proof transaction (DRAFT / HOLD)
+
+`visitcard_v70_atomic_retention.py` combines recording a v6.8 retention
+audit event and the corresponding v6.9 **original dual-Ed25519 signed
+evidence** in ONE SQLite `BEGIN IMMEDIATE` transaction. No successful
+retention event can be committed without its verified original signed
+archive statements and matching v6.7 checkpoint hash. The writer
+re-verifies the complete existing v6.8 schedule/event chain and the
+v6.9 signed historical archive proofs, comparing both latest heads
+against independently supplied caller pins before changing data.
+Two distinct pinned archive keys are mandatory. Each successful
+signed statement is verified for the exact due slot, timestamp,
+retention deadline, predecessor checkpoint SHA-256, readback
+fingerprint, archive ID and fixed `GO-13 HOLD`.
+
+A missed control window is always saved as `MISSED_QUARANTINED`,
+and any absent/invalid signed review within the grace window is
+`FAILED_QUARANTINED`. Both remain visible as historical quarantine
+and do not receive fabricated proofs. An on-time valid signed review
+writes the canonical v6.8 audit event and v6.9 original statements,
+with chain hashes linked to that exact audit event, in the same
+SQLite transaction. Before committing, the new combined history
+is independently revalidated using the full v6.8 and v6.9
+chain checkers. Any failure rolls the entire transaction back.
+A crash before the commit leaves neither write visible.
+
+27 new synthetic regressions check atomic success and signed proof,
+complete restart verification, missing/forged signatures, reused
+keys, stale external pins, duplicate slots, failed and missed
+checks, two consecutive successful signed epochs, permanent
+historical quarantine after later success, immutable triggers
+and failed transaction behavior.
+
+**Limitations:** Local SQLite transaction atomicity is not remote
+distributed atomicity, not a durable external archive, and not an
+independently protected pin store. The positive v6.5
+`ReadbackReview` supplied to the writer must have been produced
+by a trusted independent verification pipeline; this layer
+validates original v6.7 statements and their stored SHA-256
+fingerprints but does not rerun live archive retrieval. A local
+admin able to replace the database remains outside the local
+trigger trust boundary. The seven production blockers remain.
+
+**GO-13 DRAFT / HOLD / DENY.** No merge, key activation, release,
+public site changes, production deployment or issuance.
