@@ -135,7 +135,8 @@ class V71IndependentBundleTests(unittest.TestCase):
         self.assertEqual(self.verify(raw=self.raw[:-1]).state,BundleState.BLOCKED)
 
     def test_non_byte_bundle_blocks(self):
-        self.assertEqual(self.verify(raw=self.raw.decode()).state,BundleState.BLOCKED)
+        self.assertEqual(self.verify(raw=self.raw.decode(),pin=self.digest).state,
+                         BundleState.BLOCKED)
 
     def test_export_rejects_stale_latest_audit_pin(self):
         with self.assertRaises(ValueError):
