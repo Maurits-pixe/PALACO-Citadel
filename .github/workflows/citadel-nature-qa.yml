@@ -115,6 +115,10 @@ jobs:
         env:
           CITADEL_EPHEMERAL_CI_ONLY: '1'
         run: bash modules/samenleving-natuur/reviewer-roster-nonce-issuance-recovery-ci.sh
+      - name: Nonce receipt atomic commit and lost ACK recovery (disposable PostgreSQL)
+        env:
+          CITADEL_EPHEMERAL_CI_ONLY: '1'
+        run: bash modules/samenleving-natuur/reviewer-roster-nonce-receipt-recovery-ci.sh
       - name: Ephemeral issuer rotation atomicity and stale replay QA
         env:
           CITADEL_EPHEMERAL_CI_ONLY: '1'
