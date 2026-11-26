@@ -46,7 +46,7 @@ class V71IndependentBundleTests(unittest.TestCase):
             independently_pinned_proof_sequence=kw.get("proof_seq",self.f.proof_seq),
             independently_pinned_proof_head_sha256=kw.get("proof_head",self.f.proof_head),
             independently_pinned_bundle_sha256=kw.get(
-                "pin",hashlib.sha256(raw).hexdigest()
+                "pin",hashlib.sha256(raw).hexdigest() if type(raw) is bytes else self.digest
             ),
         )
 
@@ -109,7 +109,7 @@ class V71IndependentBundleTests(unittest.TestCase):
 
     def test_wrong_bundle_schedule_blocks(self):
         raw=self.altered(lambda d:d["schedule"].update({"interval_seconds":1}))
-        self.assertEqual(self.verify(raw=raw).state,BundleState.BLOCKED)
+        self.assertEqual(self.verify(raw=raw,pin=self.digest).state,BundleState.BLOCKED)
 
     def test_replaced_proof_prev_hash_blocks(self):
         raw=self.altered(lambda d:d["proofs"][0].update({"previous_sha256":"f"*64}))
