@@ -2107,3 +2107,38 @@ required. All seven prior production blockers remain open.
 
 **GO-13 DRAFT / HOLD / DENY: no merge, release, rollout, public site
 changes, identity issuance or key activation.**
+
+## v6.7 — Dual signed retention epochs and externally pinned continuity (DRAFT / HOLD)
+
+`visitcard_v67_retention.py` adds a fail-closed **offline**
+retention-checkpoint verifier after successful v6.5 exact archive
+readback. It requires two independently pinned and distinct Ed25519
+archive keys; each archive signs its identity, retention epoch,
+predecessor SHA-256, canonical original evidence digest, the v6.5
+readback verification fingerprint, claimed retention deadline and
+fresh validity interval (maximum 15 minutes). A caller-provided
+independently protected previous SHA-256 and latest checkpoint SHA-256
+must agree with a deterministic cross-archive checkpoint. Epoch
+number, expiration, signing identity and `GO-13 HOLD` are all
+verified. A signed claim of lost evidence or insufficient retention
+becomes `RETENTION_CONFLICT_QUARANTINED`. Missing signatures,
+untrusted roots, stale evidence or rollback are blocked.
+A matching checkpoint is **VERIFIED_INFORMATIONAL only**.
+
+27 offline synthetic regressions cover successive epochs,
+external-pin rollback, changed retention, missing archive, failed
+retention, expired/future observation, key reuse, modified v6.5
+fingerprint, unverified upstream and immutable denial of execution.
+
+**Limits:** this is an offline verifier, not a scheduler, independent
+witness, durable global latest-pin service, archiving service or
+physical retention proof. The caller must execute future checks,
+securely retain historical checkpoints, obtain genuinely signed
+archive responses and independently protect monotonic pins. Even
+signed retention claims do not prove actual offsite durability.
+Synthetic `ReadbackReview` fixtures test the protocol but do not
+demonstrate real independent remote retrieval. The seven external
+production blockers remain unresolved.
+
+**GO-13 DRAFT / HOLD / DENY — no merge, public release, production
+rollout, identity issuance or signing-key activation.**
