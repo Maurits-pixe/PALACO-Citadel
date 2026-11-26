@@ -176,8 +176,10 @@ class V68RetentionScheduleTests(unittest.TestCase):
         self.db.rollback()
 
     def test_tampered_policy_without_trigger_is_detected(self):
+        self.saved()
         self.db.execute("DROP TRIGGER rio_v68_policy_update")
-        self.db.execute("UPDATE rio_v68_schedule SET go13='GO'")
+        self.db.execute("UPDATE rio_v68_schedule SET anchor_at=?",
+                        ((ANCHOR+timedelta(minutes=1)).isoformat(),))
         self.db.commit()
         self.assertEqual(self.inspect().state,AuditState.BLOCKED)
 
