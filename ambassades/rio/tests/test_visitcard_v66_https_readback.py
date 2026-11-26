@@ -88,7 +88,7 @@ class V66HTTPSReadbackTests(unittest.TestCase):
         f=self.f.f
         def status(req): return kw.get("statuses",f.replies)[req["archive_id"]]
         return inspect_exact_archive_readback(
-            f.db,pinned_custodian_keys=f.f.f.f.keys,
+            f.db,pinned_custodian_keys=f.f.f.f.f.keys,
             pinned_archive_keys=f.keys,archive_ids=f.ids,incident_sequence=1,
             independently_pinned_incident_head_sha256=f.incident.head_sha256,
             expected_receipt_sequence=1,
