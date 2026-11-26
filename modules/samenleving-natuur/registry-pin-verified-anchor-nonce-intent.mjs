@@ -44,8 +44,9 @@ export function inspectVerifiedAnchorNonceIntent(input={}){
    epoch:observation.epoch,anchorSha256:observation.anchorSha256,
    nonceSha256:observation.nonceSha256,observedAtUtc:observation.observedAtUtc,
    expiresAtUtc:observation.expiresAtUtc,readerId:envelope.readerId,
-   expectedReaderFingerprint:envelope.expectedReaderFingerprint,
-   signatureBase64Url:envelope.signatureBase64Url};
+   expectedReaderFingerprint:envelope.expectedReaderFingerprint};
+  // ECDSA signatures can vary for the same signed payload. Bind the digest to
+  // the verified canonical claim and reader pin, not signature encoding.
   const observationSha256=createHash('sha256')
    .update('PALACO-CITADEL-VERIFIED-ANCHOR-NONCE-INTENT-V1\n')
    .update(JSON.stringify(canonical)).digest('hex');
