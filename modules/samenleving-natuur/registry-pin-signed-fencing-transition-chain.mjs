@@ -61,6 +61,28 @@ function captureWitnessRoster(roster){
     Number(name)>=length.value)))return null;
  return copy;
 }
+// The same descriptor-only boundary is required for the bounded transition
+// batches and witness-evidence arrays. Never invoke caller-supplied iterators,
+// indexed getters or inherited values during signature and epoch verification.
+function captureBoundedDataArray(array,min,max){
+ if(!Array.isArray(array))return null;
+ const length=Object.getOwnPropertyDescriptor(array,'length');
+ if(!length||!Object.hasOwn(length,'value')||
+    !Number.isSafeInteger(length.value)||
+    length.value<min||length.value>max)return null;
+ const names=Reflect.ownKeys(array);
+ if(names.length!==length.value+1||
+    names.some(name=>name!=='length'&&
+      (typeof name!=='string'||!/^(0|[1-9][0-9]*)$/.test(name)||
+       Number(name)>=length.value)))return null;
+ const captured=[];
+ for(let i=0;i<length.value;i++){
+  const field=Object.getOwnPropertyDescriptor(array,String(i));
+  if(!field||!Object.hasOwn(field,'value'))return null;
+  captured.push(field.value);
+ }
+ return captured;
+}
 const hex=v=>typeof v==='string'&&HEX.test(v);
 const id=v=>typeof v==='string'&&/^[a-z0-9-]{3,80}$/.test(v);
 const eq=(a,b,fields)=>fields.every(k=>a[k]===b[k]);
@@ -71,8 +93,9 @@ const eq=(a,b,fields)=>fields.every(k=>a[k]===b[k]);
 export function inspectSignedFencingTransitionChain(input={}){
  try{
   const x=exact(input,['previousAnchor','batches','expectedFinalAnchor','minimumEpoch','requiredWitnessIds','witnessKeyPins']);
-  if(!x||!Array.isArray(x.batches)||x.batches.length<1||x.batches.length>8||
-   !Number.isSafeInteger(x.minimumEpoch)||x.minimumEpoch<1)return deny('INVALID_INPUT');
+  if(!x||!Number.isSafeInteger(x.minimumEpoch)||x.minimumEpoch<1)return deny('INVALID_INPUT');
+  const batches=captureBoundedDataArray(x.batches,1,8);
+  if(!batches)return deny('INVALID_INPUT');
   const roster=captureWitnessRoster(x.requiredWitnessIds);
   if(!roster)return deny('INVALID_WITNESS_ROSTER');
   const first=exact(x.previousAnchor,AF),last=exact(x.expectedFinalAnchor,AF);
@@ -94,11 +117,11 @@ export function inspectSignedFencingTransitionChain(input={}){
   }
   let cursor=first;
   const steps=[];
-  for(const batchInput of x.batches){
+  for(const batchInput of batches){
    const batch=exact(batchInput,BATCH),payload=batch&&exact(batch.payload,PF);
    const step=payload&&exact(payload.step,SF);
-   if(!batch||!payload||!step||!Array.isArray(batch.witnesses)||
-    batch.witnesses.length!==ids.size)return deny('INVALID_BATCH');
+   const witnesses=batch&&captureBoundedDataArray(batch.witnesses,ids.size,ids.size);
+   if(!batch||!payload||!step||!witnesses)return deny('INVALID_BATCH');
    if(!hex(payload.previousAnchorSha256)||!hex(payload.candidateAnchorSha256)||
     payload.previousAnchorSha256!==cursor.anchorSha256)return deny('ANCHOR_CHAIN_DISCONTINUITY');
    if(step.registryKey!==cursor.registryKey||!id(step.leaderId)||
@@ -108,7 +131,7 @@ export function inspectSignedFencingTransitionChain(input={}){
    const computed=computeFencingAnchorHash(cursor.anchorSha256,step);
    if(!computed||computed!==payload.candidateAnchorSha256)return deny('INVALID_CANDIDATE_ANCHOR');
    const seen=new Set();
-   for(const evidence of batch.witnesses){
+   for(const evidence of witnesses){
     const e=exact(evidence,EF);
     if(!e||!ids.has(e.witnessId)||seen.has(e.witnessId))return deny('INVALID_WITNESS_EVIDENCE');
     seen.add(e.witnessId);
