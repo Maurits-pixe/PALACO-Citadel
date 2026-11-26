@@ -68,6 +68,13 @@ export function inspectSignedAnchorObservation(input={}){
    !/^[A-Za-z0-9_-]{43}$/.test(jwk.x)||!/^[A-Za-z0-9_-]{43}$/.test(jwk.y)||
    typeof e.signatureBase64Url!=='string'||!/^[A-Za-z0-9_-]{11,107}$/.test(e.signatureBase64Url))
    return deny('INVALID_OBSERVATION');
+  // Canonical base64url prevents alternative JWK coordinate spellings with
+  // unused trailing bits from aliasing the same P-256 point and fingerprint.
+  const xBytes=Buffer.from(jwk.x,'base64url'),yBytes=Buffer.from(jwk.y,'base64url');
+  if(xBytes.length!==32||yBytes.length!==32||
+     xBytes.toString('base64url')!==jwk.x||
+     yBytes.toString('base64url')!==jwk.y)
+   return deny('INVALID_OBSERVATION');
   if(e.readerId!==x.expectedReaderId||e.expectedReaderFingerprint!==x.expectedReaderFingerprint)
    return deny('READER_PIN_MISMATCH');
   if(o.registryKey!==x.expectedRegistryKey||o.epoch!==x.expectedEpoch||
