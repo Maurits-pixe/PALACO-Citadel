@@ -26,7 +26,7 @@ function canonicalReaderSignature(signature){
 }
 const DATA=['schema','registryKey','epoch','anchorSha256','nonceSha256','observedAtUtc','expiresAtUtc'];
 const ENVELOPE=['observation','readerId','readerPublicJwk','expectedReaderFingerprint','signatureBase64Url'];
-const deny=reason=>({schema:ANCHOR_OBSERVATION_SCHEMA,observationValid:false,reason,
+const deny=reason=>Object.freeze({schema:ANCHOR_OBSERVATION_SCHEMA,observationValid:false,reason,
  authorization:'DENY',trust:'NOT_ESTABLISHED',stateChanged:false,executionAllowed:false,releaseAllowed:false});
 function record(o,fields){
  if(!o||typeof o!=='object'||Array.isArray(o)||Object.getPrototypeOf(o)!==Object.prototype)return null;
@@ -89,12 +89,12 @@ export function inspectSignedAnchorObservation(input={}){
   const signed=Buffer.from(JSON.stringify({observation:o,readerId:e.readerId}));
   if(!verify('sha256',Buffer.concat([DOMAIN,signed]),key,signature))
    return deny('INVALID_OBSERVATION_SIGNATURE');
-  return {schema:ANCHOR_OBSERVATION_SCHEMA,observationValid:true,
+  return Object.freeze({schema:ANCHOR_OBSERVATION_SCHEMA,observationValid:true,
    observedEpoch:o.epoch,observedAnchorSha256:o.anchorSha256,readerId:e.readerId,
-   unresolvedGates:['INDEPENDENT_AUTHENTICATED_REMOTE_READ','TRUSTED_READER_KEY_CUSTODY',
+   unresolvedGates:Object.freeze(['INDEPENDENT_AUTHENTICATED_REMOTE_READ','TRUSTED_READER_KEY_CUSTODY',
     'TRUSTED_CLOCK','PERSISTENT_NONCE_REPLAY_REGISTER','EXTERNALLY_PROTECTED_EPOCH_FLOOR',
-    'FRESH_REVOCATION','DURABLE_ATOMIC_CAS'],
+    'FRESH_REVOCATION','DURABLE_ATOMIC_CAS']),
    authorization:'DENY',trust:'NOT_ESTABLISHED',stateChanged:false,
-   executionAllowed:false,releaseAllowed:false};
+   executionAllowed:false,releaseAllowed:false});
  }catch{return deny('MALFORMED_UNTRUSTED_OBSERVATION');}
 }
