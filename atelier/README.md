@@ -1453,3 +1453,30 @@ beoordelaars worden niet door GitHub aangemaakt of beheerd. Een verbruiksrecord
 markeert uitsluitend een akkoord voor *handmatige beoordeling*: het
 autoriseert nooit de vrijgave of promotie van een archief. Geen echte
 recoveryhandeling of EDTR-uitgifte. GO-13 DRAFT/HOLD/DENY blijft van kracht.
+
+
+### v7.14 — alleen-lezen reconciliatie van twee externe verbruiksregisters (DRAFT/HOLD/DENY)
+`github-spent-registry-reconcile.cjs` vergelijkt twee afzonderlijk
+aangeleverde, canonieke snapshots van het v7.13-verbruiksregister.
+Elke snapshot heeft een vaste archiefidentiteit en wordt record voor
+record geverifieerd met de bestaande v7.13-hashketencontrole,
+monotone volgorde en unieke `decision_id`'s. Voor **elk** archief
+moet een extern gecontroleerde minimumpositie en bijbehorende hash
+worden aangeleverd. Het resultaat onderscheidt
+`IDENTICAL_RECORD_HISTORY`, `ARCHIVE_A_BEHIND`,
+`ARCHIVE_B_BEHIND` en `FORK_OR_SPLIT_VIEW`. Een conflicterende
+`decision_id` met afwijkend bewijsmateriaal wordt afzonderlijk
+aangemerkt als `cross_fork_replay`. De strenge
+`requireIdentical`-poort weigert achterstand en forks en verleent
+nooit synchronisatie-, herstel- of publicatiebevoegdheid.
+Zes synthetische regressies controleren overeenstemming, achterstand,
+fork/replay, terugrolvloer, wijziging en vervalste autorisatie.
+
+**Begrenzing:** de twee archief-ID's zijn labels, geen bewijs van
+organisatorische onafhankelijkheid. Extern gepinde koppen, betrouwbare
+distributie, authenticatie van snapshots en bescherming tegen
+gecoördineerde terugrol moeten buiten de GitHub-runner worden
+gerealiseerd. Dit is uitsluitend een offline read-only
+vergelijkingscontract; er is geen automatische import of netwerk-
+synchronisatie en geen productiedienst aangesloten.
+GO-13 DRAFT/HOLD/DENY blijft onveranderd; geen merge, EDTR of uitrol.
