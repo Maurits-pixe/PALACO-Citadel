@@ -72,3 +72,33 @@ test('signed anchor reader rejects DER sequence-length disagreement',()=>{
  x.envelope.signatureBase64Url=der.toString('base64url');
  denied(x,'INVALID_SIGNATURE_ENCODING');
 });
+
+
+test('verified signed anchor observation and unresolved trust gates are immutable',()=>{
+ const out=inspect(fixture());
+ assert.equal(out.observationValid,true,JSON.stringify(out));
+ assert.equal(Object.isFrozen(out),true);
+ assert.equal(Object.isFrozen(out.unresolvedGates),true);
+ assert.throws(()=>{out.authorization='ALLOW';},TypeError);
+ assert.throws(()=>{out.executionAllowed=true;},TypeError);
+ assert.throws(()=>{out.observedEpoch=999;},TypeError);
+ assert.throws(()=>{out.unresolvedGates.pop();},TypeError);
+ assert.equal(out.authorization,'DENY');
+ assert.equal(out.executionAllowed,false);
+ assert.equal(out.observedEpoch,8);
+ assert.equal(out.unresolvedGates.length,7);
+});
+
+test('rejected signed anchor observation cannot be rewritten as authorized',()=>{
+ const x=fixture();x.expectedNonceSha256='c'.repeat(64);
+ const out=inspect(x);
+ assert.equal(out.reason,'NONCE_MISMATCH');
+ assert.equal(Object.isFrozen(out),true);
+ assert.throws(()=>{out.observationValid=true;},TypeError);
+ assert.throws(()=>{out.authorization='ALLOW';},TypeError);
+ assert.throws(()=>{out.releaseAllowed=true;},TypeError);
+ assert.throws(()=>{out.reason='AUTHORIZED';},TypeError);
+ assert.equal(out.observationValid,false);
+ assert.equal(out.authorization,'DENY');
+ assert.equal(out.releaseAllowed,false);
+});
