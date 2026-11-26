@@ -1,0 +1,63 @@
+name: RIO VisitCard Draft Verification
+
+on:
+  push:
+    branches:
+      - rio-visitcard-share-preview-20261122
+    paths:
+      - "ambassades/rio/**"
+      - ".github/workflows/rio-visitcard-draft-verification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rio-visitcard-draft-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-unittest:
+    name: Unittest (no skips, no deployment)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out draft branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install cryptography for Ed25519 tests
+        run: python -m pip install --disable-pip-version-check "cryptography>=44,<47"
+      - name: Enforce v3.8 facade-only consumer policy
+        run: python ambassades/rio/visitcard_consumer_policy.py
+      - name: Run RIO VisitCard tests (treat skip as failure)
+        shell: bash
+        run: |
+          set -o pipefail
+          python - <<'PY'
+          import sys
+          import unittest
+
+          suite = unittest.defaultTestLoader.discover(
+              "ambassades/rio/tests", pattern="test_*.py", top_level_dir=None
+          )
+
+          class NoSkipResult(unittest.TextTestResult):
+              def addSkip(self, test, reason):
+                  super().addSkip(test, reason)
+                  self.addFailure(test, (AssertionError, AssertionError(
+                      f"Skipped test is forbidden: {reason}"
+                  ), None))
+
+          runner = unittest.TextTestRunner(
+              verbosity=2, resultclass=NoSkipResult
+          )
+          result = runner.run(suite)
+          print(f"RIO tests run={result.testsRun}, failures={len(result.failures)}, "
+                f"errors={len(result.errors)}, skips={len(result.skipped)}")
+          sys.exit(0 if result.wasSuccessful() and not result.skipped else 1)
+          PY

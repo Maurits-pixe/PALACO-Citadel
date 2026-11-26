@@ -1,0 +1,33 @@
+name: RIO VisitCard draft verification
+on:
+  pull_request:
+    paths:
+      - 'ambassades/rio/**'
+      - '.github/workflows/rio-visitcard-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  visitcard-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install cryptographic verification dependency
+        run: python -m pip install --disable-pip-version-check 'cryptography>=43,<47'
+      - name: Execute VisitCard regression tests without skips
+        run: |
+          python - <<'PY'
+          import unittest
+          from pathlib import Path
+          suite = unittest.defaultTestLoader.discover(str(Path('ambassades/rio/tests')))
+          result = unittest.TextTestRunner(verbosity=2).run(suite)
+          if not result.wasSuccessful() or result.skipped:
+              raise SystemExit(f'FAIL: errors={len(result.errors)}, failures={len(result.failures)}, skipped={len(result.skipped)}')
+          print(f'PASS: {result.testsRun} RIO VisitCard tests; skipped=0')
+          PY
