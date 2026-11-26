@@ -7,7 +7,7 @@ const FIELDS=['envelope','expectedRegistryKey','expectedEpoch','expectedAnchorSh
 const ENVELOPE=['observation','readerId','readerPublicJwk','expectedReaderFingerprint','signatureBase64Url'];
 const OBS=['schema','registryKey','epoch','anchorSha256','nonceSha256','observedAtUtc','expiresAtUtc'];
 const HEX=/^[0-9a-f]{64}$/;
-const deny=reason=>({schema:VERIFIED_NONCE_INTENT_SCHEMA,intentValid:false,reason,
+const deny=reason=>Object.freeze({schema:VERIFIED_NONCE_INTENT_SCHEMA,intentValid:false,reason,
  trust:'NOT_ESTABLISHED',authorization:'DENY',stateChanged:false,
  executionAllowed:false,releaseAllowed:false});
 function exact(o,fields){
@@ -50,14 +50,14 @@ export function inspectVerifiedAnchorNonceIntent(input={}){
   const observationSha256=createHash('sha256')
    .update('PALACO-CITADEL-VERIFIED-ANCHOR-NONCE-INTENT-V1\n')
    .update(JSON.stringify(canonical)).digest('hex');
-  return {schema:VERIFIED_NONCE_INTENT_SCHEMA,intentValid:true,
-   proposedNonceConsumption:{registryKey:observation.registryKey,
+  return Object.freeze({schema:VERIFIED_NONCE_INTENT_SCHEMA,intentValid:true,
+   proposedNonceConsumption:Object.freeze({registryKey:observation.registryKey,
     nonceSha256:observation.nonceSha256,readerId:envelope.readerId,
-    observationSha256,anchorSha256:observation.anchorSha256,epoch:observation.epoch},
-   unresolvedGates:['AUTHENTICATED_INDEPENDENT_NONCE_ISSUANCE',
+    observationSha256,anchorSha256:observation.anchorSha256,epoch:observation.epoch}),
+   unresolvedGates:Object.freeze(['AUTHENTICATED_INDEPENDENT_NONCE_ISSUANCE',
     'TRUSTED_TIME','TRUSTED_READER_KEY_CUSTODY','PERSISTENT_ATOMIC_NONCE_CONSUMPTION',
-    'EXTERNAL_MONOTONIC_CHECKPOINT','FRESH_REVOCATION'],
+    'EXTERNAL_MONOTONIC_CHECKPOINT','FRESH_REVOCATION']),
    trust:'NOT_ESTABLISHED',authorization:'DENY',stateChanged:false,
-   executionAllowed:false,releaseAllowed:false};
+   executionAllowed:false,releaseAllowed:false});
  }catch{return deny('MALFORMED_UNTRUSTED_NONCE_INTENT');}
 }
