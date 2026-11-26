@@ -67,7 +67,7 @@ test('wrong predecessor or externally pinned floor cannot be bypassed',()=>run(r
 test('symlinked files and forged stage identifiers fail closed',()=>run(root=>{
  const before=canonical(base()),stage=partial(root,before,'incident-one');
  const old=path.join(root,stage,'proof.json');
- fs.renameSync(old,old+'.backup');fs.symlinkSync(old+'.backup',old);
+ const backup=path.join(root,'backup-proof.json');fs.renameSync(old,backup);fs.symlinkSync(backup,old);
  assert.throws(()=>readOnlyAssessment(root,stage,before),/ELOOP|symbolic link|symlink/);
  assert.throws(()=>readOnlyAssessment(root,'../'+stage,before),/Invalid recovery stage/);
 }));
